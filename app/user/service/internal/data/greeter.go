@@ -2,8 +2,8 @@ package data
 
 import (
 	"context"
+	"cube-core/app/user/service/internal/biz"
 
-	"core/internal/biz"
 	"github.com/go-kratos/kratos/v2/log"
 )
 

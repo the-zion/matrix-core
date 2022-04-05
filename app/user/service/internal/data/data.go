@@ -1,7 +1,7 @@
 package data
 
 import (
-	"core/internal/conf"
+	"cube-core/app/user/service/internal/conf"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
 )

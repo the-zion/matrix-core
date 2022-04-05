@@ -2,9 +2,9 @@ package service
 
 import (
 	"context"
+	"cube-core/app/user/service/internal/biz"
 
-	v1 "core/api/helloworld/v1"
-	"core/internal/biz"
+	v1 "cube-core/api/helloworld/v1"
 )
 
 // GreeterService is a greeter service.
