@@ -1,9 +1,10 @@
-module cube-core
+module github.com/Cube-v2/cube-core
 
 go 1.18
 
 require (
 	github.com/go-kratos/kratos/v2 v2.2.1
+	github.com/golang-jwt/jwt/v4 v4.2.0
 	github.com/golang/protobuf v1.5.2
 	github.com/google/wire v0.5.0
 	google.golang.org/genproto v0.0.0-20220222213610-43724f9ea8cf
