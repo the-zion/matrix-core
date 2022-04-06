@@ -1,8 +1,8 @@
 package main
 
 import (
-	"cube-core/app/user/service/internal/conf"
 	"flag"
+	"github.com/Cube-v2/cube-core/app/user/service/internal/conf"
 	"os"
 
 	"github.com/go-kratos/kratos/v2"

@@ -7,11 +7,11 @@
 package main
 
 import (
-	"cube-core/app/user/service/internal/biz"
-	"cube-core/app/user/service/internal/conf"
-	"cube-core/app/user/service/internal/data"
-	"cube-core/app/user/service/internal/server"
-	"cube-core/app/user/service/internal/service"
+	"github.com/Cube-v2/cube-core/app/user/service/internal/biz"
+	"github.com/Cube-v2/cube-core/app/user/service/internal/conf"
+	"github.com/Cube-v2/cube-core/app/user/service/internal/data"
+	"github.com/Cube-v2/cube-core/app/user/service/internal/server"
+	"github.com/Cube-v2/cube-core/app/user/service/internal/service"
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
 )
