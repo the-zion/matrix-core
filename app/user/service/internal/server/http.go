@@ -1,9 +1,9 @@
 package server
 
 import (
-	v1 "cube-core/api/helloworld/v1"
-	"cube-core/app/user/service/internal/conf"
-	"cube-core/app/user/service/internal/service"
+	v1 "github.com/Cube-v2/cube-core/api/helloworld/v1"
+	"github.com/Cube-v2/cube-core/app/user/service/internal/conf"
+	"github.com/Cube-v2/cube-core/app/user/service/internal/service"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/transport/http"
