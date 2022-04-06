@@ -4,20 +4,24 @@ package user.v1;
 
 import "google/api/annotations.proto";
 
-option go_package = "cube-user/api/helloworld/v1;v1";
+option go_package = "api/user/service/v1;v1";
 
 service User {
-  rpc SayHello (HelloRequest) returns (HelloReply) {
+  rpc Login (LoginReq) returns (LoginReply) {
     option (google.api.http) = {
-      get: "/helloworld/{name}"
+      post: "/v1/login"
+      body: "*"
     };
   }
 }
 
-message HelloRequest {
-  string name = 1;
+message LoginReq {
+  string phone = 1;
+  string email = 2;
+  string code = 3;
+  string password = 4;
 }
 
-message HelloReply {
-  string message = 1;
+message LoginReply {
+  string token = 1;
 }

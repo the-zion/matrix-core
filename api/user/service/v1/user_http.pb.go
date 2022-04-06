@@ -18,38 +18,35 @@ var _ = binding.EncodeURL
 const _ = http.SupportPackageIsVersion1
 
 type UserHTTPServer interface {
-	SayHello(context.Context, *HelloRequest) (*HelloReply, error)
+	Login(context.Context, *LoginReq) (*LoginReply, error)
 }
 
 func RegisterUserHTTPServer(s *http.Server, srv UserHTTPServer) {
 	r := s.Route("/")
-	r.GET("/helloworld/{name}", _User_SayHello1_HTTP_Handler(srv))
+	r.POST("/v1/login", _User_Login0_HTTP_Handler(srv))
 }
 
-func _User_SayHello1_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
+func _User_Login0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in HelloRequest
-		if err := ctx.BindQuery(&in); err != nil {
+		var in LoginReq
+		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, "/user.v1.User/SayHello")
+		http.SetOperation(ctx, "/user.v1.User/Login")
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.SayHello(ctx, req.(*HelloRequest))
+			return srv.Login(ctx, req.(*LoginReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*HelloReply)
+		reply := out.(*LoginReply)
 		return ctx.Result(200, reply)
 	}
 }
 
 type UserHTTPClient interface {
-	SayHello(ctx context.Context, req *HelloRequest, opts ...http.CallOption) (rsp *HelloReply, err error)
+	Login(ctx context.Context, req *LoginReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 }
 
 type UserHTTPClientImpl struct {
@@ -60,13 +57,13 @@ func NewUserHTTPClient(client *http.Client) UserHTTPClient {
 	return &UserHTTPClientImpl{client}
 }
 
-func (c *UserHTTPClientImpl) SayHello(ctx context.Context, in *HelloRequest, opts ...http.CallOption) (*HelloReply, error) {
-	var out HelloReply
-	pattern := "/helloworld/{name}"
-	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation("/user.v1.User/SayHello"))
+func (c *UserHTTPClientImpl) Login(ctx context.Context, in *LoginReq, opts ...http.CallOption) (*LoginReply, error) {
+	var out LoginReply
+	pattern := "/v1/login"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/user.v1.User/Login"))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

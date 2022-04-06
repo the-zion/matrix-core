@@ -22,7 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserClient interface {
-	SayHello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error)
+	Login(ctx context.Context, in *LoginReq, opts ...grpc.CallOption) (*LoginReply, error)
 }
 
 type userClient struct {
@@ -33,9 +33,9 @@ func NewUserClient(cc grpc.ClientConnInterface) UserClient {
 	return &userClient{cc}
 }
 
-func (c *userClient) SayHello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error) {
-	out := new(HelloReply)
-	err := c.cc.Invoke(ctx, "/user.v1.User/SayHello", in, out, opts...)
+func (c *userClient) Login(ctx context.Context, in *LoginReq, opts ...grpc.CallOption) (*LoginReply, error) {
+	out := new(LoginReply)
+	err := c.cc.Invoke(ctx, "/user.v1.User/Login", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (c *userClient) SayHello(ctx context.Context, in *HelloRequest, opts ...grp
 // All implementations must embed UnimplementedUserServer
 // for forward compatibility
 type UserServer interface {
-	SayHello(context.Context, *HelloRequest) (*HelloReply, error)
+	Login(context.Context, *LoginReq) (*LoginReply, error)
 	mustEmbedUnimplementedUserServer()
 }
 
@@ -54,8 +54,8 @@ type UserServer interface {
 type UnimplementedUserServer struct {
 }
 
-func (UnimplementedUserServer) SayHello(context.Context, *HelloRequest) (*HelloReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SayHello not implemented")
+func (UnimplementedUserServer) Login(context.Context, *LoginReq) (*LoginReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}
 
@@ -70,20 +70,20 @@ func RegisterUserServer(s grpc.ServiceRegistrar, srv UserServer) {
 	s.RegisterService(&User_ServiceDesc, srv)
 }
 
-func _User_SayHello_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(HelloRequest)
+func _User_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LoginReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServer).SayHello(ctx, in)
+		return srv.(UserServer).Login(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.v1.User/SayHello",
+		FullMethod: "/user.v1.User/Login",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).SayHello(ctx, req.(*HelloRequest))
+		return srv.(UserServer).Login(ctx, req.(*LoginReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -96,8 +96,8 @@ var User_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*UserServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "SayHello",
-			Handler:    _User_SayHello_Handler,
+			MethodName: "Login",
+			Handler:    _User_Login_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
