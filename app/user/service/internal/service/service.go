@@ -7,20 +7,18 @@ import (
 	"github.com/google/wire"
 )
 
-var ProviderSet = wire.NewSet(NewGreeterService)
+var ProviderSet = wire.NewSet(NewUserService)
 
-type User struct {
+type UserService struct {
 	v1.UnimplementedUserServer
-
-	uc *biz.UserUseCase
-
+	uc  *biz.UserUseCase
 	log *log.Helper
 }
 
-func NewUser(
+func NewUserService(
 	uc *biz.UserUseCase,
-	logger log.Logger) *User {
-	return &User{
+	logger log.Logger) *UserService {
+	return &UserService{
 		log: log.NewHelper(log.With(logger, "module", "service/user")),
 		uc:  uc,
 	}
