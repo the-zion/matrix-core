@@ -1,7 +1,7 @@
 package server
 
 import (
-	v1 "github.com/Cube-v2/cube-core/api/helloworld/v1"
+	v1 "github.com/Cube-v2/cube-core/api/user/service/v1"
 	"github.com/Cube-v2/cube-core/app/user/service/internal/conf"
 	"github.com/Cube-v2/cube-core/app/user/service/internal/service"
 	"github.com/go-kratos/kratos/v2/log"
@@ -10,7 +10,7 @@ import (
 )
 
 // NewHTTPServer new a HTTP user.
-func NewHTTPServer(c *conf.Server, greeter *service.GreeterService, logger log.Logger) *http.Server {
+func NewHTTPServer(c *conf.Server, userService *service.UserService, logger log.Logger) *http.Server {
 	var opts = []http.ServerOption{
 		http.Middleware(
 			recovery.Recovery(),
@@ -26,6 +26,6 @@ func NewHTTPServer(c *conf.Server, greeter *service.GreeterService, logger log.L
 		opts = append(opts, http.Timeout(c.Http.Timeout.AsDuration()))
 	}
 	srv := http.NewServer(opts...)
-	v1.RegisterGreeterHTTPServer(srv, greeter)
+	v1.RegisterUserHTTPServer(srv, userService)
 	return srv
 }
