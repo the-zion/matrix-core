@@ -13,6 +13,18 @@ service User {
       body: "*"
     };
   }
+  rpc LoginByWeChat (LoginByWeChatReq) returns (LoginReply) {
+    option (google.api.http) = {
+      post: "/v1/login/wechat"
+      body: "*"
+    };
+  }
+  rpc LoginByGithub (LoginByGithubReq) returns (LoginReply) {
+    option (google.api.http) = {
+      post: "/v1/login/github"
+      body: "*"
+    };
+  }
 }
 
 message LoginReq {
@@ -24,4 +36,12 @@ message LoginReq {
 
 message LoginReply {
   string token = 1;
+}
+
+message LoginByWeChatReq{
+  string wechat = 1;
+}
+
+message LoginByGithubReq{
+  string github = 1;
 }

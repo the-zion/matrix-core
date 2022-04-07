@@ -19,11 +19,15 @@ const _ = http.SupportPackageIsVersion1
 
 type UserHTTPServer interface {
 	Login(context.Context, *LoginReq) (*LoginReply, error)
+	LoginByGithub(context.Context, *LoginByGithubReq) (*LoginReply, error)
+	LoginByWeChat(context.Context, *LoginByWeChatReq) (*LoginReply, error)
 }
 
 func RegisterUserHTTPServer(s *http.Server, srv UserHTTPServer) {
 	r := s.Route("/")
 	r.POST("/v1/login", _User_Login0_HTTP_Handler(srv))
+	r.POST("/v1/login/wechat", _User_LoginByWeChat0_HTTP_Handler(srv))
+	r.POST("/v1/login/github", _User_LoginByGithub0_HTTP_Handler(srv))
 }
 
 func _User_Login0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
@@ -45,8 +49,48 @@ func _User_Login0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error 
 	}
 }
 
+func _User_LoginByWeChat0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in LoginByWeChatReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/user.v1.User/LoginByWeChat")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.LoginByWeChat(ctx, req.(*LoginByWeChatReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*LoginReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _User_LoginByGithub0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in LoginByGithubReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/user.v1.User/LoginByGithub")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.LoginByGithub(ctx, req.(*LoginByGithubReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*LoginReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 type UserHTTPClient interface {
 	Login(ctx context.Context, req *LoginReq, opts ...http.CallOption) (rsp *LoginReply, err error)
+	LoginByGithub(ctx context.Context, req *LoginByGithubReq, opts ...http.CallOption) (rsp *LoginReply, err error)
+	LoginByWeChat(ctx context.Context, req *LoginByWeChatReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 }
 
 type UserHTTPClientImpl struct {
@@ -62,6 +106,32 @@ func (c *UserHTTPClientImpl) Login(ctx context.Context, in *LoginReq, opts ...ht
 	pattern := "/v1/login"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation("/user.v1.User/Login"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *UserHTTPClientImpl) LoginByGithub(ctx context.Context, in *LoginByGithubReq, opts ...http.CallOption) (*LoginReply, error) {
+	var out LoginReply
+	pattern := "/v1/login/github"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/user.v1.User/LoginByGithub"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *UserHTTPClientImpl) LoginByWeChat(ctx context.Context, in *LoginByWeChatReq, opts ...http.CallOption) (*LoginReply, error) {
+	var out LoginReply
+	pattern := "/v1/login/wechat"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/user.v1.User/LoginByWeChat"))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

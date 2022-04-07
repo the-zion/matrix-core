@@ -47,6 +47,30 @@ func ErrorUsernameConflict(format string, args ...interface{}) *errors.Error {
 	return errors.New(409, UserErrorReason_USERNAME_CONFLICT.String(), fmt.Sprintf(format, args...))
 }
 
+func IsPhoneConflict(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_PHONE_CONFLICT.String() && e.Code == 409
+}
+
+func ErrorPhoneConflict(format string, args ...interface{}) *errors.Error {
+	return errors.New(409, UserErrorReason_PHONE_CONFLICT.String(), fmt.Sprintf(format, args...))
+}
+
+func IsEmailConflict(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_EMAIL_CONFLICT.String() && e.Code == 409
+}
+
+func ErrorEmailConflict(format string, args ...interface{}) *errors.Error {
+	return errors.New(409, UserErrorReason_EMAIL_CONFLICT.String(), fmt.Sprintf(format, args...))
+}
+
 func IsRegisterFailed(err error) bool {
 	if err == nil {
 		return false
@@ -57,40 +81,4 @@ func IsRegisterFailed(err error) bool {
 
 func ErrorRegisterFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(541, UserErrorReason_REGISTER_FAILED.String(), fmt.Sprintf(format, args...))
-}
-
-func IsPasswordInvalid(err error) bool {
-	if err == nil {
-		return false
-	}
-	e := errors.FromError(err)
-	return e.Reason == UserErrorReason_PASSWORD_INVALID.String() && e.Code == 500
-}
-
-func ErrorPasswordInvalid(format string, args ...interface{}) *errors.Error {
-	return errors.New(500, UserErrorReason_PASSWORD_INVALID.String(), fmt.Sprintf(format, args...))
-}
-
-func IsUsernameInvalid(err error) bool {
-	if err == nil {
-		return false
-	}
-	e := errors.FromError(err)
-	return e.Reason == UserErrorReason_USERNAME_INVALID.String() && e.Code == 500
-}
-
-func ErrorUsernameInvalid(format string, args ...interface{}) *errors.Error {
-	return errors.New(500, UserErrorReason_USERNAME_INVALID.String(), fmt.Sprintf(format, args...))
-}
-
-func IsUserNotFound(err error) bool {
-	if err == nil {
-		return false
-	}
-	e := errors.FromError(err)
-	return e.Reason == UserErrorReason_USER_NOT_FOUND.String() && e.Code == 500
-}
-
-func ErrorUserNotFound(format string, args ...interface{}) *errors.Error {
-	return errors.New(500, UserErrorReason_USER_NOT_FOUND.String(), fmt.Sprintf(format, args...))
 }
