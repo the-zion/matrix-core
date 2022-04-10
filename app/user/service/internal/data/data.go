@@ -8,16 +8,14 @@ import (
 	"gorm.io/gorm"
 )
 
-// ProviderSet is data providers.
-var ProviderSet = wire.NewSet(NewData, NewDB, NewUserRepo)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewUserRepo, NewAuthRepo)
 
-// Data .
 type Data struct {
 	db *gorm.DB
 }
 
 func NewDB(conf *conf.Data, logger log.Logger) *gorm.DB {
-	l := log.NewHelper(log.With(logger, "module", "user-service/data.mysql"))
+	l := log.NewHelper(log.With(logger, "module", "data/new-mysql"))
 
 	db, err := gorm.Open(mysql.Open(conf.Database.Source), &gorm.Config{
 		DisableForeignKeyConstraintWhenMigrating: true,
@@ -26,13 +24,13 @@ func NewDB(conf *conf.Data, logger log.Logger) *gorm.DB {
 		l.Fatalf("failed opening connection to db: %v", err)
 	}
 	if err := db.AutoMigrate(&User{}); err != nil {
-		log.Fatalf("failed creat or update table resources: %v", err)
+		l.Fatalf("failed creat or update table resources: %v", err)
 	}
 	return db
 }
 
 func NewData(db *gorm.DB, logger log.Logger) (*Data, func(), error) {
-	l := log.NewHelper(log.With(logger, "module", "user-service/data"))
+	l := log.NewHelper(log.With(logger, "module", "data/new-data"))
 
 	d := &Data{
 		db: db,
