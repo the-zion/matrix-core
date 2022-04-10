@@ -70,15 +70,3 @@ func IsEmailConflict(err error) bool {
 func ErrorEmailConflict(format string, args ...interface{}) *errors.Error {
 	return errors.New(409, UserErrorReason_EMAIL_CONFLICT.String(), fmt.Sprintf(format, args...))
 }
-
-func IsRegisterFailed(err error) bool {
-	if err == nil {
-		return false
-	}
-	e := errors.FromError(err)
-	return e.Reason == UserErrorReason_REGISTER_FAILED.String() && e.Code == 541
-}
-
-func ErrorRegisterFailed(format string, args ...interface{}) *errors.Error {
-	return errors.New(541, UserErrorReason_REGISTER_FAILED.String(), fmt.Sprintf(format, args...))
-}
