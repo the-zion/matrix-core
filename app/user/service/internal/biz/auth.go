@@ -10,9 +10,6 @@ import (
 )
 
 var (
-	ErrUserNotFound       = errors.New("user not found")
-	ErrPasswordError      = errors.New("password error")
-	ErrCodeError          = errors.New("code error")
 	ErrUserRegisterFailed = errors.New("user register failed")
 )
 
@@ -27,81 +24,42 @@ type Auth struct {
 }
 
 type AuthRepo interface {
-	FindByUserPhone(ctx context.Context, phone string) (*Auth, error)
-	FindByUserEmail(ctx context.Context, email string) (*Auth, error)
-	VerifyPassword(ctx context.Context, id int64, password string) error
-	VerifyCode(ctx context.Context, key, code string) error
 	UserRegister(ctx context.Context, u *Auth, mode string) (*Auth, error)
 }
 
 type AuthUseCase struct {
-	key  string
-	repo AuthRepo
-	log  *log.Helper
+	key      string
+	repo     AuthRepo
+	userRepo UserRepo
+	log      *log.Helper
 }
 
-func NewAuthUseCase(conf *conf.Auth, repo AuthRepo, logger log.Logger) *AuthUseCase {
+func NewAuthUseCase(conf *conf.Auth, repo AuthRepo, userRepo UserRepo, logger log.Logger) *AuthUseCase {
 	return &AuthUseCase{
-		key:  conf.ApiKey,
-		repo: repo,
-		log:  log.NewHelper(log.With(logger, "module", "usecase/auth")),
+		key:      conf.ApiKey,
+		repo:     repo,
+		userRepo: userRepo,
+		log:      log.NewHelper(log.With(logger, "module", "usecase/auth")),
 	}
 }
 
 func (receiver *AuthUseCase) Login(ctx context.Context, req *v1.LoginReq) (*v1.LoginReply, error) {
-	if len(req.Phone) > 0 && len(req.Password) > 0 {
-		return loginByPhoneAndPassword(ctx, receiver, req.Phone, req.Password)
+	if len(req.Account) > 0 && len(req.Password) > 0 && len(req.Mode) > 0 {
+		return loginByAccountAndPassword(ctx, receiver, req.Account, req.Password, req.Mode)
 	}
-	if len(req.Phone) > 0 && len(req.Code) > 0 {
-		return loginByPhoneAndCode(ctx, receiver, req.Phone, req.Code)
-	}
-	if len(req.Email) > 0 && len(req.Password) > 0 {
-		return loginByEmailAndPassword(ctx, receiver, req.Email, req.Password)
-	}
-	if len(req.Email) > 0 && len(req.Code) > 0 {
-		return loginByEmailAndCode(ctx, receiver, req.Email, req.Code)
+	if len(req.Account) > 0 && len(req.Code) > 0 && len(req.Mode) > 0 {
+		return loginByAccountAndCode(ctx, receiver, req.Account, req.Code, req.Mode)
 	}
 	return &v1.LoginReply{}, v1.ErrorLoginFailed("login failed: params illegal")
 }
 
-func loginByPhoneAndPassword(ctx context.Context, receiver *AuthUseCase, phone, password string) (*v1.LoginReply, error) {
-	user, err := receiver.repo.FindByUserPhone(ctx, phone)
+func loginByAccountAndPassword(ctx context.Context, receiver *AuthUseCase, account, password, mode string) (*v1.LoginReply, error) {
+	user, err := receiver.userRepo.FindByUserAccount(ctx, account, mode)
 	if err != nil {
 		return nil, v1.ErrorLoginFailed("login failed: %s", err.Error())
 	}
 
-	err = receiver.repo.VerifyPassword(ctx, user.Id, password)
-	if err != nil {
-		return nil, v1.ErrorLoginFailed("login failed: %s", err.Error())
-	}
-
-	return signToken(user.Id, receiver)
-}
-
-func loginByPhoneAndCode(ctx context.Context, receiver *AuthUseCase, phone, code string) (*v1.LoginReply, error) {
-	err := receiver.repo.VerifyCode(ctx, phone, code)
-	if err != nil {
-		return nil, v1.ErrorLoginFailed("login failed: %s", err.Error())
-	}
-
-	user, err := receiver.repo.FindByUserPhone(ctx, phone)
-	if err != nil {
-		user, err = receiver.Register(ctx, phone, "phone")
-		if err != nil {
-			return nil, v1.ErrorLoginFailed("login failed: %s", err.Error())
-		}
-	}
-
-	return signToken(user.Id, receiver)
-}
-
-func loginByEmailAndPassword(ctx context.Context, receiver *AuthUseCase, email, password string) (*v1.LoginReply, error) {
-	user, err := receiver.repo.FindByUserEmail(ctx, email)
-	if err != nil {
-		return nil, v1.ErrorLoginFailed("account not found: %s", err.Error())
-	}
-
-	err = receiver.repo.VerifyPassword(ctx, user.Id, password)
+	err = receiver.userRepo.VerifyPassword(ctx, user.Id, password)
 	if err != nil {
 		return nil, v1.ErrorLoginFailed("login failed: %s", err.Error())
 	}
@@ -109,15 +67,15 @@ func loginByEmailAndPassword(ctx context.Context, receiver *AuthUseCase, email, 
 	return signToken(user.Id, receiver)
 }
 
-func loginByEmailAndCode(ctx context.Context, receiver *AuthUseCase, email, code string) (*v1.LoginReply, error) {
-	err := receiver.repo.VerifyCode(ctx, email, code)
+func loginByAccountAndCode(ctx context.Context, receiver *AuthUseCase, account, code, mode string) (*v1.LoginReply, error) {
+	err := receiver.userRepo.VerifyCode(ctx, account, code, mode)
 	if err != nil {
 		return nil, v1.ErrorLoginFailed("login failed: %s", err.Error())
 	}
 
-	user, err := receiver.repo.FindByUserEmail(ctx, email)
+	user, err := receiver.userRepo.FindByUserAccount(ctx, account, mode)
 	if err != nil {
-		user, err = receiver.Register(ctx, email, "email")
+		user, err = receiver.Register(ctx, account, mode)
 		if err != nil {
 			return nil, v1.ErrorLoginFailed("login failed: %s", err.Error())
 		}
@@ -138,6 +96,8 @@ func (receiver *AuthUseCase) Register(ctx context.Context, account, mode string)
 		user, err = receiver.repo.UserRegister(ctx, &Auth{Wechat: account}, "Wechat")
 	case "github":
 		user, err = receiver.repo.UserRegister(ctx, &Auth{Github: account}, "Github")
+	default:
+		err = ErrUserRegisterFailed
 	}
 	if err != nil {
 		return nil, err
