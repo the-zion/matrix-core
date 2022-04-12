@@ -78,6 +78,30 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /v1/user/code:
+        post:
+            tags:
+                - User
+            operationId: User_SendCode
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SendCodeReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SendCodeReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
 components:
     schemas:
         GoogleProtobufAny:
@@ -106,14 +130,29 @@ components:
         LoginReq:
             type: object
             properties:
-                phone:
-                    type: string
-                email:
+                account:
                     type: string
                 code:
                     type: string
                 password:
                     type: string
+                mode:
+                    type: string
+        SendCodeReply:
+            type: object
+            properties:
+                code:
+                    type: string
+        SendCodeReq:
+            type: object
+            properties:
+                account:
+                    type: string
+                mode:
+                    type: string
+                template:
+                    type: integer
+                    format: int64
         Status:
             type: object
             properties:
