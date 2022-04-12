@@ -34,11 +34,21 @@ message Data {
   message Redis {
     string network = 1;
     string addr = 2;
-    google.protobuf.Duration read_timeout = 3;
-    google.protobuf.Duration write_timeout = 4;
+    string password = 3;
+    google.protobuf.Duration read_timeout = 4;
+    google.protobuf.Duration write_timeout = 5;
+  }
+  message Code{
+    string secret_id = 1;
+    string secret_key = 2;
+  }
+  message Mail{
+    string code = 1;
   }
   Database database = 1;
   Redis redis = 2;
+  Code code = 3;
+  Mail mail = 4;
 }
 
 message Auth {
