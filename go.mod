@@ -4,18 +4,24 @@ go 1.18
 
 require (
 	github.com/go-kratos/kratos/v2 v2.2.1
+	github.com/go-redis/redis/v8 v8.11.5
 	github.com/golang-jwt/jwt/v4 v4.2.0
 	github.com/golang/protobuf v1.5.2
 	github.com/google/wire v0.5.0
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.383
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.383
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 	google.golang.org/genproto v0.0.0-20220222213610-43724f9ea8cf
 	google.golang.org/grpc v1.44.0
 	google.golang.org/protobuf v1.27.1
+	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gorm.io/driver/mysql v1.3.3
 	gorm.io/gorm v1.23.4
 )
 
 require (
+	github.com/cespare/xxhash/v2 v2.1.2 // indirect
+	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/go-logr/logr v1.2.1 // indirect
 	github.com/go-logr/stdr v1.2.0 // indirect
@@ -30,10 +36,11 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	go.opentelemetry.io/otel v1.3.0 // indirect
 	go.opentelemetry.io/otel/trace v1.3.0 // indirect
-	golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4 // indirect
+	golang.org/x/net v0.0.0-20210428140749-89ef3d95e781 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.0.0-20210816074244-15123e1e1f71 // indirect
-	golang.org/x/text v0.3.5 // indirect
+	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect
+	golang.org/x/text v0.3.6 // indirect
 	golang.org/x/tools v0.0.0-20190524140312-2c0ae7006135 // indirect
+	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )
