@@ -35,6 +35,18 @@ func ErrorLoginFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(401, UserErrorReason_LOGIN_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsSendCodeFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_SEND_CODE_FAILED.String() && e.Code == 401
+}
+
+func ErrorSendCodeFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(401, UserErrorReason_SEND_CODE_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsUsernameConflict(err error) bool {
 	if err == nil {
 		return false

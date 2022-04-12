@@ -25,13 +25,19 @@ service User {
       body: "*"
     };
   }
+  rpc SendCode (SendCodeReq) returns (SendCodeReply) {
+    option (google.api.http) = {
+      post: "/v1/user/code"
+      body: "*"
+    };
+  }
 }
 
 message LoginReq {
-  string phone = 1;
-  string email = 2;
-  string code = 3;
-  string password = 4;
+  string account = 1;
+  string code = 2;
+  string password = 3;
+  string mode = 4;
 }
 
 message LoginReply {
@@ -44,4 +50,14 @@ message LoginByWeChatReq{
 
 message LoginByGithubReq{
   string github = 1;
+}
+
+message SendCodeReq{
+  string account = 1;
+  string mode = 2;
+  int64 template = 3;
+}
+
+message SendCodeReply{
+  string code = 3;
 }

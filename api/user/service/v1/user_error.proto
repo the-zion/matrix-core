@@ -10,7 +10,8 @@ enum UserErrorReason {
 
   UNKNOWN_ERROR = 0;
   LOGIN_FAILED = 1 [(errors.code) = 401];
-  USERNAME_CONFLICT = 2 [(errors.code) = 409];
-  PHONE_CONFLICT = 3 [(errors.code) = 409];
-  EMAIL_CONFLICT = 4 [(errors.code) = 409];
+  SEND_CODE_FAILED = 2 [(errors.code) = 401];
+  USERNAME_CONFLICT = 3 [(errors.code) = 409];
+  PHONE_CONFLICT = 4 [(errors.code) = 409];
+  EMAIL_CONFLICT = 5 [(errors.code) = 409];
 }
