@@ -31,41 +31,6 @@ func NewAuthRepo(data *Data, logger log.Logger) biz.AuthRepo {
 	}
 }
 
-func (r *authRepo) FindByUserPhone(ctx context.Context, phone string) (*biz.Auth, error) {
-	user := &User{}
-	result := r.data.db.WithContext(ctx).Where("phone = ?", phone).First(user)
-	if result.Error != nil {
-		return nil, biz.ErrUserNotFound
-	}
-	return &biz.Auth{
-		Id: int64(user.Model.ID),
-	}, nil
-}
-
-func (r *authRepo) FindByUserEmail(ctx context.Context, email string) (*biz.Auth, error) {
-	user := &User{}
-	result := r.data.db.WithContext(ctx).Where("email = ?", email).First(user)
-	if result.Error != nil {
-		return nil, biz.ErrUserNotFound
-	}
-	return &biz.Auth{
-		Id: int64(user.Model.ID),
-	}, nil
-}
-
-func (r *authRepo) VerifyPassword(ctx context.Context, id int64, password string) error {
-	user := &User{}
-	result := r.data.db.WithContext(ctx).Where("id = ? AND password = ?", id, password).First(&user)
-	if result.Error != nil {
-		return biz.ErrPasswordError
-	}
-	return nil
-}
-
-func (r *authRepo) VerifyCode(ctx context.Context, key, code string) error {
-	return nil
-}
-
 func (r *authRepo) UserRegister(ctx context.Context, u *biz.Auth, mode string) (*biz.Auth, error) {
 	user := &User{
 		Email: u.Email,
