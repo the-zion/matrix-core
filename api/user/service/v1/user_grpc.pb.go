@@ -25,7 +25,9 @@ type UserClient interface {
 	Login(ctx context.Context, in *LoginReq, opts ...grpc.CallOption) (*LoginReply, error)
 	LoginByWeChat(ctx context.Context, in *LoginByWeChatReq, opts ...grpc.CallOption) (*LoginReply, error)
 	LoginByGithub(ctx context.Context, in *LoginByGithubReq, opts ...grpc.CallOption) (*LoginReply, error)
+	LoginPassWordForget(ctx context.Context, in *LoginPassWordForgetReq, opts ...grpc.CallOption) (*LoginReply, error)
 	SendCode(ctx context.Context, in *SendCodeReq, opts ...grpc.CallOption) (*SendCodeReply, error)
+	GetUser(ctx context.Context, in *GetUserReq, opts ...grpc.CallOption) (*GetUserReply, error)
 }
 
 type userClient struct {
@@ -63,9 +65,27 @@ func (c *userClient) LoginByGithub(ctx context.Context, in *LoginByGithubReq, op
 	return out, nil
 }
 
+func (c *userClient) LoginPassWordForget(ctx context.Context, in *LoginPassWordForgetReq, opts ...grpc.CallOption) (*LoginReply, error) {
+	out := new(LoginReply)
+	err := c.cc.Invoke(ctx, "/user.v1.User/LoginPassWordForget", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *userClient) SendCode(ctx context.Context, in *SendCodeReq, opts ...grpc.CallOption) (*SendCodeReply, error) {
 	out := new(SendCodeReply)
 	err := c.cc.Invoke(ctx, "/user.v1.User/SendCode", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) GetUser(ctx context.Context, in *GetUserReq, opts ...grpc.CallOption) (*GetUserReply, error) {
+	out := new(GetUserReply)
+	err := c.cc.Invoke(ctx, "/user.v1.User/GetUser", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +99,9 @@ type UserServer interface {
 	Login(context.Context, *LoginReq) (*LoginReply, error)
 	LoginByWeChat(context.Context, *LoginByWeChatReq) (*LoginReply, error)
 	LoginByGithub(context.Context, *LoginByGithubReq) (*LoginReply, error)
+	LoginPassWordForget(context.Context, *LoginPassWordForgetReq) (*LoginReply, error)
 	SendCode(context.Context, *SendCodeReq) (*SendCodeReply, error)
+	GetUser(context.Context, *GetUserReq) (*GetUserReply, error)
 	mustEmbedUnimplementedUserServer()
 }
 
@@ -96,8 +118,14 @@ func (UnimplementedUserServer) LoginByWeChat(context.Context, *LoginByWeChatReq)
 func (UnimplementedUserServer) LoginByGithub(context.Context, *LoginByGithubReq) (*LoginReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoginByGithub not implemented")
 }
+func (UnimplementedUserServer) LoginPassWordForget(context.Context, *LoginPassWordForgetReq) (*LoginReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LoginPassWordForget not implemented")
+}
 func (UnimplementedUserServer) SendCode(context.Context, *SendCodeReq) (*SendCodeReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendCode not implemented")
+}
+func (UnimplementedUserServer) GetUser(context.Context, *GetUserReq) (*GetUserReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
 }
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}
 
@@ -166,6 +194,24 @@ func _User_LoginByGithub_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _User_LoginPassWordForget_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LoginPassWordForgetReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).LoginPassWordForget(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/LoginPassWordForget",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).LoginPassWordForget(ctx, req.(*LoginPassWordForgetReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _User_SendCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SendCodeReq)
 	if err := dec(in); err != nil {
@@ -180,6 +226,24 @@ func _User_SendCode_Handler(srv interface{}, ctx context.Context, dec func(inter
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServer).SendCode(ctx, req.(*SendCodeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_GetUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/GetUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetUser(ctx, req.(*GetUserReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -204,8 +268,16 @@ var User_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _User_LoginByGithub_Handler,
 		},
 		{
+			MethodName: "LoginPassWordForget",
+			Handler:    _User_LoginPassWordForget_Handler,
+		},
+		{
 			MethodName: "SendCode",
 			Handler:    _User_SendCode_Handler,
+		},
+		{
+			MethodName: "GetUser",
+			Handler:    _User_GetUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

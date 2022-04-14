@@ -25,12 +25,25 @@ service User {
       body: "*"
     };
   }
+  rpc LoginPassWordForget (LoginPassWordForgetReq) returns (LoginReply) {
+    option (google.api.http) = {
+      post: "/v1/login/modify/password"
+      body: "*"
+    };
+  }
   rpc SendCode (SendCodeReq) returns (SendCodeReply) {
     option (google.api.http) = {
       post: "/v1/user/code"
       body: "*"
     };
   }
+  rpc GetUser (GetUserReq) returns (GetUserReply) {
+    option (google.api.http) = {
+      post: "/v1/user/get"
+      body: "*"
+    };
+  }
+
 }
 
 message LoginReq {
@@ -52,6 +65,13 @@ message LoginByGithubReq{
   string github = 1;
 }
 
+message LoginPassWordForgetReq{
+  string account = 1;
+  string code = 2;
+  string password = 3;
+  string mode = 4;
+}
+
 message SendCodeReq{
   string account = 1;
   string mode = 2;
@@ -60,4 +80,15 @@ message SendCodeReq{
 
 message SendCodeReply{
   string code = 3;
+}
+
+message GetUserReq{
+  string username = 1;
+}
+
+message GetUserReply{
+  string phone = 1;
+  string email = 2;
+  string wechat = 3;
+  string github = 4;
 }
