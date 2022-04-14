@@ -35,7 +35,7 @@ type Data struct {
 }
 
 func NewDB(conf *conf.Data, logger log.Logger) *gorm.DB {
-	l := log.NewHelper(log.With(logger, "module", "data/new-mysql"))
+	l := log.NewHelper(log.With(logger, "module", "user/data/new-mysql"))
 
 	db, err := gorm.Open(mysql.Open(conf.Database.Source), &gorm.Config{
 		DisableForeignKeyConstraintWhenMigrating: true,
@@ -50,7 +50,7 @@ func NewDB(conf *conf.Data, logger log.Logger) *gorm.DB {
 }
 
 func NewRedis(conf *conf.Data, logger log.Logger) redis.Cmdable {
-	l := log.NewHelper(log.With(logger, "module", "data/new-redis"))
+	l := log.NewHelper(log.With(logger, "module", "user/data/new-redis"))
 	client := redis.NewClient(&redis.Options{
 		Addr:         conf.Redis.Addr,
 		ReadTimeout:  conf.Redis.ReadTimeout.AsDuration(),
@@ -95,7 +95,7 @@ func NewGoMail(conf *conf.Data) *GoMail {
 }
 
 func NewData(db *gorm.DB, redisCmd redis.Cmdable, phoneCodeCli *TxCode, goMailCli *GoMail, logger log.Logger) (*Data, func(), error) {
-	l := log.NewHelper(log.With(logger, "module", "data/new-data"))
+	l := log.NewHelper(log.With(logger, "module", "user/data/new-data"))
 
 	d := &Data{
 		db:           db,

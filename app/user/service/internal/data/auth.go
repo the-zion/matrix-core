@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/Cube-v2/cube-core/app/user/service/internal/biz"
 	"github.com/go-kratos/kratos/v2/log"
-	"gorm.io/gorm"
 )
 
 var _ biz.AuthRepo = (*authRepo)(nil)
@@ -14,33 +13,28 @@ type authRepo struct {
 	log  *log.Helper
 }
 
-type User struct {
-	gorm.Model
-	Email    string `gorm:"uniqueIndex;size:200"`
-	Phone    string `gorm:"uniqueIndex;size:200"`
-	Username string `gorm:"uniqueIndex;size:200"`
-	Wechat   string `gorm:"uniqueIndex;size:500"`
-	Github   string `gorm:"uniqueIndex;size:500"`
-	Password string `gorm:"size:500"`
-}
-
 func NewAuthRepo(data *Data, logger log.Logger) biz.AuthRepo {
 	return &authRepo{
 		data: data,
-		log:  log.NewHelper(log.With(logger, "module", "data/auth")),
+		log:  log.NewHelper(log.With(logger, "module", "user/data/auth")),
 	}
 }
 
-func (r *authRepo) UserRegister(ctx context.Context, u *biz.Auth, mode string) (*biz.Auth, error) {
-	user := &User{
-		Email: u.Email,
-		Phone: u.Phone,
+func (r *authRepo) UserRegister(ctx context.Context, account, mode string) (*biz.User, error) {
+	user := &User{}
+	user.Username = account
+	switch mode {
+	case "Phone":
+		user.Phone = account
+	case "Email":
+		user.Email = account
 	}
-	result := r.data.db.WithContext(ctx).Select(mode).Create(user)
+	result := r.data.db.WithContext(ctx).Select(mode, "Username").Create(user)
 	if result.Error != nil {
+		r.log.Errorf("fail to register a account: account(%v) error(%v)", account, result.Error.Error())
 		return nil, biz.ErrUserRegisterFailed
 	}
-	return &biz.Auth{
+	return &biz.User{
 		Id: int64(user.Model.ID),
 	}, nil
 }
