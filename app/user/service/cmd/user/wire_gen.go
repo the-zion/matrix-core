@@ -14,12 +14,13 @@ import (
 	"github.com/Cube-v2/cube-core/app/user/service/internal/service"
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-playground/validator/v10"
 )
 
 // Injectors from wire.go:
 
 // wireApp init kratos application.
-func wireApp(confServer *conf.Server, confData *conf.Data, auth *conf.Auth, logger log.Logger) (*kratos.App, func(), error) {
+func wireApp(confServer *conf.Server, confData *conf.Data, auth *conf.Auth, validate *validator.Validate, logger log.Logger) (*kratos.App, func(), error) {
 	db := data.NewDB(confData, logger)
 	cmdable := data.NewRedis(confData, logger)
 	txCode := data.NewPhoneCode(confData)
@@ -31,7 +32,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, auth *conf.Auth, logg
 	userRepo := data.NewUserRepo(dataData, logger)
 	userUseCase := biz.NewUserUseCase(userRepo, logger)
 	authRepo := data.NewAuthRepo(dataData, logger)
-	authUseCase := biz.NewAuthUseCase(auth, authRepo, userRepo, logger)
+	authUseCase := biz.NewAuthUseCase(auth, authRepo, userRepo, validate, logger)
 	userService := service.NewUserService(userUseCase, authUseCase, logger)
 	httpServer := server.NewHTTPServer(confServer, userService, logger)
 	grpcServer := server.NewGRPCServer(confServer, userService, logger)
