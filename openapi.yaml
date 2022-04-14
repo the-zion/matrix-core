@@ -54,6 +54,30 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /v1/login/modify/password:
+        post:
+            tags:
+                - User
+            operationId: User_LoginPassWordForget
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/LoginPassWordForgetReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/LoginReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /v1/login/wechat:
         post:
             tags:
@@ -102,8 +126,48 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /v1/user/get:
+        post:
+            tags:
+                - User
+            operationId: User_GetUser
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GetUserReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetUserReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
 components:
     schemas:
+        GetUserReply:
+            type: object
+            properties:
+                phone:
+                    type: string
+                email:
+                    type: string
+                wechat:
+                    type: string
+                github:
+                    type: string
+        GetUserReq:
+            type: object
+            properties:
+                username:
+                    type: string
         GoogleProtobufAny:
             type: object
             properties:
@@ -121,6 +185,17 @@ components:
             type: object
             properties:
                 wechat:
+                    type: string
+        LoginPassWordForgetReq:
+            type: object
+            properties:
+                account:
+                    type: string
+                code:
+                    type: string
+                password:
+                    type: string
+                mode:
                     type: string
         LoginReply:
             type: object
