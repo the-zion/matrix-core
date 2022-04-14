@@ -23,28 +23,28 @@ func ErrorUnknownError(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, UserErrorReason_UNKNOWN_ERROR.String(), fmt.Sprintf(format, args...))
 }
 
-func IsLoginFailed(err error) bool {
+func IsVerifyPasswordFailed(err error) bool {
 	if err == nil {
 		return false
 	}
 	e := errors.FromError(err)
-	return e.Reason == UserErrorReason_LOGIN_FAILED.String() && e.Code == 401
+	return e.Reason == UserErrorReason_VERIFY_PASSWORD_FAILED.String() && e.Code == 401
 }
 
-func ErrorLoginFailed(format string, args ...interface{}) *errors.Error {
-	return errors.New(401, UserErrorReason_LOGIN_FAILED.String(), fmt.Sprintf(format, args...))
+func ErrorVerifyPasswordFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(401, UserErrorReason_VERIFY_PASSWORD_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
-func IsSendCodeFailed(err error) bool {
+func IsVerifyCodeFailed(err error) bool {
 	if err == nil {
 		return false
 	}
 	e := errors.FromError(err)
-	return e.Reason == UserErrorReason_SEND_CODE_FAILED.String() && e.Code == 401
+	return e.Reason == UserErrorReason_VERIFY_CODE_FAILED.String() && e.Code == 401
 }
 
-func ErrorSendCodeFailed(format string, args ...interface{}) *errors.Error {
-	return errors.New(401, UserErrorReason_SEND_CODE_FAILED.String(), fmt.Sprintf(format, args...))
+func ErrorVerifyCodeFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(401, UserErrorReason_VERIFY_CODE_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
 func IsUsernameConflict(err error) bool {
@@ -81,4 +81,52 @@ func IsEmailConflict(err error) bool {
 
 func ErrorEmailConflict(format string, args ...interface{}) *errors.Error {
 	return errors.New(409, UserErrorReason_EMAIL_CONFLICT.String(), fmt.Sprintf(format, args...))
+}
+
+func IsParamsIllegal(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_PARAMS_ILLEGAL.String() && e.Code == 400
+}
+
+func ErrorParamsIllegal(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, UserErrorReason_PARAMS_ILLEGAL.String(), fmt.Sprintf(format, args...))
+}
+
+func IsGetUserFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_GET_USER_FAILED.String() && e.Code == 404
+}
+
+func ErrorGetUserFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(404, UserErrorReason_GET_USER_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsSendCodeFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_SEND_CODE_FAILED.String() && e.Code == 500
+}
+
+func ErrorSendCodeFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, UserErrorReason_SEND_CODE_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsLoginFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_LOGIN_FAILED.String() && e.Code == 500
+}
+
+func ErrorLoginFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, UserErrorReason_LOGIN_FAILED.String(), fmt.Sprintf(format, args...))
 }
