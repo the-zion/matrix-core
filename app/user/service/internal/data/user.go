@@ -9,6 +9,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
 	"gorm.io/gorm"
+	"strconv"
 	"time"
 )
 
@@ -27,13 +28,9 @@ type User struct {
 	gorm.Model
 	Email    string `gorm:"uniqueIndex;size:200"`
 	Phone    string `gorm:"uniqueIndex;size:200"`
-	Username string `gorm:"uniqueIndex;size:200"`
 	Wechat   string `gorm:"uniqueIndex;size:500"`
 	Github   string `gorm:"uniqueIndex;size:500"`
 	Password string `gorm:"size:500"`
-}
-
-type Profile struct {
 }
 
 func NewUserRepo(data *Data, logger log.Logger) biz.UserRepo {
@@ -45,9 +42,8 @@ func NewUserRepo(data *Data, logger log.Logger) biz.UserRepo {
 
 func (r *userRepo) FindByAccount(ctx context.Context, account, mode string) (*biz.User, error) {
 	user := &User{}
-	result := r.data.db.WithContext(ctx).Where(mode+" = ?", account).First(user)
-	if result.Error != nil {
-		r.log.Errorf("fail to get user from db: account(%v) error(%v)", account, result.Error.Error())
+	if err := r.data.db.WithContext(ctx).Where(mode+" = ?", account).First(user).Error; err != nil {
+		r.log.Errorf("fail to get user from db: account(%v) error(%v)", account, err.Error())
 		return nil, biz.ErrUserNotFound
 	}
 	return &biz.User{
@@ -55,20 +51,19 @@ func (r *userRepo) FindByAccount(ctx context.Context, account, mode string) (*bi
 	}, nil
 }
 
-func (r *userRepo) GetUser(ctx context.Context, username string) (*biz.User, error) {
-	key := userCacheKey(username)
+func (r *userRepo) GetUser(ctx context.Context, id int64) (*biz.User, error) {
+	key := userCacheKey(strconv.FormatInt(id, 10))
 	target, err := r.getUserFromCache(ctx, key)
 	if err != nil {
 		user := &User{}
-		result := r.data.db.WithContext(ctx).Where("username = ?", username).First(user)
-		if result.Error != nil {
-			r.log.Errorf("fail to get user from db: username(%v) error(%v)", username, result.Error.Error())
+		if err = r.data.db.WithContext(ctx).Where("id = ?", id).First(user).Error; err != nil {
+			r.log.Errorf("fail to get user from db: id(%v) error(%v)", id, err.Error())
 			return nil, biz.ErrUserNotFound
 		}
 		target = user
 		r.setUserToCache(ctx, user, key)
 	}
-	return &biz.User{Username: target.Username, Phone: target.Phone, Email: target.Email, Wechat: target.Wechat, Github: target.Github}, nil
+	return &biz.User{Phone: target.Phone, Email: target.Email, Wechat: target.Wechat, Github: target.Github}, nil
 }
 
 func (r *userRepo) SendCode(ctx context.Context, template int64, account, mode string) (string, error) {
@@ -97,7 +92,7 @@ func (r *userRepo) sendPhoneCode(template int64, phone, code string) error {
 	client := r.data.phoneCodeCli.client
 	request.TemplateId = common.StringPtr(util.GetPhoneTemplate(template))
 	request.TemplateParamSet = common.StringPtrs([]string{code})
-	request.PhoneNumberSet = common.StringPtrs([]string{"+86" + phone})
+	request.PhoneNumberSet = common.StringPtrs([]string{phone})
 	_, err := client.SendSms(request)
 	if err != nil {
 		r.log.Errorf("fail to send phone code: code(%v) error(%v)", code, err)
@@ -126,7 +121,7 @@ func (r *userRepo) VerifyCode(ctx context.Context, account, code, mode string) e
 	if err != nil && err != redis.Nil {
 		return biz.ErrUnknownError
 	}
-
+	r.removeUserCodeFromCache(ctx, key)
 	if code != codeInCache {
 		return biz.ErrCodeError
 	}
@@ -139,9 +134,8 @@ func (r *userRepo) PasswordModify(ctx context.Context, id int64, password string
 		r.log.Errorf("fail to hash password: password(%v) error(%v)", password, err.Error())
 		return biz.ErrUnknownError
 	}
-	result := r.data.db.Model(&User{}).Where("id = ?", id).Update("password", password)
-	if result.Error != nil {
-		r.log.Errorf("fail to modify password: password(%v) error(%v)", password, result.Error.Error())
+	if err = r.data.db.Model(&User{}).Where("id = ?", id).Update("password", password).Error; err != nil {
+		r.log.Errorf("fail to modify password: password(%v) error(%v)", password, err.Error())
 		return biz.ErrUnknownError
 	}
 	return nil
@@ -149,9 +143,8 @@ func (r *userRepo) PasswordModify(ctx context.Context, id int64, password string
 
 func (r *userRepo) VerifyPassword(ctx context.Context, id int64, password string) error {
 	user := &User{}
-	result := r.data.db.WithContext(ctx).Where("id = ?", id).First(&user)
-	if result.Error != nil {
-		r.log.Errorf("fail to verify password: password(%v) error(%v)", password, result.Error.Error())
+	if err := r.data.db.WithContext(ctx).Where("id = ?", id).First(&user).Error; err != nil {
+		r.log.Errorf("fail to verify password: password(%v) error(%v)", password, err.Error())
 		return biz.ErrUnknownError
 	}
 	if !util.CheckPasswordHash(password, user.Password) {
@@ -176,6 +169,13 @@ func (r *userRepo) setUserCodeToCache(ctx context.Context, key, code string) err
 		return err
 	}
 	return nil
+}
+
+func (r *userRepo) removeUserCodeFromCache(ctx context.Context, key string) {
+	_, err := r.data.redisCli.Del(ctx, key).Result()
+	if err != nil {
+		r.log.Errorf("fail to delete code from cache:redis.Del(key, %v) error(%v)", key, err)
+	}
 }
 
 func (r *userRepo) getUserFromCache(ctx context.Context, key string) (*User, error) {
