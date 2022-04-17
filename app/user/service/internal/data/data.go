@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewPhoneCode, NewGoMail, NewUserRepo, NewAuthRepo)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewPhoneCode, NewGoMail, NewUserRepo, NewAuthRepo, NewProfileRepo)
 
 type TxCode struct {
 	client  *sms.Client
@@ -43,7 +43,7 @@ func NewDB(conf *conf.Data, logger log.Logger) *gorm.DB {
 	if err != nil {
 		l.Fatalf("failed opening connection to db: %v", err)
 	}
-	if err := db.AutoMigrate(&User{}); err != nil {
+	if err := db.AutoMigrate(&User{}, &Profile{}, &Achievement{}, &Follower{}); err != nil {
 		l.Fatalf("failed creat or update table resources: %v", err)
 	}
 	return db
