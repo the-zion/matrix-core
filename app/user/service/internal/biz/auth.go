@@ -15,6 +15,11 @@ var (
 	ErrUserRegisterFailed = errors.New("user register failed")
 )
 
+type Login struct {
+	Id    int64
+	Token string
+}
+
 type AuthRepo interface {
 	UserRegister(ctx context.Context, account, mode string) (*User, error)
 }
@@ -37,41 +42,34 @@ func NewAuthUseCase(conf *conf.Auth, repo AuthRepo, userRepo UserRepo, validator
 	}
 }
 
-func (r *AuthUseCase) Login(ctx context.Context, account, password, code, mode string) (string, error) {
-	if !loginVerify(r.validate, r.log, account, password, code, mode) {
-		return "", v1.ErrorParamsIllegal("login failed: params illegal")
-	}
-	//if len(account) > 0 && len(password) > 0 && len(mode) > 0 {
-	//	return loginByPassword(ctx, r, req.Account, req.Password, req.Mode)
-	//}
-	//if len(req.Account) > 0 && len(req.Code) > 0 && len(req.Mode) > 0 {
-	//	return loginByCode(ctx, r, req.Account, req.Code, req.Mode)
-	//}
-	return "", nil
-}
+//func (r *AuthUseCase) Login(ctx context.Context, account, password, code, mode string) (*Login, error) {
+//	//if !loginVerify(r.validate, r.log, account, password, code, mode) {
+//	//	return nil, v1.ErrorParamsIllegal("login failed: params illegal")
+//	//}
+//	if len(password) > 0 {
+//		return loginByPassword(ctx, r, account, password, mode)
+//	} else {
+//		return loginByCode(ctx, r, account, code, mode)
+//	}
+//}
 
-func (r *AuthUseCase) Register(ctx context.Context, account, mode string) (*User, error) {
-	var user *User
-	var err error
-	if mode == "phone" || mode == "email" || mode == "wechat" || mode == "github" {
-		user, err = r.repo.UserRegister(ctx, account, strings.ToUpper(mode[:1])+mode[1:])
-	} else {
-		err = ErrUserRegisterFailed
-	}
-	if err != nil {
-		return nil, err
-	}
-	return user, nil
-}
+//func (r *AuthUseCase) LoginByPhone(ctx context.Context, account, password, code string) (*Login, error) {
+//	if len(password) > 0 {
+//		return loginByPassword(ctx, r, account, password, "phone")
+//	} else {
+//		return loginByCode(ctx, r, account, code, "phone")
+//	}
+//}
+//
+//func (r *AuthUseCase) LoginByEmail(ctx context.Context, account, password, code string) (*Login, error) {
+//	if len(password) > 0 {
+//		return loginByPassword(ctx, r, account, password, "email")
+//	} else {
+//		return loginByCode(ctx, r, account, code, "email")
+//	}
+//}
 
-func (r *AuthUseCase) LoginPassWordForget(ctx context.Context, req *v1.LoginPassWordForgetReq) (*v1.LoginReply, error) {
-	if len(req.Account) > 0 && len(req.Code) > 0 && len(req.Password) > 0 && (req.Mode == "phone" || req.Mode == "email") {
-		return passWordForget(ctx, r, req.Account, req.Password, req.Code, req.Mode)
-	}
-	return nil, v1.ErrorParamsIllegal("login failed: params illegal")
-}
-
-func loginByPassword(ctx context.Context, r *AuthUseCase, account, password, mode string) (*v1.LoginReply, error) {
+func (r *AuthUseCase) LoginByPassword(ctx context.Context, account, password, mode string) (*Login, error) {
 	user, err := loginFindByAccount(ctx, r, account, mode)
 	if err != nil {
 		return nil, err
@@ -88,7 +86,7 @@ func loginByPassword(ctx context.Context, r *AuthUseCase, account, password, mod
 	return signToken(user.Id, r)
 }
 
-func loginByCode(ctx context.Context, r *AuthUseCase, account, code, mode string) (*v1.LoginReply, error) {
+func (r *AuthUseCase) LoginByCode(ctx context.Context, account, code, mode string) (*Login, error) {
 	err := loginVerifyCode(ctx, r, account, code, mode)
 	if err != nil {
 		return nil, err
@@ -103,6 +101,21 @@ func loginByCode(ctx context.Context, r *AuthUseCase, account, code, mode string
 	}
 
 	return signToken(user.Id, r)
+}
+
+func (r *AuthUseCase) Register(ctx context.Context, account, mode string) (*User, error) {
+	user, err := r.repo.UserRegister(ctx, account, strings.ToUpper(mode[:1])+mode[1:])
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func (r *AuthUseCase) LoginPasswordForget(ctx context.Context, account, password, code, mode string) (*Login, error) {
+	if !loginPasswordVerify(r.validate, r.log, account, password, code, mode) {
+		return nil, v1.ErrorParamsIllegal("login failed: params illegal")
+	}
+	return passWordForget(ctx, r, account, password, code, mode)
 }
 
 func loginFindByAccount(ctx context.Context, r *AuthUseCase, account, mode string) (*User, error) {
@@ -124,7 +137,7 @@ func loginVerifyCode(ctx context.Context, r *AuthUseCase, account, code, mode st
 	return nil
 }
 
-func passWordForget(ctx context.Context, r *AuthUseCase, account, password, code, mode string) (*v1.LoginReply, error) {
+func passWordForget(ctx context.Context, r *AuthUseCase, account, password, code, mode string) (*Login, error) {
 	err := loginVerifyCode(ctx, r, account, code, mode)
 	if err != nil {
 		return nil, err
@@ -140,7 +153,7 @@ func passWordForget(ctx context.Context, r *AuthUseCase, account, password, code
 	return signToken(user.Id, r)
 }
 
-func signToken(id int64, r *AuthUseCase) (*v1.LoginReply, error) {
+func signToken(id int64, r *AuthUseCase) (*Login, error) {
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": id,
 	})
@@ -149,7 +162,8 @@ func signToken(id int64, r *AuthUseCase) (*v1.LoginReply, error) {
 		r.log.Errorf("fail to sign token: id(%v) error(%v)", id, err.Error())
 		return nil, v1.ErrorUnknownError("login failed: generate token failed")
 	}
-	return &v1.LoginReply{
+	return &Login{
+		Id:    id,
 		Token: signedString,
 	}, nil
 }
