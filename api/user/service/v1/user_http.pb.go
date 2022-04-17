@@ -19,8 +19,11 @@ const _ = http.SupportPackageIsVersion1
 
 type UserHTTPServer interface {
 	GetUser(context.Context, *GetUserReq) (*GetUserReply, error)
-	Login(context.Context, *LoginReq) (*LoginReply, error)
+	GetUserAchievement(context.Context, *GetUserAchievementReq) (*GetUserAchievementReply, error)
+	GetUserProfile(context.Context, *GetUserProfileReq) (*GetUserProfileReply, error)
+	LoginByCode(context.Context, *LoginByCodeReq) (*LoginReply, error)
 	LoginByGithub(context.Context, *LoginByGithubReq) (*LoginReply, error)
+	LoginByPassword(context.Context, *LoginByPasswordReq) (*LoginReply, error)
 	LoginByWeChat(context.Context, *LoginByWeChatReq) (*LoginReply, error)
 	LoginPassWordForget(context.Context, *LoginPassWordForgetReq) (*LoginReply, error)
 	SendCode(context.Context, *SendCodeReq) (*SendCodeReply, error)
@@ -28,23 +31,45 @@ type UserHTTPServer interface {
 
 func RegisterUserHTTPServer(s *http.Server, srv UserHTTPServer) {
 	r := s.Route("/")
-	r.POST("/v1/login", _User_Login0_HTTP_Handler(srv))
+	r.POST("/v1/login/password", _User_LoginByPassword0_HTTP_Handler(srv))
+	r.POST("/v1/login/code", _User_LoginByCode0_HTTP_Handler(srv))
 	r.POST("/v1/login/wechat", _User_LoginByWeChat0_HTTP_Handler(srv))
 	r.POST("/v1/login/github", _User_LoginByGithub0_HTTP_Handler(srv))
 	r.POST("/v1/login/modify/password", _User_LoginPassWordForget0_HTTP_Handler(srv))
 	r.POST("/v1/user/code", _User_SendCode0_HTTP_Handler(srv))
 	r.POST("/v1/user/get", _User_GetUser0_HTTP_Handler(srv))
+	r.POST("/v1/user/profile", _User_GetUserProfile0_HTTP_Handler(srv))
+	r.POST("/v1/user/achieve", _User_GetUserAchievement0_HTTP_Handler(srv))
 }
 
-func _User_Login0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
+func _User_LoginByPassword0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in LoginReq
+		var in LoginByPasswordReq
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, "/user.v1.User/Login")
+		http.SetOperation(ctx, "/user.v1.User/LoginByPassword")
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.Login(ctx, req.(*LoginReq))
+			return srv.LoginByPassword(ctx, req.(*LoginByPasswordReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*LoginReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _User_LoginByCode0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in LoginByCodeReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/user.v1.User/LoginByCode")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.LoginByCode(ctx, req.(*LoginByCodeReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -150,10 +175,51 @@ func _User_GetUser0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) erro
 	}
 }
 
+func _User_GetUserProfile0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetUserProfileReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/user.v1.User/GetUserProfile")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetUserProfile(ctx, req.(*GetUserProfileReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetUserProfileReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _User_GetUserAchievement0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetUserAchievementReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/user.v1.User/GetUserAchievement")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetUserAchievement(ctx, req.(*GetUserAchievementReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetUserAchievementReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 type UserHTTPClient interface {
 	GetUser(ctx context.Context, req *GetUserReq, opts ...http.CallOption) (rsp *GetUserReply, err error)
-	Login(ctx context.Context, req *LoginReq, opts ...http.CallOption) (rsp *LoginReply, err error)
+	GetUserAchievement(ctx context.Context, req *GetUserAchievementReq, opts ...http.CallOption) (rsp *GetUserAchievementReply, err error)
+	GetUserProfile(ctx context.Context, req *GetUserProfileReq, opts ...http.CallOption) (rsp *GetUserProfileReply, err error)
+	LoginByCode(ctx context.Context, req *LoginByCodeReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginByGithub(ctx context.Context, req *LoginByGithubReq, opts ...http.CallOption) (rsp *LoginReply, err error)
+	LoginByPassword(ctx context.Context, req *LoginByPasswordReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginByWeChat(ctx context.Context, req *LoginByWeChatReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginPassWordForget(ctx context.Context, req *LoginPassWordForgetReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	SendCode(ctx context.Context, req *SendCodeReq, opts ...http.CallOption) (rsp *SendCodeReply, err error)
@@ -180,11 +246,37 @@ func (c *UserHTTPClientImpl) GetUser(ctx context.Context, in *GetUserReq, opts .
 	return &out, err
 }
 
-func (c *UserHTTPClientImpl) Login(ctx context.Context, in *LoginReq, opts ...http.CallOption) (*LoginReply, error) {
-	var out LoginReply
-	pattern := "/v1/login"
+func (c *UserHTTPClientImpl) GetUserAchievement(ctx context.Context, in *GetUserAchievementReq, opts ...http.CallOption) (*GetUserAchievementReply, error) {
+	var out GetUserAchievementReply
+	pattern := "/v1/user/achieve"
 	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation("/user.v1.User/Login"))
+	opts = append(opts, http.Operation("/user.v1.User/GetUserAchievement"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *UserHTTPClientImpl) GetUserProfile(ctx context.Context, in *GetUserProfileReq, opts ...http.CallOption) (*GetUserProfileReply, error) {
+	var out GetUserProfileReply
+	pattern := "/v1/user/profile"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/user.v1.User/GetUserProfile"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *UserHTTPClientImpl) LoginByCode(ctx context.Context, in *LoginByCodeReq, opts ...http.CallOption) (*LoginReply, error) {
+	var out LoginReply
+	pattern := "/v1/login/code"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/user.v1.User/LoginByCode"))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
@@ -198,6 +290,19 @@ func (c *UserHTTPClientImpl) LoginByGithub(ctx context.Context, in *LoginByGithu
 	pattern := "/v1/login/github"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation("/user.v1.User/LoginByGithub"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *UserHTTPClientImpl) LoginByPassword(ctx context.Context, in *LoginByPasswordReq, opts ...http.CallOption) (*LoginReply, error) {
+	var out LoginReply
+	pattern := "/v1/login/password"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/user.v1.User/LoginByPassword"))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

@@ -3,13 +3,20 @@ syntax = "proto3";
 package user.v1;
 
 import "google/api/annotations.proto";
+import "validate/validate.proto";
 
 option go_package = "api/user/service/v1;v1";
 
 service User {
-  rpc Login (LoginReq) returns (LoginReply) {
+  rpc LoginByPassword (LoginByPasswordReq) returns (LoginReply) {
     option (google.api.http) = {
-      post: "/v1/login"
+      post: "/v1/login/password"
+      body: "*"
+    };
+  }
+  rpc LoginByCode (LoginByCodeReq) returns (LoginReply) {
+    option (google.api.http) = {
+      post: "/v1/login/code"
       body: "*"
     };
   }
@@ -43,18 +50,36 @@ service User {
       body: "*"
     };
   }
-
+  rpc getUserProfile (GetUserProfileReq) returns (GetUserProfileReply) {
+    option (google.api.http) = {
+      post: "/v1/user/profile"
+      body: "*"
+    };
+  }
+  rpc getUserAchievement (GetUserAchievementReq) returns (GetUserAchievementReply) {
+    option (google.api.http) = {
+      post: "/v1/user/achieve"
+      body: "*"
+    };
+  }
 }
 
-message LoginReq {
+
+message LoginByPasswordReq {
+  string account = 1 [(validate.rules).string = {email:true, pattern:"^[0-9]+$"}];
+  string password = 2 [(validate.rules).string.min_len = 1];
+  string mode = 3 [(validate.rules).string = {in: ["phone", "email"]}];
+}
+
+message LoginByCodeReq {
   string account = 1;
   string code = 2;
-  string password = 3;
-  string mode = 4;
+  string mode = 3 [(validate.rules).string = {in: ["phone", "email"]}];
 }
 
 message LoginReply {
-  string token = 1;
+  int64 id = 1;
+  string token = 2;
 }
 
 message LoginByWeChatReq{
@@ -83,7 +108,7 @@ message SendCodeReply{
 }
 
 message GetUserReq{
-  string username = 1;
+  int64 id = 1;
 }
 
 message GetUserReply{
@@ -91,4 +116,32 @@ message GetUserReply{
   string email = 2;
   string wechat = 3;
   string github = 4;
+}
+
+message GetUserProfileReq{
+  int64 id = 1;
+}
+
+message GetUserProfileReply{
+  string sex = 1;
+  string introduce = 2;
+  string address = 3;
+  string industry = 4;
+  string profile = 5;
+  string tag = 6;
+  string background = 7;
+  string image = 8;
+  string username = 9;
+}
+
+message GetUserAchievementReq{
+  int64 id = 1;
+}
+
+message GetUserAchievementReply{
+  int64 follow = 1;
+  int64 followed = 2;
+  int64 agree = 3;
+  int64 collect = 4;
+  int64 view = 5;
 }

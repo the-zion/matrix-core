@@ -22,12 +22,15 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserClient interface {
-	Login(ctx context.Context, in *LoginReq, opts ...grpc.CallOption) (*LoginReply, error)
+	LoginByPassword(ctx context.Context, in *LoginByPasswordReq, opts ...grpc.CallOption) (*LoginReply, error)
+	LoginByCode(ctx context.Context, in *LoginByCodeReq, opts ...grpc.CallOption) (*LoginReply, error)
 	LoginByWeChat(ctx context.Context, in *LoginByWeChatReq, opts ...grpc.CallOption) (*LoginReply, error)
 	LoginByGithub(ctx context.Context, in *LoginByGithubReq, opts ...grpc.CallOption) (*LoginReply, error)
 	LoginPassWordForget(ctx context.Context, in *LoginPassWordForgetReq, opts ...grpc.CallOption) (*LoginReply, error)
 	SendCode(ctx context.Context, in *SendCodeReq, opts ...grpc.CallOption) (*SendCodeReply, error)
 	GetUser(ctx context.Context, in *GetUserReq, opts ...grpc.CallOption) (*GetUserReply, error)
+	GetUserProfile(ctx context.Context, in *GetUserProfileReq, opts ...grpc.CallOption) (*GetUserProfileReply, error)
+	GetUserAchievement(ctx context.Context, in *GetUserAchievementReq, opts ...grpc.CallOption) (*GetUserAchievementReply, error)
 }
 
 type userClient struct {
@@ -38,9 +41,18 @@ func NewUserClient(cc grpc.ClientConnInterface) UserClient {
 	return &userClient{cc}
 }
 
-func (c *userClient) Login(ctx context.Context, in *LoginReq, opts ...grpc.CallOption) (*LoginReply, error) {
+func (c *userClient) LoginByPassword(ctx context.Context, in *LoginByPasswordReq, opts ...grpc.CallOption) (*LoginReply, error) {
 	out := new(LoginReply)
-	err := c.cc.Invoke(ctx, "/user.v1.User/Login", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/user.v1.User/LoginByPassword", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) LoginByCode(ctx context.Context, in *LoginByCodeReq, opts ...grpc.CallOption) (*LoginReply, error) {
+	out := new(LoginReply)
+	err := c.cc.Invoke(ctx, "/user.v1.User/LoginByCode", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -92,16 +104,37 @@ func (c *userClient) GetUser(ctx context.Context, in *GetUserReq, opts ...grpc.C
 	return out, nil
 }
 
+func (c *userClient) GetUserProfile(ctx context.Context, in *GetUserProfileReq, opts ...grpc.CallOption) (*GetUserProfileReply, error) {
+	out := new(GetUserProfileReply)
+	err := c.cc.Invoke(ctx, "/user.v1.User/getUserProfile", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) GetUserAchievement(ctx context.Context, in *GetUserAchievementReq, opts ...grpc.CallOption) (*GetUserAchievementReply, error) {
+	out := new(GetUserAchievementReply)
+	err := c.cc.Invoke(ctx, "/user.v1.User/getUserAchievement", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServer is the server API for User service.
 // All implementations must embed UnimplementedUserServer
 // for forward compatibility
 type UserServer interface {
-	Login(context.Context, *LoginReq) (*LoginReply, error)
+	LoginByPassword(context.Context, *LoginByPasswordReq) (*LoginReply, error)
+	LoginByCode(context.Context, *LoginByCodeReq) (*LoginReply, error)
 	LoginByWeChat(context.Context, *LoginByWeChatReq) (*LoginReply, error)
 	LoginByGithub(context.Context, *LoginByGithubReq) (*LoginReply, error)
 	LoginPassWordForget(context.Context, *LoginPassWordForgetReq) (*LoginReply, error)
 	SendCode(context.Context, *SendCodeReq) (*SendCodeReply, error)
 	GetUser(context.Context, *GetUserReq) (*GetUserReply, error)
+	GetUserProfile(context.Context, *GetUserProfileReq) (*GetUserProfileReply, error)
+	GetUserAchievement(context.Context, *GetUserAchievementReq) (*GetUserAchievementReply, error)
 	mustEmbedUnimplementedUserServer()
 }
 
@@ -109,8 +142,11 @@ type UserServer interface {
 type UnimplementedUserServer struct {
 }
 
-func (UnimplementedUserServer) Login(context.Context, *LoginReq) (*LoginReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
+func (UnimplementedUserServer) LoginByPassword(context.Context, *LoginByPasswordReq) (*LoginReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LoginByPassword not implemented")
+}
+func (UnimplementedUserServer) LoginByCode(context.Context, *LoginByCodeReq) (*LoginReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LoginByCode not implemented")
 }
 func (UnimplementedUserServer) LoginByWeChat(context.Context, *LoginByWeChatReq) (*LoginReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoginByWeChat not implemented")
@@ -127,6 +163,12 @@ func (UnimplementedUserServer) SendCode(context.Context, *SendCodeReq) (*SendCod
 func (UnimplementedUserServer) GetUser(context.Context, *GetUserReq) (*GetUserReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
 }
+func (UnimplementedUserServer) GetUserProfile(context.Context, *GetUserProfileReq) (*GetUserProfileReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserProfile not implemented")
+}
+func (UnimplementedUserServer) GetUserAchievement(context.Context, *GetUserAchievementReq) (*GetUserAchievementReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserAchievement not implemented")
+}
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}
 
 // UnsafeUserServer may be embedded to opt out of forward compatibility for this service.
@@ -140,20 +182,38 @@ func RegisterUserServer(s grpc.ServiceRegistrar, srv UserServer) {
 	s.RegisterService(&User_ServiceDesc, srv)
 }
 
-func _User_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(LoginReq)
+func _User_LoginByPassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LoginByPasswordReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServer).Login(ctx, in)
+		return srv.(UserServer).LoginByPassword(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.v1.User/Login",
+		FullMethod: "/user.v1.User/LoginByPassword",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).Login(ctx, req.(*LoginReq))
+		return srv.(UserServer).LoginByPassword(ctx, req.(*LoginByPasswordReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_LoginByCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LoginByCodeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).LoginByCode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/LoginByCode",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).LoginByCode(ctx, req.(*LoginByCodeReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -248,6 +308,42 @@ func _User_GetUser_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
+func _User_GetUserProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserProfileReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetUserProfile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/getUserProfile",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetUserProfile(ctx, req.(*GetUserProfileReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_GetUserAchievement_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserAchievementReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetUserAchievement(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/getUserAchievement",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetUserAchievement(ctx, req.(*GetUserAchievementReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // User_ServiceDesc is the grpc.ServiceDesc for User service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -256,8 +352,12 @@ var User_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*UserServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Login",
-			Handler:    _User_Login_Handler,
+			MethodName: "LoginByPassword",
+			Handler:    _User_LoginByPassword_Handler,
+		},
+		{
+			MethodName: "LoginByCode",
+			Handler:    _User_LoginByCode_Handler,
 		},
 		{
 			MethodName: "LoginByWeChat",
@@ -278,6 +378,14 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUser",
 			Handler:    _User_GetUser_Handler,
+		},
+		{
+			MethodName: "getUserProfile",
+			Handler:    _User_GetUserProfile_Handler,
+		},
+		{
+			MethodName: "getUserAchievement",
+			Handler:    _User_GetUserAchievement_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

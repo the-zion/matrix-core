@@ -107,6 +107,18 @@ func ErrorGetUserFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(404, UserErrorReason_GET_USER_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsGetProfileFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_GET_PROFILE_FAILED.String() && e.Code == 404
+}
+
+func ErrorGetProfileFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(404, UserErrorReason_GET_PROFILE_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsSendCodeFailed(err error) bool {
 	if err == nil {
 		return false

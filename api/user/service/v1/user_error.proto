@@ -16,6 +16,7 @@ enum UserErrorReason {
   EMAIL_CONFLICT = 5 [(errors.code) = 409];
   PARAMS_ILLEGAL = 6 [(errors.code) = 400];
   GET_USER_FAILED = 7 [(errors.code) = 404];
-  SEND_CODE_FAILED = 8;
-  LOGIN_FAILED = 9;
+  GET_PROFILE_FAILED = 8 [(errors.code) = 404];
+  SEND_CODE_FAILED = 9;
+  LOGIN_FAILED = 10;
 }
