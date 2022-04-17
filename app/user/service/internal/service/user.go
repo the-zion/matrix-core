@@ -6,9 +6,24 @@ import (
 )
 
 func (s *UserService) SendCode(ctx context.Context, req *v1.SendCodeReq) (*v1.SendCodeReply, error) {
-	return s.uc.SendCode(ctx, req)
+	code, err := s.uc.SendCode(ctx, req.Template, req.Account, req.Mode)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.SendCodeReply{
+		Code: code,
+	}, nil
 }
 
 func (s *UserService) GetUser(ctx context.Context, req *v1.GetUserReq) (*v1.GetUserReply, error) {
-	return s.uc.GetUser(ctx, req)
+	user, err := s.uc.GetUser(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetUserReply{
+		Phone:  user.Phone,
+		Email:  user.Email,
+		Wechat: user.Wechat,
+		Github: user.Github,
+	}, nil
 }
