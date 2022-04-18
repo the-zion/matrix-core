@@ -222,6 +222,30 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /v1/user/set/email:
+        post:
+            tags:
+                - User
+            operationId: User_SetUserEmail
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SetUserEmailReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SetUserEmailReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /v1/user/set/phone:
         post:
             tags:
@@ -240,6 +264,30 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/SetUserPhoneReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/user/set/profile:
+        post:
+            tags:
+                - User
+            operationId: User_SetUserProfile
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SetUserProfileReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SetUserProfileReply'
                 default:
                     description: Default error response
                     content:
@@ -386,11 +434,25 @@ components:
                 template:
                     type: integer
                     format: int64
+        SetUserEmailReply:
+            type: object
+            properties:
+                success:
+                    type: boolean
+        SetUserEmailReq:
+            type: object
+            properties:
+                email:
+                    type: string
+                password:
+                    type: string
+                code:
+                    type: string
         SetUserPhoneReply:
             type: object
             properties:
-                phone:
-                    type: string
+                success:
+                    type: boolean
         SetUserPhoneReq:
             type: object
             properties:
@@ -399,6 +461,26 @@ components:
                 password:
                     type: string
                 code:
+                    type: string
+        SetUserProfileReply:
+            type: object
+            properties:
+                success:
+                    type: boolean
+        SetUserProfileReq:
+            type: object
+            properties:
+                sex:
+                    type: string
+                introduce:
+                    type: string
+                address:
+                    type: string
+                industry:
+                    type: string
+                profile:
+                    type: string
+                tag:
                     type: string
         Status:
             type: object
