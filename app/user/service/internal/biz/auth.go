@@ -6,7 +6,6 @@ import (
 	v1 "github.com/Cube-v2/cube-core/api/user/service/v1"
 	"github.com/Cube-v2/cube-core/app/user/service/internal/conf"
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v4"
 	"strings"
 )
@@ -28,46 +27,17 @@ type AuthUseCase struct {
 	key      string
 	repo     AuthRepo
 	userRepo UserRepo
-	validate *validator.Validate
 	log      *log.Helper
 }
 
-func NewAuthUseCase(conf *conf.Auth, repo AuthRepo, userRepo UserRepo, validator *validator.Validate, logger log.Logger) *AuthUseCase {
+func NewAuthUseCase(conf *conf.Auth, repo AuthRepo, userRepo UserRepo, logger log.Logger) *AuthUseCase {
 	return &AuthUseCase{
 		key:      conf.ApiKey,
 		repo:     repo,
 		userRepo: userRepo,
-		validate: validator,
 		log:      log.NewHelper(log.With(logger, "module", "user/biz/authUseCase")),
 	}
 }
-
-//func (r *AuthUseCase) Login(ctx context.Context, account, password, code, mode string) (*Login, error) {
-//	//if !loginVerify(r.validate, r.log, account, password, code, mode) {
-//	//	return nil, v1.ErrorParamsIllegal("login failed: params illegal")
-//	//}
-//	if len(password) > 0 {
-//		return loginByPassword(ctx, r, account, password, mode)
-//	} else {
-//		return loginByCode(ctx, r, account, code, mode)
-//	}
-//}
-
-//func (r *AuthUseCase) LoginByPhone(ctx context.Context, account, password, code string) (*Login, error) {
-//	if len(password) > 0 {
-//		return loginByPassword(ctx, r, account, password, "phone")
-//	} else {
-//		return loginByCode(ctx, r, account, code, "phone")
-//	}
-//}
-//
-//func (r *AuthUseCase) LoginByEmail(ctx context.Context, account, password, code string) (*Login, error) {
-//	if len(password) > 0 {
-//		return loginByPassword(ctx, r, account, password, "email")
-//	} else {
-//		return loginByCode(ctx, r, account, code, "email")
-//	}
-//}
 
 func (r *AuthUseCase) LoginByPassword(ctx context.Context, account, password, mode string) (*Login, error) {
 	user, err := loginFindByAccount(ctx, r, account, mode)
@@ -112,10 +82,19 @@ func (r *AuthUseCase) Register(ctx context.Context, account, mode string) (*User
 }
 
 func (r *AuthUseCase) LoginPasswordForget(ctx context.Context, account, password, code, mode string) (*Login, error) {
-	if !loginPasswordVerify(r.validate, r.log, account, password, code, mode) {
-		return nil, v1.ErrorParamsIllegal("login failed: params illegal")
+	err := loginVerifyCode(ctx, r, account, code, mode)
+	if err != nil {
+		return nil, err
 	}
-	return passWordForget(ctx, r, account, password, code, mode)
+	user, err := loginFindByAccount(ctx, r, account, mode)
+	if err != nil {
+		return nil, err
+	}
+	err = r.userRepo.PasswordModify(ctx, user.Id, password)
+	if err != nil {
+		return nil, v1.ErrorUnknownError("login failed: %s", err.Error())
+	}
+	return signToken(user.Id, r)
 }
 
 func loginFindByAccount(ctx context.Context, r *AuthUseCase, account, mode string) (*User, error) {
@@ -135,22 +114,6 @@ func loginVerifyCode(ctx context.Context, r *AuthUseCase, account, code, mode st
 		return v1.ErrorVerifyCodeFailed("login failed: %s", err.Error())
 	}
 	return nil
-}
-
-func passWordForget(ctx context.Context, r *AuthUseCase, account, password, code, mode string) (*Login, error) {
-	err := loginVerifyCode(ctx, r, account, code, mode)
-	if err != nil {
-		return nil, err
-	}
-	user, err := loginFindByAccount(ctx, r, account, mode)
-	if err != nil {
-		return nil, err
-	}
-	err = r.userRepo.PasswordModify(ctx, user.Id, password)
-	if err != nil {
-		return nil, v1.ErrorUnknownError("login failed: %s", err.Error())
-	}
-	return signToken(user.Id, r)
 }
 
 func signToken(id int64, r *AuthUseCase) (*Login, error) {

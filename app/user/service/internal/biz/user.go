@@ -5,7 +5,6 @@ import (
 	"errors"
 	v1 "github.com/Cube-v2/cube-core/api/user/service/v1"
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/go-playground/validator/v10"
 )
 
 var (
@@ -32,26 +31,22 @@ type UserRepo interface {
 	VerifyPassword(ctx context.Context, id int64, password string) error
 	VerifyCode(ctx context.Context, account, code, mode string) error
 	SendCode(ctx context.Context, template int64, account, mode string) (string, error)
+	SetUserPhone(ctx context.Context, id int64) (string, error)
 }
 
 type UserUseCase struct {
-	repo     UserRepo
-	validate *validator.Validate
-	log      *log.Helper
+	repo UserRepo
+	log  *log.Helper
 }
 
-func NewUserUseCase(repo UserRepo, validator *validator.Validate, logger log.Logger) *UserUseCase {
+func NewUserUseCase(repo UserRepo, logger log.Logger) *UserUseCase {
 	return &UserUseCase{
-		repo:     repo,
-		validate: validator,
-		log:      log.NewHelper(log.With(logger, "module", "user/biz/userUseCase")),
+		repo: repo,
+		log:  log.NewHelper(log.With(logger, "module", "user/biz/userUseCase")),
 	}
 }
 
 func (r *UserUseCase) SendCode(ctx context.Context, template int64, account, mode string) (string, error) {
-	if !sendCodeVerify(r.validate, r.log, template, account, mode) {
-		return "", v1.ErrorParamsIllegal("send code failed: params illegal")
-	}
 	code, err := r.repo.SendCode(ctx, template, account, mode)
 	if errors.Is(err, ErrUnknownError) {
 		return "", v1.ErrorUnknownError("send code failed: %s", err.Error())
@@ -64,12 +59,17 @@ func (r *UserUseCase) SendCode(ctx context.Context, template int64, account, mod
 }
 
 func (r *UserUseCase) GetUser(ctx context.Context, id int64) (*User, error) {
-	if !getUserVerify(r.validate, r.log, id) {
-		return nil, v1.ErrorParamsIllegal("get user failed: params illegal")
-	}
 	user, err := r.repo.GetUser(ctx, id)
 	if err != nil {
 		return nil, v1.ErrorGetUserFailed("get user failed: %s", err.Error())
 	}
 	return user, nil
+}
+
+func (r *UserUseCase) SetUserPhone(ctx context.Context, id int64, phone, code string) (string, error) {
+	phone, err := r.repo.SetUserPhone(ctx, id)
+	if err != nil {
+		return "", v1.ErrorGetUserFailed("get user failed: %s", err.Error())
+	}
+	return phone, nil
 }
