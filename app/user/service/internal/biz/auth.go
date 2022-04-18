@@ -45,12 +45,10 @@ func (r *AuthUseCase) LoginByPassword(ctx context.Context, account, password, mo
 		return nil, err
 	}
 
-	err = r.userRepo.VerifyPassword(ctx, user.Id, password)
-	if errors.Is(err, ErrUnknownError) {
-		return nil, v1.ErrorUnknownError("login failed: %s", err.Error())
-	}
-	if errors.Is(err, ErrPasswordError) {
-		return nil, v1.ErrorVerifyPasswordFailed("login failed: %s", err.Error())
+	errFormat := "login failed: %s"
+	err = VerifyPassword(ctx, r.userRepo, user.Id, password, errFormat)
+	if err != nil {
+		return nil, err
 	}
 
 	return signToken(user.Id, r)
@@ -106,14 +104,8 @@ func loginFindByAccount(ctx context.Context, r *AuthUseCase, account, mode strin
 }
 
 func loginVerifyCode(ctx context.Context, r *AuthUseCase, account, code, mode string) error {
-	err := r.userRepo.VerifyCode(ctx, account, code, mode)
-	if errors.Is(err, ErrUnknownError) {
-		return v1.ErrorUnknownError("login failed: %s", err.Error())
-	}
-	if errors.Is(err, ErrCodeError) {
-		return v1.ErrorVerifyCodeFailed("login failed: %s", err.Error())
-	}
-	return nil
+	errFormat := "login failed: %s"
+	return VerifyCode(ctx, r.userRepo, account, code, mode, errFormat)
 }
 
 func signToken(id int64, r *AuthUseCase) (*Login, error) {
