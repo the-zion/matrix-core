@@ -134,7 +134,7 @@ func (r *userRepo) PasswordModify(ctx context.Context, id int64, password string
 		r.log.Errorf("fail to hash password: password(%v) error(%v)", password, err.Error())
 		return biz.ErrUnknownError
 	}
-	if err = r.data.db.Model(&User{}).Where("id = ?", id).Update("password", password).Error; err != nil {
+	if err = r.data.db.WithContext(ctx).Model(&User{}).Where("id = ?", id).Update("password", password).Error; err != nil {
 		r.log.Errorf("fail to modify password: password(%v) error(%v)", password, err.Error())
 		return biz.ErrUnknownError
 	}
@@ -153,8 +153,24 @@ func (r *userRepo) VerifyPassword(ctx context.Context, id int64, password string
 	return nil
 }
 
-func (r *userRepo) SetUserPhone(ctx context.Context, id int64) (string, error) {
-	return "", nil
+// SetUserPhone set redis ?
+func (r *userRepo) SetUserPhone(ctx context.Context, id int64, phone string) error {
+	err := r.data.db.WithContext(ctx).Model(&User{}).Where("id = ?", id).Update("phone", phone).Error
+	if err != nil {
+		r.log.Errorf("fail to set user phone to db:phone(%v) error(%v)", phone, err)
+		return biz.ErrUnknownError
+	}
+	return nil
+}
+
+// SetUserEmail set redis ?
+func (r *userRepo) SetUserEmail(ctx context.Context, id int64, email string) error {
+	err := r.data.db.WithContext(ctx).Model(&User{}).Where("id = ?", id).Update("email", email).Error
+	if err != nil {
+		r.log.Errorf("fail to set user email to db:email(%v) error(%v)", email, err)
+		return biz.ErrUnknownError
+	}
+	return nil
 }
 
 func (r *userRepo) getUserCodeFromCache(ctx context.Context, key string) (string, error) {

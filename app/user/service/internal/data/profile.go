@@ -67,6 +67,24 @@ func (r *profileRepo) GetProfile(ctx context.Context, id int64) (*biz.Profile, e
 	}, nil
 }
 
+func (r *profileRepo) SetProfile(ctx context.Context, id int64, sex, introduce, industry, address, profile, tag string) error {
+	//p := &Profile{
+	//	UserId:          id,
+	//	Sex:             sex,
+	//	Introduce:       introduce,
+	//	Industry:        industry,
+	//	Address:         address,
+	//	PersonalProfile: profile,
+	//	Tag:             tag,
+	//}
+	err := r.data.db.WithContext(ctx).Model(&User{}).Where("id = ?", id).Update("phone", sex).Error
+	if err != nil {
+		r.log.Errorf("fail to set user phone to db:phone(%v) error(%v)", sex, err)
+		return biz.ErrUnknownError
+	}
+	return nil
+}
+
 func (r *profileRepo) getProfileFromCache(ctx context.Context, key string) (*Profile, error) {
 	result, err := r.data.redisCli.Get(ctx, key).Result()
 	if err != nil {
