@@ -37,7 +37,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, auth *conf.Auth, logg
 	achievementRepo := data.NewAchievementRepo(dataData, logger)
 	achievementUseCase := biz.NewAchievementUseCase(achievementRepo, logger)
 	userService := service.NewUserService(userUseCase, authUseCase, profileUseCase, achievementUseCase, logger)
-	httpServer := server.NewHTTPServer(confServer, userService, logger)
+	httpServer := server.NewHTTPServer(confServer, auth, userService, logger)
 	grpcServer := server.NewGRPCServer(confServer, userService, logger)
 	app := newApp(logger, httpServer, grpcServer)
 	return app, func() {
