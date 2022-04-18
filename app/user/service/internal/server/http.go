@@ -5,15 +5,24 @@ import (
 	"github.com/Cube-v2/cube-core/app/user/service/internal/conf"
 	"github.com/Cube-v2/cube-core/app/user/service/internal/service"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
+	"github.com/go-kratos/kratos/v2/middleware/validate"
 	"github.com/go-kratos/kratos/v2/transport/http"
+	jwt2 "github.com/golang-jwt/jwt/v4"
 )
 
 // NewHTTPServer new a HTTP user.
-func NewHTTPServer(c *conf.Server, userService *service.UserService, logger log.Logger) *http.Server {
+func NewHTTPServer(c *conf.Server, ac *conf.Auth, userService *service.UserService, logger log.Logger) *http.Server {
 	var opts = []http.ServerOption{
 		http.Middleware(
 			recovery.Recovery(),
+			validate.Validator(),
+			jwt.Server(func(token *jwt2.Token) (interface{}, error) {
+				return []byte(ac.ApiKey), nil
+			}, jwt.WithSigningMethod(jwt2.SigningMethodHS256), jwt.WithClaims(func() jwt2.Claims {
+				return &jwt2.MapClaims{}
+			})),
 		),
 	}
 	if c.Http.Network != "" {
