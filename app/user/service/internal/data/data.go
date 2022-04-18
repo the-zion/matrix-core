@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewPhoneCode, NewGoMail, NewUserRepo, NewAuthRepo, NewProfileRepo)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewPhoneCode, NewGoMail, NewUserRepo, NewAuthRepo, NewProfileRepo, NewAchievementRepo)
 
 type TxCode struct {
 	client  *sms.Client

@@ -25,7 +25,6 @@ func (r *authRepo) UserRegister(ctx context.Context, account, mode string) (*biz
 	user := &User{}
 	switch mode {
 	case "Phone":
-		account = account[3:]
 		user.Phone = account
 	case "Email":
 		user.Email = account
@@ -36,7 +35,7 @@ func (r *authRepo) UserRegister(ctx context.Context, account, mode string) (*biz
 			return err
 		}
 
-		if err := tx.Create(&Profile{UserId: int64(user.ID), Username: account}).Error; err != nil {
+		if err := tx.Create(&Profile{UserId: int64(user.ID), Username: account[3:]}).Error; err != nil {
 			r.log.Errorf("fail to register a profile: user_id(%v) error(%v)", user.ID, err.Error())
 			return err
 		}

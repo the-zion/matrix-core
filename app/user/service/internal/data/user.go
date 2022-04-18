@@ -153,6 +153,10 @@ func (r *userRepo) VerifyPassword(ctx context.Context, id int64, password string
 	return nil
 }
 
+func (r *userRepo) SetUserPhone(ctx context.Context, id int64) (string, error) {
+	return "", nil
+}
+
 func (r *userRepo) getUserCodeFromCache(ctx context.Context, key string) (string, error) {
 	code, err := r.data.redisCli.Get(ctx, key).Result()
 	if err != nil {
@@ -195,7 +199,7 @@ func (r *userRepo) getUserFromCache(ctx context.Context, key string) (*User, err
 func (r *userRepo) setUserToCache(ctx context.Context, user *User, key string) {
 	marshal, err := json.Marshal(user)
 	if err != nil {
-		r.log.Errorf("fail to set user to cache:json.Marshal(%v) error(%v)", user, err)
+		r.log.Errorf("fail to set user to json:json.Marshal(%v) error(%v)", user, err)
 	}
 	err = r.data.redisCli.Set(ctx, key, string(marshal), time.Minute*30).Err()
 	if err != nil {
