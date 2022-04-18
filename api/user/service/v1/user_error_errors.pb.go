@@ -119,6 +119,18 @@ func ErrorGetProfileFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(404, UserErrorReason_GET_PROFILE_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsGetAchievementFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_GET_ACHIEVEMENT_FAILED.String() && e.Code == 404
+}
+
+func ErrorGetAchievementFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(404, UserErrorReason_GET_ACHIEVEMENT_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsSendCodeFailed(err error) bool {
 	if err == nil {
 		return false
