@@ -222,6 +222,30 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /v1/user/set/phone:
+        post:
+            tags:
+                - User
+            operationId: User_SetUserPhone
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SetUserPhoneReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SetUserPhoneReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
 components:
     schemas:
         GetUserAchievementReply:
@@ -362,6 +386,20 @@ components:
                 template:
                     type: integer
                     format: int64
+        SetUserPhoneReply:
+            type: object
+            properties:
+                phone:
+                    type: string
+        SetUserPhoneReq:
+            type: object
+            properties:
+                phone:
+                    type: string
+                password:
+                    type: string
+                code:
+                    type: string
         Status:
             type: object
             properties:
