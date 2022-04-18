@@ -25,6 +25,7 @@ type Profile struct {
 
 type ProfileRepo interface {
 	GetProfile(ctx context.Context, id int64) (*Profile, error)
+	SetProfile(ctx context.Context, id int64, sex, introduce, industry, address, profile, tag string) error
 }
 
 type ProfileUseCase struct {
@@ -55,4 +56,12 @@ func (r *ProfileUseCase) GetUserProfile(ctx context.Context, id int64) (*Profile
 		Background:      profile.Background,
 		Image:           profile.Image,
 	}, nil
+}
+
+func (r *ProfileUseCase) SetUserProfile(ctx context.Context, id int64, sex, introduce, industry, address, profile, tag string) error {
+	err := r.repo.SetProfile(ctx, id, sex, introduce, industry, address, profile, tag)
+	if err != nil {
+		return v1.ErrorSetProfileFailed("set user profile failed: %s", err.Error())
+	}
+	return nil
 }
