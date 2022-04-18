@@ -30,7 +30,9 @@ type UserClient interface {
 	SendCode(ctx context.Context, in *SendCodeReq, opts ...grpc.CallOption) (*SendCodeReply, error)
 	GetUser(ctx context.Context, in *GetUserReq, opts ...grpc.CallOption) (*GetUserReply, error)
 	SetUserPhone(ctx context.Context, in *SetUserPhoneReq, opts ...grpc.CallOption) (*SetUserPhoneReply, error)
+	SetUserEmail(ctx context.Context, in *SetUserEmailReq, opts ...grpc.CallOption) (*SetUserEmailReply, error)
 	GetUserProfile(ctx context.Context, in *GetUserProfileReq, opts ...grpc.CallOption) (*GetUserProfileReply, error)
+	SetUserProfile(ctx context.Context, in *SetUserProfileReq, opts ...grpc.CallOption) (*SetUserProfileReply, error)
 	GetUserAchievement(ctx context.Context, in *GetUserAchievementReq, opts ...grpc.CallOption) (*GetUserAchievementReply, error)
 }
 
@@ -114,9 +116,27 @@ func (c *userClient) SetUserPhone(ctx context.Context, in *SetUserPhoneReq, opts
 	return out, nil
 }
 
+func (c *userClient) SetUserEmail(ctx context.Context, in *SetUserEmailReq, opts ...grpc.CallOption) (*SetUserEmailReply, error) {
+	out := new(SetUserEmailReply)
+	err := c.cc.Invoke(ctx, "/user.v1.User/SetUserEmail", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *userClient) GetUserProfile(ctx context.Context, in *GetUserProfileReq, opts ...grpc.CallOption) (*GetUserProfileReply, error) {
 	out := new(GetUserProfileReply)
 	err := c.cc.Invoke(ctx, "/user.v1.User/GetUserProfile", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) SetUserProfile(ctx context.Context, in *SetUserProfileReq, opts ...grpc.CallOption) (*SetUserProfileReply, error) {
+	out := new(SetUserProfileReply)
+	err := c.cc.Invoke(ctx, "/user.v1.User/SetUserProfile", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -144,7 +164,9 @@ type UserServer interface {
 	SendCode(context.Context, *SendCodeReq) (*SendCodeReply, error)
 	GetUser(context.Context, *GetUserReq) (*GetUserReply, error)
 	SetUserPhone(context.Context, *SetUserPhoneReq) (*SetUserPhoneReply, error)
+	SetUserEmail(context.Context, *SetUserEmailReq) (*SetUserEmailReply, error)
 	GetUserProfile(context.Context, *GetUserProfileReq) (*GetUserProfileReply, error)
+	SetUserProfile(context.Context, *SetUserProfileReq) (*SetUserProfileReply, error)
 	GetUserAchievement(context.Context, *GetUserAchievementReq) (*GetUserAchievementReply, error)
 	mustEmbedUnimplementedUserServer()
 }
@@ -177,8 +199,14 @@ func (UnimplementedUserServer) GetUser(context.Context, *GetUserReq) (*GetUserRe
 func (UnimplementedUserServer) SetUserPhone(context.Context, *SetUserPhoneReq) (*SetUserPhoneReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetUserPhone not implemented")
 }
+func (UnimplementedUserServer) SetUserEmail(context.Context, *SetUserEmailReq) (*SetUserEmailReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetUserEmail not implemented")
+}
 func (UnimplementedUserServer) GetUserProfile(context.Context, *GetUserProfileReq) (*GetUserProfileReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserProfile not implemented")
+}
+func (UnimplementedUserServer) SetUserProfile(context.Context, *SetUserProfileReq) (*SetUserProfileReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetUserProfile not implemented")
 }
 func (UnimplementedUserServer) GetUserAchievement(context.Context, *GetUserAchievementReq) (*GetUserAchievementReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserAchievement not implemented")
@@ -340,6 +368,24 @@ func _User_SetUserPhone_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _User_SetUserEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetUserEmailReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).SetUserEmail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/SetUserEmail",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).SetUserEmail(ctx, req.(*SetUserEmailReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _User_GetUserProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetUserProfileReq)
 	if err := dec(in); err != nil {
@@ -354,6 +400,24 @@ func _User_GetUserProfile_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServer).GetUserProfile(ctx, req.(*GetUserProfileReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_SetUserProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetUserProfileReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).SetUserProfile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/SetUserProfile",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).SetUserProfile(ctx, req.(*SetUserProfileReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -416,8 +480,16 @@ var User_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _User_SetUserPhone_Handler,
 		},
 		{
+			MethodName: "SetUserEmail",
+			Handler:    _User_SetUserEmail_Handler,
+		},
+		{
 			MethodName: "GetUserProfile",
 			Handler:    _User_GetUserProfile_Handler,
+		},
+		{
+			MethodName: "SetUserProfile",
+			Handler:    _User_SetUserProfile_Handler,
 		},
 		{
 			MethodName: "GetUserAchievement",

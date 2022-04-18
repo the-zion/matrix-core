@@ -27,7 +27,9 @@ type UserHTTPServer interface {
 	LoginByWeChat(context.Context, *LoginByWeChatReq) (*LoginReply, error)
 	LoginPassWordForget(context.Context, *LoginPassWordForgetReq) (*LoginReply, error)
 	SendCode(context.Context, *SendCodeReq) (*SendCodeReply, error)
+	SetUserEmail(context.Context, *SetUserEmailReq) (*SetUserEmailReply, error)
 	SetUserPhone(context.Context, *SetUserPhoneReq) (*SetUserPhoneReply, error)
+	SetUserProfile(context.Context, *SetUserProfileReq) (*SetUserProfileReply, error)
 }
 
 func RegisterUserHTTPServer(s *http.Server, srv UserHTTPServer) {
@@ -40,7 +42,9 @@ func RegisterUserHTTPServer(s *http.Server, srv UserHTTPServer) {
 	r.POST("/v1/user/code", _User_SendCode0_HTTP_Handler(srv))
 	r.POST("/v1/user/get", _User_GetUser0_HTTP_Handler(srv))
 	r.POST("/v1/user/set/phone", _User_SetUserPhone0_HTTP_Handler(srv))
+	r.POST("/v1/user/set/email", _User_SetUserEmail0_HTTP_Handler(srv))
 	r.POST("/v1/user/profile", _User_GetUserProfile0_HTTP_Handler(srv))
+	r.POST("/v1/user/set/profile", _User_SetUserProfile0_HTTP_Handler(srv))
 	r.POST("/v1/user/achieve", _User_GetUserAchievement0_HTTP_Handler(srv))
 }
 
@@ -196,6 +200,25 @@ func _User_SetUserPhone0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context)
 	}
 }
 
+func _User_SetUserEmail0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SetUserEmailReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/user.v1.User/SetUserEmail")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SetUserEmail(ctx, req.(*SetUserEmailReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*SetUserEmailReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _User_GetUserProfile0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in GetUserProfileReq
@@ -211,6 +234,25 @@ func _User_GetUserProfile0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Contex
 			return err
 		}
 		reply := out.(*GetUserProfileReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _User_SetUserProfile0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SetUserProfileReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/user.v1.User/SetUserProfile")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SetUserProfile(ctx, req.(*SetUserProfileReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*SetUserProfileReply)
 		return ctx.Result(200, reply)
 	}
 }
@@ -244,7 +286,9 @@ type UserHTTPClient interface {
 	LoginByWeChat(ctx context.Context, req *LoginByWeChatReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginPassWordForget(ctx context.Context, req *LoginPassWordForgetReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	SendCode(ctx context.Context, req *SendCodeReq, opts ...http.CallOption) (rsp *SendCodeReply, err error)
+	SetUserEmail(ctx context.Context, req *SetUserEmailReq, opts ...http.CallOption) (rsp *SetUserEmailReply, err error)
 	SetUserPhone(ctx context.Context, req *SetUserPhoneReq, opts ...http.CallOption) (rsp *SetUserPhoneReply, err error)
+	SetUserProfile(ctx context.Context, req *SetUserProfileReq, opts ...http.CallOption) (rsp *SetUserProfileReply, err error)
 }
 
 type UserHTTPClientImpl struct {
@@ -372,11 +416,37 @@ func (c *UserHTTPClientImpl) SendCode(ctx context.Context, in *SendCodeReq, opts
 	return &out, err
 }
 
+func (c *UserHTTPClientImpl) SetUserEmail(ctx context.Context, in *SetUserEmailReq, opts ...http.CallOption) (*SetUserEmailReply, error) {
+	var out SetUserEmailReply
+	pattern := "/v1/user/set/email"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/user.v1.User/SetUserEmail"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
 func (c *UserHTTPClientImpl) SetUserPhone(ctx context.Context, in *SetUserPhoneReq, opts ...http.CallOption) (*SetUserPhoneReply, error) {
 	var out SetUserPhoneReply
 	pattern := "/v1/user/set/phone"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation("/user.v1.User/SetUserPhone"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *UserHTTPClientImpl) SetUserProfile(ctx context.Context, in *SetUserProfileReq, opts ...http.CallOption) (*SetUserProfileReply, error) {
+	var out SetUserProfileReply
+	pattern := "/v1/user/set/profile"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/user.v1.User/SetUserProfile"))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

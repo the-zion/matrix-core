@@ -143,6 +143,78 @@ func ErrorSendCodeFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, UserErrorReason_SEND_CODE_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsSetPhoneFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_SET_PHONE_FAILED.String() && e.Code == 500
+}
+
+func ErrorSetPhoneFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, UserErrorReason_SET_PHONE_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsSetEmailFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_SET_EMAIL_FAILED.String() && e.Code == 500
+}
+
+func ErrorSetEmailFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, UserErrorReason_SET_EMAIL_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsSetProfileFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_SET_PROFILE_FAILED.String() && e.Code == 500
+}
+
+func ErrorSetProfileFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, UserErrorReason_SET_PROFILE_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsSetUsernameFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_SET_USERNAME_FAILED.String() && e.Code == 500
+}
+
+func ErrorSetUsernameFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, UserErrorReason_SET_USERNAME_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsSetBackgroundFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_SET_BACKGROUND_FAILED.String() && e.Code == 500
+}
+
+func ErrorSetBackgroundFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, UserErrorReason_SET_BACKGROUND_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsSetImageFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_SET_IMAGE_FAILED.String() && e.Code == 500
+}
+
+func ErrorSetImageFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, UserErrorReason_SET_IMAGE_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsLoginFailed(err error) bool {
 	if err == nil {
 		return false
