@@ -11,17 +11,19 @@ var ProviderSet = wire.NewSet(NewUserService)
 
 type UserService struct {
 	v1.UnimplementedUserServer
-	uc  *biz.UserUseCase
-	ac  *biz.AuthUseCase
-	pc  *biz.ProfileUseCase
-	log *log.Helper
+	uc   *biz.UserUseCase
+	ac   *biz.AuthUseCase
+	pc   *biz.ProfileUseCase
+	achc *biz.AchievementUseCase
+	log  *log.Helper
 }
 
-func NewUserService(uc *biz.UserUseCase, ac *biz.AuthUseCase, pc *biz.ProfileUseCase, logger log.Logger) *UserService {
+func NewUserService(uc *biz.UserUseCase, ac *biz.AuthUseCase, pc *biz.ProfileUseCase, achc *biz.AchievementUseCase, logger log.Logger) *UserService {
 	return &UserService{
-		log: log.NewHelper(log.With(logger, "module", "user/service/user")),
-		uc:  uc,
-		ac:  ac,
-		pc:  pc,
+		log:  log.NewHelper(log.With(logger, "module", "user/service/user")),
+		uc:   uc,
+		ac:   ac,
+		pc:   pc,
+		achc: achc,
 	}
 }

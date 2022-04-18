@@ -27,3 +27,9 @@ func (s *UserService) GetUser(ctx context.Context, req *v1.GetUserReq) (*v1.GetU
 		Github: user.Github,
 	}, nil
 }
+
+func (s *UserService) SetUserPhone(ctx context.Context, req *v1.SetUserPhoneReq) (*v1.SetUserPhoneReply, error) {
+	//jwt.FromContext(ctx)
+	//phone, err := s.uc.SetUserPhone(ctx, req.Phone)
+	return &v1.SetUserPhoneReply{}, nil
+}

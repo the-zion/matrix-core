@@ -16,7 +16,7 @@ func (s *UserService) LoginByPassword(ctx context.Context, req *v1.LoginByPasswo
 	}, nil
 }
 
-func (s *UserService) LoginByEmail(ctx context.Context, req *v1.LoginByCodeReq) (*v1.LoginReply, error) {
+func (s *UserService) LoginByCode(ctx context.Context, req *v1.LoginByCodeReq) (*v1.LoginReply, error) {
 	login, err := s.ac.LoginByCode(ctx, req.Account, req.Code, req.Mode)
 	if err != nil {
 		return nil, err
