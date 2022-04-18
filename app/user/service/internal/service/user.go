@@ -29,7 +29,23 @@ func (s *UserService) GetUser(ctx context.Context, req *v1.GetUserReq) (*v1.GetU
 }
 
 func (s *UserService) SetUserPhone(ctx context.Context, req *v1.SetUserPhoneReq) (*v1.SetUserPhoneReply, error) {
-	//jwt.FromContext(ctx)
-	//phone, err := s.uc.SetUserPhone(ctx, req.Phone)
-	return &v1.SetUserPhoneReply{}, nil
+	id := GetUserIdFromContext(ctx)
+	err := s.uc.SetUserPhone(ctx, id, req.Phone, req.Password, req.Code)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.SetUserPhoneReply{
+		Success: true,
+	}, nil
+}
+
+func (s *UserService) SetUserEmail(ctx context.Context, req *v1.SetUserEmailReq) (*v1.SetUserEmailReply, error) {
+	id := GetUserIdFromContext(ctx)
+	err := s.uc.SetUserEmail(ctx, id, req.Email, req.Password, req.Code)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.SetUserEmailReply{
+		Success: true,
+	}, nil
 }

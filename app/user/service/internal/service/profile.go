@@ -22,3 +22,14 @@ func (s *UserService) GetUserProfile(ctx context.Context, req *v1.GetUserProfile
 		Image:      profile.Image,
 	}, nil
 }
+
+func (s *UserService) SetUserProfile(ctx context.Context, req *v1.SetUserProfileReq) (*v1.SetUserProfileReply, error) {
+	id := GetUserIdFromContext(ctx)
+	err := s.pc.SetUserProfile(ctx, id, req.Sex, req.Introduce, req.Address, req.Industry, req.Profile, req.Tag)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.SetUserProfileReply{
+		Success: true,
+	}, nil
+}
