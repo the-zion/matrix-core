@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"github.com/Cube-v2/cube-core/app/user/service/internal/conf"
-	"github.com/go-playground/validator/v10"
 	"os"
 
 	"github.com/go-kratos/kratos/v2"
@@ -72,9 +71,9 @@ func main() {
 		panic(err)
 	}
 
-	validate := validator.New()
+	//validate := validator.New()
 
-	app, cleanup, err := wireApp(bc.Server, bc.Data, bc.Auth, validate, logger)
+	app, cleanup, err := wireApp(bc.Server, bc.Data, bc.Auth, logger)
 	if err != nil {
 		panic(err)
 	}
