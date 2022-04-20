@@ -126,30 +126,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    /v1/user/achieve:
-        post:
-            tags:
-                - User
-            operationId: User_GetUserAchievement
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/GetUserAchievementReq'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/GetUserAchievementReply'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
     /v1/user/code:
         post:
             tags:
@@ -246,6 +222,30 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /v1/user/set/name:
+        post:
+            tags:
+                - User
+            operationId: User_SetUserName
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SetUserNameReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SetUserNameReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /v1/user/set/phone:
         post:
             tags:
@@ -296,30 +296,6 @@ paths:
                                 $ref: '#/components/schemas/Status'
 components:
     schemas:
-        GetUserAchievementReply:
-            type: object
-            properties:
-                follow:
-                    type: integer
-                    format: int64
-                followed:
-                    type: integer
-                    format: int64
-                agree:
-                    type: integer
-                    format: int64
-                collect:
-                    type: integer
-                    format: int64
-                view:
-                    type: integer
-                    format: int64
-        GetUserAchievementReq:
-            type: object
-            properties:
-                id:
-                    type: integer
-                    format: int64
         GetUserProfileReply:
             type: object
             properties:
@@ -447,6 +423,16 @@ components:
                 password:
                     type: string
                 code:
+                    type: string
+        SetUserNameReply:
+            type: object
+            properties:
+                success:
+                    type: boolean
+        SetUserNameReq:
+            type: object
+            properties:
+                name:
                     type: string
         SetUserPhoneReply:
             type: object
