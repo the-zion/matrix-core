@@ -25,11 +25,22 @@ func (s *UserService) GetUserProfile(ctx context.Context, req *v1.GetUserProfile
 
 func (s *UserService) SetUserProfile(ctx context.Context, req *v1.SetUserProfileReq) (*v1.SetUserProfileReply, error) {
 	id := GetUserIdFromContext(ctx)
-	err := s.pc.SetUserProfile(ctx, id, req.Sex, req.Introduce, req.Address, req.Industry, req.Profile, req.Tag)
+	err := s.pc.SetUserProfile(ctx, id, req.Sex, req.Introduce, req.Industry, req.Address, req.Profile, req.Tag)
 	if err != nil {
 		return nil, err
 	}
 	return &v1.SetUserProfileReply{
+		Success: true,
+	}, nil
+}
+
+func (s *UserService) SetUserName(ctx context.Context, req *v1.SetUserNameReq) (*v1.SetUserNameReply, error) {
+	id := GetUserIdFromContext(ctx)
+	err := s.pc.SetUserName(ctx, id, req.Name)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.SetUserNameReply{
 		Success: true,
 	}, nil
 }

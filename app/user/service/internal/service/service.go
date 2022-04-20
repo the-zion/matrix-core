@@ -27,12 +27,11 @@ func GetUserIdFromContext(ctx context.Context) int64 {
 	return int64(mapClaims["user_id"].(float64))
 }
 
-func NewUserService(uc *biz.UserUseCase, ac *biz.AuthUseCase, pc *biz.ProfileUseCase, achc *biz.AchievementUseCase, logger log.Logger) *UserService {
+func NewUserService(uc *biz.UserUseCase, ac *biz.AuthUseCase, pc *biz.ProfileUseCase, logger log.Logger) *UserService {
 	return &UserService{
-		log:  log.NewHelper(log.With(logger, "module", "user/service/user")),
-		uc:   uc,
-		ac:   ac,
-		pc:   pc,
-		achc: achc,
+		log: log.NewHelper(log.With(logger, "module", "user/service")),
+		uc:  uc,
+		ac:  ac,
+		pc:  pc,
 	}
 }
