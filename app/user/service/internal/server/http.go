@@ -7,6 +7,7 @@ import (
 	"github.com/Cube-v2/cube-core/app/user/service/internal/service"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
+	"github.com/go-kratos/kratos/v2/middleware/logging"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/middleware/selector"
 	"github.com/go-kratos/kratos/v2/middleware/validate"
@@ -30,6 +31,7 @@ func NewHTTPServer(c *conf.Server, ac *conf.Auth, userService *service.UserServi
 		http.Middleware(
 			recovery.Recovery(),
 			validate.Validator(),
+			logging.Server(logger),
 			selector.Server(
 				jwt.Server(func(token *jwt2.Token) (interface{}, error) {
 					return []byte(ac.ApiKey), nil
