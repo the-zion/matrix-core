@@ -104,8 +104,7 @@ func loginFindByAccount(ctx context.Context, r *AuthUseCase, account, mode strin
 }
 
 func loginVerifyCode(ctx context.Context, r *AuthUseCase, account, code, mode string) error {
-	errFormat := "login failed: %s"
-	return VerifyCode(ctx, r.userRepo, account, code, mode, errFormat)
+	return VerifyCode(ctx, r.userRepo, account, code, mode, "login failed: %s")
 }
 
 func signToken(id int64, r *AuthUseCase) (*Login, error) {
