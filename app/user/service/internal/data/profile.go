@@ -67,19 +67,29 @@ func (r *profileRepo) GetProfile(ctx context.Context, id int64) (*biz.Profile, e
 	}, nil
 }
 
+// SetProfile set redis ?
 func (r *profileRepo) SetProfile(ctx context.Context, id int64, sex, introduce, industry, address, profile, tag string) error {
-	//p := &Profile{
-	//	UserId:          id,
-	//	Sex:             sex,
-	//	Introduce:       introduce,
-	//	Industry:        industry,
-	//	Address:         address,
-	//	PersonalProfile: profile,
-	//	Tag:             tag,
-	//}
-	err := r.data.db.WithContext(ctx).Model(&User{}).Where("id = ?", id).Update("phone", sex).Error
+	p := Profile{
+		Sex:             sex,
+		Introduce:       introduce,
+		Industry:        industry,
+		Address:         address,
+		PersonalProfile: profile,
+		Tag:             tag,
+	}
+	err := r.data.db.WithContext(ctx).Model(&Profile{}).Where("user_id = ?", id).Select("Sex", "Introduce", "Industry", "Address", "PersonalProfile", "Tag").Updates(p).Error
 	if err != nil {
-		r.log.Errorf("fail to set user phone to db:phone(%v) error(%v)", sex, err)
+		r.log.Errorf("fail to set user profile to db:profile(%v) error(%v)", p, err)
+		return biz.ErrUnknownError
+	}
+	return nil
+}
+
+// SetName set redis ?
+func (r *profileRepo) SetName(ctx context.Context, id int64, name string) error {
+	err := r.data.db.WithContext(ctx).Model(&Profile{}).Where("user_id = ?", id).Update("username", name).Error
+	if err != nil {
+		r.log.Errorf("fail to set user name to db:name(%v) error(%v)", name, err)
 		return biz.ErrUnknownError
 	}
 	return nil
