@@ -398,8 +398,8 @@ components:
         SendCodeReply:
             type: object
             properties:
-                code:
-                    type: string
+                success:
+                    type: boolean
         SendCodeReq:
             type: object
             properties:
