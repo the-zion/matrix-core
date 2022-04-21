@@ -2,13 +2,8 @@ package biz
 
 import (
 	"context"
-	"errors"
 	v1 "github.com/Cube-v2/cube-core/api/user/service/v1"
 	"github.com/go-kratos/kratos/v2/log"
-)
-
-var (
-	ErrProfileNotFound = errors.New("profile not found")
 )
 
 type Profile struct {
