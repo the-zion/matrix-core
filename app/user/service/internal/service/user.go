@@ -6,12 +6,12 @@ import (
 )
 
 func (s *UserService) SendCode(ctx context.Context, req *v1.SendCodeReq) (*v1.SendCodeReply, error) {
-	code, err := s.uc.SendCode(ctx, req.Template, req.Account, req.Mode)
+	err := s.uc.SendCode(ctx, req.Template, req.Account, req.Mode)
 	if err != nil {
 		return nil, err
 	}
 	return &v1.SendCodeReply{
-		Code: code,
+		Success: true,
 	}, nil
 }
 
