@@ -942,7 +942,7 @@ func (m *SendCodeReply) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Code
+	// no validation rules for Success
 
 	if len(errors) > 0 {
 		return SendCodeReplyMultiError(errors)

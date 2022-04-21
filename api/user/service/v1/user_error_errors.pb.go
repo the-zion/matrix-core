@@ -226,3 +226,15 @@ func IsLoginFailed(err error) bool {
 func ErrorLoginFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, UserErrorReason_LOGIN_FAILED.String(), fmt.Sprintf(format, args...))
 }
+
+func IsRegisterFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_REGISTER_FAILED.String() && e.Code == 500
+}
+
+func ErrorRegisterFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, UserErrorReason_REGISTER_FAILED.String(), fmt.Sprintf(format, args...))
+}

@@ -130,7 +130,7 @@ message SendCodeReq{
 }
 
 message SendCodeReply{
-  string code = 3;
+  bool success = 1;
 }
 
 message GetUserReq{
