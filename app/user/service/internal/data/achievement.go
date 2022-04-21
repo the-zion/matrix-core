@@ -50,7 +50,7 @@ func (r *achievementRepo) GetAchievement(ctx context.Context, id int64) (*biz.Ac
 	if err != nil {
 		achievement := &Achievement{}
 		if err = r.data.db.WithContext(ctx).Where("user_id = ?", id).First(achievement).Error; err != nil {
-			r.log.Errorf("fail to get user achievement from db: id(%v) error(%v)", id, err.Error())
+			//r.log.Errorf("fail to get user achievement from db: id(%v) error(%v)", id, err.Error())
 			return nil, biz.ErrAchievementNotFound
 		}
 		target = achievement
@@ -68,7 +68,7 @@ func (r *achievementRepo) GetAchievement(ctx context.Context, id int64) (*biz.Ac
 func (r *achievementRepo) getAchievementFromCache(ctx context.Context, key string) (*Achievement, error) {
 	result, err := r.data.redisCli.Get(ctx, key).Result()
 	if err != nil {
-		r.log.Errorf("fail to get user achievement from cache:redis.Get(achievement, %v) error(%v)", key, err)
+		//r.log.Errorf("fail to get user achievement from cache:redis.Get(achievement, %v) error(%v)", key, err)
 		return nil, err
 	}
 	var cacheAchievement = &Achievement{}
@@ -82,10 +82,10 @@ func (r *achievementRepo) getAchievementFromCache(ctx context.Context, key strin
 func (r *achievementRepo) setAchievementToCache(ctx context.Context, achievement *Achievement, key string) {
 	marshal, err := json.Marshal(achievement)
 	if err != nil {
-		r.log.Errorf("fail to set user achievement to json:json.Marshal(%v) error(%v)", achievement, err)
+		//r.log.Errorf("fail to set user achievement to json:json.Marshal(%v) error(%v)", achievement, err)
 	}
 	err = r.data.redisCli.Set(ctx, key, string(marshal), time.Minute*30).Err()
 	if err != nil {
-		r.log.Errorf("fail to set user achievement to cache:redis.Set(%v) error(%v)", achievement, err)
+		//r.log.Errorf("fail to set user achievement to cache:redis.Set(%v) error(%v)", achievement, err)
 	}
 }

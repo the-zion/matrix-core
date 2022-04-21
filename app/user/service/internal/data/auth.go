@@ -2,8 +2,10 @@ package data
 
 import (
 	"context"
+	"fmt"
 	"github.com/Cube-v2/cube-core/app/user/service/internal/biz"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/pkg/errors"
 	"gorm.io/gorm"
 )
 
@@ -29,19 +31,18 @@ func (r *authRepo) UserRegister(ctx context.Context, account, mode string) (*biz
 	case "Email":
 		user.Email = account
 	}
-	if err := r.data.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	err := r.data.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Select(mode).Create(user).Error; err != nil {
-			r.log.Errorf("fail to register a account: account(%v) error(%v)", account, err.Error())
-			return err
+			return errors.Wrapf(err, fmt.Sprintf("fail to register a account: account(%v)", account))
 		}
 
 		if err := tx.Create(&Profile{UserId: int64(user.ID), Username: account[3:]}).Error; err != nil {
-			r.log.Errorf("fail to register a profile: user_id(%v) error(%v)", user.ID, err.Error())
-			return err
+			return errors.Wrapf(err, fmt.Sprintf("fail to register a profile: user_id(%v)", user.ID))
 		}
 		return nil
-	}); err != nil {
-		return nil, biz.ErrUserRegisterFailed
+	})
+	if err != nil {
+		return nil, err
 	}
 	return &biz.User{
 		Id: int64(user.ID),

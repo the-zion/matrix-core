@@ -3,8 +3,12 @@ package data
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/Cube-v2/cube-core/app/user/service/internal/biz"
+	v2 "github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-redis/redis/v8"
+	"github.com/pkg/errors"
 	"gorm.io/gorm"
 	"strconv"
 	"time"
@@ -45,14 +49,20 @@ type Profile struct {
 func (r *profileRepo) GetProfile(ctx context.Context, id int64) (*biz.Profile, error) {
 	key := profileCacheKey(strconv.FormatInt(id, 10))
 	target, err := r.getProfileFromCache(ctx, key)
-	if err != nil {
+	if v2.IsNotFound(err) {
 		profile := &Profile{}
-		if err = r.data.db.WithContext(ctx).Where("user_id = ?", id).First(profile).Error; err != nil {
-			r.log.Errorf("fail to get user profile from db: id(%v) error(%v)", id, err.Error())
-			return nil, biz.ErrProfileNotFound
+		err = r.data.db.WithContext(ctx).Where("user_id = ?", id).First(profile).Error
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, v2.NotFound("profile not found from db", fmt.Sprintf("user_id(%v)", id))
+		}
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("db query system error: user_id(%v)", id))
 		}
 		target = profile
 		r.setProfileToCache(ctx, profile, key)
+	}
+	if err != nil {
+		return nil, err
 	}
 	return &biz.Profile{
 		Username:        target.Username,
@@ -79,8 +89,7 @@ func (r *profileRepo) SetProfile(ctx context.Context, id int64, sex, introduce, 
 	}
 	err := r.data.db.WithContext(ctx).Model(&Profile{}).Where("user_id = ?", id).Select("Sex", "Introduce", "Industry", "Address", "PersonalProfile", "Tag").Updates(p).Error
 	if err != nil {
-		r.log.Errorf("fail to set user profile to db:profile(%v) error(%v)", p, err)
-		return biz.ErrUnknownError
+		return errors.Wrapf(err, fmt.Sprintf("fail to set user profile to db: profile(%v), user_id(%v)", p, id))
 	}
 	return nil
 }
@@ -89,22 +98,24 @@ func (r *profileRepo) SetProfile(ctx context.Context, id int64, sex, introduce, 
 func (r *profileRepo) SetName(ctx context.Context, id int64, name string) error {
 	err := r.data.db.WithContext(ctx).Model(&Profile{}).Where("user_id = ?", id).Update("username", name).Error
 	if err != nil {
-		r.log.Errorf("fail to set user name to db:name(%v) error(%v)", name, err)
-		return biz.ErrUnknownError
+		//r.log.Errorf("fail to set user name to db:name(%v) error(%v)", name, err)
+		return errors.Wrapf(err, fmt.Sprintf("fail to set user name to db: name(%s), user_id(%v)", name, id))
 	}
 	return nil
 }
 
 func (r *profileRepo) getProfileFromCache(ctx context.Context, key string) (*Profile, error) {
 	result, err := r.data.redisCli.Get(ctx, key).Result()
+	if errors.Is(err, redis.Nil) {
+		return nil, v2.NotFound("profile not found from cache", fmt.Sprintf("key(%s)", key))
+	}
 	if err != nil {
-		r.log.Errorf("fail to get user profile from cache:redis.Get(profile, %v) error(%v)", key, err)
-		return nil, err
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get profile from cache: redis.Get(%v)", key))
 	}
 	var cacheProfile = &Profile{}
 	err = json.Unmarshal([]byte(result), cacheProfile)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, fmt.Sprintf("json unmarshal error: profile(%v)", result))
 	}
 	return cacheProfile, nil
 }
@@ -112,10 +123,10 @@ func (r *profileRepo) getProfileFromCache(ctx context.Context, key string) (*Pro
 func (r *profileRepo) setProfileToCache(ctx context.Context, profile *Profile, key string) {
 	marshal, err := json.Marshal(profile)
 	if err != nil {
-		r.log.Errorf("fail to set user profile to json:json.Marshal(%v) error(%v)", profile, err)
+		r.log.Errorf("fail to set user profile to json: json.Marshal(%v), error(%v)", profile, err)
 	}
 	err = r.data.redisCli.Set(ctx, key, string(marshal), time.Minute*30).Err()
 	if err != nil {
-		r.log.Errorf("fail to set user profile to cache:redis.Set(%v) error(%v)", profile, err)
+		r.log.Errorf("fail to set user profile to cache: redis.Set(%v), error(%v)", profile, err)
 	}
 }
