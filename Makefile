@@ -25,8 +25,20 @@ api:
  	       --go-errors_out=paths=source_relative:./api \
  	       --validate_out=paths=source_relative,lang=go:./api \
  	       --openapi_out==paths=source_relative:. \
+ 	       --openapiv2_out . \
+           --openapiv2_opt logtostderr=true \
+           --openapiv2_opt json_names_for_fields=false \
 	       $(API_PROTO_FILES)
 
+.PHONY: swagger
+# generate api proto
+swagger:
+	protoc --proto_path=. \
+	       --proto_path=./third_party \
+ 	       --openapiv2_out . \
+           --openapiv2_opt logtostderr=true \
+           --openapiv2_opt json_names_for_fields=false \
+           api/user/service/v1/user.proto
 .PHONY: build
 # build
 build:
