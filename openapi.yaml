@@ -351,11 +351,9 @@ components:
         LoginByCodeReq:
             type: object
             properties:
-                account:
+                phone:
                     type: string
                 code:
-                    type: string
-                mode:
                     type: string
         LoginByGithubReq:
             type: object
