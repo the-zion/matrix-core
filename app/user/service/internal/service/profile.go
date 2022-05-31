@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	v1 "github.com/Cube-v2/cube-core/api/user/service/v1"
+	v1 "github.com/Cube-v2/matrix-core/api/user/service/v1"
 )
 
 func (s *UserService) GetUserProfile(ctx context.Context, req *v1.GetUserProfileReq) (*v1.GetUserProfileReply, error) {

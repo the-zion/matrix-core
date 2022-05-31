@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	v1 "github.com/Cube-v2/cube-core/api/user/service/v1"
+	v1 "github.com/Cube-v2/matrix-core/api/user/service/v1"
 )
 
 func (s *UserService) LoginByPassword(ctx context.Context, req *v1.LoginByPasswordReq) (*v1.LoginReply, error) {
@@ -17,7 +17,7 @@ func (s *UserService) LoginByPassword(ctx context.Context, req *v1.LoginByPasswo
 }
 
 func (s *UserService) LoginByCode(ctx context.Context, req *v1.LoginByCodeReq) (*v1.LoginReply, error) {
-	login, err := s.ac.LoginByCode(ctx, req.Account, req.Code, req.Mode)
+	login, err := s.ac.LoginByCode(ctx, req.Phone, req.Code)
 	if err != nil {
 		return nil, err
 	}
