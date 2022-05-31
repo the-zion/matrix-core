@@ -1,9 +1,9 @@
 package server
 
 import (
-	v1 "github.com/Cube-v2/cube-core/api/user/service/v1"
-	"github.com/Cube-v2/cube-core/app/user/service/internal/conf"
-	"github.com/Cube-v2/cube-core/app/user/service/internal/service"
+	v1 "github.com/Cube-v2/matrix-core/api/user/service/v1"
+	"github.com/Cube-v2/matrix-core/app/user/service/internal/conf"
+	"github.com/Cube-v2/matrix-core/app/user/service/internal/service"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
