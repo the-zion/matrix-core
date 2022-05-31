@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/Cube-v2/cube-core/app/user/service/internal/biz"
-	"github.com/Cube-v2/cube-core/app/user/service/internal/pkg/util"
+	"github.com/Cube-v2/matrix-core/app/user/service/internal/biz"
+	"github.com/Cube-v2/matrix-core/app/user/service/internal/pkg/util"
 	v2 "github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-redis/redis/v8"
@@ -43,14 +43,14 @@ func NewUserRepo(data *Data, logger log.Logger) biz.UserRepo {
 	}
 }
 
-func (r *userRepo) FindByAccount(ctx context.Context, account, mode string) (*biz.User, error) {
+func (r *userRepo) FindByAccount(ctx context.Context, account, types string) (*biz.User, error) {
 	user := &User{}
-	err := r.data.db.WithContext(ctx).Where(mode+" = ?", account).First(user).Error
+	err := r.data.db.WithContext(ctx).Where(types+" = ?", account).First(user).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, v2.NotFound("account not found from db", fmt.Sprintf("account(%s), mode(%s) ", account, mode))
+		return nil, v2.NotFound("account not found from db", fmt.Sprintf("account(%s), mode(%s) ", account, types))
 	}
 	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("db query system error: account(%s), mode(%s)", account, mode))
+		return nil, errors.Wrapf(err, fmt.Sprintf("db query system error: account(%s), type(%s)", account, types))
 	}
 	return &biz.User{
 		Id: int64(user.Model.ID),

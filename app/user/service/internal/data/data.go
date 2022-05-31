@@ -2,7 +2,7 @@ package data
 
 import (
 	"context"
-	"github.com/Cube-v2/cube-core/app/user/service/internal/conf"
+	"github.com/Cube-v2/matrix-core/app/user/service/internal/conf"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-redis/redis/v8"
 	"github.com/google/wire"
@@ -93,6 +93,15 @@ func NewGoMail(conf *conf.Data) *GoMail {
 		dialer:  d,
 	}
 }
+
+//func NewKafkaProducer(conf *conf.Data) sarama.AsyncProducer {
+//	c := sarama.NewConfig()
+//	p, err := sarama.NewAsyncProducer(conf.Kafka.Addrs, c)
+//	if err != nil {
+//		panic(err)
+//	}
+//	return p
+//}
 
 func NewData(db *gorm.DB, redisCmd redis.Cmdable, phoneCodeCli *TxCode, goMailCli *GoMail, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(logger, "module", "user/data/new-data"))

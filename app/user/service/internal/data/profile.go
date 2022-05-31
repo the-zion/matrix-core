@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/Cube-v2/cube-core/app/user/service/internal/biz"
+	"github.com/Cube-v2/matrix-core/app/user/service/internal/biz"
 	v2 "github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-redis/redis/v8"
