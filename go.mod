@@ -1,4 +1,4 @@
-module github.com/Cube-v2/cube-core
+module github.com/Cube-v2/matrix-core
 
 go 1.18
 
