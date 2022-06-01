@@ -765,32 +765,32 @@ var _LoginPassWordForgetReq_Mode_InLookup = map[string]struct{}{
 	"email": {},
 }
 
-// Validate checks the field values on SendCodeReq with the rules defined in
-// the proto definition for this message. If any rules are violated, the first
-// error encountered is returned, or nil if there are no violations.
-func (m *SendCodeReq) Validate() error {
+// Validate checks the field values on SendPhoneCodeReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *SendPhoneCodeReq) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on SendCodeReq with the rules defined in
-// the proto definition for this message. If any rules are violated, the
-// result is a list of violation errors wrapped in SendCodeReqMultiError, or
-// nil if none found.
-func (m *SendCodeReq) ValidateAll() error {
+// ValidateAll checks the field values on SendPhoneCodeReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SendPhoneCodeReqMultiError, or nil if none found.
+func (m *SendPhoneCodeReq) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *SendCodeReq) validate(all bool) error {
+func (m *SendPhoneCodeReq) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
 	var errors []error
 
-	if !_SendCodeReq_Account_Pattern.MatchString(m.GetAccount()) {
-		err := SendCodeReqValidationError{
-			field:  "Account",
-			reason: "value does not match regex pattern \"^\\\\+[1-9]?[0-9]{7,14}$|^(?:(?:(?:(?:[a-zA-Z]|\\\\d|[!#\\\\$%&'\\\\*\\\\+\\\\-\\\\/=\\\\?\\\\^_`{\\\\|}~]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])+(?:\\\\.([a-zA-Z]|\\\\d|[!#\\\\$%&'\\\\*\\\\+\\\\-\\\\/=\\\\?\\\\^_`{\\\\|}~]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])+)*)|(?:(?:\\\\x22)(?:(?:(?:(?:\\\\x20|\\\\x09)*(?:\\\\x0d\\\\x0a))?(?:\\\\x20|\\\\x09)+)?(?:(?:[\\\\x01-\\\\x08\\\\x0b\\\\x0c\\\\x0e-\\\\x1f\\\\x7f]|\\\\x21|[\\\\x23-\\\\x5b]|[\\\\x5d-\\\\x7e]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])|(?:(?:[\\\\x01-\\\\x09\\\\x0b\\\\x0c\\\\x0d-\\\\x7f]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}]))))*(?:(?:(?:\\\\x20|\\\\x09)*(?:\\\\x0d\\\\x0a))?(\\\\x20|\\\\x09)+)?(?:\\\\x22))))@(?:(?:(?:[a-zA-Z]|\\\\d|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])|(?:(?:[a-zA-Z]|\\\\d|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])(?:[a-zA-Z]|\\\\d|-|\\\\.|~|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])*(?:[a-zA-Z]|\\\\d|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])))\\\\.)+(?:(?:[a-zA-Z]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])|(?:(?:[a-zA-Z]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])(?:[a-zA-Z]|\\\\d|-|\\\\.|~|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])*(?:[a-zA-Z]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])))\\\\.?$\"",
+	if !_SendPhoneCodeReq_Phone_Pattern.MatchString(m.GetPhone()) {
+		err := SendPhoneCodeReqValidationError{
+			field:  "Phone",
+			reason: "value does not match regex pattern \"^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(17[0,3,5-8])|(18[0-9])|166|198|199|(147))\\\\d{8}$\"",
 		}
 		if !all {
 			return err
@@ -798,21 +798,10 @@ func (m *SendCodeReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if _, ok := _SendCodeReq_Mode_InLookup[m.GetMode()]; !ok {
-		err := SendCodeReqValidationError{
-			field:  "Mode",
-			reason: "value must be in list [phone email]",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if val := m.GetTemplate(); val < 1 || val > 4 {
-		err := SendCodeReqValidationError{
+	if _, ok := _SendPhoneCodeReq_Template_InLookup[m.GetTemplate()]; !ok {
+		err := SendPhoneCodeReqValidationError{
 			field:  "Template",
-			reason: "value must be inside range [1, 4]",
+			reason: "value must be in list [1 2 3 4]",
 		}
 		if !all {
 			return err
@@ -821,18 +810,19 @@ func (m *SendCodeReq) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return SendCodeReqMultiError(errors)
+		return SendPhoneCodeReqMultiError(errors)
 	}
 
 	return nil
 }
 
-// SendCodeReqMultiError is an error wrapping multiple validation errors
-// returned by SendCodeReq.ValidateAll() if the designated constraints aren't met.
-type SendCodeReqMultiError []error
+// SendPhoneCodeReqMultiError is an error wrapping multiple validation errors
+// returned by SendPhoneCodeReq.ValidateAll() if the designated constraints
+// aren't met.
+type SendPhoneCodeReqMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m SendCodeReqMultiError) Error() string {
+func (m SendPhoneCodeReqMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -841,11 +831,11 @@ func (m SendCodeReqMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m SendCodeReqMultiError) AllErrors() []error { return m }
+func (m SendPhoneCodeReqMultiError) AllErrors() []error { return m }
 
-// SendCodeReqValidationError is the validation error returned by
-// SendCodeReq.Validate if the designated constraints aren't met.
-type SendCodeReqValidationError struct {
+// SendPhoneCodeReqValidationError is the validation error returned by
+// SendPhoneCodeReq.Validate if the designated constraints aren't met.
+type SendPhoneCodeReqValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -853,22 +843,22 @@ type SendCodeReqValidationError struct {
 }
 
 // Field function returns field value.
-func (e SendCodeReqValidationError) Field() string { return e.field }
+func (e SendPhoneCodeReqValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e SendCodeReqValidationError) Reason() string { return e.reason }
+func (e SendPhoneCodeReqValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e SendCodeReqValidationError) Cause() error { return e.cause }
+func (e SendPhoneCodeReqValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e SendCodeReqValidationError) Key() bool { return e.key }
+func (e SendPhoneCodeReqValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e SendCodeReqValidationError) ErrorName() string { return "SendCodeReqValidationError" }
+func (e SendPhoneCodeReqValidationError) ErrorName() string { return "SendPhoneCodeReqValidationError" }
 
 // Error satisfies the builtin error interface
-func (e SendCodeReqValidationError) Error() string {
+func (e SendPhoneCodeReqValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -880,14 +870,14 @@ func (e SendCodeReqValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sSendCodeReq.%s: %s%s",
+		"invalid %sSendPhoneCodeReq.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = SendCodeReqValidationError{}
+var _ error = SendPhoneCodeReqValidationError{}
 
 var _ interface {
 	Field() string
@@ -895,31 +885,33 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = SendCodeReqValidationError{}
+} = SendPhoneCodeReqValidationError{}
 
-var _SendCodeReq_Account_Pattern = regexp.MustCompile("^\\+[1-9]?[0-9]{7,14}$|^(?:(?:(?:(?:[a-zA-Z]|\\d|[!#\\$%&'\\*\\+\\-\\/=\\?\\^_`{\\|}~]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])+(?:\\.([a-zA-Z]|\\d|[!#\\$%&'\\*\\+\\-\\/=\\?\\^_`{\\|}~]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])+)*)|(?:(?:\\x22)(?:(?:(?:(?:\\x20|\\x09)*(?:\\x0d\\x0a))?(?:\\x20|\\x09)+)?(?:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x7f]|\\x21|[\\x23-\\x5b]|[\\x5d-\\x7e]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(?:(?:[\\x01-\\x09\\x0b\\x0c\\x0d-\\x7f]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}]))))*(?:(?:(?:\\x20|\\x09)*(?:\\x0d\\x0a))?(\\x20|\\x09)+)?(?:\\x22))))@(?:(?:(?:[a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(?:(?:[a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])(?:[a-zA-Z]|\\d|-|\\.|~|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])*(?:[a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])))\\.)+(?:(?:[a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(?:(?:[a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])(?:[a-zA-Z]|\\d|-|\\.|~|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])*(?:[a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])))\\.?$")
+var _SendPhoneCodeReq_Phone_Pattern = regexp.MustCompile("^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(17[0,3,5-8])|(18[0-9])|166|198|199|(147))\\d{8}$")
 
-var _SendCodeReq_Mode_InLookup = map[string]struct{}{
-	"phone": {},
-	"email": {},
+var _SendPhoneCodeReq_Template_InLookup = map[string]struct{}{
+	"1": {},
+	"2": {},
+	"3": {},
+	"4": {},
 }
 
-// Validate checks the field values on SendCodeReply with the rules defined in
-// the proto definition for this message. If any rules are violated, the first
-// error encountered is returned, or nil if there are no violations.
-func (m *SendCodeReply) Validate() error {
+// Validate checks the field values on SendPhoneCodeReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SendPhoneCodeReply) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on SendCodeReply with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// result is a list of violation errors wrapped in SendCodeReplyMultiError, or
-// nil if none found.
-func (m *SendCodeReply) ValidateAll() error {
+// ValidateAll checks the field values on SendPhoneCodeReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SendPhoneCodeReplyMultiError, or nil if none found.
+func (m *SendPhoneCodeReply) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *SendCodeReply) validate(all bool) error {
+func (m *SendPhoneCodeReply) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -929,19 +921,19 @@ func (m *SendCodeReply) validate(all bool) error {
 	// no validation rules for Success
 
 	if len(errors) > 0 {
-		return SendCodeReplyMultiError(errors)
+		return SendPhoneCodeReplyMultiError(errors)
 	}
 
 	return nil
 }
 
-// SendCodeReplyMultiError is an error wrapping multiple validation errors
-// returned by SendCodeReply.ValidateAll() if the designated constraints
+// SendPhoneCodeReplyMultiError is an error wrapping multiple validation errors
+// returned by SendPhoneCodeReply.ValidateAll() if the designated constraints
 // aren't met.
-type SendCodeReplyMultiError []error
+type SendPhoneCodeReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m SendCodeReplyMultiError) Error() string {
+func (m SendPhoneCodeReplyMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -950,11 +942,11 @@ func (m SendCodeReplyMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m SendCodeReplyMultiError) AllErrors() []error { return m }
+func (m SendPhoneCodeReplyMultiError) AllErrors() []error { return m }
 
-// SendCodeReplyValidationError is the validation error returned by
-// SendCodeReply.Validate if the designated constraints aren't met.
-type SendCodeReplyValidationError struct {
+// SendPhoneCodeReplyValidationError is the validation error returned by
+// SendPhoneCodeReply.Validate if the designated constraints aren't met.
+type SendPhoneCodeReplyValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -962,22 +954,24 @@ type SendCodeReplyValidationError struct {
 }
 
 // Field function returns field value.
-func (e SendCodeReplyValidationError) Field() string { return e.field }
+func (e SendPhoneCodeReplyValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e SendCodeReplyValidationError) Reason() string { return e.reason }
+func (e SendPhoneCodeReplyValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e SendCodeReplyValidationError) Cause() error { return e.cause }
+func (e SendPhoneCodeReplyValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e SendCodeReplyValidationError) Key() bool { return e.key }
+func (e SendPhoneCodeReplyValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e SendCodeReplyValidationError) ErrorName() string { return "SendCodeReplyValidationError" }
+func (e SendPhoneCodeReplyValidationError) ErrorName() string {
+	return "SendPhoneCodeReplyValidationError"
+}
 
 // Error satisfies the builtin error interface
-func (e SendCodeReplyValidationError) Error() string {
+func (e SendPhoneCodeReplyValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -989,14 +983,14 @@ func (e SendCodeReplyValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sSendCodeReply.%s: %s%s",
+		"invalid %sSendPhoneCodeReply.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = SendCodeReplyValidationError{}
+var _ error = SendPhoneCodeReplyValidationError{}
 
 var _ interface {
 	Field() string
@@ -1004,7 +998,242 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = SendCodeReplyValidationError{}
+} = SendPhoneCodeReplyValidationError{}
+
+// Validate checks the field values on SendEmailCodeReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *SendEmailCodeReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SendEmailCodeReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SendEmailCodeReqMultiError, or nil if none found.
+func (m *SendEmailCodeReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SendEmailCodeReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if !_SendEmailCodeReq_Email_Pattern.MatchString(m.GetEmail()) {
+		err := SendEmailCodeReqValidationError{
+			field:  "Email",
+			reason: "value does not match regex pattern \"\\\\w+([-+.]\\\\w+)*@\\\\w+([-.]\\\\w+)*\\\\.\\\\w+([-.]\\\\w+)*\"",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if _, ok := _SendEmailCodeReq_Template_InLookup[m.GetTemplate()]; !ok {
+		err := SendEmailCodeReqValidationError{
+			field:  "Template",
+			reason: "value must be in list [1 2 3 4]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return SendEmailCodeReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// SendEmailCodeReqMultiError is an error wrapping multiple validation errors
+// returned by SendEmailCodeReq.ValidateAll() if the designated constraints
+// aren't met.
+type SendEmailCodeReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SendEmailCodeReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SendEmailCodeReqMultiError) AllErrors() []error { return m }
+
+// SendEmailCodeReqValidationError is the validation error returned by
+// SendEmailCodeReq.Validate if the designated constraints aren't met.
+type SendEmailCodeReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SendEmailCodeReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SendEmailCodeReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SendEmailCodeReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SendEmailCodeReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SendEmailCodeReqValidationError) ErrorName() string { return "SendEmailCodeReqValidationError" }
+
+// Error satisfies the builtin error interface
+func (e SendEmailCodeReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSendEmailCodeReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SendEmailCodeReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SendEmailCodeReqValidationError{}
+
+var _SendEmailCodeReq_Email_Pattern = regexp.MustCompile("\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*")
+
+var _SendEmailCodeReq_Template_InLookup = map[string]struct{}{
+	"1": {},
+	"2": {},
+	"3": {},
+	"4": {},
+}
+
+// Validate checks the field values on SendEmailCodeReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SendEmailCodeReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SendEmailCodeReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SendEmailCodeReplyMultiError, or nil if none found.
+func (m *SendEmailCodeReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SendEmailCodeReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Success
+
+	if len(errors) > 0 {
+		return SendEmailCodeReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// SendEmailCodeReplyMultiError is an error wrapping multiple validation errors
+// returned by SendEmailCodeReply.ValidateAll() if the designated constraints
+// aren't met.
+type SendEmailCodeReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SendEmailCodeReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SendEmailCodeReplyMultiError) AllErrors() []error { return m }
+
+// SendEmailCodeReplyValidationError is the validation error returned by
+// SendEmailCodeReply.Validate if the designated constraints aren't met.
+type SendEmailCodeReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SendEmailCodeReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SendEmailCodeReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SendEmailCodeReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SendEmailCodeReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SendEmailCodeReplyValidationError) ErrorName() string {
+	return "SendEmailCodeReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SendEmailCodeReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSendEmailCodeReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SendEmailCodeReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SendEmailCodeReplyValidationError{}
 
 // Validate checks the field values on GetUserReq with the rules defined in the
 // proto definition for this message. If any rules are violated, the first

@@ -38,9 +38,15 @@ service User {
       body: "*"
     };
   }
-  rpc SendCode (SendCodeReq) returns (SendCodeReply) {
+  rpc SendPhoneCode (SendPhoneCodeReq) returns (SendPhoneCodeReply) {
     option (google.api.http) = {
-      post: "/v1/user/code"
+      post: "/v1/user/code/phone"
+      body: "*"
+    };
+  }
+  rpc SendEmailCode (SendEmailCodeReq) returns (SendEmailCodeReply) {
+    option (google.api.http) = {
+      post: "/v1/user/code/email"
       body: "*"
     };
   }
@@ -80,14 +86,6 @@ service User {
       body: "*"
     };
   }
-  // todo: SetUserBackground SetUserImage
-
-//  rpc GetUserAchievement (GetUserAchievementReq) returns (GetUserAchievementReply) {
-//    option (google.api.http) = {
-//      post: "/v1/user/achieve"
-//      body: "*"
-//    };
-//  }
 }
 
 
@@ -122,13 +120,21 @@ message LoginPassWordForgetReq{
   string mode = 4 [(validate.rules).string = {in: ["phone", "email"]}];
 }
 
-message SendCodeReq{
-  string account = 1 [(validate.rules).string.pattern = "^\\+[1-9]?[0-9]{7,14}$|^(?:(?:(?:(?:[a-zA-Z]|\\d|[!#\\$%&'\\*\\+\\-\\/=\\?\\^_`{\\|}~]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])+(?:\\.([a-zA-Z]|\\d|[!#\\$%&'\\*\\+\\-\\/=\\?\\^_`{\\|}~]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])+)*)|(?:(?:\\x22)(?:(?:(?:(?:\\x20|\\x09)*(?:\\x0d\\x0a))?(?:\\x20|\\x09)+)?(?:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x7f]|\\x21|[\\x23-\\x5b]|[\\x5d-\\x7e]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(?:(?:[\\x01-\\x09\\x0b\\x0c\\x0d-\\x7f]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}]))))*(?:(?:(?:\\x20|\\x09)*(?:\\x0d\\x0a))?(\\x20|\\x09)+)?(?:\\x22))))@(?:(?:(?:[a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(?:(?:[a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])(?:[a-zA-Z]|\\d|-|\\.|~|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])*(?:[a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])))\\.)+(?:(?:[a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(?:(?:[a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])(?:[a-zA-Z]|\\d|-|\\.|~|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])*(?:[a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])))\\.?$"];
-  string mode = 2 [(validate.rules).string = {in: ["phone", "email"]}];
-  int64 template = 3 [(validate.rules).int64 = {gte:1, lte: 4}];
+message SendPhoneCodeReq{
+  string phone = 1 [(validate.rules).string.pattern = "^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(17[0,3,5-8])|(18[0-9])|166|198|199|(147))\\d{8}$"];
+  string template = 2 [(validate.rules).string = {in: ["1", "2", "3", "4"]}];
 }
 
-message SendCodeReply{
+message SendPhoneCodeReply{
+  bool success = 1;
+}
+
+message SendEmailCodeReq{
+  string email = 1 [(validate.rules).string.pattern = "\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*"];
+  string template = 2 [(validate.rules).string = {in: ["1", "2", "3", "4"]}];
+}
+
+message SendEmailCodeReply{
   bool success = 1;
 }
 
@@ -156,7 +162,7 @@ message SetUserPhoneReply{
 message SetUserEmailReq{
   string email = 1 [(validate.rules).string.pattern = "^(?:(?:(?:(?:[a-zA-Z]|\\d|[!#\\$%&'\\*\\+\\-\\/=\\?\\^_`{\\|}~]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])+(?:\\.([a-zA-Z]|\\d|[!#\\$%&'\\*\\+\\-\\/=\\?\\^_`{\\|}~]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])+)*)|(?:(?:\\x22)(?:(?:(?:(?:\\x20|\\x09)*(?:\\x0d\\x0a))?(?:\\x20|\\x09)+)?(?:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x7f]|\\x21|[\\x23-\\x5b]|[\\x5d-\\x7e]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(?:(?:[\\x01-\\x09\\x0b\\x0c\\x0d-\\x7f]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}]))))*(?:(?:(?:\\x20|\\x09)*(?:\\x0d\\x0a))?(\\x20|\\x09)+)?(?:\\x22))))@(?:(?:(?:[a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(?:(?:[a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])(?:[a-zA-Z]|\\d|-|\\.|~|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])*(?:[a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])))\\.)+(?:(?:[a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(?:(?:[a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])(?:[a-zA-Z]|\\d|-|\\.|~|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])*(?:[a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])))\\.?$"];
   string password = 2 [(validate.rules).string.min_len = 1];
-  string code = 3 [(validate.rules).string.pattern = "^[0-9]+$"];;
+  string code = 3 [(validate.rules).string.pattern = "^[0-9]+$"];
 }
 
 message SetUserEmailReply{
@@ -199,15 +205,3 @@ message SetUserNameReq{
 message SetUserNameReply{
   bool success = 1;
 }
-
-//message GetUserAchievementReq{
-//  int64 id = 1 [(validate.rules).int64.gte = 0];
-//}
-//
-//message GetUserAchievementReply{
-//  int64 follow = 1;
-//  int64 followed = 2;
-//  int64 agree = 3;
-//  int64 collect = 4;
-//  int64 view = 5;
-//}

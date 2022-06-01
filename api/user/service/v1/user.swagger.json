@@ -176,14 +176,14 @@
         ]
       }
     },
-    "/v1/user/code": {
+    "/v1/user/code/email": {
       "post": {
-        "operationId": "User_SendCode",
+        "operationId": "User_SendEmailCode",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1SendCodeReply"
+              "$ref": "#/definitions/v1SendEmailCodeReply"
             }
           },
           "default": {
@@ -199,7 +199,39 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/v1SendCodeReq"
+              "$ref": "#/definitions/v1SendEmailCodeReq"
+            }
+          }
+        ],
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/v1/user/code/phone": {
+      "post": {
+        "operationId": "User_SendPhoneCode",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1SendPhoneCodeReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1SendPhoneCodeReq"
             }
           }
         ],
@@ -499,13 +531,10 @@
     "v1LoginByCodeReq": {
       "type": "object",
       "properties": {
-        "account": {
+        "phone": {
           "type": "string"
         },
         "code": {
-          "type": "string"
-        },
-        "mode": {
           "type": "string"
         }
       }
@@ -569,7 +598,7 @@
         }
       }
     },
-    "v1SendCodeReply": {
+    "v1SendEmailCodeReply": {
       "type": "object",
       "properties": {
         "success": {
@@ -577,13 +606,30 @@
         }
       }
     },
-    "v1SendCodeReq": {
+    "v1SendEmailCodeReq": {
       "type": "object",
       "properties": {
-        "account": {
+        "email": {
           "type": "string"
         },
-        "mode": {
+        "template": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
+    "v1SendPhoneCodeReply": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        }
+      }
+    },
+    "v1SendPhoneCodeReq": {
+      "type": "object",
+      "properties": {
+        "phone": {
           "type": "string"
         },
         "template": {
