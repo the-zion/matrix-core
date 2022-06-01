@@ -22,9 +22,11 @@ import (
 func wireApp(confServer *conf.Server, confData *conf.Data, auth *conf.Auth, logger log.Logger) (*kratos.App, func(), error) {
 	db := data.NewDB(confData, logger)
 	cmdable := data.NewRedis(confData, logger)
+	producer := data.NewRocketmqProducer(confData, logger)
+	pushConsumer := data.NewRocketmqConsumer(confData, logger)
 	txCode := data.NewPhoneCode(confData)
 	goMail := data.NewGoMail(confData)
-	dataData, cleanup, err := data.NewData(db, cmdable, txCode, goMail, logger)
+	dataData, cleanup, err := data.NewData(db, cmdable, producer, pushConsumer, txCode, goMail, logger)
 	if err != nil {
 		return nil, nil, err
 	}
