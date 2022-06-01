@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	github.com/apache/rocketmq-client-go/v2 v2.1.0
+	github.com/duke-git/lancet v1.2.9
 	github.com/envoyproxy/protoc-gen-validate v0.6.7
 	github.com/go-kratos/kratos/v2 v2.3.0
 	github.com/go-redis/redis/v8 v8.11.5
