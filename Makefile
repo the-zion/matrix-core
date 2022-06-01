@@ -55,7 +55,6 @@ generate:
 # generate all
 all:
 	make api;
-	make config;
 	make generate;
 
 # show help
