@@ -19,6 +19,9 @@ type Login struct {
 type AuthRepo interface {
 	FindByAccount(ctx context.Context, account, mode string) (*User, error)
 	RegisterWithPhone(ctx context.Context, phone string) (*User, error)
+	SendPhoneCode(ctx context.Context, template, phone string) error
+	SendEmailCode(ctx context.Context, template, phone string) error
+	//SendCode(ctx context.Context, template int64, account, mode string) error
 	//UserRegister(ctx context.Context, account, mode string) (*User, error)
 	VerifyCode(ctx context.Context, account, code, mode string) error
 }
@@ -122,6 +125,22 @@ func (r *AuthUseCase) LoginPasswordForget(ctx context.Context, account, password
 		Id:    user.Id,
 		Token: token,
 	}, nil
+}
+
+func (r *AuthUseCase) SendPhoneCode(ctx context.Context, template, phone string) error {
+	err := r.repo.SendPhoneCode(ctx, template, phone)
+	if err != nil {
+		return v1.ErrorSendCodeFailed("send code failed: %s", err.Error())
+	}
+	return nil
+}
+
+func (r *AuthUseCase) SendEmailCode(ctx context.Context, template, email string) error {
+	err := r.repo.SendEmailCode(ctx, template, email)
+	if err != nil {
+		return v1.ErrorSendCodeFailed("send code failed: %s", err.Error())
+	}
+	return nil
 }
 
 func signToken(id int64, key string) (string, error) {
