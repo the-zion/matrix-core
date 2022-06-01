@@ -23,9 +23,9 @@ func wireApp(confServer *conf.Server, confData *conf.Data, auth *conf.Auth, logg
 	db := data.NewDB(confData, logger)
 	cmdable := data.NewRedis(confData, logger)
 	producer := data.NewRocketmqProducer(confData, logger)
-	pushConsumer := data.NewRocketmqConsumer(confData, logger)
 	txCode := data.NewPhoneCode(confData)
 	goMail := data.NewGoMail(confData)
+	pushConsumer := data.NewRocketmqConsumer(confData, txCode, goMail, logger)
 	dataData, cleanup, err := data.NewData(db, cmdable, producer, pushConsumer, txCode, goMail, logger)
 	if err != nil {
 		return nil, nil, err
