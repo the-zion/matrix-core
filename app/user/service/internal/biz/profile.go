@@ -2,8 +2,8 @@ package biz
 
 import (
 	"context"
-	v1 "github.com/Cube-v2/matrix-core/api/user/service/v1"
 	"github.com/go-kratos/kratos/v2/log"
+	v1 "github.com/the-zion/matrix-core/api/user/service/v1"
 )
 
 type Profile struct {

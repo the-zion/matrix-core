@@ -3,12 +3,12 @@ package biz
 import (
 	"context"
 	"fmt"
-	v1 "github.com/Cube-v2/matrix-core/api/user/service/v1"
-	"github.com/Cube-v2/matrix-core/app/user/service/internal/conf"
 	kerrors "github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/pkg/errors"
+	v1 "github.com/the-zion/matrix-core/api/user/service/v1"
+	"github.com/the-zion/matrix-core/app/user/service/internal/conf"
 )
 
 type Login struct {
