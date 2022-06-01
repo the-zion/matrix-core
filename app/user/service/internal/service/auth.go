@@ -37,3 +37,23 @@ func (s *UserService) LoginPassWordForget(ctx context.Context, req *v1.LoginPass
 		Token: login.Token,
 	}, nil
 }
+
+func (s *UserService) SendPhoneCode(ctx context.Context, req *v1.SendPhoneCodeReq) (*v1.SendPhoneCodeReply, error) {
+	err := s.ac.SendPhoneCode(ctx, req.Template, req.Phone)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.SendPhoneCodeReply{
+		Success: true,
+	}, nil
+}
+
+func (s *UserService) SendEmailCode(ctx context.Context, req *v1.SendEmailCodeReq) (*v1.SendEmailCodeReply, error) {
+	err := s.ac.SendEmailCode(ctx, req.Template, req.Email)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.SendEmailCodeReply{
+		Success: true,
+	}, nil
+}
