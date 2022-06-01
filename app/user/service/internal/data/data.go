@@ -2,7 +2,12 @@ package data
 
 import (
 	"context"
+	"fmt"
 	"github.com/Cube-v2/matrix-core/app/user/service/internal/conf"
+	"github.com/apache/rocketmq-client-go/v2"
+	"github.com/apache/rocketmq-client-go/v2/consumer"
+	"github.com/apache/rocketmq-client-go/v2/primitive"
+	"github.com/apache/rocketmq-client-go/v2/producer"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-redis/redis/v8"
 	"github.com/google/wire"
@@ -15,7 +20,7 @@ import (
 	"time"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewPhoneCode, NewGoMail, NewUserRepo, NewAuthRepo, NewProfileRepo)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewRocketmqProducer, NewRocketmqConsumer, NewPhoneCode, NewGoMail, NewUserRepo, NewAuthRepo, NewProfileRepo)
 
 type TxCode struct {
 	client  *sms.Client
@@ -30,12 +35,14 @@ type GoMail struct {
 type Data struct {
 	db           *gorm.DB
 	redisCli     redis.Cmdable
+	mqPro        rocketmq.Producer
+	mqCum        rocketmq.PushConsumer
 	phoneCodeCli *TxCode
 	goMailCli    *GoMail
 }
 
 func NewDB(conf *conf.Data, logger log.Logger) *gorm.DB {
-	l := log.NewHelper(log.With(logger, "module", "user/data/new-mysql"))
+	l := log.NewHelper(log.With(logger, "module", "user/data/mysql"))
 
 	db, err := gorm.Open(mysql.Open(conf.Database.Source), &gorm.Config{
 		DisableForeignKeyConstraintWhenMigrating: true,
@@ -50,7 +57,7 @@ func NewDB(conf *conf.Data, logger log.Logger) *gorm.DB {
 }
 
 func NewRedis(conf *conf.Data, logger log.Logger) redis.Cmdable {
-	l := log.NewHelper(log.With(logger, "module", "user/data/new-redis"))
+	l := log.NewHelper(log.With(logger, "module", "user/data/redis"))
 	client := redis.NewClient(&redis.Options{
 		Addr:         conf.Redis.Addr,
 		ReadTimeout:  conf.Redis.ReadTimeout.AsDuration(),
@@ -94,25 +101,110 @@ func NewGoMail(conf *conf.Data) *GoMail {
 	}
 }
 
-//func NewKafkaProducer(conf *conf.Data) sarama.AsyncProducer {
-//	c := sarama.NewConfig()
-//	p, err := sarama.NewAsyncProducer(conf.Kafka.Addrs, c)
-//	if err != nil {
-//		panic(err)
-//	}
-//	return p
-//}
+func NewRocketmqProducer(conf *conf.Data, logger log.Logger) rocketmq.Producer {
+	l := log.NewHelper(log.With(logger, "module", "user/data/rocketmq-producer"))
+	p, err := rocketmq.NewProducer(
+		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.Rocketmq.ServerAddress})),
+		producer.WithCredentials(primitive.Credentials{
+			SecretKey: conf.Rocketmq.SecretKey,
+			AccessKey: conf.Rocketmq.AccessKey,
+		}),
+		producer.WithGroupName(conf.Rocketmq.GroupName),
+		producer.WithNamespace(conf.Rocketmq.NameSpace),
+	)
+	if err != nil {
+		l.Fatalf("init producer error: %v", err)
+	}
 
-func NewData(db *gorm.DB, redisCmd redis.Cmdable, phoneCodeCli *TxCode, goMailCli *GoMail, logger log.Logger) (*Data, func(), error) {
+	err = p.Start()
+	if err != nil {
+		l.Fatalf("start producer error: %v", err)
+	}
+	return p
+}
+
+func NewRocketmqConsumer(conf *conf.Data, logger log.Logger) rocketmq.PushConsumer {
+	l := log.NewHelper(log.With(logger, "module", "user/data/rocketmq-producer"))
+	c, err := rocketmq.NewPushConsumer(
+		consumer.WithGroupName(conf.Rocketmq.GroupName),
+		consumer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.Rocketmq.ServerAddress})),
+		consumer.WithCredentials(primitive.Credentials{
+			SecretKey: conf.Rocketmq.SecretKey,
+			AccessKey: conf.Rocketmq.AccessKey,
+		}),
+		consumer.WithNamespace(conf.Rocketmq.NameSpace),
+		consumer.WithConsumeFromWhere(consumer.ConsumeFromFirstOffset),
+		consumer.WithConsumerModel(consumer.Clustering),
+	)
+	if err != nil {
+		l.Fatalf("init consumer error: %v", err)
+	}
+
+	//err = c.Subscribe("code", consumer.MessageSelector{
+	//	Type:       consumer.TAG,
+	//	Expression: "Phone || Email",
+	//}, func(ctx context.Context,
+	//	msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
+	//	fmt.Printf("subscribe callback len: %d \n", len(msgs))
+	//	return consumer.ConsumeSuccess, nil
+	//})
+	err = c.Subscribe("code", consumer.MessageSelector{
+		Type:       consumer.TAG,
+		Expression: "Phone || Email",
+	}, func(ctx context.Context,
+		msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
+		fmt.Printf("subscribe callback len: %d \n", len(msgs))
+		// 设置下次消费的延迟级别
+		concurrentCtx, _ := primitive.GetConcurrentlyCtx(ctx)
+		concurrentCtx.DelayLevelWhenNextConsume = 1 // only run when return consumer.ConsumeRetryLater
+
+		for _, msg := range msgs {
+			// 模拟重试3次后消费成功
+			if msg.ReconsumeTimes > 3 {
+				fmt.Printf("msg ReconsumeTimes > 3. msg: %v", msg)
+				return consumer.ConsumeSuccess, nil
+			} else {
+				fmt.Printf("subscribe callback: %v \n", msg)
+			}
+		}
+		// 模拟消费失败，回复重试
+		return consumer.ConsumeRetryLater, nil
+	})
+	if err != nil {
+		l.Fatalf("consumer subscribe error: %v", err)
+	}
+
+	err = c.Start()
+	if err != nil {
+		l.Fatalf("start consumer error: %v", err)
+	}
+
+	return c
+}
+
+func NewData(db *gorm.DB, redisCmd redis.Cmdable, p rocketmq.Producer, c rocketmq.PushConsumer, phoneCodeCli *TxCode, goMailCli *GoMail, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(logger, "module", "user/data/new-data"))
 
 	d := &Data{
 		db:           db,
+		mqPro:        p,
+		mqCum:        c,
 		redisCli:     redisCmd,
 		phoneCodeCli: phoneCodeCli,
 		goMailCli:    goMailCli,
 	}
 	return d, func() {
+		var err error
 		l.Info("closing the data resources")
+
+		err = d.mqPro.Shutdown()
+		if err != nil {
+			l.Errorf("shutdown producer error: %v", err.Error())
+		}
+
+		err = d.mqCum.Shutdown()
+		if err != nil {
+			l.Errorf("shutdown consumer error: %v", err.Error())
+		}
 	}, nil
 }
