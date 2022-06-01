@@ -5,16 +5,6 @@ import (
 	v1 "github.com/the-zion/matrix-core/api/user/service/v1"
 )
 
-func (s *UserService) SendCode(ctx context.Context, req *v1.SendCodeReq) (*v1.SendCodeReply, error) {
-	err := s.uc.SendCode(ctx, req.Template, req.Account, req.Mode)
-	if err != nil {
-		return nil, err
-	}
-	return &v1.SendCodeReply{
-		Success: true,
-	}, nil
-}
-
 func (s *UserService) GetUser(ctx context.Context, req *v1.GetUserReq) (*v1.GetUserReply, error) {
 	user, err := s.uc.GetUser(ctx, req.Id)
 	if err != nil {
