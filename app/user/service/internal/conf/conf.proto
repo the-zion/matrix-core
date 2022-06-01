@@ -45,10 +45,18 @@ message Data {
   message Mail{
     string code = 1;
   }
+  message Rocketmq{
+    string serverAddress = 1;
+    string secretKey = 2;
+    string accessKey = 3;
+    string nameSpace = 4;
+    string groupName = 5;
+  }
   Database database = 1;
   Redis redis = 2;
   Code code = 3;
   Mail mail = 4;
+  Rocketmq rocketmq = 5;
 }
 
 message Auth {
