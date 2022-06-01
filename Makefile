@@ -24,10 +24,8 @@ api:
  	       --go-grpc_out=paths=source_relative:./api \
  	       --go-errors_out=paths=source_relative:./api \
  	       --validate_out=paths=source_relative,lang=go:./api \
- 	       --openapi_out==paths=source_relative:. \
- 	       --openapiv2_out . \
-           --openapiv2_opt logtostderr=true \
-           --openapiv2_opt json_names_for_fields=false \
+ 	       --js_out=import_style=commonjs:./api \
+           --grpc-web_out=import_style=commonjs,mode=grpcwebtext:./api \
 	       $(API_PROTO_FILES)
 
 .PHONY: swagger
