@@ -2,7 +2,6 @@ package data
 
 import (
 	"context"
-	"fmt"
 	"github.com/apache/rocketmq-client-go/v2"
 	"github.com/apache/rocketmq-client-go/v2/consumer"
 	"github.com/apache/rocketmq-client-go/v2/primitive"
@@ -14,9 +13,11 @@ import (
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/profile"
 	sms "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms/v20210111"
 	"github.com/the-zion/matrix-core/app/user/service/internal/conf"
+	"github.com/the-zion/matrix-core/app/user/service/internal/pkg/util"
 	"gopkg.in/gomail.v2"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"strings"
 	"time"
 )
 
@@ -93,8 +94,8 @@ func NewPhoneCode(conf *conf.Data) *TxCode {
 
 func NewGoMail(conf *conf.Data) *GoMail {
 	m := gomail.NewMessage()
-	m.SetHeader("From", "cube-technology@foxmail.com")
-	d := gomail.NewDialer("smtp.qq.com", 465, "cube-technology@foxmail.com", conf.Mail.Code)
+	m.SetHeader("From", "matrixtechnology@163.com")
+	d := gomail.NewDialer("smtp.163.com", 465, "matrixtechnology@163.com", conf.Mail.Code)
 	return &GoMail{
 		message: m,
 		dialer:  d,
@@ -123,8 +124,8 @@ func NewRocketmqProducer(conf *conf.Data, logger log.Logger) rocketmq.Producer {
 	return p
 }
 
-func NewRocketmqConsumer(conf *conf.Data, logger log.Logger) rocketmq.PushConsumer {
-	l := log.NewHelper(log.With(logger, "module", "user/data/rocketmq-producer"))
+func NewRocketmqConsumer(conf *conf.Data, phoneCodeCli *TxCode, goMailCli *GoMail, logger log.Logger) rocketmq.PushConsumer {
+	l := log.NewHelper(log.With(logger, "module", "user/data/rocketmq-consumer"))
 	c, err := rocketmq.NewPushConsumer(
 		consumer.WithGroupName(conf.Rocketmq.GroupName),
 		consumer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.Rocketmq.ServerAddress})),
@@ -140,34 +141,27 @@ func NewRocketmqConsumer(conf *conf.Data, logger log.Logger) rocketmq.PushConsum
 		l.Fatalf("init consumer error: %v", err)
 	}
 
-	//err = c.Subscribe("code", consumer.MessageSelector{
-	//	Type:       consumer.TAG,
-	//	Expression: "Phone || Email",
-	//}, func(ctx context.Context,
-	//	msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
-	//	fmt.Printf("subscribe callback len: %d \n", len(msgs))
-	//	return consumer.ConsumeSuccess, nil
-	//})
 	err = c.Subscribe("code", consumer.MessageSelector{
 		Type:       consumer.TAG,
-		Expression: "Phone || Email",
+		Expression: "phone || email",
 	}, func(ctx context.Context,
 		msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
-		fmt.Printf("subscribe callback len: %d \n", len(msgs))
-		// 设置下次消费的延迟级别
-		concurrentCtx, _ := primitive.GetConcurrentlyCtx(ctx)
-		concurrentCtx.DelayLevelWhenNextConsume = 1 // only run when return consumer.ConsumeRetryLater
+		for _, i := range msgs {
+			body := strings.Split(string(i.Body), ";")
+			if body[3] == "phone" {
+				e := SendPhoneCode(phoneCodeCli, body[0], body[1], body[2])
+				if e != nil {
+					l.Errorf("fail to send phone code: code(%s) error: %v", body[1], e.Error())
+				}
+			}
 
-		for _, msg := range msgs {
-			// 模拟重试3次后消费成功
-			if msg.ReconsumeTimes > 3 {
-				fmt.Printf("msg ReconsumeTimes > 3. msg: %v", msg)
-				return consumer.ConsumeSuccess, nil
-			} else {
-				fmt.Printf("subscribe callback: %v \n", msg)
+			if body[3] == "email" {
+				e := SendEmailCode(goMailCli, body[0], body[1], body[2])
+				if e != nil {
+					l.Errorf("fail to send email code: code(%s) error: %v", body[1], e.Error())
+				}
 			}
 		}
-		// 模拟消费失败，回复重试
 		return consumer.ConsumeRetryLater, nil
 	})
 	if err != nil {
@@ -180,6 +174,32 @@ func NewRocketmqConsumer(conf *conf.Data, logger log.Logger) rocketmq.PushConsum
 	}
 
 	return c
+}
+
+func SendPhoneCode(phoneCodeCli *TxCode, phone, code, template string) error {
+	request := phoneCodeCli.request
+	client := phoneCodeCli.client
+	request.TemplateId = common.StringPtr(util.GetPhoneTemplate(template))
+	request.TemplateParamSet = common.StringPtrs([]string{code})
+	request.PhoneNumberSet = common.StringPtrs([]string{phone})
+	_, err := client.SendSms(request)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func SendEmailCode(goMailCli *GoMail, email, code, template string) error {
+	m := goMailCli.message
+	d := goMailCli.dialer
+	m.SetHeader("To", email)
+	m.SetHeader("Subject", "matrix 魔方技术")
+	m.SetBody("text/html", util.GetEmailTemplate(template, code))
+	err := d.DialAndSend(m)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func NewData(db *gorm.DB, redisCmd redis.Cmdable, p rocketmq.Producer, c rocketmq.PushConsumer, phoneCodeCli *TxCode, goMailCli *GoMail, logger log.Logger) (*Data, func(), error) {
