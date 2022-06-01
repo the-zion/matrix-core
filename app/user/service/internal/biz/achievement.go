@@ -3,7 +3,7 @@ package biz
 import (
 	"context"
 	"errors"
-	v1 "github.com/Cube-v2/cube-core/api/user/service/v1"
+	v1 "github.com/Cube-v2/matrix-core/api/user/service/v1"
 	"github.com/go-kratos/kratos/v2/log"
 )
 
