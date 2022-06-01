@@ -2,9 +2,6 @@ package server
 
 import (
 	"context"
-	v1 "github.com/Cube-v2/matrix-core/api/user/service/v1"
-	"github.com/Cube-v2/matrix-core/app/user/service/internal/conf"
-	"github.com/Cube-v2/matrix-core/app/user/service/internal/service"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
 	"github.com/go-kratos/kratos/v2/middleware/logging"
@@ -13,6 +10,9 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware/validate"
 	"github.com/go-kratos/kratos/v2/transport/http"
 	jwt2 "github.com/golang-jwt/jwt/v4"
+	v1 "github.com/the-zion/matrix-core/api/user/service/v1"
+	"github.com/the-zion/matrix-core/app/user/service/internal/conf"
+	"github.com/the-zion/matrix-core/app/user/service/internal/service"
 	"strings"
 )
 
