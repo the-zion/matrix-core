@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	v1 "github.com/Cube-v2/matrix-core/api/user/service/v1"
+	v1 "github.com/the-zion/matrix-core/api/user/service/v1"
 )
 
 func (s *UserService) LoginByPassword(ctx context.Context, req *v1.LoginByPasswordReq) (*v1.LoginReply, error) {

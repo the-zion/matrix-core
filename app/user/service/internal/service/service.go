@@ -2,12 +2,12 @@ package service
 
 import (
 	"context"
-	v1 "github.com/Cube-v2/matrix-core/api/user/service/v1"
-	"github.com/Cube-v2/matrix-core/app/user/service/internal/biz"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
 	v4 "github.com/golang-jwt/jwt/v4"
 	"github.com/google/wire"
+	v1 "github.com/the-zion/matrix-core/api/user/service/v1"
+	"github.com/the-zion/matrix-core/app/user/service/internal/biz"
 )
 
 var ProviderSet = wire.NewSet(NewUserService)
