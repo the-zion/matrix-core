@@ -3,12 +3,16 @@ package data
 import (
 	"context"
 	"fmt"
+	"github.com/apache/rocketmq-client-go/v2/primitive"
 	v2 "github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-redis/redis/v8"
 	"github.com/pkg/errors"
 	"github.com/the-zion/matrix-core/app/user/service/internal/biz"
+	"github.com/the-zion/matrix-core/app/user/service/internal/pkg/util"
 	"gorm.io/gorm"
+	"strings"
+	"time"
 )
 
 var _ biz.AuthRepo = (*authRepo)(nil)
@@ -39,6 +43,48 @@ func (r *authRepo) FindByAccount(ctx context.Context, account, mode string) (*bi
 	}, nil
 }
 
+func (r *authRepo) SendPhoneCode(ctx context.Context, template, phone string) error {
+	code := util.RandomNumber()
+	err := r.setCodeToCache(ctx, "phone_"+phone, code)
+	if err != nil {
+		return err
+	}
+
+	message := strings.Join([]string{phone, code, template, "phone"}, ";")
+	msg := &primitive.Message{
+		Topic: "code",
+		Body:  []byte(message),
+	}
+	msg.WithTag("phone")
+	err = r.data.mqPro.SendOneWay(ctx, msg)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to send code to producer: %s", message))
+	}
+
+	return nil
+}
+
+func (r *authRepo) SendEmailCode(ctx context.Context, template, email string) error {
+	code := util.RandomNumber()
+	err := r.setCodeToCache(ctx, "email_"+email, code)
+	if err != nil {
+		return err
+	}
+
+	message := strings.Join([]string{email, code, template, "email"}, ";")
+	msg := &primitive.Message{
+		Topic: "code",
+		Body:  []byte(message),
+	}
+	msg.WithTag("email")
+	err = r.data.mqPro.SendOneWay(ctx, msg)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to send code to producer: %s", message))
+	}
+
+	return nil
+}
+
 func (r *authRepo) VerifyCode(ctx context.Context, account, code, mode string) error {
 	key := mode + "_" + account
 	codeInCache, err := r.getCodeFromCache(ctx, key)
@@ -48,7 +94,7 @@ func (r *authRepo) VerifyCode(ctx context.Context, account, code, mode string) e
 	if code != codeInCache {
 		return errors.Errorf("code error")
 	}
-	r.removeUserCodeFromCache(ctx, key)
+	r.removeCodeFromCache(ctx, key)
 	return nil
 }
 
@@ -118,6 +164,14 @@ func (r *authRepo) RegisterWithEmail(ctx context.Context, email string) (*biz.Us
 //	}, nil
 //}
 
+func (r *authRepo) setCodeToCache(ctx context.Context, key, code string) error {
+	err := r.data.redisCli.Set(ctx, key, code, time.Minute*2).Err()
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to set code to cache: redis.Set(%v), code(%s)", key, code))
+	}
+	return nil
+}
+
 func (r *authRepo) getCodeFromCache(ctx context.Context, key string) (string, error) {
 	code, err := r.data.redisCli.Get(ctx, key).Result()
 	if errors.Is(err, redis.Nil) {
@@ -129,7 +183,7 @@ func (r *authRepo) getCodeFromCache(ctx context.Context, key string) (string, er
 	return code, nil
 }
 
-func (r *authRepo) removeUserCodeFromCache(ctx context.Context, key string) {
+func (r *authRepo) removeCodeFromCache(ctx context.Context, key string) {
 	_, err := r.data.redisCli.Del(ctx, key).Result()
 	if err != nil {
 		r.log.Errorf("fail to delete code from cache: redis.Del(key, %v), error(%v)", key, err)
