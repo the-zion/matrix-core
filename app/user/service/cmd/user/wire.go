@@ -6,14 +6,14 @@
 package main
 
 import (
-	"github.com/Cube-v2/matrix-core/app/user/service/internal/biz"
-	"github.com/Cube-v2/matrix-core/app/user/service/internal/conf"
-	"github.com/Cube-v2/matrix-core/app/user/service/internal/data"
-	"github.com/Cube-v2/matrix-core/app/user/service/internal/server"
-	"github.com/Cube-v2/matrix-core/app/user/service/internal/service"
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
+	"github.com/the-zion/matrix-core/app/user/service/internal/biz"
+	"github.com/the-zion/matrix-core/app/user/service/internal/conf"
+	"github.com/the-zion/matrix-core/app/user/service/internal/data"
+	"github.com/the-zion/matrix-core/app/user/service/internal/server"
+	"github.com/the-zion/matrix-core/app/user/service/internal/service"
 )
 
 // wireApp init kratos application.

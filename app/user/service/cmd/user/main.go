@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"github.com/Cube-v2/matrix-core/app/user/service/internal/conf"
+	"github.com/the-zion/matrix-core/app/user/service/internal/conf"
 	"os"
 
 	"github.com/go-kratos/kratos/v2"
