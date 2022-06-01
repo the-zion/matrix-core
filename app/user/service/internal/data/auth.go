@@ -3,11 +3,11 @@ package data
 import (
 	"context"
 	"fmt"
-	"github.com/Cube-v2/matrix-core/app/user/service/internal/biz"
 	v2 "github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-redis/redis/v8"
 	"github.com/pkg/errors"
+	"github.com/the-zion/matrix-core/app/user/service/internal/biz"
 	"gorm.io/gorm"
 )
 

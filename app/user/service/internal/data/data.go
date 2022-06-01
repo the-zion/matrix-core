@@ -3,7 +3,6 @@ package data
 import (
 	"context"
 	"fmt"
-	"github.com/Cube-v2/matrix-core/app/user/service/internal/conf"
 	"github.com/apache/rocketmq-client-go/v2"
 	"github.com/apache/rocketmq-client-go/v2/consumer"
 	"github.com/apache/rocketmq-client-go/v2/primitive"
@@ -14,6 +13,7 @@ import (
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/profile"
 	sms "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms/v20210111"
+	"github.com/the-zion/matrix-core/app/user/service/internal/conf"
 	"gopkg.in/gomail.v2"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
