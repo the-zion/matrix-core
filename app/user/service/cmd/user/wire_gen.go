@@ -7,6 +7,7 @@
 package main
 
 import (
+	"github.com/go-kratos/kratos/contrib/registry/nacos/v2"
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/the-zion/matrix-core/app/user/service/internal/biz"
@@ -16,10 +17,17 @@ import (
 	"github.com/the-zion/matrix-core/app/user/service/internal/service"
 )
 
+import (
+	_ "github.com/go-kratos/kratos/contrib/registry/nacos/v2"
+	_ "github.com/nacos-group/nacos-sdk-go/clients"
+	_ "github.com/nacos-group/nacos-sdk-go/common/constant"
+	_ "github.com/nacos-group/nacos-sdk-go/vo"
+)
+
 // Injectors from wire.go:
 
 // wireApp init kratos application.
-func wireApp(confServer *conf.Server, confData *conf.Data, auth *conf.Auth, logger log.Logger) (*kratos.App, func(), error) {
+func wireApp(confServer *conf.Server, confData *conf.Data, auth *conf.Auth, logger log.Logger, registry *nacos.Registry) (*kratos.App, func(), error) {
 	db := data.NewDB(confData, logger)
 	cmdable := data.NewRedis(confData, logger)
 	producer := data.NewRocketmqProducer(confData, logger)
@@ -38,8 +46,8 @@ func wireApp(confServer *conf.Server, confData *conf.Data, auth *conf.Auth, logg
 	profileUseCase := biz.NewProfileUseCase(profileRepo, logger)
 	userService := service.NewUserService(userUseCase, authUseCase, profileUseCase, logger)
 	httpServer := server.NewHTTPServer(confServer, auth, userService, logger)
-	grpcServer := server.NewGRPCServer(confServer, userService, logger)
-	app := newApp(logger, httpServer, grpcServer)
+	grpcServer := server.NewGRPCServer(confServer, auth, userService, logger)
+	app := newApp(logger, registry, httpServer, grpcServer)
 	return app, func() {
 		cleanup()
 	}, nil
