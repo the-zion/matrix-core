@@ -24,8 +24,6 @@ api:
  	       --go-grpc_out=paths=source_relative:./api \
  	       --go-errors_out=paths=source_relative:./api \
  	       --validate_out=paths=source_relative,lang=go:./api \
- 	       --js_out=import_style=commonjs:./api \
-           --grpc-web_out=import_style=commonjs,mode=grpcwebtext:./api \
 	       $(API_PROTO_FILES)
 
 .PHONY: swagger
@@ -47,6 +45,11 @@ build:
 generate:
 	go mod tidy
 	go get github.com/google/wire/cmd/wire@latest
+	go generate ./...
+
+.PHONY: wire
+# wire
+wire:
 	go generate ./...
 
 .PHONY: all
