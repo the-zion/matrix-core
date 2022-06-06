@@ -2,16 +2,20 @@ package main
 
 import (
 	"flag"
-	"github.com/the-zion/matrix-core/app/user/service/internal/conf"
-	"os"
-
+	nc "github.com/go-kratos/kratos/contrib/config/nacos/v2"
+	"github.com/go-kratos/kratos/contrib/registry/nacos/v2"
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/config"
-	"github.com/go-kratos/kratos/v2/config/file"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/go-kratos/kratos/v2/transport/http"
+	"github.com/nacos-group/nacos-sdk-go/clients"
+	"github.com/nacos-group/nacos-sdk-go/common/constant"
+	"github.com/nacos-group/nacos-sdk-go/vo"
+	"github.com/the-zion/matrix-core/app/user/service/internal/conf"
+	"gopkg.in/yaml.v3"
+	"os"
 )
 
 // go build -ldflags "-X main.Version=x.y.z"
@@ -30,10 +34,11 @@ func init() {
 	flag.StringVar(&flagconf, "conf", "../../configs", "config path, eg: -conf config.yaml")
 }
 
-func newApp(logger log.Logger, hs *http.Server, gs *grpc.Server) *kratos.App {
+func newApp(logger log.Logger, r *nacos.Registry, hs *http.Server, gs *grpc.Server) *kratos.App {
 	return kratos.New(
 		kratos.ID(id),
 		kratos.Name(Name),
+		kratos.Registrar(r),
 		kratos.Version(Version),
 		kratos.Metadata(map[string]string{}),
 		kratos.Logger(logger),
@@ -55,10 +60,47 @@ func main() {
 		"trace.id", tracing.TraceID(),
 		"span.id", tracing.SpanID(),
 	)
+
+	sc := []constant.ServerConfig{
+		*constant.NewServerConfig("localhost", 8848),
+	}
+	cc := &constant.ClientConfig{
+		NamespaceId:          "public",
+		TimeoutMs:            5000,
+		NotLoadCacheAtStart:  true,
+		UpdateCacheWhenEmpty: true,
+		RotateTime:           "1h",
+		MaxAge:               3,
+		LogLevel:             "warn",
+	}
+
+	client, err := clients.NewConfigClient(
+		vo.NacosClientParam{
+			ClientConfig:  cc,
+			ServerConfigs: sc,
+		},
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	dataID := "user"
+	group := "matrix"
+	_, err = client.PublishConfig(vo.ConfigParam{DataId: dataID, Group: group, Content: `
+logger:
+  level: warn
+`})
+	if err != nil {
+		panic(err)
+	}
+
 	c := config.New(
 		config.WithSource(
-			file.NewSource(flagconf),
+			nc.NewConfigSource(client, nc.WithGroup(group), nc.WithDataID(dataID)),
 		),
+		config.WithDecoder(func(kv *config.KeyValue, v map[string]interface{}) error {
+			return yaml.Unmarshal(kv.Value, v)
+		}),
 	)
 	defer c.Close()
 
@@ -71,9 +113,19 @@ func main() {
 		panic(err)
 	}
 
-	//validate := validator.New()
+	rclient, err := clients.NewNamingClient(
+		vo.NacosClientParam{
+			ClientConfig:  cc,
+			ServerConfigs: sc,
+		},
+	)
+	if err != nil {
+		panic(err)
+	}
 
-	app, cleanup, err := wireApp(bc.Server, bc.Data, bc.Auth, logger)
+	r := nacos.New(rclient)
+
+	app, cleanup, err := wireApp(bc.Server, bc.Data, bc.Auth, logger, r)
 	if err != nil {
 		panic(err)
 	}
