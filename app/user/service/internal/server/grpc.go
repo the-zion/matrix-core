@@ -13,6 +13,7 @@ import (
 	v1 "github.com/the-zion/matrix-core/api/user/service/v1"
 	"github.com/the-zion/matrix-core/app/user/service/internal/conf"
 	"github.com/the-zion/matrix-core/app/user/service/internal/service"
+	"github.com/the-zion/matrix-core/pkg/responce"
 	"strings"
 )
 
@@ -30,8 +31,9 @@ func NewGRPCServer(c *conf.Server, ac *conf.Auth, userService *service.UserServi
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
 			recovery.Recovery(),
-			validate.Validator(),
+			responce.Server(),
 			logging.Server(logger),
+			validate.Validator(),
 			selector.Server(
 				jwt.Server(func(token *jwt2.Token) (interface{}, error) {
 					return []byte(ac.ApiKey), nil
