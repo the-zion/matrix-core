@@ -14,12 +14,7 @@ service User {
       body: "*"
     };
   }
-  rpc LoginByCode (LoginByCodeReq) returns (LoginReply) {
-    option (google.api.http) = {
-      post: "/v1/login/code"
-      body: "*"
-    };
-  }
+  rpc LoginByCode (LoginByCodeReq) returns (LoginReply) {}
   rpc LoginByWeChat (LoginByWeChatReq) returns (LoginReply) {
     option (google.api.http) = {
       post: "/v1/login/wechat"
@@ -38,12 +33,7 @@ service User {
       body: "*"
     };
   }
-  rpc SendPhoneCode (SendPhoneCodeReq) returns (SendPhoneCodeReply) {
-    option (google.api.http) = {
-      post: "/v1/user/code/phone"
-      body: "*"
-    };
-  }
+  rpc SendPhoneCode (SendPhoneCodeReq) returns (SendPhoneCodeReply){}
   rpc SendEmailCode (SendEmailCodeReq) returns (SendEmailCodeReply) {
     option (google.api.http) = {
       post: "/v1/user/code/email"
@@ -96,8 +86,8 @@ message LoginByPasswordReq {
 }
 
 message LoginByCodeReq {
-  string phone = 1 [(validate.rules).string.pattern = "^\\+[1-9]?[0-9]{7,14}$"];
-  string code = 2 [(validate.rules).string.pattern = "^[0-9]+$"];
+  string phone = 1 [(validate.rules).string.pattern = "^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(17[0,3,5-8])|(18[0-9])|166|198|199|(147))\\d{8}$"];
+  string code = 2 [(validate.rules).string.pattern = "^[0-9]{6}$"];
 }
 
 message LoginReply {
