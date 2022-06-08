@@ -29,6 +29,7 @@ type userRepo struct {
 
 type User struct {
 	gorm.Model
+	Uuid     string `gorm:"uniqueIndex;size:200"`
 	Email    string `gorm:"uniqueIndex;size:200"`
 	Phone    string `gorm:"uniqueIndex;size:200"`
 	Wechat   string `gorm:"uniqueIndex;size:500"`
@@ -53,7 +54,7 @@ func (r *userRepo) FindByAccount(ctx context.Context, account, types string) (*b
 		return nil, errors.Wrapf(err, fmt.Sprintf("db query system error: account(%s), type(%s)", account, types))
 	}
 	return &biz.User{
-		Id: int64(user.Model.ID),
+		Uuid: user.Uuid,
 	}, nil
 }
 
@@ -102,7 +103,7 @@ func (r *userRepo) SendCode(ctx context.Context, template int64, account, mode s
 func (r *userRepo) sendPhoneCode(template int64, phone, code string) error {
 	request := r.data.phoneCodeCli.request
 	client := r.data.phoneCodeCli.client
-	request.TemplateId = common.StringPtr(util.GetPhoneTemplate(template))
+	request.TemplateId = common.StringPtr(util.GetPhoneTemplate(string(template)))
 	request.TemplateParamSet = common.StringPtrs([]string{code})
 	request.PhoneNumberSet = common.StringPtrs([]string{phone})
 	_, err := client.SendSms(request)
@@ -117,7 +118,7 @@ func (r *userRepo) sendEmailCode(template int64, email, code string) error {
 	d := r.data.goMailCli.dialer
 	m.SetHeader("To", email)
 	m.SetHeader("Subject", "cube 魔方技术")
-	m.SetBody("text/html", util.GetEmailTemplate(template, code))
+	m.SetBody("text/html", util.GetEmailTemplate(string(template), code))
 	err := d.DialAndSend(m)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send email code: code(%v)", code))
@@ -141,7 +142,9 @@ func (r *userRepo) VerifyCode(ctx context.Context, account, code, mode string) e
 func (r *userRepo) PasswordModify(ctx context.Context, id int64, password string) error {
 	password, err := util.HashPassword(password)
 	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to hash password: password(%s)", password))
+
+		//Name interface {}
+
 	}
 	if err = r.data.db.WithContext(ctx).Model(&User{}).Where("id = ?", id).Update("password", password).Error; err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to modify password: password(%s), user_id(%v)", password, id))
