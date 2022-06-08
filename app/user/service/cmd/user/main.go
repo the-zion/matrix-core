@@ -20,13 +20,12 @@ import (
 
 // go build -ldflags "-X main.Version=x.y.z"
 var (
-	// Name is the name of the compiled software.
-	Name string
 	// Version is the version of the compiled software.
 	Version string
 	// flagconf is the config flag.
 	flagconf string
 
+	Name  = "user"
 	id, _ = os.Hostname()
 )
 
@@ -62,7 +61,7 @@ func main() {
 	)
 
 	sc := []constant.ServerConfig{
-		*constant.NewServerConfig("localhost", 8848),
+		*constant.NewServerConfig("124.223.94.61", 30000),
 	}
 	cc := &constant.ClientConfig{
 		NamespaceId:          "public",
@@ -84,7 +83,7 @@ func main() {
 		panic(err)
 	}
 
-	dataID := "user"
+	dataID := Name
 	group := "matrix"
 	_, err = client.PublishConfig(vo.ConfigParam{DataId: dataID, Group: group, Content: `
 logger:
