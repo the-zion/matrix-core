@@ -34,7 +34,7 @@ func NewProfileRepo(data *Data, logger log.Logger) biz.ProfileRepo {
 
 type Profile struct {
 	gorm.Model
-	UserId          int64  `gorm:"uniqueIndex"`
+	Uuid            string `gorm:"uniqueIndex;size:200"`
 	Username        string `gorm:"uniqueIndex;size:200"`
 	Sex             string `gorm:"size:100"`
 	Introduce       string `gorm:"size:200"`
