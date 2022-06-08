@@ -12,6 +12,7 @@ import (
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/profile"
 	sms "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms/v20210111"
+	"github.com/the-zion/matrix-core/app/user/service/internal/biz"
 	"github.com/the-zion/matrix-core/app/user/service/internal/conf"
 	"github.com/the-zion/matrix-core/app/user/service/internal/pkg/util"
 	"gopkg.in/gomail.v2"
@@ -21,7 +22,7 @@ import (
 	"time"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewRocketmqProducer, NewRocketmqConsumer, NewPhoneCode, NewGoMail, NewUserRepo, NewAuthRepo, NewProfileRepo)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewTransaction, NewRedis, NewRocketmqProducer, NewRocketmqConsumer, NewPhoneCode, NewGoMail, NewUserRepo, NewAuthRepo, NewProfileRepo)
 
 type TxCode struct {
 	client  *sms.Client
@@ -42,6 +43,27 @@ type Data struct {
 	goMailCli    *GoMail
 }
 
+type contextTxKey struct{}
+
+func (d *Data) ExecTx(ctx context.Context, fn func(ctx context.Context) error) error {
+	return d.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		ctx = context.WithValue(ctx, contextTxKey{}, tx)
+		return fn(ctx)
+	})
+}
+
+func (d *Data) DB(ctx context.Context) *gorm.DB {
+	tx, ok := ctx.Value(contextTxKey{}).(*gorm.DB)
+	if ok {
+		return tx
+	}
+	return d.db
+}
+
+func NewTransaction(d *Data) biz.Transaction {
+	return d
+}
+
 func NewDB(conf *conf.Data, logger log.Logger) *gorm.DB {
 	l := log.NewHelper(log.With(logger, "module", "user/data/mysql"))
 
@@ -50,9 +72,6 @@ func NewDB(conf *conf.Data, logger log.Logger) *gorm.DB {
 	})
 	if err != nil {
 		l.Fatalf("failed opening connection to db: %v", err)
-	}
-	if err := db.AutoMigrate(&User{}, &Profile{}); err != nil {
-		l.Fatalf("failed creat or update table resources: %v", err)
 	}
 	return db
 }
