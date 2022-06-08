@@ -202,7 +202,7 @@ func (m *LoginByCodeReq) validate(all bool) error {
 	if !_LoginByCodeReq_Phone_Pattern.MatchString(m.GetPhone()) {
 		err := LoginByCodeReqValidationError{
 			field:  "Phone",
-			reason: "value does not match regex pattern \"^\\\\+[1-9]?[0-9]{7,14}$\"",
+			reason: "value does not match regex pattern \"^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(17[0,3,5-8])|(18[0-9])|166|198|199|(147))\\\\d{8}$\"",
 		}
 		if !all {
 			return err
@@ -213,7 +213,7 @@ func (m *LoginByCodeReq) validate(all bool) error {
 	if !_LoginByCodeReq_Code_Pattern.MatchString(m.GetCode()) {
 		err := LoginByCodeReqValidationError{
 			field:  "Code",
-			reason: "value does not match regex pattern \"^[0-9]+$\"",
+			reason: "value does not match regex pattern \"^[0-9]{6}$\"",
 		}
 		if !all {
 			return err
@@ -299,9 +299,9 @@ var _ interface {
 	ErrorName() string
 } = LoginByCodeReqValidationError{}
 
-var _LoginByCodeReq_Phone_Pattern = regexp.MustCompile("^\\+[1-9]?[0-9]{7,14}$")
+var _LoginByCodeReq_Phone_Pattern = regexp.MustCompile("^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(17[0,3,5-8])|(18[0-9])|166|198|199|(147))\\d{8}$")
 
-var _LoginByCodeReq_Code_Pattern = regexp.MustCompile("^[0-9]+$")
+var _LoginByCodeReq_Code_Pattern = regexp.MustCompile("^[0-9]{6}$")
 
 // Validate checks the field values on LoginReply with the rules defined in the
 // proto definition for this message. If any rules are violated, the first
