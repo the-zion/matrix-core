@@ -4,13 +4,13 @@ func GetPhoneTemplate(template string) string {
 	var id string
 	switch template {
 	case "1":
-		id = "1365683"
+		id = "1427600"
 	case "2":
-		id = "1365681"
+		id = "1427602"
 	case "3":
-		id = "1178113"
+		id = "1427603"
 	case "4":
-		id = "1372638"
+		id = "1427601"
 
 	}
 	return id
