@@ -17,13 +17,6 @@ import (
 	"github.com/the-zion/matrix-core/app/user/service/internal/service"
 )
 
-import (
-	_ "github.com/go-kratos/kratos/contrib/registry/nacos/v2"
-	_ "github.com/nacos-group/nacos-sdk-go/clients"
-	_ "github.com/nacos-group/nacos-sdk-go/common/constant"
-	_ "github.com/nacos-group/nacos-sdk-go/vo"
-)
-
 // Injectors from wire.go:
 
 // wireApp init kratos application.
@@ -41,7 +34,8 @@ func wireApp(confServer *conf.Server, confData *conf.Data, auth *conf.Auth, logg
 	userRepo := data.NewUserRepo(dataData, logger)
 	userUseCase := biz.NewUserUseCase(userRepo, logger)
 	authRepo := data.NewAuthRepo(dataData, logger)
-	authUseCase := biz.NewAuthUseCase(auth, authRepo, userRepo, logger)
+	transaction := data.NewTransaction(dataData)
+	authUseCase := biz.NewAuthUseCase(auth, authRepo, userRepo, transaction, logger)
 	profileRepo := data.NewProfileRepo(dataData, logger)
 	profileUseCase := biz.NewProfileUseCase(profileRepo, logger)
 	userService := service.NewUserService(userUseCase, authUseCase, profileUseCase, logger)
