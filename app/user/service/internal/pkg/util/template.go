@@ -27,6 +27,8 @@ func GetEmailTemplate(template, code string) string {
 		content = "您正在修改注册手机号码，验证码为：" + code + "，2分钟有效，为保障帐户安全，请勿向任何人提供此验证码"
 	case "4":
 		content = "您正在修改注册邮箱号码，验证码为：" + code + "，2分钟有效，为保障帐户安全，请勿向任何人提供此验证码"
+	case "5":
+		content = code + " 为您的邮箱注册验证码，请于2分钟内填写，如非本人操作，请忽略本信息。"
 	}
 	return content
 }
