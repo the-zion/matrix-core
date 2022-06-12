@@ -26,8 +26,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, auth *conf.Auth, logg
 	producer := data.NewRocketmqProducer(confData, logger)
 	txCode := data.NewPhoneCode(confData)
 	goMail := data.NewGoMail(confData)
-	pushConsumer := data.NewRocketmqConsumer(confData, txCode, goMail, logger)
-	dataData, cleanup, err := data.NewData(db, cmdable, producer, pushConsumer, txCode, goMail, logger)
+	dataData, cleanup, err := data.NewData(db, cmdable, producer, txCode, goMail, logger)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -41,7 +40,8 @@ func wireApp(confServer *conf.Server, confData *conf.Data, auth *conf.Auth, logg
 	userService := service.NewUserService(userUseCase, authUseCase, profileUseCase, logger)
 	httpServer := server.NewHTTPServer(confServer, auth, userService, logger)
 	grpcServer := server.NewGRPCServer(confServer, auth, userService, logger)
-	app := newApp(logger, registry, httpServer, grpcServer)
+	mqConsumerServer := server.NewMqConsumerServer(confData, userService, logger)
+	app := newApp(logger, registry, httpServer, grpcServer, mqConsumerServer)
 	return app, func() {
 		cleanup()
 	}, nil
