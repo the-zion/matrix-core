@@ -4,10 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/apache/rocketmq-client-go/v2/primitive"
-	v2 "github.com/go-kratos/kratos/v2/errors"
+	kerrors "github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-redis/redis/v8"
 	"github.com/pkg/errors"
+	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
 	"github.com/the-zion/matrix-core/app/user/service/internal/biz"
 	"github.com/the-zion/matrix-core/app/user/service/internal/pkg/util"
 	"gorm.io/gorm"
@@ -33,7 +34,7 @@ func (r *authRepo) FindUserByPhone(ctx context.Context, phone string) (string, e
 	user := &User{}
 	err := r.data.db.WithContext(ctx).Where("phone = ?", phone).First(user).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return "", v2.NotFound("phone not found from db", fmt.Sprintf("phone(%s)", phone))
+		return "", kerrors.NotFound("phone not found from db", fmt.Sprintf("phone(%s)", phone))
 	}
 	if err != nil {
 		return "", errors.Wrapf(err, fmt.Sprintf("db query system error: phone(%s)", phone))
@@ -44,14 +45,14 @@ func (r *authRepo) FindUserByPhone(ctx context.Context, phone string) (string, e
 func (r *authRepo) CreateUserWithPhone(ctx context.Context, phone string) (string, error) {
 	uuid, err := util.UUIdV4()
 	if err != nil {
-		return "", errors.Wrapf(err, fmt.Sprintf("fail to create uuid: phone(%s)", phone))
+		return "", errors.Wrapf(err, fmt.Sprintf("fail to create uuid: uuid(%s)", uuid))
 	}
 
 	user := &User{
 		Uuid:  uuid,
 		Phone: phone,
 	}
-	err = r.data.DB(ctx).Select("Phone").Create(user).Error
+	err = r.data.DB(ctx).Select("Phone", "Uuid").Create(user).Error
 	if err != nil {
 		return "", errors.Wrapf(err, fmt.Sprintf("fail to create a user: phone(%s)", phone))
 	}
@@ -59,8 +60,37 @@ func (r *authRepo) CreateUserWithPhone(ctx context.Context, phone string) (strin
 	return uuid, nil
 }
 
+func (r *authRepo) CreateUserWithEmail(ctx context.Context, email, password string) (string, error) {
+	uuid, err := util.UUIdV4()
+	if err != nil {
+		return "", errors.Wrapf(err, fmt.Sprintf("fail to create uuid: uuid(%s)", uuid))
+	}
+
+	hashPassword, err := util.HashPassword(password)
+	if err != nil {
+		return "", errors.Wrapf(err, fmt.Sprintf("fail to hash password: password(%s)", password))
+	}
+
+	user := &User{
+		Uuid:     uuid,
+		Email:    email,
+		Password: hashPassword,
+	}
+	err = r.data.DB(ctx).Select("Email", "Uuid", "Password").Create(user).Error
+	if err != nil {
+		e := err.Error()
+		if strings.Contains(e, "Duplicate") {
+			return "", kerrors.Conflict("email conflict", fmt.Sprintf("email(%s)", email))
+		} else {
+			return "", errors.Wrapf(err, fmt.Sprintf("fail to create a user: email(%s)", email))
+		}
+	}
+
+	return uuid, nil
+}
+
 func (r *authRepo) CreateUserProfile(ctx context.Context, account, uuid string) error {
-	err := r.data.DB(ctx).Create(&Profile{Uuid: uuid, Username: account}).Error
+	err := r.data.DB(ctx).Select("Uuid", "Username").Create(&Profile{Uuid: uuid, Username: account}).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to register a profile: uuid(%s)", uuid))
 	}
@@ -74,16 +104,16 @@ func (r *authRepo) SendPhoneCode(ctx context.Context, template, phone string) er
 		return err
 	}
 
-	message := strings.Join([]string{phone, code, template, "phone"}, ";")
-	msg := &primitive.Message{
-		Topic: "code",
-		Body:  []byte(message),
-	}
-	msg.WithTag("phone")
-	err = r.data.mqPro.SendOneWay(ctx, msg)
-	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to send code to producer: %s", message))
-	}
+	//message := strings.Join([]string{phone, code, template, "phone"}, ";")
+	//msg := &primitive.Message{
+	//	Topic: "code",
+	//	Body:  []byte(message),
+	//}
+	//msg.WithTag("phone")
+	//err = r.data.mqPro.SendOneWay(ctx, msg)
+	//if err != nil {
+	//	return errors.Wrapf(err, fmt.Sprintf("fail to send code to producer: %s", message))
+	//}
 
 	return nil
 }
@@ -109,14 +139,48 @@ func (r *authRepo) SendEmailCode(ctx context.Context, template, email string) er
 	return nil
 }
 
+func (r *authRepo) SendCode(msgs ...*primitive.MessageExt) {
+	for _, i := range msgs {
+		body := strings.Split(string(i.Body), ";")
+		if body[3] == "phone" {
+			request := r.data.phoneCodeCli.request
+			client := r.data.phoneCodeCli.client
+			request.TemplateId = common.StringPtr(util.GetPhoneTemplate(body[2]))
+			request.TemplateParamSet = common.StringPtrs([]string{body[1]})
+			request.PhoneNumberSet = common.StringPtrs([]string{body[0]})
+			_, err := client.SendSms(request)
+			if err != nil {
+				r.log.Errorf("fail to send phone code: code(%s) error: %v", body[1], err.Error())
+			}
+		}
+
+		if body[3] == "email" {
+			m := r.data.goMailCli.message
+			d := r.data.goMailCli.dialer
+			m.SetHeader("To", body[0])
+			m.SetHeader("Subject", "matrix 魔方技术")
+			m.SetBody("text/html", util.GetEmailTemplate(body[2], body[1]))
+			err := d.DialAndSend(m)
+			if err != nil {
+				r.log.Errorf("fail to send email code: code(%s) error: %v", body[1], err.Error())
+			}
+		}
+	}
+}
+
 func (r *authRepo) VerifyPhoneCode(ctx context.Context, phone, code string) error {
 	key := "phone_" + phone
 	return r.verifyCode(ctx, key, code)
 }
 
+func (r *authRepo) VerifyEmailCode(ctx context.Context, email, code string) error {
+	key := "email_" + email
+	return r.verifyCode(ctx, key, code)
+}
+
 func (r *authRepo) verifyCode(ctx context.Context, key, code string) error {
 	codeInCache, err := r.getCodeFromCache(ctx, key)
-	if !v2.IsNotFound(err) {
+	if !kerrors.IsNotFound(err) {
 		return err
 	}
 	if code != codeInCache {
@@ -163,7 +227,7 @@ func (r *authRepo) setCodeToCache(ctx context.Context, key, code string) error {
 func (r *authRepo) getCodeFromCache(ctx context.Context, key string) (string, error) {
 	code, err := r.data.redisCli.Get(ctx, key).Result()
 	if errors.Is(err, redis.Nil) {
-		return "", v2.NotFound("code not found from cache", fmt.Sprintf("key(%s)", key))
+		return "", kerrors.NotFound("code not found from cache", fmt.Sprintf("key(%s)", key))
 	}
 	if err != nil {
 		return "", errors.Wrapf(err, fmt.Sprintf("fail to get code from cache: redis.Get(%v)", key))
