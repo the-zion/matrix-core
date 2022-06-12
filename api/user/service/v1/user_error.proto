@@ -14,7 +14,6 @@ enum UserErrorReason {
   USERNAME_CONFLICT = 3 [(errors.code) = 409];
   PHONE_CONFLICT = 4 [(errors.code) = 409];
   EMAIL_CONFLICT = 5 [(errors.code) = 409];
-  PARAMS_ILLEGAL = 6 [(errors.code) = 400];
   GET_USER_FAILED = 7 [(errors.code) = 404];
   GET_PROFILE_FAILED = 8 [(errors.code) = 404];
   GET_ACHIEVEMENT_FAILED = 9 [(errors.code) = 404];
