@@ -32,10 +32,13 @@ func NewDB(logger log.Logger) *gorm.DB {
 }
 
 func main() {
+	flag.Parse()
+	logger := log.NewStdLogger(os.Stdout)
+	NewDB(logger)
+}
+
+func init() {
 	flag.StringVar(&source, "source",
 		"root:123456@tcp(127.0.0.1:3306)/core?charset=utf8mb4&parseTime=True&loc=Local",
 		"database source, eg: -source source path")
-
-	logger := log.NewStdLogger(os.Stdout)
-	NewDB(logger)
 }
