@@ -35,6 +35,256 @@ var (
 	_ = sort.Sort
 )
 
+// Validate checks the field values on UserRegisterReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *UserRegisterReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UserRegisterReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// UserRegisterReqMultiError, or nil if none found.
+func (m *UserRegisterReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UserRegisterReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetEmail()) > 50 {
+		err := UserRegisterReqValidationError{
+			field:  "Email",
+			reason: "value length must be at most 50 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if !_UserRegisterReq_Email_Pattern.MatchString(m.GetEmail()) {
+		err := UserRegisterReqValidationError{
+			field:  "Email",
+			reason: "value does not match regex pattern \"\\\\w+([-+.]\\\\w+)*@\\\\w+([-.]\\\\w+)*\\\\.\\\\w+([-.]\\\\w+)*\"",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if l := utf8.RuneCountInString(m.GetPassword()); l < 1 || l > 20 {
+		err := UserRegisterReqValidationError{
+			field:  "Password",
+			reason: "value length must be between 1 and 20 runes, inclusive",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if !_UserRegisterReq_Code_Pattern.MatchString(m.GetCode()) {
+		err := UserRegisterReqValidationError{
+			field:  "Code",
+			reason: "value does not match regex pattern \"^[0-9]+$\"",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return UserRegisterReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// UserRegisterReqMultiError is an error wrapping multiple validation errors
+// returned by UserRegisterReq.ValidateAll() if the designated constraints
+// aren't met.
+type UserRegisterReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UserRegisterReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UserRegisterReqMultiError) AllErrors() []error { return m }
+
+// UserRegisterReqValidationError is the validation error returned by
+// UserRegisterReq.Validate if the designated constraints aren't met.
+type UserRegisterReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UserRegisterReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UserRegisterReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UserRegisterReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UserRegisterReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UserRegisterReqValidationError) ErrorName() string { return "UserRegisterReqValidationError" }
+
+// Error satisfies the builtin error interface
+func (e UserRegisterReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUserRegisterReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UserRegisterReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UserRegisterReqValidationError{}
+
+var _UserRegisterReq_Email_Pattern = regexp.MustCompile("\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*")
+
+var _UserRegisterReq_Code_Pattern = regexp.MustCompile("^[0-9]+$")
+
+// Validate checks the field values on UserRegisterReply with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *UserRegisterReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UserRegisterReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// UserRegisterReplyMultiError, or nil if none found.
+func (m *UserRegisterReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UserRegisterReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return UserRegisterReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// UserRegisterReplyMultiError is an error wrapping multiple validation errors
+// returned by UserRegisterReply.ValidateAll() if the designated constraints
+// aren't met.
+type UserRegisterReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UserRegisterReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UserRegisterReplyMultiError) AllErrors() []error { return m }
+
+// UserRegisterReplyValidationError is the validation error returned by
+// UserRegisterReply.Validate if the designated constraints aren't met.
+type UserRegisterReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UserRegisterReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UserRegisterReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UserRegisterReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UserRegisterReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UserRegisterReplyValidationError) ErrorName() string {
+	return "UserRegisterReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UserRegisterReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUserRegisterReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UserRegisterReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UserRegisterReplyValidationError{}
+
 // Validate checks the field values on LoginByPasswordReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -324,8 +574,6 @@ func (m *LoginReply) validate(all bool) error {
 	}
 
 	var errors []error
-
-	// no validation rules for Id
 
 	// no validation rules for Token
 
@@ -787,6 +1035,17 @@ func (m *SendPhoneCodeReq) validate(all bool) error {
 
 	var errors []error
 
+	if l := utf8.RuneCountInString(m.GetPhone()); l < 1 || l > 50 {
+		err := SendPhoneCodeReqValidationError{
+			field:  "Phone",
+			reason: "value length must be between 1 and 50 runes, inclusive",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
 	if !_SendPhoneCodeReq_Phone_Pattern.MatchString(m.GetPhone()) {
 		err := SendPhoneCodeReqValidationError{
 			field:  "Phone",
@@ -918,8 +1177,6 @@ func (m *SendPhoneCodeReply) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Success
-
 	if len(errors) > 0 {
 		return SendPhoneCodeReplyMultiError(errors)
 	}
@@ -1022,6 +1279,17 @@ func (m *SendEmailCodeReq) validate(all bool) error {
 
 	var errors []error
 
+	if utf8.RuneCountInString(m.GetEmail()) > 50 {
+		err := SendEmailCodeReqValidationError{
+			field:  "Email",
+			reason: "value length must be at most 50 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
 	if !_SendEmailCodeReq_Email_Pattern.MatchString(m.GetEmail()) {
 		err := SendEmailCodeReqValidationError{
 			field:  "Email",
@@ -1036,7 +1304,7 @@ func (m *SendEmailCodeReq) validate(all bool) error {
 	if _, ok := _SendEmailCodeReq_Template_InLookup[m.GetTemplate()]; !ok {
 		err := SendEmailCodeReqValidationError{
 			field:  "Template",
-			reason: "value must be in list [1 2 3 4]",
+			reason: "value must be in list [1 2 3 4 5]",
 		}
 		if !all {
 			return err
@@ -1129,6 +1397,7 @@ var _SendEmailCodeReq_Template_InLookup = map[string]struct{}{
 	"2": {},
 	"3": {},
 	"4": {},
+	"5": {},
 }
 
 // Validate checks the field values on SendEmailCodeReply with the rules
@@ -1152,8 +1421,6 @@ func (m *SendEmailCodeReply) validate(all bool) error {
 	}
 
 	var errors []error
-
-	// no validation rules for Success
 
 	if len(errors) > 0 {
 		return SendEmailCodeReplyMultiError(errors)

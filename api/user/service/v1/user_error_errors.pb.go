@@ -83,18 +83,6 @@ func ErrorEmailConflict(format string, args ...interface{}) *errors.Error {
 	return errors.New(409, UserErrorReason_EMAIL_CONFLICT.String(), fmt.Sprintf(format, args...))
 }
 
-func IsParamsIllegal(err error) bool {
-	if err == nil {
-		return false
-	}
-	e := errors.FromError(err)
-	return e.Reason == UserErrorReason_PARAMS_ILLEGAL.String() && e.Code == 400
-}
-
-func ErrorParamsIllegal(format string, args ...interface{}) *errors.Error {
-	return errors.New(400, UserErrorReason_PARAMS_ILLEGAL.String(), fmt.Sprintf(format, args...))
-}
-
 func IsGetUserFailed(err error) bool {
 	if err == nil {
 		return false

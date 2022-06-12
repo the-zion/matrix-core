@@ -20,23 +20,29 @@ const _ = http.SupportPackageIsVersion1
 type UserHTTPServer interface {
 	GetUser(context.Context, *GetUserReq) (*GetUserReply, error)
 	GetUserProfile(context.Context, *GetUserProfileReq) (*GetUserProfileReply, error)
+	LoginByCode(context.Context, *LoginByCodeReq) (*LoginReply, error)
 	LoginByGithub(context.Context, *LoginByGithubReq) (*LoginReply, error)
 	LoginByPassword(context.Context, *LoginByPasswordReq) (*LoginReply, error)
 	LoginByWeChat(context.Context, *LoginByWeChatReq) (*LoginReply, error)
 	LoginPassWordForget(context.Context, *LoginPassWordForgetReq) (*LoginReply, error)
 	SendEmailCode(context.Context, *SendEmailCodeReq) (*SendEmailCodeReply, error)
+	SendPhoneCode(context.Context, *SendPhoneCodeReq) (*SendPhoneCodeReply, error)
 	SetUserEmail(context.Context, *SetUserEmailReq) (*SetUserEmailReply, error)
 	SetUserName(context.Context, *SetUserNameReq) (*SetUserNameReply, error)
 	SetUserPhone(context.Context, *SetUserPhoneReq) (*SetUserPhoneReply, error)
 	SetUserProfile(context.Context, *SetUserProfileReq) (*SetUserProfileReply, error)
+	UserRegister(context.Context, *UserRegisterReq) (*UserRegisterReply, error)
 }
 
 func RegisterUserHTTPServer(s *http.Server, srv UserHTTPServer) {
 	r := s.Route("/")
+	r.POST("/v1/user/register", _User_UserRegister0_HTTP_Handler(srv))
 	r.POST("/v1/login/password", _User_LoginByPassword0_HTTP_Handler(srv))
+	r.POST("/v1/user/login/code", _User_LoginByCode0_HTTP_Handler(srv))
 	r.POST("/v1/login/wechat", _User_LoginByWeChat0_HTTP_Handler(srv))
 	r.POST("/v1/login/github", _User_LoginByGithub0_HTTP_Handler(srv))
 	r.POST("/v1/login/modify/password", _User_LoginPassWordForget0_HTTP_Handler(srv))
+	r.POST("/v1/user/code/phone", _User_SendPhoneCode0_HTTP_Handler(srv))
 	r.POST("/v1/user/code/email", _User_SendEmailCode0_HTTP_Handler(srv))
 	r.POST("/v1/user/get", _User_GetUser0_HTTP_Handler(srv))
 	r.POST("/v1/user/set/phone", _User_SetUserPhone0_HTTP_Handler(srv))
@@ -44,6 +50,25 @@ func RegisterUserHTTPServer(s *http.Server, srv UserHTTPServer) {
 	r.POST("/v1/user/profile", _User_GetUserProfile0_HTTP_Handler(srv))
 	r.POST("/v1/user/set/profile", _User_SetUserProfile0_HTTP_Handler(srv))
 	r.POST("/v1/user/set/name", _User_SetUserName0_HTTP_Handler(srv))
+}
+
+func _User_UserRegister0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in UserRegisterReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/user.v1.User/UserRegister")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.UserRegister(ctx, req.(*UserRegisterReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*UserRegisterReply)
+		return ctx.Result(200, reply)
+	}
 }
 
 func _User_LoginByPassword0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
@@ -55,6 +80,25 @@ func _User_LoginByPassword0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Conte
 		http.SetOperation(ctx, "/user.v1.User/LoginByPassword")
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.LoginByPassword(ctx, req.(*LoginByPasswordReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*LoginReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _User_LoginByCode0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in LoginByCodeReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/user.v1.User/LoginByCode")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.LoginByCode(ctx, req.(*LoginByCodeReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -118,6 +162,25 @@ func _User_LoginPassWordForget0_HTTP_Handler(srv UserHTTPServer) func(ctx http.C
 			return err
 		}
 		reply := out.(*LoginReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _User_SendPhoneCode0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SendPhoneCodeReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/user.v1.User/SendPhoneCode")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SendPhoneCode(ctx, req.(*SendPhoneCodeReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*SendPhoneCodeReply)
 		return ctx.Result(200, reply)
 	}
 }
@@ -258,15 +321,18 @@ func _User_SetUserName0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) 
 type UserHTTPClient interface {
 	GetUser(ctx context.Context, req *GetUserReq, opts ...http.CallOption) (rsp *GetUserReply, err error)
 	GetUserProfile(ctx context.Context, req *GetUserProfileReq, opts ...http.CallOption) (rsp *GetUserProfileReply, err error)
+	LoginByCode(ctx context.Context, req *LoginByCodeReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginByGithub(ctx context.Context, req *LoginByGithubReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginByPassword(ctx context.Context, req *LoginByPasswordReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginByWeChat(ctx context.Context, req *LoginByWeChatReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginPassWordForget(ctx context.Context, req *LoginPassWordForgetReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	SendEmailCode(ctx context.Context, req *SendEmailCodeReq, opts ...http.CallOption) (rsp *SendEmailCodeReply, err error)
+	SendPhoneCode(ctx context.Context, req *SendPhoneCodeReq, opts ...http.CallOption) (rsp *SendPhoneCodeReply, err error)
 	SetUserEmail(ctx context.Context, req *SetUserEmailReq, opts ...http.CallOption) (rsp *SetUserEmailReply, err error)
 	SetUserName(ctx context.Context, req *SetUserNameReq, opts ...http.CallOption) (rsp *SetUserNameReply, err error)
 	SetUserPhone(ctx context.Context, req *SetUserPhoneReq, opts ...http.CallOption) (rsp *SetUserPhoneReply, err error)
 	SetUserProfile(ctx context.Context, req *SetUserProfileReq, opts ...http.CallOption) (rsp *SetUserProfileReply, err error)
+	UserRegister(ctx context.Context, req *UserRegisterReq, opts ...http.CallOption) (rsp *UserRegisterReply, err error)
 }
 
 type UserHTTPClientImpl struct {
@@ -295,6 +361,19 @@ func (c *UserHTTPClientImpl) GetUserProfile(ctx context.Context, in *GetUserProf
 	pattern := "/v1/user/profile"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation("/user.v1.User/GetUserProfile"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *UserHTTPClientImpl) LoginByCode(ctx context.Context, in *LoginByCodeReq, opts ...http.CallOption) (*LoginReply, error) {
+	var out LoginReply
+	pattern := "/v1/user/login/code"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/user.v1.User/LoginByCode"))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
@@ -368,6 +447,19 @@ func (c *UserHTTPClientImpl) SendEmailCode(ctx context.Context, in *SendEmailCod
 	return &out, err
 }
 
+func (c *UserHTTPClientImpl) SendPhoneCode(ctx context.Context, in *SendPhoneCodeReq, opts ...http.CallOption) (*SendPhoneCodeReply, error) {
+	var out SendPhoneCodeReply
+	pattern := "/v1/user/code/phone"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/user.v1.User/SendPhoneCode"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
 func (c *UserHTTPClientImpl) SetUserEmail(ctx context.Context, in *SetUserEmailReq, opts ...http.CallOption) (*SetUserEmailReply, error) {
 	var out SetUserEmailReply
 	pattern := "/v1/user/set/email"
@@ -412,6 +504,19 @@ func (c *UserHTTPClientImpl) SetUserProfile(ctx context.Context, in *SetUserProf
 	pattern := "/v1/user/set/profile"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation("/user.v1.User/SetUserProfile"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *UserHTTPClientImpl) UserRegister(ctx context.Context, in *UserRegisterReq, opts ...http.CallOption) (*UserRegisterReply, error) {
+	var out UserRegisterReply
+	pattern := "/v1/user/register"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/user.v1.User/UserRegister"))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
