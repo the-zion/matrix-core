@@ -13,7 +13,6 @@ import (
 	v1 "github.com/the-zion/matrix-core/api/user/service/v1"
 	"github.com/the-zion/matrix-core/app/user/service/internal/conf"
 	"github.com/the-zion/matrix-core/app/user/service/internal/service"
-	"github.com/the-zion/matrix-core/pkg/jwtclaim"
 	"github.com/the-zion/matrix-core/pkg/responce"
 	"strings"
 )
@@ -39,7 +38,7 @@ func NewGRPCServer(c *conf.Server, ac *conf.Auth, userService *service.UserServi
 				jwt.Server(func(token *jwt2.Token) (interface{}, error) {
 					return []byte(ac.ApiKey), nil
 				}, jwt.WithSigningMethod(jwt2.SigningMethodHS256), jwt.WithClaims(func() jwt2.Claims {
-					return &jwtclaim.JwtCustomClaims{}
+					return &jwt2.MapClaims{}
 				})),
 			).Match(NewWhiteListMatcher()).Build(),
 		),
