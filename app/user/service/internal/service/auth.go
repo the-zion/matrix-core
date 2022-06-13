@@ -7,23 +7,13 @@ import (
 )
 
 func (s *UserService) LoginByPassword(ctx context.Context, req *v1.LoginByPasswordReq) (*v1.LoginReply, error) {
-	//login, err := s.ac.LoginByPassword(ctx, req.Account, req.Password, req.Mode)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//return &v1.LoginReply{
-	//	Id:    login.Id,
-	//	Token: login.Token,
-	//}, nil
-	return nil, nil
-}
-
-func (s *UserService) UserRegister(ctx context.Context, req *v1.UserRegisterReq) (*v1.UserRegisterReply, error) {
-	err := s.ac.UserRegister(ctx, req.Email, req.Password, req.Code)
+	token, err := s.ac.LoginByPassword(ctx, req.Account, req.Password, req.Mode)
 	if err != nil {
 		return nil, err
 	}
-	return &v1.UserRegisterReply{}, nil
+	return &v1.LoginReply{
+		Token: token,
+	}, nil
 }
 
 func (s *UserService) LoginByCode(ctx context.Context, req *v1.LoginByCodeReq) (*v1.LoginReply, error) {
@@ -36,20 +26,24 @@ func (s *UserService) LoginByCode(ctx context.Context, req *v1.LoginByCodeReq) (
 	}, nil
 }
 
-func (s *UserService) SendCode(msgs ...*primitive.MessageExt) {
-	s.ac.SendCode(msgs...)
+func (s *UserService) LoginPasswordReset(ctx context.Context, req *v1.LoginPasswordResetReq) (*v1.LoginPasswordResetReply, error) {
+	err := s.ac.LoginPasswordReset(ctx, req.Account, req.Password, req.Code, req.Mode)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.LoginPasswordResetReply{}, nil
 }
 
-func (s *UserService) LoginPassWordForget(ctx context.Context, req *v1.LoginPassWordForgetReq) (*v1.LoginReply, error) {
-	//login, err := s.ac.LoginPasswordForget(ctx, req.Account, req.Password, req.Code, req.Mode)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//return &v1.LoginReply{
-	//	Id:    login.Id,
-	//	Token: login.Token,
-	//}, nil
-	return nil, nil
+func (s *UserService) UserRegister(ctx context.Context, req *v1.UserRegisterReq) (*v1.UserRegisterReply, error) {
+	err := s.ac.UserRegister(ctx, req.Email, req.Password, req.Code)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.UserRegisterReply{}, nil
+}
+
+func (s *UserService) SendCode(msgs ...*primitive.MessageExt) {
+	s.ac.SendCode(msgs...)
 }
 
 func (s *UserService) SendPhoneCode(ctx context.Context, req *v1.SendPhoneCodeReq) (*v1.SendPhoneCodeReply, error) {
