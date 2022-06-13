@@ -14,17 +14,19 @@ import (
 )
 
 type AuthRepo interface {
-	FindUserByPhone(ctx context.Context, phone string) (string, error)
-	CreateUserWithPhone(ctx context.Context, phone string) (string, error)
-	CreateUserWithEmail(ctx context.Context, email, password string) (string, error)
+	FindUserByPhone(ctx context.Context, phone string) (*User, error)
+	FindUserByEmail(ctx context.Context, email string) (*User, error)
+	CreateUserWithPhone(ctx context.Context, phone string) (*User, error)
+	CreateUserWithEmail(ctx context.Context, email, password string) (*User, error)
 	CreateUserProfile(ctx context.Context, account, uuid string) error
 	SendPhoneCode(ctx context.Context, template, phone string) error
 	SendEmailCode(ctx context.Context, template, phone string) error
-	//SendCode(ctx context.Context, template int64, account, mode string) error
-	//UserRegister(ctx context.Context, account, mode string) (*User, error)
+	SendCode(msgs ...*primitive.MessageExt)
 	VerifyPhoneCode(ctx context.Context, phone, code string) error
 	VerifyEmailCode(ctx context.Context, email, code string) error
-	SendCode(msgs ...*primitive.MessageExt)
+	VerifyPassword(ctx context.Context, account, password, mode string) (*User, error)
+	PasswordResetByPhone(ctx context.Context, phone, password string) error
+	PasswordResetByEmail(ctx context.Context, email, password string) error
 }
 
 type AuthUseCase struct {
@@ -51,11 +53,11 @@ func (r *AuthUseCase) UserRegister(ctx context.Context, email, password, code st
 		return v1.ErrorVerifyCodeFailed("register failed: %s", err.Error())
 	}
 	err = r.tm.ExecTx(ctx, func(ctx context.Context) error {
-		uuid, err := r.repo.CreateUserWithEmail(ctx, email, password)
+		user, err := r.repo.CreateUserWithEmail(ctx, email, password)
 		if err != nil {
 			return err
 		}
-		err = r.repo.CreateUserProfile(ctx, email, uuid)
+		err = r.repo.CreateUserProfile(ctx, email, user.Uuid)
 		if err != nil {
 			return err
 		}
@@ -71,26 +73,16 @@ func (r *AuthUseCase) UserRegister(ctx context.Context, email, password, code st
 }
 
 func (r *AuthUseCase) LoginByPassword(ctx context.Context, account, password, mode string) (string, error) {
-	//user, err := r.userRepo.FindByAccount(ctx, account, mode)
-	//if err != nil {
-	//	return nil, v1.ErrorGetUserFailed("login failed: %s", err.Error())
-	//}
-	//
-	//err = r.userRepo.VerifyPassword(ctx, user.Id, password)
-	//if err != nil {
-	//	return nil, v1.ErrorVerifyPasswordFailed("login failed: %s", err.Error())
-	//}
-	//
-	//token, err := signToken(user.Id, r.key)
-	//if err != nil {
-	//	return nil, v1.ErrorUnknownError("login failed: %s", err.Error())
-	//}
-	//
-	//return &Login{
-	//	Id:    user.Id,
-	//	Token: token,
-	//}, nil
-	return "", nil
+	user, err := r.repo.VerifyPassword(ctx, account, password, mode)
+	if err != nil {
+		return "", v1.ErrorVerifyPasswordFailed("login failed: %s", err.Error())
+	}
+
+	token, err := signToken(user.Uuid, r.key)
+	if err != nil {
+		return "", v1.ErrorLoginFailed("login failed: %s", err.Error())
+	}
+	return token, nil
 }
 
 func (r *AuthUseCase) LoginByCode(ctx context.Context, phone, code string) (string, error) {
@@ -99,14 +91,14 @@ func (r *AuthUseCase) LoginByCode(ctx context.Context, phone, code string) (stri
 		return "", v1.ErrorVerifyCodeFailed("login failed: %s", err.Error())
 	}
 
-	uuid, err := r.repo.FindUserByPhone(ctx, phone)
+	user, err := r.repo.FindUserByPhone(ctx, phone)
 	if kerrors.IsNotFound(err) {
 		err = r.tm.ExecTx(ctx, func(ctx context.Context) error {
-			uuid, err = r.repo.CreateUserWithPhone(ctx, phone)
+			user, err = r.repo.CreateUserWithPhone(ctx, phone)
 			if err != nil {
 				return err
 			}
-			err = r.repo.CreateUserProfile(ctx, phone, uuid)
+			err = r.repo.CreateUserProfile(ctx, phone, user.Uuid)
 			if err != nil {
 				return err
 			}
@@ -120,7 +112,7 @@ func (r *AuthUseCase) LoginByCode(ctx context.Context, phone, code string) (stri
 		return "", v1.ErrorLoginFailed("login failed: %s", err.Error())
 	}
 
-	token, err := signToken(uuid, r.key)
+	token, err := signToken(user.Uuid, r.key)
 	if err != nil {
 		return "", v1.ErrorLoginFailed("login failed: %s", err.Error())
 	}
@@ -128,40 +120,38 @@ func (r *AuthUseCase) LoginByCode(ctx context.Context, phone, code string) (stri
 	return token, nil
 }
 
-//func (r *AuthUseCase) Register(ctx context.Context, account, mode string) (*User, error) {
-//	user, err := r.repo.UserRegister(ctx, account, strings.ToUpper(mode[:1])+mode[1:])
-//	if err != nil {
-//		return nil, err
-//	}
-//	return user, nil
-//}
+func (r *AuthUseCase) LoginPasswordReset(ctx context.Context, account, password, code, mode string) error {
+	if mode == "phone" {
+		return r.passwordResetByPhone(ctx, account, password, code)
+	} else {
+		return r.passwordResetByEmail(ctx, account, password, code)
+	}
+}
 
-func (r *AuthUseCase) LoginPasswordForget(ctx context.Context, account, password, code, mode string) (string, error) {
-	//err := r.userRepo.VerifyCode(ctx, account, code, mode)
-	//if err != nil {
-	//	return nil, v1.ErrorVerifyCodeFailed("login failed: %s", err.Error())
-	//}
-	//
-	//user, err := r.userRepo.FindByAccount(ctx, account, mode)
-	//if err != nil {
-	//	return nil, v1.ErrorGetUserFailed("login failed: %s", err.Error())
-	//}
-	//
-	//err = r.userRepo.PasswordModify(ctx, user.Id, password)
-	//if err != nil {
-	//	return nil, v1.ErrorUnknownError("login failed: %s", err.Error())
-	//}
-	//
-	//token, err := signToken(user.Id, r.key)
-	//if err != nil {
-	//	return nil, v1.ErrorUnknownError("login failed: %s", err.Error())
-	//}
-	//
-	//return &Login{
-	//	Id:    user.Id,
-	//	Token: token,
-	//}, nil
-	return "", nil
+func (r *AuthUseCase) passwordResetByPhone(ctx context.Context, phone, password, code string) error {
+	err := r.repo.VerifyPhoneCode(ctx, phone, code)
+	if err != nil {
+		return v1.ErrorVerifyCodeFailed("login failed: %s", err.Error())
+	}
+
+	err = r.repo.PasswordResetByPhone(ctx, phone, password)
+	if err != nil {
+		return v1.ErrorResetPasswordFailed("reset password failed: %s", err.Error())
+	}
+	return nil
+}
+
+func (r *AuthUseCase) passwordResetByEmail(ctx context.Context, email, password, code string) error {
+	err := r.repo.VerifyEmailCode(ctx, email, code)
+	if err != nil {
+		return v1.ErrorVerifyCodeFailed("login failed: %s", err.Error())
+	}
+
+	err = r.repo.PasswordResetByEmail(ctx, email, password)
+	if err != nil {
+		return v1.ErrorResetPasswordFailed("reset password failed: %s", err.Error())
+	}
+	return nil
 }
 
 func (r *AuthUseCase) SendPhoneCode(ctx context.Context, template, phone string) error {
