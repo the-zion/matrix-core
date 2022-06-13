@@ -27,7 +27,7 @@ type UserClient interface {
 	LoginByCode(ctx context.Context, in *LoginByCodeReq, opts ...grpc.CallOption) (*LoginReply, error)
 	LoginByWeChat(ctx context.Context, in *LoginByWeChatReq, opts ...grpc.CallOption) (*LoginReply, error)
 	LoginByGithub(ctx context.Context, in *LoginByGithubReq, opts ...grpc.CallOption) (*LoginReply, error)
-	LoginPassWordForget(ctx context.Context, in *LoginPassWordForgetReq, opts ...grpc.CallOption) (*LoginReply, error)
+	LoginPasswordReset(ctx context.Context, in *LoginPasswordResetReq, opts ...grpc.CallOption) (*LoginPasswordResetReply, error)
 	SendPhoneCode(ctx context.Context, in *SendPhoneCodeReq, opts ...grpc.CallOption) (*SendPhoneCodeReply, error)
 	SendEmailCode(ctx context.Context, in *SendEmailCodeReq, opts ...grpc.CallOption) (*SendEmailCodeReply, error)
 	GetUser(ctx context.Context, in *GetUserReq, opts ...grpc.CallOption) (*GetUserReply, error)
@@ -91,9 +91,9 @@ func (c *userClient) LoginByGithub(ctx context.Context, in *LoginByGithubReq, op
 	return out, nil
 }
 
-func (c *userClient) LoginPassWordForget(ctx context.Context, in *LoginPassWordForgetReq, opts ...grpc.CallOption) (*LoginReply, error) {
-	out := new(LoginReply)
-	err := c.cc.Invoke(ctx, "/user.v1.User/LoginPassWordForget", in, out, opts...)
+func (c *userClient) LoginPasswordReset(ctx context.Context, in *LoginPasswordResetReq, opts ...grpc.CallOption) (*LoginPasswordResetReply, error) {
+	out := new(LoginPasswordResetReply)
+	err := c.cc.Invoke(ctx, "/user.v1.User/LoginPasswordReset", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -181,7 +181,7 @@ type UserServer interface {
 	LoginByCode(context.Context, *LoginByCodeReq) (*LoginReply, error)
 	LoginByWeChat(context.Context, *LoginByWeChatReq) (*LoginReply, error)
 	LoginByGithub(context.Context, *LoginByGithubReq) (*LoginReply, error)
-	LoginPassWordForget(context.Context, *LoginPassWordForgetReq) (*LoginReply, error)
+	LoginPasswordReset(context.Context, *LoginPasswordResetReq) (*LoginPasswordResetReply, error)
 	SendPhoneCode(context.Context, *SendPhoneCodeReq) (*SendPhoneCodeReply, error)
 	SendEmailCode(context.Context, *SendEmailCodeReq) (*SendEmailCodeReply, error)
 	GetUser(context.Context, *GetUserReq) (*GetUserReply, error)
@@ -212,8 +212,8 @@ func (UnimplementedUserServer) LoginByWeChat(context.Context, *LoginByWeChatReq)
 func (UnimplementedUserServer) LoginByGithub(context.Context, *LoginByGithubReq) (*LoginReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoginByGithub not implemented")
 }
-func (UnimplementedUserServer) LoginPassWordForget(context.Context, *LoginPassWordForgetReq) (*LoginReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method LoginPassWordForget not implemented")
+func (UnimplementedUserServer) LoginPasswordReset(context.Context, *LoginPasswordResetReq) (*LoginPasswordResetReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LoginPasswordReset not implemented")
 }
 func (UnimplementedUserServer) SendPhoneCode(context.Context, *SendPhoneCodeReq) (*SendPhoneCodeReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendPhoneCode not implemented")
@@ -342,20 +342,20 @@ func _User_LoginByGithub_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
-func _User_LoginPassWordForget_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(LoginPassWordForgetReq)
+func _User_LoginPasswordReset_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LoginPasswordResetReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServer).LoginPassWordForget(ctx, in)
+		return srv.(UserServer).LoginPasswordReset(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.v1.User/LoginPassWordForget",
+		FullMethod: "/user.v1.User/LoginPasswordReset",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).LoginPassWordForget(ctx, req.(*LoginPassWordForgetReq))
+		return srv.(UserServer).LoginPasswordReset(ctx, req.(*LoginPasswordResetReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -532,8 +532,8 @@ var User_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _User_LoginByGithub_Handler,
 		},
 		{
-			MethodName: "LoginPassWordForget",
-			Handler:    _User_LoginPassWordForget_Handler,
+			MethodName: "LoginPasswordReset",
+			Handler:    _User_LoginPasswordReset_Handler,
 		},
 		{
 			MethodName: "SendPhoneCode",

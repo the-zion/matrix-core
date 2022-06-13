@@ -307,10 +307,10 @@ func (m *LoginByPasswordReq) validate(all bool) error {
 
 	var errors []error
 
-	if !_LoginByPasswordReq_Account_Pattern.MatchString(m.GetAccount()) {
+	if utf8.RuneCountInString(m.GetAccount()) > 50 {
 		err := LoginByPasswordReqValidationError{
 			field:  "Account",
-			reason: "value does not match regex pattern \"^\\\\+[1-9]?[0-9]{7,14}$|^(?:(?:(?:(?:[a-zA-Z]|\\\\d|[!#\\\\$%&'\\\\*\\\\+\\\\-\\\\/=\\\\?\\\\^_`{\\\\|}~]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])+(?:\\\\.([a-zA-Z]|\\\\d|[!#\\\\$%&'\\\\*\\\\+\\\\-\\\\/=\\\\?\\\\^_`{\\\\|}~]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])+)*)|(?:(?:\\\\x22)(?:(?:(?:(?:\\\\x20|\\\\x09)*(?:\\\\x0d\\\\x0a))?(?:\\\\x20|\\\\x09)+)?(?:(?:[\\\\x01-\\\\x08\\\\x0b\\\\x0c\\\\x0e-\\\\x1f\\\\x7f]|\\\\x21|[\\\\x23-\\\\x5b]|[\\\\x5d-\\\\x7e]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])|(?:(?:[\\\\x01-\\\\x09\\\\x0b\\\\x0c\\\\x0d-\\\\x7f]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}]))))*(?:(?:(?:\\\\x20|\\\\x09)*(?:\\\\x0d\\\\x0a))?(\\\\x20|\\\\x09)+)?(?:\\\\x22))))@(?:(?:(?:[a-zA-Z]|\\\\d|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])|(?:(?:[a-zA-Z]|\\\\d|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])(?:[a-zA-Z]|\\\\d|-|\\\\.|~|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])*(?:[a-zA-Z]|\\\\d|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])))\\\\.)+(?:(?:[a-zA-Z]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])|(?:(?:[a-zA-Z]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])(?:[a-zA-Z]|\\\\d|-|\\\\.|~|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])*(?:[a-zA-Z]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])))\\\\.?$\"",
+			reason: "value length must be at most 50 runes",
 		}
 		if !all {
 			return err
@@ -318,10 +318,21 @@ func (m *LoginByPasswordReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetPassword()) < 1 {
+	if !_LoginByPasswordReq_Account_Pattern.MatchString(m.GetAccount()) {
+		err := LoginByPasswordReqValidationError{
+			field:  "Account",
+			reason: "value does not match regex pattern \"^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(17[0,3,5-8])|(18[0-9])|166|198|199|(147))\\\\d{8}$|\\\\w+([-+.]\\\\w+)*@\\\\w+([-.]\\\\w+)*\\\\.\\\\w+([-.]\\\\w+)*\"",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if l := utf8.RuneCountInString(m.GetPassword()); l < 1 || l > 20 {
 		err := LoginByPasswordReqValidationError{
 			field:  "Password",
-			reason: "value length must be at least 1 runes",
+			reason: "value length must be between 1 and 20 runes, inclusive",
 		}
 		if !all {
 			return err
@@ -420,7 +431,7 @@ var _ interface {
 	ErrorName() string
 } = LoginByPasswordReqValidationError{}
 
-var _LoginByPasswordReq_Account_Pattern = regexp.MustCompile("^\\+[1-9]?[0-9]{7,14}$|^(?:(?:(?:(?:[a-zA-Z]|\\d|[!#\\$%&'\\*\\+\\-\\/=\\?\\^_`{\\|}~]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])+(?:\\.([a-zA-Z]|\\d|[!#\\$%&'\\*\\+\\-\\/=\\?\\^_`{\\|}~]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])+)*)|(?:(?:\\x22)(?:(?:(?:(?:\\x20|\\x09)*(?:\\x0d\\x0a))?(?:\\x20|\\x09)+)?(?:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x7f]|\\x21|[\\x23-\\x5b]|[\\x5d-\\x7e]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(?:(?:[\\x01-\\x09\\x0b\\x0c\\x0d-\\x7f]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}]))))*(?:(?:(?:\\x20|\\x09)*(?:\\x0d\\x0a))?(\\x20|\\x09)+)?(?:\\x22))))@(?:(?:(?:[a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(?:(?:[a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])(?:[a-zA-Z]|\\d|-|\\.|~|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])*(?:[a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])))\\.)+(?:(?:[a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(?:(?:[a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])(?:[a-zA-Z]|\\d|-|\\.|~|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])*(?:[a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])))\\.?$")
+var _LoginByPasswordReq_Account_Pattern = regexp.MustCompile("^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(17[0,3,5-8])|(18[0-9])|166|198|199|(147))\\d{8}$|\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*")
 
 var _LoginByPasswordReq_Mode_InLookup = map[string]struct{}{
 	"phone": {},
@@ -858,32 +869,32 @@ var _ interface {
 	ErrorName() string
 } = LoginByGithubReqValidationError{}
 
-// Validate checks the field values on LoginPassWordForgetReq with the rules
+// Validate checks the field values on LoginPasswordResetReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *LoginPassWordForgetReq) Validate() error {
+func (m *LoginPasswordResetReq) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on LoginPassWordForgetReq with the rules
+// ValidateAll checks the field values on LoginPasswordResetReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// LoginPassWordForgetReqMultiError, or nil if none found.
-func (m *LoginPassWordForgetReq) ValidateAll() error {
+// LoginPasswordResetReqMultiError, or nil if none found.
+func (m *LoginPasswordResetReq) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *LoginPassWordForgetReq) validate(all bool) error {
+func (m *LoginPasswordResetReq) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
 	var errors []error
 
-	if !_LoginPassWordForgetReq_Account_Pattern.MatchString(m.GetAccount()) {
-		err := LoginPassWordForgetReqValidationError{
+	if utf8.RuneCountInString(m.GetAccount()) > 50 {
+		err := LoginPasswordResetReqValidationError{
 			field:  "Account",
-			reason: "value does not match regex pattern \"^\\\\+[1-9]?[0-9]{7,14}$|^(?:(?:(?:(?:[a-zA-Z]|\\\\d|[!#\\\\$%&'\\\\*\\\\+\\\\-\\\\/=\\\\?\\\\^_`{\\\\|}~]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])+(?:\\\\.([a-zA-Z]|\\\\d|[!#\\\\$%&'\\\\*\\\\+\\\\-\\\\/=\\\\?\\\\^_`{\\\\|}~]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])+)*)|(?:(?:\\\\x22)(?:(?:(?:(?:\\\\x20|\\\\x09)*(?:\\\\x0d\\\\x0a))?(?:\\\\x20|\\\\x09)+)?(?:(?:[\\\\x01-\\\\x08\\\\x0b\\\\x0c\\\\x0e-\\\\x1f\\\\x7f]|\\\\x21|[\\\\x23-\\\\x5b]|[\\\\x5d-\\\\x7e]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])|(?:(?:[\\\\x01-\\\\x09\\\\x0b\\\\x0c\\\\x0d-\\\\x7f]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}]))))*(?:(?:(?:\\\\x20|\\\\x09)*(?:\\\\x0d\\\\x0a))?(\\\\x20|\\\\x09)+)?(?:\\\\x22))))@(?:(?:(?:[a-zA-Z]|\\\\d|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])|(?:(?:[a-zA-Z]|\\\\d|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])(?:[a-zA-Z]|\\\\d|-|\\\\.|~|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])*(?:[a-zA-Z]|\\\\d|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])))\\\\.)+(?:(?:[a-zA-Z]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])|(?:(?:[a-zA-Z]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])(?:[a-zA-Z]|\\\\d|-|\\\\.|~|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])*(?:[a-zA-Z]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])))\\\\.?$\"",
+			reason: "value length must be at most 50 runes",
 		}
 		if !all {
 			return err
@@ -891,10 +902,21 @@ func (m *LoginPassWordForgetReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if !_LoginPassWordForgetReq_Code_Pattern.MatchString(m.GetCode()) {
-		err := LoginPassWordForgetReqValidationError{
+	if !_LoginPasswordResetReq_Account_Pattern.MatchString(m.GetAccount()) {
+		err := LoginPasswordResetReqValidationError{
+			field:  "Account",
+			reason: "value does not match regex pattern \"^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(17[0,3,5-8])|(18[0-9])|166|198|199|(147))\\\\d{8}$|\\\\w+([-+.]\\\\w+)*@\\\\w+([-.]\\\\w+)*\\\\.\\\\w+([-.]\\\\w+)*\"",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if !_LoginPasswordResetReq_Code_Pattern.MatchString(m.GetCode()) {
+		err := LoginPasswordResetReqValidationError{
 			field:  "Code",
-			reason: "value does not match regex pattern \"^[0-9]+$\"",
+			reason: "value does not match regex pattern \"^[0-9]{6}$\"",
 		}
 		if !all {
 			return err
@@ -902,10 +924,10 @@ func (m *LoginPassWordForgetReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetPassword()) < 1 {
-		err := LoginPassWordForgetReqValidationError{
+	if l := utf8.RuneCountInString(m.GetPassword()); l < 1 || l > 20 {
+		err := LoginPasswordResetReqValidationError{
 			field:  "Password",
-			reason: "value length must be at least 1 runes",
+			reason: "value length must be between 1 and 20 runes, inclusive",
 		}
 		if !all {
 			return err
@@ -913,8 +935,8 @@ func (m *LoginPassWordForgetReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if _, ok := _LoginPassWordForgetReq_Mode_InLookup[m.GetMode()]; !ok {
-		err := LoginPassWordForgetReqValidationError{
+	if _, ok := _LoginPasswordResetReq_Mode_InLookup[m.GetMode()]; !ok {
+		err := LoginPasswordResetReqValidationError{
 			field:  "Mode",
 			reason: "value must be in list [phone email]",
 		}
@@ -925,19 +947,19 @@ func (m *LoginPassWordForgetReq) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return LoginPassWordForgetReqMultiError(errors)
+		return LoginPasswordResetReqMultiError(errors)
 	}
 
 	return nil
 }
 
-// LoginPassWordForgetReqMultiError is an error wrapping multiple validation
-// errors returned by LoginPassWordForgetReq.ValidateAll() if the designated
+// LoginPasswordResetReqMultiError is an error wrapping multiple validation
+// errors returned by LoginPasswordResetReq.ValidateAll() if the designated
 // constraints aren't met.
-type LoginPassWordForgetReqMultiError []error
+type LoginPasswordResetReqMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m LoginPassWordForgetReqMultiError) Error() string {
+func (m LoginPasswordResetReqMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -946,11 +968,11 @@ func (m LoginPassWordForgetReqMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m LoginPassWordForgetReqMultiError) AllErrors() []error { return m }
+func (m LoginPasswordResetReqMultiError) AllErrors() []error { return m }
 
-// LoginPassWordForgetReqValidationError is the validation error returned by
-// LoginPassWordForgetReq.Validate if the designated constraints aren't met.
-type LoginPassWordForgetReqValidationError struct {
+// LoginPasswordResetReqValidationError is the validation error returned by
+// LoginPasswordResetReq.Validate if the designated constraints aren't met.
+type LoginPasswordResetReqValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -958,24 +980,24 @@ type LoginPassWordForgetReqValidationError struct {
 }
 
 // Field function returns field value.
-func (e LoginPassWordForgetReqValidationError) Field() string { return e.field }
+func (e LoginPasswordResetReqValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e LoginPassWordForgetReqValidationError) Reason() string { return e.reason }
+func (e LoginPasswordResetReqValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e LoginPassWordForgetReqValidationError) Cause() error { return e.cause }
+func (e LoginPasswordResetReqValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e LoginPassWordForgetReqValidationError) Key() bool { return e.key }
+func (e LoginPasswordResetReqValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e LoginPassWordForgetReqValidationError) ErrorName() string {
-	return "LoginPassWordForgetReqValidationError"
+func (e LoginPasswordResetReqValidationError) ErrorName() string {
+	return "LoginPasswordResetReqValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e LoginPassWordForgetReqValidationError) Error() string {
+func (e LoginPasswordResetReqValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -987,14 +1009,14 @@ func (e LoginPassWordForgetReqValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sLoginPassWordForgetReq.%s: %s%s",
+		"invalid %sLoginPasswordResetReq.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = LoginPassWordForgetReqValidationError{}
+var _ error = LoginPasswordResetReqValidationError{}
 
 var _ interface {
 	Field() string
@@ -1002,16 +1024,118 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = LoginPassWordForgetReqValidationError{}
+} = LoginPasswordResetReqValidationError{}
 
-var _LoginPassWordForgetReq_Account_Pattern = regexp.MustCompile("^\\+[1-9]?[0-9]{7,14}$|^(?:(?:(?:(?:[a-zA-Z]|\\d|[!#\\$%&'\\*\\+\\-\\/=\\?\\^_`{\\|}~]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])+(?:\\.([a-zA-Z]|\\d|[!#\\$%&'\\*\\+\\-\\/=\\?\\^_`{\\|}~]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])+)*)|(?:(?:\\x22)(?:(?:(?:(?:\\x20|\\x09)*(?:\\x0d\\x0a))?(?:\\x20|\\x09)+)?(?:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x7f]|\\x21|[\\x23-\\x5b]|[\\x5d-\\x7e]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(?:(?:[\\x01-\\x09\\x0b\\x0c\\x0d-\\x7f]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}]))))*(?:(?:(?:\\x20|\\x09)*(?:\\x0d\\x0a))?(\\x20|\\x09)+)?(?:\\x22))))@(?:(?:(?:[a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(?:(?:[a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])(?:[a-zA-Z]|\\d|-|\\.|~|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])*(?:[a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])))\\.)+(?:(?:[a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(?:(?:[a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])(?:[a-zA-Z]|\\d|-|\\.|~|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])*(?:[a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])))\\.?$")
+var _LoginPasswordResetReq_Account_Pattern = regexp.MustCompile("^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(17[0,3,5-8])|(18[0-9])|166|198|199|(147))\\d{8}$|\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*")
 
-var _LoginPassWordForgetReq_Code_Pattern = regexp.MustCompile("^[0-9]+$")
+var _LoginPasswordResetReq_Code_Pattern = regexp.MustCompile("^[0-9]{6}$")
 
-var _LoginPassWordForgetReq_Mode_InLookup = map[string]struct{}{
+var _LoginPasswordResetReq_Mode_InLookup = map[string]struct{}{
 	"phone": {},
 	"email": {},
 }
+
+// Validate checks the field values on LoginPasswordResetReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *LoginPasswordResetReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on LoginPasswordResetReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// LoginPasswordResetReplyMultiError, or nil if none found.
+func (m *LoginPasswordResetReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *LoginPasswordResetReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return LoginPasswordResetReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// LoginPasswordResetReplyMultiError is an error wrapping multiple validation
+// errors returned by LoginPasswordResetReply.ValidateAll() if the designated
+// constraints aren't met.
+type LoginPasswordResetReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m LoginPasswordResetReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m LoginPasswordResetReplyMultiError) AllErrors() []error { return m }
+
+// LoginPasswordResetReplyValidationError is the validation error returned by
+// LoginPasswordResetReply.Validate if the designated constraints aren't met.
+type LoginPasswordResetReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e LoginPasswordResetReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e LoginPasswordResetReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e LoginPasswordResetReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e LoginPasswordResetReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e LoginPasswordResetReplyValidationError) ErrorName() string {
+	return "LoginPasswordResetReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e LoginPasswordResetReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sLoginPasswordResetReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = LoginPasswordResetReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = LoginPasswordResetReplyValidationError{}
 
 // Validate checks the field values on SendPhoneCodeReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the

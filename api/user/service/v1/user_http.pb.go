@@ -24,7 +24,7 @@ type UserHTTPServer interface {
 	LoginByGithub(context.Context, *LoginByGithubReq) (*LoginReply, error)
 	LoginByPassword(context.Context, *LoginByPasswordReq) (*LoginReply, error)
 	LoginByWeChat(context.Context, *LoginByWeChatReq) (*LoginReply, error)
-	LoginPassWordForget(context.Context, *LoginPassWordForgetReq) (*LoginReply, error)
+	LoginPasswordReset(context.Context, *LoginPasswordResetReq) (*LoginPasswordResetReply, error)
 	SendEmailCode(context.Context, *SendEmailCodeReq) (*SendEmailCodeReply, error)
 	SendPhoneCode(context.Context, *SendPhoneCodeReq) (*SendPhoneCodeReply, error)
 	SetUserEmail(context.Context, *SetUserEmailReq) (*SetUserEmailReply, error)
@@ -37,11 +37,11 @@ type UserHTTPServer interface {
 func RegisterUserHTTPServer(s *http.Server, srv UserHTTPServer) {
 	r := s.Route("/")
 	r.POST("/v1/user/register", _User_UserRegister0_HTTP_Handler(srv))
-	r.POST("/v1/login/password", _User_LoginByPassword0_HTTP_Handler(srv))
+	r.POST("/v1/user/login/password", _User_LoginByPassword0_HTTP_Handler(srv))
 	r.POST("/v1/user/login/code", _User_LoginByCode0_HTTP_Handler(srv))
 	r.POST("/v1/login/wechat", _User_LoginByWeChat0_HTTP_Handler(srv))
 	r.POST("/v1/login/github", _User_LoginByGithub0_HTTP_Handler(srv))
-	r.POST("/v1/login/modify/password", _User_LoginPassWordForget0_HTTP_Handler(srv))
+	r.POST("/v1/user/login/password/reset", _User_LoginPasswordReset0_HTTP_Handler(srv))
 	r.POST("/v1/user/code/phone", _User_SendPhoneCode0_HTTP_Handler(srv))
 	r.POST("/v1/user/code/email", _User_SendEmailCode0_HTTP_Handler(srv))
 	r.POST("/v1/user/get", _User_GetUser0_HTTP_Handler(srv))
@@ -147,21 +147,21 @@ func _User_LoginByGithub0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context
 	}
 }
 
-func _User_LoginPassWordForget0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
+func _User_LoginPasswordReset0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in LoginPassWordForgetReq
+		var in LoginPasswordResetReq
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, "/user.v1.User/LoginPassWordForget")
+		http.SetOperation(ctx, "/user.v1.User/LoginPasswordReset")
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.LoginPassWordForget(ctx, req.(*LoginPassWordForgetReq))
+			return srv.LoginPasswordReset(ctx, req.(*LoginPasswordResetReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*LoginReply)
+		reply := out.(*LoginPasswordResetReply)
 		return ctx.Result(200, reply)
 	}
 }
@@ -325,7 +325,7 @@ type UserHTTPClient interface {
 	LoginByGithub(ctx context.Context, req *LoginByGithubReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginByPassword(ctx context.Context, req *LoginByPasswordReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginByWeChat(ctx context.Context, req *LoginByWeChatReq, opts ...http.CallOption) (rsp *LoginReply, err error)
-	LoginPassWordForget(ctx context.Context, req *LoginPassWordForgetReq, opts ...http.CallOption) (rsp *LoginReply, err error)
+	LoginPasswordReset(ctx context.Context, req *LoginPasswordResetReq, opts ...http.CallOption) (rsp *LoginPasswordResetReply, err error)
 	SendEmailCode(ctx context.Context, req *SendEmailCodeReq, opts ...http.CallOption) (rsp *SendEmailCodeReply, err error)
 	SendPhoneCode(ctx context.Context, req *SendPhoneCodeReq, opts ...http.CallOption) (rsp *SendPhoneCodeReply, err error)
 	SetUserEmail(ctx context.Context, req *SetUserEmailReq, opts ...http.CallOption) (rsp *SetUserEmailReply, err error)
@@ -397,7 +397,7 @@ func (c *UserHTTPClientImpl) LoginByGithub(ctx context.Context, in *LoginByGithu
 
 func (c *UserHTTPClientImpl) LoginByPassword(ctx context.Context, in *LoginByPasswordReq, opts ...http.CallOption) (*LoginReply, error) {
 	var out LoginReply
-	pattern := "/v1/login/password"
+	pattern := "/v1/user/login/password"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation("/user.v1.User/LoginByPassword"))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -421,11 +421,11 @@ func (c *UserHTTPClientImpl) LoginByWeChat(ctx context.Context, in *LoginByWeCha
 	return &out, err
 }
 
-func (c *UserHTTPClientImpl) LoginPassWordForget(ctx context.Context, in *LoginPassWordForgetReq, opts ...http.CallOption) (*LoginReply, error) {
-	var out LoginReply
-	pattern := "/v1/login/modify/password"
+func (c *UserHTTPClientImpl) LoginPasswordReset(ctx context.Context, in *LoginPasswordResetReq, opts ...http.CallOption) (*LoginPasswordResetReply, error) {
+	var out LoginPasswordResetReply
+	pattern := "/v1/user/login/password/reset"
 	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation("/user.v1.User/LoginPassWordForget"))
+	opts = append(opts, http.Operation("/user.v1.User/LoginPasswordReset"))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
