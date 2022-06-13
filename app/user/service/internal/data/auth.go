@@ -30,22 +30,48 @@ func NewAuthRepo(data *Data, logger log.Logger) biz.AuthRepo {
 	}
 }
 
-func (r *authRepo) FindUserByPhone(ctx context.Context, phone string) (string, error) {
+func (r *authRepo) FindUserByPhone(ctx context.Context, phone string) (*biz.User, error) {
 	user := &User{}
-	err := r.data.db.WithContext(ctx).Where("phone = ?", phone).First(user).Error
+	err := r.data.DB(ctx).WithContext(ctx).Where("phone = ?", phone).First(user).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return "", kerrors.NotFound("phone not found from db", fmt.Sprintf("phone(%s)", phone))
+		return nil, kerrors.NotFound("phone not found from db", fmt.Sprintf("phone(%s)", phone))
 	}
 	if err != nil {
-		return "", errors.Wrapf(err, fmt.Sprintf("db query system error: phone(%s)", phone))
+		return nil, errors.Wrapf(err, fmt.Sprintf("db query system error: phone(%s)", phone))
 	}
-	return user.Uuid, nil
+	return &biz.User{
+		Uuid:     user.Uuid,
+		Password: user.Password,
+		Phone:    user.Phone,
+		Email:    user.Email,
+		Wechat:   user.Wechat,
+		Github:   user.Github,
+	}, nil
 }
 
-func (r *authRepo) CreateUserWithPhone(ctx context.Context, phone string) (string, error) {
+func (r *authRepo) FindUserByEmail(ctx context.Context, email string) (*biz.User, error) {
+	user := &User{}
+	err := r.data.DB(ctx).WithContext(ctx).Where("email = ?", email).First(user).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, kerrors.NotFound("email not found from db", fmt.Sprintf("email(%s)", email))
+	}
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("db query system error: email(%s)", email))
+	}
+	return &biz.User{
+		Uuid:     user.Uuid,
+		Password: user.Password,
+		Phone:    user.Phone,
+		Email:    user.Email,
+		Wechat:   user.Wechat,
+		Github:   user.Github,
+	}, nil
+}
+
+func (r *authRepo) CreateUserWithPhone(ctx context.Context, phone string) (*biz.User, error) {
 	uuid, err := util.UUIdV4()
 	if err != nil {
-		return "", errors.Wrapf(err, fmt.Sprintf("fail to create uuid: uuid(%s)", uuid))
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to create uuid: uuid(%s)", uuid))
 	}
 
 	user := &User{
@@ -54,21 +80,24 @@ func (r *authRepo) CreateUserWithPhone(ctx context.Context, phone string) (strin
 	}
 	err = r.data.DB(ctx).Select("Phone", "Uuid").Create(user).Error
 	if err != nil {
-		return "", errors.Wrapf(err, fmt.Sprintf("fail to create a user: phone(%s)", phone))
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to create a user: phone(%s)", phone))
 	}
 
-	return uuid, nil
+	return &biz.User{
+		Uuid:  uuid,
+		Phone: phone,
+	}, nil
 }
 
-func (r *authRepo) CreateUserWithEmail(ctx context.Context, email, password string) (string, error) {
+func (r *authRepo) CreateUserWithEmail(ctx context.Context, email, password string) (*biz.User, error) {
 	uuid, err := util.UUIdV4()
 	if err != nil {
-		return "", errors.Wrapf(err, fmt.Sprintf("fail to create uuid: uuid(%s)", uuid))
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to create uuid: uuid(%s)", uuid))
 	}
 
 	hashPassword, err := util.HashPassword(password)
 	if err != nil {
-		return "", errors.Wrapf(err, fmt.Sprintf("fail to hash password: password(%s)", password))
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to hash password: password(%s)", password))
 	}
 
 	user := &User{
@@ -80,13 +109,17 @@ func (r *authRepo) CreateUserWithEmail(ctx context.Context, email, password stri
 	if err != nil {
 		e := err.Error()
 		if strings.Contains(e, "Duplicate") {
-			return "", kerrors.Conflict("email conflict", fmt.Sprintf("email(%s)", email))
+			return nil, kerrors.Conflict("email conflict", fmt.Sprintf("email(%s)", email))
 		} else {
-			return "", errors.Wrapf(err, fmt.Sprintf("fail to create a user: email(%s)", email))
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to create a user: email(%s)", email))
 		}
 	}
 
-	return uuid, nil
+	return &biz.User{
+		Uuid:     uuid,
+		Email:    email,
+		Password: hashPassword,
+	}, nil
 }
 
 func (r *authRepo) CreateUserProfile(ctx context.Context, account, uuid string) error {
@@ -104,16 +137,16 @@ func (r *authRepo) SendPhoneCode(ctx context.Context, template, phone string) er
 		return err
 	}
 
-	//message := strings.Join([]string{phone, code, template, "phone"}, ";")
-	//msg := &primitive.Message{
-	//	Topic: "code",
-	//	Body:  []byte(message),
-	//}
-	//msg.WithTag("phone")
-	//err = r.data.mqPro.SendOneWay(ctx, msg)
-	//if err != nil {
-	//	return errors.Wrapf(err, fmt.Sprintf("fail to send code to producer: %s", message))
-	//}
+	message := strings.Join([]string{phone, code, template, "phone"}, ";")
+	msg := &primitive.Message{
+		Topic: "code",
+		Body:  []byte(message),
+	}
+	msg.WithTag("phone")
+	err = r.data.mqPro.SendOneWay(ctx, msg)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to send code to producer: %s", message))
+	}
 
 	return nil
 }
@@ -184,37 +217,56 @@ func (r *authRepo) verifyCode(ctx context.Context, key, code string) error {
 		return err
 	}
 	if code != codeInCache {
-		return errors.Errorf("code error")
+		return errors.Errorf("code error: code(%s)", code)
 	}
 	r.removeCodeFromCache(ctx, key)
 	return nil
 }
 
-//func (r *authRepo) UserRegister(ctx context.Context, account, mode string) (*biz.User, error) {
-//	user := &User{}
-//	switch mode {
-//	case "Phone":
-//		user.Phone = account
-//	case "Email":
-//		user.Email = account
-//	}
-//	err := r.data.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-//		if err := tx.Select(mode).Create(user).Error; err != nil {
-//			return errors.Wrapf(err, fmt.Sprintf("fail to register a account: account(%v)", account))
-//		}
-//
-//		if err := tx.Create(&Profile{UserId: int64(user.ID), Username: account[3:]}).Error; err != nil {
-//			return errors.Wrapf(err, fmt.Sprintf("fail to register a profile: user_id(%v)", user.ID))
-//		}
-//		return nil
-//	})
-//	if err != nil {
-//		return nil, err
-//	}
-//	return &biz.User{
-//		Id: int64(user.ID),
-//	}, nil
-//}
+func (r *authRepo) VerifyPassword(ctx context.Context, account, password, mode string) (*biz.User, error) {
+	var err error
+	var user *biz.User
+	if mode == "phone" {
+		user, err = r.FindUserByPhone(ctx, account)
+	} else {
+		user, err = r.FindUserByEmail(ctx, account)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	pass := util.CheckPasswordHash(password, user.Password)
+	if !pass {
+		return nil, errors.Errorf("password error: password(%s)", password)
+	}
+	return user, nil
+}
+
+func (r *authRepo) PasswordResetByPhone(ctx context.Context, phone, password string) error {
+	hashPassword, err := util.HashPassword(password)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to hash password: password(%s)", password))
+	}
+
+	err = r.data.DB(ctx).WithContext(ctx).Model(&User{}).Where("phone = ?", phone).Update("password", hashPassword).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to reset password: password(%s)", password))
+	}
+	return nil
+}
+
+func (r *authRepo) PasswordResetByEmail(ctx context.Context, email, password string) error {
+	hashPassword, err := util.HashPassword(password)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to hash password: password(%s)", password))
+	}
+
+	err = r.data.DB(ctx).WithContext(ctx).Model(&User{}).Where("email = ?", email).Update("password", hashPassword).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to reset password: password(%s)", password))
+	}
+	return nil
+}
 
 func (r *authRepo) setCodeToCache(ctx context.Context, key, code string) error {
 	err := r.data.redisCli.Set(ctx, key, code, time.Minute*2).Err()
