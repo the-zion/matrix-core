@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package bff.v1;
+import "errors/errors.proto";
+
+option go_package = "api/bff/interface/v1;v1";
+
+enum BffErrorReason {
+  option (errors.default_code) = 500;
+
+  UNKNOWN_ERROR = 0;
+  GET_USER_PROFILE_FAILED = 1;
+}
