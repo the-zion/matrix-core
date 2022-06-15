@@ -13,7 +13,7 @@ import (
 )
 
 // NewHTTPServer new a HTTP user.
-func NewHTTPServer(c *conf.Server, ac *conf.Auth, userService *service.UserService, logger log.Logger) *http.Server {
+func NewHTTPServer(c *conf.Server, userService *service.UserService, logger log.Logger) *http.Server {
 	var opts = []http.ServerOption{
 		http.Middleware(
 			recovery.Recovery(),
