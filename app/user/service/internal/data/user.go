@@ -8,9 +8,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-redis/redis/v8"
 	"github.com/pkg/errors"
-	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
 	"github.com/the-zion/matrix-core/app/user/service/internal/biz"
-	"github.com/the-zion/matrix-core/app/user/service/internal/pkg/util"
 	"gorm.io/gorm"
 	"strconv"
 	"time"
@@ -27,35 +25,11 @@ type userRepo struct {
 	log  *log.Helper
 }
 
-type User struct {
-	gorm.Model
-	Uuid     string `gorm:"uniqueIndex;size:200"`
-	Email    string `gorm:"uniqueIndex;size:200"`
-	Phone    string `gorm:"uniqueIndex;size:200"`
-	Wechat   string `gorm:"uniqueIndex;size:500"`
-	Github   string `gorm:"uniqueIndex;size:500"`
-	Password string `gorm:"size:500"`
-}
-
 func NewUserRepo(data *Data, logger log.Logger) biz.UserRepo {
 	return &userRepo{
 		data: data,
 		log:  log.NewHelper(log.With(logger, "module", "user/data/user")),
 	}
-}
-
-func (r *userRepo) FindByAccount(ctx context.Context, account, types string) (*biz.User, error) {
-	user := &User{}
-	err := r.data.db.WithContext(ctx).Where(types+" = ?", account).First(user).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, v2.NotFound("account not found from db", fmt.Sprintf("account(%s), mode(%s) ", account, types))
-	}
-	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("db query system error: account(%s), type(%s)", account, types))
-	}
-	return &biz.User{
-		Uuid: user.Uuid,
-	}, nil
 }
 
 func (r *userRepo) GetUser(ctx context.Context, id int64) (*biz.User, error) {
@@ -79,92 +53,60 @@ func (r *userRepo) GetUser(ctx context.Context, id int64) (*biz.User, error) {
 	return &biz.User{Phone: target.Phone, Email: target.Email, Wechat: target.Wechat, Github: target.Github}, nil
 }
 
-func (r *userRepo) SendCode(ctx context.Context, template int64, account, mode string) error {
-	var err error
-	code := util.RandomNumber()
-	switch mode {
-	case "phone":
-		err = r.sendPhoneCode(template, account, code)
-	case "email":
-		err = r.sendEmailCode(template, account, code)
+func (r *userRepo) GetProfile(ctx context.Context, uuid string) (*biz.Profile, error) {
+	key := "profile_" + uuid
+	target, err := r.getProfileFromCache(ctx, key)
+	if v2.IsNotFound(err) {
+		profile := &Profile{}
+		err = r.data.DB(ctx).WithContext(ctx).Where("uuid = ?", uuid).First(profile).Error
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, v2.NotFound("profile not found from db", fmt.Sprintf("uuid(%v)", uuid))
+		}
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("db query system error: uuid(%v)", uuid))
+		}
+		target = profile
+		r.setProfileToCache(ctx, profile, key)
 	}
 	if err != nil {
-		return err
+		return nil, err
 	}
-
-	key := mode + "_" + account
-	err = r.setUserCodeToCache(ctx, key, code)
-	if err != nil {
-		return err
-	}
-	return nil
+	return &biz.Profile{
+		Uuid:      target.Uuid,
+		Username:  target.Username,
+		Avatar:    target.Avatar,
+		School:    target.School,
+		Company:   target.Company,
+		Homepage:  target.Homepage,
+		Introduce: target.Introduce,
+	}, nil
 }
 
-func (r *userRepo) sendPhoneCode(template int64, phone, code string) error {
-	request := r.data.phoneCodeCli.request
-	client := r.data.phoneCodeCli.client
-	request.TemplateId = common.StringPtr(util.GetPhoneTemplate(string(template)))
-	request.TemplateParamSet = common.StringPtrs([]string{code})
-	request.PhoneNumberSet = common.StringPtrs([]string{phone})
-	_, err := client.SendSms(request)
-	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to send phone code: code(%v)", code))
-	}
-	return nil
-}
-
-func (r *userRepo) sendEmailCode(template int64, email, code string) error {
-	m := r.data.goMailCli.message
-	d := r.data.goMailCli.dialer
-	m.SetHeader("To", email)
-	m.SetHeader("Subject", "cube 魔方技术")
-	m.SetBody("text/html", util.GetEmailTemplate(string(template), code))
-	err := d.DialAndSend(m)
-	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to send email code: code(%v)", code))
-	}
-	return nil
-}
-
-func (r *userRepo) VerifyCode(ctx context.Context, account, code, mode string) error {
-	key := mode + "_" + account
-	codeInCache, err := r.getCodeFromCache(ctx, key)
-	if !v2.IsNotFound(err) {
-		return err
-	}
-	r.removeUserCodeFromCache(ctx, key)
-	if code != codeInCache {
-		return errors.Errorf("code error")
-	}
-	return nil
-}
-
-func (r *userRepo) PasswordModify(ctx context.Context, id int64, password string) error {
-	password, err := util.HashPassword(password)
-	if err != nil {
-
-		//Name interface {}
-
-	}
-	if err = r.data.db.WithContext(ctx).Model(&User{}).Where("id = ?", id).Update("password", password).Error; err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to modify password: password(%s), user_id(%v)", password, id))
-	}
-	return nil
-}
-
-func (r *userRepo) VerifyPassword(ctx context.Context, id int64, password string) error {
-	user := &User{}
-	err := r.data.db.WithContext(ctx).Where("id = ?", id).First(&user).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return v2.NotFound("user not found from db", fmt.Sprintf("user_id(%v)", id))
+func (r *userRepo) getProfileFromCache(ctx context.Context, key string) (*Profile, error) {
+	result, err := r.data.redisCli.Get(ctx, key).Result()
+	if errors.Is(err, redis.Nil) {
+		return nil, v2.NotFound("profile not found from cache", fmt.Sprintf("key(%s)", key))
 	}
 	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("db query system error: user_id(%v)", id))
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get profile from cache: redis.Get(%v)", key))
 	}
-	if !util.CheckPasswordHash(password, user.Password) {
-		return errors.Errorf("password error")
+	var cacheProfile = &Profile{}
+	err = json.Unmarshal([]byte(result), cacheProfile)
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("json unmarshal error: profile(%v)", result))
 	}
-	return nil
+	return cacheProfile, nil
+}
+
+func (r *userRepo) setProfileToCache(ctx context.Context, profile *Profile, key string) {
+	marshal, err := json.Marshal(profile)
+	if err != nil {
+		r.log.Errorf("fail to set user profile to json: json.Marshal(%v), error(%v)", profile, err)
+	}
+	err = r.data.redisCli.Set(ctx, key, string(marshal), time.Minute*30).Err()
+	if err != nil {
+		r.log.Errorf("fail to set user profile to cache: redis.Set(%v), error(%v)", profile, err)
+	}
 }
 
 // SetUserPhone set redis ?
@@ -183,32 +125,6 @@ func (r *userRepo) SetUserEmail(ctx context.Context, id int64, email string) err
 		return errors.Wrapf(err, fmt.Sprintf("db query system error: user_id(%v), email(%s)", id, email))
 	}
 	return nil
-}
-
-func (r *userRepo) getCodeFromCache(ctx context.Context, key string) (string, error) {
-	code, err := r.data.redisCli.Get(ctx, key).Result()
-	if errors.Is(err, redis.Nil) {
-		return "", v2.NotFound("code not found from cache", fmt.Sprintf("key(%s)", key))
-	}
-	if err != nil {
-		return "", errors.Wrapf(err, fmt.Sprintf("fail to get code from cache: redis.Get(%v)", key))
-	}
-	return code, nil
-}
-
-func (r *userRepo) setUserCodeToCache(ctx context.Context, key, code string) error {
-	err := r.data.redisCli.Set(ctx, key, code, time.Minute*5).Err()
-	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to set code to cache: redis.Set(%v), code(%s)", key, code))
-	}
-	return nil
-}
-
-func (r *userRepo) removeUserCodeFromCache(ctx context.Context, key string) {
-	_, err := r.data.redisCli.Del(ctx, key).Result()
-	if err != nil {
-		r.log.Errorf("fail to delete code from cache: redis.Del(key, %v), error(%v)", key, err)
-	}
 }
 
 func (r *userRepo) getUserFromCache(ctx context.Context, key string) (*User, error) {
