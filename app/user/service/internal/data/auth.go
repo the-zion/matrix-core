@@ -6,7 +6,6 @@ import (
 	"github.com/apache/rocketmq-client-go/v2/primitive"
 	kerrors "github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/go-redis/redis/v8"
 	"github.com/pkg/errors"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
 	"github.com/the-zion/matrix-core/app/user/service/internal/biz"
@@ -278,9 +277,6 @@ func (r *authRepo) setCodeToCache(ctx context.Context, key, code string) error {
 
 func (r *authRepo) getCodeFromCache(ctx context.Context, key string) (string, error) {
 	code, err := r.data.redisCli.Get(ctx, key).Result()
-	if errors.Is(err, redis.Nil) {
-		return "", kerrors.NotFound("code not found from cache", fmt.Sprintf("key(%s)", key))
-	}
 	if err != nil {
 		return "", errors.Wrapf(err, fmt.Sprintf("fail to get code from cache: redis.Get(%v)", key))
 	}
