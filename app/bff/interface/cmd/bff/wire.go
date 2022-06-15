@@ -10,11 +10,11 @@ import (
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
-	"github.com/the-zion/matrix-core/app/info/interface/internal/biz"
-	"github.com/the-zion/matrix-core/app/info/interface/internal/conf"
-	"github.com/the-zion/matrix-core/app/info/interface/internal/data"
-	"github.com/the-zion/matrix-core/app/info/interface/internal/server"
-	"github.com/the-zion/matrix-core/app/info/interface/internal/service"
+	"github.com/the-zion/matrix-core/app/bff/interface/internal/biz"
+	"github.com/the-zion/matrix-core/app/bff/interface/internal/conf"
+	"github.com/the-zion/matrix-core/app/bff/interface/internal/data"
+	"github.com/the-zion/matrix-core/app/bff/interface/internal/server"
+	"github.com/the-zion/matrix-core/app/bff/interface/internal/service"
 )
 
 // wireApp init kratos application.

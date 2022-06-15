@@ -13,7 +13,7 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/clients"
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/vo"
-	"github.com/the-zion/matrix-core/app/info/interface/internal/conf"
+	"github.com/the-zion/matrix-core/app/bff/interface/internal/conf"
 	"gopkg.in/yaml.v3"
 	"os"
 )
@@ -25,7 +25,7 @@ var (
 	// flagconf is the config flag.
 	flagconf string
 
-	Name  = "info"
+	Name  = "matrix.bff.interface"
 	id, _ = os.Hostname()
 )
 
@@ -84,7 +84,7 @@ func main() {
 	}
 
 	dataID := Name
-	group := "matrix"
+	group := "DEFAULT_GROUP"
 	_, err = client.PublishConfig(vo.ConfigParam{DataId: dataID, Group: group, Content: `
 logger:
   level: warn

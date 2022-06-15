@@ -10,28 +10,28 @@ import (
 	"github.com/go-kratos/kratos/contrib/registry/nacos/v2"
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/the-zion/matrix-core/app/info/interface/internal/biz"
-	"github.com/the-zion/matrix-core/app/info/interface/internal/conf"
-	"github.com/the-zion/matrix-core/app/info/interface/internal/data"
-	"github.com/the-zion/matrix-core/app/info/interface/internal/server"
-	"github.com/the-zion/matrix-core/app/info/interface/internal/service"
+	"github.com/the-zion/matrix-core/app/bff/interface/internal/biz"
+	"github.com/the-zion/matrix-core/app/bff/interface/internal/conf"
+	"github.com/the-zion/matrix-core/app/bff/interface/internal/data"
+	"github.com/the-zion/matrix-core/app/bff/interface/internal/server"
+	"github.com/the-zion/matrix-core/app/bff/interface/internal/service"
 )
 
 // Injectors from wire.go:
 
 // wireApp init kratos application.
 func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, registry *nacos.Registry) (*kratos.App, func(), error) {
-	dataData, cleanup, err := data.NewData(logger)
+	userClient := data.NewUserServiceClient(registry, logger)
+	dataData, err := data.NewData(logger, userClient)
 	if err != nil {
 		return nil, nil, err
 	}
 	userRepo := data.NewUserRepo(dataData, logger)
 	userUseCase := biz.NewUserUseCase(userRepo, logger)
-	infoService := service.NewUserService(userUseCase, logger)
-	httpServer := server.NewHTTPServer(confServer, infoService, logger)
-	grpcServer := server.NewGRPCServer(confServer, infoService, logger)
+	bffService := service.NewUserService(userUseCase, logger)
+	httpServer := server.NewHTTPServer(confServer, bffService, logger)
+	grpcServer := server.NewGRPCServer(confServer, bffService, logger)
 	app := newApp(logger, registry, httpServer, grpcServer)
 	return app, func() {
-		cleanup()
 	}, nil
 }
