@@ -38,8 +38,8 @@ func wireApp(confServer *conf.Server, confData *conf.Data, auth *conf.Auth, logg
 	profileRepo := data.NewProfileRepo(dataData, logger)
 	profileUseCase := biz.NewProfileUseCase(profileRepo, logger)
 	userService := service.NewUserService(userUseCase, authUseCase, profileUseCase, logger)
-	httpServer := server.NewHTTPServer(confServer, auth, userService, logger)
-	grpcServer := server.NewGRPCServer(confServer, auth, userService, logger)
+	httpServer := server.NewHTTPServer(confServer, userService, logger)
+	grpcServer := server.NewGRPCServer(confServer, userService, logger)
 	mqConsumerServer := server.NewMqConsumerServer(confData, userService, logger)
 	app := newApp(logger, registry, httpServer, grpcServer, mqConsumerServer)
 	return app, func() {

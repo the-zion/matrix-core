@@ -26,7 +26,7 @@ var (
 	// flagconf is the config flag.
 	flagconf string
 
-	Name  = "user"
+	Name  = "matrix.user.service"
 	id, _ = os.Hostname()
 )
 
@@ -86,7 +86,7 @@ func main() {
 	}
 
 	dataID := Name
-	group := "matrix"
+	group := "DEFAULT_GROUP"
 	_, err = client.PublishConfig(vo.ConfigParam{DataId: dataID, Group: group, Content: `
 logger:
   level: warn
