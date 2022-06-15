@@ -16,14 +16,8 @@ type User struct {
 }
 
 type UserRepo interface {
-	FindByAccount(ctx context.Context, account, mode string) (*User, error)
 	GetUser(ctx context.Context, id int64) (*User, error)
-	PasswordModify(ctx context.Context, id int64, password string) error
-	VerifyPassword(ctx context.Context, id int64, password string) error
-	VerifyCode(ctx context.Context, account, code, mode string) error
-	SendCode(ctx context.Context, template int64, account, mode string) error
-	SetUserPhone(ctx context.Context, id int64, phone string) error
-	SetUserEmail(ctx context.Context, id int64, email string) error
+	GetProfile(ctx context.Context, uuid string) (*Profile, error)
 }
 
 type UserUseCase struct {
@@ -38,12 +32,20 @@ func NewUserUseCase(repo UserRepo, logger log.Logger) *UserUseCase {
 	}
 }
 
-func (r *UserUseCase) SendCode(ctx context.Context, template int64, account, mode string) error {
-	err := r.repo.SendCode(ctx, template, account, mode)
+func (r *UserUseCase) GetUserProfile(ctx context.Context, uuid string) (*Profile, error) {
+	profile, err := r.repo.GetProfile(ctx, uuid)
 	if err != nil {
-		return v1.ErrorSendCodeFailed("send code failed: %s", err.Error())
+		return nil, v1.ErrorGetProfileFailed("get user profile failed: %s", err.Error())
 	}
-	return nil
+	return &Profile{
+		Uuid:      profile.Uuid,
+		Username:  profile.Username,
+		Avatar:    profile.Avatar,
+		School:    profile.School,
+		Company:   profile.Company,
+		Homepage:  profile.Homepage,
+		Introduce: profile.Introduce,
+	}, nil
 }
 
 func (r *UserUseCase) GetUser(ctx context.Context, id int64) (*User, error) {
@@ -54,38 +56,38 @@ func (r *UserUseCase) GetUser(ctx context.Context, id int64) (*User, error) {
 	return user, nil
 }
 
-func (r *UserUseCase) SetUserPhone(ctx context.Context, id int64, phone, password, code string) error {
-	err := r.repo.VerifyCode(ctx, phone, code, "phone")
-	if err != nil {
-		return v1.ErrorVerifyCodeFailed("set phone failed: %s", err.Error())
-	}
-
-	err = r.repo.VerifyPassword(ctx, id, password)
-	if err != nil {
-		return v1.ErrorVerifyPasswordFailed("set phone failed: %s", err.Error())
-	}
-
-	err = r.repo.SetUserPhone(ctx, id, phone)
-	if err != nil {
-		return v1.ErrorSetPhoneFailed("set phone failed: %s", err.Error())
-	}
-	return nil
-}
-
-func (r *UserUseCase) SetUserEmail(ctx context.Context, id int64, email, password, code string) error {
-	err := r.repo.VerifyCode(ctx, email, code, "email")
-	if err != nil {
-		return v1.ErrorVerifyCodeFailed("set email failed: %s", err.Error())
-	}
-
-	err = r.repo.VerifyPassword(ctx, id, password)
-	if err != nil {
-		return v1.ErrorVerifyPasswordFailed("set phone failed: %s", err.Error())
-	}
-
-	err = r.repo.SetUserEmail(ctx, id, email)
-	if err != nil {
-		return v1.ErrorSetEmailFailed("set email failed: %s", err.Error())
-	}
-	return nil
-}
+//func (r *UserUseCase) SetUserPhone(ctx context.Context, id int64, phone, password, code string) error {
+//	err := r.repo.VerifyCode(ctx, phone, code, "phone")
+//	if err != nil {
+//		return v1.ErrorVerifyCodeFailed("set phone failed: %s", err.Error())
+//	}
+//
+//	err = r.repo.VerifyPassword(ctx, id, password)
+//	if err != nil {
+//		return v1.ErrorVerifyPasswordFailed("set phone failed: %s", err.Error())
+//	}
+//
+//	err = r.repo.SetUserPhone(ctx, id, phone)
+//	if err != nil {
+//		return v1.ErrorSetPhoneFailed("set phone failed: %s", err.Error())
+//	}
+//	return nil
+//}
+//
+//func (r *UserUseCase) SetUserEmail(ctx context.Context, id int64, email, password, code string) error {
+//	err := r.repo.VerifyCode(ctx, email, code, "email")
+//	if err != nil {
+//		return v1.ErrorVerifyCodeFailed("set email failed: %s", err.Error())
+//	}
+//
+//	err = r.repo.VerifyPassword(ctx, id, password)
+//	if err != nil {
+//		return v1.ErrorVerifyPasswordFailed("set phone failed: %s", err.Error())
+//	}
+//
+//	err = r.repo.SetUserEmail(ctx, id, email)
+//	if err != nil {
+//		return v1.ErrorSetEmailFailed("set email failed: %s", err.Error())
+//	}
+//	return nil
+//}
