@@ -35,6 +35,9 @@ var (
 	_ = sort.Sort
 )
 
+// define the regex for a UUID once up-front
+var _user_uuidPattern = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+
 // Validate checks the field values on UserRegisterReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -2347,10 +2350,11 @@ func (m *GetUserProfileReq) validate(all bool) error {
 
 	var errors []error
 
-	if m.GetId() < 0 {
-		err := GetUserProfileReqValidationError{
-			field:  "Id",
-			reason: "value must be greater than or equal to 0",
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = GetUserProfileReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -2360,6 +2364,14 @@ func (m *GetUserProfileReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetUserProfileReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *GetUserProfileReq) _validateUuid(uuid string) error {
+	if matched := _user_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -2460,23 +2472,19 @@ func (m *GetUserProfileReply) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Sex
-
-	// no validation rules for Introduce
-
-	// no validation rules for Address
-
-	// no validation rules for Industry
-
-	// no validation rules for Profile
-
-	// no validation rules for Tag
-
-	// no validation rules for Background
-
-	// no validation rules for Image
+	// no validation rules for Uuid
 
 	// no validation rules for Username
+
+	// no validation rules for Avatar
+
+	// no validation rules for School
+
+	// no validation rules for Company
+
+	// no validation rules for Homepage
+
+	// no validation rules for Introduce
 
 	if len(errors) > 0 {
 		return GetUserProfileReplyMultiError(errors)

@@ -8,54 +8,22 @@ import "validate/validate.proto";
 option go_package = "api/user/service/v1;v1";
 
 service User {
-  rpc UserRegister(UserRegisterReq) returns (UserRegisterReply){
-    option (google.api.http) = {
-      post: "/v1/user/register"
-      body: "*"
-    };
-  }
-  rpc LoginByPassword (LoginByPasswordReq) returns (LoginReply) {
-    option (google.api.http) = {
-      post: "/v1/user/login/password"
-      body: "*"
-    };
-  }
-  rpc LoginByCode (LoginByCodeReq) returns (LoginReply) {
-    option (google.api.http) = {
-      post: "/v1/user/login/code"
-      body: "*"
-    };
-  }
-  rpc LoginByWeChat (LoginByWeChatReq) returns (LoginReply) {
-    option (google.api.http) = {
-      post: "/v1/login/wechat"
-      body: "*"
-    };
-  }
-  rpc LoginByGithub (LoginByGithubReq) returns (LoginReply) {
-    option (google.api.http) = {
-      post: "/v1/login/github"
-      body: "*"
-    };
-  }
-  rpc LoginPasswordReset(LoginPasswordResetReq) returns (LoginPasswordResetReply){
-    option (google.api.http) = {
-      post: "/v1/user/login/password/reset"
-      body: "*"
-    };
-  }
-  rpc SendPhoneCode (SendPhoneCodeReq) returns (SendPhoneCodeReply){
-    option (google.api.http) = {
-      post: "/v1/user/code/phone"
-      body: "*"
-    };
-  }
-  rpc SendEmailCode (SendEmailCodeReq) returns (SendEmailCodeReply) {
-    option (google.api.http) = {
-      post: "/v1/user/code/email"
-      body: "*"
-    };
-  }
+  rpc UserRegister(UserRegisterReq) returns (UserRegisterReply){}
+
+  rpc LoginByPassword (LoginByPasswordReq) returns (LoginReply) {}
+
+  rpc LoginByCode (LoginByCodeReq) returns (LoginReply) {}
+
+  rpc LoginByWeChat (LoginByWeChatReq) returns (LoginReply) {}
+
+  rpc LoginByGithub (LoginByGithubReq) returns (LoginReply) {}
+
+  rpc LoginPasswordReset(LoginPasswordResetReq) returns (LoginPasswordResetReply){}
+
+  rpc SendPhoneCode (SendPhoneCodeReq) returns (SendPhoneCodeReply){}
+
+  rpc SendEmailCode (SendEmailCodeReq) returns (SendEmailCodeReply) {}
+
   rpc GetUser (GetUserReq) returns (GetUserReply) {
     option (google.api.http) = {
       post: "/v1/user/get"
@@ -74,12 +42,8 @@ service User {
       body: "*"
     };
   }
-  rpc GetUserProfile (GetUserProfileReq) returns (GetUserProfileReply) {
-    option (google.api.http) = {
-      post: "/v1/user/profile"
-      body: "*"
-    };
-  }
+  rpc GetUserProfile (GetUserProfileReq) returns (GetUserProfileReply) {}
+
   rpc SetUserProfile (SetUserProfileReq) returns (SetUserProfileReply) {
     option (google.api.http) = {
       post: "/v1/user/set/profile"
@@ -181,19 +145,17 @@ message SetUserEmailReply{
 }
 
 message GetUserProfileReq{
-  int64 id = 1 [(validate.rules).int64.gte = 0];
+  string uuid = 1 [(validate.rules).string.uuid = true];
 }
 
 message GetUserProfileReply{
-  string sex = 1;
-  string introduce = 2;
-  string address = 3;
-  string industry = 4;
-  string profile = 5;
-  string tag = 6;
-  string background = 7;
-  string image = 8;
-  string username = 9;
+  string uuid = 1;
+  string username = 2;
+  string avatar = 3;
+  string school = 4;
+  string company = 5;
+  string homepage = 6;
+  string introduce = 7;
 }
 
 message SetUserProfileReq{
