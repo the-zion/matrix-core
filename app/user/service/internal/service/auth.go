@@ -6,6 +6,14 @@ import (
 	v1 "github.com/the-zion/matrix-core/api/user/service/v1"
 )
 
+func (s *UserService) UserRegister(ctx context.Context, req *v1.UserRegisterReq) (*v1.UserRegisterReply, error) {
+	err := s.ac.UserRegister(ctx, req.Email, req.Password, req.Code)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.UserRegisterReply{}, nil
+}
+
 func (s *UserService) LoginByPassword(ctx context.Context, req *v1.LoginByPasswordReq) (*v1.LoginReply, error) {
 	token, err := s.ac.LoginByPassword(ctx, req.Account, req.Password, req.Mode)
 	if err != nil {
@@ -32,14 +40,6 @@ func (s *UserService) LoginPasswordReset(ctx context.Context, req *v1.LoginPassw
 		return nil, err
 	}
 	return &v1.LoginPasswordResetReply{}, nil
-}
-
-func (s *UserService) UserRegister(ctx context.Context, req *v1.UserRegisterReq) (*v1.UserRegisterReply, error) {
-	err := s.ac.UserRegister(ctx, req.Email, req.Password, req.Code)
-	if err != nil {
-		return nil, err
-	}
-	return &v1.UserRegisterReply{}, nil
 }
 
 func (s *UserService) SendCode(msgs ...*primitive.MessageExt) {
