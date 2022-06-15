@@ -18,24 +18,26 @@ func (s *UserService) GetUser(ctx context.Context, req *v1.GetUserReq) (*v1.GetU
 	}, nil
 }
 
-func (s *UserService) SetUserPhone(ctx context.Context, req *v1.SetUserPhoneReq) (*v1.SetUserPhoneReply, error) {
-	id := GetUserIdFromContext(ctx)
-	err := s.uc.SetUserPhone(ctx, id, req.Phone, req.Password, req.Code)
+func (s *UserService) GetUserProfile(ctx context.Context, req *v1.GetUserProfileReq) (*v1.GetUserProfileReply, error) {
+	profile, err := s.uc.GetUserProfile(ctx, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
-	return &v1.SetUserPhoneReply{
-		Success: true,
+	return &v1.GetUserProfileReply{
+		Uuid:      profile.Uuid,
+		Username:  profile.Username,
+		Avatar:    profile.Avatar,
+		School:    profile.School,
+		Company:   profile.Company,
+		Homepage:  profile.Homepage,
+		Introduce: profile.Introduce,
 	}, nil
 }
 
+func (s *UserService) SetUserPhone(ctx context.Context, req *v1.SetUserPhoneReq) (*v1.SetUserPhoneReply, error) {
+	return nil, nil
+}
+
 func (s *UserService) SetUserEmail(ctx context.Context, req *v1.SetUserEmailReq) (*v1.SetUserEmailReply, error) {
-	id := GetUserIdFromContext(ctx)
-	err := s.uc.SetUserEmail(ctx, id, req.Email, req.Password, req.Code)
-	if err != nil {
-		return nil, err
-	}
-	return &v1.SetUserEmailReply{
-		Success: true,
-	}, nil
+	return nil, nil
 }
