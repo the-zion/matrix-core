@@ -26,7 +26,8 @@ func wireApp(confServer *conf.Server, confData *conf.Data, auth *conf.Auth, logg
 	producer := data.NewRocketmqProducer(confData, logger)
 	txCode := data.NewPhoneCode(confData)
 	goMail := data.NewGoMail(confData)
-	dataData, cleanup, err := data.NewData(db, cmdable, producer, txCode, goMail, logger)
+	cos := data.NewCosClient(confData)
+	dataData, cleanup, err := data.NewData(db, cmdable, producer, txCode, goMail, cos, logger)
 	if err != nil {
 		return nil, nil, err
 	}
