@@ -95,6 +95,20 @@ func (r *userRepo) SendEmailCode(ctx context.Context, template, email string) er
 	return nil
 }
 
+func (r *userRepo) GetCosSessionKey(ctx context.Context) (*biz.Credentials, error) {
+	reply, err := r.data.uc.GetCosSessionKey(ctx, &userV1.GetCosSessionKeyReq{})
+	if err != nil {
+		return nil, err
+	}
+	return &biz.Credentials{
+		TmpSecretKey: reply.TmpSecretKey,
+		TmpSecretID:  reply.TmpSecretId,
+		SessionToken: reply.SessionToken,
+		StartTime:    reply.StartTime,
+		ExpiredTime:  reply.ExpiredTime,
+	}, nil
+}
+
 func (r *userRepo) GetUserProfile(ctx context.Context, uuid string) (*biz.UserProfile, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_user_profile_%s", uuid), func() (interface{}, error) {
 		reply, err := r.data.uc.GetUserProfile(ctx, &userV1.GetUserProfileReq{
