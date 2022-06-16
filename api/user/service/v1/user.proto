@@ -24,6 +24,8 @@ service User {
 
   rpc SendEmailCode (SendEmailCodeReq) returns (SendEmailCodeReply) {}
 
+  rpc GetCosSessionKey (GetCosSessionKeyReq) returns (GetCosSessionKeyReply) {}
+
   rpc GetUser (GetUserReq) returns (GetUserReply) {
     option (google.api.http) = {
       post: "/v1/user/get"
@@ -112,6 +114,16 @@ message SendEmailCodeReq{
 }
 
 message SendEmailCodeReply{}
+
+message GetCosSessionKeyReq{}
+
+message GetCosSessionKeyReply{
+  string tmp_secret_id = 1;
+  string tmp_secret_key = 2;
+  string session_token = 3;
+  int64 start_time = 4;
+  int64 expired_time = 5;
+}
 
 message GetUserReq{
   int64 id = 1 [(validate.rules).int64.gte = 0];

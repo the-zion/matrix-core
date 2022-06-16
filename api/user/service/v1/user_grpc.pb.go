@@ -30,6 +30,7 @@ type UserClient interface {
 	LoginPasswordReset(ctx context.Context, in *LoginPasswordResetReq, opts ...grpc.CallOption) (*LoginPasswordResetReply, error)
 	SendPhoneCode(ctx context.Context, in *SendPhoneCodeReq, opts ...grpc.CallOption) (*SendPhoneCodeReply, error)
 	SendEmailCode(ctx context.Context, in *SendEmailCodeReq, opts ...grpc.CallOption) (*SendEmailCodeReply, error)
+	GetCosSessionKey(ctx context.Context, in *GetCosSessionKeyReq, opts ...grpc.CallOption) (*GetCosSessionKeyReply, error)
 	GetUser(ctx context.Context, in *GetUserReq, opts ...grpc.CallOption) (*GetUserReply, error)
 	SetUserPhone(ctx context.Context, in *SetUserPhoneReq, opts ...grpc.CallOption) (*SetUserPhoneReply, error)
 	SetUserEmail(ctx context.Context, in *SetUserEmailReq, opts ...grpc.CallOption) (*SetUserEmailReply, error)
@@ -118,6 +119,15 @@ func (c *userClient) SendEmailCode(ctx context.Context, in *SendEmailCodeReq, op
 	return out, nil
 }
 
+func (c *userClient) GetCosSessionKey(ctx context.Context, in *GetCosSessionKeyReq, opts ...grpc.CallOption) (*GetCosSessionKeyReply, error) {
+	out := new(GetCosSessionKeyReply)
+	err := c.cc.Invoke(ctx, "/user.v1.User/GetCosSessionKey", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *userClient) GetUser(ctx context.Context, in *GetUserReq, opts ...grpc.CallOption) (*GetUserReply, error) {
 	out := new(GetUserReply)
 	err := c.cc.Invoke(ctx, "/user.v1.User/GetUser", in, out, opts...)
@@ -184,6 +194,7 @@ type UserServer interface {
 	LoginPasswordReset(context.Context, *LoginPasswordResetReq) (*LoginPasswordResetReply, error)
 	SendPhoneCode(context.Context, *SendPhoneCodeReq) (*SendPhoneCodeReply, error)
 	SendEmailCode(context.Context, *SendEmailCodeReq) (*SendEmailCodeReply, error)
+	GetCosSessionKey(context.Context, *GetCosSessionKeyReq) (*GetCosSessionKeyReply, error)
 	GetUser(context.Context, *GetUserReq) (*GetUserReply, error)
 	SetUserPhone(context.Context, *SetUserPhoneReq) (*SetUserPhoneReply, error)
 	SetUserEmail(context.Context, *SetUserEmailReq) (*SetUserEmailReply, error)
@@ -220,6 +231,9 @@ func (UnimplementedUserServer) SendPhoneCode(context.Context, *SendPhoneCodeReq)
 }
 func (UnimplementedUserServer) SendEmailCode(context.Context, *SendEmailCodeReq) (*SendEmailCodeReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendEmailCode not implemented")
+}
+func (UnimplementedUserServer) GetCosSessionKey(context.Context, *GetCosSessionKeyReq) (*GetCosSessionKeyReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCosSessionKey not implemented")
 }
 func (UnimplementedUserServer) GetUser(context.Context, *GetUserReq) (*GetUserReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
@@ -396,6 +410,24 @@ func _User_SendEmailCode_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _User_GetCosSessionKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCosSessionKeyReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetCosSessionKey(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/GetCosSessionKey",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetCosSessionKey(ctx, req.(*GetCosSessionKeyReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _User_GetUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetUserReq)
 	if err := dec(in); err != nil {
@@ -542,6 +574,10 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SendEmailCode",
 			Handler:    _User_SendEmailCode_Handler,
+		},
+		{
+			MethodName: "GetCosSessionKey",
+			Handler:    _User_GetCosSessionKey_Handler,
 		},
 		{
 			MethodName: "GetUser",
