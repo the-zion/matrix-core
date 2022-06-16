@@ -18,6 +18,7 @@ var _ = binding.EncodeURL
 const _ = http.SupportPackageIsVersion1
 
 type BffHTTPServer interface {
+	GetCosSessionKey(context.Context, *GetCosSessionKeyReq) (*GetCosSessionKeyReply, error)
 	GetUserProfile(context.Context, *GetUserProfileReq) (*GetUserProfileReply, error)
 	LoginByCode(context.Context, *LoginByCodeReq) (*LoginReply, error)
 	LoginByGithub(context.Context, *LoginByGithubReq) (*LoginReply, error)
@@ -39,6 +40,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.POST("/v1/user/login/password/reset", _Bff_LoginPasswordReset0_HTTP_Handler(srv))
 	r.POST("/v1/user/code/phone", _Bff_SendPhoneCode0_HTTP_Handler(srv))
 	r.POST("/v1/user/code/email", _Bff_SendEmailCode0_HTTP_Handler(srv))
+	r.GET("/v1/get/cos/session/key", _Bff_GetCosSessionKey0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/profile", _Bff_GetUserProfile0_HTTP_Handler(srv))
 }
 
@@ -194,6 +196,25 @@ func _Bff_SendEmailCode0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) 
 	}
 }
 
+func _Bff_GetCosSessionKey0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetCosSessionKeyReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/bff.v1.Bff/GetCosSessionKey")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetCosSessionKey(ctx, req.(*GetCosSessionKeyReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetCosSessionKeyReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _Bff_GetUserProfile0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in GetUserProfileReq
@@ -214,6 +235,7 @@ func _Bff_GetUserProfile0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context)
 }
 
 type BffHTTPClient interface {
+	GetCosSessionKey(ctx context.Context, req *GetCosSessionKeyReq, opts ...http.CallOption) (rsp *GetCosSessionKeyReply, err error)
 	GetUserProfile(ctx context.Context, req *GetUserProfileReq, opts ...http.CallOption) (rsp *GetUserProfileReply, err error)
 	LoginByCode(ctx context.Context, req *LoginByCodeReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginByGithub(ctx context.Context, req *LoginByGithubReq, opts ...http.CallOption) (rsp *LoginReply, err error)
@@ -231,6 +253,19 @@ type BffHTTPClientImpl struct {
 
 func NewBffHTTPClient(client *http.Client) BffHTTPClient {
 	return &BffHTTPClientImpl{client}
+}
+
+func (c *BffHTTPClientImpl) GetCosSessionKey(ctx context.Context, in *GetCosSessionKeyReq, opts ...http.CallOption) (*GetCosSessionKeyReply, error) {
+	var out GetCosSessionKeyReply
+	pattern := "/v1/get/cos/session/key"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation("/bff.v1.Bff/GetCosSessionKey"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
 }
 
 func (c *BffHTTPClientImpl) GetUserProfile(ctx context.Context, in *GetUserProfileReq, opts ...http.CallOption) (*GetUserProfileReply, error) {

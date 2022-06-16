@@ -64,6 +64,12 @@ service Bff{
     };
   }
 
+  rpc GetCosSessionKey (GetCosSessionKeyReq) returns (GetCosSessionKeyReply) {
+    option (google.api.http) = {
+      get: "/v1/get/cos/session/key",
+    };
+  }
+
   rpc GetUserProfile (GetUserProfileReq) returns (GetUserProfileReply) {
     option (google.api.http) = {
       get: "/v1/get/user/profile",
@@ -124,6 +130,16 @@ message SendEmailCodeReq{
 }
 
 message SendEmailCodeReply{}
+
+message GetCosSessionKeyReq{}
+
+message GetCosSessionKeyReply{
+  string tmp_secret_id = 1;
+  string tmp_secret_key = 2;
+  string session_token = 3;
+  int64 start_time = 4;
+  int64 expired_time = 5;
+}
 
 message GetUserProfileReq{}
 

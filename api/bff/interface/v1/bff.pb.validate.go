@@ -1384,6 +1384,220 @@ var _ interface {
 	ErrorName() string
 } = SendEmailCodeReplyValidationError{}
 
+// Validate checks the field values on GetCosSessionKeyReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetCosSessionKeyReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetCosSessionKeyReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetCosSessionKeyReqMultiError, or nil if none found.
+func (m *GetCosSessionKeyReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetCosSessionKeyReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return GetCosSessionKeyReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetCosSessionKeyReqMultiError is an error wrapping multiple validation
+// errors returned by GetCosSessionKeyReq.ValidateAll() if the designated
+// constraints aren't met.
+type GetCosSessionKeyReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetCosSessionKeyReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetCosSessionKeyReqMultiError) AllErrors() []error { return m }
+
+// GetCosSessionKeyReqValidationError is the validation error returned by
+// GetCosSessionKeyReq.Validate if the designated constraints aren't met.
+type GetCosSessionKeyReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetCosSessionKeyReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetCosSessionKeyReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetCosSessionKeyReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetCosSessionKeyReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetCosSessionKeyReqValidationError) ErrorName() string {
+	return "GetCosSessionKeyReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetCosSessionKeyReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetCosSessionKeyReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetCosSessionKeyReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetCosSessionKeyReqValidationError{}
+
+// Validate checks the field values on GetCosSessionKeyReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetCosSessionKeyReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetCosSessionKeyReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetCosSessionKeyReplyMultiError, or nil if none found.
+func (m *GetCosSessionKeyReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetCosSessionKeyReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for TmpSecretId
+
+	// no validation rules for TmpSecretKey
+
+	// no validation rules for SessionToken
+
+	// no validation rules for StartTime
+
+	// no validation rules for ExpiredTime
+
+	if len(errors) > 0 {
+		return GetCosSessionKeyReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetCosSessionKeyReplyMultiError is an error wrapping multiple validation
+// errors returned by GetCosSessionKeyReply.ValidateAll() if the designated
+// constraints aren't met.
+type GetCosSessionKeyReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetCosSessionKeyReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetCosSessionKeyReplyMultiError) AllErrors() []error { return m }
+
+// GetCosSessionKeyReplyValidationError is the validation error returned by
+// GetCosSessionKeyReply.Validate if the designated constraints aren't met.
+type GetCosSessionKeyReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetCosSessionKeyReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetCosSessionKeyReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetCosSessionKeyReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetCosSessionKeyReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetCosSessionKeyReplyValidationError) ErrorName() string {
+	return "GetCosSessionKeyReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetCosSessionKeyReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetCosSessionKeyReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetCosSessionKeyReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetCosSessionKeyReplyValidationError{}
+
 // Validate checks the field values on GetUserProfileReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
