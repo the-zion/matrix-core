@@ -13,6 +13,7 @@ type UserRepo interface {
 	LoginPasswordReset(ctx context.Context, account, password, code, mode string) error
 	SendPhoneCode(ctx context.Context, template, phone string) error
 	SendEmailCode(ctx context.Context, template, email string) error
+	GetCosSessionKey(ctx context.Context) (*Credentials, error)
 	GetUserProfile(ctx context.Context, uuid string) (*UserProfile, error)
 }
 
@@ -74,6 +75,14 @@ func (r *UserUseCase) SendEmailCode(ctx context.Context, template, email string)
 		return err
 	}
 	return nil
+}
+
+func (r *UserUseCase) GetCosSessionKey(ctx context.Context) (*Credentials, error) {
+	credentials, err := r.repo.GetCosSessionKey(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return credentials, nil
 }
 
 func (r *UserUseCase) GetUserProfile(ctx context.Context) (*UserProfile, error) {
