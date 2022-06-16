@@ -11,6 +11,7 @@ import (
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/profile"
 	sms "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms/v20210111"
+	"github.com/tencentyun/qcloud-cos-sts-sdk/go"
 	"github.com/the-zion/matrix-core/app/user/service/internal/biz"
 	"github.com/the-zion/matrix-core/app/user/service/internal/conf"
 	"gopkg.in/gomail.v2"
@@ -19,7 +20,7 @@ import (
 	"time"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewDB, NewTransaction, NewRedis, NewRocketmqProducer, NewPhoneCode, NewGoMail, NewUserRepo, NewAuthRepo, NewProfileRepo)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewTransaction, NewRedis, NewRocketmqProducer, NewPhoneCode, NewGoMail, NewCosClient, NewUserRepo, NewAuthRepo, NewProfileRepo)
 
 type TxCode struct {
 	client  *sms.Client
@@ -31,12 +32,18 @@ type GoMail struct {
 	dialer  *gomail.Dialer
 }
 
+type Cos struct {
+	client *sts.Client
+	opt    *sts.CredentialOptions
+}
+
 type Data struct {
 	db           *gorm.DB
 	redisCli     redis.Cmdable
 	mqPro        rocketmq.Producer
 	phoneCodeCli *TxCode
 	goMailCli    *GoMail
+	cos          *Cos
 }
 
 type contextTxKey struct{}
@@ -139,7 +146,43 @@ func NewRocketmqProducer(conf *conf.Data, logger log.Logger) rocketmq.Producer {
 	return p
 }
 
-func NewData(db *gorm.DB, redisCmd redis.Cmdable, p rocketmq.Producer, phoneCodeCli *TxCode, goMailCli *GoMail, logger log.Logger) (*Data, func(), error) {
+func NewCosClient(conf *conf.Data) *Cos {
+	c := sts.NewClient(
+		conf.Cos.SecretId,
+		conf.Cos.SecretKey,
+		nil,
+	)
+	opt := &sts.CredentialOptions{
+		DurationSeconds: int64(time.Hour.Seconds()),
+		Region:          conf.Cos.Region,
+		Policy: &sts.CredentialPolicy{
+			Statement: []sts.CredentialPolicyStatement{
+				{
+					Action: []string{
+						"name/cos:PostObject",
+						"name/cos:PutObject",
+						"name/cos:InitiateMultipartUpload",
+						"name/cos:ListMultipartUploads",
+						"name/cos:ListParts",
+						"name/cos:UploadPart",
+						"name/cos:CompleteMultipartUpload",
+					},
+					Effect: "allow",
+					Resource: []string{
+						//这里改成允许的路径前缀，可以根据自己网站的用户登录态判断允许上传的具体路径，例子： a.jpg 或者 a/* 或者 * (使用通配符*存在重大安全风险, 请谨慎评估使用)
+						"qcs::cos:" + conf.Cos.Region + ":uid/" + conf.Cos.Appid + ":" + conf.Cos.Bucket + "/avatar-origin/*",
+					},
+				},
+			},
+		},
+	}
+	return &Cos{
+		client: c,
+		opt:    opt,
+	}
+}
+
+func NewData(db *gorm.DB, redisCmd redis.Cmdable, p rocketmq.Producer, phoneCodeCli *TxCode, goMailCli *GoMail, cos *Cos, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(logger, "module", "user/data/new-data"))
 
 	d := &Data{
@@ -148,6 +191,7 @@ func NewData(db *gorm.DB, redisCmd redis.Cmdable, p rocketmq.Producer, phoneCode
 		redisCli:     redisCmd,
 		phoneCodeCli: phoneCodeCli,
 		goMailCli:    goMailCli,
+		cos:          cos,
 	}
 	return d, func() {
 		var err error
