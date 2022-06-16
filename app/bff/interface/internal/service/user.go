@@ -57,6 +57,20 @@ func (s *BffService) SendEmailCode(ctx context.Context, req *v1.SendEmailCodeReq
 	return &v1.SendEmailCodeReply{}, nil
 }
 
+func (s *BffService) GetCosSessionKey(ctx context.Context, req *v1.GetCosSessionKeyReq) (*v1.GetCosSessionKeyReply, error) {
+	credentials, err := s.uc.GetCosSessionKey(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetCosSessionKeyReply{
+		TmpSecretId:  credentials.TmpSecretID,
+		TmpSecretKey: credentials.TmpSecretKey,
+		SessionToken: credentials.SessionToken,
+		StartTime:    credentials.StartTime,
+		ExpiredTime:  credentials.ExpiredTime,
+	}, nil
+}
+
 func (s *BffService) GetUserProfile(ctx context.Context, req *v1.GetUserProfileReq) (*v1.GetUserProfileReply, error) {
 	userProfile, err := s.uc.GetUserProfile(ctx)
 	if err != nil {
