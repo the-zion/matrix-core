@@ -61,3 +61,17 @@ func (s *UserService) SendEmailCode(ctx context.Context, req *v1.SendEmailCodeRe
 	}
 	return &v1.SendEmailCodeReply{}, nil
 }
+
+func (s *UserService) GetCosSessionKey(ctx context.Context, req *v1.GetCosSessionKeyReq) (*v1.GetCosSessionKeyReply, error) {
+	credentials, err := s.ac.GetCosSessionKey(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetCosSessionKeyReply{
+		TmpSecretId:  credentials.TmpSecretID,
+		TmpSecretKey: credentials.TmpSecretKey,
+		SessionToken: credentials.SessionToken,
+		StartTime:    credentials.StartTime,
+		ExpiredTime:  credentials.ExpiredTime,
+	}, nil
+}
