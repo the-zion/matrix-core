@@ -212,7 +212,7 @@ func (r *authRepo) VerifyEmailCode(ctx context.Context, email, code string) erro
 
 func (r *authRepo) verifyCode(ctx context.Context, key, code string) error {
 	codeInCache, err := r.getCodeFromCache(ctx, key)
-	if !kerrors.IsNotFound(err) {
+	if err != nil {
 		return err
 	}
 	if code != codeInCache {
@@ -265,6 +265,22 @@ func (r *authRepo) PasswordResetByEmail(ctx context.Context, email, password str
 		return errors.Wrapf(err, fmt.Sprintf("fail to reset password: password(%s)", password))
 	}
 	return nil
+}
+
+func (r *authRepo) GetCosSessionKey(ctx context.Context) (*biz.Credentials, error) {
+	c := r.data.cos.client
+	opt := r.data.cos.opt
+	res, err := c.GetCredential(opt)
+	if err != nil {
+		return nil, errors.Wrapf(err, "fail to get cos session key")
+	}
+	return &biz.Credentials{
+		TmpSecretKey: res.Credentials.TmpSecretKey,
+		TmpSecretID:  res.Credentials.TmpSecretID,
+		SessionToken: res.Credentials.SessionToken,
+		StartTime:    int64(res.StartTime),
+		ExpiredTime:  int64(res.ExpiredTime),
+	}, nil
 }
 
 func (r *authRepo) setCodeToCache(ctx context.Context, key, code string) error {
