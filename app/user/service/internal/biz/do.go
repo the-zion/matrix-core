@@ -9,3 +9,11 @@ type Profile struct {
 	Homepage  string
 	Introduce string
 }
+
+type Credentials struct {
+	TmpSecretID  string
+	TmpSecretKey string
+	SessionToken string
+	StartTime    int64
+	ExpiredTime  int64
+}
