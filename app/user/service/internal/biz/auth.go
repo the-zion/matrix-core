@@ -27,6 +27,7 @@ type AuthRepo interface {
 	VerifyPassword(ctx context.Context, account, password, mode string) (*User, error)
 	PasswordResetByPhone(ctx context.Context, phone, password string) error
 	PasswordResetByEmail(ctx context.Context, email, password string) error
+	GetCosSessionKey(ctx context.Context) (*Credentials, error)
 }
 
 type AuthUseCase struct {
@@ -187,4 +188,12 @@ func signToken(uuid, key string) (string, error) {
 		return "", errors.Wrapf(err, fmt.Sprintf("fail to sign token: uuid(%v)", uuid))
 	}
 	return signedString, nil
+}
+
+func (r *AuthUseCase) GetCosSessionKey(ctx context.Context) (*Credentials, error) {
+	credentials, err := r.repo.GetCosSessionKey(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return credentials, nil
 }
