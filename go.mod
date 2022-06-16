@@ -17,7 +17,9 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.411
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.411
+	github.com/tencentyun/qcloud-cos-sts-sdk v0.0.0-20220609035139-c77380ea7d1b
 	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e
+	golang.org/x/sync v0.0.0-20220513210516-0976fa681c29
 	google.golang.org/genproto v0.0.0-20220531173845-685668d2de03
 	google.golang.org/grpc v1.47.0
 	google.golang.org/protobuf v1.28.0
@@ -66,7 +68,6 @@ require (
 	go.uber.org/zap v1.15.0 // indirect
 	golang.org/x/mod v0.5.0 // indirect
 	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 // indirect
-	golang.org/x/sync v0.0.0-20220513210516-0976fa681c29 // indirect
 	golang.org/x/sys v0.0.0-20220412211240-33da011f77ad // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/tools v0.1.5 // indirect
