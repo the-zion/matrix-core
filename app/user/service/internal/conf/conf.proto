@@ -52,11 +52,19 @@ message Data {
     string nameSpace = 4;
     string groupName = 5;
   }
+  message Cos{
+    string secret_id = 1;
+    string secret_key = 2;
+    string region = 3;
+    string appid = 4;
+    string bucket = 5;
+  }
   Database database = 1;
   Redis redis = 2;
   Code code = 3;
   Mail mail = 4;
   Rocketmq rocketmq = 5;
+  Cos cos = 6;
 }
 
 message Auth {
