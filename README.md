@@ -1,2 +1,2 @@
-# core of cube base in kratos
+# core of matrix base in kratos
 
