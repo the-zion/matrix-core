@@ -6,8 +6,14 @@ type UserProfile struct {
 	Avatar    string
 	School    string
 	Company   string
+	Job       string
 	Homepage  string
 	Introduce string
+}
+
+type UserProfileUpdate struct {
+	UserProfile
+	Status int64
 }
 
 type Credentials struct {
