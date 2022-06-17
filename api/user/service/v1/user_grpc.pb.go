@@ -35,8 +35,8 @@ type UserClient interface {
 	SetUserPhone(ctx context.Context, in *SetUserPhoneReq, opts ...grpc.CallOption) (*SetUserPhoneReply, error)
 	SetUserEmail(ctx context.Context, in *SetUserEmailReq, opts ...grpc.CallOption) (*SetUserEmailReply, error)
 	GetUserProfile(ctx context.Context, in *GetUserProfileReq, opts ...grpc.CallOption) (*GetUserProfileReply, error)
+	GetUserProfileUpdate(ctx context.Context, in *GetUserProfileUpdateReq, opts ...grpc.CallOption) (*GetUserProfileUpdateReply, error)
 	SetUserProfile(ctx context.Context, in *SetUserProfileReq, opts ...grpc.CallOption) (*SetUserProfileReply, error)
-	SetUserName(ctx context.Context, in *SetUserNameReq, opts ...grpc.CallOption) (*SetUserNameReply, error)
 }
 
 type userClient struct {
@@ -164,18 +164,18 @@ func (c *userClient) GetUserProfile(ctx context.Context, in *GetUserProfileReq, 
 	return out, nil
 }
 
-func (c *userClient) SetUserProfile(ctx context.Context, in *SetUserProfileReq, opts ...grpc.CallOption) (*SetUserProfileReply, error) {
-	out := new(SetUserProfileReply)
-	err := c.cc.Invoke(ctx, "/user.v1.User/SetUserProfile", in, out, opts...)
+func (c *userClient) GetUserProfileUpdate(ctx context.Context, in *GetUserProfileUpdateReq, opts ...grpc.CallOption) (*GetUserProfileUpdateReply, error) {
+	out := new(GetUserProfileUpdateReply)
+	err := c.cc.Invoke(ctx, "/user.v1.User/GetUserProfileUpdate", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *userClient) SetUserName(ctx context.Context, in *SetUserNameReq, opts ...grpc.CallOption) (*SetUserNameReply, error) {
-	out := new(SetUserNameReply)
-	err := c.cc.Invoke(ctx, "/user.v1.User/SetUserName", in, out, opts...)
+func (c *userClient) SetUserProfile(ctx context.Context, in *SetUserProfileReq, opts ...grpc.CallOption) (*SetUserProfileReply, error) {
+	out := new(SetUserProfileReply)
+	err := c.cc.Invoke(ctx, "/user.v1.User/SetUserProfile", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -199,8 +199,8 @@ type UserServer interface {
 	SetUserPhone(context.Context, *SetUserPhoneReq) (*SetUserPhoneReply, error)
 	SetUserEmail(context.Context, *SetUserEmailReq) (*SetUserEmailReply, error)
 	GetUserProfile(context.Context, *GetUserProfileReq) (*GetUserProfileReply, error)
+	GetUserProfileUpdate(context.Context, *GetUserProfileUpdateReq) (*GetUserProfileUpdateReply, error)
 	SetUserProfile(context.Context, *SetUserProfileReq) (*SetUserProfileReply, error)
-	SetUserName(context.Context, *SetUserNameReq) (*SetUserNameReply, error)
 	mustEmbedUnimplementedUserServer()
 }
 
@@ -247,11 +247,11 @@ func (UnimplementedUserServer) SetUserEmail(context.Context, *SetUserEmailReq) (
 func (UnimplementedUserServer) GetUserProfile(context.Context, *GetUserProfileReq) (*GetUserProfileReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserProfile not implemented")
 }
+func (UnimplementedUserServer) GetUserProfileUpdate(context.Context, *GetUserProfileUpdateReq) (*GetUserProfileUpdateReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserProfileUpdate not implemented")
+}
 func (UnimplementedUserServer) SetUserProfile(context.Context, *SetUserProfileReq) (*SetUserProfileReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetUserProfile not implemented")
-}
-func (UnimplementedUserServer) SetUserName(context.Context, *SetUserNameReq) (*SetUserNameReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetUserName not implemented")
 }
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}
 
@@ -500,6 +500,24 @@ func _User_GetUserProfile_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _User_GetUserProfileUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserProfileUpdateReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetUserProfileUpdate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/GetUserProfileUpdate",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetUserProfileUpdate(ctx, req.(*GetUserProfileUpdateReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _User_SetUserProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SetUserProfileReq)
 	if err := dec(in); err != nil {
@@ -514,24 +532,6 @@ func _User_SetUserProfile_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServer).SetUserProfile(ctx, req.(*SetUserProfileReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _User_SetUserName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SetUserNameReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServer).SetUserName(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/user.v1.User/SetUserName",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).SetUserName(ctx, req.(*SetUserNameReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -596,12 +596,12 @@ var User_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _User_GetUserProfile_Handler,
 		},
 		{
-			MethodName: "SetUserProfile",
-			Handler:    _User_SetUserProfile_Handler,
+			MethodName: "GetUserProfileUpdate",
+			Handler:    _User_GetUserProfileUpdate_Handler,
 		},
 		{
-			MethodName: "SetUserName",
-			Handler:    _User_SetUserName_Handler,
+			MethodName: "SetUserProfile",
+			Handler:    _User_SetUserProfile_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -46,18 +46,9 @@ service User {
   }
   rpc GetUserProfile (GetUserProfileReq) returns (GetUserProfileReply) {}
 
-  rpc SetUserProfile (SetUserProfileReq) returns (SetUserProfileReply) {
-    option (google.api.http) = {
-      post: "/v1/user/set/profile"
-      body: "*"
-    };
-  }
-  rpc SetUserName (SetUserNameReq) returns (SetUserNameReply) {
-    option (google.api.http) = {
-      post: "/v1/user/set/name"
-      body: "*"
-    };
-  }
+  rpc GetUserProfileUpdate (GetUserProfileUpdateReq) returns (GetUserProfileUpdateReply) {}
+
+  rpc SetUserProfile (SetUserProfileReq) returns (SetUserProfileReply) {}
 }
 
 message UserRegisterReq{
@@ -166,27 +157,33 @@ message GetUserProfileReply{
   string avatar = 3;
   string school = 4;
   string company = 5;
+  string job = 6;
+  string homepage = 7;
+  string introduce = 8;
+}
+
+message GetUserProfileUpdateReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+message GetUserProfileUpdateReply{
+  string username = 1;
+  string avatar = 2;
+  string school = 3;
+  string company = 4;
+  string job = 5;
   string homepage = 6;
   string introduce = 7;
+  int64 status = 8;
 }
 
 message SetUserProfileReq{
-  string sex = 1 [(validate.rules).string = {in: ["male", "female"], min_len:0}];
-  string introduce = 2 [(validate.rules).string = {min_len:0, max_len: 30}];
-  string address = 3 [(validate.rules).string = {min_len:0, max_len: 15}];
-  string industry = 4 [(validate.rules).string = {min_len:0, max_len: 10}];
-  string profile = 5 [(validate.rules).string = {min_len:0, max_len: 100}];
-  string tag = 6 [(validate.rules).string = {min_len:0, max_len: 100}];
+  string username = 1 [(validate.rules).string = {min_len:1, max_len: 20}];
+  string school = 2 [(validate.rules).string = {min_len:0, max_len: 50}];
+  string company = 3 [(validate.rules).string = {min_len:0, max_len: 50}];
+  string job = 4 [(validate.rules).string = {min_len:0, max_len: 50}];
+  string homepage = 5 [(validate.rules).string = {min_len:0, max_len: 100}];
+  string introduce = 6 [(validate.rules).string = {min_len:0, max_len: 100}];
 }
 
-message SetUserProfileReply{
-  bool success = 1;
-}
-
-message SetUserNameReq{
-  string name = 1 [(validate.rules).string = {min_len:1, max_len: 10}];
-}
-
-message SetUserNameReply{
-  bool success = 1;
-}
+message SetUserProfileReply{}

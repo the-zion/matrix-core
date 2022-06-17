@@ -20,9 +20,7 @@ const _ = http.SupportPackageIsVersion1
 type UserHTTPServer interface {
 	GetUser(context.Context, *GetUserReq) (*GetUserReply, error)
 	SetUserEmail(context.Context, *SetUserEmailReq) (*SetUserEmailReply, error)
-	SetUserName(context.Context, *SetUserNameReq) (*SetUserNameReply, error)
 	SetUserPhone(context.Context, *SetUserPhoneReq) (*SetUserPhoneReply, error)
-	SetUserProfile(context.Context, *SetUserProfileReq) (*SetUserProfileReply, error)
 }
 
 func RegisterUserHTTPServer(s *http.Server, srv UserHTTPServer) {
@@ -30,8 +28,6 @@ func RegisterUserHTTPServer(s *http.Server, srv UserHTTPServer) {
 	r.POST("/v1/user/get", _User_GetUser0_HTTP_Handler(srv))
 	r.POST("/v1/user/set/phone", _User_SetUserPhone0_HTTP_Handler(srv))
 	r.POST("/v1/user/set/email", _User_SetUserEmail0_HTTP_Handler(srv))
-	r.POST("/v1/user/set/profile", _User_SetUserProfile0_HTTP_Handler(srv))
-	r.POST("/v1/user/set/name", _User_SetUserName0_HTTP_Handler(srv))
 }
 
 func _User_GetUser0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
@@ -91,50 +87,10 @@ func _User_SetUserEmail0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context)
 	}
 }
 
-func _User_SetUserProfile0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in SetUserProfileReq
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, "/user.v1.User/SetUserProfile")
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.SetUserProfile(ctx, req.(*SetUserProfileReq))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*SetUserProfileReply)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _User_SetUserName0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in SetUserNameReq
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, "/user.v1.User/SetUserName")
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.SetUserName(ctx, req.(*SetUserNameReq))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*SetUserNameReply)
-		return ctx.Result(200, reply)
-	}
-}
-
 type UserHTTPClient interface {
 	GetUser(ctx context.Context, req *GetUserReq, opts ...http.CallOption) (rsp *GetUserReply, err error)
 	SetUserEmail(ctx context.Context, req *SetUserEmailReq, opts ...http.CallOption) (rsp *SetUserEmailReply, err error)
-	SetUserName(ctx context.Context, req *SetUserNameReq, opts ...http.CallOption) (rsp *SetUserNameReply, err error)
 	SetUserPhone(ctx context.Context, req *SetUserPhoneReq, opts ...http.CallOption) (rsp *SetUserPhoneReply, err error)
-	SetUserProfile(ctx context.Context, req *SetUserProfileReq, opts ...http.CallOption) (rsp *SetUserProfileReply, err error)
 }
 
 type UserHTTPClientImpl struct {
@@ -171,37 +127,11 @@ func (c *UserHTTPClientImpl) SetUserEmail(ctx context.Context, in *SetUserEmailR
 	return &out, err
 }
 
-func (c *UserHTTPClientImpl) SetUserName(ctx context.Context, in *SetUserNameReq, opts ...http.CallOption) (*SetUserNameReply, error) {
-	var out SetUserNameReply
-	pattern := "/v1/user/set/name"
-	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation("/user.v1.User/SetUserName"))
-	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, err
-}
-
 func (c *UserHTTPClientImpl) SetUserPhone(ctx context.Context, in *SetUserPhoneReq, opts ...http.CallOption) (*SetUserPhoneReply, error) {
 	var out SetUserPhoneReply
 	pattern := "/v1/user/set/phone"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation("/user.v1.User/SetUserPhone"))
-	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, err
-}
-
-func (c *UserHTTPClientImpl) SetUserProfile(ctx context.Context, in *SetUserProfileReq, opts ...http.CallOption) (*SetUserProfileReply, error) {
-	var out SetUserProfileReply
-	pattern := "/v1/user/set/profile"
-	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation("/user.v1.User/SetUserProfile"))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
