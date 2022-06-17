@@ -57,7 +57,7 @@ func (s *BffService) SendEmailCode(ctx context.Context, req *v1.SendEmailCodeReq
 	return &v1.SendEmailCodeReply{}, nil
 }
 
-func (s *BffService) GetCosSessionKey(ctx context.Context, req *v1.GetCosSessionKeyReq) (*v1.GetCosSessionKeyReply, error) {
+func (s *BffService) GetCosSessionKey(ctx context.Context, _ *v1.GetCosSessionKeyReq) (*v1.GetCosSessionKeyReply, error) {
 	credentials, err := s.uc.GetCosSessionKey(ctx)
 	if err != nil {
 		return nil, err
@@ -71,7 +71,7 @@ func (s *BffService) GetCosSessionKey(ctx context.Context, req *v1.GetCosSession
 	}, nil
 }
 
-func (s *BffService) GetUserProfile(ctx context.Context, req *v1.GetUserProfileReq) (*v1.GetUserProfileReply, error) {
+func (s *BffService) GetUserProfile(ctx context.Context, _ *v1.GetUserProfileReq) (*v1.GetUserProfileReply, error) {
 	userProfile, err := s.uc.GetUserProfile(ctx)
 	if err != nil {
 		return nil, err
@@ -81,7 +81,26 @@ func (s *BffService) GetUserProfile(ctx context.Context, req *v1.GetUserProfileR
 		Username:  userProfile.Username,
 		Avatar:    userProfile.Avatar,
 		School:    userProfile.School,
+		Company:   userProfile.Company,
+		Job:       userProfile.Job,
 		Homepage:  userProfile.Homepage,
 		Introduce: userProfile.Introduce,
+	}, nil
+}
+
+func (s *BffService) GetUserProfileUpdate(ctx context.Context, _ *v1.GetUserProfileUpdateReq) (*v1.GetUserProfileUpdateReply, error) {
+	userProfile, err := s.uc.GetUserProfileUpdate(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetUserProfileUpdateReply{
+		Username:  userProfile.Username,
+		Avatar:    userProfile.Avatar,
+		School:    userProfile.School,
+		Company:   userProfile.Company,
+		Job:       userProfile.Job,
+		Homepage:  userProfile.Homepage,
+		Introduce: userProfile.Introduce,
+		Status:    userProfile.Status,
 	}, nil
 }
