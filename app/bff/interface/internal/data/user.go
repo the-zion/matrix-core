@@ -123,6 +123,7 @@ func (r *userRepo) GetUserProfile(ctx context.Context, uuid string) (*biz.UserPr
 			Avatar:    reply.Avatar,
 			School:    reply.School,
 			Company:   reply.Company,
+			Job:       reply.Job,
 			Homepage:  reply.Homepage,
 			Introduce: reply.Introduce,
 		}, nil
@@ -131,4 +132,23 @@ func (r *userRepo) GetUserProfile(ctx context.Context, uuid string) (*biz.UserPr
 		return nil, err
 	}
 	return result.(*biz.UserProfile), nil
+}
+
+func (r *userRepo) GetUserProfileUpdate(ctx context.Context, uuid string) (*biz.UserProfileUpdate, error) {
+	pu := &biz.UserProfileUpdate{}
+	reply, err := r.data.uc.GetUserProfileUpdate(ctx, &userV1.GetUserProfileUpdateReq{
+		Uuid: uuid,
+	})
+	if err != nil {
+		return nil, err
+	}
+	pu.Username = reply.Username
+	pu.Avatar = reply.Avatar
+	pu.School = reply.School
+	pu.Company = reply.Company
+	pu.Job = reply.Job
+	pu.Homepage = reply.Homepage
+	pu.Introduce = reply.Introduce
+	pu.Status = reply.Status
+	return pu, nil
 }
