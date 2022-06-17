@@ -122,7 +122,24 @@ func (r *authRepo) CreateUserWithEmail(ctx context.Context, email, password stri
 }
 
 func (r *authRepo) CreateUserProfile(ctx context.Context, account, uuid string) error {
-	err := r.data.DB(ctx).Select("Uuid", "Username").Create(&Profile{Uuid: uuid, Username: account}).Error
+	p := &Profile{
+		Uuid:     uuid,
+		Username: account,
+		Avatar:   uuid + ".webp",
+	}
+	err := r.data.DB(ctx).Select("Uuid", "Username", "Avatar").Create(p).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to register a profile: uuid(%s)", uuid))
+	}
+	return nil
+}
+
+func (r *authRepo) CreateUserProfileUpdate(ctx context.Context, account, uuid string) error {
+	pu := &ProfileUpdate{}
+	pu.Uuid = uuid
+	pu.Username = account
+	pu.Avatar = uuid + ".webp"
+	err := r.data.DB(ctx).Select("Uuid", "Username", "Avatar").Create(pu).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to register a profile: uuid(%s)", uuid))
 	}

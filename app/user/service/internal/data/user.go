@@ -82,6 +82,26 @@ func (r *userRepo) GetProfile(ctx context.Context, uuid string) (*biz.Profile, e
 	}, nil
 }
 
+func (r *userRepo) GetUserProfileUpdate(ctx context.Context, uuid string) (*biz.ProfileUpdate, error) {
+	profile := &ProfileUpdate{}
+	pu := &biz.ProfileUpdate{}
+	err := r.data.DB(ctx).WithContext(ctx).Where("uuid = ?", uuid).First(profile).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, v2.NotFound("profile update not found from db", fmt.Sprintf("uuid(%v)", uuid))
+	}
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("db query system error: uuid(%v)", uuid))
+	}
+	pu.Username = profile.Username
+	pu.Avatar = profile.Avatar
+	pu.School = profile.School
+	pu.Company = profile.Company
+	pu.Homepage = profile.Homepage
+	pu.Introduce = profile.Introduce
+	pu.Status = profile.Status
+	return pu, nil
+}
+
 func (r *userRepo) getProfileFromCache(ctx context.Context, key string) (*Profile, error) {
 	result, err := r.data.redisCli.Get(ctx, key).Result()
 	if errors.Is(err, redis.Nil) {
