@@ -29,8 +29,26 @@ func (s *UserService) GetUserProfile(ctx context.Context, req *v1.GetUserProfile
 		Avatar:    profile.Avatar,
 		School:    profile.School,
 		Company:   profile.Company,
+		Job:       profile.Job,
 		Homepage:  profile.Homepage,
 		Introduce: profile.Introduce,
+	}, nil
+}
+
+func (s *UserService) GetUserProfileUpdate(ctx context.Context, req *v1.GetUserProfileUpdateReq) (*v1.GetUserProfileUpdateReply, error) {
+	profile, err := s.uc.GetUserProfileUpdate(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetUserProfileUpdateReply{
+		Username:  profile.Username,
+		Avatar:    profile.Avatar,
+		School:    profile.School,
+		Company:   profile.Company,
+		Job:       profile.Job,
+		Homepage:  profile.Homepage,
+		Introduce: profile.Introduce,
+		Status:    profile.Status,
 	}, nil
 }
 
