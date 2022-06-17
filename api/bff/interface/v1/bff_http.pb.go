@@ -20,6 +20,7 @@ const _ = http.SupportPackageIsVersion1
 type BffHTTPServer interface {
 	GetCosSessionKey(context.Context, *GetCosSessionKeyReq) (*GetCosSessionKeyReply, error)
 	GetUserProfile(context.Context, *GetUserProfileReq) (*GetUserProfileReply, error)
+	GetUserProfileUpdate(context.Context, *GetUserProfileUpdateReq) (*GetUserProfileUpdateReply, error)
 	LoginByCode(context.Context, *LoginByCodeReq) (*LoginReply, error)
 	LoginByGithub(context.Context, *LoginByGithubReq) (*LoginReply, error)
 	LoginByPassword(context.Context, *LoginByPasswordReq) (*LoginReply, error)
@@ -27,6 +28,7 @@ type BffHTTPServer interface {
 	LoginPasswordReset(context.Context, *LoginPasswordResetReq) (*LoginPasswordResetReply, error)
 	SendEmailCode(context.Context, *SendEmailCodeReq) (*SendEmailCodeReply, error)
 	SendPhoneCode(context.Context, *SendPhoneCodeReq) (*SendPhoneCodeReply, error)
+	SetUserProfile(context.Context, *SetUserProfileReq) (*SetUserProfileReply, error)
 	UserRegister(context.Context, *UserRegisterReq) (*UserRegisterReply, error)
 }
 
@@ -42,6 +44,8 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.POST("/v1/user/code/email", _Bff_SendEmailCode0_HTTP_Handler(srv))
 	r.GET("/v1/get/cos/session/key", _Bff_GetCosSessionKey0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/profile", _Bff_GetUserProfile0_HTTP_Handler(srv))
+	r.GET("/v1/get/user/profile/update", _Bff_GetUserProfileUpdate0_HTTP_Handler(srv))
+	r.POST("/v1/user/set/profile", _Bff_SetUserProfile0_HTTP_Handler(srv))
 }
 
 func _Bff_UserRegister0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
@@ -234,9 +238,48 @@ func _Bff_GetUserProfile0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context)
 	}
 }
 
+func _Bff_GetUserProfileUpdate0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetUserProfileUpdateReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/bff.v1.Bff/GetUserProfileUpdate")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetUserProfileUpdate(ctx, req.(*GetUserProfileUpdateReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetUserProfileUpdateReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_SetUserProfile0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SetUserProfileReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/bff.v1.Bff/SetUserProfile")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SetUserProfile(ctx, req.(*SetUserProfileReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*SetUserProfileReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 type BffHTTPClient interface {
 	GetCosSessionKey(ctx context.Context, req *GetCosSessionKeyReq, opts ...http.CallOption) (rsp *GetCosSessionKeyReply, err error)
 	GetUserProfile(ctx context.Context, req *GetUserProfileReq, opts ...http.CallOption) (rsp *GetUserProfileReply, err error)
+	GetUserProfileUpdate(ctx context.Context, req *GetUserProfileUpdateReq, opts ...http.CallOption) (rsp *GetUserProfileUpdateReply, err error)
 	LoginByCode(ctx context.Context, req *LoginByCodeReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginByGithub(ctx context.Context, req *LoginByGithubReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginByPassword(ctx context.Context, req *LoginByPasswordReq, opts ...http.CallOption) (rsp *LoginReply, err error)
@@ -244,6 +287,7 @@ type BffHTTPClient interface {
 	LoginPasswordReset(ctx context.Context, req *LoginPasswordResetReq, opts ...http.CallOption) (rsp *LoginPasswordResetReply, err error)
 	SendEmailCode(ctx context.Context, req *SendEmailCodeReq, opts ...http.CallOption) (rsp *SendEmailCodeReply, err error)
 	SendPhoneCode(ctx context.Context, req *SendPhoneCodeReq, opts ...http.CallOption) (rsp *SendPhoneCodeReply, err error)
+	SetUserProfile(ctx context.Context, req *SetUserProfileReq, opts ...http.CallOption) (rsp *SetUserProfileReply, err error)
 	UserRegister(ctx context.Context, req *UserRegisterReq, opts ...http.CallOption) (rsp *UserRegisterReply, err error)
 }
 
@@ -273,6 +317,19 @@ func (c *BffHTTPClientImpl) GetUserProfile(ctx context.Context, in *GetUserProfi
 	pattern := "/v1/get/user/profile"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation("/bff.v1.Bff/GetUserProfile"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetUserProfileUpdate(ctx context.Context, in *GetUserProfileUpdateReq, opts ...http.CallOption) (*GetUserProfileUpdateReply, error) {
+	var out GetUserProfileUpdateReply
+	pattern := "/v1/get/user/profile/update"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation("/bff.v1.Bff/GetUserProfileUpdate"))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
@@ -364,6 +421,19 @@ func (c *BffHTTPClientImpl) SendPhoneCode(ctx context.Context, in *SendPhoneCode
 	pattern := "/v1/user/code/phone"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation("/bff.v1.Bff/SendPhoneCode"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) SetUserProfile(ctx context.Context, in *SetUserProfileReq, opts ...http.CallOption) (*SetUserProfileReply, error) {
+	var out SetUserProfileReply
+	pattern := "/v1/user/set/profile"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/bff.v1.Bff/SetUserProfile"))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

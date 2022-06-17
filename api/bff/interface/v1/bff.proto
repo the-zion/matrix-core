@@ -75,6 +75,19 @@ service Bff{
       get: "/v1/get/user/profile",
     };
   }
+
+  rpc GetUserProfileUpdate (GetUserProfileUpdateReq) returns (GetUserProfileUpdateReply) {
+    option (google.api.http) = {
+      get: "/v1/get/user/profile/update",
+    };
+  }
+
+  rpc SetUserProfile (SetUserProfileReq) returns (SetUserProfileReply) {
+    option (google.api.http) = {
+      post: "/v1/set/user/profile"
+      body: "*"
+    };
+  }
 }
 
 message UserRegisterReq{
@@ -149,6 +162,31 @@ message GetUserProfileReply{
   string avatar = 3;
   string school = 4;
   string company = 5;
+  string job = 6;
+  string homepage = 7;
+  string introduce = 8;
+}
+
+message GetUserProfileUpdateReq{}
+
+message GetUserProfileUpdateReply{
+  string username = 1;
+  string avatar = 2;
+  string school = 3;
+  string company = 4;
+  string job = 5;
   string homepage = 6;
   string introduce = 7;
+  int64 status = 8;
 }
+
+message SetUserProfileReq{
+  string username = 1;
+  string school = 2;
+  string company = 3;
+  string job = 4;
+  string homepage = 5;
+  string introduce = 6;
+}
+
+message SetUserProfileReply{}
