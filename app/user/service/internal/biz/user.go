@@ -18,6 +18,7 @@ type User struct {
 type UserRepo interface {
 	GetUser(ctx context.Context, id int64) (*User, error)
 	GetProfile(ctx context.Context, uuid string) (*Profile, error)
+	GetUserProfileUpdate(ctx context.Context, uuid string) (*ProfileUpdate, error)
 }
 
 type UserUseCase struct {
@@ -37,15 +38,15 @@ func (r *UserUseCase) GetUserProfile(ctx context.Context, uuid string) (*Profile
 	if err != nil {
 		return nil, v1.ErrorGetProfileFailed("get user profile failed: %s", err.Error())
 	}
-	return &Profile{
-		Uuid:      profile.Uuid,
-		Username:  profile.Username,
-		Avatar:    profile.Avatar,
-		School:    profile.School,
-		Company:   profile.Company,
-		Homepage:  profile.Homepage,
-		Introduce: profile.Introduce,
-	}, nil
+	return profile, nil
+}
+
+func (r *UserUseCase) GetUserProfileUpdate(ctx context.Context, uuid string) (*ProfileUpdate, error) {
+	profile, err := r.repo.GetUserProfileUpdate(ctx, uuid)
+	if err != nil {
+		return nil, v1.ErrorGetProfileUpdateFailed("get user profile update failed: %s", err.Error())
+	}
+	return profile, nil
 }
 
 func (r *UserUseCase) GetUser(ctx context.Context, id int64) (*User, error) {
