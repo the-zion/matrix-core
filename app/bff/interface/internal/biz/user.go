@@ -15,6 +15,7 @@ type UserRepo interface {
 	SendEmailCode(ctx context.Context, template, email string) error
 	GetCosSessionKey(ctx context.Context) (*Credentials, error)
 	GetUserProfile(ctx context.Context, uuid string) (*UserProfile, error)
+	GetUserProfileUpdate(ctx context.Context, uuid string) (*UserProfileUpdate, error)
 }
 
 type UserUseCase struct {
@@ -88,6 +89,15 @@ func (r *UserUseCase) GetCosSessionKey(ctx context.Context) (*Credentials, error
 func (r *UserUseCase) GetUserProfile(ctx context.Context) (*UserProfile, error) {
 	uuid := ctx.Value("uuid").(string)
 	userProfile, err := r.repo.GetUserProfile(ctx, uuid)
+	if err != nil {
+		return nil, v1.ErrorGetUserProfileFailed("get user profile failed: %s", err.Error())
+	}
+	return userProfile, nil
+}
+
+func (r *UserUseCase) GetUserProfileUpdate(ctx context.Context) (*UserProfileUpdate, error) {
+	uuid := ctx.Value("uuid").(string)
+	userProfile, err := r.repo.GetUserProfileUpdate(ctx, uuid)
 	if err != nil {
 		return nil, v1.ErrorGetUserProfileFailed("get user profile failed: %s", err.Error())
 	}
