@@ -4,13 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	v2 "github.com/go-kratos/kratos/v2/errors"
+	kerrors "github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-redis/redis/v8"
 	"github.com/pkg/errors"
 	"github.com/the-zion/matrix-core/app/user/service/internal/biz"
 	"gorm.io/gorm"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -35,11 +36,11 @@ func NewUserRepo(data *Data, logger log.Logger) biz.UserRepo {
 func (r *userRepo) GetUser(ctx context.Context, id int64) (*biz.User, error) {
 	key := userCacheKey(strconv.FormatInt(id, 10))
 	target, err := r.getUserFromCache(ctx, key)
-	if v2.IsNotFound(err) {
+	if kerrors.IsNotFound(err) {
 		user := &User{}
 		err = r.data.db.WithContext(ctx).Where("id = ?", id).First(user).Error
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, v2.NotFound("user not found from db", fmt.Sprintf("user_id(%v)", id))
+			return nil, kerrors.NotFound("user not found from db", fmt.Sprintf("user_id(%v)", id))
 		}
 		if err != nil {
 			return nil, errors.Wrapf(err, fmt.Sprintf("db query system error: user_id(%v)", id))
@@ -56,11 +57,11 @@ func (r *userRepo) GetUser(ctx context.Context, id int64) (*biz.User, error) {
 func (r *userRepo) GetProfile(ctx context.Context, uuid string) (*biz.Profile, error) {
 	key := "profile_" + uuid
 	target, err := r.getProfileFromCache(ctx, key)
-	if v2.IsNotFound(err) {
+	if kerrors.IsNotFound(err) {
 		profile := &Profile{}
 		err = r.data.DB(ctx).WithContext(ctx).Where("uuid = ?", uuid).First(profile).Error
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, v2.NotFound("profile not found from db", fmt.Sprintf("uuid(%v)", uuid))
+			return nil, kerrors.NotFound("profile not found from db", fmt.Sprintf("uuid(%v)", uuid))
 		}
 		if err != nil {
 			return nil, errors.Wrapf(err, fmt.Sprintf("db query system error: uuid(%v)", uuid))
@@ -87,7 +88,7 @@ func (r *userRepo) GetUserProfileUpdate(ctx context.Context, uuid string) (*biz.
 	pu := &biz.ProfileUpdate{}
 	err := r.data.DB(ctx).WithContext(ctx).Where("uuid = ?", uuid).First(profile).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, v2.NotFound("profile update not found from db", fmt.Sprintf("uuid(%v)", uuid))
+		return nil, kerrors.NotFound("profile update not found from db", fmt.Sprintf("uuid(%v)", uuid))
 	}
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("db query system error: uuid(%v)", uuid))
@@ -102,10 +103,30 @@ func (r *userRepo) GetUserProfileUpdate(ctx context.Context, uuid string) (*biz.
 	return pu, nil
 }
 
+func (r *userRepo) SetUserProfile(ctx context.Context, profile *biz.ProfileUpdate) error {
+	pu := &ProfileUpdate{}
+	pu.Username = profile.Username
+	pu.School = profile.School
+	pu.Company = profile.Company
+	pu.Homepage = profile.Homepage
+	pu.Introduce = profile.Introduce
+	pu.Status = 2
+	err := r.data.DB(ctx).WithContext(ctx).Model(&ProfileUpdate{}).Where("uuid = ?", profile.Uuid).Updates(pu).Error
+	if err != nil {
+		e := err.Error()
+		if strings.Contains(e, "Duplicate") {
+			return kerrors.Conflict("username conflict", fmt.Sprintf("profile(%v)", profile))
+		} else {
+			return errors.Wrapf(err, fmt.Sprintf("fail to update a profile: profile(%v)", profile))
+		}
+	}
+	return nil
+}
+
 func (r *userRepo) getProfileFromCache(ctx context.Context, key string) (*Profile, error) {
 	result, err := r.data.redisCli.Get(ctx, key).Result()
 	if errors.Is(err, redis.Nil) {
-		return nil, v2.NotFound("profile not found from cache", fmt.Sprintf("key(%s)", key))
+		return nil, kerrors.NotFound("profile not found from cache", fmt.Sprintf("key(%s)", key))
 	}
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get profile from cache: redis.Get(%v)", key))
@@ -150,7 +171,7 @@ func (r *userRepo) SetUserEmail(ctx context.Context, id int64, email string) err
 func (r *userRepo) getUserFromCache(ctx context.Context, key string) (*User, error) {
 	result, err := r.data.redisCli.Get(ctx, key).Result()
 	if errors.Is(err, redis.Nil) {
-		return nil, v2.NotFound("user not found from cache", fmt.Sprintf("key(%s)", key))
+		return nil, kerrors.NotFound("user not found from cache", fmt.Sprintf("key(%s)", key))
 	}
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user from cache: redis.Set(%v)", key))
