@@ -3,7 +3,6 @@ package biz
 import (
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
-	v1 "github.com/the-zion/matrix-core/api/bff/interface/v1"
 )
 
 type UserRepo interface {
@@ -16,6 +15,7 @@ type UserRepo interface {
 	GetCosSessionKey(ctx context.Context) (*Credentials, error)
 	GetUserProfile(ctx context.Context, uuid string) (*UserProfile, error)
 	GetUserProfileUpdate(ctx context.Context, uuid string) (*UserProfileUpdate, error)
+	SetUserProfile(ctx context.Context, profile *UserProfileUpdate) error
 }
 
 type UserUseCase struct {
@@ -26,7 +26,7 @@ type UserUseCase struct {
 func NewUserUseCase(repo UserRepo, logger log.Logger) *UserUseCase {
 	return &UserUseCase{
 		repo: repo,
-		log:  log.NewHelper(log.With(logger, "module", "info/biz/userUseCase")),
+		log:  log.NewHelper(log.With(logger, "module", "bff/biz/userUseCase")),
 	}
 }
 
@@ -90,7 +90,7 @@ func (r *UserUseCase) GetUserProfile(ctx context.Context) (*UserProfile, error) 
 	uuid := ctx.Value("uuid").(string)
 	userProfile, err := r.repo.GetUserProfile(ctx, uuid)
 	if err != nil {
-		return nil, v1.ErrorGetUserProfileFailed("get user profile failed: %s", err.Error())
+		return nil, err
 	}
 	return userProfile, nil
 }
@@ -99,7 +99,17 @@ func (r *UserUseCase) GetUserProfileUpdate(ctx context.Context) (*UserProfileUpd
 	uuid := ctx.Value("uuid").(string)
 	userProfile, err := r.repo.GetUserProfileUpdate(ctx, uuid)
 	if err != nil {
-		return nil, v1.ErrorGetUserProfileFailed("get user profile failed: %s", err.Error())
+		return nil, err
 	}
 	return userProfile, nil
+}
+
+func (r *UserUseCase) SetUserProfile(ctx context.Context, profile *UserProfileUpdate) error {
+	uuid := ctx.Value("uuid").(string)
+	profile.Uuid = uuid
+	err := r.repo.SetUserProfile(ctx, profile)
+	if err != nil {
+		return err
+	}
+	return nil
 }
