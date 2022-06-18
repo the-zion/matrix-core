@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"github.com/the-zion/matrix-core/api/bff/interface/v1"
+	"github.com/the-zion/matrix-core/app/bff/interface/internal/biz"
 )
 
 func (s *BffService) UserRegister(ctx context.Context, req *v1.UserRegisterReq) (*v1.UserRegisterReply, error) {
@@ -103,4 +104,19 @@ func (s *BffService) GetUserProfileUpdate(ctx context.Context, _ *v1.GetUserProf
 		Introduce: userProfile.Introduce,
 		Status:    userProfile.Status,
 	}, nil
+}
+
+func (s *BffService) SetUserProfile(ctx context.Context, req *v1.SetUserProfileReq) (*v1.SetUserProfileReply, error) {
+	profile := &biz.UserProfileUpdate{}
+	profile.Username = req.Username
+	profile.School = req.School
+	profile.Company = req.Company
+	profile.Job = req.Job
+	profile.Homepage = req.Homepage
+	profile.Introduce = req.Introduce
+	err := s.uc.SetUserProfile(ctx, profile)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.SetUserProfileReply{}, nil
 }
