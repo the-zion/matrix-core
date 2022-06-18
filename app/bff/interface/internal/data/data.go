@@ -18,7 +18,7 @@ type Data struct {
 }
 
 func NewData(logger log.Logger, uc userv1.UserClient) (*Data, error) {
-	l := log.NewHelper(log.With(logger, "module", "info/data"))
+	l := log.NewHelper(log.With(logger, "module", "bff/data"))
 	d := &Data{
 		log: l,
 		uc:  uc,
@@ -27,7 +27,7 @@ func NewData(logger log.Logger, uc userv1.UserClient) (*Data, error) {
 }
 
 func NewUserServiceClient(r *nacos.Registry, logger log.Logger) userv1.UserClient {
-	l := log.NewHelper(log.With(logger, "module", "info/data/new-user-client"))
+	l := log.NewHelper(log.With(logger, "module", "bff/data/new-user-client"))
 	conn, err := grpc.DialInsecure(
 		context.Background(),
 		grpc.WithEndpoint("discovery:///matrix.user.service.grpc"),
