@@ -22,15 +22,3 @@ func IsUnknownError(err error) bool {
 func ErrorUnknownError(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, BffErrorReason_UNKNOWN_ERROR.String(), fmt.Sprintf(format, args...))
 }
-
-func IsGetUserProfileFailed(err error) bool {
-	if err == nil {
-		return false
-	}
-	e := errors.FromError(err)
-	return e.Reason == BffErrorReason_GET_USER_PROFILE_FAILED.String() && e.Code == 500
-}
-
-func ErrorGetUserProfileFailed(format string, args ...interface{}) *errors.Error {
-	return errors.New(500, BffErrorReason_GET_USER_PROFILE_FAILED.String(), fmt.Sprintf(format, args...))
-}

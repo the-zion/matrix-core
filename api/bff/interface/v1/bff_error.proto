@@ -9,5 +9,4 @@ enum BffErrorReason {
   option (errors.default_code) = 500;
 
   UNKNOWN_ERROR = 0;
-  GET_USER_PROFILE_FAILED = 1;
 }
