@@ -125,9 +125,8 @@ func (r *authRepo) CreateUserProfile(ctx context.Context, account, uuid string) 
 	p := &Profile{
 		Uuid:     uuid,
 		Username: account,
-		Avatar:   uuid + ".webp",
 	}
-	err := r.data.DB(ctx).Select("Uuid", "Username", "Avatar").Create(p).Error
+	err := r.data.DB(ctx).Select("Uuid", "Username").Create(p).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to register a profile: uuid(%s)", uuid))
 	}
@@ -138,8 +137,7 @@ func (r *authRepo) CreateUserProfileUpdate(ctx context.Context, account, uuid st
 	pu := &ProfileUpdate{}
 	pu.Uuid = uuid
 	pu.Username = account
-	pu.Avatar = uuid + ".webp"
-	err := r.data.DB(ctx).Select("Uuid", "Username", "Avatar").Create(pu).Error
+	err := r.data.DB(ctx).Select("Uuid", "Username").Create(pu).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to register a profile: uuid(%s)", uuid))
 	}
