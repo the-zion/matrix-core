@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	kerrors "github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	v1 "github.com/the-zion/matrix-core/api/user/service/v1"
 )
@@ -19,6 +20,7 @@ type UserRepo interface {
 	GetUser(ctx context.Context, id int64) (*User, error)
 	GetProfile(ctx context.Context, uuid string) (*Profile, error)
 	GetUserProfileUpdate(ctx context.Context, uuid string) (*ProfileUpdate, error)
+	SetUserProfile(ctx context.Context, profile *ProfileUpdate) error
 }
 
 type UserUseCase struct {
@@ -47,6 +49,17 @@ func (r *UserUseCase) GetUserProfileUpdate(ctx context.Context, uuid string) (*P
 		return nil, v1.ErrorGetProfileUpdateFailed("get user profile update failed: %s", err.Error())
 	}
 	return profile, nil
+}
+
+func (r *UserUseCase) SetUserProfile(ctx context.Context, profile *ProfileUpdate) error {
+	err := r.repo.SetUserProfile(ctx, profile)
+	if kerrors.IsConflict(err) {
+		return v1.ErrorUserNameConflict("user profile update failed: %s", err.Error())
+	}
+	if err != nil {
+		return v1.ErrorSetProfileFailed("user profile update failed: %s", err.Error())
+	}
+	return nil
 }
 
 func (r *UserUseCase) GetUser(ctx context.Context, id int64) (*User, error) {
