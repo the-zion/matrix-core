@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package message.v1;
+
+import "google/api/annotations.proto";
+import "validate/validate.proto";
+
+option go_package = "api/message/service/v1;v1";
+
+service Message {
+  rpc ProfileReview(ProfileReviewReq) returns (ProfileReviewReply){
+    option (google.api.http) = {
+      post: "/v1/profile/review"
+      body: "*"
+    };
+  }
+}
+
+message ProfileReviewReq{
+  message PornInfo{
+    int32 hit_flag = 1;
+    string label = 2;
+    int32 count = 3;
+  }
+  message Data{
+    string forbidden_status = 1;
+    PornInfo porn_info = 2;
+    int32 result = 3;
+    string trace_id = 4;
+    string url = 5;
+  }
+  int32 code = 1;
+  string message = 2;
+  Data data = 3;
+}
+
+message ProfileReviewReply{}
