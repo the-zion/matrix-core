@@ -7,7 +7,7 @@ import (
 	"github.com/the-zion/matrix-core/app/bff/interface/internal/biz"
 )
 
-var ProviderSet = wire.NewSet(NewUserService)
+var ProviderSet = wire.NewSet(NewBffService)
 
 type BffService struct {
 	v1.UnimplementedBffServer
@@ -15,9 +15,9 @@ type BffService struct {
 	log *log.Helper
 }
 
-func NewUserService(uc *biz.UserUseCase, logger log.Logger) *BffService {
+func NewBffService(uc *biz.UserUseCase, logger log.Logger) *BffService {
 	return &BffService{
-		log: log.NewHelper(log.With(logger, "module", "user/service")),
+		log: log.NewHelper(log.With(logger, "module", "bff/interface")),
 		uc:  uc,
 	}
 }
