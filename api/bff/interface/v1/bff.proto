@@ -177,7 +177,7 @@ message GetUserProfileUpdateReply{
   string job = 5;
   string homepage = 6;
   string introduce = 7;
-  int64 status = 8;
+  int32 status = 8;
 }
 
 message SetUserProfileReq{

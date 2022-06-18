@@ -45,7 +45,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.GET("/v1/get/cos/session/key", _Bff_GetCosSessionKey0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/profile", _Bff_GetUserProfile0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/profile/update", _Bff_GetUserProfileUpdate0_HTTP_Handler(srv))
-	r.POST("/v1/user/set/profile", _Bff_SetUserProfile0_HTTP_Handler(srv))
+	r.POST("/v1/set/user/profile", _Bff_SetUserProfile0_HTTP_Handler(srv))
 }
 
 func _Bff_UserRegister0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
@@ -431,7 +431,7 @@ func (c *BffHTTPClientImpl) SendPhoneCode(ctx context.Context, in *SendPhoneCode
 
 func (c *BffHTTPClientImpl) SetUserProfile(ctx context.Context, in *SetUserProfileReq, opts ...http.CallOption) (*SetUserProfileReply, error) {
 	var out SetUserProfileReply
-	pattern := "/v1/user/set/profile"
+	pattern := "/v1/set/user/profile"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation("/bff.v1.Bff/SetUserProfile"))
 	opts = append(opts, http.PathTemplate(pattern))
