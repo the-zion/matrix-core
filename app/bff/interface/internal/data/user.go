@@ -20,7 +20,7 @@ type userRepo struct {
 func NewUserRepo(data *Data, logger log.Logger) biz.UserRepo {
 	return &userRepo{
 		data: data,
-		log:  log.NewHelper(log.With(logger, "module", "info/data/user")),
+		log:  log.NewHelper(log.With(logger, "module", "bff/data/user")),
 		sg:   &singleflight.Group{},
 	}
 }
@@ -151,4 +151,20 @@ func (r *userRepo) GetUserProfileUpdate(ctx context.Context, uuid string) (*biz.
 	pu.Introduce = reply.Introduce
 	pu.Status = reply.Status
 	return pu, nil
+}
+
+func (r *userRepo) SetUserProfile(ctx context.Context, profile *biz.UserProfileUpdate) error {
+	_, err := r.data.uc.SetUserProfile(ctx, &userV1.SetUserProfileReq{
+		Uuid:      profile.Uuid,
+		Username:  profile.Username,
+		School:    profile.School,
+		Company:   profile.Company,
+		Job:       profile.Job,
+		Homepage:  profile.Homepage,
+		Introduce: profile.Introduce,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }
