@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	v1 "github.com/the-zion/matrix-core/api/user/service/v1"
+	"github.com/the-zion/matrix-core/app/user/service/internal/biz"
 )
 
 func (s *UserService) GetUser(ctx context.Context, req *v1.GetUserReq) (*v1.GetUserReply, error) {
@@ -50,6 +51,22 @@ func (s *UserService) GetUserProfileUpdate(ctx context.Context, req *v1.GetUserP
 		Introduce: profile.Introduce,
 		Status:    profile.Status,
 	}, nil
+}
+
+func (s *UserService) SetUserProfile(ctx context.Context, req *v1.SetUserProfileReq) (*v1.SetUserProfileReply, error) {
+	profile := &biz.ProfileUpdate{}
+	profile.Uuid = req.Uuid
+	profile.Username = req.Username
+	profile.School = req.School
+	profile.Company = req.Company
+	profile.Job = req.Job
+	profile.Homepage = req.Homepage
+	profile.Introduce = req.Introduce
+	err := s.uc.SetUserProfile(ctx, profile)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.SetUserProfileReply{}, nil
 }
 
 func (s *UserService) SetUserPhone(ctx context.Context, req *v1.SetUserPhoneReq) (*v1.SetUserPhoneReply, error) {
