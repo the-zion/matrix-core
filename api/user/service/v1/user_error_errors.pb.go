@@ -83,6 +83,18 @@ func ErrorEmailConflict(format string, args ...interface{}) *errors.Error {
 	return errors.New(409, UserErrorReason_EMAIL_CONFLICT.String(), fmt.Sprintf(format, args...))
 }
 
+func IsUserNameConflict(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_USER_NAME_CONFLICT.String() && e.Code == 409
+}
+
+func ErrorUserNameConflict(format string, args ...interface{}) *errors.Error {
+	return errors.New(409, UserErrorReason_USER_NAME_CONFLICT.String(), fmt.Sprintf(format, args...))
+}
+
 func IsGetUserFailed(err error) bool {
 	if err == nil {
 		return false
