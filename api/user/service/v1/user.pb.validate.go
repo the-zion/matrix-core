@@ -3044,6 +3044,18 @@ func (m *SetUserProfileReq) validate(all bool) error {
 
 	var errors []error
 
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = SetUserProfileReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
 	if l := utf8.RuneCountInString(m.GetUsername()); l < 1 || l > 20 {
 		err := SetUserProfileReqValidationError{
 			field:  "Username",
@@ -3112,6 +3124,14 @@ func (m *SetUserProfileReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return SetUserProfileReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *SetUserProfileReq) _validateUuid(uuid string) error {
+	if matched := _user_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil

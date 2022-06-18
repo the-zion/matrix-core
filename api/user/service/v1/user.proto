@@ -174,16 +174,17 @@ message GetUserProfileUpdateReply{
   string job = 5;
   string homepage = 6;
   string introduce = 7;
-  int64 status = 8;
+  int32 status = 8;
 }
 
 message SetUserProfileReq{
-  string username = 1 [(validate.rules).string = {min_len:1, max_len: 20}];
-  string school = 2 [(validate.rules).string = {min_len:0, max_len: 50}];
-  string company = 3 [(validate.rules).string = {min_len:0, max_len: 50}];
-  string job = 4 [(validate.rules).string = {min_len:0, max_len: 50}];
-  string homepage = 5 [(validate.rules).string = {min_len:0, max_len: 100}];
-  string introduce = 6 [(validate.rules).string = {min_len:0, max_len: 100}];
+  string uuid = 1 [(validate.rules).string.uuid = true];
+  string username = 2 [(validate.rules).string = {min_len:1, max_len: 20}];
+  string school = 3 [(validate.rules).string = {min_len:0, max_len: 50}];
+  string company = 4 [(validate.rules).string = {min_len:0, max_len: 50}];
+  string job = 5 [(validate.rules).string = {min_len:0, max_len: 50}];
+  string homepage = 6 [(validate.rules).string = {min_len:0, max_len: 100}];
+  string introduce = 7 [(validate.rules).string = {min_len:0, max_len: 100}];
 }
 
 message SetUserProfileReply{}
