@@ -13,7 +13,7 @@ type Profile struct {
 
 type ProfileUpdate struct {
 	Profile
-	Status int64
+	Status int32
 }
 
 type Credentials struct {
