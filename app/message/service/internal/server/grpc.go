@@ -9,14 +9,12 @@ import (
 	v1 "github.com/the-zion/matrix-core/api/message/service/v1"
 	"github.com/the-zion/matrix-core/app/message/service/internal/conf"
 	"github.com/the-zion/matrix-core/app/message/service/internal/service"
-	"github.com/the-zion/matrix-core/pkg/responce"
 )
 
 func NewGRPCServer(c *conf.Server, messageService *service.MessageService, logger log.Logger) *grpc.Server {
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
 			recovery.Recovery(),
-			responce.Server(),
 			logging.Server(logger),
 			validate.Validator(),
 		),
