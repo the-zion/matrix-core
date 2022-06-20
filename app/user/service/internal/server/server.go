@@ -5,4 +5,4 @@ import (
 )
 
 // ProviderSet is user providers.
-var ProviderSet = wire.NewSet(NewHTTPServer, NewGRPCServer, NewMqConsumerServer)
+var ProviderSet = wire.NewSet(NewHTTPServer, NewGRPCServer)
