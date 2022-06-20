@@ -18,6 +18,7 @@ var _ = binding.EncodeURL
 const _ = http.SupportPackageIsVersion1
 
 type BffHTTPServer interface {
+	AvatarReview(context.Context, *AvatarReviewReq) (*AvatarReviewReply, error)
 	GetCosSessionKey(context.Context, *GetCosSessionKeyReq) (*GetCosSessionKeyReply, error)
 	GetUserProfile(context.Context, *GetUserProfileReq) (*GetUserProfileReply, error)
 	GetUserProfileUpdate(context.Context, *GetUserProfileUpdateReq) (*GetUserProfileUpdateReply, error)
@@ -46,6 +47,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.GET("/v1/get/user/profile", _Bff_GetUserProfile0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/profile/update", _Bff_GetUserProfileUpdate0_HTTP_Handler(srv))
 	r.POST("/v1/set/user/profile", _Bff_SetUserProfile0_HTTP_Handler(srv))
+	r.POST("/v1/message/avatar/review", _Bff_AvatarReview0_HTTP_Handler(srv))
 }
 
 func _Bff_UserRegister0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
@@ -276,7 +278,27 @@ func _Bff_SetUserProfile0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context)
 	}
 }
 
+func _Bff_AvatarReview0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AvatarReviewReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/bff.v1.Bff/AvatarReview")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AvatarReview(ctx, req.(*AvatarReviewReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AvatarReviewReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 type BffHTTPClient interface {
+	AvatarReview(ctx context.Context, req *AvatarReviewReq, opts ...http.CallOption) (rsp *AvatarReviewReply, err error)
 	GetCosSessionKey(ctx context.Context, req *GetCosSessionKeyReq, opts ...http.CallOption) (rsp *GetCosSessionKeyReply, err error)
 	GetUserProfile(ctx context.Context, req *GetUserProfileReq, opts ...http.CallOption) (rsp *GetUserProfileReply, err error)
 	GetUserProfileUpdate(ctx context.Context, req *GetUserProfileUpdateReq, opts ...http.CallOption) (rsp *GetUserProfileUpdateReply, err error)
@@ -297,6 +319,19 @@ type BffHTTPClientImpl struct {
 
 func NewBffHTTPClient(client *http.Client) BffHTTPClient {
 	return &BffHTTPClientImpl{client}
+}
+
+func (c *BffHTTPClientImpl) AvatarReview(ctx context.Context, in *AvatarReviewReq, opts ...http.CallOption) (*AvatarReviewReply, error) {
+	var out AvatarReviewReply
+	pattern := "/v1/message/avatar/review"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/bff.v1.Bff/AvatarReview"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
 }
 
 func (c *BffHTTPClientImpl) GetCosSessionKey(ctx context.Context, in *GetCosSessionKeyReq, opts ...http.CallOption) (*GetCosSessionKeyReply, error) {

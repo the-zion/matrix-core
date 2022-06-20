@@ -7,6 +7,7 @@ import "google/api/annotations.proto";
 option go_package = "api/bff/interface/v1;v1";
 
 service Bff{
+  // --------------------user service------------------------
 
   rpc UserRegister(UserRegisterReq) returns (UserRegisterReply){
     option (google.api.http) = {
@@ -88,7 +89,18 @@ service Bff{
       body: "*"
     };
   }
+
+  // --------------------message service------------------------
+
+  rpc AvatarReview(AvatarReviewReq) returns (AvatarReviewReply){
+    option (google.api.http) = {
+      post: "/v1/message/avatar/review"
+      body: "*"
+    };
+  }
 }
+
+// --------------------user service-------------------------
 
 message UserRegisterReq{
   string email = 1;
@@ -190,3 +202,25 @@ message SetUserProfileReq{
 }
 
 message SetUserProfileReply{}
+
+// --------------------message service------------------------
+
+message AvatarReviewReq{
+  message JobsDetailStruct{
+    string Code = 1;
+    string Message = 2;
+    string JobId = 3;
+    string State = 4;
+    string Object = 5;
+    string Label = 6;
+    int32 Result = 7;
+    string Category = 8;
+    string BucketId = 9;
+    string Region = 10;
+    map<string, string> CosHeaders = 11;
+  }
+  JobsDetailStruct JobsDetail = 1;
+  string EventName = 2;
+}
+
+message AvatarReviewReply{}

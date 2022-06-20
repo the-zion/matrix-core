@@ -34,6 +34,7 @@ type BffClient interface {
 	GetUserProfile(ctx context.Context, in *GetUserProfileReq, opts ...grpc.CallOption) (*GetUserProfileReply, error)
 	GetUserProfileUpdate(ctx context.Context, in *GetUserProfileUpdateReq, opts ...grpc.CallOption) (*GetUserProfileUpdateReply, error)
 	SetUserProfile(ctx context.Context, in *SetUserProfileReq, opts ...grpc.CallOption) (*SetUserProfileReply, error)
+	AvatarReview(ctx context.Context, in *AvatarReviewReq, opts ...grpc.CallOption) (*AvatarReviewReply, error)
 }
 
 type bffClient struct {
@@ -152,6 +153,15 @@ func (c *bffClient) SetUserProfile(ctx context.Context, in *SetUserProfileReq, o
 	return out, nil
 }
 
+func (c *bffClient) AvatarReview(ctx context.Context, in *AvatarReviewReq, opts ...grpc.CallOption) (*AvatarReviewReply, error) {
+	out := new(AvatarReviewReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/AvatarReview", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BffServer is the server API for Bff service.
 // All implementations must embed UnimplementedBffServer
 // for forward compatibility
@@ -168,6 +178,7 @@ type BffServer interface {
 	GetUserProfile(context.Context, *GetUserProfileReq) (*GetUserProfileReply, error)
 	GetUserProfileUpdate(context.Context, *GetUserProfileUpdateReq) (*GetUserProfileUpdateReply, error)
 	SetUserProfile(context.Context, *SetUserProfileReq) (*SetUserProfileReply, error)
+	AvatarReview(context.Context, *AvatarReviewReq) (*AvatarReviewReply, error)
 	mustEmbedUnimplementedBffServer()
 }
 
@@ -210,6 +221,9 @@ func (UnimplementedBffServer) GetUserProfileUpdate(context.Context, *GetUserProf
 }
 func (UnimplementedBffServer) SetUserProfile(context.Context, *SetUserProfileReq) (*SetUserProfileReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetUserProfile not implemented")
+}
+func (UnimplementedBffServer) AvatarReview(context.Context, *AvatarReviewReq) (*AvatarReviewReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AvatarReview not implemented")
 }
 func (UnimplementedBffServer) mustEmbedUnimplementedBffServer() {}
 
@@ -440,6 +454,24 @@ func _Bff_SetUserProfile_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_AvatarReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AvatarReviewReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).AvatarReview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/AvatarReview",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).AvatarReview(ctx, req.(*AvatarReviewReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Bff_ServiceDesc is the grpc.ServiceDesc for Bff service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -494,6 +526,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetUserProfile",
 			Handler:    _Bff_SetUserProfile_Handler,
+		},
+		{
+			MethodName: "AvatarReview",
+			Handler:    _Bff_AvatarReview_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
