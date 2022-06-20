@@ -38,19 +38,23 @@ message Data {
     google.protobuf.Duration read_timeout = 4;
     google.protobuf.Duration write_timeout = 5;
   }
-  message Code{
-    string secret_id = 1;
-    string secret_key = 2;
-  }
-  message Mail{
-    string code = 1;
-  }
   message Rocketmq{
-    string serverAddress = 1;
-    string secretKey = 2;
-    string accessKey = 3;
-    string nameSpace = 4;
-    string groupName = 5;
+    message Code{
+      string serverAddress = 1;
+      string secretKey = 2;
+      string accessKey = 3;
+      string nameSpace = 4;
+      string groupName = 5;
+    }
+    message Profile{
+      string serverAddress = 1;
+      string secretKey = 2;
+      string accessKey = 3;
+      string nameSpace = 4;
+      string groupName = 5;
+    }
+    Code code = 1;
+    Profile profile = 2;
   }
   message Cos{
     string secret_id = 1;
@@ -61,8 +65,6 @@ message Data {
   }
   Database database = 1;
   Redis redis = 2;
-  Code code = 3;
-  Mail mail = 4;
   Rocketmq rocketmq = 5;
   Cos cos = 6;
 }
