@@ -21,10 +21,30 @@ message Server {
     string addr = 2;
     google.protobuf.Duration timeout = 3;
   }
+  message Rocketmq{
+    message Code{
+      string serverAddress = 1;
+      string secretKey = 2;
+      string accessKey = 3;
+      string nameSpace = 4;
+      string groupName = 5;
+    }
+    Code code = 1;
+  }
   HTTP http = 1;
   GRPC grpc = 2;
+  Rocketmq rocketmq = 3;
 }
 
 message Data {
+  message Code{
+    string secret_id = 1;
+    string secret_key = 2;
+  }
+  message Mail{
+    string code = 1;
+  }
+  Code code = 1;
+  Mail mail = 2;
 }
 
