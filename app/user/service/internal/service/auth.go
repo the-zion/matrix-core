@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"github.com/apache/rocketmq-client-go/v2/primitive"
 	v1 "github.com/the-zion/matrix-core/api/user/service/v1"
 )
 
@@ -40,10 +39,6 @@ func (s *UserService) LoginPasswordReset(ctx context.Context, req *v1.LoginPassw
 		return nil, err
 	}
 	return &v1.LoginPasswordResetReply{}, nil
-}
-
-func (s *UserService) SendCode(msgs ...*primitive.MessageExt) {
-	s.ac.SendCode(msgs...)
 }
 
 func (s *UserService) SendPhoneCode(ctx context.Context, req *v1.SendPhoneCodeReq) (*v1.SendPhoneCodeReply, error) {
