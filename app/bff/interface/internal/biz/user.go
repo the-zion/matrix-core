@@ -26,7 +26,7 @@ type UserUseCase struct {
 func NewUserUseCase(repo UserRepo, logger log.Logger) *UserUseCase {
 	return &UserUseCase{
 		repo: repo,
-		log:  log.NewHelper(log.With(logger, "module", "bff/biz/userUseCase")),
+		log:  log.NewHelper(log.With(logger, "module", "bff/biz/UserUseCase")),
 	}
 }
 
