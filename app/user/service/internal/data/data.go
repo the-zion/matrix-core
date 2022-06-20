@@ -8,29 +8,15 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-redis/redis/v8"
 	"github.com/google/wire"
-	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
-	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/profile"
-	sms "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms/v20210111"
 	"github.com/tencentyun/qcloud-cos-sts-sdk/go"
 	"github.com/the-zion/matrix-core/app/user/service/internal/biz"
 	"github.com/the-zion/matrix-core/app/user/service/internal/conf"
-	"gopkg.in/gomail.v2"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"time"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewDB, NewTransaction, NewRedis, NewRocketmqProducer, NewPhoneCode, NewGoMail, NewCosClient, NewUserRepo, NewAuthRepo, NewProfileRepo)
-
-type TxCode struct {
-	client  *sms.Client
-	request *sms.SendSmsRequest
-}
-
-type GoMail struct {
-	message *gomail.Message
-	dialer  *gomail.Dialer
-}
+var ProviderSet = wire.NewSet(NewData, NewDB, NewTransaction, NewRedis, NewRocketmqCodeProducer, NewCosClient, NewUserRepo, NewAuthRepo, NewProfileRepo)
 
 type Cos struct {
 	client *sts.Client
@@ -38,12 +24,10 @@ type Cos struct {
 }
 
 type Data struct {
-	db           *gorm.DB
-	redisCli     redis.Cmdable
-	mqPro        rocketmq.Producer
-	phoneCodeCli *TxCode
-	goMailCli    *GoMail
-	cos          *Cos
+	db       *gorm.DB
+	redisCli redis.Cmdable
+	mqPro    rocketmq.Producer
+	cos      *Cos
 }
 
 type contextTxKey struct{}
@@ -98,42 +82,16 @@ func NewRedis(conf *conf.Data, logger log.Logger) redis.Cmdable {
 	return client
 }
 
-func NewPhoneCode(conf *conf.Data) *TxCode {
-	credential := common.NewCredential(
-		conf.Code.SecretId,
-		conf.Code.SecretKey,
-	)
-	cpf := profile.NewClientProfile()
-	client, _ := sms.NewClient(credential, "ap-guangzhou", cpf)
-	request := sms.NewSendSmsRequest()
-	request.SmsSdkAppId = common.StringPtr("1400590793")
-	request.SignName = common.StringPtr("魔方技术")
-	return &TxCode{
-		client:  client,
-		request: request,
-	}
-}
-
-func NewGoMail(conf *conf.Data) *GoMail {
-	m := gomail.NewMessage()
-	m.SetHeader("From", "matrixtechnology@163.com")
-	d := gomail.NewDialer("smtp.163.com", 465, "matrixtechnology@163.com", conf.Mail.Code)
-	return &GoMail{
-		message: m,
-		dialer:  d,
-	}
-}
-
-func NewRocketmqProducer(conf *conf.Data, logger log.Logger) rocketmq.Producer {
-	l := log.NewHelper(log.With(logger, "module", "user/data/rocketmq-producer"))
+func NewRocketmqCodeProducer(conf *conf.Data, logger log.Logger) rocketmq.Producer {
+	l := log.NewHelper(log.With(logger, "module", "user/data/rocketmq-code-producer"))
 	p, err := rocketmq.NewProducer(
-		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.Rocketmq.ServerAddress})),
+		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.Rocketmq.Code.ServerAddress})),
 		producer.WithCredentials(primitive.Credentials{
-			SecretKey: conf.Rocketmq.SecretKey,
-			AccessKey: conf.Rocketmq.AccessKey,
+			SecretKey: conf.Rocketmq.Code.SecretKey,
+			AccessKey: conf.Rocketmq.Code.AccessKey,
 		}),
-		producer.WithGroupName(conf.Rocketmq.GroupName),
-		producer.WithNamespace(conf.Rocketmq.NameSpace),
+		producer.WithGroupName(conf.Rocketmq.Code.GroupName),
+		producer.WithNamespace(conf.Rocketmq.Code.NameSpace),
 	)
 	if err != nil {
 		l.Fatalf("init producer error: %v", err)
@@ -169,8 +127,6 @@ func NewCosClient(conf *conf.Data) *Cos {
 					},
 					Effect: "allow",
 					Resource: []string{
-						//这里改成允许的路径前缀，可以根据自己网站的用户登录态判断允许上传的具体路径，例子： a.jpg 或者 a/* 或者 * (使用通配符*存在重大安全风险, 请谨慎评估使用)
-						"qcs::cos:" + conf.Cos.Region + ":uid/" + conf.Cos.Appid + ":" + conf.Cos.Bucket + "/avatar-origin/*",
 						"qcs::cos:" + conf.Cos.Region + ":uid/" + conf.Cos.Appid + ":" + conf.Cos.Bucket + "/avatar/*",
 					},
 				},
@@ -183,16 +139,14 @@ func NewCosClient(conf *conf.Data) *Cos {
 	}
 }
 
-func NewData(db *gorm.DB, redisCmd redis.Cmdable, p rocketmq.Producer, phoneCodeCli *TxCode, goMailCli *GoMail, cos *Cos, logger log.Logger) (*Data, func(), error) {
+func NewData(db *gorm.DB, redisCmd redis.Cmdable, p rocketmq.Producer, cos *Cos, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(logger, "module", "user/data/new-data"))
 
 	d := &Data{
-		db:           db,
-		mqPro:        p,
-		redisCli:     redisCmd,
-		phoneCodeCli: phoneCodeCli,
-		goMailCli:    goMailCli,
-		cos:          cos,
+		db:       db,
+		mqPro:    p,
+		redisCli: redisCmd,
+		cos:      cos,
 	}
 	return d, func() {
 		var err error
