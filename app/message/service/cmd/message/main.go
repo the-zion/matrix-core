@@ -14,6 +14,7 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/vo"
 	"github.com/the-zion/matrix-core/app/message/service/internal/conf"
+	"github.com/the-zion/matrix-core/app/message/service/internal/server"
 	"gopkg.in/yaml.v3"
 	"os"
 )
@@ -25,7 +26,7 @@ var (
 	// flagconf is the config flag.
 	flagconf string
 
-	Name  = "matrix.bff.interface"
+	Name  = "matrix.message.service"
 	id, _ = os.Hostname()
 )
 
@@ -33,7 +34,7 @@ func init() {
 	flag.StringVar(&flagconf, "conf", "../../configs", "config path, eg: -conf config.yaml")
 }
 
-func newApp(logger log.Logger, r *nacos.Registry, hs *http.Server, gs *grpc.Server) *kratos.App {
+func newApp(logger log.Logger, r *nacos.Registry, hs *http.Server, gs *grpc.Server, cmcs *server.CodeMqConsumerServer) *kratos.App {
 	return kratos.New(
 		kratos.ID(id),
 		kratos.Name(Name),
@@ -44,6 +45,7 @@ func newApp(logger log.Logger, r *nacos.Registry, hs *http.Server, gs *grpc.Serv
 		kratos.Server(
 			hs,
 			gs,
+			cmcs,
 		),
 	)
 }
