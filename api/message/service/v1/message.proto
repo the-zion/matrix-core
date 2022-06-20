@@ -8,6 +8,9 @@ import "validate/validate.proto";
 option go_package = "api/message/service/v1;v1";
 
 service Message {
+
+  rpc AvatarReview(AvatarReviewReq) returns (AvatarReviewReply){}
+
   rpc ProfileReview(ProfileReviewReq) returns (ProfileReviewReply){
     option (google.api.http) = {
       post: "/v1/profile/review"
@@ -15,6 +18,26 @@ service Message {
     };
   }
 }
+
+message AvatarReviewReq{
+  message JobsDetailStruct{
+    string Code = 1 [(validate.rules).string = {max_len: 1000}];
+    string Message = 2 [(validate.rules).string = {max_len: 1000}];
+    string JobId = 3 [(validate.rules).string = {max_len: 1000}];
+    string State = 4 [(validate.rules).string = {max_len: 1000}];
+    string Object = 5 [(validate.rules).string = {max_len: 1000}];
+    string Label = 6 [(validate.rules).string = {max_len: 1000}];
+    int32 Result = 7;
+    string Category = 8 [(validate.rules).string = {max_len: 1000}];
+    string BucketId = 9 [(validate.rules).string = {max_len: 1000}];
+    string Region = 10 [(validate.rules).string = {max_len: 1000}];
+    map<string, string> CosHeaders = 11 [(validate.rules).map.values.string.max_len = 1000];
+  }
+  JobsDetailStruct JobsDetail = 1;
+  string EventName = 2 [(validate.rules).string = {max_len: 1000}];
+}
+
+message AvatarReviewReply{}
 
 message ProfileReviewReq{
   message PornInfo{

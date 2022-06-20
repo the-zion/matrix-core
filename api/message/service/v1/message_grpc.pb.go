@@ -22,6 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MessageClient interface {
+	AvatarReview(ctx context.Context, in *AvatarReviewReq, opts ...grpc.CallOption) (*AvatarReviewReply, error)
 	ProfileReview(ctx context.Context, in *ProfileReviewReq, opts ...grpc.CallOption) (*ProfileReviewReply, error)
 }
 
@@ -31,6 +32,15 @@ type messageClient struct {
 
 func NewMessageClient(cc grpc.ClientConnInterface) MessageClient {
 	return &messageClient{cc}
+}
+
+func (c *messageClient) AvatarReview(ctx context.Context, in *AvatarReviewReq, opts ...grpc.CallOption) (*AvatarReviewReply, error) {
+	out := new(AvatarReviewReply)
+	err := c.cc.Invoke(ctx, "/message.v1.Message/AvatarReview", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *messageClient) ProfileReview(ctx context.Context, in *ProfileReviewReq, opts ...grpc.CallOption) (*ProfileReviewReply, error) {
@@ -46,6 +56,7 @@ func (c *messageClient) ProfileReview(ctx context.Context, in *ProfileReviewReq,
 // All implementations must embed UnimplementedMessageServer
 // for forward compatibility
 type MessageServer interface {
+	AvatarReview(context.Context, *AvatarReviewReq) (*AvatarReviewReply, error)
 	ProfileReview(context.Context, *ProfileReviewReq) (*ProfileReviewReply, error)
 	mustEmbedUnimplementedMessageServer()
 }
@@ -54,6 +65,9 @@ type MessageServer interface {
 type UnimplementedMessageServer struct {
 }
 
+func (UnimplementedMessageServer) AvatarReview(context.Context, *AvatarReviewReq) (*AvatarReviewReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AvatarReview not implemented")
+}
 func (UnimplementedMessageServer) ProfileReview(context.Context, *ProfileReviewReq) (*ProfileReviewReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ProfileReview not implemented")
 }
@@ -68,6 +82,24 @@ type UnsafeMessageServer interface {
 
 func RegisterMessageServer(s grpc.ServiceRegistrar, srv MessageServer) {
 	s.RegisterService(&Message_ServiceDesc, srv)
+}
+
+func _Message_AvatarReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AvatarReviewReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MessageServer).AvatarReview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/message.v1.Message/AvatarReview",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MessageServer).AvatarReview(ctx, req.(*AvatarReviewReq))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Message_ProfileReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -95,6 +127,10 @@ var Message_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "message.v1.Message",
 	HandlerType: (*MessageServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "AvatarReview",
+			Handler:    _Message_AvatarReview_Handler,
+		},
 		{
 			MethodName: "ProfileReview",
 			Handler:    _Message_ProfileReview_Handler,
