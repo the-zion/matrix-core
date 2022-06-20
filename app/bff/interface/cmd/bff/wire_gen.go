@@ -22,13 +22,16 @@ import (
 // wireApp init kratos application.
 func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, registry *nacos.Registry) (*kratos.App, func(), error) {
 	userClient := data.NewUserServiceClient(registry, logger)
-	dataData, err := data.NewData(logger, userClient)
+	messageClient := data.NewMessageServiceClient(registry, logger)
+	dataData, err := data.NewData(logger, userClient, messageClient)
 	if err != nil {
 		return nil, nil, err
 	}
 	userRepo := data.NewUserRepo(dataData, logger)
 	userUseCase := biz.NewUserUseCase(userRepo, logger)
-	bffService := service.NewBffService(userUseCase, logger)
+	messageRepo := data.NewMessageRepo(dataData, logger)
+	messageUseCase := biz.NewMessageUseCase(messageRepo, logger)
+	bffService := service.NewBffService(userUseCase, messageUseCase, logger)
 	httpServer := server.NewHTTPServer(confServer, bffService, logger)
 	grpcServer := server.NewGRPCServer(confServer, bffService, logger)
 	app := newApp(logger, registry, httpServer, grpcServer)
