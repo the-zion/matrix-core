@@ -3,7 +3,6 @@ package biz
 import (
 	"context"
 	"fmt"
-	"github.com/apache/rocketmq-client-go/v2/primitive"
 	kerrors "github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/golang-jwt/jwt/v4"
@@ -22,7 +21,6 @@ type AuthRepo interface {
 	CreateUserProfileUpdate(ctx context.Context, account, uuid string) error
 	SendPhoneCode(ctx context.Context, template, phone string) error
 	SendEmailCode(ctx context.Context, template, phone string) error
-	SendCode(msgs ...*primitive.MessageExt)
 	VerifyPhoneCode(ctx context.Context, phone, code string) error
 	VerifyEmailCode(ctx context.Context, email, code string) error
 	VerifyPassword(ctx context.Context, account, password, mode string) (*User, error)
@@ -178,10 +176,6 @@ func (r *AuthUseCase) SendEmailCode(ctx context.Context, template, email string)
 		return v1.ErrorSendCodeFailed("send code failed: %s", err.Error())
 	}
 	return nil
-}
-
-func (r *AuthUseCase) SendCode(msgs ...*primitive.MessageExt) {
-	r.repo.SendCode(msgs...)
 }
 
 func signToken(uuid, key string) (string, error) {
