@@ -23,11 +23,9 @@ import (
 func wireApp(confServer *conf.Server, confData *conf.Data, auth *conf.Auth, logger log.Logger, registry *nacos.Registry) (*kratos.App, func(), error) {
 	db := data.NewDB(confData, logger)
 	cmdable := data.NewRedis(confData, logger)
-	producer := data.NewRocketmqProducer(confData, logger)
-	txCode := data.NewPhoneCode(confData)
-	goMail := data.NewGoMail(confData)
+	producer := data.NewRocketmqCodeProducer(confData, logger)
 	cos := data.NewCosClient(confData)
-	dataData, cleanup, err := data.NewData(db, cmdable, producer, txCode, goMail, cos, logger)
+	dataData, cleanup, err := data.NewData(db, cmdable, producer, cos, logger)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -41,8 +39,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, auth *conf.Auth, logg
 	userService := service.NewUserService(userUseCase, authUseCase, profileUseCase, logger)
 	httpServer := server.NewHTTPServer(confServer, userService, logger)
 	grpcServer := server.NewGRPCServer(confServer, userService, logger)
-	mqConsumerServer := server.NewMqConsumerServer(confData, userService, logger)
-	app := newApp(logger, registry, httpServer, grpcServer, mqConsumerServer)
+	app := newApp(logger, registry, httpServer, grpcServer)
 	return app, func() {
 		cleanup()
 	}, nil

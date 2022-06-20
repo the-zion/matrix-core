@@ -14,7 +14,6 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/vo"
 	"github.com/the-zion/matrix-core/app/user/service/internal/conf"
-	"github.com/the-zion/matrix-core/app/user/service/internal/server"
 	"gopkg.in/yaml.v3"
 	"os"
 )
@@ -34,7 +33,7 @@ func init() {
 	flag.StringVar(&flagconf, "conf", "../../configs", "config path, eg: -conf config.yaml")
 }
 
-func newApp(logger log.Logger, r *nacos.Registry, hs *http.Server, gs *grpc.Server, mc *server.MqConsumerServer) *kratos.App {
+func newApp(logger log.Logger, r *nacos.Registry, hs *http.Server, gs *grpc.Server) *kratos.App {
 	return kratos.New(
 		kratos.ID(id),
 		kratos.Name(Name),
@@ -45,7 +44,6 @@ func newApp(logger log.Logger, r *nacos.Registry, hs *http.Server, gs *grpc.Serv
 		kratos.Server(
 			hs,
 			gs,
-			mc,
 		),
 	)
 }
