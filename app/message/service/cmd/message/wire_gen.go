@@ -22,9 +22,10 @@ import (
 // wireApp init kratos application.
 func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, registry *nacos.Registry) (*kratos.App, func(), error) {
 	userClient := data.NewUserServiceClient(registry, logger)
+	client := data.NewCosServiceClient(confData, logger)
 	txCode := data.NewPhoneCode(confData)
 	goMail := data.NewGoMail(confData)
-	dataData, err := data.NewData(logger, userClient, txCode, goMail)
+	dataData, err := data.NewData(logger, userClient, client, txCode, goMail)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -34,7 +35,8 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, re
 	httpServer := server.NewHTTPServer(confServer, messageService, logger)
 	grpcServer := server.NewGRPCServer(confServer, messageService, logger)
 	codeMqConsumerServer := server.NewCodeMqConsumerServer(confServer, messageService, logger)
-	app := newApp(logger, registry, httpServer, grpcServer, codeMqConsumerServer)
+	profileMqConsumerServer := server.NewProfileMqConsumerServer(confServer, messageService, logger)
+	app := newApp(logger, registry, httpServer, grpcServer, codeMqConsumerServer, profileMqConsumerServer)
 	return app, func() {
 	}, nil
 }
