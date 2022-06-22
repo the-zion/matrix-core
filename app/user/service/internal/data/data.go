@@ -16,18 +16,27 @@ import (
 	"time"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewDB, NewTransaction, NewRedis, NewRocketmqCodeProducer, NewCosClient, NewUserRepo, NewAuthRepo, NewProfileRepo)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewTransaction, NewRedis, NewRocketmqCodeProducer, NewRocketmqProfileProducer, NewCosClient, NewUserRepo, NewAuthRepo, NewProfileRepo)
 
 type Cos struct {
 	client *sts.Client
 	opt    *sts.CredentialOptions
 }
 
+type CodeMqPro struct {
+	producer rocketmq.Producer
+}
+
+type ProfileMqPro struct {
+	producer rocketmq.Producer
+}
+
 type Data struct {
-	db       *gorm.DB
-	redisCli redis.Cmdable
-	mqPro    rocketmq.Producer
-	cos      *Cos
+	db           *gorm.DB
+	redisCli     redis.Cmdable
+	codeMqPro    *CodeMqPro
+	profileMqPro *ProfileMqPro
+	cos          *Cos
 }
 
 type contextTxKey struct{}
@@ -82,16 +91,16 @@ func NewRedis(conf *conf.Data, logger log.Logger) redis.Cmdable {
 	return client
 }
 
-func NewRocketmqCodeProducer(conf *conf.Data, logger log.Logger) rocketmq.Producer {
+func NewRocketmqCodeProducer(conf *conf.Data, logger log.Logger) *CodeMqPro {
 	l := log.NewHelper(log.With(logger, "module", "user/data/rocketmq-code-producer"))
 	p, err := rocketmq.NewProducer(
-		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.Rocketmq.Code.ServerAddress})),
+		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.Rocketmq.ServerAddress})),
 		producer.WithCredentials(primitive.Credentials{
-			SecretKey: conf.Rocketmq.Code.SecretKey,
-			AccessKey: conf.Rocketmq.Code.AccessKey,
+			SecretKey: conf.Rocketmq.SecretKey,
+			AccessKey: conf.Rocketmq.AccessKey,
 		}),
 		producer.WithGroupName(conf.Rocketmq.Code.GroupName),
-		producer.WithNamespace(conf.Rocketmq.Code.NameSpace),
+		producer.WithNamespace(conf.Rocketmq.NameSpace),
 	)
 	if err != nil {
 		l.Fatalf("init producer error: %v", err)
@@ -101,7 +110,35 @@ func NewRocketmqCodeProducer(conf *conf.Data, logger log.Logger) rocketmq.Produc
 	if err != nil {
 		l.Fatalf("start producer error: %v", err)
 	}
-	return p
+	return &CodeMqPro{
+		producer: p,
+	}
+}
+
+func NewRocketmqProfileProducer(conf *conf.Data, logger log.Logger) *ProfileMqPro {
+	l := log.NewHelper(log.With(logger, "module", "user/data/rocketmq-profile-producer"))
+	p, err := rocketmq.NewProducer(
+		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.Rocketmq.ServerAddress})),
+		producer.WithCredentials(primitive.Credentials{
+			SecretKey: conf.Rocketmq.SecretKey,
+			AccessKey: conf.Rocketmq.AccessKey,
+		}),
+		producer.WithRetry(2),
+		producer.WithGroupName(conf.Rocketmq.Profile.GroupName),
+		producer.WithNamespace(conf.Rocketmq.NameSpace),
+	)
+
+	if err != nil {
+		l.Fatalf("init producer error: %v", err)
+	}
+
+	err = p.Start()
+	if err != nil {
+		l.Fatalf("start producer error: %v", err)
+	}
+	return &ProfileMqPro{
+		producer: p,
+	}
 }
 
 func NewCosClient(conf *conf.Data) *Cos {
@@ -139,22 +176,28 @@ func NewCosClient(conf *conf.Data) *Cos {
 	}
 }
 
-func NewData(db *gorm.DB, redisCmd redis.Cmdable, p rocketmq.Producer, cos *Cos, logger log.Logger) (*Data, func(), error) {
+func NewData(db *gorm.DB, redisCmd redis.Cmdable, cp *CodeMqPro, pp *ProfileMqPro, cos *Cos, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(logger, "module", "user/data/new-data"))
 
 	d := &Data{
-		db:       db,
-		mqPro:    p,
-		redisCli: redisCmd,
-		cos:      cos,
+		db:           db,
+		codeMqPro:    cp,
+		profileMqPro: pp,
+		redisCli:     redisCmd,
+		cos:          cos,
 	}
 	return d, func() {
 		var err error
 		l.Info("closing the data resources")
 
-		err = d.mqPro.Shutdown()
+		err = d.codeMqPro.producer.Shutdown()
 		if err != nil {
-			l.Errorf("shutdown producer error: %v", err.Error())
+			l.Errorf("shutdown code producer error: %v", err.Error())
+		}
+
+		err = d.profileMqPro.producer.Shutdown()
+		if err != nil {
+			l.Errorf("shutdown profile producer error: %v", err.Error())
 		}
 	}, nil
 }

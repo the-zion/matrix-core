@@ -138,7 +138,18 @@ func (r *authRepo) CreateUserProfileUpdate(ctx context.Context, account, uuid st
 	pu.Username = account
 	err := r.data.DB(ctx).Select("Uuid", "Username").Create(pu).Error
 	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to register a profile: uuid(%s)", uuid))
+		return errors.Wrapf(err, fmt.Sprintf("fail to create table: profile_update, uuid(%s)", uuid))
+	}
+	return nil
+}
+
+func (r *authRepo) CreateProfileUpdateRetry(ctx context.Context, account, uuid string) error {
+	pur := &ProfileUpdateRetry{}
+	pur.Uuid = uuid
+	pur.Username = account
+	err := r.data.DB(ctx).Select("Uuid", "Username").Create(pur).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to create table: profile_update_retry, uuid(%s)", uuid))
 	}
 	return nil
 }
@@ -156,7 +167,7 @@ func (r *authRepo) SendPhoneCode(ctx context.Context, template, phone string) er
 		Body:  []byte(message),
 	}
 	msg.WithTag("phone")
-	err = r.data.mqPro.SendOneWay(ctx, msg)
+	err = r.data.codeMqPro.producer.SendOneWay(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send code to producer: %s", message))
 	}
@@ -177,7 +188,7 @@ func (r *authRepo) SendEmailCode(ctx context.Context, template, email string) er
 		Body:  []byte(message),
 	}
 	msg.WithTag("email")
-	err = r.data.mqPro.SendOneWay(ctx, msg)
+	err = r.data.codeMqPro.producer.SendOneWay(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send code to producer: %s", message))
 	}

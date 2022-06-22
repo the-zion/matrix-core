@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/apache/rocketmq-client-go/v2/primitive"
 	kerrors "github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-redis/redis/v8"
@@ -103,7 +104,7 @@ func (r *userRepo) GetUserProfileUpdate(ctx context.Context, uuid string) (*biz.
 	return pu, nil
 }
 
-func (r *userRepo) SetUserProfile(ctx context.Context, profile *biz.ProfileUpdate) error {
+func (r *userRepo) SetUserProfile(ctx context.Context, profile *biz.ProfileUpdate) (*biz.ProfileUpdate, error) {
 	pu := &ProfileUpdate{}
 	pu.Username = profile.Username
 	pu.School = profile.School
@@ -111,14 +112,54 @@ func (r *userRepo) SetUserProfile(ctx context.Context, profile *biz.ProfileUpdat
 	pu.Homepage = profile.Homepage
 	pu.Introduce = profile.Introduce
 	pu.Status = 2
-	err := r.data.DB(ctx).WithContext(ctx).Model(&ProfileUpdate{}).Where("uuid = ?", profile.Uuid).Updates(pu).Error
+	err := r.data.DB(ctx).Model(&ProfileUpdate{}).Where("uuid = ?", profile.Uuid).Updates(pu).Error
 	if err != nil {
 		e := err.Error()
 		if strings.Contains(e, "Duplicate") {
-			return kerrors.Conflict("username conflict", fmt.Sprintf("profile(%v)", profile))
+			return nil, kerrors.Conflict("username conflict", fmt.Sprintf("profile(%v)", profile))
 		} else {
-			return errors.Wrapf(err, fmt.Sprintf("fail to update a profile: profile(%v)", profile))
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to update a profile: profile(%v)", profile))
 		}
+	}
+	profile.UpdatedAt = pu.UpdatedAt
+	return profile, nil
+}
+
+func (r *userRepo) SetProfileUpdateRetry(profile *biz.ProfileUpdate) {
+	pur := &ProfileUpdateRetry{}
+	pur.UpdatedAt = profile.UpdatedAt
+	pur.Uuid = profile.Uuid
+	pur.Username = profile.Username
+	pur.School = profile.School
+	pur.Company = profile.Company
+	pur.Homepage = profile.Homepage
+	pur.Introduce = profile.Introduce
+	err := r.data.db.Model(&ProfileUpdateRetry{}).Where("uuid = ?", profile.Uuid).Updates(pur).Error
+	if err != nil {
+		r.log.Errorf("fail to save profile to retry table, error: %v", err)
+	}
+}
+
+func (r *userRepo) SendProfileToMq(_ context.Context, profile *biz.ProfileUpdate) error {
+	data, err := json.Marshal(profile)
+	if err != nil {
+		return err
+	}
+	msg := &primitive.Message{
+		Topic: "profile",
+		Body:  data,
+	}
+	msg.WithKeys([]string{profile.Uuid})
+	err = r.data.profileMqPro.producer.SendAsync(context.Background(), func(ctx context.Context, result *primitive.SendResult, e error) {
+		if e != nil {
+			r.log.Errorf("mq receive message error: %v", e)
+			r.SetProfileUpdateRetry(profile)
+		} else {
+			fmt.Printf(result.String())
+		}
+	}, msg)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to use async producer: %v", err))
 	}
 	return nil
 }
