@@ -8,6 +8,7 @@ import (
 	context "context"
 	http "github.com/go-kratos/kratos/v2/transport/http"
 	binding "github.com/go-kratos/kratos/v2/transport/http/binding"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -18,12 +19,12 @@ var _ = binding.EncodeURL
 const _ = http.SupportPackageIsVersion1
 
 type MessageHTTPServer interface {
-	ProfileReview(context.Context, *ProfileReviewReq) (*ProfileReviewReply, error)
+	ProfileReview(context.Context, *ProfileReviewReq) (*emptypb.Empty, error)
 }
 
 func RegisterMessageHTTPServer(s *http.Server, srv MessageHTTPServer) {
 	r := s.Route("/")
-	r.POST("/v1/profile/review", _Message_ProfileReview0_HTTP_Handler(srv))
+	r.POST("/v1/message/profile/review", _Message_ProfileReview0_HTTP_Handler(srv))
 }
 
 func _Message_ProfileReview0_HTTP_Handler(srv MessageHTTPServer) func(ctx http.Context) error {
@@ -40,13 +41,13 @@ func _Message_ProfileReview0_HTTP_Handler(srv MessageHTTPServer) func(ctx http.C
 		if err != nil {
 			return err
 		}
-		reply := out.(*ProfileReviewReply)
+		reply := out.(*emptypb.Empty)
 		return ctx.Result(200, reply)
 	}
 }
 
 type MessageHTTPClient interface {
-	ProfileReview(ctx context.Context, req *ProfileReviewReq, opts ...http.CallOption) (rsp *ProfileReviewReply, err error)
+	ProfileReview(ctx context.Context, req *ProfileReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
 
 type MessageHTTPClientImpl struct {
@@ -57,9 +58,9 @@ func NewMessageHTTPClient(client *http.Client) MessageHTTPClient {
 	return &MessageHTTPClientImpl{client}
 }
 
-func (c *MessageHTTPClientImpl) ProfileReview(ctx context.Context, in *ProfileReviewReq, opts ...http.CallOption) (*ProfileReviewReply, error) {
-	var out ProfileReviewReply
-	pattern := "/v1/profile/review"
+func (c *MessageHTTPClientImpl) ProfileReview(ctx context.Context, in *ProfileReviewReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/message/profile/review"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation("/message.v1.Message/ProfileReview"))
 	opts = append(opts, http.PathTemplate(pattern))
