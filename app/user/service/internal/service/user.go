@@ -4,6 +4,7 @@ import (
 	"context"
 	v1 "github.com/the-zion/matrix-core/api/user/service/v1"
 	"github.com/the-zion/matrix-core/app/user/service/internal/biz"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 func (s *UserService) GetUser(ctx context.Context, req *v1.GetUserReq) (*v1.GetUserReply, error) {
@@ -53,7 +54,7 @@ func (s *UserService) GetUserProfileUpdate(ctx context.Context, req *v1.GetUserP
 	}, nil
 }
 
-func (s *UserService) SetUserProfile(ctx context.Context, req *v1.SetUserProfileReq) (*v1.SetUserProfileReply, error) {
+func (s *UserService) SetUserProfile(ctx context.Context, req *v1.SetUserProfileReq) (*emptypb.Empty, error) {
 	profile := &biz.ProfileUpdate{}
 	profile.Uuid = req.Uuid
 	profile.Username = req.Username
@@ -66,7 +67,7 @@ func (s *UserService) SetUserProfile(ctx context.Context, req *v1.SetUserProfile
 	if err != nil {
 		return nil, err
 	}
-	return &v1.SetUserProfileReply{}, nil
+	return &emptypb.Empty{}, nil
 }
 
 func (s *UserService) SetUserPhone(ctx context.Context, req *v1.SetUserPhoneReq) (*v1.SetUserPhoneReply, error) {

@@ -3,14 +3,15 @@ package service
 import (
 	"context"
 	v1 "github.com/the-zion/matrix-core/api/user/service/v1"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-func (s *UserService) UserRegister(ctx context.Context, req *v1.UserRegisterReq) (*v1.UserRegisterReply, error) {
+func (s *UserService) UserRegister(ctx context.Context, req *v1.UserRegisterReq) (*emptypb.Empty, error) {
 	err := s.ac.UserRegister(ctx, req.Email, req.Password, req.Code)
 	if err != nil {
 		return nil, err
 	}
-	return &v1.UserRegisterReply{}, nil
+	return &emptypb.Empty{}, nil
 }
 
 func (s *UserService) LoginByPassword(ctx context.Context, req *v1.LoginByPasswordReq) (*v1.LoginReply, error) {
@@ -33,31 +34,31 @@ func (s *UserService) LoginByCode(ctx context.Context, req *v1.LoginByCodeReq) (
 	}, nil
 }
 
-func (s *UserService) LoginPasswordReset(ctx context.Context, req *v1.LoginPasswordResetReq) (*v1.LoginPasswordResetReply, error) {
+func (s *UserService) LoginPasswordReset(ctx context.Context, req *v1.LoginPasswordResetReq) (*emptypb.Empty, error) {
 	err := s.ac.LoginPasswordReset(ctx, req.Account, req.Password, req.Code, req.Mode)
 	if err != nil {
 		return nil, err
 	}
-	return &v1.LoginPasswordResetReply{}, nil
+	return &emptypb.Empty{}, nil
 }
 
-func (s *UserService) SendPhoneCode(ctx context.Context, req *v1.SendPhoneCodeReq) (*v1.SendPhoneCodeReply, error) {
+func (s *UserService) SendPhoneCode(ctx context.Context, req *v1.SendPhoneCodeReq) (*emptypb.Empty, error) {
 	err := s.ac.SendPhoneCode(ctx, req.Template, req.Phone)
 	if err != nil {
 		return nil, err
 	}
-	return &v1.SendPhoneCodeReply{}, nil
+	return &emptypb.Empty{}, nil
 }
 
-func (s *UserService) SendEmailCode(ctx context.Context, req *v1.SendEmailCodeReq) (*v1.SendEmailCodeReply, error) {
+func (s *UserService) SendEmailCode(ctx context.Context, req *v1.SendEmailCodeReq) (*emptypb.Empty, error) {
 	err := s.ac.SendEmailCode(ctx, req.Template, req.Email)
 	if err != nil {
 		return nil, err
 	}
-	return &v1.SendEmailCodeReply{}, nil
+	return &emptypb.Empty{}, nil
 }
 
-func (s *UserService) GetCosSessionKey(ctx context.Context, req *v1.GetCosSessionKeyReq) (*v1.GetCosSessionKeyReply, error) {
+func (s *UserService) GetCosSessionKey(ctx context.Context, _ *emptypb.Empty) (*v1.GetCosSessionKeyReply, error) {
 	credentials, err := s.ac.GetCosSessionKey(ctx)
 	if err != nil {
 		return nil, err
