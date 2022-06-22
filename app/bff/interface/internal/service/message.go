@@ -4,9 +4,10 @@ import (
 	"context"
 	"github.com/the-zion/matrix-core/api/bff/interface/v1"
 	"github.com/the-zion/matrix-core/app/bff/interface/internal/biz"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-func (s *BffService) AvatarReview(ctx context.Context, req *v1.AvatarReviewReq) (*v1.AvatarReviewReply, error) {
+func (s *BffService) AvatarReview(ctx context.Context, req *v1.AvatarReviewReq) (*emptypb.Empty, error) {
 	err := s.mc.AvatarReview(ctx, &biz.AvatarReview{
 		Code:       req.JobsDetail.Code,
 		Message:    req.JobsDetail.Message,
@@ -24,7 +25,7 @@ func (s *BffService) AvatarReview(ctx context.Context, req *v1.AvatarReviewReq) 
 	if err != nil {
 		return nil, err
 	}
-	return &v1.AvatarReviewReply{}, nil
+	return &emptypb.Empty{}, nil
 }
 
 type AvatarReview struct {
