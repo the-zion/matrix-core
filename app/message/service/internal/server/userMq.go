@@ -19,12 +19,12 @@ func NewCodeMqConsumerServer(conf *conf.Server, messageService *service.MessageS
 	l := log.NewHelper(log.With(logger, "server", "message/server/rocketmq-code-consumer"))
 	c, err := rocketmq.NewPushConsumer(
 		consumer.WithGroupName(conf.Rocketmq.Code.GroupName),
-		consumer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.Rocketmq.Code.ServerAddress})),
+		consumer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.Rocketmq.ServerAddress})),
 		consumer.WithCredentials(primitive.Credentials{
-			SecretKey: conf.Rocketmq.Code.SecretKey,
-			AccessKey: conf.Rocketmq.Code.AccessKey,
+			SecretKey: conf.Rocketmq.SecretKey,
+			AccessKey: conf.Rocketmq.AccessKey,
 		}),
-		consumer.WithNamespace(conf.Rocketmq.Code.NameSpace),
+		consumer.WithNamespace(conf.Rocketmq.NameSpace),
 		consumer.WithConsumeFromWhere(consumer.ConsumeFromFirstOffset),
 		consumer.WithConsumerModel(consumer.Clustering),
 	)
@@ -56,5 +56,52 @@ func (s *CodeMqConsumerServer) Start(ctx context.Context) error {
 
 func (s *CodeMqConsumerServer) Stop(ctx context.Context) error {
 	log.Info("mq code consumer closing")
+	return s.c.Shutdown()
+}
+
+type ProfileMqConsumerServer struct {
+	c  rocketmq.PushConsumer
+	ms *service.MessageService
+}
+
+func NewProfileMqConsumerServer(conf *conf.Server, messageService *service.MessageService, logger log.Logger) *ProfileMqConsumerServer {
+	l := log.NewHelper(log.With(logger, "server", "message/server/rocketmq-code-consumer"))
+	c, err := rocketmq.NewPushConsumer(
+		consumer.WithGroupName(conf.Rocketmq.Profile.GroupName),
+		consumer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.Rocketmq.ServerAddress})),
+		consumer.WithCredentials(primitive.Credentials{
+			SecretKey: conf.Rocketmq.SecretKey,
+			AccessKey: conf.Rocketmq.AccessKey,
+		}),
+		consumer.WithNamespace(conf.Rocketmq.NameSpace),
+		consumer.WithConsumeFromWhere(consumer.ConsumeFromFirstOffset),
+		consumer.WithConsumerModel(consumer.Clustering),
+	)
+	if err != nil {
+		l.Fatalf("init consumer error: %v", err)
+	}
+
+	err = c.Subscribe("profile", consumer.MessageSelector{},
+		func(ctx context.Context,
+			msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
+			messageService.UploadProfileToCos(msgs...)
+			return consumer.ConsumeRetryLater, nil
+		})
+	if err != nil {
+		l.Fatalf("consumer subscribe error: %v", err)
+	}
+
+	return &ProfileMqConsumerServer{
+		c: c,
+	}
+}
+
+func (s *ProfileMqConsumerServer) Start(ctx context.Context) error {
+	log.Info("mq profile consumer starting")
+	return s.c.Start()
+}
+
+func (s *ProfileMqConsumerServer) Stop(ctx context.Context) error {
+	log.Info("mq profile consumer closing")
 	return s.c.Shutdown()
 }
