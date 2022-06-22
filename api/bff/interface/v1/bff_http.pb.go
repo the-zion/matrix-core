@@ -8,6 +8,7 @@ import (
 	context "context"
 	http "github.com/go-kratos/kratos/v2/transport/http"
 	binding "github.com/go-kratos/kratos/v2/transport/http/binding"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -18,19 +19,20 @@ var _ = binding.EncodeURL
 const _ = http.SupportPackageIsVersion1
 
 type BffHTTPServer interface {
-	AvatarReview(context.Context, *AvatarReviewReq) (*AvatarReviewReply, error)
-	GetCosSessionKey(context.Context, *GetCosSessionKeyReq) (*GetCosSessionKeyReply, error)
-	GetUserProfile(context.Context, *GetUserProfileReq) (*GetUserProfileReply, error)
-	GetUserProfileUpdate(context.Context, *GetUserProfileUpdateReq) (*GetUserProfileUpdateReply, error)
+	AvatarReview(context.Context, *AvatarReviewReq) (*emptypb.Empty, error)
+	GetCosSessionKey(context.Context, *emptypb.Empty) (*GetCosSessionKeyReply, error)
+	GetUserProfile(context.Context, *emptypb.Empty) (*GetUserProfileReply, error)
+	GetUserProfileUpdate(context.Context, *emptypb.Empty) (*GetUserProfileUpdateReply, error)
 	LoginByCode(context.Context, *LoginByCodeReq) (*LoginReply, error)
 	LoginByGithub(context.Context, *LoginByGithubReq) (*LoginReply, error)
 	LoginByPassword(context.Context, *LoginByPasswordReq) (*LoginReply, error)
 	LoginByWeChat(context.Context, *LoginByWeChatReq) (*LoginReply, error)
-	LoginPasswordReset(context.Context, *LoginPasswordResetReq) (*LoginPasswordResetReply, error)
-	SendEmailCode(context.Context, *SendEmailCodeReq) (*SendEmailCodeReply, error)
-	SendPhoneCode(context.Context, *SendPhoneCodeReq) (*SendPhoneCodeReply, error)
-	SetUserProfile(context.Context, *SetUserProfileReq) (*SetUserProfileReply, error)
-	UserRegister(context.Context, *UserRegisterReq) (*UserRegisterReply, error)
+	LoginPasswordReset(context.Context, *LoginPasswordResetReq) (*emptypb.Empty, error)
+	ProfileReview(context.Context, *ProfileReviewReq) (*emptypb.Empty, error)
+	SendEmailCode(context.Context, *SendEmailCodeReq) (*emptypb.Empty, error)
+	SendPhoneCode(context.Context, *SendPhoneCodeReq) (*emptypb.Empty, error)
+	SetUserProfile(context.Context, *SetUserProfileReq) (*emptypb.Empty, error)
+	UserRegister(context.Context, *UserRegisterReq) (*emptypb.Empty, error)
 }
 
 func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
@@ -46,8 +48,9 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.GET("/v1/get/cos/session/key", _Bff_GetCosSessionKey0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/profile", _Bff_GetUserProfile0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/profile/update", _Bff_GetUserProfileUpdate0_HTTP_Handler(srv))
-	r.POST("/v1/set/user/profile", _Bff_SetUserProfile0_HTTP_Handler(srv))
+	r.POST("/v1/set/user/profile", _Bff_SetUserProfile1_HTTP_Handler(srv))
 	r.POST("/v1/message/avatar/review", _Bff_AvatarReview0_HTTP_Handler(srv))
+	r.POST("/v1/message/profile/review", _Bff_ProfileReview1_HTTP_Handler(srv))
 }
 
 func _Bff_UserRegister0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
@@ -64,7 +67,7 @@ func _Bff_UserRegister0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) e
 		if err != nil {
 			return err
 		}
-		reply := out.(*UserRegisterReply)
+		reply := out.(*emptypb.Empty)
 		return ctx.Result(200, reply)
 	}
 }
@@ -159,7 +162,7 @@ func _Bff_LoginPasswordReset0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Cont
 		if err != nil {
 			return err
 		}
-		reply := out.(*LoginPasswordResetReply)
+		reply := out.(*emptypb.Empty)
 		return ctx.Result(200, reply)
 	}
 }
@@ -178,7 +181,7 @@ func _Bff_SendPhoneCode0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) 
 		if err != nil {
 			return err
 		}
-		reply := out.(*SendPhoneCodeReply)
+		reply := out.(*emptypb.Empty)
 		return ctx.Result(200, reply)
 	}
 }
@@ -197,20 +200,20 @@ func _Bff_SendEmailCode0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) 
 		if err != nil {
 			return err
 		}
-		reply := out.(*SendEmailCodeReply)
+		reply := out.(*emptypb.Empty)
 		return ctx.Result(200, reply)
 	}
 }
 
 func _Bff_GetCosSessionKey0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in GetCosSessionKeyReq
+		var in emptypb.Empty
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, "/bff.v1.Bff/GetCosSessionKey")
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetCosSessionKey(ctx, req.(*GetCosSessionKeyReq))
+			return srv.GetCosSessionKey(ctx, req.(*emptypb.Empty))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -223,13 +226,13 @@ func _Bff_GetCosSessionKey0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Contex
 
 func _Bff_GetUserProfile0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in GetUserProfileReq
+		var in emptypb.Empty
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, "/bff.v1.Bff/GetUserProfile")
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetUserProfile(ctx, req.(*GetUserProfileReq))
+			return srv.GetUserProfile(ctx, req.(*emptypb.Empty))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -242,13 +245,13 @@ func _Bff_GetUserProfile0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context)
 
 func _Bff_GetUserProfileUpdate0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in GetUserProfileUpdateReq
+		var in emptypb.Empty
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, "/bff.v1.Bff/GetUserProfileUpdate")
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetUserProfileUpdate(ctx, req.(*GetUserProfileUpdateReq))
+			return srv.GetUserProfileUpdate(ctx, req.(*emptypb.Empty))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -259,7 +262,7 @@ func _Bff_GetUserProfileUpdate0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Co
 	}
 }
 
-func _Bff_SetUserProfile0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+func _Bff_SetUserProfile1_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in SetUserProfileReq
 		if err := ctx.Bind(&in); err != nil {
@@ -273,7 +276,7 @@ func _Bff_SetUserProfile0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context)
 		if err != nil {
 			return err
 		}
-		reply := out.(*SetUserProfileReply)
+		reply := out.(*emptypb.Empty)
 		return ctx.Result(200, reply)
 	}
 }
@@ -292,25 +295,45 @@ func _Bff_AvatarReview0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) e
 		if err != nil {
 			return err
 		}
-		reply := out.(*AvatarReviewReply)
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_ProfileReview1_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in ProfileReviewReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/bff.v1.Bff/ProfileReview")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ProfileReview(ctx, req.(*ProfileReviewReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
 		return ctx.Result(200, reply)
 	}
 }
 
 type BffHTTPClient interface {
-	AvatarReview(ctx context.Context, req *AvatarReviewReq, opts ...http.CallOption) (rsp *AvatarReviewReply, err error)
-	GetCosSessionKey(ctx context.Context, req *GetCosSessionKeyReq, opts ...http.CallOption) (rsp *GetCosSessionKeyReply, err error)
-	GetUserProfile(ctx context.Context, req *GetUserProfileReq, opts ...http.CallOption) (rsp *GetUserProfileReply, err error)
-	GetUserProfileUpdate(ctx context.Context, req *GetUserProfileUpdateReq, opts ...http.CallOption) (rsp *GetUserProfileUpdateReply, err error)
+	AvatarReview(ctx context.Context, req *AvatarReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	GetCosSessionKey(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetCosSessionKeyReply, err error)
+	GetUserProfile(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetUserProfileReply, err error)
+	GetUserProfileUpdate(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetUserProfileUpdateReply, err error)
 	LoginByCode(ctx context.Context, req *LoginByCodeReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginByGithub(ctx context.Context, req *LoginByGithubReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginByPassword(ctx context.Context, req *LoginByPasswordReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginByWeChat(ctx context.Context, req *LoginByWeChatReq, opts ...http.CallOption) (rsp *LoginReply, err error)
-	LoginPasswordReset(ctx context.Context, req *LoginPasswordResetReq, opts ...http.CallOption) (rsp *LoginPasswordResetReply, err error)
-	SendEmailCode(ctx context.Context, req *SendEmailCodeReq, opts ...http.CallOption) (rsp *SendEmailCodeReply, err error)
-	SendPhoneCode(ctx context.Context, req *SendPhoneCodeReq, opts ...http.CallOption) (rsp *SendPhoneCodeReply, err error)
-	SetUserProfile(ctx context.Context, req *SetUserProfileReq, opts ...http.CallOption) (rsp *SetUserProfileReply, err error)
-	UserRegister(ctx context.Context, req *UserRegisterReq, opts ...http.CallOption) (rsp *UserRegisterReply, err error)
+	LoginPasswordReset(ctx context.Context, req *LoginPasswordResetReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	ProfileReview(ctx context.Context, req *ProfileReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	SendEmailCode(ctx context.Context, req *SendEmailCodeReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	SendPhoneCode(ctx context.Context, req *SendPhoneCodeReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	SetUserProfile(ctx context.Context, req *SetUserProfileReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	UserRegister(ctx context.Context, req *UserRegisterReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
 
 type BffHTTPClientImpl struct {
@@ -321,8 +344,8 @@ func NewBffHTTPClient(client *http.Client) BffHTTPClient {
 	return &BffHTTPClientImpl{client}
 }
 
-func (c *BffHTTPClientImpl) AvatarReview(ctx context.Context, in *AvatarReviewReq, opts ...http.CallOption) (*AvatarReviewReply, error) {
-	var out AvatarReviewReply
+func (c *BffHTTPClientImpl) AvatarReview(ctx context.Context, in *AvatarReviewReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
 	pattern := "/v1/message/avatar/review"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation("/bff.v1.Bff/AvatarReview"))
@@ -334,7 +357,7 @@ func (c *BffHTTPClientImpl) AvatarReview(ctx context.Context, in *AvatarReviewRe
 	return &out, err
 }
 
-func (c *BffHTTPClientImpl) GetCosSessionKey(ctx context.Context, in *GetCosSessionKeyReq, opts ...http.CallOption) (*GetCosSessionKeyReply, error) {
+func (c *BffHTTPClientImpl) GetCosSessionKey(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*GetCosSessionKeyReply, error) {
 	var out GetCosSessionKeyReply
 	pattern := "/v1/get/cos/session/key"
 	path := binding.EncodeURL(pattern, in, true)
@@ -347,7 +370,7 @@ func (c *BffHTTPClientImpl) GetCosSessionKey(ctx context.Context, in *GetCosSess
 	return &out, err
 }
 
-func (c *BffHTTPClientImpl) GetUserProfile(ctx context.Context, in *GetUserProfileReq, opts ...http.CallOption) (*GetUserProfileReply, error) {
+func (c *BffHTTPClientImpl) GetUserProfile(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*GetUserProfileReply, error) {
 	var out GetUserProfileReply
 	pattern := "/v1/get/user/profile"
 	path := binding.EncodeURL(pattern, in, true)
@@ -360,7 +383,7 @@ func (c *BffHTTPClientImpl) GetUserProfile(ctx context.Context, in *GetUserProfi
 	return &out, err
 }
 
-func (c *BffHTTPClientImpl) GetUserProfileUpdate(ctx context.Context, in *GetUserProfileUpdateReq, opts ...http.CallOption) (*GetUserProfileUpdateReply, error) {
+func (c *BffHTTPClientImpl) GetUserProfileUpdate(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*GetUserProfileUpdateReply, error) {
 	var out GetUserProfileUpdateReply
 	pattern := "/v1/get/user/profile/update"
 	path := binding.EncodeURL(pattern, in, true)
@@ -425,8 +448,8 @@ func (c *BffHTTPClientImpl) LoginByWeChat(ctx context.Context, in *LoginByWeChat
 	return &out, err
 }
 
-func (c *BffHTTPClientImpl) LoginPasswordReset(ctx context.Context, in *LoginPasswordResetReq, opts ...http.CallOption) (*LoginPasswordResetReply, error) {
-	var out LoginPasswordResetReply
+func (c *BffHTTPClientImpl) LoginPasswordReset(ctx context.Context, in *LoginPasswordResetReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
 	pattern := "/v1/user/login/password/reset"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation("/bff.v1.Bff/LoginPasswordReset"))
@@ -438,8 +461,21 @@ func (c *BffHTTPClientImpl) LoginPasswordReset(ctx context.Context, in *LoginPas
 	return &out, err
 }
 
-func (c *BffHTTPClientImpl) SendEmailCode(ctx context.Context, in *SendEmailCodeReq, opts ...http.CallOption) (*SendEmailCodeReply, error) {
-	var out SendEmailCodeReply
+func (c *BffHTTPClientImpl) ProfileReview(ctx context.Context, in *ProfileReviewReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/message/profile/review"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/bff.v1.Bff/ProfileReview"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) SendEmailCode(ctx context.Context, in *SendEmailCodeReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
 	pattern := "/v1/user/code/email"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation("/bff.v1.Bff/SendEmailCode"))
@@ -451,8 +487,8 @@ func (c *BffHTTPClientImpl) SendEmailCode(ctx context.Context, in *SendEmailCode
 	return &out, err
 }
 
-func (c *BffHTTPClientImpl) SendPhoneCode(ctx context.Context, in *SendPhoneCodeReq, opts ...http.CallOption) (*SendPhoneCodeReply, error) {
-	var out SendPhoneCodeReply
+func (c *BffHTTPClientImpl) SendPhoneCode(ctx context.Context, in *SendPhoneCodeReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
 	pattern := "/v1/user/code/phone"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation("/bff.v1.Bff/SendPhoneCode"))
@@ -464,8 +500,8 @@ func (c *BffHTTPClientImpl) SendPhoneCode(ctx context.Context, in *SendPhoneCode
 	return &out, err
 }
 
-func (c *BffHTTPClientImpl) SetUserProfile(ctx context.Context, in *SetUserProfileReq, opts ...http.CallOption) (*SetUserProfileReply, error) {
-	var out SetUserProfileReply
+func (c *BffHTTPClientImpl) SetUserProfile(ctx context.Context, in *SetUserProfileReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
 	pattern := "/v1/set/user/profile"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation("/bff.v1.Bff/SetUserProfile"))
@@ -477,8 +513,8 @@ func (c *BffHTTPClientImpl) SetUserProfile(ctx context.Context, in *SetUserProfi
 	return &out, err
 }
 
-func (c *BffHTTPClientImpl) UserRegister(ctx context.Context, in *UserRegisterReq, opts ...http.CallOption) (*UserRegisterReply, error) {
-	var out UserRegisterReply
+func (c *BffHTTPClientImpl) UserRegister(ctx context.Context, in *UserRegisterReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
 	pattern := "/v1/user/register"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation("/bff.v1.Bff/UserRegister"))

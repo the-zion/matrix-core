@@ -3,13 +3,14 @@ syntax = "proto3";
 package bff.v1;
 
 import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
 
 option go_package = "api/bff/interface/v1;v1";
 
 service Bff{
   // --------------------user service------------------------
 
-  rpc UserRegister(UserRegisterReq) returns (UserRegisterReply){
+  rpc UserRegister(UserRegisterReq) returns (google.protobuf.Empty){
     option (google.api.http) = {
       post: "/v1/user/register"
       body: "*"
@@ -44,46 +45,46 @@ service Bff{
     };
   }
 
-  rpc LoginPasswordReset(LoginPasswordResetReq) returns (LoginPasswordResetReply){
+  rpc LoginPasswordReset(LoginPasswordResetReq) returns (google.protobuf.Empty){
     option (google.api.http) = {
       post: "/v1/user/login/password/reset"
       body: "*"
     };
   }
 
-  rpc SendPhoneCode (SendPhoneCodeReq) returns (SendPhoneCodeReply){
+  rpc SendPhoneCode (SendPhoneCodeReq) returns (google.protobuf.Empty){
     option (google.api.http) = {
       post: "/v1/user/code/phone"
       body: "*"
     };
   }
 
-  rpc SendEmailCode (SendEmailCodeReq) returns (SendEmailCodeReply) {
+  rpc SendEmailCode (SendEmailCodeReq) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/v1/user/code/email"
       body: "*"
     };
   }
 
-  rpc GetCosSessionKey (GetCosSessionKeyReq) returns (GetCosSessionKeyReply) {
+  rpc GetCosSessionKey (google.protobuf.Empty) returns (GetCosSessionKeyReply) {
     option (google.api.http) = {
       get: "/v1/get/cos/session/key",
     };
   }
 
-  rpc GetUserProfile (GetUserProfileReq) returns (GetUserProfileReply) {
+  rpc GetUserProfile (google.protobuf.Empty) returns (GetUserProfileReply) {
     option (google.api.http) = {
       get: "/v1/get/user/profile",
     };
   }
 
-  rpc GetUserProfileUpdate (GetUserProfileUpdateReq) returns (GetUserProfileUpdateReply) {
+  rpc GetUserProfileUpdate (google.protobuf.Empty) returns (GetUserProfileUpdateReply) {
     option (google.api.http) = {
       get: "/v1/get/user/profile/update",
     };
   }
 
-  rpc SetUserProfile (SetUserProfileReq) returns (SetUserProfileReply) {
+  rpc SetUserProfile (SetUserProfileReq) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/v1/set/user/profile"
       body: "*"
@@ -92,9 +93,16 @@ service Bff{
 
   // --------------------message service------------------------
 
-  rpc AvatarReview(AvatarReviewReq) returns (AvatarReviewReply){
+  rpc AvatarReview(AvatarReviewReq) returns (google.protobuf.Empty){
     option (google.api.http) = {
       post: "/v1/message/avatar/review"
+      body: "*"
+    };
+  }
+
+  rpc ProfileReview(ProfileReviewReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/message/profile/review"
       body: "*"
     };
   }
@@ -107,8 +115,6 @@ message UserRegisterReq{
   string password = 2;
   string code = 3;
 }
-
-message UserRegisterReply{}
 
 message LoginByPasswordReq {
   string account = 1;
@@ -140,23 +146,15 @@ message LoginPasswordResetReq{
   string mode = 4;
 }
 
-message LoginPasswordResetReply{}
-
 message SendPhoneCodeReq{
   string phone = 1;
   string template = 2;
 }
 
-message SendPhoneCodeReply{}
-
 message SendEmailCodeReq{
   string email = 1;
   string template = 2;
 }
-
-message SendEmailCodeReply{}
-
-message GetCosSessionKeyReq{}
 
 message GetCosSessionKeyReply{
   string tmp_secret_id = 1;
@@ -165,8 +163,6 @@ message GetCosSessionKeyReply{
   int64 start_time = 4;
   int64 expired_time = 5;
 }
-
-message GetUserProfileReq{}
 
 message GetUserProfileReply{
   string uuid = 1;
@@ -178,8 +174,6 @@ message GetUserProfileReply{
   string homepage = 7;
   string introduce = 8;
 }
-
-message GetUserProfileUpdateReq{}
 
 message GetUserProfileUpdateReply{
   string username = 1;
@@ -201,9 +195,56 @@ message SetUserProfileReq{
   string introduce = 6;
 }
 
-message SetUserProfileReply{}
-
 // --------------------message service------------------------
+
+message ProfileReviewReq{
+  message SectionPornInfoStruct{
+    int32 HitFlag = 1;
+    int32 Score = 2;
+    string Keywords = 3;
+  }
+  message SectionAdsInfoStruct{
+    int32 HitFlag = 1;
+    int32 Score = 2;
+    string Keywords = 3;
+  }
+  message SectionIllegalInfoStruct{
+    int32 HitFlag = 1;
+    int32 Score = 2;
+    string Keywords = 3;
+  }
+  message SectionAbuseInfoStruct{
+    int32 HitFlag = 1;
+    int32 Score = 2;
+    string Keywords = 3;
+  }
+  message SectionStruct{
+    string Label = 1;
+    int32 Result = 2;
+    SectionPornInfoStruct PornInfo = 3;
+    SectionAdsInfoStruct AdsInfo = 4;
+    SectionIllegalInfoStruct IllegalInfo = 5;
+    SectionAbuseInfoStruct AbuseInfo = 6;
+  }
+  message JobsDetailStruct{
+    string Code = 1;
+    string Message = 2;
+    string JobId = 3;
+    string DataId = 4;
+    string State = 5;
+    string CreationTime = 6;
+    string Object = 7;
+    string Label = 8;
+    int32 Result = 9;
+    string BucketId = 10;
+    string Region = 11;
+    map<string, string> CosHeaders = 12;
+    repeated SectionStruct Section = 13;
+
+  }
+  JobsDetailStruct JobsDetail = 1;
+  string EventName = 2;
+}
 
 message AvatarReviewReq{
   message JobsDetailStruct{
@@ -222,5 +263,3 @@ message AvatarReviewReq{
   JobsDetailStruct JobsDetail = 1;
   string EventName = 2;
 }
-
-message AvatarReviewReply{}
