@@ -7,6 +7,7 @@ import (
 	userV1 "github.com/the-zion/matrix-core/api/user/service/v1"
 	"github.com/the-zion/matrix-core/app/bff/interface/internal/biz"
 	"golang.org/x/sync/singleflight"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 var _ biz.UserRepo = (*userRepo)(nil)
@@ -96,7 +97,7 @@ func (r *userRepo) SendEmailCode(ctx context.Context, template, email string) er
 }
 
 func (r *userRepo) GetCosSessionKey(ctx context.Context) (*biz.Credentials, error) {
-	reply, err := r.data.uc.GetCosSessionKey(ctx, &userV1.GetCosSessionKeyReq{})
+	reply, err := r.data.uc.GetCosSessionKey(ctx, &emptypb.Empty{})
 	if err != nil {
 		return nil, err
 	}

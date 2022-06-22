@@ -62,3 +62,57 @@ func (r *messageRepo) AvatarReview(ctx context.Context, ar *biz.AvatarReview) er
 	}
 	return nil
 }
+
+func (r *userRepo) ProfileReview(ctx context.Context, tr *biz.TextReview) error {
+	jd := &messageV1.ProfileReviewReq_JobsDetailStruct{
+		Code:         tr.Code,
+		Message:      tr.Message,
+		JobId:        tr.JobId,
+		DataId:       tr.DataId,
+		State:        tr.State,
+		CreationTime: tr.CreationTime,
+		Object:       tr.Object,
+		Label:        tr.Label,
+		Result:       tr.Result,
+		BucketId:     tr.BucketId,
+		Region:       tr.Region,
+		CosHeaders:   tr.CosHeaders,
+	}
+	var section []*messageV1.ProfileReviewReq_SectionStruct
+
+	for _, item := range tr.Section {
+		se := &messageV1.ProfileReviewReq_SectionStruct{
+			Label:  item.Label,
+			Result: item.Result,
+			PornInfo: &messageV1.ProfileReviewReq_SectionPornInfoStruct{
+				HitFlag:  item.PornInfo.HitFlag,
+				Score:    item.PornInfo.Score,
+				Keywords: item.PornInfo.Keywords,
+			},
+			AdsInfo: &messageV1.ProfileReviewReq_SectionAdsInfoStruct{
+				HitFlag:  item.AdsInfo.HitFlag,
+				Score:    item.AdsInfo.Score,
+				Keywords: item.AdsInfo.Keywords,
+			},
+			IllegalInfo: &messageV1.ProfileReviewReq_SectionIllegalInfoStruct{
+				HitFlag:  item.IllegalInfo.HitFlag,
+				Score:    item.IllegalInfo.Score,
+				Keywords: item.IllegalInfo.Keywords,
+			},
+			AbuseInfo: &messageV1.ProfileReviewReq_SectionAbuseInfoStruct{
+				HitFlag:  item.AbuseInfo.HitFlag,
+				Score:    item.AbuseInfo.Score,
+				Keywords: item.AbuseInfo.Keywords,
+			},
+		}
+		section = append(section, se)
+	}
+	jd.Section = section
+	_, err := r.data.mc.ProfileReview(ctx, &messageV1.ProfileReviewReq{
+		JobsDetail: jd,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
