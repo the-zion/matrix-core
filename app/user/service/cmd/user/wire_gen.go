@@ -23,16 +23,17 @@ import (
 func wireApp(confServer *conf.Server, confData *conf.Data, auth *conf.Auth, logger log.Logger, registry *nacos.Registry) (*kratos.App, func(), error) {
 	db := data.NewDB(confData, logger)
 	cmdable := data.NewRedis(confData, logger)
-	producer := data.NewRocketmqCodeProducer(confData, logger)
+	codeMqPro := data.NewRocketmqCodeProducer(confData, logger)
+	profileMqPro := data.NewRocketmqProfileProducer(confData, logger)
 	cos := data.NewCosClient(confData)
-	dataData, cleanup, err := data.NewData(db, cmdable, producer, cos, logger)
+	dataData, cleanup, err := data.NewData(db, cmdable, codeMqPro, profileMqPro, cos, logger)
 	if err != nil {
 		return nil, nil, err
 	}
 	userRepo := data.NewUserRepo(dataData, logger)
-	userUseCase := biz.NewUserUseCase(userRepo, logger)
-	authRepo := data.NewAuthRepo(dataData, logger)
 	transaction := data.NewTransaction(dataData)
+	userUseCase := biz.NewUserUseCase(userRepo, transaction, logger)
+	authRepo := data.NewAuthRepo(dataData, logger)
 	authUseCase := biz.NewAuthUseCase(auth, authRepo, userRepo, transaction, logger)
 	profileRepo := data.NewProfileRepo(dataData, logger)
 	profileUseCase := biz.NewProfileUseCase(profileRepo, logger)
