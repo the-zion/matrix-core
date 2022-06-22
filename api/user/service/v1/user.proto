@@ -3,12 +3,13 @@ syntax = "proto3";
 package user.v1;
 
 import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
 import "validate/validate.proto";
 
 option go_package = "api/user/service/v1;v1";
 
 service User {
-  rpc UserRegister(UserRegisterReq) returns (UserRegisterReply){}
+  rpc UserRegister(UserRegisterReq) returns (google.protobuf.Empty){}
 
   rpc LoginByPassword (LoginByPasswordReq) returns (LoginReply) {}
 
@@ -18,13 +19,13 @@ service User {
 
   rpc LoginByGithub (LoginByGithubReq) returns (LoginReply) {}
 
-  rpc LoginPasswordReset(LoginPasswordResetReq) returns (LoginPasswordResetReply){}
+  rpc LoginPasswordReset(LoginPasswordResetReq) returns (google.protobuf.Empty){}
 
-  rpc SendPhoneCode (SendPhoneCodeReq) returns (SendPhoneCodeReply){}
+  rpc SendPhoneCode (SendPhoneCodeReq) returns (google.protobuf.Empty){}
 
-  rpc SendEmailCode (SendEmailCodeReq) returns (SendEmailCodeReply) {}
+  rpc SendEmailCode (SendEmailCodeReq) returns (google.protobuf.Empty) {}
 
-  rpc GetCosSessionKey (GetCosSessionKeyReq) returns (GetCosSessionKeyReply) {}
+  rpc GetCosSessionKey (google.protobuf.Empty) returns (GetCosSessionKeyReply) {}
 
   rpc GetUser (GetUserReq) returns (GetUserReply) {
     option (google.api.http) = {
@@ -48,7 +49,12 @@ service User {
 
   rpc GetUserProfileUpdate (GetUserProfileUpdateReq) returns (GetUserProfileUpdateReply) {}
 
-  rpc SetUserProfile (SetUserProfileReq) returns (SetUserProfileReply) {}
+  rpc SetUserProfile (SetUserProfileReq) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/set/user/profile"
+      body: "*"
+    };
+  }
 }
 
 message UserRegisterReq{
@@ -56,9 +62,6 @@ message UserRegisterReq{
   string password = 2 [(validate.rules).string = {min_len:1, max_len: 20}];
   string code = 3 [(validate.rules).string.pattern = "^[0-9]+$"];
 }
-
-message UserRegisterReply{}
-
 
 message LoginByPasswordReq {
   string account = 1 [(validate.rules).string = {pattern: "^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(17[0,3,5-8])|(18[0-9])|166|198|199|(147))\\d{8}$|\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*", max_len:50}];
@@ -90,23 +93,15 @@ message LoginPasswordResetReq{
   string mode = 4 [(validate.rules).string = {in: ["phone", "email"]}];
 }
 
-message LoginPasswordResetReply{}
-
 message SendPhoneCodeReq{
   string phone = 1 [(validate.rules).string = {pattern: "^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(17[0,3,5-8])|(18[0-9])|166|198|199|(147))\\d{8}$", min_len:1, max_len:50}];
   string template = 2 [(validate.rules).string = {in: ["1", "2", "3", "4"]}];
 }
 
-message SendPhoneCodeReply{}
-
 message SendEmailCodeReq{
   string email = 1 [(validate.rules).string = {pattern: "\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*", max_len: 50}];
   string template = 2 [(validate.rules).string = {in: ["1", "2", "3", "4", "5"]}];
 }
-
-message SendEmailCodeReply{}
-
-message GetCosSessionKeyReq{}
 
 message GetCosSessionKeyReply{
   string tmp_secret_id = 1;
@@ -186,5 +181,3 @@ message SetUserProfileReq{
   string homepage = 6 [(validate.rules).string = {min_len:0, max_len: 100}];
   string introduce = 7 [(validate.rules).string = {min_len:0, max_len: 100}];
 }
-
-message SetUserProfileReply{}

@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -22,21 +23,21 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserClient interface {
-	UserRegister(ctx context.Context, in *UserRegisterReq, opts ...grpc.CallOption) (*UserRegisterReply, error)
+	UserRegister(ctx context.Context, in *UserRegisterReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	LoginByPassword(ctx context.Context, in *LoginByPasswordReq, opts ...grpc.CallOption) (*LoginReply, error)
 	LoginByCode(ctx context.Context, in *LoginByCodeReq, opts ...grpc.CallOption) (*LoginReply, error)
 	LoginByWeChat(ctx context.Context, in *LoginByWeChatReq, opts ...grpc.CallOption) (*LoginReply, error)
 	LoginByGithub(ctx context.Context, in *LoginByGithubReq, opts ...grpc.CallOption) (*LoginReply, error)
-	LoginPasswordReset(ctx context.Context, in *LoginPasswordResetReq, opts ...grpc.CallOption) (*LoginPasswordResetReply, error)
-	SendPhoneCode(ctx context.Context, in *SendPhoneCodeReq, opts ...grpc.CallOption) (*SendPhoneCodeReply, error)
-	SendEmailCode(ctx context.Context, in *SendEmailCodeReq, opts ...grpc.CallOption) (*SendEmailCodeReply, error)
-	GetCosSessionKey(ctx context.Context, in *GetCosSessionKeyReq, opts ...grpc.CallOption) (*GetCosSessionKeyReply, error)
+	LoginPasswordReset(ctx context.Context, in *LoginPasswordResetReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SendPhoneCode(ctx context.Context, in *SendPhoneCodeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SendEmailCode(ctx context.Context, in *SendEmailCodeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetCosSessionKey(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCosSessionKeyReply, error)
 	GetUser(ctx context.Context, in *GetUserReq, opts ...grpc.CallOption) (*GetUserReply, error)
 	SetUserPhone(ctx context.Context, in *SetUserPhoneReq, opts ...grpc.CallOption) (*SetUserPhoneReply, error)
 	SetUserEmail(ctx context.Context, in *SetUserEmailReq, opts ...grpc.CallOption) (*SetUserEmailReply, error)
 	GetUserProfile(ctx context.Context, in *GetUserProfileReq, opts ...grpc.CallOption) (*GetUserProfileReply, error)
 	GetUserProfileUpdate(ctx context.Context, in *GetUserProfileUpdateReq, opts ...grpc.CallOption) (*GetUserProfileUpdateReply, error)
-	SetUserProfile(ctx context.Context, in *SetUserProfileReq, opts ...grpc.CallOption) (*SetUserProfileReply, error)
+	SetUserProfile(ctx context.Context, in *SetUserProfileReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type userClient struct {
@@ -47,8 +48,8 @@ func NewUserClient(cc grpc.ClientConnInterface) UserClient {
 	return &userClient{cc}
 }
 
-func (c *userClient) UserRegister(ctx context.Context, in *UserRegisterReq, opts ...grpc.CallOption) (*UserRegisterReply, error) {
-	out := new(UserRegisterReply)
+func (c *userClient) UserRegister(ctx context.Context, in *UserRegisterReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/user.v1.User/UserRegister", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -92,8 +93,8 @@ func (c *userClient) LoginByGithub(ctx context.Context, in *LoginByGithubReq, op
 	return out, nil
 }
 
-func (c *userClient) LoginPasswordReset(ctx context.Context, in *LoginPasswordResetReq, opts ...grpc.CallOption) (*LoginPasswordResetReply, error) {
-	out := new(LoginPasswordResetReply)
+func (c *userClient) LoginPasswordReset(ctx context.Context, in *LoginPasswordResetReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/user.v1.User/LoginPasswordReset", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -101,8 +102,8 @@ func (c *userClient) LoginPasswordReset(ctx context.Context, in *LoginPasswordRe
 	return out, nil
 }
 
-func (c *userClient) SendPhoneCode(ctx context.Context, in *SendPhoneCodeReq, opts ...grpc.CallOption) (*SendPhoneCodeReply, error) {
-	out := new(SendPhoneCodeReply)
+func (c *userClient) SendPhoneCode(ctx context.Context, in *SendPhoneCodeReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/user.v1.User/SendPhoneCode", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -110,8 +111,8 @@ func (c *userClient) SendPhoneCode(ctx context.Context, in *SendPhoneCodeReq, op
 	return out, nil
 }
 
-func (c *userClient) SendEmailCode(ctx context.Context, in *SendEmailCodeReq, opts ...grpc.CallOption) (*SendEmailCodeReply, error) {
-	out := new(SendEmailCodeReply)
+func (c *userClient) SendEmailCode(ctx context.Context, in *SendEmailCodeReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/user.v1.User/SendEmailCode", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -119,7 +120,7 @@ func (c *userClient) SendEmailCode(ctx context.Context, in *SendEmailCodeReq, op
 	return out, nil
 }
 
-func (c *userClient) GetCosSessionKey(ctx context.Context, in *GetCosSessionKeyReq, opts ...grpc.CallOption) (*GetCosSessionKeyReply, error) {
+func (c *userClient) GetCosSessionKey(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCosSessionKeyReply, error) {
 	out := new(GetCosSessionKeyReply)
 	err := c.cc.Invoke(ctx, "/user.v1.User/GetCosSessionKey", in, out, opts...)
 	if err != nil {
@@ -173,8 +174,8 @@ func (c *userClient) GetUserProfileUpdate(ctx context.Context, in *GetUserProfil
 	return out, nil
 }
 
-func (c *userClient) SetUserProfile(ctx context.Context, in *SetUserProfileReq, opts ...grpc.CallOption) (*SetUserProfileReply, error) {
-	out := new(SetUserProfileReply)
+func (c *userClient) SetUserProfile(ctx context.Context, in *SetUserProfileReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/user.v1.User/SetUserProfile", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -186,21 +187,21 @@ func (c *userClient) SetUserProfile(ctx context.Context, in *SetUserProfileReq, 
 // All implementations must embed UnimplementedUserServer
 // for forward compatibility
 type UserServer interface {
-	UserRegister(context.Context, *UserRegisterReq) (*UserRegisterReply, error)
+	UserRegister(context.Context, *UserRegisterReq) (*emptypb.Empty, error)
 	LoginByPassword(context.Context, *LoginByPasswordReq) (*LoginReply, error)
 	LoginByCode(context.Context, *LoginByCodeReq) (*LoginReply, error)
 	LoginByWeChat(context.Context, *LoginByWeChatReq) (*LoginReply, error)
 	LoginByGithub(context.Context, *LoginByGithubReq) (*LoginReply, error)
-	LoginPasswordReset(context.Context, *LoginPasswordResetReq) (*LoginPasswordResetReply, error)
-	SendPhoneCode(context.Context, *SendPhoneCodeReq) (*SendPhoneCodeReply, error)
-	SendEmailCode(context.Context, *SendEmailCodeReq) (*SendEmailCodeReply, error)
-	GetCosSessionKey(context.Context, *GetCosSessionKeyReq) (*GetCosSessionKeyReply, error)
+	LoginPasswordReset(context.Context, *LoginPasswordResetReq) (*emptypb.Empty, error)
+	SendPhoneCode(context.Context, *SendPhoneCodeReq) (*emptypb.Empty, error)
+	SendEmailCode(context.Context, *SendEmailCodeReq) (*emptypb.Empty, error)
+	GetCosSessionKey(context.Context, *emptypb.Empty) (*GetCosSessionKeyReply, error)
 	GetUser(context.Context, *GetUserReq) (*GetUserReply, error)
 	SetUserPhone(context.Context, *SetUserPhoneReq) (*SetUserPhoneReply, error)
 	SetUserEmail(context.Context, *SetUserEmailReq) (*SetUserEmailReply, error)
 	GetUserProfile(context.Context, *GetUserProfileReq) (*GetUserProfileReply, error)
 	GetUserProfileUpdate(context.Context, *GetUserProfileUpdateReq) (*GetUserProfileUpdateReply, error)
-	SetUserProfile(context.Context, *SetUserProfileReq) (*SetUserProfileReply, error)
+	SetUserProfile(context.Context, *SetUserProfileReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedUserServer()
 }
 
@@ -208,7 +209,7 @@ type UserServer interface {
 type UnimplementedUserServer struct {
 }
 
-func (UnimplementedUserServer) UserRegister(context.Context, *UserRegisterReq) (*UserRegisterReply, error) {
+func (UnimplementedUserServer) UserRegister(context.Context, *UserRegisterReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UserRegister not implemented")
 }
 func (UnimplementedUserServer) LoginByPassword(context.Context, *LoginByPasswordReq) (*LoginReply, error) {
@@ -223,16 +224,16 @@ func (UnimplementedUserServer) LoginByWeChat(context.Context, *LoginByWeChatReq)
 func (UnimplementedUserServer) LoginByGithub(context.Context, *LoginByGithubReq) (*LoginReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoginByGithub not implemented")
 }
-func (UnimplementedUserServer) LoginPasswordReset(context.Context, *LoginPasswordResetReq) (*LoginPasswordResetReply, error) {
+func (UnimplementedUserServer) LoginPasswordReset(context.Context, *LoginPasswordResetReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoginPasswordReset not implemented")
 }
-func (UnimplementedUserServer) SendPhoneCode(context.Context, *SendPhoneCodeReq) (*SendPhoneCodeReply, error) {
+func (UnimplementedUserServer) SendPhoneCode(context.Context, *SendPhoneCodeReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendPhoneCode not implemented")
 }
-func (UnimplementedUserServer) SendEmailCode(context.Context, *SendEmailCodeReq) (*SendEmailCodeReply, error) {
+func (UnimplementedUserServer) SendEmailCode(context.Context, *SendEmailCodeReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendEmailCode not implemented")
 }
-func (UnimplementedUserServer) GetCosSessionKey(context.Context, *GetCosSessionKeyReq) (*GetCosSessionKeyReply, error) {
+func (UnimplementedUserServer) GetCosSessionKey(context.Context, *emptypb.Empty) (*GetCosSessionKeyReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCosSessionKey not implemented")
 }
 func (UnimplementedUserServer) GetUser(context.Context, *GetUserReq) (*GetUserReply, error) {
@@ -250,7 +251,7 @@ func (UnimplementedUserServer) GetUserProfile(context.Context, *GetUserProfileRe
 func (UnimplementedUserServer) GetUserProfileUpdate(context.Context, *GetUserProfileUpdateReq) (*GetUserProfileUpdateReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserProfileUpdate not implemented")
 }
-func (UnimplementedUserServer) SetUserProfile(context.Context, *SetUserProfileReq) (*SetUserProfileReply, error) {
+func (UnimplementedUserServer) SetUserProfile(context.Context, *SetUserProfileReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetUserProfile not implemented")
 }
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}
@@ -411,7 +412,7 @@ func _User_SendEmailCode_Handler(srv interface{}, ctx context.Context, dec func(
 }
 
 func _User_GetCosSessionKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetCosSessionKeyReq)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -423,7 +424,7 @@ func _User_GetCosSessionKey_Handler(srv interface{}, ctx context.Context, dec fu
 		FullMethod: "/user.v1.User/GetCosSessionKey",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).GetCosSessionKey(ctx, req.(*GetCosSessionKeyReq))
+		return srv.(UserServer).GetCosSessionKey(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }

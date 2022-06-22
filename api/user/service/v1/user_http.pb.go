@@ -8,6 +8,7 @@ import (
 	context "context"
 	http "github.com/go-kratos/kratos/v2/transport/http"
 	binding "github.com/go-kratos/kratos/v2/transport/http/binding"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -21,6 +22,7 @@ type UserHTTPServer interface {
 	GetUser(context.Context, *GetUserReq) (*GetUserReply, error)
 	SetUserEmail(context.Context, *SetUserEmailReq) (*SetUserEmailReply, error)
 	SetUserPhone(context.Context, *SetUserPhoneReq) (*SetUserPhoneReply, error)
+	SetUserProfile(context.Context, *SetUserProfileReq) (*emptypb.Empty, error)
 }
 
 func RegisterUserHTTPServer(s *http.Server, srv UserHTTPServer) {
@@ -28,6 +30,7 @@ func RegisterUserHTTPServer(s *http.Server, srv UserHTTPServer) {
 	r.POST("/v1/user/get", _User_GetUser0_HTTP_Handler(srv))
 	r.POST("/v1/user/set/phone", _User_SetUserPhone0_HTTP_Handler(srv))
 	r.POST("/v1/user/set/email", _User_SetUserEmail0_HTTP_Handler(srv))
+	r.POST("/v1/set/user/profile", _User_SetUserProfile0_HTTP_Handler(srv))
 }
 
 func _User_GetUser0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
@@ -87,10 +90,30 @@ func _User_SetUserEmail0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context)
 	}
 }
 
+func _User_SetUserProfile0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SetUserProfileReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/user.v1.User/SetUserProfile")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SetUserProfile(ctx, req.(*SetUserProfileReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
 type UserHTTPClient interface {
 	GetUser(ctx context.Context, req *GetUserReq, opts ...http.CallOption) (rsp *GetUserReply, err error)
 	SetUserEmail(ctx context.Context, req *SetUserEmailReq, opts ...http.CallOption) (rsp *SetUserEmailReply, err error)
 	SetUserPhone(ctx context.Context, req *SetUserPhoneReq, opts ...http.CallOption) (rsp *SetUserPhoneReply, err error)
+	SetUserProfile(ctx context.Context, req *SetUserProfileReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
 
 type UserHTTPClientImpl struct {
@@ -132,6 +155,19 @@ func (c *UserHTTPClientImpl) SetUserPhone(ctx context.Context, in *SetUserPhoneR
 	pattern := "/v1/user/set/phone"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation("/user.v1.User/SetUserPhone"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *UserHTTPClientImpl) SetUserProfile(ctx context.Context, in *SetUserProfileReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/set/user/profile"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/user.v1.User/SetUserProfile"))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
