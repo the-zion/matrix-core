@@ -19,6 +19,7 @@ type AuthRepo interface {
 	CreateUserWithEmail(ctx context.Context, email, password string) (*User, error)
 	CreateUserProfile(ctx context.Context, account, uuid string) error
 	CreateUserProfileUpdate(ctx context.Context, account, uuid string) error
+	CreateProfileUpdateRetry(ctx context.Context, account, uuid string) error
 	SendPhoneCode(ctx context.Context, template, phone string) error
 	SendEmailCode(ctx context.Context, template, phone string) error
 	VerifyPhoneCode(ctx context.Context, phone, code string) error
@@ -65,6 +66,10 @@ func (r *AuthUseCase) UserRegister(ctx context.Context, email, password, code st
 		if err != nil {
 			return err
 		}
+		err = r.repo.CreateProfileUpdateRetry(ctx, email, user.Uuid)
+		if err != nil {
+			return err
+		}
 		return nil
 	})
 	if kerrors.IsConflict(err) {
@@ -107,6 +112,10 @@ func (r *AuthUseCase) LoginByCode(ctx context.Context, phone, code string) (stri
 				return err
 			}
 			err = r.repo.CreateUserProfileUpdate(ctx, phone, user.Uuid)
+			if err != nil {
+				return err
+			}
+			err = r.repo.CreateProfileUpdateRetry(ctx, phone, user.Uuid)
 			if err != nil {
 				return err
 			}

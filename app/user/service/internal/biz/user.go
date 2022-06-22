@@ -20,18 +20,21 @@ type UserRepo interface {
 	GetUser(ctx context.Context, id int64) (*User, error)
 	GetProfile(ctx context.Context, uuid string) (*Profile, error)
 	GetUserProfileUpdate(ctx context.Context, uuid string) (*ProfileUpdate, error)
-	SetUserProfile(ctx context.Context, profile *ProfileUpdate) error
+	SetUserProfile(ctx context.Context, profile *ProfileUpdate) (*ProfileUpdate, error)
+	SendProfileToMq(ctx context.Context, profile *ProfileUpdate) error
 }
 
 type UserUseCase struct {
 	repo UserRepo
 	log  *log.Helper
+	tm   Transaction
 }
 
-func NewUserUseCase(repo UserRepo, logger log.Logger) *UserUseCase {
+func NewUserUseCase(repo UserRepo, tm Transaction, logger log.Logger) *UserUseCase {
 	return &UserUseCase{
 		repo: repo,
 		log:  log.NewHelper(log.With(logger, "module", "user/biz/userUseCase")),
+		tm:   tm,
 	}
 }
 
@@ -52,7 +55,17 @@ func (r *UserUseCase) GetUserProfileUpdate(ctx context.Context, uuid string) (*P
 }
 
 func (r *UserUseCase) SetUserProfile(ctx context.Context, profile *ProfileUpdate) error {
-	err := r.repo.SetUserProfile(ctx, profile)
+	err := r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		p, err := r.repo.SetUserProfile(ctx, profile)
+		if err != nil {
+			return err
+		}
+		err = r.repo.SendProfileToMq(ctx, p)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
 	if kerrors.IsConflict(err) {
 		return v1.ErrorUserNameConflict("user profile update failed: %s", err.Error())
 	}
