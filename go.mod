@@ -17,6 +17,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.411
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.411
+	github.com/tencentyun/cos-go-sdk-v5 v0.7.35
 	github.com/tencentyun/qcloud-cos-sts-sdk v0.0.0-20220609035139-c77380ea7d1b
 	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e
 	golang.org/x/sync v0.0.0-20220513210516-0976fa681c29
@@ -33,6 +34,7 @@ require (
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.18 // indirect
 	github.com/buger/jsonparser v0.0.0-20181115193947-bf1c66bbce23 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
+	github.com/clbanning/mxj v1.8.4 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/emirpasic/gods v1.12.0 // indirect
 	github.com/go-errors/errors v1.0.1 // indirect
@@ -41,6 +43,7 @@ require (
 	github.com/go-playground/form/v4 v4.2.0 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/golang/mock v1.3.1 // indirect
+	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/google/subcommands v1.0.1 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
@@ -53,8 +56,10 @@ require (
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/lestrrat/go-file-rotatelogs v0.0.0-20180223000712-d3151e2a480f // indirect
 	github.com/lestrrat/go-strftime v0.0.0-20180220042222-ba3bf9c1d042 // indirect
+	github.com/mitchellh/mapstructure v1.4.3 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v0.0.0-20180701023420-4b7aa43c6742 // indirect
+	github.com/mozillazg/go-httpheader v0.2.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/sirupsen/logrus v1.4.1 // indirect
 	github.com/tidwall/gjson v1.2.1 // indirect

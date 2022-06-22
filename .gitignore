@@ -35,3 +35,6 @@ bin/
 .idea/
 *.swp
 /deploy/
+
+# api-gateway
+kratos-gateway/
