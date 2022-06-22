@@ -10,12 +10,16 @@ import (
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/profile"
 	sms "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms/v20210111"
+	"github.com/tencentyun/cos-go-sdk-v5"
+	_ "github.com/tencentyun/cos-go-sdk-v5"
 	userv1 "github.com/the-zion/matrix-core/api/user/service/v1"
 	"github.com/the-zion/matrix-core/app/message/service/internal/conf"
 	"gopkg.in/gomail.v2"
+	"net/http"
+	"net/url"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewPhoneCode, NewGoMail, NewUserServiceClient)
+var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewPhoneCode, NewGoMail, NewUserServiceClient, NewCosServiceClient)
 
 type TxCode struct {
 	client  *sms.Client
@@ -32,6 +36,7 @@ type Data struct {
 	uc           userv1.UserClient
 	phoneCodeCli *TxCode
 	goMailCli    *GoMail
+	cosCli       *cos.Client
 }
 
 func NewPhoneCode(conf *conf.Data) *TxCode {
@@ -78,13 +83,29 @@ func NewUserServiceClient(r *nacos.Registry, logger log.Logger) userv1.UserClien
 	return c
 }
 
-func NewData(logger log.Logger, uc userv1.UserClient, phoneCodeCli *TxCode, goMailCli *GoMail) (*Data, error) {
+func NewCosServiceClient(conf *conf.Data, logger log.Logger) *cos.Client {
+	l := log.NewHelper(log.With(logger, "module", "message/data/new-cos-client"))
+	u, err := url.Parse(conf.Cos.Url)
+	if err != nil {
+		l.Errorf("fail to init cos server, error: %v", err)
+	}
+	b := &cos.BaseURL{BucketURL: u}
+	return cos.NewClient(b, &http.Client{
+		Transport: &cos.AuthorizationTransport{
+			SecretID:  conf.Cos.SecretId,
+			SecretKey: conf.Cos.SecretKey,
+		},
+	})
+}
+
+func NewData(logger log.Logger, uc userv1.UserClient, cos *cos.Client, phoneCodeCli *TxCode, goMailCli *GoMail) (*Data, error) {
 	l := log.NewHelper(log.With(logger, "module", "message/data"))
 	d := &Data{
 		log:          l,
 		uc:           uc,
 		phoneCodeCli: phoneCodeCli,
 		goMailCli:    goMailCli,
+		cosCli:       cos,
 	}
 	return d, nil
 }
