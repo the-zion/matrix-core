@@ -16,6 +16,7 @@ type UserRepo interface {
 	GetUserProfile(ctx context.Context, uuid string) (*UserProfile, error)
 	GetUserProfileUpdate(ctx context.Context, uuid string) (*UserProfileUpdate, error)
 	SetUserProfile(ctx context.Context, profile *UserProfileUpdate) error
+	ProfileReview(ctx context.Context, profile *TextReview) error
 }
 
 type UserUseCase struct {
@@ -108,6 +109,14 @@ func (r *UserUseCase) SetUserProfile(ctx context.Context, profile *UserProfileUp
 	uuid := ctx.Value("uuid").(string)
 	profile.Uuid = uuid
 	err := r.repo.SetUserProfile(ctx, profile)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *UserUseCase) ProfileReview(ctx context.Context, tr *TextReview) error {
+	err := r.repo.ProfileReview(ctx, tr)
 	if err != nil {
 		return err
 	}
