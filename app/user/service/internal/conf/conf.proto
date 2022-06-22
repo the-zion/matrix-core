@@ -40,21 +40,17 @@ message Data {
   }
   message Rocketmq{
     message Code{
-      string serverAddress = 1;
-      string secretKey = 2;
-      string accessKey = 3;
-      string nameSpace = 4;
-      string groupName = 5;
+      string groupName = 1;
     }
     message Profile{
-      string serverAddress = 1;
-      string secretKey = 2;
-      string accessKey = 3;
-      string nameSpace = 4;
-      string groupName = 5;
+      string groupName = 1;
     }
     Code code = 1;
     Profile profile = 2;
+    string serverAddress = 3;
+    string secretKey = 4;
+    string accessKey = 5;
+    string nameSpace = 6;
   }
   message Cos{
     string secret_id = 1;
