@@ -20,12 +20,12 @@ func (s *UserService) GetUser(ctx context.Context, req *v1.GetUserReq) (*v1.GetU
 	}, nil
 }
 
-func (s *UserService) GetUserProfile(ctx context.Context, req *v1.GetUserProfileReq) (*v1.GetUserProfileReply, error) {
-	profile, err := s.uc.GetUserProfile(ctx, req.Uuid)
+func (s *UserService) GetUserProfile(ctx context.Context, req *v1.GetProfileReq) (*v1.GetProfileReply, error) {
+	profile, err := s.uc.GetProfile(ctx, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
-	return &v1.GetUserProfileReply{
+	return &v1.GetProfileReply{
 		Uuid:      profile.Uuid,
 		Username:  profile.Username,
 		Avatar:    profile.Avatar,
@@ -37,12 +37,12 @@ func (s *UserService) GetUserProfile(ctx context.Context, req *v1.GetUserProfile
 	}, nil
 }
 
-func (s *UserService) GetUserProfileUpdate(ctx context.Context, req *v1.GetUserProfileUpdateReq) (*v1.GetUserProfileUpdateReply, error) {
-	profile, err := s.uc.GetUserProfileUpdate(ctx, req.Uuid)
+func (s *UserService) GetProfileUpdate(ctx context.Context, req *v1.GetProfileUpdateReq) (*v1.GetProfileUpdateReply, error) {
+	profile, err := s.uc.GetProfileUpdate(ctx, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
-	return &v1.GetUserProfileUpdateReply{
+	return &v1.GetProfileUpdateReply{
 		Username:  profile.Username,
 		Avatar:    profile.Avatar,
 		School:    profile.School,
@@ -54,7 +54,7 @@ func (s *UserService) GetUserProfileUpdate(ctx context.Context, req *v1.GetUserP
 	}, nil
 }
 
-func (s *UserService) SetUserProfile(ctx context.Context, req *v1.SetUserProfileReq) (*emptypb.Empty, error) {
+func (s *UserService) SetProfileUpdate(ctx context.Context, req *v1.SetProfileUpdateReq) (*emptypb.Empty, error) {
 	profile := &biz.ProfileUpdate{}
 	profile.Uuid = req.Uuid
 	profile.Username = req.Username
@@ -63,7 +63,7 @@ func (s *UserService) SetUserProfile(ctx context.Context, req *v1.SetUserProfile
 	profile.Job = req.Job
 	profile.Homepage = req.Homepage
 	profile.Introduce = req.Introduce
-	err := s.uc.SetUserProfile(ctx, profile)
+	err := s.uc.SetProfileUpdate(ctx, profile)
 	if err != nil {
 		return nil, err
 	}
@@ -76,4 +76,12 @@ func (s *UserService) SetUserPhone(ctx context.Context, req *v1.SetUserPhoneReq)
 
 func (s *UserService) SetUserEmail(ctx context.Context, req *v1.SetUserEmailReq) (*v1.SetUserEmailReply, error) {
 	return nil, nil
+}
+
+func (s *UserService) ProfileReviewPass(ctx context.Context, req *v1.ProfileReviewPassReq) (*emptypb.Empty, error) {
+	err := s.uc.ProfileReviewPass(ctx, req.Uuid, req.Update)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
 }
