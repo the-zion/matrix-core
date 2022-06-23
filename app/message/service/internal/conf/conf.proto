@@ -8,6 +8,7 @@ import "google/protobuf/duration.proto";
 message Bootstrap {
   Server server = 1;
   Data data = 2;
+  Auth auth = 3;
 }
 
 message Server {
@@ -56,5 +57,9 @@ message Data {
   Code code = 1;
   Mail mail = 2;
   Cos cos = 3;
+}
+
+message Auth {
+  string api_key = 1;
 }
 
