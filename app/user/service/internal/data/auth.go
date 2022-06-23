@@ -30,7 +30,7 @@ func NewAuthRepo(data *Data, logger log.Logger) biz.AuthRepo {
 
 func (r *authRepo) FindUserByPhone(ctx context.Context, phone string) (*biz.User, error) {
 	user := &User{}
-	err := r.data.DB(ctx).WithContext(ctx).Where("phone = ?", phone).First(user).Error
+	err := r.data.db.WithContext(ctx).Where("phone = ?", phone).First(user).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, kerrors.NotFound("phone not found from db", fmt.Sprintf("phone(%s)", phone))
 	}
@@ -49,7 +49,7 @@ func (r *authRepo) FindUserByPhone(ctx context.Context, phone string) (*biz.User
 
 func (r *authRepo) FindUserByEmail(ctx context.Context, email string) (*biz.User, error) {
 	user := &User{}
-	err := r.data.DB(ctx).WithContext(ctx).Where("email = ?", email).First(user).Error
+	err := r.data.db.WithContext(ctx).Where("email = ?", email).First(user).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, kerrors.NotFound("email not found from db", fmt.Sprintf("email(%s)", email))
 	}
@@ -122,6 +122,7 @@ func (r *authRepo) CreateUserWithEmail(ctx context.Context, email, password stri
 
 func (r *authRepo) CreateUserProfile(ctx context.Context, account, uuid string) error {
 	p := &Profile{
+		Update:   time.Now(),
 		Uuid:     uuid,
 		Username: account,
 	}
@@ -136,6 +137,7 @@ func (r *authRepo) CreateUserProfileUpdate(ctx context.Context, account, uuid st
 	pu := &ProfileUpdate{}
 	pu.Uuid = uuid
 	pu.Username = account
+	pu.Update = time.Now()
 	err := r.data.DB(ctx).Select("Uuid", "Username").Create(pu).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to create table: profile_update, uuid(%s)", uuid))
@@ -243,7 +245,7 @@ func (r *authRepo) PasswordResetByPhone(ctx context.Context, phone, password str
 		return errors.Wrapf(err, fmt.Sprintf("fail to hash password: password(%s)", password))
 	}
 
-	err = r.data.DB(ctx).WithContext(ctx).Model(&User{}).Where("phone = ?", phone).Update("password", hashPassword).Error
+	err = r.data.db.WithContext(ctx).Model(&User{}).Where("phone = ?", phone).Update("password", hashPassword).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to reset password: password(%s)", password))
 	}
@@ -256,7 +258,7 @@ func (r *authRepo) PasswordResetByEmail(ctx context.Context, email, password str
 		return errors.Wrapf(err, fmt.Sprintf("fail to hash password: password(%s)", password))
 	}
 
-	err = r.data.DB(ctx).WithContext(ctx).Model(&User{}).Where("email = ?", email).Update("password", hashPassword).Error
+	err = r.data.db.WithContext(ctx).Model(&User{}).Where("email = ?", email).Update("password", hashPassword).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to reset password: password(%s)", password))
 	}

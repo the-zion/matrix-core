@@ -10,6 +10,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/pkg/errors"
 	"github.com/the-zion/matrix-core/app/user/service/internal/biz"
+	"github.com/the-zion/matrix-core/app/user/service/internal/pkg/util"
 	"gorm.io/gorm"
 	"strconv"
 	"strings"
@@ -60,7 +61,7 @@ func (r *userRepo) GetProfile(ctx context.Context, uuid string) (*biz.Profile, e
 	target, err := r.getProfileFromCache(ctx, key)
 	if kerrors.IsNotFound(err) {
 		profile := &Profile{}
-		err = r.data.DB(ctx).WithContext(ctx).Where("uuid = ?", uuid).First(profile).Error
+		err = r.data.db.WithContext(ctx).Where("uuid = ?", uuid).First(profile).Error
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, kerrors.NotFound("profile not found from db", fmt.Sprintf("uuid(%v)", uuid))
 		}
@@ -84,16 +85,17 @@ func (r *userRepo) GetProfile(ctx context.Context, uuid string) (*biz.Profile, e
 	}, nil
 }
 
-func (r *userRepo) GetUserProfileUpdate(ctx context.Context, uuid string) (*biz.ProfileUpdate, error) {
+func (r *userRepo) GetProfileUpdate(ctx context.Context, uuid string) (*biz.ProfileUpdate, error) {
 	profile := &ProfileUpdate{}
 	pu := &biz.ProfileUpdate{}
-	err := r.data.DB(ctx).WithContext(ctx).Where("uuid = ?", uuid).First(profile).Error
+	err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).First(profile).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, kerrors.NotFound("profile update not found from db", fmt.Sprintf("uuid(%v)", uuid))
 	}
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("db query system error: uuid(%v)", uuid))
 	}
+	pu.Update = util.TimeFormat(profile.Update)
 	pu.Username = profile.Username
 	pu.Avatar = profile.Avatar
 	pu.School = profile.School
@@ -104,14 +106,34 @@ func (r *userRepo) GetUserProfileUpdate(ctx context.Context, uuid string) (*biz.
 	return pu, nil
 }
 
-func (r *userRepo) SetUserProfile(ctx context.Context, profile *biz.ProfileUpdate) (*biz.ProfileUpdate, error) {
+func (r *userRepo) SetProfile(ctx context.Context, profile *biz.ProfileUpdate) error {
+	dateTime, err := util.StringToTime("2023-06-23 22:53:53")
+	if err != nil {
+		return err
+	}
+	p := &Profile{}
+	p.Update = dateTime
+	p.Username = profile.Username
+	p.School = profile.School
+	p.Company = profile.Company
+	p.Homepage = profile.Homepage
+	p.Introduce = profile.Introduce
+	err = r.data.DB(ctx).Model(&Profile{}).Where("uuid = ?", profile.Uuid).Updates(p).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to set profile: profile(%v)", profile))
+	}
+	return nil
+}
+
+func (r *userRepo) SetProfileUpdate(ctx context.Context, profile *biz.ProfileUpdate, status int32) (*biz.ProfileUpdate, error) {
 	pu := &ProfileUpdate{}
+	pu.Update = time.Now()
 	pu.Username = profile.Username
 	pu.School = profile.School
 	pu.Company = profile.Company
 	pu.Homepage = profile.Homepage
 	pu.Introduce = profile.Introduce
-	pu.Status = 2
+	pu.Status = status
 	err := r.data.DB(ctx).Model(&ProfileUpdate{}).Where("uuid = ?", profile.Uuid).Updates(pu).Error
 	if err != nil {
 		e := err.Error()
@@ -121,20 +143,25 @@ func (r *userRepo) SetUserProfile(ctx context.Context, profile *biz.ProfileUpdat
 			return nil, errors.Wrapf(err, fmt.Sprintf("fail to update a profile: profile(%v)", profile))
 		}
 	}
-	profile.UpdatedAt = pu.UpdatedAt
+	profile.Update = util.TimeFormat(pu.Update)
 	return profile, nil
 }
 
 func (r *userRepo) SetProfileUpdateRetry(profile *biz.ProfileUpdate) {
+	updateTime, err := util.StringToTime(profile.Update)
+	if err != nil {
+		r.log.Errorf("fail to transform string to time, error: %v", err)
+		return
+	}
 	pur := &ProfileUpdateRetry{}
-	pur.UpdatedAt = profile.UpdatedAt
+	pur.Update = updateTime
 	pur.Uuid = profile.Uuid
 	pur.Username = profile.Username
 	pur.School = profile.School
 	pur.Company = profile.Company
 	pur.Homepage = profile.Homepage
 	pur.Introduce = profile.Introduce
-	err := r.data.db.Model(&ProfileUpdateRetry{}).Where("uuid = ?", profile.Uuid).Updates(pur).Error
+	err = r.data.db.Model(&ProfileUpdateRetry{}).Where("uuid = ?", profile.Uuid).Updates(pur).Error
 	if err != nil {
 		r.log.Errorf("fail to save profile to retry table, error: %v", err)
 	}
@@ -160,6 +187,18 @@ func (r *userRepo) SendProfileToMq(_ context.Context, profile *biz.ProfileUpdate
 	}, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to use async producer: %v", err))
+	}
+	return nil
+}
+
+func (r *userRepo) ModifyProfileUpdateStatus(ctx context.Context, uuid, update string) error {
+	updateTime, err := util.StringToTime(update)
+	if err != nil {
+		return err
+	}
+	err = r.data.DB(ctx).Model(&ProfileUpdate{}).Where("uuid = ? and updated_at = ?", uuid, updateTime).Update("Status", 1).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to modify profile update status: uuid(%v)", uuid))
 	}
 	return nil
 }

@@ -16,8 +16,7 @@ type User struct {
 }
 
 type Profile struct {
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	Update    time.Time
 	Uuid      string `gorm:"primaryKey;size:36"`
 	Username  string `gorm:"uniqueIndex;not null;size:20"`
 	Avatar    string `gorm:"size:200"`

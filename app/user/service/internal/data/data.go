@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewDB, NewTransaction, NewRedis, NewRocketmqCodeProducer, NewRocketmqProfileProducer, NewCosClient, NewUserRepo, NewAuthRepo, NewProfileRepo)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewTransaction, NewRedis, NewRocketmqCodeProducer, NewRocketmqProfileProducer, NewCosClient, NewUserRepo, NewAuthRepo)
 
 type Cos struct {
 	client *sts.Client
