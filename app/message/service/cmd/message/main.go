@@ -127,7 +127,7 @@ logger:
 
 	r := nacos.New(rclient)
 
-	app, cleanup, err := wireApp(bc.Server, bc.Data, logger, r)
+	app, cleanup, err := wireApp(bc.Server, bc.Data, bc.Auth, logger, r)
 	if err != nil {
 		panic(err)
 	}
