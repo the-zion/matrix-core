@@ -90,12 +90,12 @@ func (s *BffService) GetUserProfile(ctx context.Context, _ *emptypb.Empty) (*v1.
 	}, nil
 }
 
-func (s *BffService) GetUserProfileUpdate(ctx context.Context, _ *emptypb.Empty) (*v1.GetUserProfileUpdateReply, error) {
-	userProfile, err := s.uc.GetUserProfileUpdate(ctx)
+func (s *BffService) GetProfileUpdate(ctx context.Context, _ *emptypb.Empty) (*v1.GetProfileUpdateReply, error) {
+	userProfile, err := s.uc.GetProfileUpdate(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return &v1.GetUserProfileUpdateReply{
+	return &v1.GetProfileUpdateReply{
 		Username:  userProfile.Username,
 		Avatar:    userProfile.Avatar,
 		School:    userProfile.School,
@@ -107,7 +107,7 @@ func (s *BffService) GetUserProfileUpdate(ctx context.Context, _ *emptypb.Empty)
 	}, nil
 }
 
-func (s *BffService) SetUserProfile(ctx context.Context, req *v1.SetUserProfileReq) (*emptypb.Empty, error) {
+func (s *BffService) SetProfileUpdate(ctx context.Context, req *v1.SetProfileUpdateReq) (*emptypb.Empty, error) {
 	profile := &biz.UserProfileUpdate{}
 	profile.Username = req.Username
 	profile.School = req.School
@@ -119,61 +119,5 @@ func (s *BffService) SetUserProfile(ctx context.Context, req *v1.SetUserProfileR
 	if err != nil {
 		return nil, err
 	}
-	return &emptypb.Empty{}, nil
-}
-
-func (s *BffService) ProfileReview(ctx context.Context, req *v1.ProfileReviewReq) (*emptypb.Empty, error) {
-	tr := &biz.TextReview{
-		Code:         req.JobsDetail.Code,
-		Message:      req.JobsDetail.Message,
-		JobId:        req.JobsDetail.JobId,
-		DataId:       req.JobsDetail.DataId,
-		State:        req.JobsDetail.State,
-		CreationTime: req.JobsDetail.CreationTime,
-		Object:       req.JobsDetail.Object,
-		Label:        req.JobsDetail.Label,
-		Result:       req.JobsDetail.Result,
-		BucketId:     req.JobsDetail.BucketId,
-		Region:       req.JobsDetail.Region,
-		CosHeaders:   req.JobsDetail.CosHeaders,
-	}
-
-	var section []*biz.Section
-
-	for _, item := range req.JobsDetail.Section {
-		se := &biz.Section{
-			Label:  item.Label,
-			Result: item.Result,
-			PornInfo: &biz.SectionPornInfo{
-				HitFlag:  item.PornInfo.HitFlag,
-				Score:    item.PornInfo.Score,
-				Keywords: item.PornInfo.Keywords,
-			},
-			AdsInfo: &biz.SectionAdsInfo{
-				HitFlag:  item.AdsInfo.HitFlag,
-				Score:    item.AdsInfo.Score,
-				Keywords: item.AdsInfo.Keywords,
-			},
-			IllegalInfo: &biz.SectionIllegalInfo{
-				HitFlag:  item.IllegalInfo.HitFlag,
-				Score:    item.IllegalInfo.Score,
-				Keywords: item.IllegalInfo.Keywords,
-			},
-			AbuseInfo: &biz.SectionAbuseInfo{
-				HitFlag:  item.AbuseInfo.HitFlag,
-				Score:    item.AbuseInfo.Score,
-				Keywords: item.AbuseInfo.Keywords,
-			},
-		}
-		section = append(section, se)
-	}
-
-	tr.Section = section
-
-	err := s.uc.ProfileReview(ctx, tr)
-	if err != nil {
-		return nil, err
-	}
-
 	return &emptypb.Empty{}, nil
 }
