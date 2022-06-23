@@ -19,9 +19,11 @@ type User struct {
 type UserRepo interface {
 	GetUser(ctx context.Context, id int64) (*User, error)
 	GetProfile(ctx context.Context, uuid string) (*Profile, error)
-	GetUserProfileUpdate(ctx context.Context, uuid string) (*ProfileUpdate, error)
-	SetUserProfile(ctx context.Context, profile *ProfileUpdate) (*ProfileUpdate, error)
+	GetProfileUpdate(ctx context.Context, uuid string) (*ProfileUpdate, error)
+	SetProfile(ctx context.Context, profile *ProfileUpdate) error
+	SetProfileUpdate(ctx context.Context, profile *ProfileUpdate, status int32) (*ProfileUpdate, error)
 	SendProfileToMq(ctx context.Context, profile *ProfileUpdate) error
+	ModifyProfileUpdateStatus(ctx context.Context, uuid, update string) error
 }
 
 type UserUseCase struct {
@@ -38,7 +40,7 @@ func NewUserUseCase(repo UserRepo, tm Transaction, logger log.Logger) *UserUseCa
 	}
 }
 
-func (r *UserUseCase) GetUserProfile(ctx context.Context, uuid string) (*Profile, error) {
+func (r *UserUseCase) GetProfile(ctx context.Context, uuid string) (*Profile, error) {
 	profile, err := r.repo.GetProfile(ctx, uuid)
 	if err != nil {
 		return nil, v1.ErrorGetProfileFailed("get user profile failed: %s", err.Error())
@@ -46,17 +48,17 @@ func (r *UserUseCase) GetUserProfile(ctx context.Context, uuid string) (*Profile
 	return profile, nil
 }
 
-func (r *UserUseCase) GetUserProfileUpdate(ctx context.Context, uuid string) (*ProfileUpdate, error) {
-	profile, err := r.repo.GetUserProfileUpdate(ctx, uuid)
+func (r *UserUseCase) GetProfileUpdate(ctx context.Context, uuid string) (*ProfileUpdate, error) {
+	profile, err := r.repo.GetProfileUpdate(ctx, uuid)
 	if err != nil {
 		return nil, v1.ErrorGetProfileUpdateFailed("get user profile update failed: %s", err.Error())
 	}
 	return profile, nil
 }
 
-func (r *UserUseCase) SetUserProfile(ctx context.Context, profile *ProfileUpdate) error {
+func (r *UserUseCase) SetProfileUpdate(ctx context.Context, profile *ProfileUpdate) error {
 	err := r.tm.ExecTx(ctx, func(ctx context.Context) error {
-		p, err := r.repo.SetUserProfile(ctx, profile)
+		p, err := r.repo.SetProfileUpdate(ctx, profile, 2)
 		if err != nil {
 			return err
 		}
@@ -70,7 +72,7 @@ func (r *UserUseCase) SetUserProfile(ctx context.Context, profile *ProfileUpdate
 		return v1.ErrorUserNameConflict("user profile update failed: %s", err.Error())
 	}
 	if err != nil {
-		return v1.ErrorSetProfileFailed("user profile update failed: %s", err.Error())
+		return v1.ErrorSetProfileUpdateFailed("user profile update failed: %s", err.Error())
 	}
 	return nil
 }
@@ -81,6 +83,29 @@ func (r *UserUseCase) GetUser(ctx context.Context, id int64) (*User, error) {
 		return nil, v1.ErrorGetUserFailed("get user failed: %s", err.Error())
 	}
 	return user, nil
+}
+
+func (r *UserUseCase) ProfileReviewPass(ctx context.Context, uuid, update string) error {
+	err := r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		err := r.repo.ModifyProfileUpdateStatus(ctx, uuid, update)
+		if err != nil {
+			return err
+		}
+		profile, err := r.repo.GetProfileUpdate(ctx, uuid)
+		if err != nil {
+			return err
+		}
+		profile.Uuid = uuid
+		err = r.repo.SetProfile(ctx, profile)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return v1.ErrorProfileReviewModify("profile modify failed: %s", err.Error())
+	}
+	return nil
 }
 
 //func (r *UserUseCase) SetUserPhone(ctx context.Context, id int64, phone, password, code string) error {

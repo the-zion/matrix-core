@@ -1,10 +1,7 @@
 package biz
 
-import "time"
-
 type Profile struct {
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	Update    string
 	Uuid      string
 	Username  string
 	Avatar    string
