@@ -191,6 +191,18 @@ func ErrorSetProfileFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, UserErrorReason_SET_PROFILE_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsSetProfileUpdateFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_SET_PROFILE_UPDATE_FAILED.String() && e.Code == 500
+}
+
+func ErrorSetProfileUpdateFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, UserErrorReason_SET_PROFILE_UPDATE_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsSetUsernameFailed(err error) bool {
 	if err == nil {
 		return false
@@ -261,4 +273,16 @@ func IsResetPasswordFailed(err error) bool {
 
 func ErrorResetPasswordFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, UserErrorReason_RESET_PASSWORD_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsProfileReviewModify(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_PROFILE_REVIEW_MODIFY.String() && e.Code == 500
+}
+
+func ErrorProfileReviewModify(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, UserErrorReason_PROFILE_REVIEW_MODIFY.String(), fmt.Sprintf(format, args...))
 }

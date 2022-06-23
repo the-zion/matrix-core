@@ -35,9 +35,10 @@ type UserClient interface {
 	GetUser(ctx context.Context, in *GetUserReq, opts ...grpc.CallOption) (*GetUserReply, error)
 	SetUserPhone(ctx context.Context, in *SetUserPhoneReq, opts ...grpc.CallOption) (*SetUserPhoneReply, error)
 	SetUserEmail(ctx context.Context, in *SetUserEmailReq, opts ...grpc.CallOption) (*SetUserEmailReply, error)
-	GetUserProfile(ctx context.Context, in *GetUserProfileReq, opts ...grpc.CallOption) (*GetUserProfileReply, error)
-	GetUserProfileUpdate(ctx context.Context, in *GetUserProfileUpdateReq, opts ...grpc.CallOption) (*GetUserProfileUpdateReply, error)
-	SetUserProfile(ctx context.Context, in *SetUserProfileReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetProfile(ctx context.Context, in *GetProfileReq, opts ...grpc.CallOption) (*GetProfileReply, error)
+	GetProfileUpdate(ctx context.Context, in *GetProfileUpdateReq, opts ...grpc.CallOption) (*GetProfileUpdateReply, error)
+	SetProfileUpdate(ctx context.Context, in *SetProfileUpdateReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	ProfileReviewPass(ctx context.Context, in *ProfileReviewPassReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type userClient struct {
@@ -156,27 +157,36 @@ func (c *userClient) SetUserEmail(ctx context.Context, in *SetUserEmailReq, opts
 	return out, nil
 }
 
-func (c *userClient) GetUserProfile(ctx context.Context, in *GetUserProfileReq, opts ...grpc.CallOption) (*GetUserProfileReply, error) {
-	out := new(GetUserProfileReply)
-	err := c.cc.Invoke(ctx, "/user.v1.User/GetUserProfile", in, out, opts...)
+func (c *userClient) GetProfile(ctx context.Context, in *GetProfileReq, opts ...grpc.CallOption) (*GetProfileReply, error) {
+	out := new(GetProfileReply)
+	err := c.cc.Invoke(ctx, "/user.v1.User/GetProfile", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *userClient) GetUserProfileUpdate(ctx context.Context, in *GetUserProfileUpdateReq, opts ...grpc.CallOption) (*GetUserProfileUpdateReply, error) {
-	out := new(GetUserProfileUpdateReply)
-	err := c.cc.Invoke(ctx, "/user.v1.User/GetUserProfileUpdate", in, out, opts...)
+func (c *userClient) GetProfileUpdate(ctx context.Context, in *GetProfileUpdateReq, opts ...grpc.CallOption) (*GetProfileUpdateReply, error) {
+	out := new(GetProfileUpdateReply)
+	err := c.cc.Invoke(ctx, "/user.v1.User/GetProfileUpdate", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *userClient) SetUserProfile(ctx context.Context, in *SetUserProfileReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *userClient) SetProfileUpdate(ctx context.Context, in *SetProfileUpdateReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/user.v1.User/SetUserProfile", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/user.v1.User/SetProfileUpdate", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) ProfileReviewPass(ctx context.Context, in *ProfileReviewPassReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/user.v1.User/ProfileReviewPass", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -199,9 +209,10 @@ type UserServer interface {
 	GetUser(context.Context, *GetUserReq) (*GetUserReply, error)
 	SetUserPhone(context.Context, *SetUserPhoneReq) (*SetUserPhoneReply, error)
 	SetUserEmail(context.Context, *SetUserEmailReq) (*SetUserEmailReply, error)
-	GetUserProfile(context.Context, *GetUserProfileReq) (*GetUserProfileReply, error)
-	GetUserProfileUpdate(context.Context, *GetUserProfileUpdateReq) (*GetUserProfileUpdateReply, error)
-	SetUserProfile(context.Context, *SetUserProfileReq) (*emptypb.Empty, error)
+	GetProfile(context.Context, *GetProfileReq) (*GetProfileReply, error)
+	GetProfileUpdate(context.Context, *GetProfileUpdateReq) (*GetProfileUpdateReply, error)
+	SetProfileUpdate(context.Context, *SetProfileUpdateReq) (*emptypb.Empty, error)
+	ProfileReviewPass(context.Context, *ProfileReviewPassReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedUserServer()
 }
 
@@ -245,14 +256,17 @@ func (UnimplementedUserServer) SetUserPhone(context.Context, *SetUserPhoneReq) (
 func (UnimplementedUserServer) SetUserEmail(context.Context, *SetUserEmailReq) (*SetUserEmailReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetUserEmail not implemented")
 }
-func (UnimplementedUserServer) GetUserProfile(context.Context, *GetUserProfileReq) (*GetUserProfileReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetUserProfile not implemented")
+func (UnimplementedUserServer) GetProfile(context.Context, *GetProfileReq) (*GetProfileReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetProfile not implemented")
 }
-func (UnimplementedUserServer) GetUserProfileUpdate(context.Context, *GetUserProfileUpdateReq) (*GetUserProfileUpdateReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetUserProfileUpdate not implemented")
+func (UnimplementedUserServer) GetProfileUpdate(context.Context, *GetProfileUpdateReq) (*GetProfileUpdateReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetProfileUpdate not implemented")
 }
-func (UnimplementedUserServer) SetUserProfile(context.Context, *SetUserProfileReq) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetUserProfile not implemented")
+func (UnimplementedUserServer) SetProfileUpdate(context.Context, *SetProfileUpdateReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetProfileUpdate not implemented")
+}
+func (UnimplementedUserServer) ProfileReviewPass(context.Context, *ProfileReviewPassReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ProfileReviewPass not implemented")
 }
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}
 
@@ -483,56 +497,74 @@ func _User_SetUserEmail_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
-func _User_GetUserProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetUserProfileReq)
+func _User_GetProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetProfileReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServer).GetUserProfile(ctx, in)
+		return srv.(UserServer).GetProfile(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.v1.User/GetUserProfile",
+		FullMethod: "/user.v1.User/GetProfile",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).GetUserProfile(ctx, req.(*GetUserProfileReq))
+		return srv.(UserServer).GetProfile(ctx, req.(*GetProfileReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _User_GetUserProfileUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetUserProfileUpdateReq)
+func _User_GetProfileUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetProfileUpdateReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServer).GetUserProfileUpdate(ctx, in)
+		return srv.(UserServer).GetProfileUpdate(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.v1.User/GetUserProfileUpdate",
+		FullMethod: "/user.v1.User/GetProfileUpdate",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).GetUserProfileUpdate(ctx, req.(*GetUserProfileUpdateReq))
+		return srv.(UserServer).GetProfileUpdate(ctx, req.(*GetProfileUpdateReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _User_SetUserProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SetUserProfileReq)
+func _User_SetProfileUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetProfileUpdateReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServer).SetUserProfile(ctx, in)
+		return srv.(UserServer).SetProfileUpdate(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.v1.User/SetUserProfile",
+		FullMethod: "/user.v1.User/SetProfileUpdate",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).SetUserProfile(ctx, req.(*SetUserProfileReq))
+		return srv.(UserServer).SetProfileUpdate(ctx, req.(*SetProfileUpdateReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_ProfileReviewPass_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProfileReviewPassReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).ProfileReviewPass(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/ProfileReviewPass",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).ProfileReviewPass(ctx, req.(*ProfileReviewPassReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -593,16 +625,20 @@ var User_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _User_SetUserEmail_Handler,
 		},
 		{
-			MethodName: "GetUserProfile",
-			Handler:    _User_GetUserProfile_Handler,
+			MethodName: "GetProfile",
+			Handler:    _User_GetProfile_Handler,
 		},
 		{
-			MethodName: "GetUserProfileUpdate",
-			Handler:    _User_GetUserProfileUpdate_Handler,
+			MethodName: "GetProfileUpdate",
+			Handler:    _User_GetProfileUpdate_Handler,
 		},
 		{
-			MethodName: "SetUserProfile",
-			Handler:    _User_SetUserProfile_Handler,
+			MethodName: "SetProfileUpdate",
+			Handler:    _User_SetProfileUpdate_Handler,
+		},
+		{
+			MethodName: "ProfileReviewPass",
+			Handler:    _User_ProfileReviewPass_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

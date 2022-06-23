@@ -45,16 +45,18 @@ service User {
       body: "*"
     };
   }
-  rpc GetUserProfile (GetUserProfileReq) returns (GetUserProfileReply) {}
+  rpc GetProfile (GetProfileReq) returns (GetProfileReply) {}
 
-  rpc GetUserProfileUpdate (GetUserProfileUpdateReq) returns (GetUserProfileUpdateReply) {}
+  rpc GetProfileUpdate (GetProfileUpdateReq) returns (GetProfileUpdateReply) {}
 
-  rpc SetUserProfile (SetUserProfileReq) returns (google.protobuf.Empty) {
+  rpc SetProfileUpdate (SetProfileUpdateReq) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      post: "/v1/set/user/profile"
+      post: "/v1/set/profile/update"
       body: "*"
     };
   }
+
+  rpc ProfileReviewPass (ProfileReviewPassReq)returns (google.protobuf.Empty) {}
 }
 
 message UserRegisterReq{
@@ -142,11 +144,11 @@ message SetUserEmailReply{
   bool success = 1;
 }
 
-message GetUserProfileReq{
+message GetProfileReq{
   string uuid = 1 [(validate.rules).string.uuid = true];
 }
 
-message GetUserProfileReply{
+message GetProfileReply{
   string uuid = 1;
   string username = 2;
   string avatar = 3;
@@ -157,11 +159,11 @@ message GetUserProfileReply{
   string introduce = 8;
 }
 
-message GetUserProfileUpdateReq{
+message GetProfileUpdateReq{
   string uuid = 1 [(validate.rules).string.uuid = true];
 }
 
-message GetUserProfileUpdateReply{
+message GetProfileUpdateReply{
   string username = 1;
   string avatar = 2;
   string school = 3;
@@ -172,7 +174,7 @@ message GetUserProfileUpdateReply{
   int32 status = 8;
 }
 
-message SetUserProfileReq{
+message SetProfileUpdateReq{
   string uuid = 1 [(validate.rules).string.uuid = true];
   string username = 2 [(validate.rules).string = {min_len:1, max_len: 20}];
   string school = 3 [(validate.rules).string = {min_len:0, max_len: 50}];
@@ -180,4 +182,9 @@ message SetUserProfileReq{
   string job = 5 [(validate.rules).string = {min_len:0, max_len: 50}];
   string homepage = 6 [(validate.rules).string = {min_len:0, max_len: 100}];
   string introduce = 7 [(validate.rules).string = {min_len:0, max_len: 100}];
+}
+
+message ProfileReviewPassReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+  string update = 2 [(validate.rules).string = {max_len: 20}];
 }
