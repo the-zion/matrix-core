@@ -7,7 +7,9 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
 	"github.com/tencentyun/cos-go-sdk-v5"
+	userV1 "github.com/the-zion/matrix-core/api/user/service/v1"
 	"github.com/the-zion/matrix-core/app/message/service/internal/biz"
+	"github.com/the-zion/matrix-core/app/message/service/internal/conf"
 	"github.com/the-zion/matrix-core/app/message/service/internal/pkg/util"
 	"net/http"
 	"strings"
@@ -16,12 +18,14 @@ import (
 var _ biz.UserRepo = (*userRepo)(nil)
 
 type userRepo struct {
+	key  string
 	data *Data
 	log  *log.Helper
 }
 
-func NewUserRepo(data *Data, logger log.Logger) biz.UserRepo {
+func NewUserRepo(conf *conf.Auth, data *Data, logger log.Logger) biz.UserRepo {
 	return &userRepo{
+		key:  conf.ApiKey,
 		data: data,
 		log:  log.NewHelper(log.With(logger, "module", "message/data/user")),
 	}
@@ -44,6 +48,7 @@ func (r *userRepo) UploadProfileToCos(msgs ...*primitive.MessageExt) {
 		}
 
 		opt.XCosMetaXXX.Add("x-cos-meta-uuid", m["Uuid"])
+		opt.XCosMetaXXX.Add("x-cos-meta-update", m["UpdatedAt"])
 
 		f := strings.NewReader(string(i.Body))
 		_, err = r.data.cosCli.Object.Put(
@@ -53,6 +58,17 @@ func (r *userRepo) UploadProfileToCos(msgs ...*primitive.MessageExt) {
 			log.Errorf("fail to upload profile to cos: err(%v)", err)
 		}
 	}
+}
+
+func (r *userRepo) ProfileReviewPass(ctx context.Context, uuid, update string) error {
+	_, err := r.data.uc.ProfileReviewPass(ctx, &userV1.ProfileReviewPassReq{
+		Uuid:   uuid,
+		Update: update,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (r *userRepo) SendCode(msgs ...*primitive.MessageExt) {
