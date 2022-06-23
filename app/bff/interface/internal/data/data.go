@@ -11,7 +11,7 @@ import (
 	userv1 "github.com/the-zion/matrix-core/api/user/service/v1"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewMessageRepo, NewUserServiceClient, NewMessageServiceClient)
+var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewUserServiceClient, NewMessageServiceClient)
 
 type Data struct {
 	log *log.Helper

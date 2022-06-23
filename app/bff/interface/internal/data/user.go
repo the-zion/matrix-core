@@ -112,7 +112,7 @@ func (r *userRepo) GetCosSessionKey(ctx context.Context) (*biz.Credentials, erro
 
 func (r *userRepo) GetUserProfile(ctx context.Context, uuid string) (*biz.UserProfile, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_user_profile_%s", uuid), func() (interface{}, error) {
-		reply, err := r.data.uc.GetUserProfile(ctx, &userV1.GetUserProfileReq{
+		reply, err := r.data.uc.GetProfile(ctx, &userV1.GetProfileReq{
 			Uuid: uuid,
 		})
 		if err != nil {
@@ -135,9 +135,9 @@ func (r *userRepo) GetUserProfile(ctx context.Context, uuid string) (*biz.UserPr
 	return result.(*biz.UserProfile), nil
 }
 
-func (r *userRepo) GetUserProfileUpdate(ctx context.Context, uuid string) (*biz.UserProfileUpdate, error) {
+func (r *userRepo) GetProfileUpdate(ctx context.Context, uuid string) (*biz.UserProfileUpdate, error) {
 	pu := &biz.UserProfileUpdate{}
-	reply, err := r.data.uc.GetUserProfileUpdate(ctx, &userV1.GetUserProfileUpdateReq{
+	reply, err := r.data.uc.GetProfileUpdate(ctx, &userV1.GetProfileUpdateReq{
 		Uuid: uuid,
 	})
 	if err != nil {
@@ -154,8 +154,8 @@ func (r *userRepo) GetUserProfileUpdate(ctx context.Context, uuid string) (*biz.
 	return pu, nil
 }
 
-func (r *userRepo) SetUserProfile(ctx context.Context, profile *biz.UserProfileUpdate) error {
-	_, err := r.data.uc.SetUserProfile(ctx, &userV1.SetUserProfileReq{
+func (r *userRepo) SetProfileUpdate(ctx context.Context, profile *biz.UserProfileUpdate) error {
+	_, err := r.data.uc.SetProfileUpdate(ctx, &userV1.SetProfileUpdateReq{
 		Uuid:      profile.Uuid,
 		Username:  profile.Username,
 		School:    profile.School,
