@@ -10,6 +10,7 @@ import (
 type UserRepo interface {
 	SendCode(msgs ...*primitive.MessageExt)
 	UploadProfileToCos(msgs ...*primitive.MessageExt)
+	ProfileReviewPass(ctx context.Context, uuid, update string) error
 }
 
 type UserUseCase struct {
@@ -40,6 +41,14 @@ func (r *UserUseCase) AvatarReview(ctx context.Context, ar *AvatarReview) error 
 func (r *UserUseCase) ProfileReview(ctx context.Context, tr *TextReview) error {
 	if tr.State != "Success" {
 		r.log.Info("profile Review failed，%v", tr)
+		return nil
+	}
+	var err error
+	if tr.Result == 0 {
+		err = r.repo.ProfileReviewPass(ctx, tr.CosHeaders["x-cos-meta-uuid"], tr.CosHeaders["x-cos-meta-update"])
+	}
+	if err != nil {
+		return err
 	}
 	return nil
 }
