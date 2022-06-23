@@ -78,31 +78,15 @@ service Bff{
     };
   }
 
-  rpc GetUserProfileUpdate (google.protobuf.Empty) returns (GetUserProfileUpdateReply) {
+  rpc GetProfileUpdate (google.protobuf.Empty) returns (GetProfileUpdateReply) {
     option (google.api.http) = {
-      get: "/v1/get/user/profile/update",
+      get: "/v1/get/profile/update",
     };
   }
 
-  rpc SetUserProfile (SetUserProfileReq) returns (google.protobuf.Empty) {
+  rpc SetProfileUpdate (SetProfileUpdateReq) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      post: "/v1/set/user/profile"
-      body: "*"
-    };
-  }
-
-  // --------------------message service------------------------
-
-  rpc AvatarReview(AvatarReviewReq) returns (google.protobuf.Empty){
-    option (google.api.http) = {
-      post: "/v1/message/avatar/review"
-      body: "*"
-    };
-  }
-
-  rpc ProfileReview(ProfileReviewReq) returns (google.protobuf.Empty){
-    option (google.api.http) = {
-      post: "/v1/message/profile/review"
+      post: "/v1/set/profile/update"
       body: "*"
     };
   }
@@ -175,7 +159,7 @@ message GetUserProfileReply{
   string introduce = 8;
 }
 
-message GetUserProfileUpdateReply{
+message GetProfileUpdateReply{
   string username = 1;
   string avatar = 2;
   string school = 3;
@@ -186,80 +170,11 @@ message GetUserProfileUpdateReply{
   int32 status = 8;
 }
 
-message SetUserProfileReq{
+message SetProfileUpdateReq{
   string username = 1;
   string school = 2;
   string company = 3;
   string job = 4;
   string homepage = 5;
   string introduce = 6;
-}
-
-// --------------------message service------------------------
-
-message ProfileReviewReq{
-  message SectionPornInfoStruct{
-    int32 HitFlag = 1;
-    int32 Score = 2;
-    string Keywords = 3;
-  }
-  message SectionAdsInfoStruct{
-    int32 HitFlag = 1;
-    int32 Score = 2;
-    string Keywords = 3;
-  }
-  message SectionIllegalInfoStruct{
-    int32 HitFlag = 1;
-    int32 Score = 2;
-    string Keywords = 3;
-  }
-  message SectionAbuseInfoStruct{
-    int32 HitFlag = 1;
-    int32 Score = 2;
-    string Keywords = 3;
-  }
-  message SectionStruct{
-    string Label = 1;
-    int32 Result = 2;
-    SectionPornInfoStruct PornInfo = 3;
-    SectionAdsInfoStruct AdsInfo = 4;
-    SectionIllegalInfoStruct IllegalInfo = 5;
-    SectionAbuseInfoStruct AbuseInfo = 6;
-  }
-  message JobsDetailStruct{
-    string Code = 1;
-    string Message = 2;
-    string JobId = 3;
-    string DataId = 4;
-    string State = 5;
-    string CreationTime = 6;
-    string Object = 7;
-    string Label = 8;
-    int32 Result = 9;
-    string BucketId = 10;
-    string Region = 11;
-    map<string, string> CosHeaders = 12;
-    repeated SectionStruct Section = 13;
-
-  }
-  JobsDetailStruct JobsDetail = 1;
-  string EventName = 2;
-}
-
-message AvatarReviewReq{
-  message JobsDetailStruct{
-    string Code = 1;
-    string Message = 2;
-    string JobId = 3;
-    string State = 4;
-    string Object = 5;
-    string Label = 6;
-    int32 Result = 7;
-    string Category = 8;
-    string BucketId = 9;
-    string Region = 10;
-    map<string, string> CosHeaders = 11;
-  }
-  JobsDetailStruct JobsDetail = 1;
-  string EventName = 2;
 }

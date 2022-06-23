@@ -33,10 +33,8 @@ type BffClient interface {
 	SendEmailCode(ctx context.Context, in *SendEmailCodeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetCosSessionKey(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCosSessionKeyReply, error)
 	GetUserProfile(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserProfileReply, error)
-	GetUserProfileUpdate(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserProfileUpdateReply, error)
-	SetUserProfile(ctx context.Context, in *SetUserProfileReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	AvatarReview(ctx context.Context, in *AvatarReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	ProfileReview(ctx context.Context, in *ProfileReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetProfileUpdate(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetProfileUpdateReply, error)
+	SetProfileUpdate(ctx context.Context, in *SetProfileUpdateReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type bffClient struct {
@@ -137,36 +135,18 @@ func (c *bffClient) GetUserProfile(ctx context.Context, in *emptypb.Empty, opts 
 	return out, nil
 }
 
-func (c *bffClient) GetUserProfileUpdate(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserProfileUpdateReply, error) {
-	out := new(GetUserProfileUpdateReply)
-	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserProfileUpdate", in, out, opts...)
+func (c *bffClient) GetProfileUpdate(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetProfileUpdateReply, error) {
+	out := new(GetProfileUpdateReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetProfileUpdate", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *bffClient) SetUserProfile(ctx context.Context, in *SetUserProfileReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *bffClient) SetProfileUpdate(ctx context.Context, in *SetProfileUpdateReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SetUserProfile", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *bffClient) AvatarReview(ctx context.Context, in *AvatarReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/bff.v1.Bff/AvatarReview", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *bffClient) ProfileReview(ctx context.Context, in *ProfileReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/bff.v1.Bff/ProfileReview", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SetProfileUpdate", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -187,10 +167,8 @@ type BffServer interface {
 	SendEmailCode(context.Context, *SendEmailCodeReq) (*emptypb.Empty, error)
 	GetCosSessionKey(context.Context, *emptypb.Empty) (*GetCosSessionKeyReply, error)
 	GetUserProfile(context.Context, *emptypb.Empty) (*GetUserProfileReply, error)
-	GetUserProfileUpdate(context.Context, *emptypb.Empty) (*GetUserProfileUpdateReply, error)
-	SetUserProfile(context.Context, *SetUserProfileReq) (*emptypb.Empty, error)
-	AvatarReview(context.Context, *AvatarReviewReq) (*emptypb.Empty, error)
-	ProfileReview(context.Context, *ProfileReviewReq) (*emptypb.Empty, error)
+	GetProfileUpdate(context.Context, *emptypb.Empty) (*GetProfileUpdateReply, error)
+	SetProfileUpdate(context.Context, *SetProfileUpdateReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedBffServer()
 }
 
@@ -228,17 +206,11 @@ func (UnimplementedBffServer) GetCosSessionKey(context.Context, *emptypb.Empty) 
 func (UnimplementedBffServer) GetUserProfile(context.Context, *emptypb.Empty) (*GetUserProfileReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserProfile not implemented")
 }
-func (UnimplementedBffServer) GetUserProfileUpdate(context.Context, *emptypb.Empty) (*GetUserProfileUpdateReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetUserProfileUpdate not implemented")
+func (UnimplementedBffServer) GetProfileUpdate(context.Context, *emptypb.Empty) (*GetProfileUpdateReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetProfileUpdate not implemented")
 }
-func (UnimplementedBffServer) SetUserProfile(context.Context, *SetUserProfileReq) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetUserProfile not implemented")
-}
-func (UnimplementedBffServer) AvatarReview(context.Context, *AvatarReviewReq) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AvatarReview not implemented")
-}
-func (UnimplementedBffServer) ProfileReview(context.Context, *ProfileReviewReq) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ProfileReview not implemented")
+func (UnimplementedBffServer) SetProfileUpdate(context.Context, *SetProfileUpdateReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetProfileUpdate not implemented")
 }
 func (UnimplementedBffServer) mustEmbedUnimplementedBffServer() {}
 
@@ -433,74 +405,38 @@ func _Bff_GetUserProfile_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Bff_GetUserProfileUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Bff_GetProfileUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BffServer).GetUserProfileUpdate(ctx, in)
+		return srv.(BffServer).GetProfileUpdate(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/bff.v1.Bff/GetUserProfileUpdate",
+		FullMethod: "/bff.v1.Bff/GetProfileUpdate",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BffServer).GetUserProfileUpdate(ctx, req.(*emptypb.Empty))
+		return srv.(BffServer).GetProfileUpdate(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Bff_SetUserProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SetUserProfileReq)
+func _Bff_SetProfileUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetProfileUpdateReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BffServer).SetUserProfile(ctx, in)
+		return srv.(BffServer).SetProfileUpdate(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/bff.v1.Bff/SetUserProfile",
+		FullMethod: "/bff.v1.Bff/SetProfileUpdate",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BffServer).SetUserProfile(ctx, req.(*SetUserProfileReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Bff_AvatarReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AvatarReviewReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(BffServer).AvatarReview(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/bff.v1.Bff/AvatarReview",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BffServer).AvatarReview(ctx, req.(*AvatarReviewReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Bff_ProfileReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ProfileReviewReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(BffServer).ProfileReview(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/bff.v1.Bff/ProfileReview",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BffServer).ProfileReview(ctx, req.(*ProfileReviewReq))
+		return srv.(BffServer).SetProfileUpdate(ctx, req.(*SetProfileUpdateReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -553,20 +489,12 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Bff_GetUserProfile_Handler,
 		},
 		{
-			MethodName: "GetUserProfileUpdate",
-			Handler:    _Bff_GetUserProfileUpdate_Handler,
+			MethodName: "GetProfileUpdate",
+			Handler:    _Bff_GetProfileUpdate_Handler,
 		},
 		{
-			MethodName: "SetUserProfile",
-			Handler:    _Bff_SetUserProfile_Handler,
-		},
-		{
-			MethodName: "AvatarReview",
-			Handler:    _Bff_AvatarReview_Handler,
-		},
-		{
-			MethodName: "ProfileReview",
-			Handler:    _Bff_ProfileReview_Handler,
+			MethodName: "SetProfileUpdate",
+			Handler:    _Bff_SetProfileUpdate_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
