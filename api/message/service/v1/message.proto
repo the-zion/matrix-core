@@ -10,11 +10,16 @@ option go_package = "api/message/service/v1;v1";
 
 service Message {
 
-  rpc AvatarReview(AvatarReviewReq) returns (google.protobuf.Empty){}
+  rpc AvatarReview(AvatarReviewReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/tx/message/avatar/review"
+      body: "*"
+    };
+  }
 
   rpc ProfileReview(ProfileReviewReq) returns (google.protobuf.Empty){
     option (google.api.http) = {
-      post: "/v1/message/profile/review"
+      post: "/tx/message/profile/review"
       body: "*"
     };
   }

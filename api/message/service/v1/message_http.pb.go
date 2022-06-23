@@ -19,12 +19,33 @@ var _ = binding.EncodeURL
 const _ = http.SupportPackageIsVersion1
 
 type MessageHTTPServer interface {
+	AvatarReview(context.Context, *AvatarReviewReq) (*emptypb.Empty, error)
 	ProfileReview(context.Context, *ProfileReviewReq) (*emptypb.Empty, error)
 }
 
 func RegisterMessageHTTPServer(s *http.Server, srv MessageHTTPServer) {
 	r := s.Route("/")
-	r.POST("/v1/message/profile/review", _Message_ProfileReview0_HTTP_Handler(srv))
+	r.POST("/tx/message/avatar/review", _Message_AvatarReview0_HTTP_Handler(srv))
+	r.POST("/tx/message/profile/review", _Message_ProfileReview0_HTTP_Handler(srv))
+}
+
+func _Message_AvatarReview0_HTTP_Handler(srv MessageHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AvatarReviewReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/message.v1.Message/AvatarReview")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AvatarReview(ctx, req.(*AvatarReviewReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
 }
 
 func _Message_ProfileReview0_HTTP_Handler(srv MessageHTTPServer) func(ctx http.Context) error {
@@ -47,6 +68,7 @@ func _Message_ProfileReview0_HTTP_Handler(srv MessageHTTPServer) func(ctx http.C
 }
 
 type MessageHTTPClient interface {
+	AvatarReview(ctx context.Context, req *AvatarReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	ProfileReview(ctx context.Context, req *ProfileReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
 
@@ -58,9 +80,22 @@ func NewMessageHTTPClient(client *http.Client) MessageHTTPClient {
 	return &MessageHTTPClientImpl{client}
 }
 
+func (c *MessageHTTPClientImpl) AvatarReview(ctx context.Context, in *AvatarReviewReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/tx/message/avatar/review"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/message.v1.Message/AvatarReview"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
 func (c *MessageHTTPClientImpl) ProfileReview(ctx context.Context, in *ProfileReviewReq, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/v1/message/profile/review"
+	pattern := "/tx/message/profile/review"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation("/message.v1.Message/ProfileReview"))
 	opts = append(opts, http.PathTemplate(pattern))
