@@ -14,9 +14,8 @@ type UserRepo interface {
 	SendEmailCode(ctx context.Context, template, email string) error
 	GetCosSessionKey(ctx context.Context) (*Credentials, error)
 	GetUserProfile(ctx context.Context, uuid string) (*UserProfile, error)
-	GetUserProfileUpdate(ctx context.Context, uuid string) (*UserProfileUpdate, error)
-	SetUserProfile(ctx context.Context, profile *UserProfileUpdate) error
-	ProfileReview(ctx context.Context, profile *TextReview) error
+	GetProfileUpdate(ctx context.Context, uuid string) (*UserProfileUpdate, error)
+	SetProfileUpdate(ctx context.Context, profile *UserProfileUpdate) error
 }
 
 type UserUseCase struct {
@@ -96,9 +95,9 @@ func (r *UserUseCase) GetUserProfile(ctx context.Context) (*UserProfile, error) 
 	return userProfile, nil
 }
 
-func (r *UserUseCase) GetUserProfileUpdate(ctx context.Context) (*UserProfileUpdate, error) {
+func (r *UserUseCase) GetProfileUpdate(ctx context.Context) (*UserProfileUpdate, error) {
 	uuid := ctx.Value("uuid").(string)
-	userProfile, err := r.repo.GetUserProfileUpdate(ctx, uuid)
+	userProfile, err := r.repo.GetProfileUpdate(ctx, uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -108,15 +107,7 @@ func (r *UserUseCase) GetUserProfileUpdate(ctx context.Context) (*UserProfileUpd
 func (r *UserUseCase) SetUserProfile(ctx context.Context, profile *UserProfileUpdate) error {
 	uuid := ctx.Value("uuid").(string)
 	profile.Uuid = uuid
-	err := r.repo.SetUserProfile(ctx, profile)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (r *UserUseCase) ProfileReview(ctx context.Context, tr *TextReview) error {
-	err := r.repo.ProfileReview(ctx, tr)
+	err := r.repo.SetProfileUpdate(ctx, profile)
 	if err != nil {
 		return err
 	}
