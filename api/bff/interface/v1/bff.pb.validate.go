@@ -1088,22 +1088,22 @@ var _ interface {
 	ErrorName() string
 } = GetCosSessionKeyReplyValidationError{}
 
-// Validate checks the field values on GetUserProfileReply with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *GetUserProfileReply) Validate() error {
+// Validate checks the field values on GetProfileReply with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *GetProfileReply) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on GetUserProfileReply with the rules
+// ValidateAll checks the field values on GetProfileReply with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// GetUserProfileReplyMultiError, or nil if none found.
-func (m *GetUserProfileReply) ValidateAll() error {
+// GetProfileReplyMultiError, or nil if none found.
+func (m *GetProfileReply) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *GetUserProfileReply) validate(all bool) error {
+func (m *GetProfileReply) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -1127,19 +1127,19 @@ func (m *GetUserProfileReply) validate(all bool) error {
 	// no validation rules for Introduce
 
 	if len(errors) > 0 {
-		return GetUserProfileReplyMultiError(errors)
+		return GetProfileReplyMultiError(errors)
 	}
 
 	return nil
 }
 
-// GetUserProfileReplyMultiError is an error wrapping multiple validation
-// errors returned by GetUserProfileReply.ValidateAll() if the designated
-// constraints aren't met.
-type GetUserProfileReplyMultiError []error
+// GetProfileReplyMultiError is an error wrapping multiple validation errors
+// returned by GetProfileReply.ValidateAll() if the designated constraints
+// aren't met.
+type GetProfileReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m GetUserProfileReplyMultiError) Error() string {
+func (m GetProfileReplyMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1148,11 +1148,11 @@ func (m GetUserProfileReplyMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m GetUserProfileReplyMultiError) AllErrors() []error { return m }
+func (m GetProfileReplyMultiError) AllErrors() []error { return m }
 
-// GetUserProfileReplyValidationError is the validation error returned by
-// GetUserProfileReply.Validate if the designated constraints aren't met.
-type GetUserProfileReplyValidationError struct {
+// GetProfileReplyValidationError is the validation error returned by
+// GetProfileReply.Validate if the designated constraints aren't met.
+type GetProfileReplyValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1160,24 +1160,22 @@ type GetUserProfileReplyValidationError struct {
 }
 
 // Field function returns field value.
-func (e GetUserProfileReplyValidationError) Field() string { return e.field }
+func (e GetProfileReplyValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e GetUserProfileReplyValidationError) Reason() string { return e.reason }
+func (e GetProfileReplyValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e GetUserProfileReplyValidationError) Cause() error { return e.cause }
+func (e GetProfileReplyValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e GetUserProfileReplyValidationError) Key() bool { return e.key }
+func (e GetProfileReplyValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e GetUserProfileReplyValidationError) ErrorName() string {
-	return "GetUserProfileReplyValidationError"
-}
+func (e GetProfileReplyValidationError) ErrorName() string { return "GetProfileReplyValidationError" }
 
 // Error satisfies the builtin error interface
-func (e GetUserProfileReplyValidationError) Error() string {
+func (e GetProfileReplyValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1189,14 +1187,14 @@ func (e GetUserProfileReplyValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sGetUserProfileReply.%s: %s%s",
+		"invalid %sGetProfileReply.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = GetUserProfileReplyValidationError{}
+var _ error = GetProfileReplyValidationError{}
 
 var _ interface {
 	Field() string
@@ -1204,7 +1202,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = GetUserProfileReplyValidationError{}
+} = GetProfileReplyValidationError{}
 
 // Validate checks the field values on GetProfileUpdateReply with the rules
 // defined in the proto definition for this message. If any rules are

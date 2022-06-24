@@ -72,7 +72,7 @@ service Bff{
     };
   }
 
-  rpc GetUserProfile (google.protobuf.Empty) returns (GetUserProfileReply) {
+  rpc GetProfile (google.protobuf.Empty) returns (GetProfileReply) {
     option (google.api.http) = {
       get: "/v1/get/user/profile",
     };
@@ -80,13 +80,13 @@ service Bff{
 
   rpc GetProfileUpdate (google.protobuf.Empty) returns (GetProfileUpdateReply) {
     option (google.api.http) = {
-      get: "/v1/get/profile/update",
+      get: "/v1/get/user/profile/update",
     };
   }
 
   rpc SetProfileUpdate (SetProfileUpdateReq) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      post: "/v1/set/profile/update"
+      post: "/v1/set/user/profile/update"
       body: "*"
     };
   }
@@ -148,7 +148,7 @@ message GetCosSessionKeyReply{
   int64 expired_time = 5;
 }
 
-message GetUserProfileReply{
+message GetProfileReply{
   string uuid = 1;
   string username = 2;
   string avatar = 3;
