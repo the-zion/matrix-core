@@ -20,7 +20,7 @@ func (s *UserService) GetUser(ctx context.Context, req *v1.GetUserReq) (*v1.GetU
 	}, nil
 }
 
-func (s *UserService) GetUserProfile(ctx context.Context, req *v1.GetProfileReq) (*v1.GetProfileReply, error) {
+func (s *UserService) GetProfile(ctx context.Context, req *v1.GetProfileReq) (*v1.GetProfileReply, error) {
 	profile, err := s.uc.GetProfile(ctx, req.Uuid)
 	if err != nil {
 		return nil, err
@@ -80,6 +80,14 @@ func (s *UserService) SetUserEmail(ctx context.Context, req *v1.SetUserEmailReq)
 
 func (s *UserService) ProfileReviewPass(ctx context.Context, req *v1.ProfileReviewPassReq) (*emptypb.Empty, error) {
 	err := s.uc.ProfileReviewPass(ctx, req.Uuid, req.Update)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *UserService) ProfileReviewNotPass(ctx context.Context, req *v1.ProfileReviewNotPassReq) (*emptypb.Empty, error) {
+	err := s.uc.ProfileReviewNotPass(ctx, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
