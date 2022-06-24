@@ -110,7 +110,7 @@ func (r *userRepo) GetCosSessionKey(ctx context.Context) (*biz.Credentials, erro
 	}, nil
 }
 
-func (r *userRepo) GetUserProfile(ctx context.Context, uuid string) (*biz.UserProfile, error) {
+func (r *userRepo) GetProfile(ctx context.Context, uuid string) (*biz.UserProfile, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_user_profile_%s", uuid), func() (interface{}, error) {
 		reply, err := r.data.uc.GetProfile(ctx, &userV1.GetProfileReq{
 			Uuid: uuid,
