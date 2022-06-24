@@ -73,12 +73,12 @@ func (s *BffService) GetCosSessionKey(ctx context.Context, _ *emptypb.Empty) (*v
 	}, nil
 }
 
-func (s *BffService) GetUserProfile(ctx context.Context, _ *emptypb.Empty) (*v1.GetUserProfileReply, error) {
-	userProfile, err := s.uc.GetUserProfile(ctx)
+func (s *BffService) GetProfile(ctx context.Context, _ *emptypb.Empty) (*v1.GetProfileReply, error) {
+	userProfile, err := s.uc.GetProfile(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return &v1.GetUserProfileReply{
+	return &v1.GetProfileReply{
 		Uuid:      userProfile.Uuid,
 		Username:  userProfile.Username,
 		Avatar:    userProfile.Avatar,
