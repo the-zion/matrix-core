@@ -48,7 +48,7 @@ func (r *userRepo) UploadProfileToCos(msgs ...*primitive.MessageExt) {
 		}
 
 		opt.XCosMetaXXX.Add("x-cos-meta-uuid", m["Uuid"])
-		opt.XCosMetaXXX.Add("x-cos-meta-update", m["UpdatedAt"])
+		opt.XCosMetaXXX.Add("x-cos-meta-update", m["Updated"])
 
 		f := strings.NewReader(string(i.Body))
 		_, err = r.data.cosCli.Object.Put(
@@ -64,6 +64,16 @@ func (r *userRepo) ProfileReviewPass(ctx context.Context, uuid, update string) e
 	_, err := r.data.uc.ProfileReviewPass(ctx, &userV1.ProfileReviewPassReq{
 		Uuid:   uuid,
 		Update: update,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *userRepo) ProfileReviewNotPass(ctx context.Context, uuid string) error {
+	_, err := r.data.uc.ProfileReviewNotPass(ctx, &userV1.ProfileReviewNotPassReq{
+		Uuid: uuid,
 	})
 	if err != nil {
 		return err
@@ -99,65 +109,3 @@ func (r *userRepo) SendCode(msgs ...*primitive.MessageExt) {
 		}
 	}
 }
-
-//func (r *userRepo) ProfileReview(msgs ...*primitive.MessageExt) error {
-//	tr := &biz.TextReview{
-//		Code:         req.JobsDetail.Code,
-//		Message:      req.JobsDetail.Message,
-//		JobId:        req.JobsDetail.JobId,
-//		DataId:       req.JobsDetail.DataId,
-//		State:        req.JobsDetail.State,
-//		CreationTime: req.JobsDetail.CreationTime,
-//		Object:       req.JobsDetail.Object,
-//		Label:        req.JobsDetail.Label,
-//		Result:       req.JobsDetail.Result,
-//		BucketId:     req.JobsDetail.BucketId,
-//		Region:       req.JobsDetail.Region,
-//		CosHeaders:   req.JobsDetail.CosHeaders,
-//	}
-//
-//	var section []*biz.Section
-//
-//	for _, item := range req.JobsDetail.Section {
-//		se := &biz.Section{
-//			Label:  item.Label,
-//			Result: item.Result,
-//		}
-//
-//		if item.PornInfo != nil {
-//			se.PornInfo = &biz.SectionPornInfo{
-//				HitFlag:  item.PornInfo.HitFlag,
-//				Score:    item.PornInfo.Score,
-//				Keywords: item.PornInfo.Keywords,
-//			}
-//		}
-//
-//		if item.AdsInfo != nil {
-//			se.AdsInfo = &biz.SectionAdsInfo{
-//				HitFlag:  item.AdsInfo.HitFlag,
-//				Score:    item.AdsInfo.Score,
-//				Keywords: item.AdsInfo.Keywords,
-//			}
-//		}
-//
-//		if item.IllegalInfo != nil {
-//			se.IllegalInfo = &biz.SectionIllegalInfo{
-//				HitFlag:  item.IllegalInfo.HitFlag,
-//				Score:    item.IllegalInfo.Score,
-//				Keywords: item.IllegalInfo.Keywords,
-//			}
-//		}
-//
-//		if item.AbuseInfo != nil {
-//			se.AbuseInfo = &biz.SectionAbuseInfo{
-//				HitFlag:  item.AbuseInfo.HitFlag,
-//				Score:    item.AbuseInfo.Score,
-//				Keywords: item.AbuseInfo.Keywords,
-//			}
-//		}
-//		section = append(section, se)
-//
-//	}
-//
-//	tr.Section = section
-//}
