@@ -2,7 +2,6 @@ package data
 
 import (
 	"gorm.io/gorm"
-	"time"
 )
 
 type User struct {
@@ -16,7 +15,7 @@ type User struct {
 }
 
 type Profile struct {
-	Update    time.Time
+	Updated   int64
 	Uuid      string `gorm:"primaryKey;size:36"`
 	Username  string `gorm:"uniqueIndex;not null;size:20"`
 	Avatar    string `gorm:"size:200"`

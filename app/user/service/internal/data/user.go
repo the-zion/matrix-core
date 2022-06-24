@@ -10,7 +10,6 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/pkg/errors"
 	"github.com/the-zion/matrix-core/app/user/service/internal/biz"
-	"github.com/the-zion/matrix-core/app/user/service/internal/pkg/util"
 	"gorm.io/gorm"
 	"strconv"
 	"strings"
@@ -75,11 +74,13 @@ func (r *userRepo) GetProfile(ctx context.Context, uuid string) (*biz.Profile, e
 		return nil, err
 	}
 	return &biz.Profile{
+		Updated:   strconv.FormatInt(target.Updated, 10),
 		Uuid:      target.Uuid,
 		Username:  target.Username,
 		Avatar:    target.Avatar,
 		School:    target.School,
 		Company:   target.Company,
+		Job:       target.Job,
 		Homepage:  target.Homepage,
 		Introduce: target.Introduce,
 	}, nil
@@ -95,11 +96,13 @@ func (r *userRepo) GetProfileUpdate(ctx context.Context, uuid string) (*biz.Prof
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("db query system error: uuid(%v)", uuid))
 	}
-	pu.Update = util.TimeFormat(profile.Update)
+	pu.Updated = strconv.FormatInt(profile.Updated, 10)
+	pu.Uuid = profile.Uuid
 	pu.Username = profile.Username
 	pu.Avatar = profile.Avatar
 	pu.School = profile.School
 	pu.Company = profile.Company
+	pu.Job = profile.Job
 	pu.Homepage = profile.Homepage
 	pu.Introduce = profile.Introduce
 	pu.Status = profile.Status
@@ -107,30 +110,33 @@ func (r *userRepo) GetProfileUpdate(ctx context.Context, uuid string) (*biz.Prof
 }
 
 func (r *userRepo) SetProfile(ctx context.Context, profile *biz.ProfileUpdate) error {
-	dateTime, err := util.StringToTime("2023-06-23 22:53:53")
+	updateTime, err := strconv.ParseInt(profile.Updated, 10, 64)
 	if err != nil {
-		return err
+		return errors.Wrapf(err, fmt.Sprintf("fail to convert string to int64, update: %v", profile.Updated))
 	}
 	p := &Profile{}
-	p.Update = dateTime
+	p.Updated = updateTime
 	p.Username = profile.Username
 	p.School = profile.School
 	p.Company = profile.Company
+	p.Job = profile.Job
 	p.Homepage = profile.Homepage
 	p.Introduce = profile.Introduce
 	err = r.data.DB(ctx).Model(&Profile{}).Where("uuid = ?", profile.Uuid).Updates(p).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set profile: profile(%v)", profile))
 	}
+	r.setProfileToCache(ctx, p, "profile_"+profile.Uuid)
 	return nil
 }
 
 func (r *userRepo) SetProfileUpdate(ctx context.Context, profile *biz.ProfileUpdate, status int32) (*biz.ProfileUpdate, error) {
 	pu := &ProfileUpdate{}
-	pu.Update = time.Now()
+	pu.Updated = time.Now().Unix()
 	pu.Username = profile.Username
 	pu.School = profile.School
 	pu.Company = profile.Company
+	pu.Job = profile.Job
 	pu.Homepage = profile.Homepage
 	pu.Introduce = profile.Introduce
 	pu.Status = status
@@ -143,22 +149,23 @@ func (r *userRepo) SetProfileUpdate(ctx context.Context, profile *biz.ProfileUpd
 			return nil, errors.Wrapf(err, fmt.Sprintf("fail to update a profile: profile(%v)", profile))
 		}
 	}
-	profile.Update = util.TimeFormat(pu.Update)
+	profile.Updated = strconv.FormatInt(pu.Updated, 10)
 	return profile, nil
 }
 
 func (r *userRepo) SetProfileUpdateRetry(profile *biz.ProfileUpdate) {
-	updateTime, err := util.StringToTime(profile.Update)
+	updateTime, err := strconv.ParseInt(profile.Updated, 10, 64)
 	if err != nil {
-		r.log.Errorf("fail to transform string to time, error: %v", err)
+		r.log.Errorf("fail to transform string to int64, error: %v", err)
 		return
 	}
 	pur := &ProfileUpdateRetry{}
-	pur.Update = updateTime
+	pur.Updated = updateTime
 	pur.Uuid = profile.Uuid
 	pur.Username = profile.Username
 	pur.School = profile.School
 	pur.Company = profile.Company
+	pur.Job = profile.Job
 	pur.Homepage = profile.Homepage
 	pur.Introduce = profile.Introduce
 	err = r.data.db.Model(&ProfileUpdateRetry{}).Where("uuid = ?", profile.Uuid).Updates(pur).Error
@@ -192,11 +199,11 @@ func (r *userRepo) SendProfileToMq(_ context.Context, profile *biz.ProfileUpdate
 }
 
 func (r *userRepo) ModifyProfileUpdateStatus(ctx context.Context, uuid, update string) error {
-	updateTime, err := util.StringToTime(update)
+	updateTime, err := strconv.ParseInt(update, 10, 64)
 	if err != nil {
-		return err
+		return errors.Wrapf(err, fmt.Sprintf("fail to convert string to int64, update: %v", update))
 	}
-	err = r.data.DB(ctx).Model(&ProfileUpdate{}).Where("uuid = ? and updated_at = ?", uuid, updateTime).Update("Status", 1).Error
+	err = r.data.DB(ctx).Model(&ProfileUpdate{}).Where("uuid = ? and updated = ?", uuid, updateTime).Update("status", 1).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to modify profile update status: uuid(%v)", uuid))
 	}
