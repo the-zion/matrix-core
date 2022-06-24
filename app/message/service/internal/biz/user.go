@@ -11,6 +11,7 @@ type UserRepo interface {
 	SendCode(msgs ...*primitive.MessageExt)
 	UploadProfileToCos(msgs ...*primitive.MessageExt)
 	ProfileReviewPass(ctx context.Context, uuid, update string) error
+	ProfileReviewNotPass(ctx context.Context, uuid string) error
 }
 
 type UserUseCase struct {
@@ -46,6 +47,9 @@ func (r *UserUseCase) ProfileReview(ctx context.Context, tr *TextReview) error {
 	var err error
 	if tr.Result == 0 {
 		err = r.repo.ProfileReviewPass(ctx, tr.CosHeaders["x-cos-meta-uuid"], tr.CosHeaders["x-cos-meta-update"])
+	} else {
+		r.log.Info("profile review not pass，%v", tr)
+		err = r.repo.ProfileReviewNotPass(ctx, tr.CosHeaders["x-cos-meta-uuid"])
 	}
 	if err != nil {
 		return err
