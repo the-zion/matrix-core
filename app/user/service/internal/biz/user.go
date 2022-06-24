@@ -95,7 +95,6 @@ func (r *UserUseCase) ProfileReviewPass(ctx context.Context, uuid, update string
 		if err != nil {
 			return err
 		}
-		profile.Uuid = uuid
 		err = r.repo.SetProfile(ctx, profile)
 		if err != nil {
 			return err
@@ -103,7 +102,27 @@ func (r *UserUseCase) ProfileReviewPass(ctx context.Context, uuid, update string
 		return nil
 	})
 	if err != nil {
-		return v1.ErrorProfileReviewModify("profile modify failed: %s", err.Error())
+		return v1.ErrorProfileReviewModifyFailed("profile modify failed: %s", err.Error())
+	}
+	return nil
+}
+
+func (r *UserUseCase) ProfileReviewNotPass(ctx context.Context, uuid string) error {
+	err := r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		profile, err := r.repo.GetProfile(ctx, uuid)
+		if err != nil {
+			return err
+		}
+		_, err = r.repo.SetProfileUpdate(ctx, &ProfileUpdate{
+			Profile: *profile,
+		}, 1)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return v1.ErrorProfileUpdateModifyFailed("profile update modify failed: %s", err.Error())
 	}
 	return nil
 }

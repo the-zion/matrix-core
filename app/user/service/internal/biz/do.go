@@ -1,7 +1,7 @@
 package biz
 
 type Profile struct {
-	Update    string
+	Updated   string
 	Uuid      string
 	Username  string
 	Avatar    string
