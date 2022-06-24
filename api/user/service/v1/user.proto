@@ -56,7 +56,8 @@ service User {
     };
   }
 
-  rpc ProfileReviewPass (ProfileReviewPassReq)returns (google.protobuf.Empty) {}
+  rpc ProfileReviewPass (ProfileReviewPassReq) returns (google.protobuf.Empty) {}
+  rpc ProfileReviewNotPass (ProfileReviewNotPassReq) returns (google.protobuf.Empty){}
 }
 
 message UserRegisterReq{
@@ -187,4 +188,8 @@ message SetProfileUpdateReq{
 message ProfileReviewPassReq{
   string uuid = 1 [(validate.rules).string.uuid = true];
   string update = 2 [(validate.rules).string = {max_len: 20}];
+}
+
+message ProfileReviewNotPassReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
 }

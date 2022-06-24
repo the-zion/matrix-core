@@ -24,29 +24,30 @@ const (
 type UserErrorReason int32
 
 const (
-	UserErrorReason_UNKNOWN_ERROR             UserErrorReason = 0
-	UserErrorReason_VERIFY_PASSWORD_FAILED    UserErrorReason = 1
-	UserErrorReason_VERIFY_CODE_FAILED        UserErrorReason = 2
-	UserErrorReason_USERNAME_CONFLICT         UserErrorReason = 3
-	UserErrorReason_PHONE_CONFLICT            UserErrorReason = 4
-	UserErrorReason_EMAIL_CONFLICT            UserErrorReason = 5
-	UserErrorReason_USER_NAME_CONFLICT        UserErrorReason = 6
-	UserErrorReason_GET_USER_FAILED           UserErrorReason = 7
-	UserErrorReason_GET_PROFILE_FAILED        UserErrorReason = 8
-	UserErrorReason_GET_PROFILE_UPDATE_FAILED UserErrorReason = 9
-	UserErrorReason_GET_ACHIEVEMENT_FAILED    UserErrorReason = 10
-	UserErrorReason_SEND_CODE_FAILED          UserErrorReason = 11
-	UserErrorReason_SET_PHONE_FAILED          UserErrorReason = 12
-	UserErrorReason_SET_EMAIL_FAILED          UserErrorReason = 13
-	UserErrorReason_SET_PROFILE_FAILED        UserErrorReason = 14
-	UserErrorReason_SET_PROFILE_UPDATE_FAILED UserErrorReason = 15
-	UserErrorReason_SET_USERNAME_FAILED       UserErrorReason = 16
-	UserErrorReason_SET_BACKGROUND_FAILED     UserErrorReason = 17
-	UserErrorReason_SET_IMAGE_FAILED          UserErrorReason = 18
-	UserErrorReason_LOGIN_FAILED              UserErrorReason = 19
-	UserErrorReason_REGISTER_FAILED           UserErrorReason = 20
-	UserErrorReason_RESET_PASSWORD_FAILED     UserErrorReason = 21
-	UserErrorReason_PROFILE_REVIEW_MODIFY     UserErrorReason = 22
+	UserErrorReason_UNKNOWN_ERROR                UserErrorReason = 0
+	UserErrorReason_VERIFY_PASSWORD_FAILED       UserErrorReason = 1
+	UserErrorReason_VERIFY_CODE_FAILED           UserErrorReason = 2
+	UserErrorReason_USERNAME_CONFLICT            UserErrorReason = 3
+	UserErrorReason_PHONE_CONFLICT               UserErrorReason = 4
+	UserErrorReason_EMAIL_CONFLICT               UserErrorReason = 5
+	UserErrorReason_USER_NAME_CONFLICT           UserErrorReason = 6
+	UserErrorReason_GET_USER_FAILED              UserErrorReason = 7
+	UserErrorReason_GET_PROFILE_FAILED           UserErrorReason = 8
+	UserErrorReason_GET_PROFILE_UPDATE_FAILED    UserErrorReason = 9
+	UserErrorReason_GET_ACHIEVEMENT_FAILED       UserErrorReason = 10
+	UserErrorReason_SEND_CODE_FAILED             UserErrorReason = 11
+	UserErrorReason_SET_PHONE_FAILED             UserErrorReason = 12
+	UserErrorReason_SET_EMAIL_FAILED             UserErrorReason = 13
+	UserErrorReason_SET_PROFILE_FAILED           UserErrorReason = 14
+	UserErrorReason_SET_PROFILE_UPDATE_FAILED    UserErrorReason = 15
+	UserErrorReason_SET_USERNAME_FAILED          UserErrorReason = 16
+	UserErrorReason_SET_BACKGROUND_FAILED        UserErrorReason = 17
+	UserErrorReason_SET_IMAGE_FAILED             UserErrorReason = 18
+	UserErrorReason_LOGIN_FAILED                 UserErrorReason = 19
+	UserErrorReason_REGISTER_FAILED              UserErrorReason = 20
+	UserErrorReason_RESET_PASSWORD_FAILED        UserErrorReason = 21
+	UserErrorReason_PROFILE_REVIEW_MODIFY_FAILED UserErrorReason = 22
+	UserErrorReason_PROFILE_UPDATE_MODIFY_FAILED UserErrorReason = 23
 )
 
 // Enum value maps for UserErrorReason.
@@ -74,32 +75,34 @@ var (
 		19: "LOGIN_FAILED",
 		20: "REGISTER_FAILED",
 		21: "RESET_PASSWORD_FAILED",
-		22: "PROFILE_REVIEW_MODIFY",
+		22: "PROFILE_REVIEW_MODIFY_FAILED",
+		23: "PROFILE_UPDATE_MODIFY_FAILED",
 	}
 	UserErrorReason_value = map[string]int32{
-		"UNKNOWN_ERROR":             0,
-		"VERIFY_PASSWORD_FAILED":    1,
-		"VERIFY_CODE_FAILED":        2,
-		"USERNAME_CONFLICT":         3,
-		"PHONE_CONFLICT":            4,
-		"EMAIL_CONFLICT":            5,
-		"USER_NAME_CONFLICT":        6,
-		"GET_USER_FAILED":           7,
-		"GET_PROFILE_FAILED":        8,
-		"GET_PROFILE_UPDATE_FAILED": 9,
-		"GET_ACHIEVEMENT_FAILED":    10,
-		"SEND_CODE_FAILED":          11,
-		"SET_PHONE_FAILED":          12,
-		"SET_EMAIL_FAILED":          13,
-		"SET_PROFILE_FAILED":        14,
-		"SET_PROFILE_UPDATE_FAILED": 15,
-		"SET_USERNAME_FAILED":       16,
-		"SET_BACKGROUND_FAILED":     17,
-		"SET_IMAGE_FAILED":          18,
-		"LOGIN_FAILED":              19,
-		"REGISTER_FAILED":           20,
-		"RESET_PASSWORD_FAILED":     21,
-		"PROFILE_REVIEW_MODIFY":     22,
+		"UNKNOWN_ERROR":                0,
+		"VERIFY_PASSWORD_FAILED":       1,
+		"VERIFY_CODE_FAILED":           2,
+		"USERNAME_CONFLICT":            3,
+		"PHONE_CONFLICT":               4,
+		"EMAIL_CONFLICT":               5,
+		"USER_NAME_CONFLICT":           6,
+		"GET_USER_FAILED":              7,
+		"GET_PROFILE_FAILED":           8,
+		"GET_PROFILE_UPDATE_FAILED":    9,
+		"GET_ACHIEVEMENT_FAILED":       10,
+		"SEND_CODE_FAILED":             11,
+		"SET_PHONE_FAILED":             12,
+		"SET_EMAIL_FAILED":             13,
+		"SET_PROFILE_FAILED":           14,
+		"SET_PROFILE_UPDATE_FAILED":    15,
+		"SET_USERNAME_FAILED":          16,
+		"SET_BACKGROUND_FAILED":        17,
+		"SET_IMAGE_FAILED":             18,
+		"LOGIN_FAILED":                 19,
+		"REGISTER_FAILED":              20,
+		"RESET_PASSWORD_FAILED":        21,
+		"PROFILE_REVIEW_MODIFY_FAILED": 22,
+		"PROFILE_UPDATE_MODIFY_FAILED": 23,
 	}
 )
 
@@ -137,7 +140,7 @@ var file_user_service_v1_user_error_proto_rawDesc = []byte{
 	0x31, 0x2f, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x2e, 0x70, 0x72, 0x6f,
 	0x74, 0x6f, 0x12, 0x07, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x1a, 0x13, 0x65, 0x72, 0x72,
 	0x6f, 0x72, 0x73, 0x2f, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
-	0x2a, 0xf9, 0x04, 0x0a, 0x0f, 0x55, 0x73, 0x65, 0x72, 0x45, 0x72, 0x72, 0x6f, 0x72, 0x52, 0x65,
+	0x2a, 0xa2, 0x05, 0x0a, 0x0f, 0x55, 0x73, 0x65, 0x72, 0x45, 0x72, 0x72, 0x6f, 0x72, 0x52, 0x65,
 	0x61, 0x73, 0x6f, 0x6e, 0x12, 0x11, 0x0a, 0x0d, 0x55, 0x4e, 0x4b, 0x4e, 0x4f, 0x57, 0x4e, 0x5f,
 	0x45, 0x52, 0x52, 0x4f, 0x52, 0x10, 0x00, 0x12, 0x20, 0x0a, 0x16, 0x56, 0x45, 0x52, 0x49, 0x46,
 	0x59, 0x5f, 0x50, 0x41, 0x53, 0x53, 0x57, 0x4f, 0x52, 0x44, 0x5f, 0x46, 0x41, 0x49, 0x4c, 0x45,
@@ -174,12 +177,14 @@ var file_user_service_v1_user_error_proto_rawDesc = []byte{
 	0x49, 0x4e, 0x5f, 0x46, 0x41, 0x49, 0x4c, 0x45, 0x44, 0x10, 0x13, 0x12, 0x13, 0x0a, 0x0f, 0x52,
 	0x45, 0x47, 0x49, 0x53, 0x54, 0x45, 0x52, 0x5f, 0x46, 0x41, 0x49, 0x4c, 0x45, 0x44, 0x10, 0x14,
 	0x12, 0x19, 0x0a, 0x15, 0x52, 0x45, 0x53, 0x45, 0x54, 0x5f, 0x50, 0x41, 0x53, 0x53, 0x57, 0x4f,
-	0x52, 0x44, 0x5f, 0x46, 0x41, 0x49, 0x4c, 0x45, 0x44, 0x10, 0x15, 0x12, 0x19, 0x0a, 0x15, 0x50,
+	0x52, 0x44, 0x5f, 0x46, 0x41, 0x49, 0x4c, 0x45, 0x44, 0x10, 0x15, 0x12, 0x20, 0x0a, 0x1c, 0x50,
 	0x52, 0x4f, 0x46, 0x49, 0x4c, 0x45, 0x5f, 0x52, 0x45, 0x56, 0x49, 0x45, 0x57, 0x5f, 0x4d, 0x4f,
-	0x44, 0x49, 0x46, 0x59, 0x10, 0x16, 0x1a, 0x04, 0xa0, 0x45, 0xf4, 0x03, 0x42, 0x1b, 0x5a, 0x19,
-	0x61, 0x70, 0x69, 0x2f, 0x75, 0x73, 0x65, 0x72, 0x2f, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65,
-	0x2f, 0x76, 0x31, 0x2f, 0x70, 0x62, 0x3b, 0x76, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f,
-	0x33,
+	0x44, 0x49, 0x46, 0x59, 0x5f, 0x46, 0x41, 0x49, 0x4c, 0x45, 0x44, 0x10, 0x16, 0x12, 0x20, 0x0a,
+	0x1c, 0x50, 0x52, 0x4f, 0x46, 0x49, 0x4c, 0x45, 0x5f, 0x55, 0x50, 0x44, 0x41, 0x54, 0x45, 0x5f,
+	0x4d, 0x4f, 0x44, 0x49, 0x46, 0x59, 0x5f, 0x46, 0x41, 0x49, 0x4c, 0x45, 0x44, 0x10, 0x17, 0x1a,
+	0x04, 0xa0, 0x45, 0xf4, 0x03, 0x42, 0x1b, 0x5a, 0x19, 0x61, 0x70, 0x69, 0x2f, 0x75, 0x73, 0x65,
+	0x72, 0x2f, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x2f, 0x76, 0x31, 0x2f, 0x70, 0x62, 0x3b,
+	0x76, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (

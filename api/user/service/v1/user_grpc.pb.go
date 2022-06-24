@@ -39,6 +39,7 @@ type UserClient interface {
 	GetProfileUpdate(ctx context.Context, in *GetProfileUpdateReq, opts ...grpc.CallOption) (*GetProfileUpdateReply, error)
 	SetProfileUpdate(ctx context.Context, in *SetProfileUpdateReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ProfileReviewPass(ctx context.Context, in *ProfileReviewPassReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	ProfileReviewNotPass(ctx context.Context, in *ProfileReviewNotPassReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type userClient struct {
@@ -193,6 +194,15 @@ func (c *userClient) ProfileReviewPass(ctx context.Context, in *ProfileReviewPas
 	return out, nil
 }
 
+func (c *userClient) ProfileReviewNotPass(ctx context.Context, in *ProfileReviewNotPassReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/user.v1.User/ProfileReviewNotPass", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServer is the server API for User service.
 // All implementations must embed UnimplementedUserServer
 // for forward compatibility
@@ -213,6 +223,7 @@ type UserServer interface {
 	GetProfileUpdate(context.Context, *GetProfileUpdateReq) (*GetProfileUpdateReply, error)
 	SetProfileUpdate(context.Context, *SetProfileUpdateReq) (*emptypb.Empty, error)
 	ProfileReviewPass(context.Context, *ProfileReviewPassReq) (*emptypb.Empty, error)
+	ProfileReviewNotPass(context.Context, *ProfileReviewNotPassReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedUserServer()
 }
 
@@ -267,6 +278,9 @@ func (UnimplementedUserServer) SetProfileUpdate(context.Context, *SetProfileUpda
 }
 func (UnimplementedUserServer) ProfileReviewPass(context.Context, *ProfileReviewPassReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ProfileReviewPass not implemented")
+}
+func (UnimplementedUserServer) ProfileReviewNotPass(context.Context, *ProfileReviewNotPassReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ProfileReviewNotPass not implemented")
 }
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}
 
@@ -569,6 +583,24 @@ func _User_ProfileReviewPass_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _User_ProfileReviewNotPass_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProfileReviewNotPassReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).ProfileReviewNotPass(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/ProfileReviewNotPass",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).ProfileReviewNotPass(ctx, req.(*ProfileReviewNotPassReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // User_ServiceDesc is the grpc.ServiceDesc for User service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -639,6 +671,10 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ProfileReviewPass",
 			Handler:    _User_ProfileReviewPass_Handler,
+		},
+		{
+			MethodName: "ProfileReviewNotPass",
+			Handler:    _User_ProfileReviewNotPass_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
