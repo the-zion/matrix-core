@@ -10,6 +10,8 @@ type User struct {
 	Email    string `gorm:"uniqueIndex;size:50"`
 	Phone    string `gorm:"uniqueIndex;size:20"`
 	Wechat   string `gorm:"uniqueIndex;size:100"`
+	Qq       string `gorm:"uniqueIndex;size:100"`
+	Weibo    string `gorm:"uniqueIndex;size:100"`
 	Github   string `gorm:"uniqueIndex;size:100"`
 	Password string `gorm:"size:500"`
 }
