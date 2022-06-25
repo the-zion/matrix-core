@@ -20,6 +20,8 @@ type AuthRepo interface {
 	CreateUserProfile(ctx context.Context, account, uuid string) error
 	CreateUserProfileUpdate(ctx context.Context, account, uuid string) error
 	CreateProfileUpdateRetry(ctx context.Context, account, uuid string) error
+	SetUserPhone(ctx context.Context, uuid, phone string) error
+	SetUserEmail(ctx context.Context, uuid, email string) error
 	SendPhoneCode(ctx context.Context, template, phone string) error
 	SendEmailCode(ctx context.Context, template, phone string) error
 	VerifyPhoneCode(ctx context.Context, phone, code string) error
@@ -187,6 +189,46 @@ func (r *AuthUseCase) SendEmailCode(ctx context.Context, template, email string)
 	return nil
 }
 
+func (r *AuthUseCase) GetCosSessionKey(ctx context.Context) (*Credentials, error) {
+	credentials, err := r.repo.GetCosSessionKey(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return credentials, nil
+}
+
+func (r *AuthUseCase) SetUserPhone(ctx context.Context, uuid, phone, code string) error {
+	err := r.repo.VerifyPhoneCode(ctx, phone, code)
+	if err != nil {
+		return v1.ErrorVerifyCodeFailed("set user phone failed: %s", err.Error())
+	}
+
+	err = r.repo.SetUserPhone(ctx, uuid, phone)
+	if kerrors.IsConflict(err) {
+		return v1.ErrorPhoneConflict("set user phone failed: %s", err.Error())
+	}
+	if err != nil {
+		return v1.ErrorSetPhoneFailed("set user phone failed: %s", err.Error())
+	}
+	return nil
+}
+
+func (r *AuthUseCase) SetUserEmail(ctx context.Context, uuid, email, code string) error {
+	err := r.repo.VerifyEmailCode(ctx, email, code)
+	if err != nil {
+		return v1.ErrorVerifyCodeFailed("set user email failed: %s", err.Error())
+	}
+
+	err = r.repo.SetUserEmail(ctx, uuid, email)
+	if kerrors.IsConflict(err) {
+		return v1.ErrorEmailConflict("set user email failed: %s", err.Error())
+	}
+	if err != nil {
+		return v1.ErrorSetEmailFailed("set user email failed: %s", err.Error())
+	}
+	return nil
+}
+
 func signToken(uuid, key string) (string, error) {
 	nowTime := time.Now()
 	expireTime := nowTime.Add(604800 * time.Second)
@@ -200,12 +242,4 @@ func signToken(uuid, key string) (string, error) {
 		return "", errors.Wrapf(err, fmt.Sprintf("fail to sign token: uuid(%v)", uuid))
 	}
 	return signedString, nil
-}
-
-func (r *AuthUseCase) GetCosSessionKey(ctx context.Context) (*Credentials, error) {
-	credentials, err := r.repo.GetCosSessionKey(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return credentials, nil
 }

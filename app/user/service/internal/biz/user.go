@@ -7,17 +7,8 @@ import (
 	v1 "github.com/the-zion/matrix-core/api/user/service/v1"
 )
 
-type User struct {
-	Uuid     string
-	Password string
-	Phone    string
-	Email    string
-	Wechat   string
-	Github   string
-}
-
 type UserRepo interface {
-	GetUser(ctx context.Context, id int64) (*User, error)
+	GetAccount(ctx context.Context, uuid string) (*User, error)
 	GetProfile(ctx context.Context, uuid string) (*Profile, error)
 	GetProfileUpdate(ctx context.Context, uuid string) (*ProfileUpdate, error)
 	SetProfile(ctx context.Context, profile *ProfileUpdate) error
@@ -38,6 +29,14 @@ func NewUserUseCase(repo UserRepo, tm Transaction, logger log.Logger) *UserUseCa
 		log:  log.NewHelper(log.With(logger, "module", "user/biz/userUseCase")),
 		tm:   tm,
 	}
+}
+
+func (r *UserUseCase) GetAccount(ctx context.Context, uuid string) (*User, error) {
+	account, err := r.repo.GetAccount(ctx, uuid)
+	if err != nil {
+		return nil, v1.ErrorGetAccountFailed("get user account failed: %s", err.Error())
+	}
+	return account, nil
 }
 
 func (r *UserUseCase) GetProfile(ctx context.Context, uuid string) (*Profile, error) {
@@ -75,14 +74,6 @@ func (r *UserUseCase) SetProfileUpdate(ctx context.Context, profile *ProfileUpda
 		return v1.ErrorSetProfileUpdateFailed("user profile update failed: %s", err.Error())
 	}
 	return nil
-}
-
-func (r *UserUseCase) GetUser(ctx context.Context, id int64) (*User, error) {
-	user, err := r.repo.GetUser(ctx, id)
-	if err != nil {
-		return nil, v1.ErrorGetUserFailed("get user failed: %s", err.Error())
-	}
-	return user, nil
 }
 
 func (r *UserUseCase) ProfileReviewPass(ctx context.Context, uuid, update string) error {
@@ -127,23 +118,6 @@ func (r *UserUseCase) ProfileReviewNotPass(ctx context.Context, uuid string) err
 	return nil
 }
 
-//func (r *UserUseCase) SetUserPhone(ctx context.Context, id int64, phone, password, code string) error {
-//	err := r.repo.VerifyCode(ctx, phone, code, "phone")
-//	if err != nil {
-//		return v1.ErrorVerifyCodeFailed("set phone failed: %s", err.Error())
-//	}
-//
-//	err = r.repo.VerifyPassword(ctx, id, password)
-//	if err != nil {
-//		return v1.ErrorVerifyPasswordFailed("set phone failed: %s", err.Error())
-//	}
-//
-//	err = r.repo.SetUserPhone(ctx, id, phone)
-//	if err != nil {
-//		return v1.ErrorSetPhoneFailed("set phone failed: %s", err.Error())
-//	}
-//	return nil
-//}
 //
 //func (r *UserUseCase) SetUserEmail(ctx context.Context, id int64, email, password, code string) error {
 //	err := r.repo.VerifyCode(ctx, email, code, "email")
