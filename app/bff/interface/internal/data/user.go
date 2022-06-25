@@ -110,6 +110,23 @@ func (r *userRepo) GetCosSessionKey(ctx context.Context) (*biz.Credentials, erro
 	}, nil
 }
 
+func (r *userRepo) GetAccount(ctx context.Context, uuid string) (*biz.UserAccount, error) {
+	account, err := r.data.uc.GetAccount(ctx, &userV1.GetAccountReq{
+		Uuid: uuid,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &biz.UserAccount{
+		Phone:  account.Phone,
+		Email:  account.Email,
+		Qq:     account.Qq,
+		Wechat: account.Wechat,
+		Weibo:  account.Weibo,
+		Github: account.Github,
+	}, nil
+}
+
 func (r *userRepo) GetProfile(ctx context.Context, uuid string) (*biz.UserProfile, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_user_profile_%s", uuid), func() (interface{}, error) {
 		reply, err := r.data.uc.GetProfile(ctx, &userV1.GetProfileReq{
@@ -163,6 +180,30 @@ func (r *userRepo) SetProfileUpdate(ctx context.Context, profile *biz.UserProfil
 		Job:       profile.Job,
 		Homepage:  profile.Homepage,
 		Introduce: profile.Introduce,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *userRepo) SetUserPhone(ctx context.Context, uuid, phone, code string) error {
+	_, err := r.data.uc.SetUserPhone(ctx, &userV1.SetUserPhoneReq{
+		Uuid:  uuid,
+		Phone: phone,
+		Code:  code,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *userRepo) SetUserEmail(ctx context.Context, uuid, email, code string) error {
+	_, err := r.data.uc.SetUserEmail(ctx, &userV1.SetUserEmailReq{
+		Uuid:  uuid,
+		Email: email,
+		Code:  code,
 	})
 	if err != nil {
 		return err
