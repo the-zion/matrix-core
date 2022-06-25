@@ -7,15 +7,17 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-func (s *UserService) GetUser(ctx context.Context, req *v1.GetUserReq) (*v1.GetUserReply, error) {
-	user, err := s.uc.GetUser(ctx, req.Id)
+func (s *UserService) GetAccount(ctx context.Context, req *v1.GetAccountReq) (*v1.GetAccountReply, error) {
+	user, err := s.uc.GetAccount(ctx, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
-	return &v1.GetUserReply{
+	return &v1.GetAccountReply{
 		Phone:  user.Phone,
 		Email:  user.Email,
+		Qq:     user.Qq,
 		Wechat: user.Wechat,
+		Weibo:  user.Weibo,
 		Github: user.Github,
 	}, nil
 }
@@ -68,14 +70,6 @@ func (s *UserService) SetProfileUpdate(ctx context.Context, req *v1.SetProfileUp
 		return nil, err
 	}
 	return &emptypb.Empty{}, nil
-}
-
-func (s *UserService) SetUserPhone(ctx context.Context, req *v1.SetUserPhoneReq) (*v1.SetUserPhoneReply, error) {
-	return nil, nil
-}
-
-func (s *UserService) SetUserEmail(ctx context.Context, req *v1.SetUserEmailReq) (*v1.SetUserEmailReply, error) {
-	return nil, nil
 }
 
 func (s *UserService) ProfileReviewPass(ctx context.Context, req *v1.ProfileReviewPassReq) (*emptypb.Empty, error) {

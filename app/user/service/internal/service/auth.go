@@ -42,6 +42,22 @@ func (s *UserService) LoginPasswordReset(ctx context.Context, req *v1.LoginPassw
 	return &emptypb.Empty{}, nil
 }
 
+func (s *UserService) SetUserPhone(ctx context.Context, req *v1.SetUserPhoneReq) (*emptypb.Empty, error) {
+	err := s.ac.SetUserPhone(ctx, req.Uuid, req.Phone, req.Code)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *UserService) SetUserEmail(ctx context.Context, req *v1.SetUserEmailReq) (*emptypb.Empty, error) {
+	err := s.ac.SetUserEmail(ctx, req.Uuid, req.Email, req.Code)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *UserService) SendPhoneCode(ctx context.Context, req *v1.SendPhoneCodeReq) (*emptypb.Empty, error) {
 	err := s.ac.SendPhoneCode(ctx, req.Template, req.Phone)
 	if err != nil {
