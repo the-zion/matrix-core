@@ -72,6 +72,12 @@ service Bff{
     };
   }
 
+  rpc GetAccount (google.protobuf.Empty) returns (GetAccountReply) {
+    option (google.api.http) = {
+      get: "/v1/get/user/account",
+    };
+  }
+
   rpc GetProfile (google.protobuf.Empty) returns (GetProfileReply) {
     option (google.api.http) = {
       get: "/v1/get/user/profile",
@@ -87,6 +93,19 @@ service Bff{
   rpc SetProfileUpdate (SetProfileUpdateReq) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/v1/set/user/profile/update"
+      body: "*"
+    };
+  }
+
+  rpc SetUserPhone (SetUserPhoneReq) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/set/user/phone"
+      body: "*"
+    };
+  }
+  rpc SetUserEmail (SetUserEmailReq) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/set/user/email"
       body: "*"
     };
   }
@@ -148,6 +167,15 @@ message GetCosSessionKeyReply{
   int64 expired_time = 5;
 }
 
+message GetAccountReply{
+  string phone = 1;
+  string email = 2;
+  string qq = 3;
+  string wechat = 4;
+  string weibo = 5;
+  string github = 6;
+}
+
 message GetProfileReply{
   string uuid = 1;
   string username = 2;
@@ -177,4 +205,14 @@ message SetProfileUpdateReq{
   string job = 4;
   string homepage = 5;
   string introduce = 6;
+}
+
+message SetUserPhoneReq{
+  string phone = 1;
+  string code = 2;
+}
+
+message SetUserEmailReq{
+  string email = 1;
+  string code = 2;
 }

@@ -32,9 +32,12 @@ type BffClient interface {
 	SendPhoneCode(ctx context.Context, in *SendPhoneCodeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SendEmailCode(ctx context.Context, in *SendEmailCodeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetCosSessionKey(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCosSessionKeyReply, error)
+	GetAccount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetAccountReply, error)
 	GetProfile(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetProfileReply, error)
 	GetProfileUpdate(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetProfileUpdateReply, error)
 	SetProfileUpdate(ctx context.Context, in *SetProfileUpdateReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetUserPhone(ctx context.Context, in *SetUserPhoneReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetUserEmail(ctx context.Context, in *SetUserEmailReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type bffClient struct {
@@ -126,6 +129,15 @@ func (c *bffClient) GetCosSessionKey(ctx context.Context, in *emptypb.Empty, opt
 	return out, nil
 }
 
+func (c *bffClient) GetAccount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetAccountReply, error) {
+	out := new(GetAccountReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetAccount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) GetProfile(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetProfileReply, error) {
 	out := new(GetProfileReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetProfile", in, out, opts...)
@@ -153,6 +165,24 @@ func (c *bffClient) SetProfileUpdate(ctx context.Context, in *SetProfileUpdateRe
 	return out, nil
 }
 
+func (c *bffClient) SetUserPhone(ctx context.Context, in *SetUserPhoneReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SetUserPhone", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) SetUserEmail(ctx context.Context, in *SetUserEmailReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SetUserEmail", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BffServer is the server API for Bff service.
 // All implementations must embed UnimplementedBffServer
 // for forward compatibility
@@ -166,9 +196,12 @@ type BffServer interface {
 	SendPhoneCode(context.Context, *SendPhoneCodeReq) (*emptypb.Empty, error)
 	SendEmailCode(context.Context, *SendEmailCodeReq) (*emptypb.Empty, error)
 	GetCosSessionKey(context.Context, *emptypb.Empty) (*GetCosSessionKeyReply, error)
+	GetAccount(context.Context, *emptypb.Empty) (*GetAccountReply, error)
 	GetProfile(context.Context, *emptypb.Empty) (*GetProfileReply, error)
 	GetProfileUpdate(context.Context, *emptypb.Empty) (*GetProfileUpdateReply, error)
 	SetProfileUpdate(context.Context, *SetProfileUpdateReq) (*emptypb.Empty, error)
+	SetUserPhone(context.Context, *SetUserPhoneReq) (*emptypb.Empty, error)
+	SetUserEmail(context.Context, *SetUserEmailReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedBffServer()
 }
 
@@ -203,6 +236,9 @@ func (UnimplementedBffServer) SendEmailCode(context.Context, *SendEmailCodeReq) 
 func (UnimplementedBffServer) GetCosSessionKey(context.Context, *emptypb.Empty) (*GetCosSessionKeyReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCosSessionKey not implemented")
 }
+func (UnimplementedBffServer) GetAccount(context.Context, *emptypb.Empty) (*GetAccountReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAccount not implemented")
+}
 func (UnimplementedBffServer) GetProfile(context.Context, *emptypb.Empty) (*GetProfileReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProfile not implemented")
 }
@@ -211,6 +247,12 @@ func (UnimplementedBffServer) GetProfileUpdate(context.Context, *emptypb.Empty) 
 }
 func (UnimplementedBffServer) SetProfileUpdate(context.Context, *SetProfileUpdateReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetProfileUpdate not implemented")
+}
+func (UnimplementedBffServer) SetUserPhone(context.Context, *SetUserPhoneReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetUserPhone not implemented")
+}
+func (UnimplementedBffServer) SetUserEmail(context.Context, *SetUserEmailReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetUserEmail not implemented")
 }
 func (UnimplementedBffServer) mustEmbedUnimplementedBffServer() {}
 
@@ -387,6 +429,24 @@ func _Bff_GetCosSessionKey_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_GetAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetAccount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetAccount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetAccount(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_GetProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
@@ -441,6 +501,42 @@ func _Bff_SetProfileUpdate_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_SetUserPhone_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetUserPhoneReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).SetUserPhone(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/SetUserPhone",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).SetUserPhone(ctx, req.(*SetUserPhoneReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_SetUserEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetUserEmailReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).SetUserEmail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/SetUserEmail",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).SetUserEmail(ctx, req.(*SetUserEmailReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Bff_ServiceDesc is the grpc.ServiceDesc for Bff service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -485,6 +581,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Bff_GetCosSessionKey_Handler,
 		},
 		{
+			MethodName: "GetAccount",
+			Handler:    _Bff_GetAccount_Handler,
+		},
+		{
 			MethodName: "GetProfile",
 			Handler:    _Bff_GetProfile_Handler,
 		},
@@ -495,6 +595,14 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetProfileUpdate",
 			Handler:    _Bff_SetProfileUpdate_Handler,
+		},
+		{
+			MethodName: "SetUserPhone",
+			Handler:    _Bff_SetUserPhone_Handler,
+		},
+		{
+			MethodName: "SetUserEmail",
+			Handler:    _Bff_SetUserEmail_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
