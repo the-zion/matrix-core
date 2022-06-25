@@ -1,5 +1,14 @@
 package biz
 
+type UserAccount struct {
+	Phone  string
+	Email  string
+	Qq     string
+	Wechat string
+	Weibo  string
+	Github string
+}
+
 type UserProfile struct {
 	Uuid      string
 	Username  string
