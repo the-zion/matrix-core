@@ -95,16 +95,16 @@ func ErrorUserNameConflict(format string, args ...interface{}) *errors.Error {
 	return errors.New(409, UserErrorReason_USER_NAME_CONFLICT.String(), fmt.Sprintf(format, args...))
 }
 
-func IsGetUserFailed(err error) bool {
+func IsGetAccountFailed(err error) bool {
 	if err == nil {
 		return false
 	}
 	e := errors.FromError(err)
-	return e.Reason == UserErrorReason_GET_USER_FAILED.String() && e.Code == 404
+	return e.Reason == UserErrorReason_GET_ACCOUNT_FAILED.String() && e.Code == 404
 }
 
-func ErrorGetUserFailed(format string, args ...interface{}) *errors.Error {
-	return errors.New(404, UserErrorReason_GET_USER_FAILED.String(), fmt.Sprintf(format, args...))
+func ErrorGetAccountFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(404, UserErrorReason_GET_ACCOUNT_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
 func IsGetProfileFailed(err error) bool {
@@ -213,18 +213,6 @@ func IsSetUsernameFailed(err error) bool {
 
 func ErrorSetUsernameFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, UserErrorReason_SET_USERNAME_FAILED.String(), fmt.Sprintf(format, args...))
-}
-
-func IsSetBackgroundFailed(err error) bool {
-	if err == nil {
-		return false
-	}
-	e := errors.FromError(err)
-	return e.Reason == UserErrorReason_SET_BACKGROUND_FAILED.String() && e.Code == 500
-}
-
-func ErrorSetBackgroundFailed(format string, args ...interface{}) *errors.Error {
-	return errors.New(500, UserErrorReason_SET_BACKGROUND_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
 func IsSetImageFailed(err error) bool {

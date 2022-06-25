@@ -1333,223 +1333,6 @@ var _ interface {
 	ErrorName() string
 } = GetCosSessionKeyReplyValidationError{}
 
-// Validate checks the field values on GetUserReq with the rules defined in the
-// proto definition for this message. If any rules are violated, the first
-// error encountered is returned, or nil if there are no violations.
-func (m *GetUserReq) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on GetUserReq with the rules defined in
-// the proto definition for this message. If any rules are violated, the
-// result is a list of violation errors wrapped in GetUserReqMultiError, or
-// nil if none found.
-func (m *GetUserReq) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *GetUserReq) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if m.GetId() < 0 {
-		err := GetUserReqValidationError{
-			field:  "Id",
-			reason: "value must be greater than or equal to 0",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if len(errors) > 0 {
-		return GetUserReqMultiError(errors)
-	}
-
-	return nil
-}
-
-// GetUserReqMultiError is an error wrapping multiple validation errors
-// returned by GetUserReq.ValidateAll() if the designated constraints aren't met.
-type GetUserReqMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m GetUserReqMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m GetUserReqMultiError) AllErrors() []error { return m }
-
-// GetUserReqValidationError is the validation error returned by
-// GetUserReq.Validate if the designated constraints aren't met.
-type GetUserReqValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e GetUserReqValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e GetUserReqValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e GetUserReqValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e GetUserReqValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e GetUserReqValidationError) ErrorName() string { return "GetUserReqValidationError" }
-
-// Error satisfies the builtin error interface
-func (e GetUserReqValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sGetUserReq.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = GetUserReqValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = GetUserReqValidationError{}
-
-// Validate checks the field values on GetUserReply with the rules defined in
-// the proto definition for this message. If any rules are violated, the first
-// error encountered is returned, or nil if there are no violations.
-func (m *GetUserReply) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on GetUserReply with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// result is a list of violation errors wrapped in GetUserReplyMultiError, or
-// nil if none found.
-func (m *GetUserReply) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *GetUserReply) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	// no validation rules for Phone
-
-	// no validation rules for Email
-
-	// no validation rules for Wechat
-
-	// no validation rules for Github
-
-	if len(errors) > 0 {
-		return GetUserReplyMultiError(errors)
-	}
-
-	return nil
-}
-
-// GetUserReplyMultiError is an error wrapping multiple validation errors
-// returned by GetUserReply.ValidateAll() if the designated constraints aren't met.
-type GetUserReplyMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m GetUserReplyMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m GetUserReplyMultiError) AllErrors() []error { return m }
-
-// GetUserReplyValidationError is the validation error returned by
-// GetUserReply.Validate if the designated constraints aren't met.
-type GetUserReplyValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e GetUserReplyValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e GetUserReplyValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e GetUserReplyValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e GetUserReplyValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e GetUserReplyValidationError) ErrorName() string { return "GetUserReplyValidationError" }
-
-// Error satisfies the builtin error interface
-func (e GetUserReplyValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sGetUserReply.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = GetUserReplyValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = GetUserReplyValidationError{}
-
 // Validate checks the field values on SetUserPhoneReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -1572,10 +1355,11 @@ func (m *SetUserPhoneReq) validate(all bool) error {
 
 	var errors []error
 
-	if !_SetUserPhoneReq_Phone_Pattern.MatchString(m.GetPhone()) {
-		err := SetUserPhoneReqValidationError{
-			field:  "Phone",
-			reason: "value does not match regex pattern \"^\\\\+[1-9]?[0-9]{7,14}$\"",
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = SetUserPhoneReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -1583,10 +1367,21 @@ func (m *SetUserPhoneReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetPassword()) < 1 {
+	if l := utf8.RuneCountInString(m.GetPhone()); l < 1 || l > 50 {
 		err := SetUserPhoneReqValidationError{
-			field:  "Password",
-			reason: "value length must be at least 1 runes",
+			field:  "Phone",
+			reason: "value length must be between 1 and 50 runes, inclusive",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if !_SetUserPhoneReq_Phone_Pattern.MatchString(m.GetPhone()) {
+		err := SetUserPhoneReqValidationError{
+			field:  "Phone",
+			reason: "value does not match regex pattern \"^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(17[0,3,5-8])|(18[0-9])|166|198|199|(147))\\\\d{8}$\"",
 		}
 		if !all {
 			return err
@@ -1597,7 +1392,7 @@ func (m *SetUserPhoneReq) validate(all bool) error {
 	if !_SetUserPhoneReq_Code_Pattern.MatchString(m.GetCode()) {
 		err := SetUserPhoneReqValidationError{
 			field:  "Code",
-			reason: "value does not match regex pattern \"^[0-9]+$\"",
+			reason: "value does not match regex pattern \"^[0-9]{6}$\"",
 		}
 		if !all {
 			return err
@@ -1607,6 +1402,14 @@ func (m *SetUserPhoneReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return SetUserPhoneReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *SetUserPhoneReq) _validateUuid(uuid string) error {
+	if matched := _user_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -1683,113 +1486,9 @@ var _ interface {
 	ErrorName() string
 } = SetUserPhoneReqValidationError{}
 
-var _SetUserPhoneReq_Phone_Pattern = regexp.MustCompile("^\\+[1-9]?[0-9]{7,14}$")
+var _SetUserPhoneReq_Phone_Pattern = regexp.MustCompile("^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(17[0,3,5-8])|(18[0-9])|166|198|199|(147))\\d{8}$")
 
-var _SetUserPhoneReq_Code_Pattern = regexp.MustCompile("^[0-9]+$")
-
-// Validate checks the field values on SetUserPhoneReply with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// first error encountered is returned, or nil if there are no violations.
-func (m *SetUserPhoneReply) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on SetUserPhoneReply with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// SetUserPhoneReplyMultiError, or nil if none found.
-func (m *SetUserPhoneReply) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *SetUserPhoneReply) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	// no validation rules for Success
-
-	if len(errors) > 0 {
-		return SetUserPhoneReplyMultiError(errors)
-	}
-
-	return nil
-}
-
-// SetUserPhoneReplyMultiError is an error wrapping multiple validation errors
-// returned by SetUserPhoneReply.ValidateAll() if the designated constraints
-// aren't met.
-type SetUserPhoneReplyMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m SetUserPhoneReplyMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m SetUserPhoneReplyMultiError) AllErrors() []error { return m }
-
-// SetUserPhoneReplyValidationError is the validation error returned by
-// SetUserPhoneReply.Validate if the designated constraints aren't met.
-type SetUserPhoneReplyValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e SetUserPhoneReplyValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e SetUserPhoneReplyValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e SetUserPhoneReplyValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e SetUserPhoneReplyValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e SetUserPhoneReplyValidationError) ErrorName() string {
-	return "SetUserPhoneReplyValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e SetUserPhoneReplyValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sSetUserPhoneReply.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = SetUserPhoneReplyValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = SetUserPhoneReplyValidationError{}
+var _SetUserPhoneReq_Code_Pattern = regexp.MustCompile("^[0-9]{6}$")
 
 // Validate checks the field values on SetUserEmailReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the
@@ -1813,10 +1512,11 @@ func (m *SetUserEmailReq) validate(all bool) error {
 
 	var errors []error
 
-	if !_SetUserEmailReq_Email_Pattern.MatchString(m.GetEmail()) {
-		err := SetUserEmailReqValidationError{
-			field:  "Email",
-			reason: "value does not match regex pattern \"^(?:(?:(?:(?:[a-zA-Z]|\\\\d|[!#\\\\$%&'\\\\*\\\\+\\\\-\\\\/=\\\\?\\\\^_`{\\\\|}~]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])+(?:\\\\.([a-zA-Z]|\\\\d|[!#\\\\$%&'\\\\*\\\\+\\\\-\\\\/=\\\\?\\\\^_`{\\\\|}~]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])+)*)|(?:(?:\\\\x22)(?:(?:(?:(?:\\\\x20|\\\\x09)*(?:\\\\x0d\\\\x0a))?(?:\\\\x20|\\\\x09)+)?(?:(?:[\\\\x01-\\\\x08\\\\x0b\\\\x0c\\\\x0e-\\\\x1f\\\\x7f]|\\\\x21|[\\\\x23-\\\\x5b]|[\\\\x5d-\\\\x7e]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])|(?:(?:[\\\\x01-\\\\x09\\\\x0b\\\\x0c\\\\x0d-\\\\x7f]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}]))))*(?:(?:(?:\\\\x20|\\\\x09)*(?:\\\\x0d\\\\x0a))?(\\\\x20|\\\\x09)+)?(?:\\\\x22))))@(?:(?:(?:[a-zA-Z]|\\\\d|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])|(?:(?:[a-zA-Z]|\\\\d|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])(?:[a-zA-Z]|\\\\d|-|\\\\.|~|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])*(?:[a-zA-Z]|\\\\d|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])))\\\\.)+(?:(?:[a-zA-Z]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])|(?:(?:[a-zA-Z]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])(?:[a-zA-Z]|\\\\d|-|\\\\.|~|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])*(?:[a-zA-Z]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])))\\\\.?$\"",
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = SetUserEmailReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -1824,10 +1524,21 @@ func (m *SetUserEmailReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetPassword()) < 1 {
+	if utf8.RuneCountInString(m.GetEmail()) > 50 {
 		err := SetUserEmailReqValidationError{
-			field:  "Password",
-			reason: "value length must be at least 1 runes",
+			field:  "Email",
+			reason: "value length must be at most 50 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if !_SetUserEmailReq_Email_Pattern.MatchString(m.GetEmail()) {
+		err := SetUserEmailReqValidationError{
+			field:  "Email",
+			reason: "value does not match regex pattern \"\\\\w+([-+.]\\\\w+)*@\\\\w+([-.]\\\\w+)*\\\\.\\\\w+([-.]\\\\w+)*\"",
 		}
 		if !all {
 			return err
@@ -1838,7 +1549,7 @@ func (m *SetUserEmailReq) validate(all bool) error {
 	if !_SetUserEmailReq_Code_Pattern.MatchString(m.GetCode()) {
 		err := SetUserEmailReqValidationError{
 			field:  "Code",
-			reason: "value does not match regex pattern \"^[0-9]+$\"",
+			reason: "value does not match regex pattern \"^[0-9]{6}$\"",
 		}
 		if !all {
 			return err
@@ -1848,6 +1559,14 @@ func (m *SetUserEmailReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return SetUserEmailReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *SetUserEmailReq) _validateUuid(uuid string) error {
+	if matched := _user_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -1924,48 +1643,66 @@ var _ interface {
 	ErrorName() string
 } = SetUserEmailReqValidationError{}
 
-var _SetUserEmailReq_Email_Pattern = regexp.MustCompile("^(?:(?:(?:(?:[a-zA-Z]|\\d|[!#\\$%&'\\*\\+\\-\\/=\\?\\^_`{\\|}~]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])+(?:\\.([a-zA-Z]|\\d|[!#\\$%&'\\*\\+\\-\\/=\\?\\^_`{\\|}~]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])+)*)|(?:(?:\\x22)(?:(?:(?:(?:\\x20|\\x09)*(?:\\x0d\\x0a))?(?:\\x20|\\x09)+)?(?:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x7f]|\\x21|[\\x23-\\x5b]|[\\x5d-\\x7e]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(?:(?:[\\x01-\\x09\\x0b\\x0c\\x0d-\\x7f]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}]))))*(?:(?:(?:\\x20|\\x09)*(?:\\x0d\\x0a))?(\\x20|\\x09)+)?(?:\\x22))))@(?:(?:(?:[a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(?:(?:[a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])(?:[a-zA-Z]|\\d|-|\\.|~|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])*(?:[a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])))\\.)+(?:(?:[a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(?:(?:[a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])(?:[a-zA-Z]|\\d|-|\\.|~|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])*(?:[a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])))\\.?$")
+var _SetUserEmailReq_Email_Pattern = regexp.MustCompile("\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*")
 
-var _SetUserEmailReq_Code_Pattern = regexp.MustCompile("^[0-9]+$")
+var _SetUserEmailReq_Code_Pattern = regexp.MustCompile("^[0-9]{6}$")
 
-// Validate checks the field values on SetUserEmailReply with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// first error encountered is returned, or nil if there are no violations.
-func (m *SetUserEmailReply) Validate() error {
+// Validate checks the field values on GetAccountReq with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *GetAccountReq) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on SetUserEmailReply with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// SetUserEmailReplyMultiError, or nil if none found.
-func (m *SetUserEmailReply) ValidateAll() error {
+// ValidateAll checks the field values on GetAccountReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in GetAccountReqMultiError, or
+// nil if none found.
+func (m *GetAccountReq) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *SetUserEmailReply) validate(all bool) error {
+func (m *GetAccountReq) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
 	var errors []error
 
-	// no validation rules for Success
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = GetAccountReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
-		return SetUserEmailReplyMultiError(errors)
+		return GetAccountReqMultiError(errors)
 	}
 
 	return nil
 }
 
-// SetUserEmailReplyMultiError is an error wrapping multiple validation errors
-// returned by SetUserEmailReply.ValidateAll() if the designated constraints
+func (m *GetAccountReq) _validateUuid(uuid string) error {
+	if matched := _user_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// GetAccountReqMultiError is an error wrapping multiple validation errors
+// returned by GetAccountReq.ValidateAll() if the designated constraints
 // aren't met.
-type SetUserEmailReplyMultiError []error
+type GetAccountReqMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m SetUserEmailReplyMultiError) Error() string {
+func (m GetAccountReqMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1974,11 +1711,11 @@ func (m SetUserEmailReplyMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m SetUserEmailReplyMultiError) AllErrors() []error { return m }
+func (m GetAccountReqMultiError) AllErrors() []error { return m }
 
-// SetUserEmailReplyValidationError is the validation error returned by
-// SetUserEmailReply.Validate if the designated constraints aren't met.
-type SetUserEmailReplyValidationError struct {
+// GetAccountReqValidationError is the validation error returned by
+// GetAccountReq.Validate if the designated constraints aren't met.
+type GetAccountReqValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1986,24 +1723,22 @@ type SetUserEmailReplyValidationError struct {
 }
 
 // Field function returns field value.
-func (e SetUserEmailReplyValidationError) Field() string { return e.field }
+func (e GetAccountReqValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e SetUserEmailReplyValidationError) Reason() string { return e.reason }
+func (e GetAccountReqValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e SetUserEmailReplyValidationError) Cause() error { return e.cause }
+func (e GetAccountReqValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e SetUserEmailReplyValidationError) Key() bool { return e.key }
+func (e GetAccountReqValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e SetUserEmailReplyValidationError) ErrorName() string {
-	return "SetUserEmailReplyValidationError"
-}
+func (e GetAccountReqValidationError) ErrorName() string { return "GetAccountReqValidationError" }
 
 // Error satisfies the builtin error interface
-func (e SetUserEmailReplyValidationError) Error() string {
+func (e GetAccountReqValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -2015,14 +1750,14 @@ func (e SetUserEmailReplyValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sSetUserEmailReply.%s: %s%s",
+		"invalid %sGetAccountReq.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = SetUserEmailReplyValidationError{}
+var _ error = GetAccountReqValidationError{}
 
 var _ interface {
 	Field() string
@@ -2030,7 +1765,119 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = SetUserEmailReplyValidationError{}
+} = GetAccountReqValidationError{}
+
+// Validate checks the field values on GetAccountReply with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *GetAccountReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetAccountReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetAccountReplyMultiError, or nil if none found.
+func (m *GetAccountReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetAccountReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Phone
+
+	// no validation rules for Email
+
+	// no validation rules for Qq
+
+	// no validation rules for Wechat
+
+	// no validation rules for Weibo
+
+	// no validation rules for Github
+
+	if len(errors) > 0 {
+		return GetAccountReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetAccountReplyMultiError is an error wrapping multiple validation errors
+// returned by GetAccountReply.ValidateAll() if the designated constraints
+// aren't met.
+type GetAccountReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetAccountReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetAccountReplyMultiError) AllErrors() []error { return m }
+
+// GetAccountReplyValidationError is the validation error returned by
+// GetAccountReply.Validate if the designated constraints aren't met.
+type GetAccountReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetAccountReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetAccountReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetAccountReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetAccountReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetAccountReplyValidationError) ErrorName() string { return "GetAccountReplyValidationError" }
+
+// Error satisfies the builtin error interface
+func (e GetAccountReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetAccountReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetAccountReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetAccountReplyValidationError{}
 
 // Validate checks the field values on GetProfileReq with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
