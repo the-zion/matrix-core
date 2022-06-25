@@ -18,10 +18,6 @@ import (
 
 var _ biz.UserRepo = (*userRepo)(nil)
 
-var userCacheKey = func(username string) string {
-	return "user_" + username
-}
-
 type userRepo struct {
 	data *Data
 	log  *log.Helper
@@ -34,25 +30,23 @@ func NewUserRepo(data *Data, logger log.Logger) biz.UserRepo {
 	}
 }
 
-func (r *userRepo) GetUser(ctx context.Context, id int64) (*biz.User, error) {
-	key := userCacheKey(strconv.FormatInt(id, 10))
-	target, err := r.getUserFromCache(ctx, key)
-	if kerrors.IsNotFound(err) {
-		user := &User{}
-		err = r.data.db.WithContext(ctx).Where("id = ?", id).First(user).Error
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, kerrors.NotFound("user not found from db", fmt.Sprintf("user_id(%v)", id))
-		}
-		if err != nil {
-			return nil, errors.Wrapf(err, fmt.Sprintf("db query system error: user_id(%v)", id))
-		}
-		target = user
-		r.setUserToCache(ctx, user, key)
+func (r *userRepo) GetAccount(ctx context.Context, uuid string) (*biz.User, error) {
+	user := &User{}
+	err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).First(user).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, kerrors.NotFound("user not found from db", fmt.Sprintf("uuid(%v)", uuid))
 	}
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, fmt.Sprintf("db query system error: uuid(%v)", uuid))
 	}
-	return &biz.User{Phone: target.Phone, Email: target.Email, Wechat: target.Wechat, Github: target.Github}, nil
+	return &biz.User{
+		Phone:  user.Phone,
+		Email:  user.Email,
+		Qq:     user.Qq,
+		Wechat: user.Wechat,
+		Weibo:  user.Weibo,
+		Github: user.Github,
+	}, nil
 }
 
 func (r *userRepo) GetProfile(ctx context.Context, uuid string) (*biz.Profile, error) {
@@ -237,15 +231,6 @@ func (r *userRepo) setProfileToCache(ctx context.Context, profile *Profile, key 
 	}
 }
 
-// SetUserPhone set redis ?
-func (r *userRepo) SetUserPhone(ctx context.Context, id int64, phone string) error {
-	err := r.data.db.WithContext(ctx).Model(&User{}).Where("id = ?", id).Update("phone", phone).Error
-	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("db query system error: user_id(%v), phone(%s)", id, phone))
-	}
-	return nil
-}
-
 // SetUserEmail set redis ?
 func (r *userRepo) SetUserEmail(ctx context.Context, id int64, email string) error {
 	err := r.data.db.WithContext(ctx).Model(&User{}).Where("id = ?", id).Update("email", email).Error
@@ -253,31 +238,4 @@ func (r *userRepo) SetUserEmail(ctx context.Context, id int64, email string) err
 		return errors.Wrapf(err, fmt.Sprintf("db query system error: user_id(%v), email(%s)", id, email))
 	}
 	return nil
-}
-
-func (r *userRepo) getUserFromCache(ctx context.Context, key string) (*User, error) {
-	result, err := r.data.redisCli.Get(ctx, key).Result()
-	if errors.Is(err, redis.Nil) {
-		return nil, kerrors.NotFound("user not found from cache", fmt.Sprintf("key(%s)", key))
-	}
-	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user from cache: redis.Set(%v)", key))
-	}
-	var cacheUser = &User{}
-	err = json.Unmarshal([]byte(result), cacheUser)
-	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("json unmarshal error: user(%v)", result))
-	}
-	return cacheUser, nil
-}
-
-func (r *userRepo) setUserToCache(ctx context.Context, user *User, key string) {
-	marshal, err := json.Marshal(user)
-	if err != nil {
-		r.log.Errorf("json marshal error: json.Marshal(%v), error(%v)", user, err)
-	}
-	err = r.data.redisCli.Set(ctx, key, string(marshal), time.Minute*30).Err()
-	if err != nil {
-		r.log.Errorf("fail to set user to cache: redis.Set(%v), error(%v)", user, err)
-	}
 }

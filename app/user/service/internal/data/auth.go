@@ -156,6 +156,32 @@ func (r *authRepo) CreateProfileUpdateRetry(ctx context.Context, account, uuid s
 	return nil
 }
 
+func (r *authRepo) SetUserPhone(ctx context.Context, uuid, phone string) error {
+	err := r.data.db.WithContext(ctx).Model(&User{}).Where("uuid = ?", uuid).Update("phone", phone).Error
+	if err != nil {
+		e := err.Error()
+		if strings.Contains(e, "Duplicate") {
+			return kerrors.Conflict("phone conflict", fmt.Sprintf("uuid(%s), phone(%s)", uuid, phone))
+		} else {
+			return errors.Wrapf(err, fmt.Sprintf("fail to set user uphone: uuid(%s), phone(%s)", uuid, phone))
+		}
+	}
+	return nil
+}
+
+func (r *authRepo) SetUserEmail(ctx context.Context, uuid, email string) error {
+	err := r.data.db.WithContext(ctx).Model(&User{}).Where("uuid = ?", uuid).Update("email", email).Error
+	if err != nil {
+		e := err.Error()
+		if strings.Contains(e, "Duplicate") {
+			return kerrors.Conflict("email conflict", fmt.Sprintf("uuid(%s), email(%s)", uuid, email))
+		} else {
+			return errors.Wrapf(err, fmt.Sprintf("fail to set user email: uuid(%s), email(%s)", uuid, email))
+		}
+	}
+	return nil
+}
+
 func (r *authRepo) SendPhoneCode(ctx context.Context, template, phone string) error {
 	code := util.RandomNumber()
 	err := r.setCodeToCache(ctx, "phone_"+phone, code)
