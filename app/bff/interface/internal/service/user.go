@@ -73,6 +73,21 @@ func (s *BffService) GetCosSessionKey(ctx context.Context, _ *emptypb.Empty) (*v
 	}, nil
 }
 
+func (s *BffService) GetAccount(ctx context.Context, _ *emptypb.Empty) (*v1.GetAccountReply, error) {
+	userAccount, err := s.uc.GetAccount(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetAccountReply{
+		Phone:  userAccount.Phone,
+		Email:  userAccount.Email,
+		Qq:     userAccount.Qq,
+		Wechat: userAccount.Wechat,
+		Weibo:  userAccount.Weibo,
+		Github: userAccount.Github,
+	}, nil
+}
+
 func (s *BffService) GetProfile(ctx context.Context, _ *emptypb.Empty) (*v1.GetProfileReply, error) {
 	userProfile, err := s.uc.GetProfile(ctx)
 	if err != nil {
@@ -116,6 +131,22 @@ func (s *BffService) SetProfileUpdate(ctx context.Context, req *v1.SetProfileUpd
 	profile.Homepage = req.Homepage
 	profile.Introduce = req.Introduce
 	err := s.uc.SetUserProfile(ctx, profile)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) SetUserPhone(ctx context.Context, req *v1.SetUserPhoneReq) (*emptypb.Empty, error) {
+	err := s.uc.SetUserPhone(ctx, req.Phone, req.Code)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) SetUserEmail(ctx context.Context, req *v1.SetUserEmailReq) (*emptypb.Empty, error) {
+	err := s.uc.SetUserEmail(ctx, req.Email, req.Code)
 	if err != nil {
 		return nil, err
 	}
