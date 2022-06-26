@@ -19,6 +19,7 @@ var _ = binding.EncodeURL
 const _ = http.SupportPackageIsVersion1
 
 type BffHTTPServer interface {
+	ChangeUserPassword(context.Context, *ChangeUserPasswordReq) (*emptypb.Empty, error)
 	GetAccount(context.Context, *emptypb.Empty) (*GetAccountReply, error)
 	GetCosSessionKey(context.Context, *emptypb.Empty) (*GetCosSessionKeyReply, error)
 	GetProfile(context.Context, *emptypb.Empty) (*GetProfileReply, error)
@@ -32,7 +33,10 @@ type BffHTTPServer interface {
 	SendPhoneCode(context.Context, *SendPhoneCodeReq) (*emptypb.Empty, error)
 	SetProfileUpdate(context.Context, *SetProfileUpdateReq) (*emptypb.Empty, error)
 	SetUserEmail(context.Context, *SetUserEmailReq) (*emptypb.Empty, error)
+	SetUserPassword(context.Context, *SetUserPasswordReq) (*emptypb.Empty, error)
 	SetUserPhone(context.Context, *SetUserPhoneReq) (*emptypb.Empty, error)
+	UnbindUserEmail(context.Context, *UnbindUserEmailReq) (*emptypb.Empty, error)
+	UnbindUserPhone(context.Context, *UnbindUserPhoneReq) (*emptypb.Empty, error)
 	UserRegister(context.Context, *UserRegisterReq) (*emptypb.Empty, error)
 }
 
@@ -53,6 +57,10 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.POST("/v1/set/user/profile/update", _Bff_SetProfileUpdate0_HTTP_Handler(srv))
 	r.POST("/v1/set/user/phone", _Bff_SetUserPhone0_HTTP_Handler(srv))
 	r.POST("/v1/set/user/email", _Bff_SetUserEmail0_HTTP_Handler(srv))
+	r.POST("/v1/set/user/password", _Bff_SetUserPassword0_HTTP_Handler(srv))
+	r.POST("/v1/change/user/password", _Bff_ChangeUserPassword0_HTTP_Handler(srv))
+	r.POST("/v1/unbind/user/phone", _Bff_UnbindUserPhone0_HTTP_Handler(srv))
+	r.POST("/v1/unbind/user/email", _Bff_UnbindUserEmail0_HTTP_Handler(srv))
 }
 
 func _Bff_UserRegister0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
@@ -340,7 +348,84 @@ func _Bff_SetUserEmail0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) e
 	}
 }
 
+func _Bff_SetUserPassword0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SetUserPasswordReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/bff.v1.Bff/SetUserPassword")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SetUserPassword(ctx, req.(*SetUserPasswordReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_ChangeUserPassword0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in ChangeUserPasswordReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/bff.v1.Bff/ChangeUserPassword")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ChangeUserPassword(ctx, req.(*ChangeUserPasswordReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_UnbindUserPhone0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in UnbindUserPhoneReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/bff.v1.Bff/UnbindUserPhone")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.UnbindUserPhone(ctx, req.(*UnbindUserPhoneReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_UnbindUserEmail0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in UnbindUserEmailReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/bff.v1.Bff/UnbindUserEmail")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.UnbindUserEmail(ctx, req.(*UnbindUserEmailReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
 type BffHTTPClient interface {
+	ChangeUserPassword(ctx context.Context, req *ChangeUserPasswordReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	GetAccount(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetAccountReply, err error)
 	GetCosSessionKey(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetCosSessionKeyReply, err error)
 	GetProfile(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetProfileReply, err error)
@@ -354,7 +439,10 @@ type BffHTTPClient interface {
 	SendPhoneCode(ctx context.Context, req *SendPhoneCodeReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SetProfileUpdate(ctx context.Context, req *SetProfileUpdateReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SetUserEmail(ctx context.Context, req *SetUserEmailReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	SetUserPassword(ctx context.Context, req *SetUserPasswordReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SetUserPhone(ctx context.Context, req *SetUserPhoneReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	UnbindUserEmail(ctx context.Context, req *UnbindUserEmailReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	UnbindUserPhone(ctx context.Context, req *UnbindUserPhoneReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	UserRegister(ctx context.Context, req *UserRegisterReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
 
@@ -364,6 +452,19 @@ type BffHTTPClientImpl struct {
 
 func NewBffHTTPClient(client *http.Client) BffHTTPClient {
 	return &BffHTTPClientImpl{client}
+}
+
+func (c *BffHTTPClientImpl) ChangeUserPassword(ctx context.Context, in *ChangeUserPasswordReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/change/user/password"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/bff.v1.Bff/ChangeUserPassword"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
 }
 
 func (c *BffHTTPClientImpl) GetAccount(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*GetAccountReply, error) {
@@ -535,11 +636,50 @@ func (c *BffHTTPClientImpl) SetUserEmail(ctx context.Context, in *SetUserEmailRe
 	return &out, err
 }
 
+func (c *BffHTTPClientImpl) SetUserPassword(ctx context.Context, in *SetUserPasswordReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/set/user/password"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/bff.v1.Bff/SetUserPassword"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
 func (c *BffHTTPClientImpl) SetUserPhone(ctx context.Context, in *SetUserPhoneReq, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
 	pattern := "/v1/set/user/phone"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation("/bff.v1.Bff/SetUserPhone"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) UnbindUserEmail(ctx context.Context, in *UnbindUserEmailReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/unbind/user/email"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/bff.v1.Bff/UnbindUserEmail"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) UnbindUserPhone(ctx context.Context, in *UnbindUserPhoneReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/unbind/user/phone"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/bff.v1.Bff/UnbindUserPhone"))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

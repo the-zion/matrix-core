@@ -103,9 +103,38 @@ service Bff{
       body: "*"
     };
   }
+
   rpc SetUserEmail (SetUserEmailReq) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/v1/set/user/email"
+      body: "*"
+    };
+  }
+
+  rpc SetUserPassword (SetUserPasswordReq) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/set/user/password"
+      body: "*"
+    };
+  }
+
+  rpc ChangeUserPassword (ChangeUserPasswordReq) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/change/user/password"
+      body: "*"
+    };
+  }
+
+  rpc UnbindUserPhone(UnbindUserPhoneReq) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/unbind/user/phone"
+      body: "*"
+    };
+  }
+
+  rpc UnbindUserEmail(UnbindUserEmailReq) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/unbind/user/email"
       body: "*"
     };
   }
@@ -174,6 +203,7 @@ message GetAccountReply{
   string wechat = 4;
   string weibo = 5;
   string github = 6;
+  string password = 7;
 }
 
 message GetProfileReply{
@@ -213,6 +243,25 @@ message SetUserPhoneReq{
 }
 
 message SetUserEmailReq{
+  string email = 1;
+  string code = 2;
+}
+
+message SetUserPasswordReq{
+  string password = 1;
+}
+
+message ChangeUserPasswordReq{
+  string oldpassword = 1;
+  string password = 2;
+}
+
+message UnbindUserPhoneReq{
+  string phone = 1;
+  string code = 2;
+}
+
+message UnbindUserEmailReq{
   string email = 1;
   string code = 2;
 }

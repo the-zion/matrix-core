@@ -38,6 +38,10 @@ type BffClient interface {
 	SetProfileUpdate(ctx context.Context, in *SetProfileUpdateReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetUserPhone(ctx context.Context, in *SetUserPhoneReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetUserEmail(ctx context.Context, in *SetUserEmailReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetUserPassword(ctx context.Context, in *SetUserPasswordReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	ChangeUserPassword(ctx context.Context, in *ChangeUserPasswordReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UnbindUserPhone(ctx context.Context, in *UnbindUserPhoneReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UnbindUserEmail(ctx context.Context, in *UnbindUserEmailReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type bffClient struct {
@@ -183,6 +187,42 @@ func (c *bffClient) SetUserEmail(ctx context.Context, in *SetUserEmailReq, opts 
 	return out, nil
 }
 
+func (c *bffClient) SetUserPassword(ctx context.Context, in *SetUserPasswordReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SetUserPassword", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) ChangeUserPassword(ctx context.Context, in *ChangeUserPasswordReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/ChangeUserPassword", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) UnbindUserPhone(ctx context.Context, in *UnbindUserPhoneReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/UnbindUserPhone", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) UnbindUserEmail(ctx context.Context, in *UnbindUserEmailReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/UnbindUserEmail", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BffServer is the server API for Bff service.
 // All implementations must embed UnimplementedBffServer
 // for forward compatibility
@@ -202,6 +242,10 @@ type BffServer interface {
 	SetProfileUpdate(context.Context, *SetProfileUpdateReq) (*emptypb.Empty, error)
 	SetUserPhone(context.Context, *SetUserPhoneReq) (*emptypb.Empty, error)
 	SetUserEmail(context.Context, *SetUserEmailReq) (*emptypb.Empty, error)
+	SetUserPassword(context.Context, *SetUserPasswordReq) (*emptypb.Empty, error)
+	ChangeUserPassword(context.Context, *ChangeUserPasswordReq) (*emptypb.Empty, error)
+	UnbindUserPhone(context.Context, *UnbindUserPhoneReq) (*emptypb.Empty, error)
+	UnbindUserEmail(context.Context, *UnbindUserEmailReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedBffServer()
 }
 
@@ -253,6 +297,18 @@ func (UnimplementedBffServer) SetUserPhone(context.Context, *SetUserPhoneReq) (*
 }
 func (UnimplementedBffServer) SetUserEmail(context.Context, *SetUserEmailReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetUserEmail not implemented")
+}
+func (UnimplementedBffServer) SetUserPassword(context.Context, *SetUserPasswordReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetUserPassword not implemented")
+}
+func (UnimplementedBffServer) ChangeUserPassword(context.Context, *ChangeUserPasswordReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChangeUserPassword not implemented")
+}
+func (UnimplementedBffServer) UnbindUserPhone(context.Context, *UnbindUserPhoneReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UnbindUserPhone not implemented")
+}
+func (UnimplementedBffServer) UnbindUserEmail(context.Context, *UnbindUserEmailReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UnbindUserEmail not implemented")
 }
 func (UnimplementedBffServer) mustEmbedUnimplementedBffServer() {}
 
@@ -537,6 +593,78 @@ func _Bff_SetUserEmail_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_SetUserPassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetUserPasswordReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).SetUserPassword(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/SetUserPassword",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).SetUserPassword(ctx, req.(*SetUserPasswordReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_ChangeUserPassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangeUserPasswordReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).ChangeUserPassword(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/ChangeUserPassword",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).ChangeUserPassword(ctx, req.(*ChangeUserPasswordReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_UnbindUserPhone_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UnbindUserPhoneReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).UnbindUserPhone(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/UnbindUserPhone",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).UnbindUserPhone(ctx, req.(*UnbindUserPhoneReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_UnbindUserEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UnbindUserEmailReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).UnbindUserEmail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/UnbindUserEmail",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).UnbindUserEmail(ctx, req.(*UnbindUserEmailReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Bff_ServiceDesc is the grpc.ServiceDesc for Bff service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -603,6 +731,22 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetUserEmail",
 			Handler:    _Bff_SetUserEmail_Handler,
+		},
+		{
+			MethodName: "SetUserPassword",
+			Handler:    _Bff_SetUserPassword_Handler,
+		},
+		{
+			MethodName: "ChangeUserPassword",
+			Handler:    _Bff_ChangeUserPassword_Handler,
+		},
+		{
+			MethodName: "UnbindUserPhone",
+			Handler:    _Bff_UnbindUserPhone_Handler,
+		},
+		{
+			MethodName: "UnbindUserEmail",
+			Handler:    _Bff_UnbindUserEmail_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
