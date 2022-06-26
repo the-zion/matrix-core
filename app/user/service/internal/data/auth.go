@@ -182,6 +182,19 @@ func (r *authRepo) SetUserEmail(ctx context.Context, uuid, email string) error {
 	return nil
 }
 
+func (r *authRepo) SetUserPassword(ctx context.Context, uuid, password string) error {
+	p, err := util.HashPassword(password)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to hash password: %s", password))
+	}
+
+	err = r.data.db.WithContext(ctx).Model(&User{}).Where("uuid = ?", uuid).Update("password", p).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to set user password: uuid(%s), password(%s)", uuid, password))
+	}
+	return nil
+}
+
 func (r *authRepo) SendPhoneCode(ctx context.Context, template, phone string) error {
 	code := util.RandomNumber()
 	err := r.setCodeToCache(ctx, "phone_"+phone, code)
@@ -305,6 +318,22 @@ func (r *authRepo) GetCosSessionKey(ctx context.Context) (*biz.Credentials, erro
 		StartTime:    int64(res.StartTime),
 		ExpiredTime:  int64(res.ExpiredTime),
 	}, nil
+}
+
+func (r *authRepo) UnbindUserPhone(ctx context.Context, uuid string) error {
+	err := r.data.db.WithContext(ctx).Model(&User{}).Where("uuid = ?", uuid).Update("phone", nil).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to unbind user phone: uuid(%s)", uuid))
+	}
+	return nil
+}
+
+func (r *authRepo) UnbindUserEmail(ctx context.Context, uuid string) error {
+	err := r.data.db.WithContext(ctx).Model(&User{}).Where("uuid = ?", uuid).Update("email", nil).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to unbind user email: uuid(%s)", uuid))
+	}
+	return nil
 }
 
 func (r *authRepo) setCodeToCache(ctx context.Context, key, code string) error {
