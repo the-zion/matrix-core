@@ -79,12 +79,13 @@ func (s *BffService) GetAccount(ctx context.Context, _ *emptypb.Empty) (*v1.GetA
 		return nil, err
 	}
 	return &v1.GetAccountReply{
-		Phone:  userAccount.Phone,
-		Email:  userAccount.Email,
-		Qq:     userAccount.Qq,
-		Wechat: userAccount.Wechat,
-		Weibo:  userAccount.Weibo,
-		Github: userAccount.Github,
+		Phone:    userAccount.Phone,
+		Email:    userAccount.Email,
+		Qq:       userAccount.Qq,
+		Wechat:   userAccount.Wechat,
+		Weibo:    userAccount.Weibo,
+		Github:   userAccount.Github,
+		Password: userAccount.Password,
 	}, nil
 }
 
@@ -147,6 +148,38 @@ func (s *BffService) SetUserPhone(ctx context.Context, req *v1.SetUserPhoneReq) 
 
 func (s *BffService) SetUserEmail(ctx context.Context, req *v1.SetUserEmailReq) (*emptypb.Empty, error) {
 	err := s.uc.SetUserEmail(ctx, req.Email, req.Code)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) SetUserPassword(ctx context.Context, req *v1.SetUserPasswordReq) (*emptypb.Empty, error) {
+	err := s.uc.SetUserPassword(ctx, req.Password)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) ChangeUserPassword(ctx context.Context, req *v1.ChangeUserPasswordReq) (*emptypb.Empty, error) {
+	err := s.uc.ChangeUserPassword(ctx, req.Oldpassword, req.Password)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) UnbindUserPhone(ctx context.Context, req *v1.UnbindUserPhoneReq) (*emptypb.Empty, error) {
+	err := s.uc.UnbindUserPhone(ctx, req.Phone, req.Code)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) UnbindUserEmail(ctx context.Context, req *v1.UnbindUserEmailReq) (*emptypb.Empty, error) {
+	err := s.uc.UnbindUserEmail(ctx, req.Email, req.Code)
 	if err != nil {
 		return nil, err
 	}
