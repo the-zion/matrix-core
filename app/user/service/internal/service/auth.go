@@ -58,6 +58,14 @@ func (s *UserService) SetUserEmail(ctx context.Context, req *v1.SetUserEmailReq)
 	return &emptypb.Empty{}, nil
 }
 
+func (s *UserService) SetUserPassword(ctx context.Context, req *v1.SetUserPasswordReq) (*emptypb.Empty, error) {
+	err := s.ac.SetUserPassword(ctx, req.Uuid, req.Password)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *UserService) SendPhoneCode(ctx context.Context, req *v1.SendPhoneCodeReq) (*emptypb.Empty, error) {
 	err := s.ac.SendPhoneCode(ctx, req.Template, req.Phone)
 	if err != nil {
@@ -86,4 +94,28 @@ func (s *UserService) GetCosSessionKey(ctx context.Context, _ *emptypb.Empty) (*
 		StartTime:    credentials.StartTime,
 		ExpiredTime:  credentials.ExpiredTime,
 	}, nil
+}
+
+func (s *UserService) ChangeUserPassword(ctx context.Context, req *v1.ChangeUserPasswordReq) (*emptypb.Empty, error) {
+	err := s.ac.ChangeUserPassword(ctx, req.Uuid, req.Oldpassword, req.Password)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *UserService) UnbindUserPhone(ctx context.Context, req *v1.UnbindUserPhoneReq) (*emptypb.Empty, error) {
+	err := s.ac.UnbindUserPhone(ctx, req.Uuid, req.Phone, req.Code)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *UserService) UnbindUserEmail(ctx context.Context, req *v1.UnbindUserEmailReq) (*emptypb.Empty, error) {
+	err := s.ac.UnbindUserEmail(ctx, req.Uuid, req.Email, req.Code)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
 }
