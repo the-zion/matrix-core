@@ -13,12 +13,13 @@ func (s *UserService) GetAccount(ctx context.Context, req *v1.GetAccountReq) (*v
 		return nil, err
 	}
 	return &v1.GetAccountReply{
-		Phone:  user.Phone,
-		Email:  user.Email,
-		Qq:     user.Qq,
-		Wechat: user.Wechat,
-		Weibo:  user.Weibo,
-		Github: user.Github,
+		Phone:    user.Phone,
+		Email:    user.Email,
+		Qq:       user.Qq,
+		Wechat:   user.Wechat,
+		Weibo:    user.Weibo,
+		Github:   user.Github,
+		Password: user.Password,
 	}, nil
 }
 
