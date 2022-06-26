@@ -1647,6 +1647,601 @@ var _SetUserEmailReq_Email_Pattern = regexp.MustCompile("\\w+([-+.]\\w+)*@\\w+([
 
 var _SetUserEmailReq_Code_Pattern = regexp.MustCompile("^[0-9]{6}$")
 
+// Validate checks the field values on SetUserPasswordReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SetUserPasswordReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SetUserPasswordReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SetUserPasswordReqMultiError, or nil if none found.
+func (m *SetUserPasswordReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SetUserPasswordReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = SetUserPasswordReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if l := utf8.RuneCountInString(m.GetPassword()); l < 1 || l > 20 {
+		err := SetUserPasswordReqValidationError{
+			field:  "Password",
+			reason: "value length must be between 1 and 20 runes, inclusive",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return SetUserPasswordReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *SetUserPasswordReq) _validateUuid(uuid string) error {
+	if matched := _user_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// SetUserPasswordReqMultiError is an error wrapping multiple validation errors
+// returned by SetUserPasswordReq.ValidateAll() if the designated constraints
+// aren't met.
+type SetUserPasswordReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SetUserPasswordReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SetUserPasswordReqMultiError) AllErrors() []error { return m }
+
+// SetUserPasswordReqValidationError is the validation error returned by
+// SetUserPasswordReq.Validate if the designated constraints aren't met.
+type SetUserPasswordReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SetUserPasswordReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SetUserPasswordReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SetUserPasswordReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SetUserPasswordReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SetUserPasswordReqValidationError) ErrorName() string {
+	return "SetUserPasswordReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SetUserPasswordReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSetUserPasswordReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SetUserPasswordReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SetUserPasswordReqValidationError{}
+
+// Validate checks the field values on ChangeUserPasswordReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ChangeUserPasswordReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ChangeUserPasswordReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ChangeUserPasswordReqMultiError, or nil if none found.
+func (m *ChangeUserPasswordReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ChangeUserPasswordReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = ChangeUserPasswordReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if l := utf8.RuneCountInString(m.GetOldpassword()); l < 1 || l > 20 {
+		err := ChangeUserPasswordReqValidationError{
+			field:  "Oldpassword",
+			reason: "value length must be between 1 and 20 runes, inclusive",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if l := utf8.RuneCountInString(m.GetPassword()); l < 1 || l > 20 {
+		err := ChangeUserPasswordReqValidationError{
+			field:  "Password",
+			reason: "value length must be between 1 and 20 runes, inclusive",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return ChangeUserPasswordReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *ChangeUserPasswordReq) _validateUuid(uuid string) error {
+	if matched := _user_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// ChangeUserPasswordReqMultiError is an error wrapping multiple validation
+// errors returned by ChangeUserPasswordReq.ValidateAll() if the designated
+// constraints aren't met.
+type ChangeUserPasswordReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ChangeUserPasswordReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ChangeUserPasswordReqMultiError) AllErrors() []error { return m }
+
+// ChangeUserPasswordReqValidationError is the validation error returned by
+// ChangeUserPasswordReq.Validate if the designated constraints aren't met.
+type ChangeUserPasswordReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ChangeUserPasswordReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ChangeUserPasswordReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ChangeUserPasswordReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ChangeUserPasswordReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ChangeUserPasswordReqValidationError) ErrorName() string {
+	return "ChangeUserPasswordReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ChangeUserPasswordReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sChangeUserPasswordReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ChangeUserPasswordReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ChangeUserPasswordReqValidationError{}
+
+// Validate checks the field values on UnbindUserPhoneReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UnbindUserPhoneReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UnbindUserPhoneReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// UnbindUserPhoneReqMultiError, or nil if none found.
+func (m *UnbindUserPhoneReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UnbindUserPhoneReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = UnbindUserPhoneReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if l := utf8.RuneCountInString(m.GetPhone()); l < 1 || l > 50 {
+		err := UnbindUserPhoneReqValidationError{
+			field:  "Phone",
+			reason: "value length must be between 1 and 50 runes, inclusive",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if !_UnbindUserPhoneReq_Phone_Pattern.MatchString(m.GetPhone()) {
+		err := UnbindUserPhoneReqValidationError{
+			field:  "Phone",
+			reason: "value does not match regex pattern \"^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(17[0,3,5-8])|(18[0-9])|166|198|199|(147))\\\\d{8}$\"",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if !_UnbindUserPhoneReq_Code_Pattern.MatchString(m.GetCode()) {
+		err := UnbindUserPhoneReqValidationError{
+			field:  "Code",
+			reason: "value does not match regex pattern \"^[0-9]{6}$\"",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return UnbindUserPhoneReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *UnbindUserPhoneReq) _validateUuid(uuid string) error {
+	if matched := _user_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// UnbindUserPhoneReqMultiError is an error wrapping multiple validation errors
+// returned by UnbindUserPhoneReq.ValidateAll() if the designated constraints
+// aren't met.
+type UnbindUserPhoneReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UnbindUserPhoneReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UnbindUserPhoneReqMultiError) AllErrors() []error { return m }
+
+// UnbindUserPhoneReqValidationError is the validation error returned by
+// UnbindUserPhoneReq.Validate if the designated constraints aren't met.
+type UnbindUserPhoneReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UnbindUserPhoneReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UnbindUserPhoneReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UnbindUserPhoneReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UnbindUserPhoneReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UnbindUserPhoneReqValidationError) ErrorName() string {
+	return "UnbindUserPhoneReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UnbindUserPhoneReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUnbindUserPhoneReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UnbindUserPhoneReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UnbindUserPhoneReqValidationError{}
+
+var _UnbindUserPhoneReq_Phone_Pattern = regexp.MustCompile("^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(17[0,3,5-8])|(18[0-9])|166|198|199|(147))\\d{8}$")
+
+var _UnbindUserPhoneReq_Code_Pattern = regexp.MustCompile("^[0-9]{6}$")
+
+// Validate checks the field values on UnbindUserEmailReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UnbindUserEmailReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UnbindUserEmailReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// UnbindUserEmailReqMultiError, or nil if none found.
+func (m *UnbindUserEmailReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UnbindUserEmailReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = UnbindUserEmailReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetEmail()) > 50 {
+		err := UnbindUserEmailReqValidationError{
+			field:  "Email",
+			reason: "value length must be at most 50 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if !_UnbindUserEmailReq_Email_Pattern.MatchString(m.GetEmail()) {
+		err := UnbindUserEmailReqValidationError{
+			field:  "Email",
+			reason: "value does not match regex pattern \"\\\\w+([-+.]\\\\w+)*@\\\\w+([-.]\\\\w+)*\\\\.\\\\w+([-.]\\\\w+)*\"",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if !_UnbindUserEmailReq_Code_Pattern.MatchString(m.GetCode()) {
+		err := UnbindUserEmailReqValidationError{
+			field:  "Code",
+			reason: "value does not match regex pattern \"^[0-9]{6}$\"",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return UnbindUserEmailReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *UnbindUserEmailReq) _validateUuid(uuid string) error {
+	if matched := _user_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// UnbindUserEmailReqMultiError is an error wrapping multiple validation errors
+// returned by UnbindUserEmailReq.ValidateAll() if the designated constraints
+// aren't met.
+type UnbindUserEmailReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UnbindUserEmailReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UnbindUserEmailReqMultiError) AllErrors() []error { return m }
+
+// UnbindUserEmailReqValidationError is the validation error returned by
+// UnbindUserEmailReq.Validate if the designated constraints aren't met.
+type UnbindUserEmailReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UnbindUserEmailReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UnbindUserEmailReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UnbindUserEmailReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UnbindUserEmailReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UnbindUserEmailReqValidationError) ErrorName() string {
+	return "UnbindUserEmailReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UnbindUserEmailReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUnbindUserEmailReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UnbindUserEmailReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UnbindUserEmailReqValidationError{}
+
+var _UnbindUserEmailReq_Email_Pattern = regexp.MustCompile("\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*")
+
+var _UnbindUserEmailReq_Code_Pattern = regexp.MustCompile("^[0-9]{6}$")
+
 // Validate checks the field values on GetAccountReq with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
@@ -1800,6 +2395,8 @@ func (m *GetAccountReply) validate(all bool) error {
 	// no validation rules for Weibo
 
 	// no validation rules for Github
+
+	// no validation rules for Password
 
 	if len(errors) > 0 {
 		return GetAccountReplyMultiError(errors)

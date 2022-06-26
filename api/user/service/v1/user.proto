@@ -31,6 +31,8 @@ service User {
 
   rpc SetUserEmail (SetUserEmailReq) returns (google.protobuf.Empty) {}
 
+  rpc SetUserPassword (SetUserPasswordReq) returns (google.protobuf.Empty) {}
+
   rpc GetAccount (GetAccountReq) returns (GetAccountReply) {}
 
   rpc GetProfile (GetProfileReq) returns (GetProfileReply) {}
@@ -42,6 +44,12 @@ service User {
   rpc ProfileReviewPass (ProfileReviewPassReq) returns (google.protobuf.Empty) {}
 
   rpc ProfileReviewNotPass (ProfileReviewNotPassReq) returns (google.protobuf.Empty){}
+
+  rpc ChangeUserPassword (ChangeUserPasswordReq) returns (google.protobuf.Empty) {}
+
+  rpc UnbindUserPhone(UnbindUserPhoneReq) returns (google.protobuf.Empty){}
+
+  rpc UnbindUserEmail(UnbindUserEmailReq) returns (google.protobuf.Empty){}
 }
 
 message UserRegisterReq{
@@ -110,6 +118,29 @@ message SetUserEmailReq{
   string code = 3 [(validate.rules).string.pattern = "^[0-9]{6}$"];
 }
 
+message SetUserPasswordReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+  string password = 2 [(validate.rules).string = {min_len:1, max_len: 20}];
+}
+
+message ChangeUserPasswordReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+  string oldpassword = 2 [(validate.rules).string = {min_len:1, max_len: 20}];
+  string password = 3 [(validate.rules).string = {min_len:1, max_len: 20}];
+}
+
+message UnbindUserPhoneReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+  string phone = 2 [(validate.rules).string = {pattern: "^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(17[0,3,5-8])|(18[0-9])|166|198|199|(147))\\d{8}$", min_len:1, max_len:50}];
+  string code = 3 [(validate.rules).string.pattern = "^[0-9]{6}$"];
+}
+
+message UnbindUserEmailReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+  string email = 2 [(validate.rules).string = {pattern: "\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*", max_len: 50}];
+  string code = 3 [(validate.rules).string.pattern = "^[0-9]{6}$"];
+}
+
 message GetAccountReq{
   string uuid = 1 [(validate.rules).string.uuid = true];
 }
@@ -121,6 +152,7 @@ message GetAccountReply{
   string wechat = 4;
   string weibo = 5;
   string github = 6;
+  string password = 7;
 }
 
 message GetProfileReq{

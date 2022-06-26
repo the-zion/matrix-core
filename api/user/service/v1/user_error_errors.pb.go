@@ -215,6 +215,18 @@ func ErrorSetUsernameFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, UserErrorReason_SET_USERNAME_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsSetPasswordFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_SET_PASSWORD_FAILED.String() && e.Code == 500
+}
+
+func ErrorSetPasswordFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, UserErrorReason_SET_PASSWORD_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsSetImageFailed(err error) bool {
 	if err == nil {
 		return false
@@ -285,4 +297,40 @@ func IsProfileUpdateModifyFailed(err error) bool {
 
 func ErrorProfileUpdateModifyFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, UserErrorReason_PROFILE_UPDATE_MODIFY_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsUnbindPhoneFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_UNBIND_PHONE_FAILED.String() && e.Code == 500
+}
+
+func ErrorUnbindPhoneFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, UserErrorReason_UNBIND_PHONE_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsUnbindEmailFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_UNBIND_EMAIL_FAILED.String() && e.Code == 500
+}
+
+func ErrorUnbindEmailFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, UserErrorReason_UNBIND_EMAIL_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsUniqueAccount(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_UNIQUE_ACCOUNT.String() && e.Code == 500
+}
+
+func ErrorUniqueAccount(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, UserErrorReason_UNIQUE_ACCOUNT.String(), fmt.Sprintf(format, args...))
 }

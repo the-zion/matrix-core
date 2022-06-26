@@ -34,12 +34,16 @@ type UserClient interface {
 	GetCosSessionKey(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCosSessionKeyReply, error)
 	SetUserPhone(ctx context.Context, in *SetUserPhoneReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetUserEmail(ctx context.Context, in *SetUserEmailReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetUserPassword(ctx context.Context, in *SetUserPasswordReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetAccount(ctx context.Context, in *GetAccountReq, opts ...grpc.CallOption) (*GetAccountReply, error)
 	GetProfile(ctx context.Context, in *GetProfileReq, opts ...grpc.CallOption) (*GetProfileReply, error)
 	GetProfileUpdate(ctx context.Context, in *GetProfileUpdateReq, opts ...grpc.CallOption) (*GetProfileUpdateReply, error)
 	SetProfileUpdate(ctx context.Context, in *SetProfileUpdateReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ProfileReviewPass(ctx context.Context, in *ProfileReviewPassReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ProfileReviewNotPass(ctx context.Context, in *ProfileReviewNotPassReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	ChangeUserPassword(ctx context.Context, in *ChangeUserPasswordReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UnbindUserPhone(ctx context.Context, in *UnbindUserPhoneReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UnbindUserEmail(ctx context.Context, in *UnbindUserEmailReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type userClient struct {
@@ -149,6 +153,15 @@ func (c *userClient) SetUserEmail(ctx context.Context, in *SetUserEmailReq, opts
 	return out, nil
 }
 
+func (c *userClient) SetUserPassword(ctx context.Context, in *SetUserPasswordReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/user.v1.User/SetUserPassword", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *userClient) GetAccount(ctx context.Context, in *GetAccountReq, opts ...grpc.CallOption) (*GetAccountReply, error) {
 	out := new(GetAccountReply)
 	err := c.cc.Invoke(ctx, "/user.v1.User/GetAccount", in, out, opts...)
@@ -203,6 +216,33 @@ func (c *userClient) ProfileReviewNotPass(ctx context.Context, in *ProfileReview
 	return out, nil
 }
 
+func (c *userClient) ChangeUserPassword(ctx context.Context, in *ChangeUserPasswordReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/user.v1.User/ChangeUserPassword", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) UnbindUserPhone(ctx context.Context, in *UnbindUserPhoneReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/user.v1.User/UnbindUserPhone", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) UnbindUserEmail(ctx context.Context, in *UnbindUserEmailReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/user.v1.User/UnbindUserEmail", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServer is the server API for User service.
 // All implementations must embed UnimplementedUserServer
 // for forward compatibility
@@ -218,12 +258,16 @@ type UserServer interface {
 	GetCosSessionKey(context.Context, *emptypb.Empty) (*GetCosSessionKeyReply, error)
 	SetUserPhone(context.Context, *SetUserPhoneReq) (*emptypb.Empty, error)
 	SetUserEmail(context.Context, *SetUserEmailReq) (*emptypb.Empty, error)
+	SetUserPassword(context.Context, *SetUserPasswordReq) (*emptypb.Empty, error)
 	GetAccount(context.Context, *GetAccountReq) (*GetAccountReply, error)
 	GetProfile(context.Context, *GetProfileReq) (*GetProfileReply, error)
 	GetProfileUpdate(context.Context, *GetProfileUpdateReq) (*GetProfileUpdateReply, error)
 	SetProfileUpdate(context.Context, *SetProfileUpdateReq) (*emptypb.Empty, error)
 	ProfileReviewPass(context.Context, *ProfileReviewPassReq) (*emptypb.Empty, error)
 	ProfileReviewNotPass(context.Context, *ProfileReviewNotPassReq) (*emptypb.Empty, error)
+	ChangeUserPassword(context.Context, *ChangeUserPasswordReq) (*emptypb.Empty, error)
+	UnbindUserPhone(context.Context, *UnbindUserPhoneReq) (*emptypb.Empty, error)
+	UnbindUserEmail(context.Context, *UnbindUserEmailReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedUserServer()
 }
 
@@ -264,6 +308,9 @@ func (UnimplementedUserServer) SetUserPhone(context.Context, *SetUserPhoneReq) (
 func (UnimplementedUserServer) SetUserEmail(context.Context, *SetUserEmailReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetUserEmail not implemented")
 }
+func (UnimplementedUserServer) SetUserPassword(context.Context, *SetUserPasswordReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetUserPassword not implemented")
+}
 func (UnimplementedUserServer) GetAccount(context.Context, *GetAccountReq) (*GetAccountReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAccount not implemented")
 }
@@ -281,6 +328,15 @@ func (UnimplementedUserServer) ProfileReviewPass(context.Context, *ProfileReview
 }
 func (UnimplementedUserServer) ProfileReviewNotPass(context.Context, *ProfileReviewNotPassReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ProfileReviewNotPass not implemented")
+}
+func (UnimplementedUserServer) ChangeUserPassword(context.Context, *ChangeUserPasswordReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChangeUserPassword not implemented")
+}
+func (UnimplementedUserServer) UnbindUserPhone(context.Context, *UnbindUserPhoneReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UnbindUserPhone not implemented")
+}
+func (UnimplementedUserServer) UnbindUserEmail(context.Context, *UnbindUserEmailReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UnbindUserEmail not implemented")
 }
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}
 
@@ -493,6 +549,24 @@ func _User_SetUserEmail_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _User_SetUserPassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetUserPasswordReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).SetUserPassword(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/SetUserPassword",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).SetUserPassword(ctx, req.(*SetUserPasswordReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _User_GetAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetAccountReq)
 	if err := dec(in); err != nil {
@@ -601,6 +675,60 @@ func _User_ProfileReviewNotPass_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _User_ChangeUserPassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangeUserPasswordReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).ChangeUserPassword(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/ChangeUserPassword",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).ChangeUserPassword(ctx, req.(*ChangeUserPasswordReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_UnbindUserPhone_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UnbindUserPhoneReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).UnbindUserPhone(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/UnbindUserPhone",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).UnbindUserPhone(ctx, req.(*UnbindUserPhoneReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_UnbindUserEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UnbindUserEmailReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).UnbindUserEmail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/UnbindUserEmail",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).UnbindUserEmail(ctx, req.(*UnbindUserEmailReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // User_ServiceDesc is the grpc.ServiceDesc for User service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -653,6 +781,10 @@ var User_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _User_SetUserEmail_Handler,
 		},
 		{
+			MethodName: "SetUserPassword",
+			Handler:    _User_SetUserPassword_Handler,
+		},
+		{
 			MethodName: "GetAccount",
 			Handler:    _User_GetAccount_Handler,
 		},
@@ -675,6 +807,18 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ProfileReviewNotPass",
 			Handler:    _User_ProfileReviewNotPass_Handler,
+		},
+		{
+			MethodName: "ChangeUserPassword",
+			Handler:    _User_ChangeUserPassword_Handler,
+		},
+		{
+			MethodName: "UnbindUserPhone",
+			Handler:    _User_UnbindUserPhone_Handler,
+		},
+		{
+			MethodName: "UnbindUserEmail",
+			Handler:    _User_UnbindUserEmail_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
