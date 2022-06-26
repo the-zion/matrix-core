@@ -38,3 +38,8 @@ bin/
 
 # api-gateway
 kratos-gateway/
+
+# cache & log
+cache/
+log/
+
