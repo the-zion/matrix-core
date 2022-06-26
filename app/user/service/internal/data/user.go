@@ -40,12 +40,13 @@ func (r *userRepo) GetAccount(ctx context.Context, uuid string) (*biz.User, erro
 		return nil, errors.Wrapf(err, fmt.Sprintf("db query system error: uuid(%v)", uuid))
 	}
 	return &biz.User{
-		Phone:  user.Phone,
-		Email:  user.Email,
-		Qq:     user.Qq,
-		Wechat: user.Wechat,
-		Weibo:  user.Weibo,
-		Github: user.Github,
+		Phone:    user.Phone,
+		Email:    user.Email,
+		Qq:       user.Qq,
+		Wechat:   user.Wechat,
+		Weibo:    user.Weibo,
+		Github:   user.Github,
+		Password: user.Password,
 	}, nil
 }
 
