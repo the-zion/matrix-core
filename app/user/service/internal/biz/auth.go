@@ -9,6 +9,7 @@ import (
 	"github.com/pkg/errors"
 	v1 "github.com/the-zion/matrix-core/api/user/service/v1"
 	"github.com/the-zion/matrix-core/app/user/service/internal/conf"
+	"github.com/the-zion/matrix-core/app/user/service/internal/pkg/util"
 	"time"
 )
 
@@ -22,6 +23,7 @@ type AuthRepo interface {
 	CreateProfileUpdateRetry(ctx context.Context, account, uuid string) error
 	SetUserPhone(ctx context.Context, uuid, phone string) error
 	SetUserEmail(ctx context.Context, uuid, email string) error
+	SetUserPassword(ctx context.Context, uuid, password string) error
 	SendPhoneCode(ctx context.Context, template, phone string) error
 	SendEmailCode(ctx context.Context, template, phone string) error
 	VerifyPhoneCode(ctx context.Context, phone, code string) error
@@ -30,6 +32,8 @@ type AuthRepo interface {
 	PasswordResetByPhone(ctx context.Context, phone, password string) error
 	PasswordResetByEmail(ctx context.Context, email, password string) error
 	GetCosSessionKey(ctx context.Context) (*Credentials, error)
+	UnbindUserPhone(ctx context.Context, uuid string) error
+	UnbindUserEmail(ctx context.Context, uuid string) error
 }
 
 type AuthUseCase struct {
@@ -225,6 +229,76 @@ func (r *AuthUseCase) SetUserEmail(ctx context.Context, uuid, email, code string
 	}
 	if err != nil {
 		return v1.ErrorSetEmailFailed("set user email failed: %s", err.Error())
+	}
+	return nil
+}
+
+func (r *AuthUseCase) SetUserPassword(ctx context.Context, uuid, password string) error {
+	err := r.repo.SetUserPassword(ctx, uuid, password)
+	if err != nil {
+		return v1.ErrorSetPasswordFailed("set user password failed: %s", err.Error())
+	}
+	return nil
+}
+
+func (r *AuthUseCase) ChangeUserPassword(ctx context.Context, uuid, oldpassword, password string) error {
+	account, err := r.userRepo.GetAccount(ctx, uuid)
+	if err != nil {
+		return v1.ErrorGetAccountFailed("get user account failed: %s", err.Error())
+	}
+
+	pass := util.CheckPasswordHash(oldpassword, account.Password)
+	if !pass {
+		return v1.ErrorVerifyPasswordFailed("fail to verify password: password(%s)", oldpassword)
+	}
+
+	err = r.repo.SetUserPassword(ctx, uuid, password)
+	if err != nil {
+		return v1.ErrorSetPasswordFailed("set user password failed: %s", err.Error())
+	}
+	return nil
+}
+
+func (r *AuthUseCase) UnbindUserPhone(ctx context.Context, uuid, phone, code string) error {
+	err := r.repo.VerifyPhoneCode(ctx, phone, code)
+	if err != nil {
+		return v1.ErrorVerifyCodeFailed("unbind user phone failed: %s", err.Error())
+	}
+
+	account, err := r.userRepo.GetAccount(ctx, uuid)
+	if err != nil {
+		return v1.ErrorUnbindEmailFailed("fail to get account: %s", err.Error())
+	}
+
+	if account.Email == "" && account.Qq == "" && account.Weibo == "" && account.Wechat == "" && account.Github == "" {
+		return v1.ErrorUniqueAccount("unbind user email failed: unique account")
+	}
+
+	err = r.repo.UnbindUserPhone(ctx, uuid)
+	if err != nil {
+		return v1.ErrorUnbindPhoneFailed("unbind user phone failed: %s", err.Error())
+	}
+	return nil
+}
+
+func (r *AuthUseCase) UnbindUserEmail(ctx context.Context, uuid, email, code string) error {
+	err := r.repo.VerifyEmailCode(ctx, email, code)
+	if err != nil {
+		return v1.ErrorVerifyCodeFailed("unbind user email failed: %s", err.Error())
+	}
+
+	account, err := r.userRepo.GetAccount(ctx, uuid)
+	if err != nil {
+		return v1.ErrorUnbindEmailFailed("fail to get account: %s", err.Error())
+	}
+
+	if account.Phone == "" && account.Qq == "" && account.Weibo == "" && account.Wechat == "" && account.Github == "" {
+		return v1.ErrorUniqueAccount("unbind user email failed: unique account")
+	}
+
+	err = r.repo.UnbindUserEmail(ctx, uuid)
+	if err != nil {
+		return v1.ErrorUnbindEmailFailed("unbind user email failed: %s", err.Error())
 	}
 	return nil
 }
