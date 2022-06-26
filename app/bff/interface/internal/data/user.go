@@ -118,12 +118,13 @@ func (r *userRepo) GetAccount(ctx context.Context, uuid string) (*biz.UserAccoun
 		return nil, err
 	}
 	return &biz.UserAccount{
-		Phone:  account.Phone,
-		Email:  account.Email,
-		Qq:     account.Qq,
-		Wechat: account.Wechat,
-		Weibo:  account.Weibo,
-		Github: account.Github,
+		Phone:    account.Phone,
+		Email:    account.Email,
+		Qq:       account.Qq,
+		Wechat:   account.Wechat,
+		Weibo:    account.Weibo,
+		Github:   account.Github,
+		Password: account.Password,
 	}, nil
 }
 
@@ -201,6 +202,53 @@ func (r *userRepo) SetUserPhone(ctx context.Context, uuid, phone, code string) e
 
 func (r *userRepo) SetUserEmail(ctx context.Context, uuid, email, code string) error {
 	_, err := r.data.uc.SetUserEmail(ctx, &userV1.SetUserEmailReq{
+		Uuid:  uuid,
+		Email: email,
+		Code:  code,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *userRepo) SetUserPassword(ctx context.Context, uuid, password string) error {
+	_, err := r.data.uc.SetUserPassword(ctx, &userV1.SetUserPasswordReq{
+		Uuid:     uuid,
+		Password: password,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *userRepo) ChangeUserPassword(ctx context.Context, uuid, oldpassword, password string) error {
+	_, err := r.data.uc.ChangeUserPassword(ctx, &userV1.ChangeUserPasswordReq{
+		Uuid:        uuid,
+		Oldpassword: oldpassword,
+		Password:    password,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *userRepo) UnbindUserPhone(ctx context.Context, uuid, phone, code string) error {
+	_, err := r.data.uc.UnbindUserPhone(ctx, &userV1.UnbindUserPhoneReq{
+		Uuid:  uuid,
+		Phone: phone,
+		Code:  code,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *userRepo) UnbindUserEmail(ctx context.Context, uuid, email, code string) error {
+	_, err := r.data.uc.UnbindUserEmail(ctx, &userV1.UnbindUserEmailReq{
 		Uuid:  uuid,
 		Email: email,
 		Code:  code,
