@@ -36,6 +36,9 @@ func (r *UserUseCase) GetAccount(ctx context.Context, uuid string) (*User, error
 	if err != nil {
 		return nil, v1.ErrorGetAccountFailed("get user account failed: %s", err.Error())
 	}
+	if account.Password != "" {
+		account.Password = "********"
+	}
 	return account, nil
 }
 
@@ -117,22 +120,3 @@ func (r *UserUseCase) ProfileReviewNotPass(ctx context.Context, uuid string) err
 	}
 	return nil
 }
-
-//
-//func (r *UserUseCase) SetUserEmail(ctx context.Context, id int64, email, password, code string) error {
-//	err := r.repo.VerifyCode(ctx, email, code, "email")
-//	if err != nil {
-//		return v1.ErrorVerifyCodeFailed("set email failed: %s", err.Error())
-//	}
-//
-//	err = r.repo.VerifyPassword(ctx, id, password)
-//	if err != nil {
-//		return v1.ErrorVerifyPasswordFailed("set phone failed: %s", err.Error())
-//	}
-//
-//	err = r.repo.SetUserEmail(ctx, id, email)
-//	if err != nil {
-//		return v1.ErrorSetEmailFailed("set email failed: %s", err.Error())
-//	}
-//	return nil
-//}
