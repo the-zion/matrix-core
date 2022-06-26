@@ -18,7 +18,11 @@ type UserRepo interface {
 	GetProfileUpdate(ctx context.Context, uuid string) (*UserProfileUpdate, error)
 	SetProfileUpdate(ctx context.Context, profile *UserProfileUpdate) error
 	SetUserPhone(ctx context.Context, uuid, phone, code string) error
+	SetUserPassword(ctx context.Context, uuid, password string) error
 	SetUserEmail(ctx context.Context, uuid, email, code string) error
+	ChangeUserPassword(ctx context.Context, uuid, oldpassword, password string) error
+	UnbindUserPhone(ctx context.Context, uuid, phone, code string) error
+	UnbindUserEmail(ctx context.Context, uuid, email, code string) error
 }
 
 type UserUseCase struct {
@@ -138,6 +142,42 @@ func (r *UserUseCase) SetUserPhone(ctx context.Context, phone, code string) erro
 func (r *UserUseCase) SetUserEmail(ctx context.Context, email, code string) error {
 	uuid := ctx.Value("uuid").(string)
 	err := r.repo.SetUserEmail(ctx, uuid, email, code)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *UserUseCase) SetUserPassword(ctx context.Context, password string) error {
+	uuid := ctx.Value("uuid").(string)
+	err := r.repo.SetUserPassword(ctx, uuid, password)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *UserUseCase) ChangeUserPassword(ctx context.Context, oldpassword, password string) error {
+	uuid := ctx.Value("uuid").(string)
+	err := r.repo.ChangeUserPassword(ctx, uuid, oldpassword, password)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *UserUseCase) UnbindUserPhone(ctx context.Context, phone, code string) error {
+	uuid := ctx.Value("uuid").(string)
+	err := r.repo.UnbindUserPhone(ctx, uuid, phone, code)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *UserUseCase) UnbindUserEmail(ctx context.Context, email, code string) error {
+	uuid := ctx.Value("uuid").(string)
+	err := r.repo.UnbindUserEmail(ctx, uuid, email, code)
 	if err != nil {
 		return err
 	}
