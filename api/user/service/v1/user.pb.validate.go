@@ -2634,6 +2634,8 @@ func (m *GetProfileReply) validate(all bool) error {
 
 	// no validation rules for Introduce
 
+	// no validation rules for Created
+
 	if len(errors) > 0 {
 		return GetProfileReplyMultiError(errors)
 	}
