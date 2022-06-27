@@ -69,6 +69,7 @@ func (r *userRepo) GetProfile(ctx context.Context, uuid string) (*biz.Profile, e
 		return nil, err
 	}
 	return &biz.Profile{
+		Created:   target.CreatedAt.Format("2006-01-02 15:04:05"),
 		Updated:   strconv.FormatInt(target.Updated, 10),
 		Uuid:      target.Uuid,
 		Username:  target.Username,
