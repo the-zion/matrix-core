@@ -1318,6 +1318,224 @@ var _ interface {
 	ErrorName() string
 } = GetProfileReplyValidationError{}
 
+// Validate checks the field values on GetUserInfoReq with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *GetUserInfoReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserInfoReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in GetUserInfoReqMultiError,
+// or nil if none found.
+func (m *GetUserInfoReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserInfoReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Uuid
+
+	if len(errors) > 0 {
+		return GetUserInfoReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetUserInfoReqMultiError is an error wrapping multiple validation errors
+// returned by GetUserInfoReq.ValidateAll() if the designated constraints
+// aren't met.
+type GetUserInfoReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserInfoReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserInfoReqMultiError) AllErrors() []error { return m }
+
+// GetUserInfoReqValidationError is the validation error returned by
+// GetUserInfoReq.Validate if the designated constraints aren't met.
+type GetUserInfoReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserInfoReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserInfoReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserInfoReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserInfoReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserInfoReqValidationError) ErrorName() string { return "GetUserInfoReqValidationError" }
+
+// Error satisfies the builtin error interface
+func (e GetUserInfoReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserInfoReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserInfoReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserInfoReqValidationError{}
+
+// Validate checks the field values on GetUserInfoReply with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *GetUserInfoReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserInfoReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetUserInfoReplyMultiError, or nil if none found.
+func (m *GetUserInfoReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserInfoReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Username
+
+	// no validation rules for Avatar
+
+	// no validation rules for School
+
+	// no validation rules for Company
+
+	// no validation rules for Job
+
+	// no validation rules for Homepage
+
+	// no validation rules for Introduce
+
+	// no validation rules for Created
+
+	if len(errors) > 0 {
+		return GetUserInfoReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetUserInfoReplyMultiError is an error wrapping multiple validation errors
+// returned by GetUserInfoReply.ValidateAll() if the designated constraints
+// aren't met.
+type GetUserInfoReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserInfoReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserInfoReplyMultiError) AllErrors() []error { return m }
+
+// GetUserInfoReplyValidationError is the validation error returned by
+// GetUserInfoReply.Validate if the designated constraints aren't met.
+type GetUserInfoReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserInfoReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserInfoReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserInfoReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserInfoReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserInfoReplyValidationError) ErrorName() string { return "GetUserInfoReplyValidationError" }
+
+// Error satisfies the builtin error interface
+func (e GetUserInfoReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserInfoReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserInfoReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserInfoReplyValidationError{}
+
 // Validate checks the field values on GetProfileUpdateReply with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.

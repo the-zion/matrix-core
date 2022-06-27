@@ -24,6 +24,7 @@ type BffHTTPServer interface {
 	GetCosSessionKey(context.Context, *emptypb.Empty) (*GetCosSessionKeyReply, error)
 	GetProfile(context.Context, *emptypb.Empty) (*GetProfileReply, error)
 	GetProfileUpdate(context.Context, *emptypb.Empty) (*GetProfileUpdateReply, error)
+	GetUserInfo(context.Context, *GetUserInfoReq) (*GetUserInfoReply, error)
 	LoginByCode(context.Context, *LoginByCodeReq) (*LoginReply, error)
 	LoginByGithub(context.Context, *LoginByGithubReq) (*LoginReply, error)
 	LoginByPassword(context.Context, *LoginByPasswordReq) (*LoginReply, error)
@@ -53,6 +54,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.GET("/v1/get/cos/session/key", _Bff_GetCosSessionKey0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/account", _Bff_GetAccount0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/profile", _Bff_GetProfile0_HTTP_Handler(srv))
+	r.GET("/v1/get/user/info", _Bff_GetUserInfo0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/profile/update", _Bff_GetProfileUpdate0_HTTP_Handler(srv))
 	r.POST("/v1/set/user/profile/update", _Bff_SetProfileUpdate0_HTTP_Handler(srv))
 	r.POST("/v1/set/user/phone", _Bff_SetUserPhone0_HTTP_Handler(srv))
@@ -272,6 +274,25 @@ func _Bff_GetProfile0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) err
 	}
 }
 
+func _Bff_GetUserInfo0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetUserInfoReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/bff.v1.Bff/GetUserInfo")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetUserInfo(ctx, req.(*GetUserInfoReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetUserInfoReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _Bff_GetProfileUpdate0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in emptypb.Empty
@@ -430,6 +451,7 @@ type BffHTTPClient interface {
 	GetCosSessionKey(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetCosSessionKeyReply, err error)
 	GetProfile(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetProfileReply, err error)
 	GetProfileUpdate(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetProfileUpdateReply, err error)
+	GetUserInfo(ctx context.Context, req *GetUserInfoReq, opts ...http.CallOption) (rsp *GetUserInfoReply, err error)
 	LoginByCode(ctx context.Context, req *LoginByCodeReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginByGithub(ctx context.Context, req *LoginByGithubReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginByPassword(ctx context.Context, req *LoginByPasswordReq, opts ...http.CallOption) (rsp *LoginReply, err error)
@@ -511,6 +533,19 @@ func (c *BffHTTPClientImpl) GetProfileUpdate(ctx context.Context, in *emptypb.Em
 	pattern := "/v1/get/user/profile/update"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation("/bff.v1.Bff/GetProfileUpdate"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetUserInfo(ctx context.Context, in *GetUserInfoReq, opts ...http.CallOption) (*GetUserInfoReply, error) {
+	var out GetUserInfoReply
+	pattern := "/v1/get/user/info"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation("/bff.v1.Bff/GetUserInfo"))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
