@@ -106,6 +106,23 @@ func (s *BffService) GetProfile(ctx context.Context, _ *emptypb.Empty) (*v1.GetP
 	}, nil
 }
 
+func (s *BffService) GetUserInfo(ctx context.Context, req *v1.GetUserInfoReq) (*v1.GetUserInfoReply, error) {
+	userProfile, err := s.uc.GetUserInfo(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetUserInfoReply{
+		Username:  userProfile.Username,
+		Avatar:    userProfile.Avatar,
+		School:    userProfile.School,
+		Company:   userProfile.Company,
+		Job:       userProfile.Job,
+		Homepage:  userProfile.Homepage,
+		Introduce: userProfile.Introduce,
+		Created:   userProfile.Created,
+	}, nil
+}
+
 func (s *BffService) GetProfileUpdate(ctx context.Context, _ *emptypb.Empty) (*v1.GetProfileUpdateReply, error) {
 	userProfile, err := s.uc.GetProfileUpdate(ctx)
 	if err != nil {
