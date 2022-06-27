@@ -19,6 +19,7 @@ type UserProfile struct {
 	Job       string
 	Homepage  string
 	Introduce string
+	Created   string
 }
 
 type UserProfileUpdate struct {
