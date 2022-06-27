@@ -129,6 +129,25 @@ func (r *userRepo) GetAccount(ctx context.Context, uuid string) (*biz.UserAccoun
 }
 
 func (r *userRepo) GetProfile(ctx context.Context, uuid string) (*biz.UserProfile, error) {
+	reply, err := r.data.uc.GetProfile(ctx, &userV1.GetProfileReq{
+		Uuid: uuid,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &biz.UserProfile{
+		Uuid:      reply.Uuid,
+		Username:  reply.Username,
+		Avatar:    reply.Avatar,
+		School:    reply.School,
+		Company:   reply.Company,
+		Job:       reply.Job,
+		Homepage:  reply.Homepage,
+		Introduce: reply.Introduce,
+	}, nil
+}
+
+func (r *userRepo) GetUserInfo(ctx context.Context, uuid string) (*biz.UserProfile, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_user_profile_%s", uuid), func() (interface{}, error) {
 		reply, err := r.data.uc.GetProfile(ctx, &userV1.GetProfileReq{
 			Uuid: uuid,
@@ -145,6 +164,7 @@ func (r *userRepo) GetProfile(ctx context.Context, uuid string) (*biz.UserProfil
 			Job:       reply.Job,
 			Homepage:  reply.Homepage,
 			Introduce: reply.Introduce,
+			Created:   reply.Created,
 		}, nil
 	})
 	if err != nil {
