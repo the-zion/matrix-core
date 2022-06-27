@@ -84,6 +84,12 @@ service Bff{
     };
   }
 
+  rpc GetUserInfo (GetUserInfoReq) returns (GetUserInfoReply) {
+    option (google.api.http) = {
+      get: "/v1/get/user/info",
+    };
+  }
+
   rpc GetProfileUpdate (google.protobuf.Empty) returns (GetProfileUpdateReply) {
     option (google.api.http) = {
       get: "/v1/get/user/profile/update",
@@ -215,6 +221,21 @@ message GetProfileReply{
   string job = 6;
   string homepage = 7;
   string introduce = 8;
+}
+
+message GetUserInfoReq{
+  string uuid = 1;
+}
+
+message GetUserInfoReply{
+  string username = 2;
+  string avatar = 3;
+  string school = 4;
+  string company = 5;
+  string job = 6;
+  string homepage = 7;
+  string introduce = 8;
+  string created = 9;
 }
 
 message GetProfileUpdateReply{
