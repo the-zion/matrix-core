@@ -37,6 +37,7 @@ func (s *UserService) GetProfile(ctx context.Context, req *v1.GetProfileReq) (*v
 		Job:       profile.Job,
 		Homepage:  profile.Homepage,
 		Introduce: profile.Introduce,
+		Created:   profile.Created,
 	}, nil
 }
 
