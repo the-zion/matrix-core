@@ -12,6 +12,7 @@ type User struct {
 }
 
 type Profile struct {
+	Created   string
 	Updated   string
 	Uuid      string
 	Username  string
