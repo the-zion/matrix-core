@@ -16,9 +16,9 @@ func IsUnknownError(err error) bool {
 		return false
 	}
 	e := errors.FromError(err)
-	return e.Reason == UserErrorReason_UNKNOWN_ERROR.String() && e.Code == 500
+	return e.Reason == MessageErrorReason_UNKNOWN_ERROR.String() && e.Code == 500
 }
 
 func ErrorUnknownError(format string, args ...interface{}) *errors.Error {
-	return errors.New(500, UserErrorReason_UNKNOWN_ERROR.String(), fmt.Sprintf(format, args...))
+	return errors.New(500, MessageErrorReason_UNKNOWN_ERROR.String(), fmt.Sprintf(format, args...))
 }
