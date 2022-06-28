@@ -9,7 +9,6 @@ import (
 	"github.com/tencentyun/cos-go-sdk-v5"
 	userV1 "github.com/the-zion/matrix-core/api/user/service/v1"
 	"github.com/the-zion/matrix-core/app/message/service/internal/biz"
-	"github.com/the-zion/matrix-core/app/message/service/internal/conf"
 	"github.com/the-zion/matrix-core/app/message/service/internal/pkg/util"
 	"net/http"
 	"strings"
@@ -18,14 +17,12 @@ import (
 var _ biz.UserRepo = (*userRepo)(nil)
 
 type userRepo struct {
-	key  string
 	data *Data
 	log  *log.Helper
 }
 
-func NewUserRepo(conf *conf.Auth, data *Data, logger log.Logger) biz.UserRepo {
+func NewUserRepo(data *Data, logger log.Logger) biz.UserRepo {
 	return &userRepo{
-		key:  conf.ApiKey,
 		data: data,
 		log:  log.NewHelper(log.With(logger, "module", "message/data/user")),
 	}
