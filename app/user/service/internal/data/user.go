@@ -112,6 +112,7 @@ func (r *userRepo) SetProfile(ctx context.Context, profile *biz.ProfileUpdate) e
 	}
 	p := &Profile{}
 	p.Updated = updateTime
+	p.Uuid = profile.Uuid
 	p.Username = profile.Username
 	p.School = profile.School
 	p.Company = profile.Company
