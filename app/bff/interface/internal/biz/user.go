@@ -39,156 +39,84 @@ func NewUserUseCase(repo UserRepo, logger log.Logger) *UserUseCase {
 }
 
 func (r *UserUseCase) UserRegister(ctx context.Context, email, password, code string) error {
-	err := r.repo.UserRegister(ctx, email, password, code)
-	if err != nil {
-		return err
-	}
-	return nil
+	return r.repo.UserRegister(ctx, email, password, code)
 }
 
 func (r *UserUseCase) LoginByPassword(ctx context.Context, account, password, mode string) (string, error) {
-	token, err := r.repo.LoginByPassword(ctx, account, password, mode)
-	if err != nil {
-		return "", err
-	}
-	return token, nil
+	return r.repo.LoginByPassword(ctx, account, password, mode)
 }
 
 func (r *UserUseCase) LoginByCode(ctx context.Context, phone, code string) (string, error) {
-	token, err := r.repo.LoginByCode(ctx, phone, code)
-	if err != nil {
-		return "", err
-	}
-	return token, nil
+	return r.repo.LoginByCode(ctx, phone, code)
 }
 
 func (r *UserUseCase) LoginPasswordReset(ctx context.Context, account, password, code, mode string) error {
-	err := r.repo.LoginPasswordReset(ctx, account, password, code, mode)
-	if err != nil {
-		return err
-	}
-	return nil
+	return r.repo.LoginPasswordReset(ctx, account, password, code, mode)
 }
 
 func (r *UserUseCase) SendPhoneCode(ctx context.Context, template, phone string) error {
-	err := r.repo.SendPhoneCode(ctx, template, phone)
-	if err != nil {
-		return err
-	}
-	return nil
+	return r.repo.SendPhoneCode(ctx, template, phone)
 }
 
 func (r *UserUseCase) SendEmailCode(ctx context.Context, template, email string) error {
-	err := r.repo.SendEmailCode(ctx, template, email)
-	if err != nil {
-		return err
-	}
-	return nil
+	return r.repo.SendEmailCode(ctx, template, email)
 }
 
 func (r *UserUseCase) GetCosSessionKey(ctx context.Context) (*Credentials, error) {
-	credentials, err := r.repo.GetCosSessionKey(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return credentials, nil
+	return r.repo.GetCosSessionKey(ctx)
 }
 
 func (r *UserUseCase) GetAccount(ctx context.Context) (*UserAccount, error) {
 	uuid := ctx.Value("uuid").(string)
-	account, err := r.repo.GetAccount(ctx, uuid)
-	if err != nil {
-		return nil, err
-	}
-	return account, nil
+	return r.repo.GetAccount(ctx, uuid)
 }
 
 func (r *UserUseCase) GetProfile(ctx context.Context) (*UserProfile, error) {
 	uuid := ctx.Value("uuid").(string)
-	userProfile, err := r.repo.GetProfile(ctx, uuid)
-	if err != nil {
-		return nil, err
-	}
-	return userProfile, nil
+	return r.repo.GetProfile(ctx, uuid)
 }
 
 func (r *UserUseCase) GetUserInfo(ctx context.Context, uuid string) (*UserProfile, error) {
-	userProfile, err := r.repo.GetUserInfo(ctx, uuid)
-	if err != nil {
-		return nil, err
-	}
-	return userProfile, nil
+	return r.repo.GetUserInfo(ctx, uuid)
 }
 
 func (r *UserUseCase) GetProfileUpdate(ctx context.Context) (*UserProfileUpdate, error) {
 	uuid := ctx.Value("uuid").(string)
-	userProfile, err := r.repo.GetProfileUpdate(ctx, uuid)
-	if err != nil {
-		return nil, err
-	}
-	return userProfile, nil
+	return r.repo.GetProfileUpdate(ctx, uuid)
 }
 
 func (r *UserUseCase) SetUserProfile(ctx context.Context, profile *UserProfileUpdate) error {
 	uuid := ctx.Value("uuid").(string)
 	profile.Uuid = uuid
-	err := r.repo.SetProfileUpdate(ctx, profile)
-	if err != nil {
-		return err
-	}
-	return nil
+	return r.repo.SetProfileUpdate(ctx, profile)
 }
 
 func (r *UserUseCase) SetUserPhone(ctx context.Context, phone, code string) error {
 	uuid := ctx.Value("uuid").(string)
-	err := r.repo.SetUserPhone(ctx, uuid, phone, code)
-	if err != nil {
-		return err
-	}
-	return nil
+	return r.repo.SetUserPhone(ctx, uuid, phone, code)
 }
 
 func (r *UserUseCase) SetUserEmail(ctx context.Context, email, code string) error {
 	uuid := ctx.Value("uuid").(string)
-	err := r.repo.SetUserEmail(ctx, uuid, email, code)
-	if err != nil {
-		return err
-	}
-	return nil
+	return r.repo.SetUserEmail(ctx, uuid, email, code)
 }
 
 func (r *UserUseCase) SetUserPassword(ctx context.Context, password string) error {
 	uuid := ctx.Value("uuid").(string)
-	err := r.repo.SetUserPassword(ctx, uuid, password)
-	if err != nil {
-		return err
-	}
-	return nil
+	return r.repo.SetUserPassword(ctx, uuid, password)
 }
 
 func (r *UserUseCase) ChangeUserPassword(ctx context.Context, oldpassword, password string) error {
 	uuid := ctx.Value("uuid").(string)
-	err := r.repo.ChangeUserPassword(ctx, uuid, oldpassword, password)
-	if err != nil {
-		return err
-	}
-	return nil
+	return r.repo.ChangeUserPassword(ctx, uuid, oldpassword, password)
 }
 
 func (r *UserUseCase) UnbindUserPhone(ctx context.Context, phone, code string) error {
 	uuid := ctx.Value("uuid").(string)
-	err := r.repo.UnbindUserPhone(ctx, uuid, phone, code)
-	if err != nil {
-		return err
-	}
-	return nil
+	return r.repo.UnbindUserPhone(ctx, uuid, phone, code)
 }
 
 func (r *UserUseCase) UnbindUserEmail(ctx context.Context, email, code string) error {
 	uuid := ctx.Value("uuid").(string)
-	err := r.repo.UnbindUserEmail(ctx, uuid, email, code)
-	if err != nil {
-		return err
-	}
-	return nil
+	return r.repo.UnbindUserEmail(ctx, uuid, email, code)
 }
