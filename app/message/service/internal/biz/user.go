@@ -40,6 +40,12 @@ func (r *UserUseCase) AvatarReview(ctx context.Context, ar *AvatarReview) error 
 }
 
 func (r *UserUseCase) ProfileReview(ctx context.Context, tr *TextReview) error {
+	uuid := tr.CosHeaders["x-cos-meta-uuid"]
+	if uuid == "" {
+		r.log.Info("uuid not exist，%v", tr)
+		return nil
+	}
+
 	if tr.State != "Success" {
 		r.log.Info("profile Review failed，%v", tr)
 		return nil
