@@ -20,6 +20,7 @@ const _ = http.SupportPackageIsVersion1
 
 type BffHTTPServer interface {
 	ChangeUserPassword(context.Context, *ChangeUserPasswordReq) (*emptypb.Empty, error)
+	CreateArticleDraft(context.Context, *emptypb.Empty) (*CreateArticleDraftReply, error)
 	GetAccount(context.Context, *emptypb.Empty) (*GetAccountReply, error)
 	GetCosSessionKey(context.Context, *emptypb.Empty) (*GetCosSessionKeyReply, error)
 	GetProfile(context.Context, *emptypb.Empty) (*GetProfileReply, error)
@@ -63,6 +64,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.POST("/v1/change/user/password", _Bff_ChangeUserPassword0_HTTP_Handler(srv))
 	r.POST("/v1/unbind/user/phone", _Bff_UnbindUserPhone0_HTTP_Handler(srv))
 	r.POST("/v1/unbind/user/email", _Bff_UnbindUserEmail0_HTTP_Handler(srv))
+	r.POST("/v1/create/article/draft", _Bff_CreateArticleDraft0_HTTP_Handler(srv))
 }
 
 func _Bff_UserRegister0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
@@ -445,8 +447,28 @@ func _Bff_UnbindUserEmail0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context
 	}
 }
 
+func _Bff_CreateArticleDraft0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in emptypb.Empty
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/bff.v1.Bff/CreateArticleDraft")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.CreateArticleDraft(ctx, req.(*emptypb.Empty))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*CreateArticleDraftReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 type BffHTTPClient interface {
 	ChangeUserPassword(ctx context.Context, req *ChangeUserPasswordReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	CreateArticleDraft(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *CreateArticleDraftReply, err error)
 	GetAccount(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetAccountReply, err error)
 	GetCosSessionKey(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetCosSessionKeyReply, err error)
 	GetProfile(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetProfileReply, err error)
@@ -481,6 +503,19 @@ func (c *BffHTTPClientImpl) ChangeUserPassword(ctx context.Context, in *ChangeUs
 	pattern := "/v1/change/user/password"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation("/bff.v1.Bff/ChangeUserPassword"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) CreateArticleDraft(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*CreateArticleDraftReply, error) {
+	var out CreateArticleDraftReply
+	pattern := "/v1/create/article/draft"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/bff.v1.Bff/CreateArticleDraft"))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

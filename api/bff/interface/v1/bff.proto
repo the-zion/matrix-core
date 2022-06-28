@@ -144,6 +144,16 @@ service Bff{
       body: "*"
     };
   }
+
+  // --------------------creation service------------------------
+
+
+  rpc CreateArticleDraft(google.protobuf.Empty) returns (CreateArticleDraftReply){
+    option (google.api.http) = {
+      post: "/v1/create/article/draft"
+      body: "*"
+    };
+  }
 }
 
 // --------------------user service-------------------------
@@ -285,4 +295,10 @@ message UnbindUserPhoneReq{
 message UnbindUserEmailReq{
   string email = 1;
   string code = 2;
+}
+
+
+// --------------------creation service-------------------------
+message CreateArticleDraftReply{
+  int32 id = 1;
 }
