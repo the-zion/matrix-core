@@ -7,23 +7,26 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/google/wire"
+	creationv1 "github.com/the-zion/matrix-core/api/creation/service/v1"
 	messagev1 "github.com/the-zion/matrix-core/api/message/service/v1"
 	userv1 "github.com/the-zion/matrix-core/api/user/service/v1"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewUserServiceClient, NewMessageServiceClient)
+var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewArticleRepo, NewUserServiceClient, NewCreationServiceClient, NewMessageServiceClient)
 
 type Data struct {
 	log *log.Helper
 	uc  userv1.UserClient
+	ac  creationv1.CreationClient
 	mc  messagev1.MessageClient
 }
 
-func NewData(logger log.Logger, uc userv1.UserClient, mc messagev1.MessageClient) (*Data, error) {
+func NewData(logger log.Logger, uc userv1.UserClient, ac creationv1.CreationClient, mc messagev1.MessageClient) (*Data, error) {
 	l := log.NewHelper(log.With(logger, "module", "bff/data"))
 	d := &Data{
 		log: l,
 		uc:  uc,
+		ac:  ac,
 		mc:  mc,
 	}
 	return d, nil
@@ -44,6 +47,24 @@ func NewUserServiceClient(r *nacos.Registry, logger log.Logger) userv1.UserClien
 		l.Fatalf(err.Error())
 	}
 	c := userv1.NewUserClient(conn)
+	return c
+}
+
+func NewCreationServiceClient(r *nacos.Registry, logger log.Logger) creationv1.CreationClient {
+	l := log.NewHelper(log.With(logger, "module", "bff/data/new-creation-client"))
+	conn, err := grpc.DialInsecure(
+		context.Background(),
+		grpc.WithEndpoint("discovery:///matrix.creation.service.grpc"),
+		grpc.WithDiscovery(r),
+		grpc.WithMiddleware(
+			//tracing.Client(tracing.WithTracerProvider(tp)),
+			recovery.Recovery(),
+		),
+	)
+	if err != nil {
+		l.Fatalf(err.Error())
+	}
+	c := creationv1.NewCreationClient(conn)
 	return c
 }
 
