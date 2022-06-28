@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package creation.v1;
+import "errors/errors.proto";
+
+option go_package = "api/creation/service/v1/pb;v1";
+
+enum CreationErrorReason {
+  option (errors.default_code) = 500;
+
+  UNKNOWN_ERROR = 0;
+  CREATE_ARTICLE_DRAFT_FAILED = 1;
+}

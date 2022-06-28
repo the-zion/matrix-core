@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package creation.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "validate/validate.proto";
+
+option go_package = "api/creation/service/v1;v1";
+
+service Creation {
+
+  rpc CreateArticleDraft(CreateArticleDraftReq) returns (CreateArticleDraftReply){}
+}
+
+message CreateArticleDraftReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+message CreateArticleDraftReply{
+  int32 id = 1;
+}
+
