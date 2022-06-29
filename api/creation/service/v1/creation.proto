@@ -10,7 +10,22 @@ option go_package = "api/creation/service/v1;v1";
 
 service Creation {
 
+  rpc GetLastArticleDraft(GetLastArticleDraftReq) returns (GetLastArticleDraftReply){}
+
   rpc CreateArticleDraft(CreateArticleDraftReq) returns (CreateArticleDraftReply){}
+
+  rpc ArticleDraftMark(ArticleDraftMarkReq) returns (google.protobuf.Empty){}
+
+  rpc GetArticleDraftList(GetArticleDraftListReq) returns (GetArticleDraftListReply){}
+}
+
+message GetLastArticleDraftReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+message GetLastArticleDraftReply{
+  int32 id = 1;
+  int32 status = 2;
 }
 
 message CreateArticleDraftReq{
@@ -21,3 +36,18 @@ message CreateArticleDraftReply{
   int32 id = 1;
 }
 
+message ArticleDraftMarkReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message GetArticleDraftListReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+message GetArticleDraftListReply{
+  message Draft{
+    int32 id = 1;
+  }
+  repeated Draft draft = 1;
+}
