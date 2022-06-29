@@ -148,10 +148,29 @@ service Bff{
   // --------------------creation service------------------------
 
 
+  rpc GetLastArticleDraft(google.protobuf.Empty) returns (GetLastArticleDraftReply){
+    option (google.api.http) = {
+      get: "/v1/get/last/article/draft"
+    };
+  }
+
   rpc CreateArticleDraft(google.protobuf.Empty) returns (CreateArticleDraftReply){
     option (google.api.http) = {
       post: "/v1/create/article/draft"
       body: "*"
+    };
+  }
+
+  rpc ArticleDraftMark(ArticleDraftMarkReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/article/draft/mark"
+      body: "*"
+    };
+  }
+
+  rpc GetArticleDraftList(google.protobuf.Empty) returns (GetArticleDraftListReply){
+    option (google.api.http) = {
+      get: "/v1/get/article/draft/list"
     };
   }
 }
@@ -299,6 +318,21 @@ message UnbindUserEmailReq{
 
 
 // --------------------creation service-------------------------
+message GetLastArticleDraftReply{
+  int32 id = 1;
+  int32 status = 2;
+}
 message CreateArticleDraftReply{
   int32 id = 1;
+}
+
+message ArticleDraftMarkReq{
+  int32 id = 1;
+}
+
+message GetArticleDraftListReply{
+  message Draft{
+    int32 id = 1;
+  }
+  repeated Draft draft = 1;
 }
