@@ -53,11 +53,18 @@ message Data {
     string nameSpace = 6;
   }
   message Cos{
+    message Statement{
+      repeated string action = 1;
+      string effect = 2;
+      repeated string resource = 3;
+    }
+    message Policy{
+      repeated Statement statement = 1;
+    }
     string secret_id = 1;
     string secret_key = 2;
     string region = 3;
-    string appid = 4;
-    string bucket = 5;
+    Policy policy = 4;
   }
   Database database = 1;
   Redis redis = 2;
