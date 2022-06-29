@@ -1,5 +1,6 @@
 package biz
 
 type ArticleDraft struct {
-	Code string
+	Id     int32
+	Status int32
 }
