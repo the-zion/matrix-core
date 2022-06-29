@@ -11,7 +11,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	_ "google.golang.org/protobuf/types/known/emptypb"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	reflect "reflect"
 	sync "sync"
 )
@@ -22,6 +22,108 @@ const (
 	// Verify that runtime/protoimpl is sufficiently up-to-date.
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
+
+type GetLastArticleDraftReq struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Uuid string `protobuf:"bytes,1,opt,name=uuid,proto3" json:"uuid,omitempty"`
+}
+
+func (x *GetLastArticleDraftReq) Reset() {
+	*x = GetLastArticleDraftReq{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_creation_service_v1_creation_proto_msgTypes[0]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetLastArticleDraftReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetLastArticleDraftReq) ProtoMessage() {}
+
+func (x *GetLastArticleDraftReq) ProtoReflect() protoreflect.Message {
+	mi := &file_creation_service_v1_creation_proto_msgTypes[0]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetLastArticleDraftReq.ProtoReflect.Descriptor instead.
+func (*GetLastArticleDraftReq) Descriptor() ([]byte, []int) {
+	return file_creation_service_v1_creation_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *GetLastArticleDraftReq) GetUuid() string {
+	if x != nil {
+		return x.Uuid
+	}
+	return ""
+}
+
+type GetLastArticleDraftReply struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id     int32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Status int32 `protobuf:"varint,2,opt,name=status,proto3" json:"status,omitempty"`
+}
+
+func (x *GetLastArticleDraftReply) Reset() {
+	*x = GetLastArticleDraftReply{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_creation_service_v1_creation_proto_msgTypes[1]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetLastArticleDraftReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetLastArticleDraftReply) ProtoMessage() {}
+
+func (x *GetLastArticleDraftReply) ProtoReflect() protoreflect.Message {
+	mi := &file_creation_service_v1_creation_proto_msgTypes[1]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetLastArticleDraftReply.ProtoReflect.Descriptor instead.
+func (*GetLastArticleDraftReply) Descriptor() ([]byte, []int) {
+	return file_creation_service_v1_creation_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *GetLastArticleDraftReply) GetId() int32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *GetLastArticleDraftReply) GetStatus() int32 {
+	if x != nil {
+		return x.Status
+	}
+	return 0
+}
 
 type CreateArticleDraftReq struct {
 	state         protoimpl.MessageState
@@ -34,7 +136,7 @@ type CreateArticleDraftReq struct {
 func (x *CreateArticleDraftReq) Reset() {
 	*x = CreateArticleDraftReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_creation_service_v1_creation_proto_msgTypes[0]
+		mi := &file_creation_service_v1_creation_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -47,7 +149,7 @@ func (x *CreateArticleDraftReq) String() string {
 func (*CreateArticleDraftReq) ProtoMessage() {}
 
 func (x *CreateArticleDraftReq) ProtoReflect() protoreflect.Message {
-	mi := &file_creation_service_v1_creation_proto_msgTypes[0]
+	mi := &file_creation_service_v1_creation_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -60,7 +162,7 @@ func (x *CreateArticleDraftReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateArticleDraftReq.ProtoReflect.Descriptor instead.
 func (*CreateArticleDraftReq) Descriptor() ([]byte, []int) {
-	return file_creation_service_v1_creation_proto_rawDescGZIP(), []int{0}
+	return file_creation_service_v1_creation_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *CreateArticleDraftReq) GetUuid() string {
@@ -81,7 +183,7 @@ type CreateArticleDraftReply struct {
 func (x *CreateArticleDraftReply) Reset() {
 	*x = CreateArticleDraftReply{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_creation_service_v1_creation_proto_msgTypes[1]
+		mi := &file_creation_service_v1_creation_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -94,7 +196,7 @@ func (x *CreateArticleDraftReply) String() string {
 func (*CreateArticleDraftReply) ProtoMessage() {}
 
 func (x *CreateArticleDraftReply) ProtoReflect() protoreflect.Message {
-	mi := &file_creation_service_v1_creation_proto_msgTypes[1]
+	mi := &file_creation_service_v1_creation_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -107,10 +209,206 @@ func (x *CreateArticleDraftReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateArticleDraftReply.ProtoReflect.Descriptor instead.
 func (*CreateArticleDraftReply) Descriptor() ([]byte, []int) {
-	return file_creation_service_v1_creation_proto_rawDescGZIP(), []int{1}
+	return file_creation_service_v1_creation_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *CreateArticleDraftReply) GetId() int32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+type ArticleDraftMarkReq struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id   int32  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Uuid string `protobuf:"bytes,2,opt,name=uuid,proto3" json:"uuid,omitempty"`
+}
+
+func (x *ArticleDraftMarkReq) Reset() {
+	*x = ArticleDraftMarkReq{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_creation_service_v1_creation_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ArticleDraftMarkReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ArticleDraftMarkReq) ProtoMessage() {}
+
+func (x *ArticleDraftMarkReq) ProtoReflect() protoreflect.Message {
+	mi := &file_creation_service_v1_creation_proto_msgTypes[4]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ArticleDraftMarkReq.ProtoReflect.Descriptor instead.
+func (*ArticleDraftMarkReq) Descriptor() ([]byte, []int) {
+	return file_creation_service_v1_creation_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ArticleDraftMarkReq) GetId() int32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *ArticleDraftMarkReq) GetUuid() string {
+	if x != nil {
+		return x.Uuid
+	}
+	return ""
+}
+
+type GetArticleDraftListReq struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Uuid string `protobuf:"bytes,1,opt,name=uuid,proto3" json:"uuid,omitempty"`
+}
+
+func (x *GetArticleDraftListReq) Reset() {
+	*x = GetArticleDraftListReq{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_creation_service_v1_creation_proto_msgTypes[5]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetArticleDraftListReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetArticleDraftListReq) ProtoMessage() {}
+
+func (x *GetArticleDraftListReq) ProtoReflect() protoreflect.Message {
+	mi := &file_creation_service_v1_creation_proto_msgTypes[5]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetArticleDraftListReq.ProtoReflect.Descriptor instead.
+func (*GetArticleDraftListReq) Descriptor() ([]byte, []int) {
+	return file_creation_service_v1_creation_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *GetArticleDraftListReq) GetUuid() string {
+	if x != nil {
+		return x.Uuid
+	}
+	return ""
+}
+
+type GetArticleDraftListReply struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Draft []*GetArticleDraftListReply_Draft `protobuf:"bytes,1,rep,name=draft,proto3" json:"draft,omitempty"`
+}
+
+func (x *GetArticleDraftListReply) Reset() {
+	*x = GetArticleDraftListReply{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_creation_service_v1_creation_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetArticleDraftListReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetArticleDraftListReply) ProtoMessage() {}
+
+func (x *GetArticleDraftListReply) ProtoReflect() protoreflect.Message {
+	mi := &file_creation_service_v1_creation_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetArticleDraftListReply.ProtoReflect.Descriptor instead.
+func (*GetArticleDraftListReply) Descriptor() ([]byte, []int) {
+	return file_creation_service_v1_creation_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *GetArticleDraftListReply) GetDraft() []*GetArticleDraftListReply_Draft {
+	if x != nil {
+		return x.Draft
+	}
+	return nil
+}
+
+type GetArticleDraftListReply_Draft struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id int32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+}
+
+func (x *GetArticleDraftListReply_Draft) Reset() {
+	*x = GetArticleDraftListReply_Draft{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_creation_service_v1_creation_proto_msgTypes[7]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetArticleDraftListReply_Draft) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetArticleDraftListReply_Draft) ProtoMessage() {}
+
+func (x *GetArticleDraftListReply_Draft) ProtoReflect() protoreflect.Message {
+	mi := &file_creation_service_v1_creation_proto_msgTypes[7]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetArticleDraftListReply_Draft.ProtoReflect.Descriptor instead.
+func (*GetArticleDraftListReply_Draft) Descriptor() ([]byte, []int) {
+	return file_creation_service_v1_creation_proto_rawDescGZIP(), []int{6, 0}
+}
+
+func (x *GetArticleDraftListReply_Draft) GetId() int32 {
 	if x != nil {
 		return x.Id
 	}
@@ -128,22 +426,63 @@ var file_creation_service_v1_creation_proto_rawDesc = []byte{
 	0x1b, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66,
 	0x2f, 0x65, 0x6d, 0x70, 0x74, 0x79, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x17, 0x76, 0x61,
 	0x6c, 0x69, 0x64, 0x61, 0x74, 0x65, 0x2f, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x65, 0x2e,
-	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x35, 0x0a, 0x15, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x41,
-	0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x44, 0x72, 0x61, 0x66, 0x74, 0x52, 0x65, 0x71, 0x12, 0x1c,
-	0x0a, 0x04, 0x75, 0x75, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x08, 0xfa, 0x42,
-	0x05, 0x72, 0x03, 0xb0, 0x01, 0x01, 0x52, 0x04, 0x75, 0x75, 0x69, 0x64, 0x22, 0x29, 0x0a, 0x17,
-	0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x41, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x44, 0x72, 0x61,
-	0x66, 0x74, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20,
-	0x01, 0x28, 0x05, 0x52, 0x02, 0x69, 0x64, 0x32, 0x6c, 0x0a, 0x08, 0x43, 0x72, 0x65, 0x61, 0x74,
-	0x69, 0x6f, 0x6e, 0x12, 0x60, 0x0a, 0x12, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x41, 0x72, 0x74,
-	0x69, 0x63, 0x6c, 0x65, 0x44, 0x72, 0x61, 0x66, 0x74, 0x12, 0x22, 0x2e, 0x63, 0x72, 0x65, 0x61,
-	0x74, 0x69, 0x6f, 0x6e, 0x2e, 0x76, 0x31, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x41, 0x72,
-	0x74, 0x69, 0x63, 0x6c, 0x65, 0x44, 0x72, 0x61, 0x66, 0x74, 0x52, 0x65, 0x71, 0x1a, 0x24, 0x2e,
-	0x63, 0x72, 0x65, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x2e, 0x76, 0x31, 0x2e, 0x43, 0x72, 0x65, 0x61,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x36, 0x0a, 0x16, 0x47, 0x65, 0x74, 0x4c, 0x61, 0x73, 0x74,
+	0x41, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x44, 0x72, 0x61, 0x66, 0x74, 0x52, 0x65, 0x71, 0x12,
+	0x1c, 0x0a, 0x04, 0x75, 0x75, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x08, 0xfa,
+	0x42, 0x05, 0x72, 0x03, 0xb0, 0x01, 0x01, 0x52, 0x04, 0x75, 0x75, 0x69, 0x64, 0x22, 0x42, 0x0a,
+	0x18, 0x47, 0x65, 0x74, 0x4c, 0x61, 0x73, 0x74, 0x41, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x44,
+	0x72, 0x61, 0x66, 0x74, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x02, 0x69, 0x64, 0x12, 0x16, 0x0a, 0x06, 0x73, 0x74, 0x61,
+	0x74, 0x75, 0x73, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75,
+	0x73, 0x22, 0x35, 0x0a, 0x15, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x41, 0x72, 0x74, 0x69, 0x63,
+	0x6c, 0x65, 0x44, 0x72, 0x61, 0x66, 0x74, 0x52, 0x65, 0x71, 0x12, 0x1c, 0x0a, 0x04, 0x75, 0x75,
+	0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x08, 0xfa, 0x42, 0x05, 0x72, 0x03, 0xb0,
+	0x01, 0x01, 0x52, 0x04, 0x75, 0x75, 0x69, 0x64, 0x22, 0x29, 0x0a, 0x17, 0x43, 0x72, 0x65, 0x61,
 	0x74, 0x65, 0x41, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x44, 0x72, 0x61, 0x66, 0x74, 0x52, 0x65,
-	0x70, 0x6c, 0x79, 0x22, 0x00, 0x42, 0x1c, 0x5a, 0x1a, 0x61, 0x70, 0x69, 0x2f, 0x63, 0x72, 0x65,
-	0x61, 0x74, 0x69, 0x6f, 0x6e, 0x2f, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x2f, 0x76, 0x31,
-	0x3b, 0x76, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x70, 0x6c, 0x79, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52,
+	0x02, 0x69, 0x64, 0x22, 0x43, 0x0a, 0x13, 0x41, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x44, 0x72,
+	0x61, 0x66, 0x74, 0x4d, 0x61, 0x72, 0x6b, 0x52, 0x65, 0x71, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x02, 0x69, 0x64, 0x12, 0x1c, 0x0a, 0x04, 0x75, 0x75,
+	0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x42, 0x08, 0xfa, 0x42, 0x05, 0x72, 0x03, 0xb0,
+	0x01, 0x01, 0x52, 0x04, 0x75, 0x75, 0x69, 0x64, 0x22, 0x36, 0x0a, 0x16, 0x47, 0x65, 0x74, 0x41,
+	0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x44, 0x72, 0x61, 0x66, 0x74, 0x4c, 0x69, 0x73, 0x74, 0x52,
+	0x65, 0x71, 0x12, 0x1c, 0x0a, 0x04, 0x75, 0x75, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
+	0x42, 0x08, 0xfa, 0x42, 0x05, 0x72, 0x03, 0xb0, 0x01, 0x01, 0x52, 0x04, 0x75, 0x75, 0x69, 0x64,
+	0x22, 0x76, 0x0a, 0x18, 0x47, 0x65, 0x74, 0x41, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x44, 0x72,
+	0x61, 0x66, 0x74, 0x4c, 0x69, 0x73, 0x74, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x12, 0x41, 0x0a, 0x05,
+	0x64, 0x72, 0x61, 0x66, 0x74, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x2b, 0x2e, 0x63, 0x72,
+	0x65, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x2e, 0x76, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x41, 0x72, 0x74,
+	0x69, 0x63, 0x6c, 0x65, 0x44, 0x72, 0x61, 0x66, 0x74, 0x4c, 0x69, 0x73, 0x74, 0x52, 0x65, 0x70,
+	0x6c, 0x79, 0x2e, 0x44, 0x72, 0x61, 0x66, 0x74, 0x52, 0x05, 0x64, 0x72, 0x61, 0x66, 0x74, 0x1a,
+	0x17, 0x0a, 0x05, 0x44, 0x72, 0x61, 0x66, 0x74, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x05, 0x52, 0x02, 0x69, 0x64, 0x32, 0x86, 0x03, 0x0a, 0x08, 0x43, 0x72, 0x65,
+	0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x63, 0x0a, 0x13, 0x47, 0x65, 0x74, 0x4c, 0x61, 0x73, 0x74,
+	0x41, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x44, 0x72, 0x61, 0x66, 0x74, 0x12, 0x23, 0x2e, 0x63,
+	0x72, 0x65, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x2e, 0x76, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x4c, 0x61,
+	0x73, 0x74, 0x41, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x44, 0x72, 0x61, 0x66, 0x74, 0x52, 0x65,
+	0x71, 0x1a, 0x25, 0x2e, 0x63, 0x72, 0x65, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x2e, 0x76, 0x31, 0x2e,
+	0x47, 0x65, 0x74, 0x4c, 0x61, 0x73, 0x74, 0x41, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x44, 0x72,
+	0x61, 0x66, 0x74, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x22, 0x00, 0x12, 0x60, 0x0a, 0x12, 0x43, 0x72,
+	0x65, 0x61, 0x74, 0x65, 0x41, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x44, 0x72, 0x61, 0x66, 0x74,
+	0x12, 0x22, 0x2e, 0x63, 0x72, 0x65, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x2e, 0x76, 0x31, 0x2e, 0x43,
+	0x72, 0x65, 0x61, 0x74, 0x65, 0x41, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x44, 0x72, 0x61, 0x66,
+	0x74, 0x52, 0x65, 0x71, 0x1a, 0x24, 0x2e, 0x63, 0x72, 0x65, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x2e,
+	0x76, 0x31, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x41, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65,
+	0x44, 0x72, 0x61, 0x66, 0x74, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x22, 0x00, 0x12, 0x4e, 0x0a, 0x10,
+	0x41, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x44, 0x72, 0x61, 0x66, 0x74, 0x4d, 0x61, 0x72, 0x6b,
+	0x12, 0x20, 0x2e, 0x63, 0x72, 0x65, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x2e, 0x76, 0x31, 0x2e, 0x41,
+	0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x44, 0x72, 0x61, 0x66, 0x74, 0x4d, 0x61, 0x72, 0x6b, 0x52,
+	0x65, 0x71, 0x1a, 0x16, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x62, 0x75, 0x66, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x22, 0x00, 0x12, 0x63, 0x0a, 0x13,
+	0x47, 0x65, 0x74, 0x41, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x44, 0x72, 0x61, 0x66, 0x74, 0x4c,
+	0x69, 0x73, 0x74, 0x12, 0x23, 0x2e, 0x63, 0x72, 0x65, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x2e, 0x76,
+	0x31, 0x2e, 0x47, 0x65, 0x74, 0x41, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x44, 0x72, 0x61, 0x66,
+	0x74, 0x4c, 0x69, 0x73, 0x74, 0x52, 0x65, 0x71, 0x1a, 0x25, 0x2e, 0x63, 0x72, 0x65, 0x61, 0x74,
+	0x69, 0x6f, 0x6e, 0x2e, 0x76, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x41, 0x72, 0x74, 0x69, 0x63, 0x6c,
+	0x65, 0x44, 0x72, 0x61, 0x66, 0x74, 0x4c, 0x69, 0x73, 0x74, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x22,
+	0x00, 0x42, 0x1c, 0x5a, 0x1a, 0x61, 0x70, 0x69, 0x2f, 0x63, 0x72, 0x65, 0x61, 0x74, 0x69, 0x6f,
+	0x6e, 0x2f, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x2f, 0x76, 0x31, 0x3b, 0x76, 0x31, 0x62,
+	0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -158,19 +497,33 @@ func file_creation_service_v1_creation_proto_rawDescGZIP() []byte {
 	return file_creation_service_v1_creation_proto_rawDescData
 }
 
-var file_creation_service_v1_creation_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_creation_service_v1_creation_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_creation_service_v1_creation_proto_goTypes = []interface{}{
-	(*CreateArticleDraftReq)(nil),   // 0: creation.v1.CreateArticleDraftReq
-	(*CreateArticleDraftReply)(nil), // 1: creation.v1.CreateArticleDraftReply
+	(*GetLastArticleDraftReq)(nil),         // 0: creation.v1.GetLastArticleDraftReq
+	(*GetLastArticleDraftReply)(nil),       // 1: creation.v1.GetLastArticleDraftReply
+	(*CreateArticleDraftReq)(nil),          // 2: creation.v1.CreateArticleDraftReq
+	(*CreateArticleDraftReply)(nil),        // 3: creation.v1.CreateArticleDraftReply
+	(*ArticleDraftMarkReq)(nil),            // 4: creation.v1.ArticleDraftMarkReq
+	(*GetArticleDraftListReq)(nil),         // 5: creation.v1.GetArticleDraftListReq
+	(*GetArticleDraftListReply)(nil),       // 6: creation.v1.GetArticleDraftListReply
+	(*GetArticleDraftListReply_Draft)(nil), // 7: creation.v1.GetArticleDraftListReply.Draft
+	(*emptypb.Empty)(nil),                  // 8: google.protobuf.Empty
 }
 var file_creation_service_v1_creation_proto_depIdxs = []int32{
-	0, // 0: creation.v1.Creation.CreateArticleDraft:input_type -> creation.v1.CreateArticleDraftReq
-	1, // 1: creation.v1.Creation.CreateArticleDraft:output_type -> creation.v1.CreateArticleDraftReply
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	7, // 0: creation.v1.GetArticleDraftListReply.draft:type_name -> creation.v1.GetArticleDraftListReply.Draft
+	0, // 1: creation.v1.Creation.GetLastArticleDraft:input_type -> creation.v1.GetLastArticleDraftReq
+	2, // 2: creation.v1.Creation.CreateArticleDraft:input_type -> creation.v1.CreateArticleDraftReq
+	4, // 3: creation.v1.Creation.ArticleDraftMark:input_type -> creation.v1.ArticleDraftMarkReq
+	5, // 4: creation.v1.Creation.GetArticleDraftList:input_type -> creation.v1.GetArticleDraftListReq
+	1, // 5: creation.v1.Creation.GetLastArticleDraft:output_type -> creation.v1.GetLastArticleDraftReply
+	3, // 6: creation.v1.Creation.CreateArticleDraft:output_type -> creation.v1.CreateArticleDraftReply
+	8, // 7: creation.v1.Creation.ArticleDraftMark:output_type -> google.protobuf.Empty
+	6, // 8: creation.v1.Creation.GetArticleDraftList:output_type -> creation.v1.GetArticleDraftListReply
+	5, // [5:9] is the sub-list for method output_type
+	1, // [1:5] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_creation_service_v1_creation_proto_init() }
@@ -180,7 +533,7 @@ func file_creation_service_v1_creation_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_creation_service_v1_creation_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*CreateArticleDraftReq); i {
+			switch v := v.(*GetLastArticleDraftReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -192,7 +545,79 @@ func file_creation_service_v1_creation_proto_init() {
 			}
 		}
 		file_creation_service_v1_creation_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetLastArticleDraftReply); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_creation_service_v1_creation_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*CreateArticleDraftReq); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_creation_service_v1_creation_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*CreateArticleDraftReply); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_creation_service_v1_creation_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ArticleDraftMarkReq); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_creation_service_v1_creation_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetArticleDraftListReq); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_creation_service_v1_creation_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetArticleDraftListReply); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_creation_service_v1_creation_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetArticleDraftListReply_Draft); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -210,7 +635,7 @@ func file_creation_service_v1_creation_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_creation_service_v1_creation_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

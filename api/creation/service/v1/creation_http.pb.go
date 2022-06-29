@@ -8,7 +8,6 @@ import (
 	context "context"
 	http "github.com/go-kratos/kratos/v2/transport/http"
 	binding "github.com/go-kratos/kratos/v2/transport/http/binding"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -19,35 +18,35 @@ var _ = binding.EncodeURL
 const _ = http.SupportPackageIsVersion1
 
 type CreationHTTPServer interface {
-	CreateArticleDraft(context.Context, *emptypb.Empty) (*CreateArticleDraftReply, error)
+	GetArticleDraftList(context.Context, *GetArticleDraftListReq) (*GetArticleDraftListReply, error)
 }
 
 func RegisterCreationHTTPServer(s *http.Server, srv CreationHTTPServer) {
 	r := s.Route("/")
-	r.POST("/v1/create/article/draft", _Creation_CreateArticleDraft0_HTTP_Handler(srv))
+	r.GET("/v1/get/article/draft/list", _Creation_GetArticleDraftList0_HTTP_Handler(srv))
 }
 
-func _Creation_CreateArticleDraft0_HTTP_Handler(srv CreationHTTPServer) func(ctx http.Context) error {
+func _Creation_GetArticleDraftList0_HTTP_Handler(srv CreationHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in emptypb.Empty
-		if err := ctx.Bind(&in); err != nil {
+		var in GetArticleDraftListReq
+		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, "/creation.v1.Creation/CreateArticleDraft")
+		http.SetOperation(ctx, "/creation.v1.Creation/GetArticleDraftList")
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.CreateArticleDraft(ctx, req.(*emptypb.Empty))
+			return srv.GetArticleDraftList(ctx, req.(*GetArticleDraftListReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*CreateArticleDraftReply)
+		reply := out.(*GetArticleDraftListReply)
 		return ctx.Result(200, reply)
 	}
 }
 
 type CreationHTTPClient interface {
-	CreateArticleDraft(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *CreateArticleDraftReply, err error)
+	GetArticleDraftList(ctx context.Context, req *GetArticleDraftListReq, opts ...http.CallOption) (rsp *GetArticleDraftListReply, err error)
 }
 
 type CreationHTTPClientImpl struct {
@@ -58,13 +57,13 @@ func NewCreationHTTPClient(client *http.Client) CreationHTTPClient {
 	return &CreationHTTPClientImpl{client}
 }
 
-func (c *CreationHTTPClientImpl) CreateArticleDraft(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*CreateArticleDraftReply, error) {
-	var out CreateArticleDraftReply
-	pattern := "/v1/create/article/draft"
-	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation("/creation.v1.Creation/CreateArticleDraft"))
+func (c *CreationHTTPClientImpl) GetArticleDraftList(ctx context.Context, in *GetArticleDraftListReq, opts ...http.CallOption) (*GetArticleDraftListReply, error) {
+	var out GetArticleDraftListReply
+	pattern := "/v1/get/article/draft/list"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation("/creation.v1.Creation/GetArticleDraftList"))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

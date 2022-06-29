@@ -38,6 +38,234 @@ var (
 // define the regex for a UUID once up-front
 var _creation_uuidPattern = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
 
+// Validate checks the field values on GetLastArticleDraftReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetLastArticleDraftReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetLastArticleDraftReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetLastArticleDraftReqMultiError, or nil if none found.
+func (m *GetLastArticleDraftReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetLastArticleDraftReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = GetLastArticleDraftReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return GetLastArticleDraftReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *GetLastArticleDraftReq) _validateUuid(uuid string) error {
+	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// GetLastArticleDraftReqMultiError is an error wrapping multiple validation
+// errors returned by GetLastArticleDraftReq.ValidateAll() if the designated
+// constraints aren't met.
+type GetLastArticleDraftReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetLastArticleDraftReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetLastArticleDraftReqMultiError) AllErrors() []error { return m }
+
+// GetLastArticleDraftReqValidationError is the validation error returned by
+// GetLastArticleDraftReq.Validate if the designated constraints aren't met.
+type GetLastArticleDraftReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetLastArticleDraftReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetLastArticleDraftReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetLastArticleDraftReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetLastArticleDraftReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetLastArticleDraftReqValidationError) ErrorName() string {
+	return "GetLastArticleDraftReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetLastArticleDraftReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetLastArticleDraftReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetLastArticleDraftReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetLastArticleDraftReqValidationError{}
+
+// Validate checks the field values on GetLastArticleDraftReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetLastArticleDraftReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetLastArticleDraftReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetLastArticleDraftReplyMultiError, or nil if none found.
+func (m *GetLastArticleDraftReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetLastArticleDraftReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Status
+
+	if len(errors) > 0 {
+		return GetLastArticleDraftReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetLastArticleDraftReplyMultiError is an error wrapping multiple validation
+// errors returned by GetLastArticleDraftReply.ValidateAll() if the designated
+// constraints aren't met.
+type GetLastArticleDraftReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetLastArticleDraftReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetLastArticleDraftReplyMultiError) AllErrors() []error { return m }
+
+// GetLastArticleDraftReplyValidationError is the validation error returned by
+// GetLastArticleDraftReply.Validate if the designated constraints aren't met.
+type GetLastArticleDraftReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetLastArticleDraftReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetLastArticleDraftReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetLastArticleDraftReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetLastArticleDraftReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetLastArticleDraftReplyValidationError) ErrorName() string {
+	return "GetLastArticleDraftReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetLastArticleDraftReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetLastArticleDraftReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetLastArticleDraftReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetLastArticleDraftReplyValidationError{}
+
 // Validate checks the field values on CreateArticleDraftReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -263,3 +491,490 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CreateArticleDraftReplyValidationError{}
+
+// Validate checks the field values on ArticleDraftMarkReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ArticleDraftMarkReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ArticleDraftMarkReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ArticleDraftMarkReqMultiError, or nil if none found.
+func (m *ArticleDraftMarkReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ArticleDraftMarkReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = ArticleDraftMarkReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return ArticleDraftMarkReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *ArticleDraftMarkReq) _validateUuid(uuid string) error {
+	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// ArticleDraftMarkReqMultiError is an error wrapping multiple validation
+// errors returned by ArticleDraftMarkReq.ValidateAll() if the designated
+// constraints aren't met.
+type ArticleDraftMarkReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ArticleDraftMarkReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ArticleDraftMarkReqMultiError) AllErrors() []error { return m }
+
+// ArticleDraftMarkReqValidationError is the validation error returned by
+// ArticleDraftMarkReq.Validate if the designated constraints aren't met.
+type ArticleDraftMarkReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ArticleDraftMarkReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ArticleDraftMarkReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ArticleDraftMarkReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ArticleDraftMarkReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ArticleDraftMarkReqValidationError) ErrorName() string {
+	return "ArticleDraftMarkReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ArticleDraftMarkReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sArticleDraftMarkReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ArticleDraftMarkReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ArticleDraftMarkReqValidationError{}
+
+// Validate checks the field values on GetArticleDraftListReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetArticleDraftListReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetArticleDraftListReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetArticleDraftListReqMultiError, or nil if none found.
+func (m *GetArticleDraftListReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetArticleDraftListReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = GetArticleDraftListReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return GetArticleDraftListReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *GetArticleDraftListReq) _validateUuid(uuid string) error {
+	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// GetArticleDraftListReqMultiError is an error wrapping multiple validation
+// errors returned by GetArticleDraftListReq.ValidateAll() if the designated
+// constraints aren't met.
+type GetArticleDraftListReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetArticleDraftListReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetArticleDraftListReqMultiError) AllErrors() []error { return m }
+
+// GetArticleDraftListReqValidationError is the validation error returned by
+// GetArticleDraftListReq.Validate if the designated constraints aren't met.
+type GetArticleDraftListReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetArticleDraftListReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetArticleDraftListReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetArticleDraftListReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetArticleDraftListReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetArticleDraftListReqValidationError) ErrorName() string {
+	return "GetArticleDraftListReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetArticleDraftListReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetArticleDraftListReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetArticleDraftListReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetArticleDraftListReqValidationError{}
+
+// Validate checks the field values on GetArticleDraftListReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetArticleDraftListReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetArticleDraftListReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetArticleDraftListReplyMultiError, or nil if none found.
+func (m *GetArticleDraftListReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetArticleDraftListReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetDraft() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetArticleDraftListReplyValidationError{
+						field:  fmt.Sprintf("Draft[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetArticleDraftListReplyValidationError{
+						field:  fmt.Sprintf("Draft[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetArticleDraftListReplyValidationError{
+					field:  fmt.Sprintf("Draft[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return GetArticleDraftListReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetArticleDraftListReplyMultiError is an error wrapping multiple validation
+// errors returned by GetArticleDraftListReply.ValidateAll() if the designated
+// constraints aren't met.
+type GetArticleDraftListReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetArticleDraftListReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetArticleDraftListReplyMultiError) AllErrors() []error { return m }
+
+// GetArticleDraftListReplyValidationError is the validation error returned by
+// GetArticleDraftListReply.Validate if the designated constraints aren't met.
+type GetArticleDraftListReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetArticleDraftListReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetArticleDraftListReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetArticleDraftListReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetArticleDraftListReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetArticleDraftListReplyValidationError) ErrorName() string {
+	return "GetArticleDraftListReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetArticleDraftListReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetArticleDraftListReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetArticleDraftListReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetArticleDraftListReplyValidationError{}
+
+// Validate checks the field values on GetArticleDraftListReply_Draft with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetArticleDraftListReply_Draft) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetArticleDraftListReply_Draft with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// GetArticleDraftListReply_DraftMultiError, or nil if none found.
+func (m *GetArticleDraftListReply_Draft) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetArticleDraftListReply_Draft) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	if len(errors) > 0 {
+		return GetArticleDraftListReply_DraftMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetArticleDraftListReply_DraftMultiError is an error wrapping multiple
+// validation errors returned by GetArticleDraftListReply_Draft.ValidateAll()
+// if the designated constraints aren't met.
+type GetArticleDraftListReply_DraftMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetArticleDraftListReply_DraftMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetArticleDraftListReply_DraftMultiError) AllErrors() []error { return m }
+
+// GetArticleDraftListReply_DraftValidationError is the validation error
+// returned by GetArticleDraftListReply_Draft.Validate if the designated
+// constraints aren't met.
+type GetArticleDraftListReply_DraftValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetArticleDraftListReply_DraftValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetArticleDraftListReply_DraftValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetArticleDraftListReply_DraftValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetArticleDraftListReply_DraftValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetArticleDraftListReply_DraftValidationError) ErrorName() string {
+	return "GetArticleDraftListReply_DraftValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetArticleDraftListReply_DraftValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetArticleDraftListReply_Draft.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetArticleDraftListReply_DraftValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetArticleDraftListReply_DraftValidationError{}
