@@ -19,10 +19,13 @@ var _ = binding.EncodeURL
 const _ = http.SupportPackageIsVersion1
 
 type BffHTTPServer interface {
+	ArticleDraftMark(context.Context, *ArticleDraftMarkReq) (*emptypb.Empty, error)
 	ChangeUserPassword(context.Context, *ChangeUserPasswordReq) (*emptypb.Empty, error)
 	CreateArticleDraft(context.Context, *emptypb.Empty) (*CreateArticleDraftReply, error)
 	GetAccount(context.Context, *emptypb.Empty) (*GetAccountReply, error)
+	GetArticleDraftList(context.Context, *emptypb.Empty) (*GetArticleDraftListReply, error)
 	GetCosSessionKey(context.Context, *emptypb.Empty) (*GetCosSessionKeyReply, error)
+	GetLastArticleDraft(context.Context, *emptypb.Empty) (*GetLastArticleDraftReply, error)
 	GetProfile(context.Context, *emptypb.Empty) (*GetProfileReply, error)
 	GetProfileUpdate(context.Context, *emptypb.Empty) (*GetProfileUpdateReply, error)
 	GetUserInfo(context.Context, *GetUserInfoReq) (*GetUserInfoReply, error)
@@ -64,7 +67,10 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.POST("/v1/change/user/password", _Bff_ChangeUserPassword0_HTTP_Handler(srv))
 	r.POST("/v1/unbind/user/phone", _Bff_UnbindUserPhone0_HTTP_Handler(srv))
 	r.POST("/v1/unbind/user/email", _Bff_UnbindUserEmail0_HTTP_Handler(srv))
+	r.GET("/v1/get/last/article/draft", _Bff_GetLastArticleDraft0_HTTP_Handler(srv))
 	r.POST("/v1/create/article/draft", _Bff_CreateArticleDraft0_HTTP_Handler(srv))
+	r.POST("/v1/article/draft/mark", _Bff_ArticleDraftMark0_HTTP_Handler(srv))
+	r.GET("/v1/get/article/draft/list", _Bff_GetArticleDraftList0_HTTP_Handler(srv))
 }
 
 func _Bff_UserRegister0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
@@ -447,6 +453,25 @@ func _Bff_UnbindUserEmail0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context
 	}
 }
 
+func _Bff_GetLastArticleDraft0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in emptypb.Empty
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/bff.v1.Bff/GetLastArticleDraft")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetLastArticleDraft(ctx, req.(*emptypb.Empty))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetLastArticleDraftReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _Bff_CreateArticleDraft0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in emptypb.Empty
@@ -466,11 +491,52 @@ func _Bff_CreateArticleDraft0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Cont
 	}
 }
 
+func _Bff_ArticleDraftMark0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in ArticleDraftMarkReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/bff.v1.Bff/ArticleDraftMark")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ArticleDraftMark(ctx, req.(*ArticleDraftMarkReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_GetArticleDraftList0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in emptypb.Empty
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/bff.v1.Bff/GetArticleDraftList")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetArticleDraftList(ctx, req.(*emptypb.Empty))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetArticleDraftListReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 type BffHTTPClient interface {
+	ArticleDraftMark(ctx context.Context, req *ArticleDraftMarkReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	ChangeUserPassword(ctx context.Context, req *ChangeUserPasswordReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	CreateArticleDraft(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *CreateArticleDraftReply, err error)
 	GetAccount(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetAccountReply, err error)
+	GetArticleDraftList(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetArticleDraftListReply, err error)
 	GetCosSessionKey(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetCosSessionKeyReply, err error)
+	GetLastArticleDraft(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetLastArticleDraftReply, err error)
 	GetProfile(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetProfileReply, err error)
 	GetProfileUpdate(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetProfileUpdateReply, err error)
 	GetUserInfo(ctx context.Context, req *GetUserInfoReq, opts ...http.CallOption) (rsp *GetUserInfoReply, err error)
@@ -496,6 +562,19 @@ type BffHTTPClientImpl struct {
 
 func NewBffHTTPClient(client *http.Client) BffHTTPClient {
 	return &BffHTTPClientImpl{client}
+}
+
+func (c *BffHTTPClientImpl) ArticleDraftMark(ctx context.Context, in *ArticleDraftMarkReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/article/draft/mark"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/bff.v1.Bff/ArticleDraftMark"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
 }
 
 func (c *BffHTTPClientImpl) ChangeUserPassword(ctx context.Context, in *ChangeUserPasswordReq, opts ...http.CallOption) (*emptypb.Empty, error) {
@@ -537,11 +616,37 @@ func (c *BffHTTPClientImpl) GetAccount(ctx context.Context, in *emptypb.Empty, o
 	return &out, err
 }
 
+func (c *BffHTTPClientImpl) GetArticleDraftList(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*GetArticleDraftListReply, error) {
+	var out GetArticleDraftListReply
+	pattern := "/v1/get/article/draft/list"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation("/bff.v1.Bff/GetArticleDraftList"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
 func (c *BffHTTPClientImpl) GetCosSessionKey(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*GetCosSessionKeyReply, error) {
 	var out GetCosSessionKeyReply
 	pattern := "/v1/get/cos/session/key"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation("/bff.v1.Bff/GetCosSessionKey"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetLastArticleDraft(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*GetLastArticleDraftReply, error) {
+	var out GetLastArticleDraftReply
+	pattern := "/v1/get/last/article/draft"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation("/bff.v1.Bff/GetLastArticleDraft"))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

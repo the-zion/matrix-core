@@ -43,7 +43,10 @@ type BffClient interface {
 	ChangeUserPassword(ctx context.Context, in *ChangeUserPasswordReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	UnbindUserPhone(ctx context.Context, in *UnbindUserPhoneReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	UnbindUserEmail(ctx context.Context, in *UnbindUserEmailReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetLastArticleDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLastArticleDraftReply, error)
 	CreateArticleDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateArticleDraftReply, error)
+	ArticleDraftMark(ctx context.Context, in *ArticleDraftMarkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetArticleDraftList(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetArticleDraftListReply, error)
 }
 
 type bffClient struct {
@@ -234,9 +237,36 @@ func (c *bffClient) UnbindUserEmail(ctx context.Context, in *UnbindUserEmailReq,
 	return out, nil
 }
 
+func (c *bffClient) GetLastArticleDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLastArticleDraftReply, error) {
+	out := new(GetLastArticleDraftReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetLastArticleDraft", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) CreateArticleDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateArticleDraftReply, error) {
 	out := new(CreateArticleDraftReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/CreateArticleDraft", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) ArticleDraftMark(ctx context.Context, in *ArticleDraftMarkReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/ArticleDraftMark", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetArticleDraftList(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetArticleDraftListReply, error) {
+	out := new(GetArticleDraftListReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetArticleDraftList", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -267,7 +297,10 @@ type BffServer interface {
 	ChangeUserPassword(context.Context, *ChangeUserPasswordReq) (*emptypb.Empty, error)
 	UnbindUserPhone(context.Context, *UnbindUserPhoneReq) (*emptypb.Empty, error)
 	UnbindUserEmail(context.Context, *UnbindUserEmailReq) (*emptypb.Empty, error)
+	GetLastArticleDraft(context.Context, *emptypb.Empty) (*GetLastArticleDraftReply, error)
 	CreateArticleDraft(context.Context, *emptypb.Empty) (*CreateArticleDraftReply, error)
+	ArticleDraftMark(context.Context, *ArticleDraftMarkReq) (*emptypb.Empty, error)
+	GetArticleDraftList(context.Context, *emptypb.Empty) (*GetArticleDraftListReply, error)
 	mustEmbedUnimplementedBffServer()
 }
 
@@ -335,8 +368,17 @@ func (UnimplementedBffServer) UnbindUserPhone(context.Context, *UnbindUserPhoneR
 func (UnimplementedBffServer) UnbindUserEmail(context.Context, *UnbindUserEmailReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UnbindUserEmail not implemented")
 }
+func (UnimplementedBffServer) GetLastArticleDraft(context.Context, *emptypb.Empty) (*GetLastArticleDraftReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetLastArticleDraft not implemented")
+}
 func (UnimplementedBffServer) CreateArticleDraft(context.Context, *emptypb.Empty) (*CreateArticleDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateArticleDraft not implemented")
+}
+func (UnimplementedBffServer) ArticleDraftMark(context.Context, *ArticleDraftMarkReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ArticleDraftMark not implemented")
+}
+func (UnimplementedBffServer) GetArticleDraftList(context.Context, *emptypb.Empty) (*GetArticleDraftListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetArticleDraftList not implemented")
 }
 func (UnimplementedBffServer) mustEmbedUnimplementedBffServer() {}
 
@@ -711,6 +753,24 @@ func _Bff_UnbindUserEmail_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_GetLastArticleDraft_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetLastArticleDraft(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetLastArticleDraft",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetLastArticleDraft(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_CreateArticleDraft_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
@@ -725,6 +785,42 @@ func _Bff_CreateArticleDraft_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BffServer).CreateArticleDraft(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_ArticleDraftMark_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ArticleDraftMarkReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).ArticleDraftMark(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/ArticleDraftMark",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).ArticleDraftMark(ctx, req.(*ArticleDraftMarkReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetArticleDraftList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetArticleDraftList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetArticleDraftList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetArticleDraftList(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -817,8 +913,20 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Bff_UnbindUserEmail_Handler,
 		},
 		{
+			MethodName: "GetLastArticleDraft",
+			Handler:    _Bff_GetLastArticleDraft_Handler,
+		},
+		{
 			MethodName: "CreateArticleDraft",
 			Handler:    _Bff_CreateArticleDraft_Handler,
+		},
+		{
+			MethodName: "ArticleDraftMark",
+			Handler:    _Bff_ArticleDraftMark_Handler,
+		},
+		{
+			MethodName: "GetArticleDraftList",
+			Handler:    _Bff_GetArticleDraftList_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
