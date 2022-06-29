@@ -121,3 +121,7 @@ type TextReview struct {
 	CosHeaders   map[string]string
 	Section      []*Section
 }
+type ArticleDraft struct {
+	Id     int32
+	Status int32
+}
