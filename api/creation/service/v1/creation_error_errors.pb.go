@@ -23,6 +23,18 @@ func ErrorUnknownError(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, CreationErrorReason_UNKNOWN_ERROR.String(), fmt.Sprintf(format, args...))
 }
 
+func IsGetArticleDraftFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_GET_ARTICLE_DRAFT_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetArticleDraftFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_GET_ARTICLE_DRAFT_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsCreateArticleDraftFailed(err error) bool {
 	if err == nil {
 		return false
@@ -33,4 +45,52 @@ func IsCreateArticleDraftFailed(err error) bool {
 
 func ErrorCreateArticleDraftFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, CreationErrorReason_CREATE_ARTICLE_DRAFT_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsCreateArticleFolderFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_CREATE_ARTICLE_FOLDER_FAILED.String() && e.Code == 500
+}
+
+func ErrorCreateArticleFolderFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_CREATE_ARTICLE_FOLDER_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsRecordNotFound(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_RECORD_NOT_FOUND.String() && e.Code == 500
+}
+
+func ErrorRecordNotFound(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_RECORD_NOT_FOUND.String(), fmt.Sprintf(format, args...))
+}
+
+func IsDraftMarkFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_DRAFT_MARK_FAILED.String() && e.Code == 500
+}
+
+func ErrorDraftMarkFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_DRAFT_MARK_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsGetDraftListFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_GET_DRAFT_LIST_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetDraftListFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_GET_DRAFT_LIST_FAILED.String(), fmt.Sprintf(format, args...))
 }
