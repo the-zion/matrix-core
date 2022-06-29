@@ -151,24 +151,15 @@ func NewCosClient(conf *conf.Data) *Cos {
 		DurationSeconds: int64(time.Hour.Seconds()),
 		Region:          conf.Cos.Region,
 		Policy: &sts.CredentialPolicy{
-			Statement: []sts.CredentialPolicyStatement{
-				{
-					Action: []string{
-						"name/cos:PostObject",
-						"name/cos:PutObject",
-						"name/cos:InitiateMultipartUpload",
-						"name/cos:ListMultipartUploads",
-						"name/cos:ListParts",
-						"name/cos:UploadPart",
-						"name/cos:CompleteMultipartUpload",
-					},
-					Effect: "allow",
-					Resource: []string{
-						"qcs::cos:" + conf.Cos.Region + ":uid/" + conf.Cos.Appid + ":" + conf.Cos.Bucket + "/avatar/*",
-					},
-				},
-			},
+			Statement: []sts.CredentialPolicyStatement{},
 		},
+	}
+	for _, item := range conf.Cos.Policy.Statement {
+		opt.Policy.Statement = append(opt.Policy.Statement, sts.CredentialPolicyStatement{
+			Action:   item.Action,
+			Effect:   item.Effect,
+			Resource: item.Resource,
+		})
 	}
 	return &Cos{
 		client: c,
