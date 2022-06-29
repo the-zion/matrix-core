@@ -24,6 +24,19 @@ func NewArticleRepo(data *Data, logger log.Logger) biz.ArticleRepo {
 	}
 }
 
+func (r *articleRepo) GetLastArticleDraft(ctx context.Context, uuid string) (*biz.ArticleDraft, error) {
+	reply, err := r.data.ac.GetLastArticleDraft(ctx, &creationV1.GetLastArticleDraftReq{
+		Uuid: uuid,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &biz.ArticleDraft{
+		Id:     reply.Id,
+		Status: reply.Status,
+	}, nil
+}
+
 func (r *articleRepo) CreateArticleDraft(ctx context.Context, uuid string) (int32, error) {
 	reply, err := r.data.ac.CreateArticleDraft(ctx, &creationV1.CreateArticleDraftReq{
 		Uuid: uuid,
@@ -32,4 +45,31 @@ func (r *articleRepo) CreateArticleDraft(ctx context.Context, uuid string) (int3
 		return 0, err
 	}
 	return reply.Id, nil
+}
+
+func (r *articleRepo) ArticleDraftMark(ctx context.Context, uuid string, id int32) error {
+	_, err := r.data.ac.ArticleDraftMark(ctx, &creationV1.ArticleDraftMarkReq{
+		Id:   id,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *articleRepo) GetArticleDraftList(ctx context.Context, uuid string) ([]*biz.ArticleDraft, error) {
+	reply := make([]*biz.ArticleDraft, 0)
+	draftList, err := r.data.ac.GetArticleDraftList(ctx, &creationV1.GetArticleDraftListReq{
+		Uuid: uuid,
+	})
+	if err != nil {
+		return reply, err
+	}
+	for _, item := range draftList.Draft {
+		reply = append(reply, &biz.ArticleDraft{
+			Id: item.Id,
+		})
+	}
+	return reply, nil
 }
