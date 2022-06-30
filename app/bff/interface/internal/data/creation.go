@@ -73,3 +73,14 @@ func (r *articleRepo) GetArticleDraftList(ctx context.Context, uuid string) ([]*
 	}
 	return reply, nil
 }
+
+func (r *articleRepo) SendArticle(ctx context.Context, uuid string, id int32) error {
+	_, err := r.data.ac.SendArticle(ctx, &creationV1.SendArticleReq{
+		Uuid: uuid,
+		Id:   id,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
