@@ -48,3 +48,11 @@ func (s *CreationService) GetArticleDraftList(ctx context.Context, req *v1.GetAr
 	}
 	return reply, nil
 }
+
+func (s *CreationService) SendArticle(ctx context.Context, req *v1.SendArticleReq) (*emptypb.Empty, error) {
+	err := s.ac.SendArticle(ctx, req.Uuid, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
