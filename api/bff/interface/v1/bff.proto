@@ -173,6 +173,13 @@ service Bff{
       get: "/v1/get/article/draft/list"
     };
   }
+
+  rpc SendArticle(SendArticleReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/send/article"
+      body: "*"
+    };
+  }
 }
 
 // --------------------user service-------------------------
@@ -335,4 +342,8 @@ message GetArticleDraftListReply{
     int32 id = 1;
   }
   repeated Draft draft = 1;
+}
+
+message SendArticleReq{
+  int32 id = 1;
 }
