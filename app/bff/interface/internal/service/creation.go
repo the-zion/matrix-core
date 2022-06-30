@@ -48,3 +48,11 @@ func (s *BffService) GetArticleDraftList(ctx context.Context, _ *emptypb.Empty) 
 	}
 	return reply, nil
 }
+
+func (s *BffService) SendArticle(ctx context.Context, req *v1.SendArticleReq) (*emptypb.Empty, error) {
+	err := s.ac.SendArticle(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
