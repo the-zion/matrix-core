@@ -17,6 +17,8 @@ service Creation {
   rpc ArticleDraftMark(ArticleDraftMarkReq) returns (google.protobuf.Empty){}
 
   rpc GetArticleDraftList(GetArticleDraftListReq) returns (GetArticleDraftListReply){}
+
+  rpc SendArticle(SendArticleReq) returns (google.protobuf.Empty){}
 }
 
 message GetLastArticleDraftReq{
@@ -50,4 +52,9 @@ message GetArticleDraftListReply{
     int32 id = 1;
   }
   repeated Draft draft = 1;
+}
+
+message SendArticleReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
 }

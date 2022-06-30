@@ -874,6 +874,128 @@ var _ interface {
 	ErrorName() string
 } = GetArticleDraftListReplyValidationError{}
 
+// Validate checks the field values on SendArticleReq with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *SendArticleReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SendArticleReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in SendArticleReqMultiError,
+// or nil if none found.
+func (m *SendArticleReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SendArticleReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = SendArticleReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return SendArticleReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *SendArticleReq) _validateUuid(uuid string) error {
+	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// SendArticleReqMultiError is an error wrapping multiple validation errors
+// returned by SendArticleReq.ValidateAll() if the designated constraints
+// aren't met.
+type SendArticleReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SendArticleReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SendArticleReqMultiError) AllErrors() []error { return m }
+
+// SendArticleReqValidationError is the validation error returned by
+// SendArticleReq.Validate if the designated constraints aren't met.
+type SendArticleReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SendArticleReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SendArticleReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SendArticleReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SendArticleReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SendArticleReqValidationError) ErrorName() string { return "SendArticleReqValidationError" }
+
+// Error satisfies the builtin error interface
+func (e SendArticleReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSendArticleReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SendArticleReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SendArticleReqValidationError{}
+
 // Validate checks the field values on GetArticleDraftListReply_Draft with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
