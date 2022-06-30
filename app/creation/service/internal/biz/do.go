@@ -1,6 +1,8 @@
 package biz
 
 type ArticleDraft struct {
-	Id     int32
-	Status int32
+	Id      int32
+	Status  int32
+	Uuid    string
+	Updated string
 }
