@@ -2,6 +2,9 @@ package data
 
 import (
 	"context"
+	"github.com/apache/rocketmq-client-go/v2"
+	"github.com/apache/rocketmq-client-go/v2/primitive"
+	"github.com/apache/rocketmq-client-go/v2/producer"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
 	"github.com/tencentyun/cos-go-sdk-v5"
@@ -14,12 +17,17 @@ import (
 	"net/url"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewDB, NewTransaction, NewCosServiceClient, NewArticleRepo)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewTransaction, NewRocketmqArticleProducer, NewCosServiceClient, NewArticleRepo)
+
+type ArticleMqPro struct {
+	producer rocketmq.Producer
+}
 
 type Data struct {
-	db     *gorm.DB
-	log    *log.Helper
-	cosCli *cos.Client
+	db           *gorm.DB
+	log          *log.Helper
+	articleMqPro *ArticleMqPro
+	cosCli       *cos.Client
 }
 
 type contextTxKey struct{}
@@ -70,14 +78,46 @@ func NewCosServiceClient(conf *conf.Data, logger log.Logger) *cos.Client {
 	})
 }
 
-func NewData(db *gorm.DB, cos *cos.Client, logger log.Logger) (*Data, func(), error) {
+func NewRocketmqArticleProducer(conf *conf.Data, logger log.Logger) *ArticleMqPro {
+	l := log.NewHelper(log.With(logger, "module", "user/data/rocketmq-article-producer"))
+	p, err := rocketmq.NewProducer(
+		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.Rocketmq.ServerAddress})),
+		producer.WithCredentials(primitive.Credentials{
+			SecretKey: conf.Rocketmq.SecretKey,
+			AccessKey: conf.Rocketmq.AccessKey,
+		}),
+		producer.WithRetry(2),
+		producer.WithGroupName(conf.Rocketmq.Article.GroupName),
+		producer.WithNamespace(conf.Rocketmq.NameSpace),
+	)
+
+	if err != nil {
+		l.Fatalf("init producer error: %v", err)
+	}
+
+	err = p.Start()
+	if err != nil {
+		l.Fatalf("start producer error: %v", err)
+	}
+	return &ArticleMqPro{
+		producer: p,
+	}
+}
+
+func NewData(db *gorm.DB, cos *cos.Client, ap *ArticleMqPro, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(logger, "module", "creation/data/new-data"))
 
 	d := &Data{
-		db:     db,
-		cosCli: cos,
+		db:           db,
+		cosCli:       cos,
+		articleMqPro: ap,
 	}
 	return d, func() {
 		l.Info("closing the data resources")
+
+		err := d.articleMqPro.producer.Shutdown()
+		if err != nil {
+			l.Errorf("shutdown article producer error: %v", err.Error())
+		}
 	}, nil
 }
