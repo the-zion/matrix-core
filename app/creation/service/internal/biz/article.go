@@ -13,6 +13,8 @@ type ArticleRepo interface {
 	CreateArticleFolder(ctx context.Context, id int32) error
 	ArticleDraftMark(ctx context.Context, uuid string, id int32) error
 	GetArticleDraftList(ctx context.Context, uuid string) ([]*ArticleDraft, error)
+	SendArticle(ctx context.Context, uuid string, id int32) (*ArticleDraft, error)
+	SendDraftToMq(ctx context.Context, draft *ArticleDraft) error
 }
 type ArticleUseCase struct {
 	repo ArticleRepo
@@ -75,4 +77,18 @@ func (r *ArticleUseCase) GetArticleDraftList(ctx context.Context, uuid string) (
 		return draftList, v1.ErrorGetDraftListFailed("get article draft list failed: %s", err.Error())
 	}
 	return draftList, nil
+}
+
+func (r *ArticleUseCase) SendArticle(ctx context.Context, uuid string, id int32) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		draft, err := r.repo.SendArticle(ctx, uuid, id)
+		if err != nil {
+			return v1.ErrorSendArticleFailed("send article failed: %s", err.Error())
+		}
+		err = r.repo.SendDraftToMq(ctx, draft)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
 }
