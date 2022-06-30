@@ -34,6 +34,7 @@ type BffHTTPServer interface {
 	LoginByPassword(context.Context, *LoginByPasswordReq) (*LoginReply, error)
 	LoginByWeChat(context.Context, *LoginByWeChatReq) (*LoginReply, error)
 	LoginPasswordReset(context.Context, *LoginPasswordResetReq) (*emptypb.Empty, error)
+	SendArticle(context.Context, *SendArticleReq) (*emptypb.Empty, error)
 	SendEmailCode(context.Context, *SendEmailCodeReq) (*emptypb.Empty, error)
 	SendPhoneCode(context.Context, *SendPhoneCodeReq) (*emptypb.Empty, error)
 	SetProfileUpdate(context.Context, *SetProfileUpdateReq) (*emptypb.Empty, error)
@@ -71,6 +72,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.POST("/v1/create/article/draft", _Bff_CreateArticleDraft0_HTTP_Handler(srv))
 	r.POST("/v1/article/draft/mark", _Bff_ArticleDraftMark0_HTTP_Handler(srv))
 	r.GET("/v1/get/article/draft/list", _Bff_GetArticleDraftList0_HTTP_Handler(srv))
+	r.POST("/v1/send/article", _Bff_SendArticle0_HTTP_Handler(srv))
 }
 
 func _Bff_UserRegister0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
@@ -529,6 +531,25 @@ func _Bff_GetArticleDraftList0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Con
 	}
 }
 
+func _Bff_SendArticle0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SendArticleReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/bff.v1.Bff/SendArticle")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SendArticle(ctx, req.(*SendArticleReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
 type BffHTTPClient interface {
 	ArticleDraftMark(ctx context.Context, req *ArticleDraftMarkReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	ChangeUserPassword(ctx context.Context, req *ChangeUserPasswordReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -545,6 +566,7 @@ type BffHTTPClient interface {
 	LoginByPassword(ctx context.Context, req *LoginByPasswordReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginByWeChat(ctx context.Context, req *LoginByWeChatReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginPasswordReset(ctx context.Context, req *LoginPasswordResetReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	SendArticle(ctx context.Context, req *SendArticleReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SendEmailCode(ctx context.Context, req *SendEmailCodeReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SendPhoneCode(ctx context.Context, req *SendPhoneCodeReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SetProfileUpdate(ctx context.Context, req *SetProfileUpdateReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -751,6 +773,19 @@ func (c *BffHTTPClientImpl) LoginPasswordReset(ctx context.Context, in *LoginPas
 	pattern := "/v1/user/login/password/reset"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation("/bff.v1.Bff/LoginPasswordReset"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) SendArticle(ctx context.Context, in *SendArticleReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/send/article"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/bff.v1.Bff/SendArticle"))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

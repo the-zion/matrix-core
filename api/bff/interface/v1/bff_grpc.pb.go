@@ -47,6 +47,7 @@ type BffClient interface {
 	CreateArticleDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateArticleDraftReply, error)
 	ArticleDraftMark(ctx context.Context, in *ArticleDraftMarkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetArticleDraftList(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetArticleDraftListReply, error)
+	SendArticle(ctx context.Context, in *SendArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type bffClient struct {
@@ -273,6 +274,15 @@ func (c *bffClient) GetArticleDraftList(ctx context.Context, in *emptypb.Empty, 
 	return out, nil
 }
 
+func (c *bffClient) SendArticle(ctx context.Context, in *SendArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SendArticle", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BffServer is the server API for Bff service.
 // All implementations must embed UnimplementedBffServer
 // for forward compatibility
@@ -301,6 +311,7 @@ type BffServer interface {
 	CreateArticleDraft(context.Context, *emptypb.Empty) (*CreateArticleDraftReply, error)
 	ArticleDraftMark(context.Context, *ArticleDraftMarkReq) (*emptypb.Empty, error)
 	GetArticleDraftList(context.Context, *emptypb.Empty) (*GetArticleDraftListReply, error)
+	SendArticle(context.Context, *SendArticleReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedBffServer()
 }
 
@@ -379,6 +390,9 @@ func (UnimplementedBffServer) ArticleDraftMark(context.Context, *ArticleDraftMar
 }
 func (UnimplementedBffServer) GetArticleDraftList(context.Context, *emptypb.Empty) (*GetArticleDraftListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetArticleDraftList not implemented")
+}
+func (UnimplementedBffServer) SendArticle(context.Context, *SendArticleReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendArticle not implemented")
 }
 func (UnimplementedBffServer) mustEmbedUnimplementedBffServer() {}
 
@@ -825,6 +839,24 @@ func _Bff_GetArticleDraftList_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_SendArticle_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendArticleReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).SendArticle(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/SendArticle",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).SendArticle(ctx, req.(*SendArticleReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Bff_ServiceDesc is the grpc.ServiceDesc for Bff service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -927,6 +959,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetArticleDraftList",
 			Handler:    _Bff_GetArticleDraftList_Handler,
+		},
+		{
+			MethodName: "SendArticle",
+			Handler:    _Bff_SendArticle_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
