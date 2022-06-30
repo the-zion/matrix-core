@@ -15,4 +15,5 @@ enum CreationErrorReason {
   RECORD_NOT_FOUND = 4;
   DRAFT_MARK_FAILED = 5;
   GET_DRAFT_LIST_FAILED = 6;
+  SEND_ARTICLE_FAILED = 7;
 }
