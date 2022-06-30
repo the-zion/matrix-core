@@ -42,8 +42,19 @@ message Data {
     string secret_id = 2;
     string secret_key = 3;
   }
+  message Rocketmq{
+    message Article{
+      string groupName = 1;
+    }
+    Article article = 1;
+    string serverAddress = 2;
+    string secretKey = 3;
+    string accessKey = 4;
+    string nameSpace = 5;
+  }
   Database database = 1;
   Redis redis = 2;
   Cos cos = 3;
+  Rocketmq rocketmq = 4;
 }
 
