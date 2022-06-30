@@ -2,7 +2,9 @@ package data
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"github.com/apache/rocketmq-client-go/v2/primitive"
 	kerrors "github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/pkg/errors"
@@ -10,6 +12,7 @@ import (
 	"gorm.io/gorm"
 	"strconv"
 	"strings"
+	"time"
 )
 
 var _ biz.ArticleRepo = (*articleRepo)(nil)
@@ -64,7 +67,7 @@ func (r *articleRepo) CreateArticleFolder(ctx context.Context, id int32) error {
 func (r *articleRepo) ArticleDraftMark(ctx context.Context, uuid string, id int32) error {
 	err := r.data.db.WithContext(ctx).Model(&ArticleDraft{}).Where("uuid = ? and id = ?", uuid, id).Update("status", 3).Error
 	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to mark draft: uuid(%s), id(%v)", uuid, id))
+		return errors.Wrapf(err, fmt.Sprintf("fail to mark draft to 3: uuid(%s), id(%v)", uuid, id))
 	}
 	return nil
 }
@@ -72,7 +75,7 @@ func (r *articleRepo) ArticleDraftMark(ctx context.Context, uuid string, id int3
 func (r *articleRepo) GetArticleDraftList(ctx context.Context, uuid string) ([]*biz.ArticleDraft, error) {
 	reply := make([]*biz.ArticleDraft, 0)
 	draftList := make([]*ArticleDraft, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).Order("id desc").Find(&draftList).Error
+	err := r.data.db.WithContext(ctx).Where("uuid = ? and status = ?", uuid, 3).Order("id desc").Find(&draftList).Error
 	if err != nil {
 		return reply, errors.Wrapf(err, fmt.Sprintf("fail to get draft list : uuid(%s)", uuid))
 	}
@@ -82,4 +85,62 @@ func (r *articleRepo) GetArticleDraftList(ctx context.Context, uuid string) ([]*
 		})
 	}
 	return reply, nil
+}
+
+func (r *articleRepo) SendArticle(ctx context.Context, uuid string, id int32) (*biz.ArticleDraft, error) {
+	ad := &ArticleDraft{
+		Updated: time.Now().Unix(),
+		Status:  2,
+	}
+	ad.Updated = time.Now().Unix()
+	err := r.data.DB(ctx).Model(&ArticleDraft{}).Where("uuid = ? and id = ?", uuid, id).Updates(ad).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to mark draft to 2: uuid(%s), id(%v)", uuid, id))
+	}
+	return &biz.ArticleDraft{
+		Uuid:    uuid,
+		Id:      id,
+		Updated: strconv.FormatInt(ad.Updated, 10),
+	}, nil
+}
+
+func (r *articleRepo) SendDraftToMq(_ context.Context, draft *biz.ArticleDraft) error {
+	data, err := json.Marshal(draft)
+	if err != nil {
+		return err
+	}
+	msg := &primitive.Message{
+		Topic: "article",
+		Body:  data,
+	}
+	msg.WithKeys([]string{draft.Uuid})
+	err = r.data.articleMqPro.producer.SendAsync(context.Background(), func(ctx context.Context, result *primitive.SendResult, e error) {
+		if e != nil {
+			r.log.Errorf("mq receive message error: %v", e)
+			r.SetArticleDraftRetry(draft)
+		} else {
+			fmt.Printf(result.String())
+		}
+	}, msg)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to use async producer: %v", err))
+	}
+	return nil
+}
+
+func (r *articleRepo) SetArticleDraftRetry(draft *biz.ArticleDraft) {
+	updateTime, err := strconv.ParseInt(draft.Updated, 10, 64)
+	if err != nil {
+		r.log.Errorf("fail to transform string to int64, error: %v", err)
+		return
+	}
+	adr := &ArticleDraftRetry{}
+	adr.ID = uint(draft.Id)
+	adr.Updated = updateTime
+	adr.Uuid = draft.Uuid
+	adr.Status = draft.Status
+	err = r.data.db.Select("Id", "Uuid", "Updated", "Status").Create(adr).Error
+	if err != nil {
+		r.log.Errorf("fail to save draft to retry table, error: %v", err)
+	}
 }
