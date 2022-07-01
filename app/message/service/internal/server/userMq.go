@@ -5,6 +5,7 @@ import (
 	"github.com/apache/rocketmq-client-go/v2"
 	"github.com/apache/rocketmq-client-go/v2/consumer"
 	"github.com/apache/rocketmq-client-go/v2/primitive"
+	"github.com/apache/rocketmq-client-go/v2/rlog"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/the-zion/matrix-core/app/message/service/internal/conf"
 	"github.com/the-zion/matrix-core/app/message/service/internal/service"
@@ -17,14 +18,16 @@ type CodeMqConsumerServer struct {
 
 func NewCodeMqConsumerServer(conf *conf.Server, messageService *service.MessageService, logger log.Logger) *CodeMqConsumerServer {
 	l := log.NewHelper(log.With(logger, "server", "message/server/rocketmq-code-consumer"))
+	rlog.SetLogLevel("warn")
 	c, err := rocketmq.NewPushConsumer(
-		consumer.WithGroupName(conf.Rocketmq.Code.GroupName),
-		consumer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.Rocketmq.ServerAddress})),
+		consumer.WithGroupName(conf.UserMq.Code.GroupName),
+		consumer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.UserMq.ServerAddress})),
 		consumer.WithCredentials(primitive.Credentials{
-			SecretKey: conf.Rocketmq.SecretKey,
-			AccessKey: conf.Rocketmq.AccessKey,
+			SecretKey: conf.UserMq.SecretKey,
+			AccessKey: conf.UserMq.AccessKey,
 		}),
-		consumer.WithNamespace(conf.Rocketmq.NameSpace),
+		consumer.WithInstance("user"),
+		consumer.WithNamespace(conf.UserMq.NameSpace),
 		consumer.WithConsumeFromWhere(consumer.ConsumeFromFirstOffset),
 		consumer.WithConsumerModel(consumer.Clustering),
 	)
@@ -66,14 +69,16 @@ type ProfileMqConsumerServer struct {
 
 func NewProfileMqConsumerServer(conf *conf.Server, messageService *service.MessageService, logger log.Logger) *ProfileMqConsumerServer {
 	l := log.NewHelper(log.With(logger, "server", "message/server/rocketmq-code-consumer"))
+	rlog.SetLogLevel("warn")
 	c, err := rocketmq.NewPushConsumer(
-		consumer.WithGroupName(conf.Rocketmq.Profile.GroupName),
-		consumer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.Rocketmq.ServerAddress})),
+		consumer.WithGroupName(conf.UserMq.Profile.GroupName),
+		consumer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.UserMq.ServerAddress})),
 		consumer.WithCredentials(primitive.Credentials{
-			SecretKey: conf.Rocketmq.SecretKey,
-			AccessKey: conf.Rocketmq.AccessKey,
+			SecretKey: conf.UserMq.SecretKey,
+			AccessKey: conf.UserMq.AccessKey,
 		}),
-		consumer.WithNamespace(conf.Rocketmq.NameSpace),
+		consumer.WithInstance("user"),
+		consumer.WithNamespace(conf.UserMq.NameSpace),
 		consumer.WithConsumeFromWhere(consumer.ConsumeFromFirstOffset),
 		consumer.WithConsumerModel(consumer.Clustering),
 	)
