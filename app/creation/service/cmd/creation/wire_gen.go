@@ -23,8 +23,8 @@ import (
 func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, registry *nacos.Registry) (*kratos.App, func(), error) {
 	db := data.NewDB(confData, logger)
 	client := data.NewCosServiceClient(confData, logger)
-	articleMqPro := data.NewRocketmqArticleProducer(confData, logger)
-	dataData, cleanup, err := data.NewData(db, client, articleMqPro, logger)
+	articleDraftMqPro := data.NewRocketmqArticleDraftProducer(confData, logger)
+	dataData, cleanup, err := data.NewData(db, client, articleDraftMqPro, logger)
 	if err != nil {
 		return nil, nil, err
 	}
