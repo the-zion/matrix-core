@@ -150,28 +150,7 @@ func (r *userRepo) SetProfileUpdate(ctx context.Context, profile *biz.ProfileUpd
 	return profile, nil
 }
 
-func (r *userRepo) SetProfileUpdateRetry(profile *biz.ProfileUpdate) {
-	updateTime, err := strconv.ParseInt(profile.Updated, 10, 64)
-	if err != nil {
-		r.log.Errorf("fail to transform string to int64, error: %v", err)
-		return
-	}
-	pur := &ProfileUpdateRetry{}
-	pur.Updated = updateTime
-	pur.Uuid = profile.Uuid
-	pur.Username = profile.Username
-	pur.School = profile.School
-	pur.Company = profile.Company
-	pur.Job = profile.Job
-	pur.Homepage = profile.Homepage
-	pur.Introduce = profile.Introduce
-	err = r.data.db.Model(&ProfileUpdateRetry{}).Where("uuid = ?", profile.Uuid).Updates(pur).Error
-	if err != nil {
-		r.log.Errorf("fail to save profile to retry table, error: %v", err)
-	}
-}
-
-func (r *userRepo) SendProfileToMq(_ context.Context, profile *biz.ProfileUpdate) error {
+func (r *userRepo) SendProfileToMq(ctx context.Context, profile *biz.ProfileUpdate) error {
 	data, err := json.Marshal(profile)
 	if err != nil {
 		return err
@@ -181,16 +160,9 @@ func (r *userRepo) SendProfileToMq(_ context.Context, profile *biz.ProfileUpdate
 		Body:  data,
 	}
 	msg.WithKeys([]string{profile.Uuid})
-	err = r.data.profileMqPro.producer.SendAsync(context.Background(), func(ctx context.Context, result *primitive.SendResult, e error) {
-		if e != nil {
-			r.log.Errorf("mq receive message error: %v", e)
-			r.SetProfileUpdateRetry(profile)
-		} else {
-			fmt.Printf(result.String())
-		}
-	}, msg)
+	_, err = r.data.profileMqPro.producer.SendSync(ctx, msg)
 	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to use async producer: %v", err))
+		return errors.Wrapf(err, fmt.Sprintf("fail to send profile to mq: %v", err))
 	}
 	return nil
 }
