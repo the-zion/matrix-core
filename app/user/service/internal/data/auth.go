@@ -145,17 +145,6 @@ func (r *authRepo) CreateUserProfileUpdate(ctx context.Context, account, uuid st
 	return nil
 }
 
-func (r *authRepo) CreateProfileUpdateRetry(ctx context.Context, account, uuid string) error {
-	pur := &ProfileUpdateRetry{}
-	pur.Uuid = uuid
-	pur.Username = account
-	err := r.data.DB(ctx).Select("Uuid", "Username").Create(pur).Error
-	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to create table: profile_update_retry, uuid(%s)", uuid))
-	}
-	return nil
-}
-
 func (r *authRepo) SetUserPhone(ctx context.Context, uuid, phone string) error {
 	err := r.data.db.WithContext(ctx).Model(&User{}).Where("uuid = ?", uuid).Update("phone", phone).Error
 	if err != nil {
