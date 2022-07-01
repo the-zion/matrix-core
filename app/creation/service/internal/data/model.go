@@ -10,7 +10,3 @@ type ArticleDraft struct {
 	Uuid    string `gorm:"index;size:36"`
 	Status  int32  `gorm:"default:1"`
 }
-
-type ArticleDraftRetry struct {
-	ArticleDraft
-}
