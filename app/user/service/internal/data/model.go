@@ -34,7 +34,3 @@ type ProfileUpdate struct {
 	Profile
 	Status int32 `gorm:"default:1"`
 }
-
-type ProfileUpdateRetry struct {
-	Profile
-}
