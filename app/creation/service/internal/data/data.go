@@ -17,17 +17,17 @@ import (
 	"net/url"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewDB, NewTransaction, NewRocketmqArticleProducer, NewCosServiceClient, NewArticleRepo)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewTransaction, NewRocketmqArticleDraftProducer, NewCosServiceClient, NewArticleRepo)
 
-type ArticleMqPro struct {
+type ArticleDraftMqPro struct {
 	producer rocketmq.Producer
 }
 
 type Data struct {
-	db           *gorm.DB
-	log          *log.Helper
-	articleMqPro *ArticleMqPro
-	cosCli       *cos.Client
+	db                *gorm.DB
+	log               *log.Helper
+	articleDraftMqPro *ArticleDraftMqPro
+	cosCli            *cos.Client
 }
 
 type contextTxKey struct{}
@@ -78,16 +78,15 @@ func NewCosServiceClient(conf *conf.Data, logger log.Logger) *cos.Client {
 	})
 }
 
-func NewRocketmqArticleProducer(conf *conf.Data, logger log.Logger) *ArticleMqPro {
-	l := log.NewHelper(log.With(logger, "module", "user/data/rocketmq-article-producer"))
+func NewRocketmqArticleDraftProducer(conf *conf.Data, logger log.Logger) *ArticleDraftMqPro {
+	l := log.NewHelper(log.With(logger, "module", "user/data/rocketmq-article-draft-producer"))
 	p, err := rocketmq.NewProducer(
 		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.Rocketmq.ServerAddress})),
 		producer.WithCredentials(primitive.Credentials{
 			SecretKey: conf.Rocketmq.SecretKey,
 			AccessKey: conf.Rocketmq.AccessKey,
 		}),
-		producer.WithRetry(2),
-		producer.WithGroupName(conf.Rocketmq.Article.GroupName),
+		producer.WithGroupName(conf.Rocketmq.ArticleDraft.GroupName),
 		producer.WithNamespace(conf.Rocketmq.NameSpace),
 	)
 
@@ -99,25 +98,25 @@ func NewRocketmqArticleProducer(conf *conf.Data, logger log.Logger) *ArticleMqPr
 	if err != nil {
 		l.Fatalf("start producer error: %v", err)
 	}
-	return &ArticleMqPro{
+	return &ArticleDraftMqPro{
 		producer: p,
 	}
 }
 
-func NewData(db *gorm.DB, cos *cos.Client, ap *ArticleMqPro, logger log.Logger) (*Data, func(), error) {
+func NewData(db *gorm.DB, cos *cos.Client, adp *ArticleDraftMqPro, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(logger, "module", "creation/data/new-data"))
 
 	d := &Data{
-		db:           db,
-		cosCli:       cos,
-		articleMqPro: ap,
+		db:                db,
+		cosCli:            cos,
+		articleDraftMqPro: adp,
 	}
 	return d, func() {
 		l.Info("closing the data resources")
 
-		err := d.articleMqPro.producer.Shutdown()
+		err := d.articleDraftMqPro.producer.Shutdown()
 		if err != nil {
-			l.Errorf("shutdown article producer error: %v", err.Error())
+			l.Errorf("shutdown article draft producer error: %v", err.Error())
 		}
 	}, nil
 }
