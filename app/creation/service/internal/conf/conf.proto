@@ -43,10 +43,10 @@ message Data {
     string secret_key = 3;
   }
   message Rocketmq{
-    message Article{
+    message ArticleDraft{
       string groupName = 1;
     }
-    Article article = 1;
+    ArticleDraft articleDraft = 1;
     string serverAddress = 2;
     string secretKey = 3;
     string accessKey = 4;
