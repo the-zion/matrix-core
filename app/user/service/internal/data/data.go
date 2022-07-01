@@ -123,7 +123,6 @@ func NewRocketmqProfileProducer(conf *conf.Data, logger log.Logger) *ProfileMqPr
 			SecretKey: conf.Rocketmq.SecretKey,
 			AccessKey: conf.Rocketmq.AccessKey,
 		}),
-		producer.WithRetry(2),
 		producer.WithGroupName(conf.Rocketmq.Profile.GroupName),
 		producer.WithNamespace(conf.Rocketmq.NameSpace),
 	)
