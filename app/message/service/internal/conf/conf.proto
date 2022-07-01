@@ -21,7 +21,7 @@ message Server {
     string addr = 2;
     google.protobuf.Duration timeout = 3;
   }
-  message Rocketmq{
+  message UserMq{
     message Code{
       string groupName = 1;
     }
@@ -35,9 +35,24 @@ message Server {
     string accessKey = 5;
     string nameSpace = 6;
   }
+  message CreationMq{
+    message ArticleDraft{
+      string groupName = 1;
+    }
+    message Article{
+      string groupName = 1;
+    }
+    ArticleDraft articleDraft = 1;
+    Article article = 2;
+    string serverAddress = 3;
+    string secretKey = 4;
+    string accessKey = 5;
+    string nameSpace = 6;
+  }
   HTTP http = 1;
   GRPC grpc = 2;
-  Rocketmq rocketmq = 3;
+  UserMq userMq = 3;
+  CreationMq creationMq = 4;
 }
 
 message Data {
