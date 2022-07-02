@@ -35,6 +35,30 @@ func ErrorGetArticleDraftFailed(format string, args ...interface{}) *errors.Erro
 	return errors.New(500, CreationErrorReason_GET_ARTICLE_DRAFT_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsGetDraftListFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_GET_DRAFT_LIST_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetDraftListFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_GET_DRAFT_LIST_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsCreateArticleFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_CREATE_ARTICLE_FAILED.String() && e.Code == 500
+}
+
+func ErrorCreateArticleFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_CREATE_ARTICLE_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsCreateArticleDraftFailed(err error) bool {
 	if err == nil {
 		return false
@@ -59,6 +83,42 @@ func ErrorCreateArticleFolderFailed(format string, args ...interface{}) *errors.
 	return errors.New(500, CreationErrorReason_CREATE_ARTICLE_FOLDER_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsCreateArticleStatisticFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_CREATE_ARTICLE_STATISTIC_FAILED.String() && e.Code == 500
+}
+
+func ErrorCreateArticleStatisticFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_CREATE_ARTICLE_STATISTIC_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsCreateArticleCacheFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_CREATE_ARTICLE_CACHE_FAILED.String() && e.Code == 500
+}
+
+func ErrorCreateArticleCacheFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_CREATE_ARTICLE_CACHE_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsDeleteArticleDraftFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_DELETE_ARTICLE_DRAFT_FAILED.String() && e.Code == 500
+}
+
+func ErrorDeleteArticleDraftFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_DELETE_ARTICLE_DRAFT_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsRecordNotFound(err error) bool {
 	if err == nil {
 		return false
@@ -81,18 +141,6 @@ func IsDraftMarkFailed(err error) bool {
 
 func ErrorDraftMarkFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, CreationErrorReason_DRAFT_MARK_FAILED.String(), fmt.Sprintf(format, args...))
-}
-
-func IsGetDraftListFailed(err error) bool {
-	if err == nil {
-		return false
-	}
-	e := errors.FromError(err)
-	return e.Reason == CreationErrorReason_GET_DRAFT_LIST_FAILED.String() && e.Code == 500
-}
-
-func ErrorGetDraftListFailed(format string, args ...interface{}) *errors.Error {
-	return errors.New(500, CreationErrorReason_GET_DRAFT_LIST_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
 func IsSendArticleFailed(err error) bool {
