@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CreationClient interface {
 	GetLastArticleDraft(ctx context.Context, in *GetLastArticleDraftReq, opts ...grpc.CallOption) (*GetLastArticleDraftReply, error)
+	CreateArticle(ctx context.Context, in *CreateArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateArticleDraft(ctx context.Context, in *CreateArticleDraftReq, opts ...grpc.CallOption) (*CreateArticleDraftReply, error)
 	ArticleDraftMark(ctx context.Context, in *ArticleDraftMarkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetArticleDraftList(ctx context.Context, in *GetArticleDraftListReq, opts ...grpc.CallOption) (*GetArticleDraftListReply, error)
@@ -41,6 +42,15 @@ func NewCreationClient(cc grpc.ClientConnInterface) CreationClient {
 func (c *creationClient) GetLastArticleDraft(ctx context.Context, in *GetLastArticleDraftReq, opts ...grpc.CallOption) (*GetLastArticleDraftReply, error) {
 	out := new(GetLastArticleDraftReply)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetLastArticleDraft", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) CreateArticle(ctx context.Context, in *CreateArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/CreateArticle", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -88,6 +98,7 @@ func (c *creationClient) SendArticle(ctx context.Context, in *SendArticleReq, op
 // for forward compatibility
 type CreationServer interface {
 	GetLastArticleDraft(context.Context, *GetLastArticleDraftReq) (*GetLastArticleDraftReply, error)
+	CreateArticle(context.Context, *CreateArticleReq) (*emptypb.Empty, error)
 	CreateArticleDraft(context.Context, *CreateArticleDraftReq) (*CreateArticleDraftReply, error)
 	ArticleDraftMark(context.Context, *ArticleDraftMarkReq) (*emptypb.Empty, error)
 	GetArticleDraftList(context.Context, *GetArticleDraftListReq) (*GetArticleDraftListReply, error)
@@ -101,6 +112,9 @@ type UnimplementedCreationServer struct {
 
 func (UnimplementedCreationServer) GetLastArticleDraft(context.Context, *GetLastArticleDraftReq) (*GetLastArticleDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLastArticleDraft not implemented")
+}
+func (UnimplementedCreationServer) CreateArticle(context.Context, *CreateArticleReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateArticle not implemented")
 }
 func (UnimplementedCreationServer) CreateArticleDraft(context.Context, *CreateArticleDraftReq) (*CreateArticleDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateArticleDraft not implemented")
@@ -141,6 +155,24 @@ func _Creation_GetLastArticleDraft_Handler(srv interface{}, ctx context.Context,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CreationServer).GetLastArticleDraft(ctx, req.(*GetLastArticleDraftReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_CreateArticle_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateArticleReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).CreateArticle(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/CreateArticle",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).CreateArticle(ctx, req.(*CreateArticleReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -227,6 +259,10 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetLastArticleDraft",
 			Handler:    _Creation_GetLastArticleDraft_Handler,
+		},
+		{
+			MethodName: "CreateArticle",
+			Handler:    _Creation_CreateArticle_Handler,
 		},
 		{
 			MethodName: "CreateArticleDraft",

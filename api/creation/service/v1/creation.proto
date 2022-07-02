@@ -12,6 +12,8 @@ service Creation {
 
   rpc GetLastArticleDraft(GetLastArticleDraftReq) returns (GetLastArticleDraftReply){}
 
+  rpc CreateArticle(CreateArticleReq) returns (google.protobuf.Empty){}
+
   rpc CreateArticleDraft(CreateArticleDraftReq) returns (CreateArticleDraftReply){}
 
   rpc ArticleDraftMark(ArticleDraftMarkReq) returns (google.protobuf.Empty){}
@@ -28,6 +30,11 @@ message GetLastArticleDraftReq{
 message GetLastArticleDraftReply{
   int32 id = 1;
   int32 status = 2;
+}
+
+message CreateArticleReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
 }
 
 message CreateArticleDraftReq{
@@ -56,5 +63,5 @@ message GetArticleDraftListReply{
 
 message SendArticleReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 3 [(validate.rules).string.uuid = true];
 }
