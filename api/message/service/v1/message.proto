@@ -17,9 +17,16 @@ service Message {
     };
   }
 
-  rpc ProfileReview(ProfileReviewReq) returns (google.protobuf.Empty){
+  rpc ProfileReview(TextReviewReq) returns (google.protobuf.Empty){
     option (google.api.http) = {
       post: "/tx/message/profile/review"
+      body: "*"
+    };
+  }
+
+  rpc ArticleDraftReview(TextReviewReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/tx/message/article/draft/review"
       body: "*"
     };
   }
@@ -43,51 +50,53 @@ message AvatarReviewReq{
   string EventName = 2 [(validate.rules).string = {max_len: 1000}];
 }
 
-message ProfileReviewReq{
-  message SectionPornInfoStruct{
-    int32 HitFlag = 1;
-    int32 Score = 2;
-    string Keywords = 3 [(validate.rules).string = {max_len: 1000}];
-  }
-  message SectionAdsInfoStruct{
-    int32 HitFlag = 1;
-    int32 Score = 2;
-    string Keywords = 3 [(validate.rules).string = {max_len: 1000}];
-  }
-  message SectionIllegalInfoStruct{
-    int32 HitFlag = 1;
-    int32 Score = 2;
-    string Keywords = 3 [(validate.rules).string = {max_len: 1000}];
-  }
-  message SectionAbuseInfoStruct{
-    int32 HitFlag = 1;
-    int32 Score = 2;
-    string Keywords = 3 [(validate.rules).string = {max_len: 1000}];
-  }
-  message SectionStruct{
-    string Label = 1 [(validate.rules).string = {max_len: 1000}];
-    int32 Result = 2;
-    SectionPornInfoStruct PornInfo = 3;
-    SectionAdsInfoStruct AdsInfo = 4;
-    SectionIllegalInfoStruct IllegalInfo = 5;
-    SectionAbuseInfoStruct AbuseInfo = 6;
-  }
-  message JobsDetailStruct{
-    string Code = 1 [(validate.rules).string = {max_len: 1000}];
-    string Message = 2 [(validate.rules).string = {max_len: 1000}];
-    string JobId = 3 [(validate.rules).string = {max_len: 1000}];
-    string DataId = 4 [(validate.rules).string = {max_len: 1000}];
-    string State = 5 [(validate.rules).string = {max_len: 1000}];
-    string CreationTime = 6 [(validate.rules).string = {max_len: 1000}];
-    string Object = 7 [(validate.rules).string = {max_len: 1000}];
-    string Label = 8 [(validate.rules).string = {max_len: 1000}];
-    int32 Result = 9;
-    string BucketId = 10 [(validate.rules).string = {max_len: 1000}];
-    string Region = 11 [(validate.rules).string = {max_len: 1000}];
-    map<string, string> CosHeaders = 12 [(validate.rules).map.values.string.max_len = 1000, (validate.rules).map.keys.string.max_len = 1000];
-    repeated SectionStruct Section = 13;
-
-  }
+message TextReviewReq{
   JobsDetailStruct JobsDetail = 1;
   string EventName = 2 [(validate.rules).string = {max_len: 1000}];
+}
+
+// --------------------text review message define-------------------------
+
+message SectionPornInfoStruct{
+  int32 HitFlag = 1;
+  int32 Score = 2;
+  string Keywords = 3 [(validate.rules).string = {max_len: 1000}];
+}
+message SectionAdsInfoStruct{
+  int32 HitFlag = 1;
+  int32 Score = 2;
+  string Keywords = 3 [(validate.rules).string = {max_len: 1000}];
+}
+message SectionIllegalInfoStruct{
+  int32 HitFlag = 1;
+  int32 Score = 2;
+  string Keywords = 3 [(validate.rules).string = {max_len: 1000}];
+}
+message SectionAbuseInfoStruct{
+  int32 HitFlag = 1;
+  int32 Score = 2;
+  string Keywords = 3 [(validate.rules).string = {max_len: 1000}];
+}
+message SectionStruct{
+  string Label = 1 [(validate.rules).string = {max_len: 1000}];
+  int32 Result = 2;
+  SectionPornInfoStruct PornInfo = 3;
+  SectionAdsInfoStruct AdsInfo = 4;
+  SectionIllegalInfoStruct IllegalInfo = 5;
+  SectionAbuseInfoStruct AbuseInfo = 6;
+}
+message JobsDetailStruct{
+  string Code = 1 [(validate.rules).string = {max_len: 1000}];
+  string Message = 2 [(validate.rules).string = {max_len: 1000}];
+  string JobId = 3 [(validate.rules).string = {max_len: 1000}];
+  string DataId = 4 [(validate.rules).string = {max_len: 1000}];
+  string State = 5 [(validate.rules).string = {max_len: 1000}];
+  string CreationTime = 6 [(validate.rules).string = {max_len: 1000}];
+  string Object = 7 [(validate.rules).string = {max_len: 1000}];
+  string Label = 8 [(validate.rules).string = {max_len: 1000}];
+  int32 Result = 9;
+  string BucketId = 10 [(validate.rules).string = {max_len: 1000}];
+  string Region = 11 [(validate.rules).string = {max_len: 1000}];
+  map<string, string> CosHeaders = 12 [(validate.rules).map.values.string.max_len = 1000, (validate.rules).map.keys.string.max_len = 1000];
+  repeated SectionStruct Section = 13;
 }
