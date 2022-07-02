@@ -23,6 +23,8 @@ func NewDB(logger log.Logger) *gorm.DB {
 		l.Fatalf("failed opening connection to db: %v", err)
 	}
 	if err := db.AutoMigrate(
+		&data.Article{},
+		&data.ArticleStatistic{},
 		&data.ArticleDraft{},
 	); err != nil {
 		l.Fatalf("failed creat or update table resources: %v", err)
