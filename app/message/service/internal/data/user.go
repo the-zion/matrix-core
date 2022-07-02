@@ -48,7 +48,7 @@ func (r *userRepo) UploadProfileToCos(msgs ...*primitive.MessageExt) {
 		opt.XCosMetaXXX.Add("x-cos-meta-update", m["Updated"])
 
 		f := strings.NewReader(string(i.Body))
-		_, err = r.data.cosCli.Object.Put(
+		_, err = r.data.cosUserCli.cos.Object.Put(
 			context.Background(), key, f, opt,
 		)
 		if err != nil {

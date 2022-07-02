@@ -12,6 +12,7 @@ import (
 	sms "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms/v20210111"
 	"github.com/tencentyun/cos-go-sdk-v5"
 	_ "github.com/tencentyun/cos-go-sdk-v5"
+	creationv1 "github.com/the-zion/matrix-core/api/creation/service/v1"
 	userv1 "github.com/the-zion/matrix-core/api/user/service/v1"
 	"github.com/the-zion/matrix-core/app/message/service/internal/conf"
 	"gopkg.in/gomail.v2"
@@ -19,7 +20,7 @@ import (
 	"net/url"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewPhoneCode, NewGoMail, NewUserServiceClient, NewCosServiceClient)
+var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewCreationRepo, NewPhoneCode, NewGoMail, NewUserServiceClient, NewCreationServiceClient, NewCosUserClient, NewCosCreationClient)
 
 type TxCode struct {
 	client  *sms.Client
@@ -31,12 +32,23 @@ type GoMail struct {
 	dialer  *gomail.Dialer
 }
 
+type CosUser struct {
+	cos *cos.Client
+}
+
+type CosCreation struct {
+	cos      *cos.Client
+	callback map[string]string
+}
+
 type Data struct {
-	log          *log.Helper
-	uc           userv1.UserClient
-	phoneCodeCli *TxCode
-	goMailCli    *GoMail
-	cosCli       *cos.Client
+	log            *log.Helper
+	uc             userv1.UserClient
+	cc             creationv1.CreationClient
+	phoneCodeCli   *TxCode
+	goMailCli      *GoMail
+	cosUserCli     *CosUser
+	cosCreationCli *CosCreation
 }
 
 func NewPhoneCode(conf *conf.Data) *TxCode {
@@ -83,29 +95,73 @@ func NewUserServiceClient(r *nacos.Registry, logger log.Logger) userv1.UserClien
 	return c
 }
 
-func NewCosServiceClient(conf *conf.Data, logger log.Logger) *cos.Client {
-	l := log.NewHelper(log.With(logger, "module", "message/data/new-cos-client"))
-	u, err := url.Parse(conf.Cos.Url)
+func NewCreationServiceClient(r *nacos.Registry, logger log.Logger) creationv1.CreationClient {
+	l := log.NewHelper(log.With(logger, "module", "message/data/new-creation-client"))
+	conn, err := grpc.DialInsecure(
+		context.Background(),
+		grpc.WithEndpoint("discovery:///matrix.creation.service.grpc"),
+		grpc.WithDiscovery(r),
+		grpc.WithMiddleware(
+			//tracing.Client(tracing.WithTracerProvider(tp)),
+			recovery.Recovery(),
+		),
+	)
+	if err != nil {
+		l.Fatalf(err.Error())
+	}
+	c := creationv1.NewCreationClient(conn)
+	return c
+}
+
+func NewCosUserClient(conf *conf.Data, logger log.Logger) *CosUser {
+	l := log.NewHelper(log.With(logger, "module", "message/data/new-cos-user-client"))
+	u, err := url.Parse(conf.Cos.BucketUser.BucketUrl)
 	if err != nil {
 		l.Errorf("fail to init cos server, error: %v", err)
 	}
 	b := &cos.BaseURL{BucketURL: u}
-	return cos.NewClient(b, &http.Client{
-		Transport: &cos.AuthorizationTransport{
-			SecretID:  conf.Cos.SecretId,
-			SecretKey: conf.Cos.SecretKey,
-		},
-	})
+	return &CosUser{
+		cos: cos.NewClient(b, &http.Client{
+			Transport: &cos.AuthorizationTransport{
+				SecretID:  conf.Cos.BucketUser.SecretId,
+				SecretKey: conf.Cos.BucketUser.SecretKey,
+			},
+		}),
+	}
 }
 
-func NewData(logger log.Logger, uc userv1.UserClient, cos *cos.Client, phoneCodeCli *TxCode, goMailCli *GoMail) (*Data, error) {
+func NewCosCreationClient(conf *conf.Data, logger log.Logger) *CosCreation {
+	l := log.NewHelper(log.With(logger, "module", "message/data/new-cos-creation-client"))
+	bu, err := url.Parse(conf.Cos.BucketCreation.BucketUrl)
+	if err != nil {
+		l.Errorf("fail to init cos server, error: %v", err)
+	}
+	cu, err := url.Parse(conf.Cos.BucketCreation.CiUrl)
+	if err != nil {
+		l.Errorf("fail to init cos server, error: %v", err)
+	}
+	b := &cos.BaseURL{BucketURL: bu, CIURL: cu}
+	return &CosCreation{
+		callback: conf.Cos.BucketCreation.Callback,
+		cos: cos.NewClient(b, &http.Client{
+			Transport: &cos.AuthorizationTransport{
+				SecretID:  conf.Cos.BucketCreation.SecretId,
+				SecretKey: conf.Cos.BucketCreation.SecretKey,
+			},
+		}),
+	}
+}
+
+func NewData(logger log.Logger, uc userv1.UserClient, cc creationv1.CreationClient, cosUser *CosUser, cosCreation *CosCreation, phoneCodeCli *TxCode, goMailCli *GoMail) (*Data, error) {
 	l := log.NewHelper(log.With(logger, "module", "message/data"))
 	d := &Data{
-		log:          l,
-		uc:           uc,
-		phoneCodeCli: phoneCodeCli,
-		goMailCli:    goMailCli,
-		cosCli:       cos,
+		log:            l,
+		uc:             uc,
+		cc:             cc,
+		phoneCodeCli:   phoneCodeCli,
+		goMailCli:      goMailCli,
+		cosUserCli:     cosUser,
+		cosCreationCli: cosCreation,
 	}
 	return d, nil
 }
