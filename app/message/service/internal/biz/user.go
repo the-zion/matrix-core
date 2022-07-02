@@ -46,16 +46,22 @@ func (r *UserUseCase) ProfileReview(ctx context.Context, tr *TextReview) error {
 		return nil
 	}
 
+	updated := tr.CosHeaders["x-cos-meta-update"]
+	if updated == "" {
+		r.log.Info("updated not exist，%v", tr)
+		return nil
+	}
+
 	if tr.State != "Success" {
-		r.log.Info("profile Review failed，%v", tr)
+		r.log.Info("profile review failed，%v", tr)
 		return nil
 	}
 	var err error
 	if tr.Result == 0 {
-		err = r.repo.ProfileReviewPass(ctx, tr.CosHeaders["x-cos-meta-uuid"], tr.CosHeaders["x-cos-meta-update"])
+		err = r.repo.ProfileReviewPass(ctx, uuid, updated)
 	} else {
 		r.log.Info("profile review not pass，%v", tr)
-		err = r.repo.ProfileReviewNotPass(ctx, tr.CosHeaders["x-cos-meta-uuid"])
+		err = r.repo.ProfileReviewNotPass(ctx, uuid)
 	}
 	if err != nil {
 		return err
