@@ -41,7 +41,7 @@ func NewCodeMqConsumerServer(conf *conf.Server, messageService *service.MessageS
 	}, func(ctx context.Context,
 		msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
 		messageService.SendCode(msgs...)
-		return consumer.ConsumeRetryLater, nil
+		return consumer.ConsumeSuccess, nil
 	})
 	if err != nil {
 		l.Fatalf("consumer subscribe error: %v", err)
@@ -90,7 +90,7 @@ func NewProfileMqConsumerServer(conf *conf.Server, messageService *service.Messa
 		func(ctx context.Context,
 			msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
 			messageService.UploadProfileToCos(msgs...)
-			return consumer.ConsumeRetryLater, nil
+			return consumer.ConsumeSuccess, nil
 		})
 	if err != nil {
 		l.Fatalf("consumer subscribe error: %v", err)

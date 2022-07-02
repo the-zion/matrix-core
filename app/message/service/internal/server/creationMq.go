@@ -30,20 +30,21 @@ func NewArticleDraftMqConsumerServer(conf *conf.Server, messageService *service.
 		consumer.WithInstance("creation"),
 		consumer.WithMaxReconsumeTimes(5),
 		consumer.WithNamespace(conf.CreationMq.NameSpace),
-		//consumer.WithConsumeFromWhere(consumer.ConsumeFromFirstOffset),
+		consumer.WithConsumeFromWhere(consumer.ConsumeFromFirstOffset),
 		consumer.WithConsumerModel(consumer.Clustering),
 	)
 	if err != nil {
 		l.Fatalf("init consumer error: %v", err)
 	}
 
-	delayLevel := 2
+	//delayLevel := 2
 	err = c.Subscribe("article_draft", consumer.MessageSelector{}, func(ctx context.Context,
 		msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
+		messageService.ToReviewArticleDraft(msgs...)
 		fmt.Println(msgs)
-		concurrentCtx, _ := primitive.GetConcurrentlyCtx(ctx)
-		concurrentCtx.DelayLevelWhenNextConsume = delayLevel
-		return consumer.ConsumeRetryLater, nil
+		//concurrentCtx, _ := primitive.GetConcurrentlyCtx(ctx)
+		//concurrentCtx.DelayLevelWhenNextConsume = delayLevel
+		return consumer.ConsumeSuccess, nil
 	})
 	if err != nil {
 		l.Fatalf("consumer subscribe error: %v", err)
