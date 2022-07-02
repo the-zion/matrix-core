@@ -12,7 +12,6 @@ import (
 	"gorm.io/gorm"
 	"strconv"
 	"strings"
-	"time"
 )
 
 var _ biz.ArticleRepo = (*articleRepo)(nil)
@@ -44,6 +43,34 @@ func (r *articleRepo) GetLastArticleDraft(ctx context.Context, uuid string) (*bi
 	}, nil
 }
 
+func (r *articleRepo) GetArticleDraftList(ctx context.Context, uuid string) ([]*biz.ArticleDraft, error) {
+	reply := make([]*biz.ArticleDraft, 0)
+	draftList := make([]*ArticleDraft, 0)
+	//err := r.data.db.WithContext(ctx).Where("uuid = ? and status = ?", uuid, 3).Order("id desc").Find(&draftList).Error
+	err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).Order("id desc").Find(&draftList).Error
+	if err != nil {
+		return reply, errors.Wrapf(err, fmt.Sprintf("fail to get draft list : uuid(%s)", uuid))
+	}
+	for _, item := range draftList {
+		reply = append(reply, &biz.ArticleDraft{
+			Id: int32(item.ID),
+		})
+	}
+	return reply, nil
+}
+
+func (r *articleRepo) CreateArticle(ctx context.Context, uuid string, id int32) error {
+	article := &Article{
+		ArticleId: id,
+		Uuid:      uuid,
+	}
+	err := r.data.DB(ctx).Select("ArticleId", "Uuid").Create(article).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to create a article: uuid(%s), id(%v)", uuid, id))
+	}
+	return nil
+}
+
 func (r *articleRepo) CreateArticleDraft(ctx context.Context, uuid string) (int32, error) {
 	draft := &ArticleDraft{
 		Uuid: uuid,
@@ -64,44 +91,46 @@ func (r *articleRepo) CreateArticleFolder(ctx context.Context, id int32) error {
 	return nil
 }
 
+func (r *articleRepo) CreateArticleStatistic(ctx context.Context, id int32) error {
+	as := &ArticleStatistic{
+		ArticleId: id,
+	}
+	err := r.data.DB(ctx).Select("ArticleId").Create(as).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to create a article statistic: id(%v)", id))
+	}
+	return nil
+}
+
+func (r *articleRepo) DeleteArticleDraft(ctx context.Context, uuid string, id int32) error {
+	ad := &ArticleDraft{}
+	ad.ID = uint(id)
+	err := r.data.DB(ctx).Where("uuid = ?", uuid).Delete(ad).Error
+	if err != nil {
+		errors.Wrapf(err, fmt.Sprintf("fail to delete article draft: uuid(%s), id(%v)", uuid, id))
+	}
+	return nil
+}
+
 func (r *articleRepo) ArticleDraftMark(ctx context.Context, uuid string, id int32) error {
-	err := r.data.db.WithContext(ctx).Model(&ArticleDraft{}).Where("uuid = ? and id = ?", uuid, id).Update("status", 3).Error
+	err := r.data.db.WithContext(ctx).Model(&ArticleDraft{}).Where("id = ? and uuid = ?", id, uuid).Update("status", 3).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to mark draft to 3: uuid(%s), id(%v)", uuid, id))
 	}
 	return nil
 }
 
-func (r *articleRepo) GetArticleDraftList(ctx context.Context, uuid string) ([]*biz.ArticleDraft, error) {
-	reply := make([]*biz.ArticleDraft, 0)
-	draftList := make([]*ArticleDraft, 0)
-	//err := r.data.db.WithContext(ctx).Where("uuid = ? and status = ?", uuid, 3).Order("id desc").Find(&draftList).Error
-	err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).Order("id desc").Find(&draftList).Error
-	if err != nil {
-		return reply, errors.Wrapf(err, fmt.Sprintf("fail to get draft list : uuid(%s)", uuid))
-	}
-	for _, item := range draftList {
-		reply = append(reply, &biz.ArticleDraft{
-			Id: int32(item.ID),
-		})
-	}
-	return reply, nil
-}
-
 func (r *articleRepo) SendArticle(ctx context.Context, uuid string, id int32) (*biz.ArticleDraft, error) {
 	ad := &ArticleDraft{
-		Updated: time.Now().Unix(),
-		Status:  2,
+		Status: 2,
 	}
-	ad.Updated = time.Now().Unix()
-	err := r.data.DB(ctx).Model(&ArticleDraft{}).Where("uuid = ? and id = ?", uuid, id).Updates(ad).Error
+	err := r.data.DB(ctx).Model(&ArticleDraft{}).Where("id = ? and uuid = ?", id, uuid).Updates(ad).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to mark draft to 2: uuid(%s), id(%v)", uuid, id))
 	}
 	return &biz.ArticleDraft{
-		Uuid:    uuid,
-		Id:      id,
-		Updated: strconv.FormatInt(ad.Updated, 10),
+		Uuid: uuid,
+		Id:   id,
 	}, nil
 }
 
