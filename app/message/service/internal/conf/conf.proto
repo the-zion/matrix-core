@@ -64,9 +64,20 @@ message Data {
     string code = 1;
   }
   message Cos{
-    string url = 1;
-    string secret_id = 2;
-    string secret_key = 3;
+    message BucketUser{
+      string bucketUrl = 1;
+      string secret_id = 3;
+      string secret_key = 4;
+    }
+    message BucketCreation{
+      string bucketUrl = 1;
+      string ciUrl = 2;
+      string secret_id = 3;
+      string secret_key = 4;
+      map<string, string> callback = 5;
+    }
+    BucketUser bucketUser = 1;
+    BucketCreation bucketCreation = 2;
   }
   Code code = 1;
   Mail mail = 2;
