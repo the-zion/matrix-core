@@ -175,22 +175,22 @@ var _ interface {
 	ErrorName() string
 } = AvatarReviewReqValidationError{}
 
-// Validate checks the field values on ProfileReviewReq with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// first error encountered is returned, or nil if there are no violations.
-func (m *ProfileReviewReq) Validate() error {
+// Validate checks the field values on TextReviewReq with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *TextReviewReq) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on ProfileReviewReq with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// ProfileReviewReqMultiError, or nil if none found.
-func (m *ProfileReviewReq) ValidateAll() error {
+// ValidateAll checks the field values on TextReviewReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in TextReviewReqMultiError, or
+// nil if none found.
+func (m *TextReviewReq) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *ProfileReviewReq) validate(all bool) error {
+func (m *TextReviewReq) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -201,7 +201,7 @@ func (m *ProfileReviewReq) validate(all bool) error {
 		switch v := interface{}(m.GetJobsDetail()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ProfileReviewReqValidationError{
+				errors = append(errors, TextReviewReqValidationError{
 					field:  "JobsDetail",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -209,7 +209,7 @@ func (m *ProfileReviewReq) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ProfileReviewReqValidationError{
+				errors = append(errors, TextReviewReqValidationError{
 					field:  "JobsDetail",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -218,7 +218,7 @@ func (m *ProfileReviewReq) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetJobsDetail()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ProfileReviewReqValidationError{
+			return TextReviewReqValidationError{
 				field:  "JobsDetail",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -227,7 +227,7 @@ func (m *ProfileReviewReq) validate(all bool) error {
 	}
 
 	if utf8.RuneCountInString(m.GetEventName()) > 1000 {
-		err := ProfileReviewReqValidationError{
+		err := TextReviewReqValidationError{
 			field:  "EventName",
 			reason: "value length must be at most 1000 runes",
 		}
@@ -238,19 +238,19 @@ func (m *ProfileReviewReq) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return ProfileReviewReqMultiError(errors)
+		return TextReviewReqMultiError(errors)
 	}
 
 	return nil
 }
 
-// ProfileReviewReqMultiError is an error wrapping multiple validation errors
-// returned by ProfileReviewReq.ValidateAll() if the designated constraints
+// TextReviewReqMultiError is an error wrapping multiple validation errors
+// returned by TextReviewReq.ValidateAll() if the designated constraints
 // aren't met.
-type ProfileReviewReqMultiError []error
+type TextReviewReqMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m ProfileReviewReqMultiError) Error() string {
+func (m TextReviewReqMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -259,11 +259,11 @@ func (m ProfileReviewReqMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m ProfileReviewReqMultiError) AllErrors() []error { return m }
+func (m TextReviewReqMultiError) AllErrors() []error { return m }
 
-// ProfileReviewReqValidationError is the validation error returned by
-// ProfileReviewReq.Validate if the designated constraints aren't met.
-type ProfileReviewReqValidationError struct {
+// TextReviewReqValidationError is the validation error returned by
+// TextReviewReq.Validate if the designated constraints aren't met.
+type TextReviewReqValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -271,22 +271,22 @@ type ProfileReviewReqValidationError struct {
 }
 
 // Field function returns field value.
-func (e ProfileReviewReqValidationError) Field() string { return e.field }
+func (e TextReviewReqValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ProfileReviewReqValidationError) Reason() string { return e.reason }
+func (e TextReviewReqValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ProfileReviewReqValidationError) Cause() error { return e.cause }
+func (e TextReviewReqValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ProfileReviewReqValidationError) Key() bool { return e.key }
+func (e TextReviewReqValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ProfileReviewReqValidationError) ErrorName() string { return "ProfileReviewReqValidationError" }
+func (e TextReviewReqValidationError) ErrorName() string { return "TextReviewReqValidationError" }
 
 // Error satisfies the builtin error interface
-func (e ProfileReviewReqValidationError) Error() string {
+func (e TextReviewReqValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -298,14 +298,14 @@ func (e ProfileReviewReqValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sProfileReviewReq.%s: %s%s",
+		"invalid %sTextReviewReq.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ProfileReviewReqValidationError{}
+var _ error = TextReviewReqValidationError{}
 
 var _ interface {
 	Field() string
@@ -313,7 +313,987 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ProfileReviewReqValidationError{}
+} = TextReviewReqValidationError{}
+
+// Validate checks the field values on SectionPornInfoStruct with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SectionPornInfoStruct) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SectionPornInfoStruct with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SectionPornInfoStructMultiError, or nil if none found.
+func (m *SectionPornInfoStruct) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SectionPornInfoStruct) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for HitFlag
+
+	// no validation rules for Score
+
+	if utf8.RuneCountInString(m.GetKeywords()) > 1000 {
+		err := SectionPornInfoStructValidationError{
+			field:  "Keywords",
+			reason: "value length must be at most 1000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return SectionPornInfoStructMultiError(errors)
+	}
+
+	return nil
+}
+
+// SectionPornInfoStructMultiError is an error wrapping multiple validation
+// errors returned by SectionPornInfoStruct.ValidateAll() if the designated
+// constraints aren't met.
+type SectionPornInfoStructMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SectionPornInfoStructMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SectionPornInfoStructMultiError) AllErrors() []error { return m }
+
+// SectionPornInfoStructValidationError is the validation error returned by
+// SectionPornInfoStruct.Validate if the designated constraints aren't met.
+type SectionPornInfoStructValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SectionPornInfoStructValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SectionPornInfoStructValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SectionPornInfoStructValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SectionPornInfoStructValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SectionPornInfoStructValidationError) ErrorName() string {
+	return "SectionPornInfoStructValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SectionPornInfoStructValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSectionPornInfoStruct.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SectionPornInfoStructValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SectionPornInfoStructValidationError{}
+
+// Validate checks the field values on SectionAdsInfoStruct with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SectionAdsInfoStruct) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SectionAdsInfoStruct with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SectionAdsInfoStructMultiError, or nil if none found.
+func (m *SectionAdsInfoStruct) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SectionAdsInfoStruct) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for HitFlag
+
+	// no validation rules for Score
+
+	if utf8.RuneCountInString(m.GetKeywords()) > 1000 {
+		err := SectionAdsInfoStructValidationError{
+			field:  "Keywords",
+			reason: "value length must be at most 1000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return SectionAdsInfoStructMultiError(errors)
+	}
+
+	return nil
+}
+
+// SectionAdsInfoStructMultiError is an error wrapping multiple validation
+// errors returned by SectionAdsInfoStruct.ValidateAll() if the designated
+// constraints aren't met.
+type SectionAdsInfoStructMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SectionAdsInfoStructMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SectionAdsInfoStructMultiError) AllErrors() []error { return m }
+
+// SectionAdsInfoStructValidationError is the validation error returned by
+// SectionAdsInfoStruct.Validate if the designated constraints aren't met.
+type SectionAdsInfoStructValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SectionAdsInfoStructValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SectionAdsInfoStructValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SectionAdsInfoStructValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SectionAdsInfoStructValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SectionAdsInfoStructValidationError) ErrorName() string {
+	return "SectionAdsInfoStructValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SectionAdsInfoStructValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSectionAdsInfoStruct.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SectionAdsInfoStructValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SectionAdsInfoStructValidationError{}
+
+// Validate checks the field values on SectionIllegalInfoStruct with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SectionIllegalInfoStruct) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SectionIllegalInfoStruct with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SectionIllegalInfoStructMultiError, or nil if none found.
+func (m *SectionIllegalInfoStruct) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SectionIllegalInfoStruct) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for HitFlag
+
+	// no validation rules for Score
+
+	if utf8.RuneCountInString(m.GetKeywords()) > 1000 {
+		err := SectionIllegalInfoStructValidationError{
+			field:  "Keywords",
+			reason: "value length must be at most 1000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return SectionIllegalInfoStructMultiError(errors)
+	}
+
+	return nil
+}
+
+// SectionIllegalInfoStructMultiError is an error wrapping multiple validation
+// errors returned by SectionIllegalInfoStruct.ValidateAll() if the designated
+// constraints aren't met.
+type SectionIllegalInfoStructMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SectionIllegalInfoStructMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SectionIllegalInfoStructMultiError) AllErrors() []error { return m }
+
+// SectionIllegalInfoStructValidationError is the validation error returned by
+// SectionIllegalInfoStruct.Validate if the designated constraints aren't met.
+type SectionIllegalInfoStructValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SectionIllegalInfoStructValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SectionIllegalInfoStructValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SectionIllegalInfoStructValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SectionIllegalInfoStructValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SectionIllegalInfoStructValidationError) ErrorName() string {
+	return "SectionIllegalInfoStructValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SectionIllegalInfoStructValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSectionIllegalInfoStruct.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SectionIllegalInfoStructValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SectionIllegalInfoStructValidationError{}
+
+// Validate checks the field values on SectionAbuseInfoStruct with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SectionAbuseInfoStruct) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SectionAbuseInfoStruct with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SectionAbuseInfoStructMultiError, or nil if none found.
+func (m *SectionAbuseInfoStruct) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SectionAbuseInfoStruct) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for HitFlag
+
+	// no validation rules for Score
+
+	if utf8.RuneCountInString(m.GetKeywords()) > 1000 {
+		err := SectionAbuseInfoStructValidationError{
+			field:  "Keywords",
+			reason: "value length must be at most 1000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return SectionAbuseInfoStructMultiError(errors)
+	}
+
+	return nil
+}
+
+// SectionAbuseInfoStructMultiError is an error wrapping multiple validation
+// errors returned by SectionAbuseInfoStruct.ValidateAll() if the designated
+// constraints aren't met.
+type SectionAbuseInfoStructMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SectionAbuseInfoStructMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SectionAbuseInfoStructMultiError) AllErrors() []error { return m }
+
+// SectionAbuseInfoStructValidationError is the validation error returned by
+// SectionAbuseInfoStruct.Validate if the designated constraints aren't met.
+type SectionAbuseInfoStructValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SectionAbuseInfoStructValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SectionAbuseInfoStructValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SectionAbuseInfoStructValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SectionAbuseInfoStructValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SectionAbuseInfoStructValidationError) ErrorName() string {
+	return "SectionAbuseInfoStructValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SectionAbuseInfoStructValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSectionAbuseInfoStruct.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SectionAbuseInfoStructValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SectionAbuseInfoStructValidationError{}
+
+// Validate checks the field values on SectionStruct with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *SectionStruct) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SectionStruct with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in SectionStructMultiError, or
+// nil if none found.
+func (m *SectionStruct) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SectionStruct) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetLabel()) > 1000 {
+		err := SectionStructValidationError{
+			field:  "Label",
+			reason: "value length must be at most 1000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for Result
+
+	if all {
+		switch v := interface{}(m.GetPornInfo()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, SectionStructValidationError{
+					field:  "PornInfo",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, SectionStructValidationError{
+					field:  "PornInfo",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetPornInfo()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return SectionStructValidationError{
+				field:  "PornInfo",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetAdsInfo()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, SectionStructValidationError{
+					field:  "AdsInfo",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, SectionStructValidationError{
+					field:  "AdsInfo",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetAdsInfo()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return SectionStructValidationError{
+				field:  "AdsInfo",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetIllegalInfo()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, SectionStructValidationError{
+					field:  "IllegalInfo",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, SectionStructValidationError{
+					field:  "IllegalInfo",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetIllegalInfo()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return SectionStructValidationError{
+				field:  "IllegalInfo",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetAbuseInfo()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, SectionStructValidationError{
+					field:  "AbuseInfo",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, SectionStructValidationError{
+					field:  "AbuseInfo",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetAbuseInfo()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return SectionStructValidationError{
+				field:  "AbuseInfo",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return SectionStructMultiError(errors)
+	}
+
+	return nil
+}
+
+// SectionStructMultiError is an error wrapping multiple validation errors
+// returned by SectionStruct.ValidateAll() if the designated constraints
+// aren't met.
+type SectionStructMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SectionStructMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SectionStructMultiError) AllErrors() []error { return m }
+
+// SectionStructValidationError is the validation error returned by
+// SectionStruct.Validate if the designated constraints aren't met.
+type SectionStructValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SectionStructValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SectionStructValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SectionStructValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SectionStructValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SectionStructValidationError) ErrorName() string { return "SectionStructValidationError" }
+
+// Error satisfies the builtin error interface
+func (e SectionStructValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSectionStruct.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SectionStructValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SectionStructValidationError{}
+
+// Validate checks the field values on JobsDetailStruct with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *JobsDetailStruct) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on JobsDetailStruct with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// JobsDetailStructMultiError, or nil if none found.
+func (m *JobsDetailStruct) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *JobsDetailStruct) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetCode()) > 1000 {
+		err := JobsDetailStructValidationError{
+			field:  "Code",
+			reason: "value length must be at most 1000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetMessage()) > 1000 {
+		err := JobsDetailStructValidationError{
+			field:  "Message",
+			reason: "value length must be at most 1000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetJobId()) > 1000 {
+		err := JobsDetailStructValidationError{
+			field:  "JobId",
+			reason: "value length must be at most 1000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetDataId()) > 1000 {
+		err := JobsDetailStructValidationError{
+			field:  "DataId",
+			reason: "value length must be at most 1000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetState()) > 1000 {
+		err := JobsDetailStructValidationError{
+			field:  "State",
+			reason: "value length must be at most 1000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetCreationTime()) > 1000 {
+		err := JobsDetailStructValidationError{
+			field:  "CreationTime",
+			reason: "value length must be at most 1000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetObject()) > 1000 {
+		err := JobsDetailStructValidationError{
+			field:  "Object",
+			reason: "value length must be at most 1000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetLabel()) > 1000 {
+		err := JobsDetailStructValidationError{
+			field:  "Label",
+			reason: "value length must be at most 1000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for Result
+
+	if utf8.RuneCountInString(m.GetBucketId()) > 1000 {
+		err := JobsDetailStructValidationError{
+			field:  "BucketId",
+			reason: "value length must be at most 1000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetRegion()) > 1000 {
+		err := JobsDetailStructValidationError{
+			field:  "Region",
+			reason: "value length must be at most 1000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	{
+		sorted_keys := make([]string, len(m.GetCosHeaders()))
+		i := 0
+		for key := range m.GetCosHeaders() {
+			sorted_keys[i] = key
+			i++
+		}
+		sort.Slice(sorted_keys, func(i, j int) bool { return sorted_keys[i] < sorted_keys[j] })
+		for _, key := range sorted_keys {
+			val := m.GetCosHeaders()[key]
+			_ = val
+
+			if utf8.RuneCountInString(key) > 1000 {
+				err := JobsDetailStructValidationError{
+					field:  fmt.Sprintf("CosHeaders[%v]", key),
+					reason: "value length must be at most 1000 runes",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+			if utf8.RuneCountInString(val) > 1000 {
+				err := JobsDetailStructValidationError{
+					field:  fmt.Sprintf("CosHeaders[%v]", key),
+					reason: "value length must be at most 1000 runes",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
+	for idx, item := range m.GetSection() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, JobsDetailStructValidationError{
+						field:  fmt.Sprintf("Section[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, JobsDetailStructValidationError{
+						field:  fmt.Sprintf("Section[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return JobsDetailStructValidationError{
+					field:  fmt.Sprintf("Section[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return JobsDetailStructMultiError(errors)
+	}
+
+	return nil
+}
+
+// JobsDetailStructMultiError is an error wrapping multiple validation errors
+// returned by JobsDetailStruct.ValidateAll() if the designated constraints
+// aren't met.
+type JobsDetailStructMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m JobsDetailStructMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m JobsDetailStructMultiError) AllErrors() []error { return m }
+
+// JobsDetailStructValidationError is the validation error returned by
+// JobsDetailStruct.Validate if the designated constraints aren't met.
+type JobsDetailStructValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e JobsDetailStructValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e JobsDetailStructValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e JobsDetailStructValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e JobsDetailStructValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e JobsDetailStructValidationError) ErrorName() string { return "JobsDetailStructValidationError" }
+
+// Error satisfies the builtin error interface
+func (e JobsDetailStructValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sJobsDetailStruct.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = JobsDetailStructValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = JobsDetailStructValidationError{}
 
 // Validate checks the field values on AvatarReviewReq_JobsDetailStruct with
 // the rules defined in the proto definition for this message. If any rules
@@ -557,1006 +1537,3 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = AvatarReviewReq_JobsDetailStructValidationError{}
-
-// Validate checks the field values on ProfileReviewReq_SectionPornInfoStruct
-// with the rules defined in the proto definition for this message. If any
-// rules are violated, the first error encountered is returned, or nil if
-// there are no violations.
-func (m *ProfileReviewReq_SectionPornInfoStruct) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on
-// ProfileReviewReq_SectionPornInfoStruct with the rules defined in the proto
-// definition for this message. If any rules are violated, the result is a
-// list of violation errors wrapped in
-// ProfileReviewReq_SectionPornInfoStructMultiError, or nil if none found.
-func (m *ProfileReviewReq_SectionPornInfoStruct) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *ProfileReviewReq_SectionPornInfoStruct) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	// no validation rules for HitFlag
-
-	// no validation rules for Score
-
-	if utf8.RuneCountInString(m.GetKeywords()) > 1000 {
-		err := ProfileReviewReq_SectionPornInfoStructValidationError{
-			field:  "Keywords",
-			reason: "value length must be at most 1000 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if len(errors) > 0 {
-		return ProfileReviewReq_SectionPornInfoStructMultiError(errors)
-	}
-
-	return nil
-}
-
-// ProfileReviewReq_SectionPornInfoStructMultiError is an error wrapping
-// multiple validation errors returned by
-// ProfileReviewReq_SectionPornInfoStruct.ValidateAll() if the designated
-// constraints aren't met.
-type ProfileReviewReq_SectionPornInfoStructMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m ProfileReviewReq_SectionPornInfoStructMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m ProfileReviewReq_SectionPornInfoStructMultiError) AllErrors() []error { return m }
-
-// ProfileReviewReq_SectionPornInfoStructValidationError is the validation
-// error returned by ProfileReviewReq_SectionPornInfoStruct.Validate if the
-// designated constraints aren't met.
-type ProfileReviewReq_SectionPornInfoStructValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e ProfileReviewReq_SectionPornInfoStructValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e ProfileReviewReq_SectionPornInfoStructValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e ProfileReviewReq_SectionPornInfoStructValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e ProfileReviewReq_SectionPornInfoStructValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e ProfileReviewReq_SectionPornInfoStructValidationError) ErrorName() string {
-	return "ProfileReviewReq_SectionPornInfoStructValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e ProfileReviewReq_SectionPornInfoStructValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sProfileReviewReq_SectionPornInfoStruct.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = ProfileReviewReq_SectionPornInfoStructValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = ProfileReviewReq_SectionPornInfoStructValidationError{}
-
-// Validate checks the field values on ProfileReviewReq_SectionAdsInfoStruct
-// with the rules defined in the proto definition for this message. If any
-// rules are violated, the first error encountered is returned, or nil if
-// there are no violations.
-func (m *ProfileReviewReq_SectionAdsInfoStruct) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on ProfileReviewReq_SectionAdsInfoStruct
-// with the rules defined in the proto definition for this message. If any
-// rules are violated, the result is a list of violation errors wrapped in
-// ProfileReviewReq_SectionAdsInfoStructMultiError, or nil if none found.
-func (m *ProfileReviewReq_SectionAdsInfoStruct) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *ProfileReviewReq_SectionAdsInfoStruct) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	// no validation rules for HitFlag
-
-	// no validation rules for Score
-
-	if utf8.RuneCountInString(m.GetKeywords()) > 1000 {
-		err := ProfileReviewReq_SectionAdsInfoStructValidationError{
-			field:  "Keywords",
-			reason: "value length must be at most 1000 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if len(errors) > 0 {
-		return ProfileReviewReq_SectionAdsInfoStructMultiError(errors)
-	}
-
-	return nil
-}
-
-// ProfileReviewReq_SectionAdsInfoStructMultiError is an error wrapping
-// multiple validation errors returned by
-// ProfileReviewReq_SectionAdsInfoStruct.ValidateAll() if the designated
-// constraints aren't met.
-type ProfileReviewReq_SectionAdsInfoStructMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m ProfileReviewReq_SectionAdsInfoStructMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m ProfileReviewReq_SectionAdsInfoStructMultiError) AllErrors() []error { return m }
-
-// ProfileReviewReq_SectionAdsInfoStructValidationError is the validation error
-// returned by ProfileReviewReq_SectionAdsInfoStruct.Validate if the
-// designated constraints aren't met.
-type ProfileReviewReq_SectionAdsInfoStructValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e ProfileReviewReq_SectionAdsInfoStructValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e ProfileReviewReq_SectionAdsInfoStructValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e ProfileReviewReq_SectionAdsInfoStructValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e ProfileReviewReq_SectionAdsInfoStructValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e ProfileReviewReq_SectionAdsInfoStructValidationError) ErrorName() string {
-	return "ProfileReviewReq_SectionAdsInfoStructValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e ProfileReviewReq_SectionAdsInfoStructValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sProfileReviewReq_SectionAdsInfoStruct.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = ProfileReviewReq_SectionAdsInfoStructValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = ProfileReviewReq_SectionAdsInfoStructValidationError{}
-
-// Validate checks the field values on
-// ProfileReviewReq_SectionIllegalInfoStruct with the rules defined in the
-// proto definition for this message. If any rules are violated, the first
-// error encountered is returned, or nil if there are no violations.
-func (m *ProfileReviewReq_SectionIllegalInfoStruct) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on
-// ProfileReviewReq_SectionIllegalInfoStruct with the rules defined in the
-// proto definition for this message. If any rules are violated, the result is
-// a list of violation errors wrapped in
-// ProfileReviewReq_SectionIllegalInfoStructMultiError, or nil if none found.
-func (m *ProfileReviewReq_SectionIllegalInfoStruct) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *ProfileReviewReq_SectionIllegalInfoStruct) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	// no validation rules for HitFlag
-
-	// no validation rules for Score
-
-	if utf8.RuneCountInString(m.GetKeywords()) > 1000 {
-		err := ProfileReviewReq_SectionIllegalInfoStructValidationError{
-			field:  "Keywords",
-			reason: "value length must be at most 1000 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if len(errors) > 0 {
-		return ProfileReviewReq_SectionIllegalInfoStructMultiError(errors)
-	}
-
-	return nil
-}
-
-// ProfileReviewReq_SectionIllegalInfoStructMultiError is an error wrapping
-// multiple validation errors returned by
-// ProfileReviewReq_SectionIllegalInfoStruct.ValidateAll() if the designated
-// constraints aren't met.
-type ProfileReviewReq_SectionIllegalInfoStructMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m ProfileReviewReq_SectionIllegalInfoStructMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m ProfileReviewReq_SectionIllegalInfoStructMultiError) AllErrors() []error { return m }
-
-// ProfileReviewReq_SectionIllegalInfoStructValidationError is the validation
-// error returned by ProfileReviewReq_SectionIllegalInfoStruct.Validate if the
-// designated constraints aren't met.
-type ProfileReviewReq_SectionIllegalInfoStructValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e ProfileReviewReq_SectionIllegalInfoStructValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e ProfileReviewReq_SectionIllegalInfoStructValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e ProfileReviewReq_SectionIllegalInfoStructValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e ProfileReviewReq_SectionIllegalInfoStructValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e ProfileReviewReq_SectionIllegalInfoStructValidationError) ErrorName() string {
-	return "ProfileReviewReq_SectionIllegalInfoStructValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e ProfileReviewReq_SectionIllegalInfoStructValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sProfileReviewReq_SectionIllegalInfoStruct.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = ProfileReviewReq_SectionIllegalInfoStructValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = ProfileReviewReq_SectionIllegalInfoStructValidationError{}
-
-// Validate checks the field values on ProfileReviewReq_SectionAbuseInfoStruct
-// with the rules defined in the proto definition for this message. If any
-// rules are violated, the first error encountered is returned, or nil if
-// there are no violations.
-func (m *ProfileReviewReq_SectionAbuseInfoStruct) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on
-// ProfileReviewReq_SectionAbuseInfoStruct with the rules defined in the proto
-// definition for this message. If any rules are violated, the result is a
-// list of violation errors wrapped in
-// ProfileReviewReq_SectionAbuseInfoStructMultiError, or nil if none found.
-func (m *ProfileReviewReq_SectionAbuseInfoStruct) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *ProfileReviewReq_SectionAbuseInfoStruct) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	// no validation rules for HitFlag
-
-	// no validation rules for Score
-
-	if utf8.RuneCountInString(m.GetKeywords()) > 1000 {
-		err := ProfileReviewReq_SectionAbuseInfoStructValidationError{
-			field:  "Keywords",
-			reason: "value length must be at most 1000 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if len(errors) > 0 {
-		return ProfileReviewReq_SectionAbuseInfoStructMultiError(errors)
-	}
-
-	return nil
-}
-
-// ProfileReviewReq_SectionAbuseInfoStructMultiError is an error wrapping
-// multiple validation errors returned by
-// ProfileReviewReq_SectionAbuseInfoStruct.ValidateAll() if the designated
-// constraints aren't met.
-type ProfileReviewReq_SectionAbuseInfoStructMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m ProfileReviewReq_SectionAbuseInfoStructMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m ProfileReviewReq_SectionAbuseInfoStructMultiError) AllErrors() []error { return m }
-
-// ProfileReviewReq_SectionAbuseInfoStructValidationError is the validation
-// error returned by ProfileReviewReq_SectionAbuseInfoStruct.Validate if the
-// designated constraints aren't met.
-type ProfileReviewReq_SectionAbuseInfoStructValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e ProfileReviewReq_SectionAbuseInfoStructValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e ProfileReviewReq_SectionAbuseInfoStructValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e ProfileReviewReq_SectionAbuseInfoStructValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e ProfileReviewReq_SectionAbuseInfoStructValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e ProfileReviewReq_SectionAbuseInfoStructValidationError) ErrorName() string {
-	return "ProfileReviewReq_SectionAbuseInfoStructValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e ProfileReviewReq_SectionAbuseInfoStructValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sProfileReviewReq_SectionAbuseInfoStruct.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = ProfileReviewReq_SectionAbuseInfoStructValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = ProfileReviewReq_SectionAbuseInfoStructValidationError{}
-
-// Validate checks the field values on ProfileReviewReq_SectionStruct with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *ProfileReviewReq_SectionStruct) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on ProfileReviewReq_SectionStruct with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the result is a list of violation errors wrapped in
-// ProfileReviewReq_SectionStructMultiError, or nil if none found.
-func (m *ProfileReviewReq_SectionStruct) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *ProfileReviewReq_SectionStruct) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if utf8.RuneCountInString(m.GetLabel()) > 1000 {
-		err := ProfileReviewReq_SectionStructValidationError{
-			field:  "Label",
-			reason: "value length must be at most 1000 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	// no validation rules for Result
-
-	if all {
-		switch v := interface{}(m.GetPornInfo()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ProfileReviewReq_SectionStructValidationError{
-					field:  "PornInfo",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ProfileReviewReq_SectionStructValidationError{
-					field:  "PornInfo",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetPornInfo()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ProfileReviewReq_SectionStructValidationError{
-				field:  "PornInfo",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetAdsInfo()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ProfileReviewReq_SectionStructValidationError{
-					field:  "AdsInfo",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ProfileReviewReq_SectionStructValidationError{
-					field:  "AdsInfo",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetAdsInfo()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ProfileReviewReq_SectionStructValidationError{
-				field:  "AdsInfo",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetIllegalInfo()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ProfileReviewReq_SectionStructValidationError{
-					field:  "IllegalInfo",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ProfileReviewReq_SectionStructValidationError{
-					field:  "IllegalInfo",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetIllegalInfo()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ProfileReviewReq_SectionStructValidationError{
-				field:  "IllegalInfo",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetAbuseInfo()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ProfileReviewReq_SectionStructValidationError{
-					field:  "AbuseInfo",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ProfileReviewReq_SectionStructValidationError{
-					field:  "AbuseInfo",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetAbuseInfo()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ProfileReviewReq_SectionStructValidationError{
-				field:  "AbuseInfo",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		return ProfileReviewReq_SectionStructMultiError(errors)
-	}
-
-	return nil
-}
-
-// ProfileReviewReq_SectionStructMultiError is an error wrapping multiple
-// validation errors returned by ProfileReviewReq_SectionStruct.ValidateAll()
-// if the designated constraints aren't met.
-type ProfileReviewReq_SectionStructMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m ProfileReviewReq_SectionStructMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m ProfileReviewReq_SectionStructMultiError) AllErrors() []error { return m }
-
-// ProfileReviewReq_SectionStructValidationError is the validation error
-// returned by ProfileReviewReq_SectionStruct.Validate if the designated
-// constraints aren't met.
-type ProfileReviewReq_SectionStructValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e ProfileReviewReq_SectionStructValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e ProfileReviewReq_SectionStructValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e ProfileReviewReq_SectionStructValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e ProfileReviewReq_SectionStructValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e ProfileReviewReq_SectionStructValidationError) ErrorName() string {
-	return "ProfileReviewReq_SectionStructValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e ProfileReviewReq_SectionStructValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sProfileReviewReq_SectionStruct.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = ProfileReviewReq_SectionStructValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = ProfileReviewReq_SectionStructValidationError{}
-
-// Validate checks the field values on ProfileReviewReq_JobsDetailStruct with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the first error encountered is returned, or nil if there are
-// no violations.
-func (m *ProfileReviewReq_JobsDetailStruct) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on ProfileReviewReq_JobsDetailStruct
-// with the rules defined in the proto definition for this message. If any
-// rules are violated, the result is a list of violation errors wrapped in
-// ProfileReviewReq_JobsDetailStructMultiError, or nil if none found.
-func (m *ProfileReviewReq_JobsDetailStruct) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *ProfileReviewReq_JobsDetailStruct) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if utf8.RuneCountInString(m.GetCode()) > 1000 {
-		err := ProfileReviewReq_JobsDetailStructValidationError{
-			field:  "Code",
-			reason: "value length must be at most 1000 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if utf8.RuneCountInString(m.GetMessage()) > 1000 {
-		err := ProfileReviewReq_JobsDetailStructValidationError{
-			field:  "Message",
-			reason: "value length must be at most 1000 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if utf8.RuneCountInString(m.GetJobId()) > 1000 {
-		err := ProfileReviewReq_JobsDetailStructValidationError{
-			field:  "JobId",
-			reason: "value length must be at most 1000 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if utf8.RuneCountInString(m.GetDataId()) > 1000 {
-		err := ProfileReviewReq_JobsDetailStructValidationError{
-			field:  "DataId",
-			reason: "value length must be at most 1000 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if utf8.RuneCountInString(m.GetState()) > 1000 {
-		err := ProfileReviewReq_JobsDetailStructValidationError{
-			field:  "State",
-			reason: "value length must be at most 1000 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if utf8.RuneCountInString(m.GetCreationTime()) > 1000 {
-		err := ProfileReviewReq_JobsDetailStructValidationError{
-			field:  "CreationTime",
-			reason: "value length must be at most 1000 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if utf8.RuneCountInString(m.GetObject()) > 1000 {
-		err := ProfileReviewReq_JobsDetailStructValidationError{
-			field:  "Object",
-			reason: "value length must be at most 1000 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if utf8.RuneCountInString(m.GetLabel()) > 1000 {
-		err := ProfileReviewReq_JobsDetailStructValidationError{
-			field:  "Label",
-			reason: "value length must be at most 1000 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	// no validation rules for Result
-
-	if utf8.RuneCountInString(m.GetBucketId()) > 1000 {
-		err := ProfileReviewReq_JobsDetailStructValidationError{
-			field:  "BucketId",
-			reason: "value length must be at most 1000 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if utf8.RuneCountInString(m.GetRegion()) > 1000 {
-		err := ProfileReviewReq_JobsDetailStructValidationError{
-			field:  "Region",
-			reason: "value length must be at most 1000 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	{
-		sorted_keys := make([]string, len(m.GetCosHeaders()))
-		i := 0
-		for key := range m.GetCosHeaders() {
-			sorted_keys[i] = key
-			i++
-		}
-		sort.Slice(sorted_keys, func(i, j int) bool { return sorted_keys[i] < sorted_keys[j] })
-		for _, key := range sorted_keys {
-			val := m.GetCosHeaders()[key]
-			_ = val
-
-			if utf8.RuneCountInString(key) > 1000 {
-				err := ProfileReviewReq_JobsDetailStructValidationError{
-					field:  fmt.Sprintf("CosHeaders[%v]", key),
-					reason: "value length must be at most 1000 runes",
-				}
-				if !all {
-					return err
-				}
-				errors = append(errors, err)
-			}
-
-			if utf8.RuneCountInString(val) > 1000 {
-				err := ProfileReviewReq_JobsDetailStructValidationError{
-					field:  fmt.Sprintf("CosHeaders[%v]", key),
-					reason: "value length must be at most 1000 runes",
-				}
-				if !all {
-					return err
-				}
-				errors = append(errors, err)
-			}
-
-		}
-	}
-
-	for idx, item := range m.GetSection() {
-		_, _ = idx, item
-
-		if all {
-			switch v := interface{}(item).(type) {
-			case interface{ ValidateAll() error }:
-				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, ProfileReviewReq_JobsDetailStructValidationError{
-						field:  fmt.Sprintf("Section[%v]", idx),
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			case interface{ Validate() error }:
-				if err := v.Validate(); err != nil {
-					errors = append(errors, ProfileReviewReq_JobsDetailStructValidationError{
-						field:  fmt.Sprintf("Section[%v]", idx),
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
-			if err := v.Validate(); err != nil {
-				return ProfileReviewReq_JobsDetailStructValidationError{
-					field:  fmt.Sprintf("Section[%v]", idx),
-					reason: "embedded message failed validation",
-					cause:  err,
-				}
-			}
-		}
-
-	}
-
-	if len(errors) > 0 {
-		return ProfileReviewReq_JobsDetailStructMultiError(errors)
-	}
-
-	return nil
-}
-
-// ProfileReviewReq_JobsDetailStructMultiError is an error wrapping multiple
-// validation errors returned by
-// ProfileReviewReq_JobsDetailStruct.ValidateAll() if the designated
-// constraints aren't met.
-type ProfileReviewReq_JobsDetailStructMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m ProfileReviewReq_JobsDetailStructMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m ProfileReviewReq_JobsDetailStructMultiError) AllErrors() []error { return m }
-
-// ProfileReviewReq_JobsDetailStructValidationError is the validation error
-// returned by ProfileReviewReq_JobsDetailStruct.Validate if the designated
-// constraints aren't met.
-type ProfileReviewReq_JobsDetailStructValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e ProfileReviewReq_JobsDetailStructValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e ProfileReviewReq_JobsDetailStructValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e ProfileReviewReq_JobsDetailStructValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e ProfileReviewReq_JobsDetailStructValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e ProfileReviewReq_JobsDetailStructValidationError) ErrorName() string {
-	return "ProfileReviewReq_JobsDetailStructValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e ProfileReviewReq_JobsDetailStructValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sProfileReviewReq_JobsDetailStruct.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = ProfileReviewReq_JobsDetailStructValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = ProfileReviewReq_JobsDetailStructValidationError{}

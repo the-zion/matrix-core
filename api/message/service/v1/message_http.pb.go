@@ -19,14 +19,16 @@ var _ = binding.EncodeURL
 const _ = http.SupportPackageIsVersion1
 
 type MessageHTTPServer interface {
+	ArticleDraftReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	AvatarReview(context.Context, *AvatarReviewReq) (*emptypb.Empty, error)
-	ProfileReview(context.Context, *ProfileReviewReq) (*emptypb.Empty, error)
+	ProfileReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 }
 
 func RegisterMessageHTTPServer(s *http.Server, srv MessageHTTPServer) {
 	r := s.Route("/")
 	r.POST("/tx/message/avatar/review", _Message_AvatarReview0_HTTP_Handler(srv))
 	r.POST("/tx/message/profile/review", _Message_ProfileReview0_HTTP_Handler(srv))
+	r.POST("/tx/message/article/draft/review", _Message_ArticleDraftReview0_HTTP_Handler(srv))
 }
 
 func _Message_AvatarReview0_HTTP_Handler(srv MessageHTTPServer) func(ctx http.Context) error {
@@ -50,13 +52,32 @@ func _Message_AvatarReview0_HTTP_Handler(srv MessageHTTPServer) func(ctx http.Co
 
 func _Message_ProfileReview0_HTTP_Handler(srv MessageHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in ProfileReviewReq
+		var in TextReviewReq
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, "/message.v1.Message/ProfileReview")
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ProfileReview(ctx, req.(*ProfileReviewReq))
+			return srv.ProfileReview(ctx, req.(*TextReviewReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Message_ArticleDraftReview0_HTTP_Handler(srv MessageHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in TextReviewReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/message.v1.Message/ArticleDraftReview")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ArticleDraftReview(ctx, req.(*TextReviewReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -68,8 +89,9 @@ func _Message_ProfileReview0_HTTP_Handler(srv MessageHTTPServer) func(ctx http.C
 }
 
 type MessageHTTPClient interface {
+	ArticleDraftReview(ctx context.Context, req *TextReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	AvatarReview(ctx context.Context, req *AvatarReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
-	ProfileReview(ctx context.Context, req *ProfileReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	ProfileReview(ctx context.Context, req *TextReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
 
 type MessageHTTPClientImpl struct {
@@ -78,6 +100,19 @@ type MessageHTTPClientImpl struct {
 
 func NewMessageHTTPClient(client *http.Client) MessageHTTPClient {
 	return &MessageHTTPClientImpl{client}
+}
+
+func (c *MessageHTTPClientImpl) ArticleDraftReview(ctx context.Context, in *TextReviewReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/tx/message/article/draft/review"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/message.v1.Message/ArticleDraftReview"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
 }
 
 func (c *MessageHTTPClientImpl) AvatarReview(ctx context.Context, in *AvatarReviewReq, opts ...http.CallOption) (*emptypb.Empty, error) {
@@ -93,7 +128,7 @@ func (c *MessageHTTPClientImpl) AvatarReview(ctx context.Context, in *AvatarRevi
 	return &out, err
 }
 
-func (c *MessageHTTPClientImpl) ProfileReview(ctx context.Context, in *ProfileReviewReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+func (c *MessageHTTPClientImpl) ProfileReview(ctx context.Context, in *TextReviewReq, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
 	pattern := "/tx/message/profile/review"
 	path := binding.EncodeURL(pattern, in, false)

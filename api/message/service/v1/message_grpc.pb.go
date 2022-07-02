@@ -24,7 +24,8 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MessageClient interface {
 	AvatarReview(ctx context.Context, in *AvatarReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	ProfileReview(ctx context.Context, in *ProfileReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	ProfileReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	ArticleDraftReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type messageClient struct {
@@ -44,9 +45,18 @@ func (c *messageClient) AvatarReview(ctx context.Context, in *AvatarReviewReq, o
 	return out, nil
 }
 
-func (c *messageClient) ProfileReview(ctx context.Context, in *ProfileReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *messageClient) ProfileReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/message.v1.Message/ProfileReview", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *messageClient) ArticleDraftReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/message.v1.Message/ArticleDraftReview", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +68,8 @@ func (c *messageClient) ProfileReview(ctx context.Context, in *ProfileReviewReq,
 // for forward compatibility
 type MessageServer interface {
 	AvatarReview(context.Context, *AvatarReviewReq) (*emptypb.Empty, error)
-	ProfileReview(context.Context, *ProfileReviewReq) (*emptypb.Empty, error)
+	ProfileReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
+	ArticleDraftReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedMessageServer()
 }
 
@@ -69,8 +80,11 @@ type UnimplementedMessageServer struct {
 func (UnimplementedMessageServer) AvatarReview(context.Context, *AvatarReviewReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AvatarReview not implemented")
 }
-func (UnimplementedMessageServer) ProfileReview(context.Context, *ProfileReviewReq) (*emptypb.Empty, error) {
+func (UnimplementedMessageServer) ProfileReview(context.Context, *TextReviewReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ProfileReview not implemented")
+}
+func (UnimplementedMessageServer) ArticleDraftReview(context.Context, *TextReviewReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ArticleDraftReview not implemented")
 }
 func (UnimplementedMessageServer) mustEmbedUnimplementedMessageServer() {}
 
@@ -104,7 +118,7 @@ func _Message_AvatarReview_Handler(srv interface{}, ctx context.Context, dec fun
 }
 
 func _Message_ProfileReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ProfileReviewReq)
+	in := new(TextReviewReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -116,7 +130,25 @@ func _Message_ProfileReview_Handler(srv interface{}, ctx context.Context, dec fu
 		FullMethod: "/message.v1.Message/ProfileReview",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MessageServer).ProfileReview(ctx, req.(*ProfileReviewReq))
+		return srv.(MessageServer).ProfileReview(ctx, req.(*TextReviewReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Message_ArticleDraftReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TextReviewReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MessageServer).ArticleDraftReview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/message.v1.Message/ArticleDraftReview",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MessageServer).ArticleDraftReview(ctx, req.(*TextReviewReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -135,6 +167,10 @@ var Message_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ProfileReview",
 			Handler:    _Message_ProfileReview_Handler,
+		},
+		{
+			MethodName: "ArticleDraftReview",
+			Handler:    _Message_ArticleDraftReview_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
