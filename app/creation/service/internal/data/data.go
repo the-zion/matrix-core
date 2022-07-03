@@ -6,6 +6,7 @@ import (
 	"github.com/apache/rocketmq-client-go/v2/primitive"
 	"github.com/apache/rocketmq-client-go/v2/producer"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-redis/redis/v8"
 	"github.com/google/wire"
 	"github.com/tencentyun/cos-go-sdk-v5"
 	_ "github.com/tencentyun/cos-go-sdk-v5"
@@ -15,9 +16,10 @@ import (
 	"gorm.io/gorm"
 	"net/http"
 	"net/url"
+	"time"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewDB, NewTransaction, NewRocketmqArticleDraftProducer, NewCosServiceClient, NewArticleRepo)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewTransaction, NewRocketmqArticleDraftProducer, NewCosServiceClient, NewArticleRepo)
 
 type ArticleDraftMqPro struct {
 	producer rocketmq.Producer
@@ -26,6 +28,7 @@ type ArticleDraftMqPro struct {
 type Data struct {
 	db                *gorm.DB
 	log               *log.Helper
+	redisCli          redis.Cmdable
 	articleDraftMqPro *ArticleDraftMqPro
 	cosCli            *cos.Client
 }
@@ -61,6 +64,26 @@ func NewDB(conf *conf.Data, logger log.Logger) *gorm.DB {
 		l.Fatalf("failed opening connection to db: %v", err)
 	}
 	return db
+}
+
+func NewRedis(conf *conf.Data, logger log.Logger) redis.Cmdable {
+	l := log.NewHelper(log.With(logger, "module", "creation/data/redis"))
+	client := redis.NewClient(&redis.Options{
+		Addr:         conf.Redis.Addr,
+		DB:           1,
+		ReadTimeout:  conf.Redis.ReadTimeout.AsDuration(),
+		WriteTimeout: conf.Redis.WriteTimeout.AsDuration(),
+		DialTimeout:  time.Second * 2,
+		PoolSize:     10,
+		Password:     conf.Redis.Password,
+	})
+	timeout, cancelFunc := context.WithTimeout(context.Background(), time.Second*2)
+	defer cancelFunc()
+	err := client.Ping(timeout).Err()
+	if err != nil {
+		l.Fatalf("redis connect error: %v", err)
+	}
+	return client
 }
 
 func NewCosServiceClient(conf *conf.Data, logger log.Logger) *cos.Client {
@@ -103,12 +126,13 @@ func NewRocketmqArticleDraftProducer(conf *conf.Data, logger log.Logger) *Articl
 	}
 }
 
-func NewData(db *gorm.DB, cos *cos.Client, adp *ArticleDraftMqPro, logger log.Logger) (*Data, func(), error) {
+func NewData(db *gorm.DB, redisCmd redis.Cmdable, cos *cos.Client, adp *ArticleDraftMqPro, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(logger, "module", "creation/data/new-data"))
 
 	d := &Data{
 		db:                db,
 		cosCli:            cos,
+		redisCli:          redisCmd,
 		articleDraftMqPro: adp,
 	}
 	return d, func() {
