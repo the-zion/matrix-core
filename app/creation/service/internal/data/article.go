@@ -91,14 +91,23 @@ func (r *articleRepo) CreateArticleFolder(ctx context.Context, id int32) error {
 	return nil
 }
 
-func (r *articleRepo) CreateArticleStatistic(ctx context.Context, id int32) error {
+func (r *articleRepo) CreateArticleStatistic(ctx context.Context, uuid string, id int32) error {
 	as := &ArticleStatistic{
 		ArticleId: id,
+		Uuid:      uuid,
 	}
-	err := r.data.DB(ctx).Select("ArticleId").Create(as).Error
+	err := r.data.DB(ctx).Select("ArticleId", "Uuid").Create(as).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to create a article statistic: id(%v)", id))
 	}
+	return nil
+}
+
+func (r *articleRepo) CreateArticleCache(ctx context.Context, uuid string, id int32) error {
+	return nil
+}
+
+func (r *articleRepo) CreateArticleSearch(ctx context.Context, uuid string, id int32) error {
 	return nil
 }
 
@@ -147,6 +156,28 @@ func (r *articleRepo) SendDraftToMq(ctx context.Context, draft *biz.ArticleDraft
 	_, err = r.data.articleDraftMqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send draft to mq: %v", err))
+	}
+	return nil
+}
+
+func (r *articleRepo) SendArticleToMq(ctx context.Context, article *biz.Article, mode string) error {
+	articleMap := map[string]interface{}{}
+	articleMap["uuid"] = article.Uuid
+	articleMap["id"] = article.ArticleId
+	articleMap["mode"] = mode
+
+	data, err := json.Marshal(articleMap)
+	if err != nil {
+		return err
+	}
+	msg := &primitive.Message{
+		Topic: "article",
+		Body:  data,
+	}
+	msg.WithKeys([]string{article.Uuid})
+	_, err = r.data.articleDraftMqPro.producer.SendSync(ctx, msg)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to send article to mq: %v", err))
 	}
 	return nil
 }
