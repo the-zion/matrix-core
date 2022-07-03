@@ -12,8 +12,8 @@ func (s *MessageService) SendCode(msgs ...*primitive.MessageExt) {
 	s.uc.SendCode(msgs...)
 }
 
-func (s *MessageService) UploadProfileToCos(msgs ...*primitive.MessageExt) {
-	s.uc.UploadProfileToCos(msgs...)
+func (s *MessageService) UploadProfileToCos(msg *primitive.MessageExt) error {
+	return s.uc.UploadProfileToCos(msg)
 }
 
 func (s *MessageService) ProfileReview(ctx context.Context, req *v1.TextReviewReq) (*emptypb.Empty, error) {
