@@ -7,8 +7,8 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-func (s *MessageService) ToReviewArticleDraft(msgs ...*primitive.MessageExt) {
-	s.cc.ToReviewArticleDraft(msgs...)
+func (s *MessageService) ToReviewArticleDraft(msg *primitive.MessageExt) error {
+	return s.cc.ToReviewArticleDraft(msg)
 }
 
 func (s *MessageService) ArticleDraftReview(ctx context.Context, req *v1.TextReviewReq) (*emptypb.Empty, error) {
@@ -18,4 +18,8 @@ func (s *MessageService) ArticleDraftReview(ctx context.Context, req *v1.TextRev
 		return nil, err
 	}
 	return &emptypb.Empty{}, nil
+}
+
+func (s *MessageService) CreateArticleCacheAndSearch(ctx context.Context, uuid string, id int32) error {
+	return s.cc.CreateArticleCacheAndSearch(ctx, uuid, id)
 }
