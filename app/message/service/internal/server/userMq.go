@@ -68,7 +68,7 @@ type ProfileMqConsumerServer struct {
 }
 
 func NewProfileMqConsumerServer(conf *conf.Server, messageService *service.MessageService, logger log.Logger) *ProfileMqConsumerServer {
-	l := log.NewHelper(log.With(logger, "server", "message/server/rocketmq-code-consumer"))
+	l := log.NewHelper(log.With(logger, "server", "message/server/rocketmq-profile-consumer"))
 	rlog.SetLogLevel("warn")
 	c, err := rocketmq.NewPushConsumer(
 		consumer.WithGroupName(conf.UserMq.Profile.GroupName),
@@ -79,6 +79,7 @@ func NewProfileMqConsumerServer(conf *conf.Server, messageService *service.Messa
 		}),
 		consumer.WithInstance("user"),
 		consumer.WithNamespace(conf.UserMq.NameSpace),
+		consumer.WithConsumeMessageBatchMaxSize(1),
 		consumer.WithConsumeFromWhere(consumer.ConsumeFromFirstOffset),
 		consumer.WithConsumerModel(consumer.Clustering),
 	)
@@ -86,10 +87,19 @@ func NewProfileMqConsumerServer(conf *conf.Server, messageService *service.Messa
 		l.Fatalf("init consumer error: %v", err)
 	}
 
+	delayLevel := 3
 	err = c.Subscribe("profile", consumer.MessageSelector{},
 		func(ctx context.Context,
 			msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
-			messageService.UploadProfileToCos(msgs...)
+
+			concurrentCtx, _ := primitive.GetConcurrentlyCtx(ctx)
+			concurrentCtx.DelayLevelWhenNextConsume = delayLevel
+
+			err := messageService.UploadProfileToCos(msgs[0])
+			if err != nil {
+				l.Error(err.Error())
+				return consumer.ConsumeRetryLater, nil
+			}
 			return consumer.ConsumeSuccess, nil
 		})
 	if err != nil {
