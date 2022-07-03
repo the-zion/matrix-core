@@ -41,7 +41,8 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, re
 	codeMqConsumerServer := server.NewCodeMqConsumerServer(confServer, messageService, logger)
 	profileMqConsumerServer := server.NewProfileMqConsumerServer(confServer, messageService, logger)
 	articleDraftMqConsumerServer := server.NewArticleDraftMqConsumerServer(confServer, messageService, logger)
-	app := newApp(logger, registry, httpServer, grpcServer, codeMqConsumerServer, profileMqConsumerServer, articleDraftMqConsumerServer)
+	articleMqConsumerServer := server.NewArticleMqConsumerServer(confServer, messageService, logger)
+	app := newApp(logger, registry, httpServer, grpcServer, codeMqConsumerServer, profileMqConsumerServer, articleDraftMqConsumerServer, articleMqConsumerServer)
 	return app, func() {
 	}, nil
 }
