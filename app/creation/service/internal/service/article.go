@@ -25,6 +25,14 @@ func (s *CreationService) CreateArticle(ctx context.Context, req *v1.CreateArtic
 	return &emptypb.Empty{}, nil
 }
 
+func (s *CreationService) CreateArticleCache(ctx context.Context, req *v1.CreateArticleCacheAndSearchReq) (*emptypb.Empty, error) {
+	err := s.ac.CreateArticleCacheAndSearch(ctx, req.Uuid, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *CreationService) CreateArticleDraft(ctx context.Context, req *v1.CreateArticleDraftReq) (*v1.CreateArticleDraftReply, error) {
 	id, err := s.ac.CreateArticleDraft(ctx, req.Uuid)
 	if err != nil {
