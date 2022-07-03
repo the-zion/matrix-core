@@ -10,8 +10,9 @@ import (
 )
 
 type CreationRepo interface {
-	ToReviewArticle(mode string, msgs ...*primitive.MessageExt)
+	ToReviewArticle(mode string, msg *primitive.MessageExt) error
 	ArticleDraftReviewPass(ctx context.Context, uuid string, id int32) error
+	CreateArticleCacheAndSearch(ctx context.Context, uuid string, id int32) error
 }
 
 type CreationUseCase struct {
@@ -26,19 +27,19 @@ func NewCreationUseCase(repo CreationRepo, logger log.Logger) *CreationUseCase {
 	}
 }
 
-func (r *CreationUseCase) ToReviewArticleDraft(msgs ...*primitive.MessageExt) {
-	r.repo.ToReviewArticle("article_draft", msgs...)
+func (r *CreationUseCase) ToReviewArticleDraft(msg *primitive.MessageExt) error {
+	return r.repo.ToReviewArticle("article_draft", msg)
 }
 
 func (r *CreationUseCase) ArticleDraftReview(ctx context.Context, tr *TextReview) error {
 	var err error
-	uuid := tr.CosHeaders["x-cos-meta-uuid"]
+	uuid := tr.CosHeaders["X-Cos-Meta-Uuid"]
 	if uuid == "" {
 		r.log.Info("uuid not exist，%v", tr)
 		return nil
 	}
 
-	id := tr.CosHeaders["x-cos-meta-id"]
+	id := tr.CosHeaders["X-Cos-Meta-Id"]
 	if id == "" {
 		r.log.Info("id not exist，%v", tr)
 		return nil
@@ -64,4 +65,8 @@ func (r *CreationUseCase) ArticleDraftReview(ctx context.Context, tr *TextReview
 		return err
 	}
 	return nil
+}
+
+func (r *CreationUseCase) CreateArticleCacheAndSearch(ctx context.Context, uuid string, id int32) error {
+	return r.repo.CreateArticleCacheAndSearch(ctx, uuid, id)
 }
