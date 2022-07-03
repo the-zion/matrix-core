@@ -17,10 +17,11 @@ type ArticleStatistic struct {
 	ArticleId int32 `gorm:"primarykey"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	Agree     int32 `gorm:"default:0"`
-	View      int32 `gorm:"default:0"`
-	Collect   int32 `gorm:"default:0"`
-	Comment   int32 `gorm:"default:0"`
+	Uuid      string `gorm:"index;size:36"`
+	Agree     int32  `gorm:"default:0"`
+	View      int32  `gorm:"default:0"`
+	Collect   int32  `gorm:"default:0"`
+	Comment   int32  `gorm:"default:0"`
 }
 
 type ArticleDraft struct {
