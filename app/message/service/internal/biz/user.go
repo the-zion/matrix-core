@@ -9,7 +9,7 @@ import (
 
 type UserRepo interface {
 	SendCode(msgs ...*primitive.MessageExt)
-	UploadProfileToCos(msgs ...*primitive.MessageExt)
+	UploadProfileToCos(msg *primitive.MessageExt) error
 	ProfileReviewPass(ctx context.Context, uuid, update string) error
 	ProfileReviewNotPass(ctx context.Context, uuid string) error
 }
@@ -30,8 +30,8 @@ func (r *UserUseCase) SendCode(msgs ...*primitive.MessageExt) {
 	r.repo.SendCode(msgs...)
 }
 
-func (r *UserUseCase) UploadProfileToCos(msgs ...*primitive.MessageExt) {
-	r.repo.UploadProfileToCos(msgs...)
+func (r *UserUseCase) UploadProfileToCos(msg *primitive.MessageExt) error {
+	return r.repo.UploadProfileToCos(msg)
 }
 
 func (r *UserUseCase) AvatarReview(ctx context.Context, ar *AvatarReview) error {
