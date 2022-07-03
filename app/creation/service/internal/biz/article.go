@@ -85,7 +85,7 @@ func (r *ArticleUseCase) CreateArticleCacheAndSearch(ctx context.Context, uuid s
 
 	err = r.repo.CreateArticleSearch(ctx, uuid, id)
 	if err != nil {
-		return v1.ErrorCreateArticleCacheFailed("create article cache failed: %s", err.Error())
+		return v1.ErrorCreateArticleSearchFailed("create article search failed: %s", err.Error())
 	}
 	return nil
 }
