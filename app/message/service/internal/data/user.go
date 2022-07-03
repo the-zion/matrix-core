@@ -3,8 +3,10 @@ package data
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/apache/rocketmq-client-go/v2/primitive"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/pkg/errors"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
 	"github.com/tencentyun/cos-go-sdk-v5"
 	userV1 "github.com/the-zion/matrix-core/api/user/service/v1"
@@ -28,33 +30,32 @@ func NewUserRepo(data *Data, logger log.Logger) biz.UserRepo {
 	}
 }
 
-func (r *userRepo) UploadProfileToCos(msgs ...*primitive.MessageExt) {
-	for _, i := range msgs {
-		m := map[string]string{"Uuid": ""}
-		err := json.Unmarshal(i.Body, &m)
-		if err != nil {
-			log.Errorf("fail to unmarshal profile: err(%v)", err)
-		}
-		key := "profile/" + m["Uuid"]
-
-		opt := &cos.ObjectPutOptions{
-			ObjectPutHeaderOptions: &cos.ObjectPutHeaderOptions{
-				ContentType: "text/html",
-				XCosMetaXXX: &http.Header{},
-			},
-		}
-
-		opt.XCosMetaXXX.Add("x-cos-meta-uuid", m["Uuid"])
-		opt.XCosMetaXXX.Add("x-cos-meta-update", m["Updated"])
-
-		f := strings.NewReader(string(i.Body))
-		_, err = r.data.cosUserCli.cos.Object.Put(
-			context.Background(), key, f, opt,
-		)
-		if err != nil {
-			log.Errorf("fail to upload profile to cos: err(%v)", err)
-		}
+func (r *userRepo) UploadProfileToCos(msg *primitive.MessageExt) error {
+	m := map[string]interface{}{"Uuid": ""}
+	err := json.Unmarshal(msg.Body, &m)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to unmarshal profile: profile(%v)", msg.Body))
 	}
+	key := "profile/" + m["Uuid"].(string)
+
+	opt := &cos.ObjectPutOptions{
+		ObjectPutHeaderOptions: &cos.ObjectPutHeaderOptions{
+			ContentType: "text/html",
+			XCosMetaXXX: &http.Header{},
+		},
+	}
+
+	opt.XCosMetaXXX.Add("x-cos-meta-uuid", m["Uuid"].(string))
+	opt.XCosMetaXXX.Add("x-cos-meta-update", m["Updated"].(string))
+
+	f := strings.NewReader(string(msg.Body))
+	_, err = r.data.cosUserCli.cos.Object.Put(
+		context.Background(), key, f, opt,
+	)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to upload profile to cos: profile(%v)", msg.Body))
+	}
+	return nil
 }
 
 func (r *userRepo) ProfileReviewPass(ctx context.Context, uuid, update string) error {
