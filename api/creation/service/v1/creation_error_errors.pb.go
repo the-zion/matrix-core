@@ -107,6 +107,18 @@ func ErrorCreateArticleCacheFailed(format string, args ...interface{}) *errors.E
 	return errors.New(500, CreationErrorReason_CREATE_ARTICLE_CACHE_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsCreateArticleSearchFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_CREATE_ARTICLE_SEARCH_FAILED.String() && e.Code == 500
+}
+
+func ErrorCreateArticleSearchFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_CREATE_ARTICLE_SEARCH_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsDeleteArticleDraftFailed(err error) bool {
 	if err == nil {
 		return false
@@ -153,4 +165,16 @@ func IsSendArticleFailed(err error) bool {
 
 func ErrorSendArticleFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, CreationErrorReason_SEND_ARTICLE_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsSendToMqFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_SEND_TO_MQ_FAILED.String() && e.Code == 500
+}
+
+func ErrorSendToMqFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_SEND_TO_MQ_FAILED.String(), fmt.Sprintf(format, args...))
 }
