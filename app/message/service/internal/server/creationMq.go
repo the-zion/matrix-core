@@ -104,7 +104,6 @@ func NewArticleMqConsumerServer(conf *conf.Server, messageService *service.Messa
 		concurrentCtx.DelayLevelWhenNextConsume = delayLevel
 
 		var err error
-		fmt.Println(msgs[0])
 		m := map[string]interface{}{}
 		err = json.Unmarshal(msgs[0].Body, &m)
 		if err != nil {
@@ -112,12 +111,13 @@ func NewArticleMqConsumerServer(conf *conf.Server, messageService *service.Messa
 			return consumer.ConsumeRetryLater, nil
 		}
 
-		switch m["mode"].(string) {
+		mode := m["mode"].(string)
+		fmt.Println(mode)
+		switch mode {
 		case "create_article_cache_and_search":
-			err = messageService.CreateArticleCacheAndSearch(ctx, m["Uuid"].(string), int32(m["Id"].(float64)))
+			err = messageService.CreateArticleCacheAndSearch(ctx, m["uuid"].(string), int32(m["id"].(float64)))
 		}
 
-		//err = messageService.ToReviewArticleDraft(msgs[0])
 		if err != nil {
 			l.Error(err.Error())
 			return consumer.ConsumeRetryLater, nil
