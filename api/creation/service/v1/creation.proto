@@ -10,6 +10,12 @@ option go_package = "api/creation/service/v1;v1";
 
 service Creation {
 
+  rpc GetArticleList(GetArticleListReq) returns (GetArticleListReply){
+    option (google.api.http) = {
+      get: "/v1/get/article/list"
+    };
+  }
+
   rpc GetLastArticleDraft(GetLastArticleDraftReq) returns (GetLastArticleDraftReply){}
 
   rpc CreateArticle(CreateArticleReq) returns (google.protobuf.Empty){}
@@ -23,6 +29,18 @@ service Creation {
   rpc GetArticleDraftList(GetArticleDraftListReq) returns (GetArticleDraftListReply){}
 
   rpc SendArticle(SendArticleReq) returns (google.protobuf.Empty){}
+}
+
+message GetArticleListReq{
+  int32 page = 1;
+}
+
+message GetArticleListReply{
+  message Article{
+    int32 id = 1;
+    string uuid = 2;
+  }
+  repeated Article article = 1;
 }
 
 message GetLastArticleDraftReq{
