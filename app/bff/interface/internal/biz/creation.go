@@ -8,8 +8,9 @@ import (
 type ArticleRepo interface {
 	CreateArticleDraft(ctx context.Context, uuid string) (int32, error)
 	GetLastArticleDraft(ctx context.Context, uuid string) (*ArticleDraft, error)
-	ArticleDraftMark(ctx context.Context, uuid string, id int32) error
+	GetArticleList(ctx context.Context, page int32) ([]*Article, error)
 	GetArticleDraftList(ctx context.Context, uuid string) ([]*ArticleDraft, error)
+	ArticleDraftMark(ctx context.Context, uuid string, id int32) error
 	SendArticle(ctx context.Context, uuid string, id int32) error
 }
 
@@ -23,6 +24,10 @@ func NewArticleUseCase(repo ArticleRepo, logger log.Logger) *ArticleUseCase {
 		repo: repo,
 		log:  log.NewHelper(log.With(logger, "module", "bff/biz/ArticleUseCase")),
 	}
+}
+
+func (r *ArticleUseCase) GetArticleList(ctx context.Context, page int32) ([]*Article, error) {
+	return r.repo.GetArticleList(ctx, page)
 }
 
 func (r *ArticleUseCase) GetLastArticleDraft(ctx context.Context) (*ArticleDraft, error) {
