@@ -6,6 +6,21 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
+func (s *CreationService) GetArticleList(ctx context.Context, req *v1.GetArticleListReq) (*v1.GetArticleListReply, error) {
+	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0)}
+	articleList, err := s.ac.GetArticleList(ctx, req.Page)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range articleList {
+		reply.Article = append(reply.Article, &v1.GetArticleListReply_Article{
+			Id:   item.ArticleId,
+			Uuid: item.Uuid,
+		})
+	}
+	return reply, nil
+}
+
 func (s *CreationService) GetLastArticleDraft(ctx context.Context, req *v1.GetLastArticleDraftReq) (*v1.GetLastArticleDraftReply, error) {
 	draft, err := s.ac.GetLastArticleDraft(ctx, req.Uuid)
 	if err != nil {
@@ -25,7 +40,7 @@ func (s *CreationService) CreateArticle(ctx context.Context, req *v1.CreateArtic
 	return &emptypb.Empty{}, nil
 }
 
-func (s *CreationService) CreateArticleCache(ctx context.Context, req *v1.CreateArticleCacheAndSearchReq) (*emptypb.Empty, error) {
+func (s *CreationService) CreateArticleCacheAndSearch(ctx context.Context, req *v1.CreateArticleCacheAndSearchReq) (*emptypb.Empty, error) {
 	err := s.ac.CreateArticleCacheAndSearch(ctx, req.Uuid, req.Id)
 	if err != nil {
 		return nil, err
