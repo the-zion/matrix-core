@@ -10,6 +10,7 @@ import (
 type ArticleRepo interface {
 	GetLastArticleDraft(ctx context.Context, uuid string) (*ArticleDraft, error)
 	GetArticleDraftList(ctx context.Context, uuid string) ([]*ArticleDraft, error)
+	GetArticleList(ctx context.Context, page int32) ([]*Article, error)
 	CreateArticle(ctx context.Context, uuid string, id int32) error
 	CreateArticleStatistic(ctx context.Context, uuid string, id int32) error
 	CreateArticleDraft(ctx context.Context, uuid string) (int32, error)
@@ -50,20 +51,20 @@ func (r *ArticleUseCase) GetLastArticleDraft(ctx context.Context, uuid string) (
 func (r *ArticleUseCase) CreateArticle(ctx context.Context, uuid string, id int32) error {
 	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		var err error
-		//err = r.repo.DeleteArticleDraft(ctx, uuid, id)
-		//if err != nil {
-		//	return v1.ErrorDeleteArticleDraftFailed("delete article draft failed: %s", err.Error())
-		//}
-		//
-		//err = r.repo.CreateArticle(ctx, uuid, id)
-		//if err != nil {
-		//	return v1.ErrorCreateArticleFailed("create article failed: %s", err.Error())
-		//}
-		//
-		//err = r.repo.CreateArticleStatistic(ctx, id)
-		//if err != nil {
-		//	return v1.ErrorCreateArticleStatisticFailed("create article statistic failed: %s", err.Error())
-		//}
+		err = r.repo.DeleteArticleDraft(ctx, uuid, id)
+		if err != nil {
+			return v1.ErrorDeleteArticleDraftFailed("delete article draft failed: %s", err.Error())
+		}
+
+		err = r.repo.CreateArticle(ctx, uuid, id)
+		if err != nil {
+			return v1.ErrorCreateArticleFailed("create article failed: %s", err.Error())
+		}
+
+		err = r.repo.CreateArticleStatistic(ctx, uuid, id)
+		if err != nil {
+			return v1.ErrorCreateArticleStatisticFailed("create article statistic failed: %s", err.Error())
+		}
 
 		err = r.repo.SendArticleToMq(ctx, &Article{
 			ArticleId: id,
@@ -118,6 +119,14 @@ func (r *ArticleUseCase) ArticleDraftMark(ctx context.Context, uuid string, id i
 		return v1.ErrorDraftMarkFailed("mark draft failed: %s", err.Error())
 	}
 	return nil
+}
+
+func (r *ArticleUseCase) GetArticleList(ctx context.Context, page int32) ([]*Article, error) {
+	articleList, err := r.repo.GetArticleList(ctx, page)
+	if err != nil {
+		return nil, v1.ErrorGetArticleListFailed("get article list failed: %s", err.Error())
+	}
+	return articleList, nil
 }
 
 func (r *ArticleUseCase) GetArticleDraftList(ctx context.Context, uuid string) ([]*ArticleDraft, error) {
