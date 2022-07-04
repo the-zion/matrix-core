@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CreationClient interface {
+	GetArticleList(ctx context.Context, in *GetArticleListReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
 	GetLastArticleDraft(ctx context.Context, in *GetLastArticleDraftReq, opts ...grpc.CallOption) (*GetLastArticleDraftReply, error)
 	CreateArticle(ctx context.Context, in *CreateArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateArticleCacheAndSearch(ctx context.Context, in *CreateArticleCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -38,6 +39,15 @@ type creationClient struct {
 
 func NewCreationClient(cc grpc.ClientConnInterface) CreationClient {
 	return &creationClient{cc}
+}
+
+func (c *creationClient) GetArticleList(ctx context.Context, in *GetArticleListReq, opts ...grpc.CallOption) (*GetArticleListReply, error) {
+	out := new(GetArticleListReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetArticleList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *creationClient) GetLastArticleDraft(ctx context.Context, in *GetLastArticleDraftReq, opts ...grpc.CallOption) (*GetLastArticleDraftReply, error) {
@@ -107,6 +117,7 @@ func (c *creationClient) SendArticle(ctx context.Context, in *SendArticleReq, op
 // All implementations must embed UnimplementedCreationServer
 // for forward compatibility
 type CreationServer interface {
+	GetArticleList(context.Context, *GetArticleListReq) (*GetArticleListReply, error)
 	GetLastArticleDraft(context.Context, *GetLastArticleDraftReq) (*GetLastArticleDraftReply, error)
 	CreateArticle(context.Context, *CreateArticleReq) (*emptypb.Empty, error)
 	CreateArticleCacheAndSearch(context.Context, *CreateArticleCacheAndSearchReq) (*emptypb.Empty, error)
@@ -121,6 +132,9 @@ type CreationServer interface {
 type UnimplementedCreationServer struct {
 }
 
+func (UnimplementedCreationServer) GetArticleList(context.Context, *GetArticleListReq) (*GetArticleListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetArticleList not implemented")
+}
 func (UnimplementedCreationServer) GetLastArticleDraft(context.Context, *GetLastArticleDraftReq) (*GetLastArticleDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLastArticleDraft not implemented")
 }
@@ -153,6 +167,24 @@ type UnsafeCreationServer interface {
 
 func RegisterCreationServer(s grpc.ServiceRegistrar, srv CreationServer) {
 	s.RegisterService(&Creation_ServiceDesc, srv)
+}
+
+func _Creation_GetArticleList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetArticleListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetArticleList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetArticleList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetArticleList(ctx, req.(*GetArticleListReq))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Creation_GetLastArticleDraft_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -288,6 +320,10 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "creation.v1.Creation",
 	HandlerType: (*CreationServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetArticleList",
+			Handler:    _Creation_GetArticleList_Handler,
+		},
 		{
 			MethodName: "GetLastArticleDraft",
 			Handler:    _Creation_GetLastArticleDraft_Handler,

@@ -18,35 +18,35 @@ var _ = binding.EncodeURL
 const _ = http.SupportPackageIsVersion1
 
 type CreationHTTPServer interface {
-	GetArticleDraftList(context.Context, *GetArticleDraftListReq) (*GetArticleDraftListReply, error)
+	GetArticleList(context.Context, *GetArticleListReq) (*GetArticleListReply, error)
 }
 
 func RegisterCreationHTTPServer(s *http.Server, srv CreationHTTPServer) {
 	r := s.Route("/")
-	r.GET("/v1/get/article/draft/list", _Creation_GetArticleDraftList0_HTTP_Handler(srv))
+	r.GET("/v1/get/article/list", _Creation_GetArticleList0_HTTP_Handler(srv))
 }
 
-func _Creation_GetArticleDraftList0_HTTP_Handler(srv CreationHTTPServer) func(ctx http.Context) error {
+func _Creation_GetArticleList0_HTTP_Handler(srv CreationHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in GetArticleDraftListReq
+		var in GetArticleListReq
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, "/creation.v1.Creation/GetArticleDraftList")
+		http.SetOperation(ctx, "/creation.v1.Creation/GetArticleList")
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetArticleDraftList(ctx, req.(*GetArticleDraftListReq))
+			return srv.GetArticleList(ctx, req.(*GetArticleListReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*GetArticleDraftListReply)
+		reply := out.(*GetArticleListReply)
 		return ctx.Result(200, reply)
 	}
 }
 
 type CreationHTTPClient interface {
-	GetArticleDraftList(ctx context.Context, req *GetArticleDraftListReq, opts ...http.CallOption) (rsp *GetArticleDraftListReply, err error)
+	GetArticleList(ctx context.Context, req *GetArticleListReq, opts ...http.CallOption) (rsp *GetArticleListReply, err error)
 }
 
 type CreationHTTPClientImpl struct {
@@ -57,11 +57,11 @@ func NewCreationHTTPClient(client *http.Client) CreationHTTPClient {
 	return &CreationHTTPClientImpl{client}
 }
 
-func (c *CreationHTTPClientImpl) GetArticleDraftList(ctx context.Context, in *GetArticleDraftListReq, opts ...http.CallOption) (*GetArticleDraftListReply, error) {
-	var out GetArticleDraftListReply
-	pattern := "/v1/get/article/draft/list"
+func (c *CreationHTTPClientImpl) GetArticleList(ctx context.Context, in *GetArticleListReq, opts ...http.CallOption) (*GetArticleListReply, error) {
+	var out GetArticleListReply
+	pattern := "/v1/get/article/list"
 	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation("/creation.v1.Creation/GetArticleDraftList"))
+	opts = append(opts, http.Operation("/creation.v1.Creation/GetArticleList"))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
