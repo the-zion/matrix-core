@@ -147,6 +147,11 @@ service Bff{
 
   // --------------------creation service------------------------
 
+  rpc GetArticleList(GetArticleListReq) returns (GetArticleListReply){
+    option (google.api.http) = {
+      get: "/v1/get/article/list"
+    };
+  }
 
   rpc GetLastArticleDraft(google.protobuf.Empty) returns (GetLastArticleDraftReply){
     option (google.api.http) = {
@@ -325,6 +330,19 @@ message UnbindUserEmailReq{
 
 
 // --------------------creation service-------------------------
+
+message GetArticleListReq{
+  int32 page = 1;
+}
+
+message GetArticleListReply{
+  message Article{
+    int32 id = 1;
+    string uuid = 2;
+  }
+  repeated Article article = 1;
+}
+
 message GetLastArticleDraftReply{
   int32 id = 1;
   int32 status = 2;
