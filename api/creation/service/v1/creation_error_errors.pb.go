@@ -47,6 +47,30 @@ func ErrorGetArticleListFailed(format string, args ...interface{}) *errors.Error
 	return errors.New(500, CreationErrorReason_GET_ARTICLE_LIST_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsGetArticleListHotFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_GET_ARTICLE_LIST_HOT_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetArticleListHotFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_GET_ARTICLE_LIST_HOT_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsGetArticleListStatisticFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_GET_ARTICLE_LIST_STATISTIC_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetArticleListStatisticFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_GET_ARTICLE_LIST_STATISTIC_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsGetDraftListFailed(err error) bool {
 	if err == nil {
 		return false
