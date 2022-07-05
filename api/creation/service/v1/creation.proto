@@ -10,11 +10,11 @@ option go_package = "api/creation/service/v1;v1";
 
 service Creation {
 
-  rpc GetArticleList(GetArticleListReq) returns (GetArticleListReply){
-    option (google.api.http) = {
-      get: "/v1/get/article/list"
-    };
-  }
+  rpc GetArticleList(GetArticleListReq) returns (GetArticleListReply){}
+
+  rpc GetArticleListHot(GetArticleListHotReq) returns (GetArticleListHotReply){}
+
+  rpc GetArticleListStatistic(GetArticleListStatisticReq)returns (GetArticleListStatisticReply){}
 
   rpc GetLastArticleDraft(GetLastArticleDraftReq) returns (GetLastArticleDraftReply){}
 
@@ -41,6 +41,33 @@ message GetArticleListReply{
     string uuid = 2;
   }
   repeated Article article = 1;
+}
+
+message GetArticleListHotReq{
+  int32 page = 1;
+}
+
+message GetArticleListHotReply{
+  message Article{
+    int32 id = 1;
+    string uuid = 2;
+  }
+  repeated Article article = 1;
+}
+
+message GetArticleListStatisticReq{
+  repeated int32 ids = 1;
+}
+
+message GetArticleListStatisticReply{
+  message Count{
+    int32 id = 1;
+    int32 agree = 2;
+    int32 collect = 3;
+    int32 view = 4;
+    int32 comment = 5;
+  }
+  repeated Count count = 1;
 }
 
 message GetLastArticleDraftReq{
