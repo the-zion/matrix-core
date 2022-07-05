@@ -40,8 +40,7 @@ func (r *creationRepo) ToReviewArticle(mode string, msg *primitive.MessageExt) e
 		},
 	}
 
-	res, _, err := r.data.cosCreationCli.cos.CI.PutTextAuditingJob(context.Background(), opt)
-	fmt.Println(res)
+	_, _, err = r.data.cosCreationCli.cos.CI.PutTextAuditingJob(context.Background(), opt)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send article review request to cos: article(%v)", msg.Body))
 	}
