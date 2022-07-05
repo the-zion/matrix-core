@@ -11,6 +11,8 @@ type ArticleRepo interface {
 	GetLastArticleDraft(ctx context.Context, uuid string) (*ArticleDraft, error)
 	GetArticleDraftList(ctx context.Context, uuid string) ([]*ArticleDraft, error)
 	GetArticleList(ctx context.Context, page int32) ([]*Article, error)
+	GetArticleListHot(ctx context.Context, page int32) ([]*Article, error)
+	GetArticleListStatistic(ctx context.Context, ids []int32) ([]*ArticleStatistic, error)
 	CreateArticle(ctx context.Context, uuid string, id int32) error
 	CreateArticleStatistic(ctx context.Context, uuid string, id int32) error
 	CreateArticleDraft(ctx context.Context, uuid string) (int32, error)
@@ -127,6 +129,22 @@ func (r *ArticleUseCase) GetArticleList(ctx context.Context, page int32) ([]*Art
 		return nil, v1.ErrorGetArticleListFailed("get article list failed: %s", err.Error())
 	}
 	return articleList, nil
+}
+
+func (r *ArticleUseCase) GetArticleListHot(ctx context.Context, page int32) ([]*Article, error) {
+	articleList, err := r.repo.GetArticleListHot(ctx, page)
+	if err != nil {
+		return nil, v1.ErrorGetArticleListHotFailed("get article hot list failed: %s", err.Error())
+	}
+	return articleList, nil
+}
+
+func (r *ArticleUseCase) GetArticleListStatistic(ctx context.Context, ids []int32) ([]*ArticleStatistic, error) {
+	statisticList, err := r.repo.GetArticleListStatistic(ctx, ids)
+	if err != nil {
+		return nil, v1.ErrorGetArticleListStatisticFailed("get article list dtatistic failed: %s", err.Error())
+	}
+	return statisticList, nil
 }
 
 func (r *ArticleUseCase) GetArticleDraftList(ctx context.Context, uuid string) ([]*ArticleDraft, error) {
