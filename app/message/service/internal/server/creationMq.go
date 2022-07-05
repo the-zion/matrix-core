@@ -3,7 +3,6 @@ package server
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/apache/rocketmq-client-go/v2"
 	"github.com/apache/rocketmq-client-go/v2/consumer"
 	"github.com/apache/rocketmq-client-go/v2/primitive"
@@ -112,7 +111,6 @@ func NewArticleMqConsumerServer(conf *conf.Server, messageService *service.Messa
 		}
 
 		mode := m["mode"].(string)
-		fmt.Println(mode)
 		switch mode {
 		case "create_article_cache_and_search":
 			err = messageService.CreateArticleCacheAndSearch(ctx, m["uuid"].(string), int32(m["id"].(float64)))
