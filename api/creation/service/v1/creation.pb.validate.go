@@ -278,6 +278,485 @@ var _ interface {
 	ErrorName() string
 } = GetArticleListReplyValidationError{}
 
+// Validate checks the field values on GetArticleListHotReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetArticleListHotReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetArticleListHotReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetArticleListHotReqMultiError, or nil if none found.
+func (m *GetArticleListHotReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetArticleListHotReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Page
+
+	if len(errors) > 0 {
+		return GetArticleListHotReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetArticleListHotReqMultiError is an error wrapping multiple validation
+// errors returned by GetArticleListHotReq.ValidateAll() if the designated
+// constraints aren't met.
+type GetArticleListHotReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetArticleListHotReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetArticleListHotReqMultiError) AllErrors() []error { return m }
+
+// GetArticleListHotReqValidationError is the validation error returned by
+// GetArticleListHotReq.Validate if the designated constraints aren't met.
+type GetArticleListHotReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetArticleListHotReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetArticleListHotReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetArticleListHotReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetArticleListHotReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetArticleListHotReqValidationError) ErrorName() string {
+	return "GetArticleListHotReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetArticleListHotReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetArticleListHotReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetArticleListHotReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetArticleListHotReqValidationError{}
+
+// Validate checks the field values on GetArticleListHotReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetArticleListHotReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetArticleListHotReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetArticleListHotReplyMultiError, or nil if none found.
+func (m *GetArticleListHotReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetArticleListHotReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetArticle() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetArticleListHotReplyValidationError{
+						field:  fmt.Sprintf("Article[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetArticleListHotReplyValidationError{
+						field:  fmt.Sprintf("Article[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetArticleListHotReplyValidationError{
+					field:  fmt.Sprintf("Article[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return GetArticleListHotReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetArticleListHotReplyMultiError is an error wrapping multiple validation
+// errors returned by GetArticleListHotReply.ValidateAll() if the designated
+// constraints aren't met.
+type GetArticleListHotReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetArticleListHotReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetArticleListHotReplyMultiError) AllErrors() []error { return m }
+
+// GetArticleListHotReplyValidationError is the validation error returned by
+// GetArticleListHotReply.Validate if the designated constraints aren't met.
+type GetArticleListHotReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetArticleListHotReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetArticleListHotReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetArticleListHotReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetArticleListHotReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetArticleListHotReplyValidationError) ErrorName() string {
+	return "GetArticleListHotReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetArticleListHotReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetArticleListHotReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetArticleListHotReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetArticleListHotReplyValidationError{}
+
+// Validate checks the field values on GetArticleListStatisticReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetArticleListStatisticReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetArticleListStatisticReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetArticleListStatisticReqMultiError, or nil if none found.
+func (m *GetArticleListStatisticReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetArticleListStatisticReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return GetArticleListStatisticReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetArticleListStatisticReqMultiError is an error wrapping multiple
+// validation errors returned by GetArticleListStatisticReq.ValidateAll() if
+// the designated constraints aren't met.
+type GetArticleListStatisticReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetArticleListStatisticReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetArticleListStatisticReqMultiError) AllErrors() []error { return m }
+
+// GetArticleListStatisticReqValidationError is the validation error returned
+// by GetArticleListStatisticReq.Validate if the designated constraints aren't met.
+type GetArticleListStatisticReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetArticleListStatisticReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetArticleListStatisticReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetArticleListStatisticReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetArticleListStatisticReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetArticleListStatisticReqValidationError) ErrorName() string {
+	return "GetArticleListStatisticReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetArticleListStatisticReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetArticleListStatisticReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetArticleListStatisticReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetArticleListStatisticReqValidationError{}
+
+// Validate checks the field values on GetArticleListStatisticReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetArticleListStatisticReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetArticleListStatisticReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetArticleListStatisticReplyMultiError, or nil if none found.
+func (m *GetArticleListStatisticReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetArticleListStatisticReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetCount() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetArticleListStatisticReplyValidationError{
+						field:  fmt.Sprintf("Count[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetArticleListStatisticReplyValidationError{
+						field:  fmt.Sprintf("Count[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetArticleListStatisticReplyValidationError{
+					field:  fmt.Sprintf("Count[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return GetArticleListStatisticReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetArticleListStatisticReplyMultiError is an error wrapping multiple
+// validation errors returned by GetArticleListStatisticReply.ValidateAll() if
+// the designated constraints aren't met.
+type GetArticleListStatisticReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetArticleListStatisticReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetArticleListStatisticReplyMultiError) AllErrors() []error { return m }
+
+// GetArticleListStatisticReplyValidationError is the validation error returned
+// by GetArticleListStatisticReply.Validate if the designated constraints
+// aren't met.
+type GetArticleListStatisticReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetArticleListStatisticReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetArticleListStatisticReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetArticleListStatisticReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetArticleListStatisticReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetArticleListStatisticReplyValidationError) ErrorName() string {
+	return "GetArticleListStatisticReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetArticleListStatisticReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetArticleListStatisticReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetArticleListStatisticReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetArticleListStatisticReplyValidationError{}
+
 // Validate checks the field values on GetLastArticleDraftReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -1589,6 +2068,228 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetArticleListReply_ArticleValidationError{}
+
+// Validate checks the field values on GetArticleListHotReply_Article with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetArticleListHotReply_Article) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetArticleListHotReply_Article with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// GetArticleListHotReply_ArticleMultiError, or nil if none found.
+func (m *GetArticleListHotReply_Article) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetArticleListHotReply_Article) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Uuid
+
+	if len(errors) > 0 {
+		return GetArticleListHotReply_ArticleMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetArticleListHotReply_ArticleMultiError is an error wrapping multiple
+// validation errors returned by GetArticleListHotReply_Article.ValidateAll()
+// if the designated constraints aren't met.
+type GetArticleListHotReply_ArticleMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetArticleListHotReply_ArticleMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetArticleListHotReply_ArticleMultiError) AllErrors() []error { return m }
+
+// GetArticleListHotReply_ArticleValidationError is the validation error
+// returned by GetArticleListHotReply_Article.Validate if the designated
+// constraints aren't met.
+type GetArticleListHotReply_ArticleValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetArticleListHotReply_ArticleValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetArticleListHotReply_ArticleValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetArticleListHotReply_ArticleValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetArticleListHotReply_ArticleValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetArticleListHotReply_ArticleValidationError) ErrorName() string {
+	return "GetArticleListHotReply_ArticleValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetArticleListHotReply_ArticleValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetArticleListHotReply_Article.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetArticleListHotReply_ArticleValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetArticleListHotReply_ArticleValidationError{}
+
+// Validate checks the field values on GetArticleListStatisticReply_Count with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *GetArticleListStatisticReply_Count) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetArticleListStatisticReply_Count
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the result is a list of violation errors wrapped in
+// GetArticleListStatisticReply_CountMultiError, or nil if none found.
+func (m *GetArticleListStatisticReply_Count) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetArticleListStatisticReply_Count) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Agree
+
+	// no validation rules for Collect
+
+	// no validation rules for View
+
+	// no validation rules for Comment
+
+	if len(errors) > 0 {
+		return GetArticleListStatisticReply_CountMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetArticleListStatisticReply_CountMultiError is an error wrapping multiple
+// validation errors returned by
+// GetArticleListStatisticReply_Count.ValidateAll() if the designated
+// constraints aren't met.
+type GetArticleListStatisticReply_CountMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetArticleListStatisticReply_CountMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetArticleListStatisticReply_CountMultiError) AllErrors() []error { return m }
+
+// GetArticleListStatisticReply_CountValidationError is the validation error
+// returned by GetArticleListStatisticReply_Count.Validate if the designated
+// constraints aren't met.
+type GetArticleListStatisticReply_CountValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetArticleListStatisticReply_CountValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetArticleListStatisticReply_CountValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetArticleListStatisticReply_CountValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetArticleListStatisticReply_CountValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetArticleListStatisticReply_CountValidationError) ErrorName() string {
+	return "GetArticleListStatisticReply_CountValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetArticleListStatisticReply_CountValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetArticleListStatisticReply_Count.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetArticleListStatisticReply_CountValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetArticleListStatisticReply_CountValidationError{}
 
 // Validate checks the field values on GetArticleDraftListReply_Draft with the
 // rules defined in the proto definition for this message. If any rules are
