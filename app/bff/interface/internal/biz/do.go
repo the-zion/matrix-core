@@ -127,6 +127,15 @@ type Article struct {
 	Uuid string
 }
 
+type ArticleStatistic struct {
+	Id      int32
+	Uuid    string
+	Agree   int32
+	View    int32
+	Collect int32
+	Comment int32
+}
+
 type ArticleDraft struct {
 	Id     int32
 	Status int32
