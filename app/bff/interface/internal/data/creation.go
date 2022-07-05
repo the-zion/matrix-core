@@ -53,6 +53,43 @@ func (r *articleRepo) GetArticleList(ctx context.Context, page int32) ([]*biz.Ar
 	return reply, nil
 }
 
+func (r *articleRepo) GetArticleListHot(ctx context.Context, page int32) ([]*biz.Article, error) {
+	reply := make([]*biz.Article, 0)
+	articleList, err := r.data.ac.GetArticleListHot(ctx, &creationV1.GetArticleListHotReq{
+		Page: page,
+	})
+	if err != nil {
+		return reply, err
+	}
+	for _, item := range articleList.Article {
+		reply = append(reply, &biz.Article{
+			Id:   item.Id,
+			Uuid: item.Uuid,
+		})
+	}
+	return reply, nil
+}
+
+func (r *articleRepo) GetArticleListStatistic(ctx context.Context, ids []int32) ([]*biz.ArticleStatistic, error) {
+	reply := make([]*biz.ArticleStatistic, 0)
+	statisticList, err := r.data.ac.GetArticleListStatistic(ctx, &creationV1.GetArticleListStatisticReq{
+		Ids: ids,
+	})
+	if err != nil {
+		return reply, err
+	}
+	for _, item := range statisticList.Count {
+		reply = append(reply, &biz.ArticleStatistic{
+			Id:      item.Id,
+			Agree:   item.Agree,
+			Collect: item.Collect,
+			View:    item.View,
+			Comment: item.Comment,
+		})
+	}
+	return reply, nil
+}
+
 func (r *articleRepo) GetArticleDraftList(ctx context.Context, uuid string) ([]*biz.ArticleDraft, error) {
 	reply := make([]*biz.ArticleDraft, 0)
 	draftList, err := r.data.ac.GetArticleDraftList(ctx, &creationV1.GetArticleDraftListReq{
