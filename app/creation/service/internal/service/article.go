@@ -21,6 +21,39 @@ func (s *CreationService) GetArticleList(ctx context.Context, req *v1.GetArticle
 	return reply, nil
 }
 
+func (s *CreationService) GetArticleListHot(ctx context.Context, req *v1.GetArticleListHotReq) (*v1.GetArticleListHotReply, error) {
+	reply := &v1.GetArticleListHotReply{Article: make([]*v1.GetArticleListHotReply_Article, 0)}
+	articleList, err := s.ac.GetArticleListHot(ctx, req.Page)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range articleList {
+		reply.Article = append(reply.Article, &v1.GetArticleListHotReply_Article{
+			Id:   item.ArticleId,
+			Uuid: item.Uuid,
+		})
+	}
+	return reply, nil
+}
+
+func (s *CreationService) GetArticleListStatistic(ctx context.Context, req *v1.GetArticleListStatisticReq) (*v1.GetArticleListStatisticReply, error) {
+	reply := &v1.GetArticleListStatisticReply{Count: make([]*v1.GetArticleListStatisticReply_Count, 0)}
+	statisticList, err := s.ac.GetArticleListStatistic(ctx, req.Ids)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range statisticList {
+		reply.Count = append(reply.Count, &v1.GetArticleListStatisticReply_Count{
+			Id:      item.ArticleId,
+			Agree:   item.Agree,
+			Collect: item.Collect,
+			View:    item.View,
+			Comment: item.Comment,
+		})
+	}
+	return reply, nil
+}
+
 func (s *CreationService) GetLastArticleDraft(ctx context.Context, req *v1.GetLastArticleDraftReq) (*v1.GetLastArticleDraftReply, error) {
 	draft, err := s.ac.GetLastArticleDraft(ctx, req.Uuid)
 	if err != nil {
