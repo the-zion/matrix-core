@@ -6,6 +6,22 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
+func (s *BffService) GetLeaderBoard(ctx context.Context, _ *emptypb.Empty) (*v1.GetLeaderBoardReply, error) {
+	reply := &v1.GetLeaderBoardReply{Board: make([]*v1.GetLeaderBoardReply_Board, 0)}
+	boardList, err := s.cc.GetLeaderBoard(ctx)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range boardList {
+		reply.Board = append(reply.Board, &v1.GetLeaderBoardReply_Board{
+			Id:   item.Id,
+			Uuid: item.Uuid,
+			Mode: item.Mode,
+		})
+	}
+	return reply, nil
+}
+
 func (s *BffService) GetArticleList(ctx context.Context, req *v1.GetArticleListReq) (*v1.GetArticleListReply, error) {
 	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0)}
 	articleList, err := s.ac.GetArticleList(ctx, req.Page)
@@ -34,6 +50,20 @@ func (s *BffService) GetArticleListHot(ctx context.Context, req *v1.GetArticleLi
 		})
 	}
 	return reply, nil
+}
+
+func (s *BffService) GetArticleStatistic(ctx context.Context, req *v1.GetArticleStatisticReq) (*v1.GetArticleStatisticReply, error) {
+	articleStatistic, err := s.ac.GetArticleStatistic(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetArticleStatisticReply{
+		Uuid:    articleStatistic.Uuid,
+		Agree:   articleStatistic.Agree,
+		Collect: articleStatistic.Collect,
+		View:    articleStatistic.View,
+		Comment: articleStatistic.Comment,
+	}, nil
 }
 
 func (s *BffService) GetArticleListStatistic(ctx context.Context, req *v1.GetArticleListStatisticReq) (*v1.GetArticleListStatisticReply, error) {
