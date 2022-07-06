@@ -147,6 +147,12 @@ service Bff{
 
   // --------------------creation service------------------------
 
+  rpc GetLeaderBoard(google.protobuf.Empty) returns (GetLeaderBoardReply){
+    option (google.api.http) = {
+      get: "/v1/get/leaderboard"
+    };
+  }
+
   rpc GetArticleList(GetArticleListReq) returns (GetArticleListReply){
     option (google.api.http) = {
       get: "/v1/get/article/list"
@@ -156,6 +162,12 @@ service Bff{
   rpc GetArticleListHot(GetArticleListHotReq) returns (GetArticleListHotReply){
     option (google.api.http) = {
       get: "/v1/get/article/list/hot"
+    };
+  }
+
+  rpc GetArticleStatistic(GetArticleStatisticReq)returns (GetArticleStatisticReply){
+    option (google.api.http) = {
+      get: "/v1/get/article/statistic"
     };
   }
 
@@ -343,6 +355,15 @@ message UnbindUserEmailReq{
 
 // --------------------creation service-------------------------
 
+message GetLeaderBoardReply{
+  message Board{
+    int32 id = 1;
+    string uuid = 2;
+    string mode = 3;
+  }
+  repeated Board board = 1;
+}
+
 message GetArticleListReq{
   int32 page = 1;
 }
@@ -367,6 +388,17 @@ message GetArticleListHotReply{
   repeated Article article = 1;
 }
 
+message GetArticleStatisticReq{
+  int32 id = 1;
+}
+
+message GetArticleStatisticReply{
+  string uuid = 1;
+  int32 agree = 2;
+  int32 collect = 3;
+  int32 view = 4;
+  int32  comment = 5;
+}
 message GetArticleListStatisticReq{
   repeated int32 ids = 1;
 }
