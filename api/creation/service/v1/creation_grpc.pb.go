@@ -23,8 +23,10 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CreationClient interface {
+	GetLeaderBoard(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLeaderBoardReply, error)
 	GetArticleList(ctx context.Context, in *GetArticleListReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
 	GetArticleListHot(ctx context.Context, in *GetArticleListHotReq, opts ...grpc.CallOption) (*GetArticleListHotReply, error)
+	GetArticleStatistic(ctx context.Context, in *GetArticleStatisticReq, opts ...grpc.CallOption) (*GetArticleStatisticReply, error)
 	GetArticleListStatistic(ctx context.Context, in *GetArticleListStatisticReq, opts ...grpc.CallOption) (*GetArticleListStatisticReply, error)
 	GetLastArticleDraft(ctx context.Context, in *GetLastArticleDraftReq, opts ...grpc.CallOption) (*GetLastArticleDraftReply, error)
 	CreateArticle(ctx context.Context, in *CreateArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -43,6 +45,15 @@ func NewCreationClient(cc grpc.ClientConnInterface) CreationClient {
 	return &creationClient{cc}
 }
 
+func (c *creationClient) GetLeaderBoard(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLeaderBoardReply, error) {
+	out := new(GetLeaderBoardReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetLeaderBoard", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *creationClient) GetArticleList(ctx context.Context, in *GetArticleListReq, opts ...grpc.CallOption) (*GetArticleListReply, error) {
 	out := new(GetArticleListReply)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetArticleList", in, out, opts...)
@@ -55,6 +66,15 @@ func (c *creationClient) GetArticleList(ctx context.Context, in *GetArticleListR
 func (c *creationClient) GetArticleListHot(ctx context.Context, in *GetArticleListHotReq, opts ...grpc.CallOption) (*GetArticleListHotReply, error) {
 	out := new(GetArticleListHotReply)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetArticleListHot", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) GetArticleStatistic(ctx context.Context, in *GetArticleStatisticReq, opts ...grpc.CallOption) (*GetArticleStatisticReply, error) {
+	out := new(GetArticleStatisticReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetArticleStatistic", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -137,8 +157,10 @@ func (c *creationClient) SendArticle(ctx context.Context, in *SendArticleReq, op
 // All implementations must embed UnimplementedCreationServer
 // for forward compatibility
 type CreationServer interface {
+	GetLeaderBoard(context.Context, *emptypb.Empty) (*GetLeaderBoardReply, error)
 	GetArticleList(context.Context, *GetArticleListReq) (*GetArticleListReply, error)
 	GetArticleListHot(context.Context, *GetArticleListHotReq) (*GetArticleListHotReply, error)
+	GetArticleStatistic(context.Context, *GetArticleStatisticReq) (*GetArticleStatisticReply, error)
 	GetArticleListStatistic(context.Context, *GetArticleListStatisticReq) (*GetArticleListStatisticReply, error)
 	GetLastArticleDraft(context.Context, *GetLastArticleDraftReq) (*GetLastArticleDraftReply, error)
 	CreateArticle(context.Context, *CreateArticleReq) (*emptypb.Empty, error)
@@ -154,11 +176,17 @@ type CreationServer interface {
 type UnimplementedCreationServer struct {
 }
 
+func (UnimplementedCreationServer) GetLeaderBoard(context.Context, *emptypb.Empty) (*GetLeaderBoardReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetLeaderBoard not implemented")
+}
 func (UnimplementedCreationServer) GetArticleList(context.Context, *GetArticleListReq) (*GetArticleListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetArticleList not implemented")
 }
 func (UnimplementedCreationServer) GetArticleListHot(context.Context, *GetArticleListHotReq) (*GetArticleListHotReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetArticleListHot not implemented")
+}
+func (UnimplementedCreationServer) GetArticleStatistic(context.Context, *GetArticleStatisticReq) (*GetArticleStatisticReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetArticleStatistic not implemented")
 }
 func (UnimplementedCreationServer) GetArticleListStatistic(context.Context, *GetArticleListStatisticReq) (*GetArticleListStatisticReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetArticleListStatistic not implemented")
@@ -197,6 +225,24 @@ func RegisterCreationServer(s grpc.ServiceRegistrar, srv CreationServer) {
 	s.RegisterService(&Creation_ServiceDesc, srv)
 }
 
+func _Creation_GetLeaderBoard_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetLeaderBoard(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetLeaderBoard",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetLeaderBoard(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Creation_GetArticleList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetArticleListReq)
 	if err := dec(in); err != nil {
@@ -229,6 +275,24 @@ func _Creation_GetArticleListHot_Handler(srv interface{}, ctx context.Context, d
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CreationServer).GetArticleListHot(ctx, req.(*GetArticleListHotReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_GetArticleStatistic_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetArticleStatisticReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetArticleStatistic(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetArticleStatistic",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetArticleStatistic(ctx, req.(*GetArticleStatisticReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -385,12 +449,20 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*CreationServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "GetLeaderBoard",
+			Handler:    _Creation_GetLeaderBoard_Handler,
+		},
+		{
 			MethodName: "GetArticleList",
 			Handler:    _Creation_GetArticleList_Handler,
 		},
 		{
 			MethodName: "GetArticleListHot",
 			Handler:    _Creation_GetArticleListHot_Handler,
+		},
+		{
+			MethodName: "GetArticleStatistic",
+			Handler:    _Creation_GetArticleStatistic_Handler,
 		},
 		{
 			MethodName: "GetArticleListStatistic",

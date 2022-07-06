@@ -38,6 +38,142 @@ var (
 // define the regex for a UUID once up-front
 var _creation_uuidPattern = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
 
+// Validate checks the field values on GetLeaderBoardReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetLeaderBoardReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetLeaderBoardReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetLeaderBoardReplyMultiError, or nil if none found.
+func (m *GetLeaderBoardReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetLeaderBoardReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetBoard() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetLeaderBoardReplyValidationError{
+						field:  fmt.Sprintf("Board[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetLeaderBoardReplyValidationError{
+						field:  fmt.Sprintf("Board[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetLeaderBoardReplyValidationError{
+					field:  fmt.Sprintf("Board[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return GetLeaderBoardReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetLeaderBoardReplyMultiError is an error wrapping multiple validation
+// errors returned by GetLeaderBoardReply.ValidateAll() if the designated
+// constraints aren't met.
+type GetLeaderBoardReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetLeaderBoardReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetLeaderBoardReplyMultiError) AllErrors() []error { return m }
+
+// GetLeaderBoardReplyValidationError is the validation error returned by
+// GetLeaderBoardReply.Validate if the designated constraints aren't met.
+type GetLeaderBoardReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetLeaderBoardReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetLeaderBoardReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetLeaderBoardReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetLeaderBoardReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetLeaderBoardReplyValidationError) ErrorName() string {
+	return "GetLeaderBoardReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetLeaderBoardReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetLeaderBoardReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetLeaderBoardReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetLeaderBoardReplyValidationError{}
+
 // Validate checks the field values on GetArticleListReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -518,6 +654,110 @@ var _ interface {
 	ErrorName() string
 } = GetArticleListHotReplyValidationError{}
 
+// Validate checks the field values on GetArticleStatisticReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetArticleStatisticReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetArticleStatisticReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetArticleStatisticReqMultiError, or nil if none found.
+func (m *GetArticleStatisticReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetArticleStatisticReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	if len(errors) > 0 {
+		return GetArticleStatisticReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetArticleStatisticReqMultiError is an error wrapping multiple validation
+// errors returned by GetArticleStatisticReq.ValidateAll() if the designated
+// constraints aren't met.
+type GetArticleStatisticReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetArticleStatisticReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetArticleStatisticReqMultiError) AllErrors() []error { return m }
+
+// GetArticleStatisticReqValidationError is the validation error returned by
+// GetArticleStatisticReq.Validate if the designated constraints aren't met.
+type GetArticleStatisticReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetArticleStatisticReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetArticleStatisticReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetArticleStatisticReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetArticleStatisticReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetArticleStatisticReqValidationError) ErrorName() string {
+	return "GetArticleStatisticReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetArticleStatisticReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetArticleStatisticReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetArticleStatisticReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetArticleStatisticReqValidationError{}
+
 // Validate checks the field values on GetArticleListStatisticReq with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -619,6 +859,118 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetArticleListStatisticReqValidationError{}
+
+// Validate checks the field values on GetArticleStatisticReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetArticleStatisticReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetArticleStatisticReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetArticleStatisticReplyMultiError, or nil if none found.
+func (m *GetArticleStatisticReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetArticleStatisticReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Uuid
+
+	// no validation rules for Agree
+
+	// no validation rules for Collect
+
+	// no validation rules for View
+
+	// no validation rules for Comment
+
+	if len(errors) > 0 {
+		return GetArticleStatisticReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetArticleStatisticReplyMultiError is an error wrapping multiple validation
+// errors returned by GetArticleStatisticReply.ValidateAll() if the designated
+// constraints aren't met.
+type GetArticleStatisticReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetArticleStatisticReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetArticleStatisticReplyMultiError) AllErrors() []error { return m }
+
+// GetArticleStatisticReplyValidationError is the validation error returned by
+// GetArticleStatisticReply.Validate if the designated constraints aren't met.
+type GetArticleStatisticReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetArticleStatisticReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetArticleStatisticReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetArticleStatisticReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetArticleStatisticReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetArticleStatisticReplyValidationError) ErrorName() string {
+	return "GetArticleStatisticReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetArticleStatisticReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetArticleStatisticReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetArticleStatisticReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetArticleStatisticReplyValidationError{}
 
 // Validate checks the field values on GetArticleListStatisticReply with the
 // rules defined in the proto definition for this message. If any rules are
@@ -1961,6 +2313,114 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = SendArticleReqValidationError{}
+
+// Validate checks the field values on GetLeaderBoardReply_Board with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetLeaderBoardReply_Board) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetLeaderBoardReply_Board with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetLeaderBoardReply_BoardMultiError, or nil if none found.
+func (m *GetLeaderBoardReply_Board) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetLeaderBoardReply_Board) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Uuid
+
+	// no validation rules for Mode
+
+	if len(errors) > 0 {
+		return GetLeaderBoardReply_BoardMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetLeaderBoardReply_BoardMultiError is an error wrapping multiple validation
+// errors returned by GetLeaderBoardReply_Board.ValidateAll() if the
+// designated constraints aren't met.
+type GetLeaderBoardReply_BoardMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetLeaderBoardReply_BoardMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetLeaderBoardReply_BoardMultiError) AllErrors() []error { return m }
+
+// GetLeaderBoardReply_BoardValidationError is the validation error returned by
+// GetLeaderBoardReply_Board.Validate if the designated constraints aren't met.
+type GetLeaderBoardReply_BoardValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetLeaderBoardReply_BoardValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetLeaderBoardReply_BoardValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetLeaderBoardReply_BoardValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetLeaderBoardReply_BoardValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetLeaderBoardReply_BoardValidationError) ErrorName() string {
+	return "GetLeaderBoardReply_BoardValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetLeaderBoardReply_BoardValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetLeaderBoardReply_Board.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetLeaderBoardReply_BoardValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetLeaderBoardReply_BoardValidationError{}
 
 // Validate checks the field values on GetArticleListReply_Article with the
 // rules defined in the proto definition for this message. If any rules are
