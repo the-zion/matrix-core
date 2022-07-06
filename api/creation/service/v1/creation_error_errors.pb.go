@@ -23,6 +23,18 @@ func ErrorUnknownError(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, CreationErrorReason_UNKNOWN_ERROR.String(), fmt.Sprintf(format, args...))
 }
 
+func IsGetLeaderBoardFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_GET_LEADER_BOARD_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetLeaderBoardFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_GET_LEADER_BOARD_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsGetArticleDraftFailed(err error) bool {
 	if err == nil {
 		return false
@@ -57,6 +69,18 @@ func IsGetArticleListHotFailed(err error) bool {
 
 func ErrorGetArticleListHotFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, CreationErrorReason_GET_ARTICLE_LIST_HOT_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsGetArticleStatisticFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_GET_ARTICLE_STATISTIC_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetArticleStatisticFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_GET_ARTICLE_STATISTIC_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
 func IsGetArticleListStatisticFailed(err error) bool {
