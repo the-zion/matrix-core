@@ -30,9 +30,11 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, re
 	}
 	userRepo := data.NewUserRepo(dataData, logger)
 	userUseCase := biz.NewUserUseCase(userRepo, logger)
+	creationRepo := data.NewCreationRepo(dataData, logger)
+	creationUseCase := biz.NewCreationUseCase(creationRepo, logger)
 	articleRepo := data.NewArticleRepo(dataData, logger)
 	articleUseCase := biz.NewArticleUseCase(articleRepo, logger)
-	bffService := service.NewBffService(userUseCase, articleUseCase, logger)
+	bffService := service.NewBffService(userUseCase, creationUseCase, articleUseCase, logger)
 	httpServer := server.NewHTTPServer(confServer, bffService, logger)
 	grpcServer := server.NewGRPCServer(confServer, bffService, logger)
 	app := newApp(logger, registry, httpServer, grpcServer)
