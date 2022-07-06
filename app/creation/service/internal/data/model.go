@@ -20,7 +20,7 @@ type ArticleStatistic struct {
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 	Uuid      string         `gorm:"index;size:36"`
-	Agree     int32          `gorm:"default:0"`
+	Agree     int32          `gorm:"index;default:0"`
 	View      int32          `gorm:"default:0"`
 	Collect   int32          `gorm:"default:0"`
 	Comment   int32          `gorm:"default:0"`
