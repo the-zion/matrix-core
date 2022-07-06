@@ -122,6 +122,12 @@ type TextReview struct {
 	Section      []*Section
 }
 
+type LeaderBoard struct {
+	Id   int32
+	Uuid string
+	Mode string
+}
+
 type Article struct {
 	Id   int32
 	Uuid string
