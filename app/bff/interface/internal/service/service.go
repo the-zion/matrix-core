@@ -12,14 +12,16 @@ var ProviderSet = wire.NewSet(NewBffService)
 type BffService struct {
 	v1.UnimplementedBffServer
 	ac  *biz.ArticleUseCase
+	cc  *biz.CreationUseCase
 	uc  *biz.UserUseCase
 	log *log.Helper
 }
 
-func NewBffService(uc *biz.UserUseCase, ac *biz.ArticleUseCase, logger log.Logger) *BffService {
+func NewBffService(uc *biz.UserUseCase, cc *biz.CreationUseCase, ac *biz.ArticleUseCase, logger log.Logger) *BffService {
 	return &BffService{
 		log: log.NewHelper(log.With(logger, "module", "bff/interface")),
 		uc:  uc,
 		ac:  ac,
+		cc:  cc,
 	}
 }
