@@ -45,7 +45,7 @@ func (r *articleRepo) GetLastArticleDraft(ctx context.Context, uuid string) (*bi
 }
 
 func (r *articleRepo) GetArticleList(ctx context.Context, page int32) ([]*biz.Article, error) {
-	article, err := r.getArticleFromCache(ctx, "article", page)
+	article, err := r.getArticleFromCache(ctx, page)
 	if err != nil {
 		return nil, err
 	}
@@ -71,9 +71,9 @@ func (r *articleRepo) getArticleFromDB(ctx context.Context, page int32) ([]*biz.
 	if page < 1 {
 		page = 1
 	}
-	index := int64(page - 1)
+	index := int(page - 1)
 	list := make([]*Article, 0)
-	err := r.data.db.WithContext(ctx).Where("article_id > ?", index*10).Order("article_id desc").Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Order("article_id desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get article from db: page(%v)", page))
 	}
@@ -88,8 +88,8 @@ func (r *articleRepo) getArticleFromDB(ctx context.Context, page int32) ([]*biz.
 	return article, nil
 }
 
-func (r *articleRepo) GetArticleListHot(ctx context.Context, page int32) ([]*biz.Article, error) {
-	article, err := r.getArticleFromCache(ctx, "article_hot", page)
+func (r *articleRepo) GetArticleListHot(ctx context.Context, page int32) ([]*biz.ArticleStatistic, error) {
+	article, err := r.getArticleHotFromCache(ctx, page)
 	if err != nil {
 		return nil, err
 	}
@@ -106,30 +106,72 @@ func (r *articleRepo) GetArticleListHot(ctx context.Context, page int32) ([]*biz
 
 	size = len(article)
 	if size != 0 {
-		go r.setArticleToCache("article_hot", article)
+		go r.setArticleHotToCache("article_hot", article)
 	}
 	return article, nil
 }
 
-func (r *articleRepo) getArticleHotFromDB(ctx context.Context, page int32) ([]*biz.Article, error) {
+func (r *articleRepo) getArticleHotFromDB(ctx context.Context, page int32) ([]*biz.ArticleStatistic, error) {
 	if page < 1 {
 		page = 1
 	}
-	index := int64(page - 1)
-	list := make([]*Article, 0)
-	err := r.data.db.WithContext(ctx).Where("article_id > ?", index*10).Order("article_id desc").Limit(10).Find(&list).Error
+	index := int(page - 1)
+	list := make([]*ArticleStatistic, 0)
+	err := r.data.db.WithContext(ctx).Order("agree desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get article from db: page(%v)", page))
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get article statistic from db: page(%v)", page))
 	}
 
-	article := make([]*biz.Article, 0)
+	article := make([]*biz.ArticleStatistic, 0)
 	for _, item := range list {
-		article = append(article, &biz.Article{
+		article = append(article, &biz.ArticleStatistic{
 			ArticleId: item.ArticleId,
 			Uuid:      item.Uuid,
+			Agree:     item.Agree,
 		})
 	}
 	return article, nil
+}
+
+func (r *articleRepo) GetArticleStatistic(ctx context.Context, id int32) (*biz.ArticleStatistic, error) {
+	var statistic *biz.ArticleStatistic
+	key := "article_" + strconv.Itoa(int(id))
+	exist, err := r.data.redisCli.Exists(ctx, key).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to judge if key exist or not from cache: key(%s)", key))
+	}
+
+	if exist == 1 {
+		statistic, err = r.getArticleStatisticFromCache(ctx, key)
+		if err != nil {
+			return nil, err
+		}
+		return statistic, nil
+	}
+
+	statistic, err = r.getArticleStatisticFromDB(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	go r.setArticleStatisticToCache(key, statistic)
+
+	return statistic, nil
+}
+
+func (r *articleRepo) getArticleStatisticFromDB(ctx context.Context, id int32) (*biz.ArticleStatistic, error) {
+	as := &ArticleStatistic{}
+	err := r.data.db.WithContext(ctx).Where("article_id = ?", id).First(as).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("faile to get statistic from db: id(%v)", id))
+	}
+	return &biz.ArticleStatistic{
+		Uuid:    as.Uuid,
+		Agree:   as.Agree,
+		Collect: as.Collect,
+		View:    as.View,
+		Comment: as.Comment,
+	}, nil
 }
 
 func (r *articleRepo) GetArticleListStatistic(ctx context.Context, ids []int32) ([]*biz.ArticleStatistic, error) {
@@ -330,14 +372,14 @@ func (r *articleRepo) SendArticleToMq(ctx context.Context, article *biz.Article,
 	return nil
 }
 
-func (r *articleRepo) getArticleFromCache(ctx context.Context, key string, page int32) ([]*biz.Article, error) {
+func (r *articleRepo) getArticleFromCache(ctx context.Context, page int32) ([]*biz.Article, error) {
 	if page < 1 {
 		page = 1
 	}
 	index := int64(page - 1)
-	list, err := r.data.redisCli.ZRevRange(ctx, key, index*10, index+9).Result()
+	list, err := r.data.redisCli.ZRevRange(ctx, "article", index*10, index+9).Result()
 	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get article from cache: key(%s), page(%v)", key, page))
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get article from cache: key(%s), page(%v)", "article", page))
 	}
 
 	article := make([]*biz.Article, 0)
@@ -348,6 +390,31 @@ func (r *articleRepo) getArticleFromCache(ctx context.Context, key string, page 
 			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s)", member[0]))
 		}
 		article = append(article, &biz.Article{
+			ArticleId: int32(id),
+			Uuid:      member[1],
+		})
+	}
+	return article, nil
+}
+
+func (r *articleRepo) getArticleHotFromCache(ctx context.Context, page int32) ([]*biz.ArticleStatistic, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int64(page - 1)
+	list, err := r.data.redisCli.ZRevRange(ctx, "article_hot", index*10, index+9).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get article hot from cache: key(%s), page(%v)", "article_hot", page))
+	}
+
+	article := make([]*biz.ArticleStatistic, 0)
+	for _, item := range list {
+		member := strings.Split(item, "%")
+		id, err := strconv.ParseInt(member[0], 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s)", member[0]))
+		}
+		article = append(article, &biz.ArticleStatistic{
 			ArticleId: int32(id),
 			Uuid:      member[1],
 		})
@@ -369,5 +436,54 @@ func (r *articleRepo) setArticleToCache(key string, article []*biz.Article) {
 	})
 	if err != nil {
 		r.log.Errorf("fail to set article to cache: article(%v)", article)
+	}
+}
+
+func (r *articleRepo) setArticleHotToCache(key string, article []*biz.ArticleStatistic) {
+	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
+		z := make([]*redis.Z, 0)
+		for _, item := range article {
+			z = append(z, &redis.Z{
+				Score:  float64(item.Agree),
+				Member: strconv.Itoa(int(item.ArticleId)) + "%" + item.Uuid,
+			})
+		}
+		pipe.ZAddNX(context.Background(), key, z...)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to set article to cache: article(%v)", article)
+	}
+}
+
+func (r *articleRepo) getArticleStatisticFromCache(ctx context.Context, key string) (*biz.ArticleStatistic, error) {
+	statistic, err := r.data.redisCli.HMGet(ctx, key, "uuid", "agree", "collect", "view", "comment").Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get article statistic form cache: key(%s)", key))
+	}
+	val := []int32{0, 0, 0, 0}
+	for _index, count := range statistic[1:] {
+		if count == nil {
+			break
+		}
+		num, err := strconv.ParseInt(count.(string), 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: count(%v)", count))
+		}
+		val[_index] = int32(num)
+	}
+	return &biz.ArticleStatistic{
+		Uuid:    statistic[0].(string),
+		Agree:   val[0],
+		Collect: val[1],
+		View:    val[2],
+		Comment: val[3],
+	}, nil
+}
+
+func (r *articleRepo) setArticleStatisticToCache(key string, statistic *biz.ArticleStatistic) {
+	err := r.data.redisCli.HMSet(context.Background(), key, "uuid", statistic.Uuid, "agree", statistic.Agree, "collect", statistic.Collect, "view", statistic.View, "comment", statistic.Comment).Err()
+	if err != nil {
+		r.log.Errorf("fail to set article statistic to cache, err(%s)", err.Error())
 	}
 }
