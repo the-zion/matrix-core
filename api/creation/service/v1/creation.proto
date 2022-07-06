@@ -10,9 +10,13 @@ option go_package = "api/creation/service/v1;v1";
 
 service Creation {
 
+  rpc GetLeaderBoard(google.protobuf.Empty) returns (GetLeaderBoardReply){}
+
   rpc GetArticleList(GetArticleListReq) returns (GetArticleListReply){}
 
   rpc GetArticleListHot(GetArticleListHotReq) returns (GetArticleListHotReply){}
+
+  rpc GetArticleStatistic(GetArticleStatisticReq)returns (GetArticleStatisticReply){}
 
   rpc GetArticleListStatistic(GetArticleListStatisticReq)returns (GetArticleListStatisticReply){}
 
@@ -29,6 +33,15 @@ service Creation {
   rpc GetArticleDraftList(GetArticleDraftListReq) returns (GetArticleDraftListReply){}
 
   rpc SendArticle(SendArticleReq) returns (google.protobuf.Empty){}
+}
+
+message GetLeaderBoardReply{
+  message Board{
+    int32 id = 1;
+    string uuid = 2;
+    string mode = 3;
+  }
+  repeated Board board = 1;
 }
 
 message GetArticleListReq{
@@ -55,8 +68,20 @@ message GetArticleListHotReply{
   repeated Article article = 1;
 }
 
+message GetArticleStatisticReq{
+  int32 id = 1;
+}
+
 message GetArticleListStatisticReq{
   repeated int32 ids = 1;
+}
+
+message GetArticleStatisticReply{
+  string uuid = 1;
+  int32 agree = 2;
+  int32 collect = 3;
+  int32 view = 4;
+  int32  comment = 5;
 }
 
 message GetArticleListStatisticReply{
