@@ -19,7 +19,7 @@ import (
 	"time"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewTransaction, NewRocketmqArticleDraftProducer, NewCosServiceClient, NewArticleRepo)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewTransaction, NewRocketmqArticleDraftProducer, NewCosServiceClient, NewArticleRepo, NewCreationRepo)
 
 type ArticleDraftMqPro struct {
 	producer rocketmq.Producer
