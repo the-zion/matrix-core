@@ -12,21 +12,21 @@ import (
 	userv1 "github.com/the-zion/matrix-core/api/user/service/v1"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewArticleRepo, NewUserServiceClient, NewCreationServiceClient, NewMessageServiceClient)
+var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewCreationRepo, NewArticleRepo, NewUserServiceClient, NewCreationServiceClient, NewMessageServiceClient)
 
 type Data struct {
 	log *log.Helper
 	uc  userv1.UserClient
-	ac  creationv1.CreationClient
+	cc  creationv1.CreationClient
 	mc  messagev1.MessageClient
 }
 
-func NewData(logger log.Logger, uc userv1.UserClient, ac creationv1.CreationClient, mc messagev1.MessageClient) (*Data, error) {
+func NewData(logger log.Logger, uc userv1.UserClient, cc creationv1.CreationClient, mc messagev1.MessageClient) (*Data, error) {
 	l := log.NewHelper(log.With(logger, "module", "bff/data"))
 	d := &Data{
 		log: l,
 		uc:  uc,
-		ac:  ac,
+		cc:  cc,
 		mc:  mc,
 	}
 	return d, nil
