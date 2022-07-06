@@ -36,6 +36,20 @@ func (s *CreationService) GetArticleListHot(ctx context.Context, req *v1.GetArti
 	return reply, nil
 }
 
+func (s *CreationService) GetArticleStatistic(ctx context.Context, req *v1.GetArticleStatisticReq) (*v1.GetArticleStatisticReply, error) {
+	articleStatistic, err := s.ac.GetArticleStatistic(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetArticleStatisticReply{
+		Uuid:    articleStatistic.Uuid,
+		Agree:   articleStatistic.Agree,
+		Collect: articleStatistic.Collect,
+		View:    articleStatistic.View,
+		Comment: articleStatistic.Comment,
+	}, nil
+}
+
 func (s *CreationService) GetArticleListStatistic(ctx context.Context, req *v1.GetArticleListStatisticReq) (*v1.GetArticleListStatisticReply, error) {
 	reply := &v1.GetArticleListStatisticReply{Count: make([]*v1.GetArticleListStatisticReply_Count, 0)}
 	statisticList, err := s.ac.GetArticleListStatistic(ctx, req.Ids)
