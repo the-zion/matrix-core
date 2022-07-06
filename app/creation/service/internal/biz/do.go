@@ -20,3 +20,9 @@ type ArticleDraft struct {
 	Status int32
 	Uuid   string
 }
+
+type LeaderBoard struct {
+	Id   int32
+	Uuid string
+	Mode string
+}
