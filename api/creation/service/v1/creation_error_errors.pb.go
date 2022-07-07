@@ -238,3 +238,75 @@ func IsSendToMqFailed(err error) bool {
 func ErrorSendToMqFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, CreationErrorReason_SEND_TO_MQ_FAILED.String(), fmt.Sprintf(format, args...))
 }
+
+func IsSetArticleAgreeFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_SET_ARTICLE_AGREE_FAILED.String() && e.Code == 500
+}
+
+func ErrorSetArticleAgreeFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_SET_ARTICLE_AGREE_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsSetArticleAgreeToCacheFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_SET_ARTICLE_AGREE_TO_CACHE_FAILED.String() && e.Code == 500
+}
+
+func ErrorSetArticleAgreeToCacheFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_SET_ARTICLE_AGREE_TO_CACHE_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsSetArticleAgreeToMqFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_SET_ARTICLE_AGREE_TO_MQ_FAILED.String() && e.Code == 500
+}
+
+func ErrorSetArticleAgreeToMqFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_SET_ARTICLE_AGREE_TO_MQ_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsSetArticleViewFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_SET_ARTICLE_VIEW_FAILED.String() && e.Code == 500
+}
+
+func ErrorSetArticleViewFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_SET_ARTICLE_VIEW_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsSetArticleViewToCacheFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_SET_ARTICLE_VIEW_TO_CACHE_FAILED.String() && e.Code == 500
+}
+
+func ErrorSetArticleViewToCacheFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_SET_ARTICLE_VIEW_TO_CACHE_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsSetArticleViewToMqFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_SET_ARTICLE_VIEW_TO_MQ_FAILED.String() && e.Code == 500
+}
+
+func ErrorSetArticleViewToMqFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_SET_ARTICLE_VIEW_TO_MQ_FAILED.String(), fmt.Sprintf(format, args...))
+}
