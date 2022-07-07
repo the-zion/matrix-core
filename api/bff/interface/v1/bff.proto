@@ -209,6 +209,20 @@ service Bff{
       body: "*"
     };
   }
+
+  rpc SetArticleAgree(SetArticleAgreeReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/set/article/agree"
+      body: "*"
+    };
+  }
+
+  rpc SetArticleView(SetArticleViewReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/set/article/view"
+      body: "*"
+    };
+  }
 }
 
 // --------------------user service-------------------------
@@ -435,4 +449,14 @@ message GetArticleDraftListReply{
 
 message SendArticleReq{
   int32 id = 1;
+}
+
+message SetArticleAgreeReq{
+  int32 id = 1;
+  string uuid = 2;
+}
+
+message SetArticleViewReq{
+  int32 id = 1;
+  string uuid = 2;
 }
