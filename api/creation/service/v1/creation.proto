@@ -33,6 +33,10 @@ service Creation {
   rpc GetArticleDraftList(GetArticleDraftListReq) returns (GetArticleDraftListReply){}
 
   rpc SendArticle(SendArticleReq) returns (google.protobuf.Empty){}
+
+  rpc SetArticleAgree(SetArticleAgreeReq) returns (google.protobuf.Empty){}
+
+  rpc SetArticleView(SetArticleViewReq) returns (google.protobuf.Empty){}
 }
 
 message GetLeaderBoardReply{
@@ -140,5 +144,15 @@ message GetArticleDraftListReply{
 
 message SendArticleReq{
   int32 id = 1;
-  string uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message SetArticleAgreeReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message SetArticleViewReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
 }
