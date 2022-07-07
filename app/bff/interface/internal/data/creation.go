@@ -213,3 +213,14 @@ func (r *articleRepo) SendArticle(ctx context.Context, uuid string, id int32) er
 	}
 	return nil
 }
+
+func (r *articleRepo) SetArticleAgree(ctx context.Context, uuid string, id int32) error {
+	_, err := r.data.cc.SetArticleAgree(ctx, &creationV1.SetArticleAgreeReq{
+		Uuid: uuid,
+		Id:   id,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
