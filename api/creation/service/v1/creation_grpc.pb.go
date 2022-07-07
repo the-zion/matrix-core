@@ -35,6 +35,8 @@ type CreationClient interface {
 	ArticleDraftMark(ctx context.Context, in *ArticleDraftMarkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetArticleDraftList(ctx context.Context, in *GetArticleDraftListReq, opts ...grpc.CallOption) (*GetArticleDraftListReply, error)
 	SendArticle(ctx context.Context, in *SendArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetArticleAgree(ctx context.Context, in *SetArticleAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetArticleView(ctx context.Context, in *SetArticleViewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type creationClient struct {
@@ -153,6 +155,24 @@ func (c *creationClient) SendArticle(ctx context.Context, in *SendArticleReq, op
 	return out, nil
 }
 
+func (c *creationClient) SetArticleAgree(ctx context.Context, in *SetArticleAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/SetArticleAgree", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) SetArticleView(ctx context.Context, in *SetArticleViewReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/SetArticleView", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CreationServer is the server API for Creation service.
 // All implementations must embed UnimplementedCreationServer
 // for forward compatibility
@@ -169,6 +189,8 @@ type CreationServer interface {
 	ArticleDraftMark(context.Context, *ArticleDraftMarkReq) (*emptypb.Empty, error)
 	GetArticleDraftList(context.Context, *GetArticleDraftListReq) (*GetArticleDraftListReply, error)
 	SendArticle(context.Context, *SendArticleReq) (*emptypb.Empty, error)
+	SetArticleAgree(context.Context, *SetArticleAgreeReq) (*emptypb.Empty, error)
+	SetArticleView(context.Context, *SetArticleViewReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedCreationServer()
 }
 
@@ -211,6 +233,12 @@ func (UnimplementedCreationServer) GetArticleDraftList(context.Context, *GetArti
 }
 func (UnimplementedCreationServer) SendArticle(context.Context, *SendArticleReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendArticle not implemented")
+}
+func (UnimplementedCreationServer) SetArticleAgree(context.Context, *SetArticleAgreeReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetArticleAgree not implemented")
+}
+func (UnimplementedCreationServer) SetArticleView(context.Context, *SetArticleViewReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetArticleView not implemented")
 }
 func (UnimplementedCreationServer) mustEmbedUnimplementedCreationServer() {}
 
@@ -441,6 +469,42 @@ func _Creation_SendArticle_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Creation_SetArticleAgree_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetArticleAgreeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).SetArticleAgree(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/SetArticleAgree",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).SetArticleAgree(ctx, req.(*SetArticleAgreeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_SetArticleView_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetArticleViewReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).SetArticleView(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/SetArticleView",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).SetArticleView(ctx, req.(*SetArticleViewReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Creation_ServiceDesc is the grpc.ServiceDesc for Creation service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -495,6 +559,14 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SendArticle",
 			Handler:    _Creation_SendArticle_Handler,
+		},
+		{
+			MethodName: "SetArticleAgree",
+			Handler:    _Creation_SetArticleAgree_Handler,
+		},
+		{
+			MethodName: "SetArticleView",
+			Handler:    _Creation_SetArticleView_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
