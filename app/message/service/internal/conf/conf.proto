@@ -49,10 +49,21 @@ message Server {
     string accessKey = 5;
     string nameSpace = 6;
   }
+  message AchievementMq{
+    message Achievement{
+      string groupName = 1;
+    }
+    Achievement achievement = 1;
+    string serverAddress = 3;
+    string secretKey = 4;
+    string accessKey = 5;
+    string nameSpace = 6;
+  }
   HTTP http = 1;
   GRPC grpc = 2;
   UserMq userMq = 3;
   CreationMq creationMq = 4;
+  AchievementMq achievementMq = 5;
 }
 
 message Data {
