@@ -19,6 +19,7 @@ type ArticleRepo interface {
 	GetArticleDraftList(ctx context.Context, uuid string) ([]*ArticleDraft, error)
 	ArticleDraftMark(ctx context.Context, uuid string, id int32) error
 	SendArticle(ctx context.Context, uuid string, id int32) error
+	SetArticleAgree(ctx context.Context, uuid string, id int32) error
 }
 
 type ArticleUseCase struct {
@@ -88,4 +89,8 @@ func (r *ArticleUseCase) GetArticleDraftList(ctx context.Context) ([]*ArticleDra
 func (r *ArticleUseCase) SendArticle(ctx context.Context, id int32) error {
 	uuid := ctx.Value("uuid").(string)
 	return r.repo.SendArticle(ctx, uuid, id)
+}
+
+func (r *ArticleUseCase) SetArticleAgree(ctx context.Context, id int32, uuid string) error {
+	return r.repo.SetArticleAgree(ctx, uuid, id)
 }
