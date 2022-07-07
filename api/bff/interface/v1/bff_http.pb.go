@@ -42,6 +42,8 @@ type BffHTTPServer interface {
 	SendArticle(context.Context, *SendArticleReq) (*emptypb.Empty, error)
 	SendEmailCode(context.Context, *SendEmailCodeReq) (*emptypb.Empty, error)
 	SendPhoneCode(context.Context, *SendPhoneCodeReq) (*emptypb.Empty, error)
+	SetArticleAgree(context.Context, *SetArticleAgreeReq) (*emptypb.Empty, error)
+	SetArticleView(context.Context, *SetArticleViewReq) (*emptypb.Empty, error)
 	SetProfileUpdate(context.Context, *SetProfileUpdateReq) (*emptypb.Empty, error)
 	SetUserEmail(context.Context, *SetUserEmailReq) (*emptypb.Empty, error)
 	SetUserPassword(context.Context, *SetUserPasswordReq) (*emptypb.Empty, error)
@@ -83,6 +85,8 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.POST("/v1/article/draft/mark", _Bff_ArticleDraftMark0_HTTP_Handler(srv))
 	r.GET("/v1/get/article/draft/list", _Bff_GetArticleDraftList0_HTTP_Handler(srv))
 	r.POST("/v1/send/article", _Bff_SendArticle0_HTTP_Handler(srv))
+	r.POST("/v1/set/article/agree", _Bff_SetArticleAgree0_HTTP_Handler(srv))
+	r.POST("/v1/set/article/view", _Bff_SetArticleView1_HTTP_Handler(srv))
 }
 
 func _Bff_UserRegister0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
@@ -655,6 +659,44 @@ func _Bff_SendArticle0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) er
 	}
 }
 
+func _Bff_SetArticleAgree0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SetArticleAgreeReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/bff.v1.Bff/SetArticleAgree")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SetArticleAgree(ctx, req.(*SetArticleAgreeReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_SetArticleView1_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SetArticleViewReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/bff.v1.Bff/SetArticleView")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SetArticleView(ctx, req.(*SetArticleViewReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
 type BffHTTPClient interface {
 	ArticleDraftMark(ctx context.Context, req *ArticleDraftMarkReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	ChangeUserPassword(ctx context.Context, req *ChangeUserPasswordReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -679,6 +721,8 @@ type BffHTTPClient interface {
 	SendArticle(ctx context.Context, req *SendArticleReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SendEmailCode(ctx context.Context, req *SendEmailCodeReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SendPhoneCode(ctx context.Context, req *SendPhoneCodeReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	SetArticleAgree(ctx context.Context, req *SetArticleAgreeReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	SetArticleView(ctx context.Context, req *SetArticleViewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SetProfileUpdate(ctx context.Context, req *SetProfileUpdateReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SetUserEmail(ctx context.Context, req *SetUserEmailReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SetUserPassword(ctx context.Context, req *SetUserPasswordReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -987,6 +1031,32 @@ func (c *BffHTTPClientImpl) SendPhoneCode(ctx context.Context, in *SendPhoneCode
 	pattern := "/v1/user/code/phone"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation("/bff.v1.Bff/SendPhoneCode"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) SetArticleAgree(ctx context.Context, in *SetArticleAgreeReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/set/article/agree"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/bff.v1.Bff/SetArticleAgree"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) SetArticleView(ctx context.Context, in *SetArticleViewReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/set/article/view"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/bff.v1.Bff/SetArticleView"))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

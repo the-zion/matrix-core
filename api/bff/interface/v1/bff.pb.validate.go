@@ -4021,6 +4021,218 @@ var _ interface {
 	ErrorName() string
 } = SendArticleReqValidationError{}
 
+// Validate checks the field values on SetArticleAgreeReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SetArticleAgreeReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SetArticleAgreeReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SetArticleAgreeReqMultiError, or nil if none found.
+func (m *SetArticleAgreeReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SetArticleAgreeReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Uuid
+
+	if len(errors) > 0 {
+		return SetArticleAgreeReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// SetArticleAgreeReqMultiError is an error wrapping multiple validation errors
+// returned by SetArticleAgreeReq.ValidateAll() if the designated constraints
+// aren't met.
+type SetArticleAgreeReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SetArticleAgreeReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SetArticleAgreeReqMultiError) AllErrors() []error { return m }
+
+// SetArticleAgreeReqValidationError is the validation error returned by
+// SetArticleAgreeReq.Validate if the designated constraints aren't met.
+type SetArticleAgreeReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SetArticleAgreeReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SetArticleAgreeReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SetArticleAgreeReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SetArticleAgreeReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SetArticleAgreeReqValidationError) ErrorName() string {
+	return "SetArticleAgreeReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SetArticleAgreeReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSetArticleAgreeReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SetArticleAgreeReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SetArticleAgreeReqValidationError{}
+
+// Validate checks the field values on SetArticleViewReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *SetArticleViewReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SetArticleViewReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SetArticleViewReqMultiError, or nil if none found.
+func (m *SetArticleViewReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SetArticleViewReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Uuid
+
+	if len(errors) > 0 {
+		return SetArticleViewReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// SetArticleViewReqMultiError is an error wrapping multiple validation errors
+// returned by SetArticleViewReq.ValidateAll() if the designated constraints
+// aren't met.
+type SetArticleViewReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SetArticleViewReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SetArticleViewReqMultiError) AllErrors() []error { return m }
+
+// SetArticleViewReqValidationError is the validation error returned by
+// SetArticleViewReq.Validate if the designated constraints aren't met.
+type SetArticleViewReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SetArticleViewReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SetArticleViewReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SetArticleViewReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SetArticleViewReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SetArticleViewReqValidationError) ErrorName() string {
+	return "SetArticleViewReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SetArticleViewReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSetArticleViewReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SetArticleViewReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SetArticleViewReqValidationError{}
+
 // Validate checks the field values on GetLeaderBoardReply_Board with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
