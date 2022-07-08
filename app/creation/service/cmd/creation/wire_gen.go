@@ -25,7 +25,8 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, re
 	cmdable := data.NewRedis(confData, logger)
 	client := data.NewCosServiceClient(confData, logger)
 	articleDraftMqPro := data.NewRocketmqArticleDraftProducer(confData, logger)
-	dataData, cleanup, err := data.NewData(db, cmdable, client, articleDraftMqPro, logger)
+	achievementMqPro := data.NewRocketmqAchievementProducer(confData, logger)
+	dataData, cleanup, err := data.NewData(db, cmdable, client, articleDraftMqPro, achievementMqPro, logger)
 	if err != nil {
 		return nil, nil, err
 	}
