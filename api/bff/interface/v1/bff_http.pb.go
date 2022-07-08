@@ -22,6 +22,7 @@ type BffHTTPServer interface {
 	ArticleDraftMark(context.Context, *ArticleDraftMarkReq) (*emptypb.Empty, error)
 	ChangeUserPassword(context.Context, *ChangeUserPasswordReq) (*emptypb.Empty, error)
 	CreateArticleDraft(context.Context, *emptypb.Empty) (*CreateArticleDraftReply, error)
+	CreateCollections(context.Context, *CreateCollectionsReq) (*emptypb.Empty, error)
 	GetAccount(context.Context, *emptypb.Empty) (*GetAccountReply, error)
 	GetArticleDraftList(context.Context, *emptypb.Empty) (*GetArticleDraftListReply, error)
 	GetArticleList(context.Context, *GetArticleListReq) (*GetArticleListReply, error)
@@ -43,6 +44,7 @@ type BffHTTPServer interface {
 	SendEmailCode(context.Context, *SendEmailCodeReq) (*emptypb.Empty, error)
 	SendPhoneCode(context.Context, *SendPhoneCodeReq) (*emptypb.Empty, error)
 	SetArticleAgree(context.Context, *SetArticleAgreeReq) (*emptypb.Empty, error)
+	SetArticleCollect(context.Context, *SetArticleCollectReq) (*emptypb.Empty, error)
 	SetArticleView(context.Context, *SetArticleViewReq) (*emptypb.Empty, error)
 	SetProfileUpdate(context.Context, *SetProfileUpdateReq) (*emptypb.Empty, error)
 	SetUserEmail(context.Context, *SetUserEmailReq) (*emptypb.Empty, error)
@@ -82,11 +84,13 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.GET("/v1/get/article/list/statistic", _Bff_GetArticleListStatistic0_HTTP_Handler(srv))
 	r.GET("/v1/get/last/article/draft", _Bff_GetLastArticleDraft0_HTTP_Handler(srv))
 	r.POST("/v1/create/article/draft", _Bff_CreateArticleDraft0_HTTP_Handler(srv))
+	r.POST("/v1/create/article/collections", _Bff_CreateCollections0_HTTP_Handler(srv))
 	r.POST("/v1/article/draft/mark", _Bff_ArticleDraftMark0_HTTP_Handler(srv))
 	r.GET("/v1/get/article/draft/list", _Bff_GetArticleDraftList0_HTTP_Handler(srv))
 	r.POST("/v1/send/article", _Bff_SendArticle0_HTTP_Handler(srv))
 	r.POST("/v1/set/article/agree", _Bff_SetArticleAgree0_HTTP_Handler(srv))
-	r.POST("/v1/set/article/view", _Bff_SetArticleView1_HTTP_Handler(srv))
+	r.POST("/v1/set/article/view", _Bff_SetArticleView0_HTTP_Handler(srv))
+	r.POST("/v1/set/article/collect", _Bff_SetArticleCollect0_HTTP_Handler(srv))
 }
 
 func _Bff_UserRegister0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
@@ -602,6 +606,25 @@ func _Bff_CreateArticleDraft0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Cont
 	}
 }
 
+func _Bff_CreateCollections0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in CreateCollectionsReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/bff.v1.Bff/CreateCollections")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.CreateCollections(ctx, req.(*CreateCollectionsReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _Bff_ArticleDraftMark0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in ArticleDraftMarkReq
@@ -678,7 +701,7 @@ func _Bff_SetArticleAgree0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context
 	}
 }
 
-func _Bff_SetArticleView1_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+func _Bff_SetArticleView0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in SetArticleViewReq
 		if err := ctx.Bind(&in); err != nil {
@@ -697,10 +720,30 @@ func _Bff_SetArticleView1_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context)
 	}
 }
 
+func _Bff_SetArticleCollect0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SetArticleCollectReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/bff.v1.Bff/SetArticleCollect")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SetArticleCollect(ctx, req.(*SetArticleCollectReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
 type BffHTTPClient interface {
 	ArticleDraftMark(ctx context.Context, req *ArticleDraftMarkReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	ChangeUserPassword(ctx context.Context, req *ChangeUserPasswordReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	CreateArticleDraft(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *CreateArticleDraftReply, err error)
+	CreateCollections(ctx context.Context, req *CreateCollectionsReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	GetAccount(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetAccountReply, err error)
 	GetArticleDraftList(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetArticleDraftListReply, err error)
 	GetArticleList(ctx context.Context, req *GetArticleListReq, opts ...http.CallOption) (rsp *GetArticleListReply, err error)
@@ -722,6 +765,7 @@ type BffHTTPClient interface {
 	SendEmailCode(ctx context.Context, req *SendEmailCodeReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SendPhoneCode(ctx context.Context, req *SendPhoneCodeReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SetArticleAgree(ctx context.Context, req *SetArticleAgreeReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	SetArticleCollect(ctx context.Context, req *SetArticleCollectReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SetArticleView(ctx context.Context, req *SetArticleViewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SetProfileUpdate(ctx context.Context, req *SetProfileUpdateReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SetUserEmail(ctx context.Context, req *SetUserEmailReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -771,6 +815,19 @@ func (c *BffHTTPClientImpl) CreateArticleDraft(ctx context.Context, in *emptypb.
 	pattern := "/v1/create/article/draft"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation("/bff.v1.Bff/CreateArticleDraft"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) CreateCollections(ctx context.Context, in *CreateCollectionsReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/create/article/collections"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/bff.v1.Bff/CreateCollections"))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
@@ -1044,6 +1101,19 @@ func (c *BffHTTPClientImpl) SetArticleAgree(ctx context.Context, in *SetArticleA
 	pattern := "/v1/set/article/agree"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation("/bff.v1.Bff/SetArticleAgree"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) SetArticleCollect(ctx context.Context, in *SetArticleCollectReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/set/article/collect"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/bff.v1.Bff/SetArticleCollect"))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

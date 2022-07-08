@@ -50,11 +50,13 @@ type BffClient interface {
 	GetArticleListStatistic(ctx context.Context, in *GetArticleListStatisticReq, opts ...grpc.CallOption) (*GetArticleListStatisticReply, error)
 	GetLastArticleDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLastArticleDraftReply, error)
 	CreateArticleDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateArticleDraftReply, error)
+	CreateCollections(ctx context.Context, in *CreateCollectionsReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ArticleDraftMark(ctx context.Context, in *ArticleDraftMarkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetArticleDraftList(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetArticleDraftListReply, error)
 	SendArticle(ctx context.Context, in *SendArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetArticleAgree(ctx context.Context, in *SetArticleAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetArticleView(ctx context.Context, in *SetArticleViewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetArticleCollect(ctx context.Context, in *SetArticleCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type bffClient struct {
@@ -308,6 +310,15 @@ func (c *bffClient) CreateArticleDraft(ctx context.Context, in *emptypb.Empty, o
 	return out, nil
 }
 
+func (c *bffClient) CreateCollections(ctx context.Context, in *CreateCollectionsReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/CreateCollections", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) ArticleDraftMark(ctx context.Context, in *ArticleDraftMarkReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/ArticleDraftMark", in, out, opts...)
@@ -353,6 +364,15 @@ func (c *bffClient) SetArticleView(ctx context.Context, in *SetArticleViewReq, o
 	return out, nil
 }
 
+func (c *bffClient) SetArticleCollect(ctx context.Context, in *SetArticleCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SetArticleCollect", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BffServer is the server API for Bff service.
 // All implementations must embed UnimplementedBffServer
 // for forward compatibility
@@ -384,11 +404,13 @@ type BffServer interface {
 	GetArticleListStatistic(context.Context, *GetArticleListStatisticReq) (*GetArticleListStatisticReply, error)
 	GetLastArticleDraft(context.Context, *emptypb.Empty) (*GetLastArticleDraftReply, error)
 	CreateArticleDraft(context.Context, *emptypb.Empty) (*CreateArticleDraftReply, error)
+	CreateCollections(context.Context, *CreateCollectionsReq) (*emptypb.Empty, error)
 	ArticleDraftMark(context.Context, *ArticleDraftMarkReq) (*emptypb.Empty, error)
 	GetArticleDraftList(context.Context, *emptypb.Empty) (*GetArticleDraftListReply, error)
 	SendArticle(context.Context, *SendArticleReq) (*emptypb.Empty, error)
 	SetArticleAgree(context.Context, *SetArticleAgreeReq) (*emptypb.Empty, error)
 	SetArticleView(context.Context, *SetArticleViewReq) (*emptypb.Empty, error)
+	SetArticleCollect(context.Context, *SetArticleCollectReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedBffServer()
 }
 
@@ -477,6 +499,9 @@ func (UnimplementedBffServer) GetLastArticleDraft(context.Context, *emptypb.Empt
 func (UnimplementedBffServer) CreateArticleDraft(context.Context, *emptypb.Empty) (*CreateArticleDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateArticleDraft not implemented")
 }
+func (UnimplementedBffServer) CreateCollections(context.Context, *CreateCollectionsReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateCollections not implemented")
+}
 func (UnimplementedBffServer) ArticleDraftMark(context.Context, *ArticleDraftMarkReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ArticleDraftMark not implemented")
 }
@@ -491,6 +516,9 @@ func (UnimplementedBffServer) SetArticleAgree(context.Context, *SetArticleAgreeR
 }
 func (UnimplementedBffServer) SetArticleView(context.Context, *SetArticleViewReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetArticleView not implemented")
+}
+func (UnimplementedBffServer) SetArticleCollect(context.Context, *SetArticleCollectReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetArticleCollect not implemented")
 }
 func (UnimplementedBffServer) mustEmbedUnimplementedBffServer() {}
 
@@ -991,6 +1019,24 @@ func _Bff_CreateArticleDraft_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_CreateCollections_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateCollectionsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).CreateCollections(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/CreateCollections",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).CreateCollections(ctx, req.(*CreateCollectionsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_ArticleDraftMark_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ArticleDraftMarkReq)
 	if err := dec(in); err != nil {
@@ -1077,6 +1123,24 @@ func _Bff_SetArticleView_Handler(srv interface{}, ctx context.Context, dec func(
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BffServer).SetArticleView(ctx, req.(*SetArticleViewReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_SetArticleCollect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetArticleCollectReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).SetArticleCollect(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/SetArticleCollect",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).SetArticleCollect(ctx, req.(*SetArticleCollectReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1197,6 +1261,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Bff_CreateArticleDraft_Handler,
 		},
 		{
+			MethodName: "CreateCollections",
+			Handler:    _Bff_CreateCollections_Handler,
+		},
+		{
 			MethodName: "ArticleDraftMark",
 			Handler:    _Bff_ArticleDraftMark_Handler,
 		},
@@ -1215,6 +1283,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetArticleView",
 			Handler:    _Bff_SetArticleView_Handler,
+		},
+		{
+			MethodName: "SetArticleCollect",
+			Handler:    _Bff_SetArticleCollect_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
