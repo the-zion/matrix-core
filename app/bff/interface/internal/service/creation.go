@@ -105,6 +105,14 @@ func (s *BffService) CreateArticleDraft(ctx context.Context, _ *emptypb.Empty) (
 	}, nil
 }
 
+func (s *BffService) CreateCollections(ctx context.Context, req *v1.CreateCollectionsReq) (*emptypb.Empty, error) {
+	err := s.cc.CreateCollections(ctx, req.Name, req.Introduce, req.Auth)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *BffService) ArticleDraftMark(ctx context.Context, req *v1.ArticleDraftMarkReq) (*emptypb.Empty, error) {
 	err := s.ac.ArticleDraftMark(ctx, req.Id)
 	if err != nil {
@@ -137,6 +145,22 @@ func (s *BffService) SendArticle(ctx context.Context, req *v1.SendArticleReq) (*
 
 func (s *BffService) SetArticleAgree(ctx context.Context, req *v1.SetArticleAgreeReq) (*emptypb.Empty, error) {
 	err := s.ac.SetArticleAgree(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) SetArticleView(ctx context.Context, req *v1.SetArticleViewReq) (*emptypb.Empty, error) {
+	err := s.ac.SetArticleView(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) SetArticleCollect(ctx context.Context, req *v1.SetArticleCollectReq) (*emptypb.Empty, error) {
+	err := s.ac.SetArticleCollect(ctx, req.Id, req.CollectionsId, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
