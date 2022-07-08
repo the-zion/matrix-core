@@ -9,10 +9,24 @@ import "validate/validate.proto";
 option go_package = "api/achievement/service/v1;v1";
 
 service Achievement {
-  rpc SetArticleView(google.protobuf.Empty) returns (google.protobuf.Empty){
+  rpc SetAchievementAgree(SetAchievementAgreeReq) returns (google.protobuf.Empty){}
+  rpc SetAchievementView(SetAchievementViewReq) returns (google.protobuf.Empty){}
+  rpc SetAchievementCollect(SetAchievementCollectReq) returns (google.protobuf.Empty){}
+  rpc GetHealth(google.protobuf.Empty) returns (google.protobuf.Empty){
     option (google.api.http) = {
-      post: "/v1/set/article/view"
-      body: "*"
+      get: "/v1/get/achievement/health"
     };
   }
+}
+
+message SetAchievementAgreeReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+message SetAchievementViewReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+message SetAchievementCollectReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
 }
