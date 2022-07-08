@@ -42,19 +42,30 @@ message Data {
     string secret_id = 2;
     string secret_key = 3;
   }
-  message Rocketmq{
-    message ArticleDraft{
+  message AchievementMq{
+    message Achievement{
       string groupName = 1;
     }
-    ArticleDraft articleDraft = 1;
+    Achievement achievement = 1;
     string serverAddress = 2;
     string secretKey = 3;
     string accessKey = 4;
     string nameSpace = 5;
   }
+  message CreationMq{
+    message ArticleDraft{
+      string groupName = 1;
+    }
+    ArticleDraft articleDraft = 1;
+    string serverAddress = 3;
+    string secretKey = 4;
+    string accessKey = 5;
+    string nameSpace = 6;
+  }
   Database database = 1;
   Redis redis = 2;
   Cos cos = 3;
-  Rocketmq rocketmq = 4;
+  AchievementMq achievementMq = 4;
+  CreationMq creationMq = 5;
 }
 
