@@ -8,6 +8,7 @@ import (
 
 type CreationRepo interface {
 	GetLeaderBoard(ctx context.Context) ([]*LeaderBoard, error)
+	CreateCollections(ctx context.Context, uuid, name, introduce string, auth int32) error
 }
 
 type CreationUseCase struct {
@@ -28,4 +29,12 @@ func (r *CreationUseCase) GetLeaderBoard(ctx context.Context) ([]*LeaderBoard, e
 		return nil, v1.ErrorGetLeaderBoardFailed("get leader board failed: %s", err.Error())
 	}
 	return boardList, nil
+}
+
+func (r *CreationUseCase) CreateCollections(ctx context.Context, uuid, name, introduce string, auth int32) error {
+	err := r.repo.CreateCollections(ctx, uuid, name, introduce, auth)
+	if err != nil {
+		return v1.ErrorCreateCollectionsFailed("create collections failed: %s", err.Error())
+	}
+	return nil
 }

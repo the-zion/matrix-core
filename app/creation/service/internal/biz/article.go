@@ -14,17 +14,25 @@ type ArticleRepo interface {
 	GetArticleListHot(ctx context.Context, page int32) ([]*ArticleStatistic, error)
 	GetArticleStatistic(ctx context.Context, id int32) (*ArticleStatistic, error)
 	GetArticleListStatistic(ctx context.Context, ids []int32) ([]*ArticleStatistic, error)
-	CreateArticle(ctx context.Context, uuid string, id int32) error
-	CreateArticleStatistic(ctx context.Context, uuid string, id int32) error
+	CreateArticle(ctx context.Context, id int32, uuid string) error
+	CreateArticleStatistic(ctx context.Context, id int32, uuid string) error
 	CreateArticleDraft(ctx context.Context, uuid string) (int32, error)
 	CreateArticleFolder(ctx context.Context, id int32) error
-	CreateArticleCache(ctx context.Context, uuid string, id int32) error
-	CreateArticleSearch(ctx context.Context, uuid string, id int32) error
-	DeleteArticleDraft(ctx context.Context, uuid string, id int32) error
-	ArticleDraftMark(ctx context.Context, uuid string, id int32) error
-	SendArticle(ctx context.Context, uuid string, id int32) (*ArticleDraft, error)
+	CreateArticleCache(ctx context.Context, id int32, uuid string) error
+	CreateArticleSearch(ctx context.Context, id int32, uuid string) error
+	DeleteArticleDraft(ctx context.Context, id int32, uuid string) error
+	ArticleDraftMark(ctx context.Context, id int32, uuid string) error
+	SendArticle(ctx context.Context, id int32, uuid string) (*ArticleDraft, error)
 	SendDraftToMq(ctx context.Context, draft *ArticleDraft) error
 	SendArticleToMq(ctx context.Context, article *Article, mode string) error
+	SetArticleAgree(ctx context.Context, id int32, uuid string) error
+	SetArticleView(ctx context.Context, id int32, uuid string) error
+	SetArticleUserCollect(ctx context.Context, id, collectionsId int32, userUuid string) error
+	SetArticleCollect(ctx context.Context, id int32, uuid string) error
+	SetArticleAgreeToCache(ctx context.Context, id int32, uuid string) error
+	SetArticleViewToCache(ctx context.Context, id int32, uuid string) error
+	SetArticleCollectToCache(ctx context.Context, id int32, uuid string) error
+	SendArticleStatisticToMq(ctx context.Context, uuid, mode string) error
 }
 type ArticleUseCase struct {
 	repo ArticleRepo
@@ -51,20 +59,20 @@ func (r *ArticleUseCase) GetLastArticleDraft(ctx context.Context, uuid string) (
 	return draft, nil
 }
 
-func (r *ArticleUseCase) CreateArticle(ctx context.Context, uuid string, id int32) error {
+func (r *ArticleUseCase) CreateArticle(ctx context.Context, id int32, uuid string) error {
 	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		var err error
-		err = r.repo.DeleteArticleDraft(ctx, uuid, id)
+		err = r.repo.DeleteArticleDraft(ctx, id, uuid)
 		if err != nil {
 			return v1.ErrorDeleteArticleDraftFailed("delete article draft failed: %s", err.Error())
 		}
 
-		err = r.repo.CreateArticle(ctx, uuid, id)
+		err = r.repo.CreateArticle(ctx, id, uuid)
 		if err != nil {
 			return v1.ErrorCreateArticleFailed("create article failed: %s", err.Error())
 		}
 
-		err = r.repo.CreateArticleStatistic(ctx, uuid, id)
+		err = r.repo.CreateArticleStatistic(ctx, id, uuid)
 		if err != nil {
 			return v1.ErrorCreateArticleStatisticFailed("create article statistic failed: %s", err.Error())
 		}
@@ -81,13 +89,13 @@ func (r *ArticleUseCase) CreateArticle(ctx context.Context, uuid string, id int3
 	})
 }
 
-func (r *ArticleUseCase) CreateArticleCacheAndSearch(ctx context.Context, uuid string, id int32) error {
-	err := r.repo.CreateArticleCache(ctx, uuid, id)
+func (r *ArticleUseCase) CreateArticleCacheAndSearch(ctx context.Context, id int32, uuid string) error {
+	err := r.repo.CreateArticleCache(ctx, id, uuid)
 	if err != nil {
 		return v1.ErrorCreateArticleCacheFailed("create article cache failed: %s", err.Error())
 	}
 
-	err = r.repo.CreateArticleSearch(ctx, uuid, id)
+	err = r.repo.CreateArticleSearch(ctx, id, uuid)
 	if err != nil {
 		return v1.ErrorCreateArticleSearchFailed("create article search failed: %s", err.Error())
 	}
@@ -107,7 +115,6 @@ func (r *ArticleUseCase) CreateArticleDraft(ctx context.Context, uuid string) (i
 		if err != nil {
 			return v1.ErrorCreateArticleFolderFailed("create article folder failed: %s", err.Error())
 		}
-
 		return nil
 	})
 	if err != nil {
@@ -116,8 +123,8 @@ func (r *ArticleUseCase) CreateArticleDraft(ctx context.Context, uuid string) (i
 	return id, nil
 }
 
-func (r *ArticleUseCase) ArticleDraftMark(ctx context.Context, uuid string, id int32) error {
-	err := r.repo.ArticleDraftMark(ctx, uuid, id)
+func (r *ArticleUseCase) ArticleDraftMark(ctx context.Context, id int32, uuid string) error {
+	err := r.repo.ArticleDraftMark(ctx, id, uuid)
 	if err != nil {
 		return v1.ErrorDraftMarkFailed("mark draft failed: %s", err.Error())
 	}
@@ -164,15 +171,73 @@ func (r *ArticleUseCase) GetArticleDraftList(ctx context.Context, uuid string) (
 	return draftList, nil
 }
 
-func (r *ArticleUseCase) SendArticle(ctx context.Context, uuid string, id int32) error {
+func (r *ArticleUseCase) SendArticle(ctx context.Context, id int32, uuid string) error {
 	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
-		draft, err := r.repo.SendArticle(ctx, uuid, id)
+		draft, err := r.repo.SendArticle(ctx, id, uuid)
 		if err != nil {
 			return v1.ErrorSendArticleFailed("send article failed: %s", err.Error())
 		}
 		err = r.repo.SendDraftToMq(ctx, draft)
 		if err != nil {
 			return v1.ErrorSendToMqFailed("send draft to mq failed: %s", err.Error())
+		}
+		return nil
+	})
+}
+
+func (r *ArticleUseCase) SetArticleAgree(ctx context.Context, id int32, uuid string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		err := r.repo.SetArticleAgree(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorSetArticleAgreeFailed("set article agree failed: %s", err.Error())
+		}
+		err = r.repo.SetArticleAgreeToCache(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorSetArticleAgreeFailed("set article agree to cache failed: %s", err.Error())
+		}
+		err = r.repo.SendArticleStatisticToMq(ctx, uuid, "agree")
+		if err != nil {
+			return v1.ErrorSendToMqFailed("set article agree to mq failed: %s", err.Error())
+		}
+		return nil
+	})
+}
+
+func (r *ArticleUseCase) SetArticleView(ctx context.Context, id int32, uuid string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		err := r.repo.SetArticleView(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorSetArticleViewFailed("set article view failed: %s", err.Error())
+		}
+		err = r.repo.SetArticleViewToCache(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorSetArticleViewFailed("set article view to cache failed: %s", err.Error())
+		}
+		err = r.repo.SendArticleStatisticToMq(ctx, uuid, "view")
+		if err != nil {
+			return v1.ErrorSendToMqFailed("set article view to mq failed: %s", err.Error())
+		}
+		return nil
+	})
+}
+
+func (r *ArticleUseCase) SetArticleCollect(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		err := r.repo.SetArticleUserCollect(ctx, id, collectionsId, userUuid)
+		if err != nil {
+			return v1.ErrorSetArticleViewFailed("set article user collect failed: %s", err.Error())
+		}
+		err = r.repo.SetArticleCollect(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorSetArticleViewFailed("set article collect failed: %s", err.Error())
+		}
+		err = r.repo.SetArticleCollectToCache(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorSetArticleViewFailed("set article collect to cache failed: %s", err.Error())
+		}
+		err = r.repo.SendArticleStatisticToMq(ctx, uuid, "collect")
+		if err != nil {
+			return v1.ErrorSendToMqFailed("set article collect to mq failed: %s", err.Error())
 		}
 		return nil
 	})
