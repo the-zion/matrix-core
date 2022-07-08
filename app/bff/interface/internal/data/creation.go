@@ -192,7 +192,7 @@ func (r *articleRepo) CreateArticleDraft(ctx context.Context, uuid string) (int3
 	return reply.Id, nil
 }
 
-func (r *articleRepo) ArticleDraftMark(ctx context.Context, uuid string, id int32) error {
+func (r *articleRepo) ArticleDraftMark(ctx context.Context, id int32, uuid string) error {
 	_, err := r.data.cc.ArticleDraftMark(ctx, &creationV1.ArticleDraftMarkReq{
 		Id:   id,
 		Uuid: uuid,
@@ -203,7 +203,7 @@ func (r *articleRepo) ArticleDraftMark(ctx context.Context, uuid string, id int3
 	return nil
 }
 
-func (r *articleRepo) SendArticle(ctx context.Context, uuid string, id int32) error {
+func (r *articleRepo) SendArticle(ctx context.Context, id int32, uuid string) error {
 	_, err := r.data.cc.SendArticle(ctx, &creationV1.SendArticleReq{
 		Uuid: uuid,
 		Id:   id,
@@ -214,10 +214,47 @@ func (r *articleRepo) SendArticle(ctx context.Context, uuid string, id int32) er
 	return nil
 }
 
-func (r *articleRepo) SetArticleAgree(ctx context.Context, uuid string, id int32) error {
+func (r *articleRepo) SetArticleAgree(ctx context.Context, id int32, uuid string) error {
 	_, err := r.data.cc.SetArticleAgree(ctx, &creationV1.SetArticleAgreeReq{
 		Uuid: uuid,
 		Id:   id,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *articleRepo) SetArticleView(ctx context.Context, id int32, uuid string) error {
+	_, err := r.data.cc.SetArticleView(ctx, &creationV1.SetArticleViewReq{
+		Uuid: uuid,
+		Id:   id,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *articleRepo) SetArticleCollect(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error {
+	_, err := r.data.cc.SetArticleCollect(ctx, &creationV1.SetArticleCollectReq{
+		CollectionsId: collectionsId,
+		Uuid:          uuid,
+		UserUuid:      userUuid,
+		Id:            id,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) CreateCollections(ctx context.Context, uuid, name, introduce string, auth int32) error {
+	_, err := r.data.cc.CreateCollections(ctx, &creationV1.CreateCollectionsReq{
+		Uuid:      uuid,
+		Name:      name,
+		Introduce: introduce,
+		Auth:      auth,
 	})
 	if err != nil {
 		return err
