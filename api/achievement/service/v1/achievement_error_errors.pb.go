@@ -22,3 +22,39 @@ func IsUnknownError(err error) bool {
 func ErrorUnknownError(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, AchievementErrorReason_UNKNOWN_ERROR.String(), fmt.Sprintf(format, args...))
 }
+
+func IsSendAchievementAgreeFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == AchievementErrorReason_SEND_ACHIEVEMENT_AGREE_FAILED.String() && e.Code == 500
+}
+
+func ErrorSendAchievementAgreeFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, AchievementErrorReason_SEND_ACHIEVEMENT_AGREE_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsSendAchievementViewFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == AchievementErrorReason_SEND_ACHIEVEMENT_VIEW_FAILED.String() && e.Code == 500
+}
+
+func ErrorSendAchievementViewFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, AchievementErrorReason_SEND_ACHIEVEMENT_VIEW_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsSendAchievementCollectFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == AchievementErrorReason_SEND_ACHIEVEMENT_COLLECT_FAILED.String() && e.Code == 500
+}
+
+func ErrorSendAchievementCollectFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, AchievementErrorReason_SEND_ACHIEVEMENT_COLLECT_FAILED.String(), fmt.Sprintf(format, args...))
+}
