@@ -19,23 +19,23 @@ var _ = binding.EncodeURL
 const _ = http.SupportPackageIsVersion1
 
 type AchievementHTTPServer interface {
-	SetArticleView(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
+	GetHealth(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 }
 
 func RegisterAchievementHTTPServer(s *http.Server, srv AchievementHTTPServer) {
 	r := s.Route("/")
-	r.POST("/v1/set/article/view", _Achievement_SetArticleView0_HTTP_Handler(srv))
+	r.GET("/v1/get/achievement/health", _Achievement_GetHealth0_HTTP_Handler(srv))
 }
 
-func _Achievement_SetArticleView0_HTTP_Handler(srv AchievementHTTPServer) func(ctx http.Context) error {
+func _Achievement_GetHealth0_HTTP_Handler(srv AchievementHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in emptypb.Empty
-		if err := ctx.Bind(&in); err != nil {
+		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, "/achievement.v1.Achievement/SetArticleView")
+		http.SetOperation(ctx, "/achievement.v1.Achievement/GetHealth")
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.SetArticleView(ctx, req.(*emptypb.Empty))
+			return srv.GetHealth(ctx, req.(*emptypb.Empty))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -47,7 +47,7 @@ func _Achievement_SetArticleView0_HTTP_Handler(srv AchievementHTTPServer) func(c
 }
 
 type AchievementHTTPClient interface {
-	SetArticleView(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	GetHealth(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
 
 type AchievementHTTPClientImpl struct {
@@ -58,13 +58,13 @@ func NewAchievementHTTPClient(client *http.Client) AchievementHTTPClient {
 	return &AchievementHTTPClientImpl{client}
 }
 
-func (c *AchievementHTTPClientImpl) SetArticleView(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*emptypb.Empty, error) {
+func (c *AchievementHTTPClientImpl) GetHealth(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/v1/set/article/view"
-	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation("/achievement.v1.Achievement/SetArticleView"))
+	pattern := "/v1/get/achievement/health"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation("/achievement.v1.Achievement/GetHealth"))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

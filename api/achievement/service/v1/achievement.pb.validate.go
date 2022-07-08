@@ -34,3 +34,372 @@ var (
 	_ = anypb.Any{}
 	_ = sort.Sort
 )
+
+// define the regex for a UUID once up-front
+var _achievement_uuidPattern = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+
+// Validate checks the field values on SetAchievementAgreeReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SetAchievementAgreeReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SetAchievementAgreeReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SetAchievementAgreeReqMultiError, or nil if none found.
+func (m *SetAchievementAgreeReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SetAchievementAgreeReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = SetAchievementAgreeReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return SetAchievementAgreeReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *SetAchievementAgreeReq) _validateUuid(uuid string) error {
+	if matched := _achievement_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// SetAchievementAgreeReqMultiError is an error wrapping multiple validation
+// errors returned by SetAchievementAgreeReq.ValidateAll() if the designated
+// constraints aren't met.
+type SetAchievementAgreeReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SetAchievementAgreeReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SetAchievementAgreeReqMultiError) AllErrors() []error { return m }
+
+// SetAchievementAgreeReqValidationError is the validation error returned by
+// SetAchievementAgreeReq.Validate if the designated constraints aren't met.
+type SetAchievementAgreeReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SetAchievementAgreeReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SetAchievementAgreeReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SetAchievementAgreeReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SetAchievementAgreeReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SetAchievementAgreeReqValidationError) ErrorName() string {
+	return "SetAchievementAgreeReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SetAchievementAgreeReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSetAchievementAgreeReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SetAchievementAgreeReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SetAchievementAgreeReqValidationError{}
+
+// Validate checks the field values on SetAchievementViewReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SetAchievementViewReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SetAchievementViewReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SetAchievementViewReqMultiError, or nil if none found.
+func (m *SetAchievementViewReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SetAchievementViewReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = SetAchievementViewReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return SetAchievementViewReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *SetAchievementViewReq) _validateUuid(uuid string) error {
+	if matched := _achievement_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// SetAchievementViewReqMultiError is an error wrapping multiple validation
+// errors returned by SetAchievementViewReq.ValidateAll() if the designated
+// constraints aren't met.
+type SetAchievementViewReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SetAchievementViewReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SetAchievementViewReqMultiError) AllErrors() []error { return m }
+
+// SetAchievementViewReqValidationError is the validation error returned by
+// SetAchievementViewReq.Validate if the designated constraints aren't met.
+type SetAchievementViewReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SetAchievementViewReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SetAchievementViewReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SetAchievementViewReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SetAchievementViewReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SetAchievementViewReqValidationError) ErrorName() string {
+	return "SetAchievementViewReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SetAchievementViewReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSetAchievementViewReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SetAchievementViewReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SetAchievementViewReqValidationError{}
+
+// Validate checks the field values on SetAchievementCollectReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SetAchievementCollectReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SetAchievementCollectReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SetAchievementCollectReqMultiError, or nil if none found.
+func (m *SetAchievementCollectReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SetAchievementCollectReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = SetAchievementCollectReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return SetAchievementCollectReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *SetAchievementCollectReq) _validateUuid(uuid string) error {
+	if matched := _achievement_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// SetAchievementCollectReqMultiError is an error wrapping multiple validation
+// errors returned by SetAchievementCollectReq.ValidateAll() if the designated
+// constraints aren't met.
+type SetAchievementCollectReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SetAchievementCollectReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SetAchievementCollectReqMultiError) AllErrors() []error { return m }
+
+// SetAchievementCollectReqValidationError is the validation error returned by
+// SetAchievementCollectReq.Validate if the designated constraints aren't met.
+type SetAchievementCollectReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SetAchievementCollectReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SetAchievementCollectReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SetAchievementCollectReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SetAchievementCollectReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SetAchievementCollectReqValidationError) ErrorName() string {
+	return "SetAchievementCollectReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SetAchievementCollectReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSetAchievementCollectReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SetAchievementCollectReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SetAchievementCollectReqValidationError{}
