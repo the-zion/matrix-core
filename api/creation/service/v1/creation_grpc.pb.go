@@ -32,11 +32,13 @@ type CreationClient interface {
 	CreateArticle(ctx context.Context, in *CreateArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateArticleCacheAndSearch(ctx context.Context, in *CreateArticleCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateArticleDraft(ctx context.Context, in *CreateArticleDraftReq, opts ...grpc.CallOption) (*CreateArticleDraftReply, error)
+	CreateCollections(ctx context.Context, in *CreateCollectionsReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ArticleDraftMark(ctx context.Context, in *ArticleDraftMarkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetArticleDraftList(ctx context.Context, in *GetArticleDraftListReq, opts ...grpc.CallOption) (*GetArticleDraftListReply, error)
 	SendArticle(ctx context.Context, in *SendArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetArticleAgree(ctx context.Context, in *SetArticleAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetArticleView(ctx context.Context, in *SetArticleViewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetArticleCollect(ctx context.Context, in *SetArticleCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type creationClient struct {
@@ -128,6 +130,15 @@ func (c *creationClient) CreateArticleDraft(ctx context.Context, in *CreateArtic
 	return out, nil
 }
 
+func (c *creationClient) CreateCollections(ctx context.Context, in *CreateCollectionsReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/CreateCollections", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *creationClient) ArticleDraftMark(ctx context.Context, in *ArticleDraftMarkReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/ArticleDraftMark", in, out, opts...)
@@ -173,6 +184,15 @@ func (c *creationClient) SetArticleView(ctx context.Context, in *SetArticleViewR
 	return out, nil
 }
 
+func (c *creationClient) SetArticleCollect(ctx context.Context, in *SetArticleCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/SetArticleCollect", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CreationServer is the server API for Creation service.
 // All implementations must embed UnimplementedCreationServer
 // for forward compatibility
@@ -186,11 +206,13 @@ type CreationServer interface {
 	CreateArticle(context.Context, *CreateArticleReq) (*emptypb.Empty, error)
 	CreateArticleCacheAndSearch(context.Context, *CreateArticleCacheAndSearchReq) (*emptypb.Empty, error)
 	CreateArticleDraft(context.Context, *CreateArticleDraftReq) (*CreateArticleDraftReply, error)
+	CreateCollections(context.Context, *CreateCollectionsReq) (*emptypb.Empty, error)
 	ArticleDraftMark(context.Context, *ArticleDraftMarkReq) (*emptypb.Empty, error)
 	GetArticleDraftList(context.Context, *GetArticleDraftListReq) (*GetArticleDraftListReply, error)
 	SendArticle(context.Context, *SendArticleReq) (*emptypb.Empty, error)
 	SetArticleAgree(context.Context, *SetArticleAgreeReq) (*emptypb.Empty, error)
 	SetArticleView(context.Context, *SetArticleViewReq) (*emptypb.Empty, error)
+	SetArticleCollect(context.Context, *SetArticleCollectReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedCreationServer()
 }
 
@@ -225,6 +247,9 @@ func (UnimplementedCreationServer) CreateArticleCacheAndSearch(context.Context, 
 func (UnimplementedCreationServer) CreateArticleDraft(context.Context, *CreateArticleDraftReq) (*CreateArticleDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateArticleDraft not implemented")
 }
+func (UnimplementedCreationServer) CreateCollections(context.Context, *CreateCollectionsReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateCollections not implemented")
+}
 func (UnimplementedCreationServer) ArticleDraftMark(context.Context, *ArticleDraftMarkReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ArticleDraftMark not implemented")
 }
@@ -239,6 +264,9 @@ func (UnimplementedCreationServer) SetArticleAgree(context.Context, *SetArticleA
 }
 func (UnimplementedCreationServer) SetArticleView(context.Context, *SetArticleViewReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetArticleView not implemented")
+}
+func (UnimplementedCreationServer) SetArticleCollect(context.Context, *SetArticleCollectReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetArticleCollect not implemented")
 }
 func (UnimplementedCreationServer) mustEmbedUnimplementedCreationServer() {}
 
@@ -415,6 +443,24 @@ func _Creation_CreateArticleDraft_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Creation_CreateCollections_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateCollectionsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).CreateCollections(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/CreateCollections",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).CreateCollections(ctx, req.(*CreateCollectionsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Creation_ArticleDraftMark_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ArticleDraftMarkReq)
 	if err := dec(in); err != nil {
@@ -505,6 +551,24 @@ func _Creation_SetArticleView_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Creation_SetArticleCollect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetArticleCollectReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).SetArticleCollect(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/SetArticleCollect",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).SetArticleCollect(ctx, req.(*SetArticleCollectReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Creation_ServiceDesc is the grpc.ServiceDesc for Creation service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -549,6 +613,10 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Creation_CreateArticleDraft_Handler,
 		},
 		{
+			MethodName: "CreateCollections",
+			Handler:    _Creation_CreateCollections_Handler,
+		},
+		{
 			MethodName: "ArticleDraftMark",
 			Handler:    _Creation_ArticleDraftMark_Handler,
 		},
@@ -567,6 +635,10 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetArticleView",
 			Handler:    _Creation_SetArticleView_Handler,
+		},
+		{
+			MethodName: "SetArticleCollect",
+			Handler:    _Creation_SetArticleCollect_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -1810,6 +1810,152 @@ var _ interface {
 	ErrorName() string
 } = CreateArticleDraftReplyValidationError{}
 
+// Validate checks the field values on CreateCollectionsReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *CreateCollectionsReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CreateCollectionsReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// CreateCollectionsReqMultiError, or nil if none found.
+func (m *CreateCollectionsReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CreateCollectionsReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = CreateCollectionsReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if l := utf8.RuneCountInString(m.GetName()); l < 1 || l > 50 {
+		err := CreateCollectionsReqValidationError{
+			field:  "Name",
+			reason: "value length must be between 1 and 50 runes, inclusive",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if l := utf8.RuneCountInString(m.GetIntroduce()); l < 1 || l > 100 {
+		err := CreateCollectionsReqValidationError{
+			field:  "Introduce",
+			reason: "value length must be between 1 and 100 runes, inclusive",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for Auth
+
+	if len(errors) > 0 {
+		return CreateCollectionsReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *CreateCollectionsReq) _validateUuid(uuid string) error {
+	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// CreateCollectionsReqMultiError is an error wrapping multiple validation
+// errors returned by CreateCollectionsReq.ValidateAll() if the designated
+// constraints aren't met.
+type CreateCollectionsReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CreateCollectionsReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CreateCollectionsReqMultiError) AllErrors() []error { return m }
+
+// CreateCollectionsReqValidationError is the validation error returned by
+// CreateCollectionsReq.Validate if the designated constraints aren't met.
+type CreateCollectionsReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CreateCollectionsReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CreateCollectionsReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CreateCollectionsReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CreateCollectionsReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CreateCollectionsReqValidationError) ErrorName() string {
+	return "CreateCollectionsReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CreateCollectionsReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCreateCollectionsReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CreateCollectionsReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CreateCollectionsReqValidationError{}
+
 // Validate checks the field values on ArticleDraftMarkReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -2561,6 +2707,144 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = SetArticleViewReqValidationError{}
+
+// Validate checks the field values on SetArticleCollectReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SetArticleCollectReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SetArticleCollectReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SetArticleCollectReqMultiError, or nil if none found.
+func (m *SetArticleCollectReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SetArticleCollectReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for CollectionsId
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = SetArticleCollectReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if err := m._validateUuid(m.GetUserUuid()); err != nil {
+		err = SetArticleCollectReqValidationError{
+			field:  "UserUuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return SetArticleCollectReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *SetArticleCollectReq) _validateUuid(uuid string) error {
+	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// SetArticleCollectReqMultiError is an error wrapping multiple validation
+// errors returned by SetArticleCollectReq.ValidateAll() if the designated
+// constraints aren't met.
+type SetArticleCollectReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SetArticleCollectReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SetArticleCollectReqMultiError) AllErrors() []error { return m }
+
+// SetArticleCollectReqValidationError is the validation error returned by
+// SetArticleCollectReq.Validate if the designated constraints aren't met.
+type SetArticleCollectReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SetArticleCollectReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SetArticleCollectReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SetArticleCollectReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SetArticleCollectReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SetArticleCollectReqValidationError) ErrorName() string {
+	return "SetArticleCollectReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SetArticleCollectReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSetArticleCollectReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SetArticleCollectReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SetArticleCollectReqValidationError{}
 
 // Validate checks the field values on GetLeaderBoardReply_Board with the rules
 // defined in the proto definition for this message. If any rules are
