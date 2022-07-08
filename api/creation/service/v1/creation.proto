@@ -28,6 +28,8 @@ service Creation {
 
   rpc CreateArticleDraft(CreateArticleDraftReq) returns (CreateArticleDraftReply){}
 
+  rpc CreateCollections(CreateCollectionsReq) returns (google.protobuf.Empty){}
+
   rpc ArticleDraftMark(ArticleDraftMarkReq) returns (google.protobuf.Empty){}
 
   rpc GetArticleDraftList(GetArticleDraftListReq) returns (GetArticleDraftListReply){}
@@ -37,6 +39,8 @@ service Creation {
   rpc SetArticleAgree(SetArticleAgreeReq) returns (google.protobuf.Empty){}
 
   rpc SetArticleView(SetArticleViewReq) returns (google.protobuf.Empty){}
+
+  rpc SetArticleCollect(SetArticleCollectReq) returns (google.protobuf.Empty){}
 }
 
 message GetLeaderBoardReply{
@@ -126,6 +130,13 @@ message CreateArticleDraftReply{
   int32 id = 1;
 }
 
+message CreateCollectionsReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+  string name = 2 [(validate.rules).string = {min_len:1, max_len: 50}];
+  string introduce = 3 [(validate.rules).string = {min_len:1, max_len: 100}];
+  int32 auth = 4;
+}
+
 message ArticleDraftMarkReq{
   int32 id = 1;
   string uuid = 2 [(validate.rules).string.uuid = true];
@@ -155,4 +166,11 @@ message SetArticleAgreeReq{
 message SetArticleViewReq{
   int32 id = 1;
   string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message SetArticleCollectReq{
+  int32 id = 1;
+  int32 collections_id = 2;
+  string uuid = 3 [(validate.rules).string.uuid = true];
+  string user_uuid = 4 [(validate.rules).string.uuid = true];
 }
