@@ -190,6 +190,13 @@ service Bff{
     };
   }
 
+  rpc CreateCollections(CreateCollectionsReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/create/article/collections"
+      body: "*"
+    };
+  }
+
   rpc ArticleDraftMark(ArticleDraftMarkReq) returns (google.protobuf.Empty){
     option (google.api.http) = {
       post: "/v1/article/draft/mark"
@@ -220,6 +227,13 @@ service Bff{
   rpc SetArticleView(SetArticleViewReq) returns (google.protobuf.Empty){
     option (google.api.http) = {
       post: "/v1/set/article/view"
+      body: "*"
+    };
+  }
+
+  rpc SetArticleCollect(SetArticleCollectReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/set/article/collect"
       body: "*"
     };
   }
@@ -432,8 +446,15 @@ message GetLastArticleDraftReply{
   int32 id = 1;
   int32 status = 2;
 }
+
 message CreateArticleDraftReply{
   int32 id = 1;
+}
+
+message CreateCollectionsReq{
+  string name = 1;
+  string introduce = 2;
+  int32 auth = 3;
 }
 
 message ArticleDraftMarkReq{
@@ -459,4 +480,10 @@ message SetArticleAgreeReq{
 message SetArticleViewReq{
   int32 id = 1;
   string uuid = 2;
+}
+
+message SetArticleCollectReq{
+  int32 id = 1;
+  int32 collections_id = 2;
+  string uuid = 3;
 }
