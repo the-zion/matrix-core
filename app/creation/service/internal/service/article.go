@@ -80,7 +80,7 @@ func (s *CreationService) GetLastArticleDraft(ctx context.Context, req *v1.GetLa
 }
 
 func (s *CreationService) CreateArticle(ctx context.Context, req *v1.CreateArticleReq) (*emptypb.Empty, error) {
-	err := s.ac.CreateArticle(ctx, req.Uuid, req.Id)
+	err := s.ac.CreateArticle(ctx, req.Id, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +88,7 @@ func (s *CreationService) CreateArticle(ctx context.Context, req *v1.CreateArtic
 }
 
 func (s *CreationService) CreateArticleCacheAndSearch(ctx context.Context, req *v1.CreateArticleCacheAndSearchReq) (*emptypb.Empty, error) {
-	err := s.ac.CreateArticleCacheAndSearch(ctx, req.Uuid, req.Id)
+	err := s.ac.CreateArticleCacheAndSearch(ctx, req.Id, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +106,7 @@ func (s *CreationService) CreateArticleDraft(ctx context.Context, req *v1.Create
 }
 
 func (s *CreationService) ArticleDraftMark(ctx context.Context, req *v1.ArticleDraftMarkReq) (*emptypb.Empty, error) {
-	err := s.ac.ArticleDraftMark(ctx, req.Uuid, req.Id)
+	err := s.ac.ArticleDraftMark(ctx, req.Id, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -128,7 +128,39 @@ func (s *CreationService) GetArticleDraftList(ctx context.Context, req *v1.GetAr
 }
 
 func (s *CreationService) SendArticle(ctx context.Context, req *v1.SendArticleReq) (*emptypb.Empty, error) {
-	err := s.ac.SendArticle(ctx, req.Uuid, req.Id)
+	err := s.ac.SendArticle(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) SetArticleAgree(ctx context.Context, req *v1.SetArticleAgreeReq) (*emptypb.Empty, error) {
+	err := s.ac.SetArticleAgree(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) SetArticleView(ctx context.Context, req *v1.SetArticleViewReq) (*emptypb.Empty, error) {
+	err := s.ac.SetArticleView(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) SetArticleCollect(ctx context.Context, req *v1.SetArticleCollectReq) (*emptypb.Empty, error) {
+	err := s.ac.SetArticleCollect(ctx, req.Id, req.CollectionsId, req.Uuid, req.UserUuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) CreateCollections(ctx context.Context, req *v1.CreateCollectionsReq) (*emptypb.Empty, error) {
+	err := s.cc.CreateCollections(ctx, req.Uuid, req.Name, req.Introduce, req.Auth)
 	if err != nil {
 		return nil, err
 	}
