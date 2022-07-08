@@ -8,4 +8,7 @@ option go_package = "api/achievement/service/v1/pb;v1";
 enum AchievementErrorReason {
   option (errors.default_code) = 500;
   UNKNOWN_ERROR = 0;
+  SEND_ACHIEVEMENT_AGREE_FAILED = 1;
+  SEND_ACHIEVEMENT_VIEW_FAILED = 2;
+  SEND_ACHIEVEMENT_COLLECT_FAILED = 3;
 }
