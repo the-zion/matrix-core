@@ -8,6 +8,9 @@ import (
 type CreationRepo interface {
 	GetLeaderBoard(ctx context.Context) ([]*LeaderBoard, error)
 	CreateCollections(ctx context.Context, uuid, name, introduce string, auth int32) error
+	GetCollections(ctx context.Context, uuid string, page int32) ([]*Collections, error)
+	GetCollectionsByVisitor(ctx context.Context, uuid string, page int32) ([]*Collections, error)
+	GetCollectionsCount(ctx context.Context, uuid string) (int32, error)
 }
 
 type ArticleRepo interface {
@@ -23,11 +26,9 @@ type ArticleRepo interface {
 	SetArticleAgree(ctx context.Context, id int32, uuid string) error
 	SetArticleView(ctx context.Context, id int32, uuid string) error
 	SetArticleCollect(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error
-}
-
-type ArticleUseCase struct {
-	repo ArticleRepo
-	log  *log.Helper
+	CancelArticleAgree(ctx context.Context, id int32, uuid string) error
+	CancelArticleCollect(ctx context.Context, id int32, uuid, userUuid string) error
+	ArticleStatisticJudge(ctx context.Context, id int32, uuid string) (*ArticleStatisticJudge, error)
 }
 
 type CreationUseCase struct {
@@ -35,11 +36,9 @@ type CreationUseCase struct {
 	log  *log.Helper
 }
 
-func NewArticleUseCase(repo ArticleRepo, logger log.Logger) *ArticleUseCase {
-	return &ArticleUseCase{
-		repo: repo,
-		log:  log.NewHelper(log.With(logger, "module", "bff/biz/ArticleUseCase")),
-	}
+type ArticleUseCase struct {
+	repo ArticleRepo
+	log  *log.Helper
 }
 
 func NewCreationUseCase(repo CreationRepo, logger log.Logger) *CreationUseCase {
@@ -49,8 +48,34 @@ func NewCreationUseCase(repo CreationRepo, logger log.Logger) *CreationUseCase {
 	}
 }
 
+func NewArticleUseCase(repo ArticleRepo, logger log.Logger) *ArticleUseCase {
+	return &ArticleUseCase{
+		repo: repo,
+		log:  log.NewHelper(log.With(logger, "module", "bff/biz/ArticleUseCase")),
+	}
+}
+
 func (r *CreationUseCase) GetLeaderBoard(ctx context.Context) ([]*LeaderBoard, error) {
 	return r.repo.GetLeaderBoard(ctx)
+}
+
+func (r *CreationUseCase) GetCollections(ctx context.Context, page int32) ([]*Collections, error) {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.GetCollections(ctx, uuid, page)
+}
+
+func (r *CreationUseCase) GetCollectionsCount(ctx context.Context) (int32, error) {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.GetCollectionsCount(ctx, uuid)
+}
+
+func (r *CreationUseCase) GetCollectionsByVisitor(ctx context.Context, page int32, uuid string) ([]*Collections, error) {
+	return r.repo.GetCollectionsByVisitor(ctx, uuid, page)
+}
+
+func (r *CreationUseCase) CreateCollections(ctx context.Context, name, introduce string, auth int32) error {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.CreateCollections(ctx, uuid, name, introduce, auth)
 }
 
 func (r *ArticleUseCase) GetArticleList(ctx context.Context, page int32) ([]*Article, error) {
@@ -107,7 +132,16 @@ func (r *ArticleUseCase) SetArticleCollect(ctx context.Context, id, collectionsI
 	return r.repo.SetArticleCollect(ctx, id, collectionsId, uuid, userUuid)
 }
 
-func (r *CreationUseCase) CreateCollections(ctx context.Context, name, introduce string, auth int32) error {
+func (r *ArticleUseCase) CancelArticleAgree(ctx context.Context, id int32, uuid string) error {
+	return r.repo.CancelArticleAgree(ctx, id, uuid)
+}
+
+func (r *ArticleUseCase) CancelArticleCollect(ctx context.Context, id int32, uuid string) error {
+	userUuid := ctx.Value("uuid").(string)
+	return r.repo.CancelArticleCollect(ctx, id, uuid, userUuid)
+}
+
+func (r *ArticleUseCase) ArticleStatisticJudge(ctx context.Context, id int32) (*ArticleStatisticJudge, error) {
 	uuid := ctx.Value("uuid").(string)
-	return r.repo.CreateCollections(ctx, uuid, name, introduce, auth)
+	return r.repo.ArticleStatisticJudge(ctx, id, uuid)
 }
