@@ -15,6 +15,11 @@ type ArticleStatistic struct {
 	Comment   int32
 }
 
+type ArticleStatisticJudge struct {
+	Agree   bool
+	Collect bool
+}
+
 type ArticleDraft struct {
 	Id     int32
 	Status int32
@@ -25,4 +30,9 @@ type LeaderBoard struct {
 	Id   int32
 	Uuid string
 	Mode string
+}
+
+type Collections struct {
+	Name      string
+	Introduce string
 }
