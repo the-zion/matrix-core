@@ -65,6 +65,65 @@ func (r *creationRepo) GetLeaderBoard(ctx context.Context) ([]*biz.LeaderBoard, 
 	return result.([]*biz.LeaderBoard), nil
 }
 
+func (r *creationRepo) GetCollections(ctx context.Context, uuid string, page int32) ([]*biz.Collections, error) {
+	collections := make([]*biz.Collections, 0)
+	reply, err := r.data.cc.GetCollections(ctx, &creationV1.GetCollectionsReq{
+		Uuid: uuid,
+		Page: page,
+	})
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range reply.Collections {
+		collections = append(collections, &biz.Collections{
+			Name:      item.Name,
+			Introduce: item.Introduce,
+		})
+	}
+	return collections, nil
+}
+
+func (r *creationRepo) GetCollectionsByVisitor(ctx context.Context, uuid string, page int32) ([]*biz.Collections, error) {
+	collections := make([]*biz.Collections, 0)
+	reply, err := r.data.cc.GetCollectionsByVisitor(ctx, &creationV1.GetCollectionsReq{
+		Uuid: uuid,
+		Page: page,
+	})
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range reply.Collections {
+		collections = append(collections, &biz.Collections{
+			Name:      item.Name,
+			Introduce: item.Introduce,
+		})
+	}
+	return collections, nil
+}
+
+func (r *creationRepo) GetCollectionsCount(ctx context.Context, uuid string) (int32, error) {
+	reply, err := r.data.cc.GetCollectionsCount(ctx, &creationV1.GetCollectionsCountReq{
+		Uuid: uuid,
+	})
+	if err != nil {
+		return 0, err
+	}
+	return reply.Count, nil
+}
+
+func (r *creationRepo) CreateCollections(ctx context.Context, uuid, name, introduce string, auth int32) error {
+	_, err := r.data.cc.CreateCollections(ctx, &creationV1.CreateCollectionsReq{
+		Uuid:      uuid,
+		Name:      name,
+		Introduce: introduce,
+		Auth:      auth,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *articleRepo) GetLastArticleDraft(ctx context.Context, uuid string) (*biz.ArticleDraft, error) {
 	reply, err := r.data.cc.GetLastArticleDraft(ctx, &creationV1.GetLastArticleDraftReq{
 		Uuid: uuid,
@@ -249,15 +308,39 @@ func (r *articleRepo) SetArticleCollect(ctx context.Context, id, collectionsId i
 	return nil
 }
 
-func (r *creationRepo) CreateCollections(ctx context.Context, uuid, name, introduce string, auth int32) error {
-	_, err := r.data.cc.CreateCollections(ctx, &creationV1.CreateCollectionsReq{
-		Uuid:      uuid,
-		Name:      name,
-		Introduce: introduce,
-		Auth:      auth,
+func (r *articleRepo) CancelArticleAgree(ctx context.Context, id int32, uuid string) error {
+	_, err := r.data.cc.CancelArticleAgree(ctx, &creationV1.CancelArticleAgreeReq{
+		Uuid: uuid,
+		Id:   id,
 	})
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+func (r *articleRepo) CancelArticleCollect(ctx context.Context, id int32, uuid, userUuid string) error {
+	_, err := r.data.cc.CancelArticleCollect(ctx, &creationV1.CancelArticleCollectReq{
+		Uuid:     uuid,
+		UserUuid: userUuid,
+		Id:       id,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *articleRepo) ArticleStatisticJudge(ctx context.Context, id int32, uuid string) (*biz.ArticleStatisticJudge, error) {
+	reply, err := r.data.cc.ArticleStatisticJudge(ctx, &creationV1.ArticleStatisticJudgeReq{
+		Id:   id,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &biz.ArticleStatisticJudge{
+		Agree:   reply.Agree,
+		Collect: reply.Collect,
+	}, nil
 }
