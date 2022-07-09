@@ -24,8 +24,10 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AchievementClient interface {
 	SetAchievementAgree(ctx context.Context, in *SetAchievementAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CancelAchievementAgree(ctx context.Context, in *CancelAchievementAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetAchievementView(ctx context.Context, in *SetAchievementViewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetAchievementCollect(ctx context.Context, in *SetAchievementCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CancelAchievementCollect(ctx context.Context, in *CancelAchievementCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetHealth(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
@@ -40,6 +42,15 @@ func NewAchievementClient(cc grpc.ClientConnInterface) AchievementClient {
 func (c *achievementClient) SetAchievementAgree(ctx context.Context, in *SetAchievementAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/achievement.v1.Achievement/SetAchievementAgree", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *achievementClient) CancelAchievementAgree(ctx context.Context, in *CancelAchievementAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/achievement.v1.Achievement/CancelAchievementAgree", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -64,6 +75,15 @@ func (c *achievementClient) SetAchievementCollect(ctx context.Context, in *SetAc
 	return out, nil
 }
 
+func (c *achievementClient) CancelAchievementCollect(ctx context.Context, in *CancelAchievementCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/achievement.v1.Achievement/CancelAchievementCollect", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *achievementClient) GetHealth(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/achievement.v1.Achievement/GetHealth", in, out, opts...)
@@ -78,8 +98,10 @@ func (c *achievementClient) GetHealth(ctx context.Context, in *emptypb.Empty, op
 // for forward compatibility
 type AchievementServer interface {
 	SetAchievementAgree(context.Context, *SetAchievementAgreeReq) (*emptypb.Empty, error)
+	CancelAchievementAgree(context.Context, *CancelAchievementAgreeReq) (*emptypb.Empty, error)
 	SetAchievementView(context.Context, *SetAchievementViewReq) (*emptypb.Empty, error)
 	SetAchievementCollect(context.Context, *SetAchievementCollectReq) (*emptypb.Empty, error)
+	CancelAchievementCollect(context.Context, *CancelAchievementCollectReq) (*emptypb.Empty, error)
 	GetHealth(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	mustEmbedUnimplementedAchievementServer()
 }
@@ -91,11 +113,17 @@ type UnimplementedAchievementServer struct {
 func (UnimplementedAchievementServer) SetAchievementAgree(context.Context, *SetAchievementAgreeReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetAchievementAgree not implemented")
 }
+func (UnimplementedAchievementServer) CancelAchievementAgree(context.Context, *CancelAchievementAgreeReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelAchievementAgree not implemented")
+}
 func (UnimplementedAchievementServer) SetAchievementView(context.Context, *SetAchievementViewReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetAchievementView not implemented")
 }
 func (UnimplementedAchievementServer) SetAchievementCollect(context.Context, *SetAchievementCollectReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetAchievementCollect not implemented")
+}
+func (UnimplementedAchievementServer) CancelAchievementCollect(context.Context, *CancelAchievementCollectReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelAchievementCollect not implemented")
 }
 func (UnimplementedAchievementServer) GetHealth(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetHealth not implemented")
@@ -127,6 +155,24 @@ func _Achievement_SetAchievementAgree_Handler(srv interface{}, ctx context.Conte
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AchievementServer).SetAchievementAgree(ctx, req.(*SetAchievementAgreeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Achievement_CancelAchievementAgree_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelAchievementAgreeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AchievementServer).CancelAchievementAgree(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/achievement.v1.Achievement/CancelAchievementAgree",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AchievementServer).CancelAchievementAgree(ctx, req.(*CancelAchievementAgreeReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -167,6 +213,24 @@ func _Achievement_SetAchievementCollect_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Achievement_CancelAchievementCollect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelAchievementCollectReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AchievementServer).CancelAchievementCollect(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/achievement.v1.Achievement/CancelAchievementCollect",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AchievementServer).CancelAchievementCollect(ctx, req.(*CancelAchievementCollectReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Achievement_GetHealth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
@@ -197,12 +261,20 @@ var Achievement_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Achievement_SetAchievementAgree_Handler,
 		},
 		{
+			MethodName: "CancelAchievementAgree",
+			Handler:    _Achievement_CancelAchievementAgree_Handler,
+		},
+		{
 			MethodName: "SetAchievementView",
 			Handler:    _Achievement_SetAchievementView_Handler,
 		},
 		{
 			MethodName: "SetAchievementCollect",
 			Handler:    _Achievement_SetAchievementCollect_Handler,
+		},
+		{
+			MethodName: "CancelAchievementCollect",
+			Handler:    _Achievement_CancelAchievementCollect_Handler,
 		},
 		{
 			MethodName: "GetHealth",

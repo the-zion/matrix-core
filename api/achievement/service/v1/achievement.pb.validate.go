@@ -160,6 +160,128 @@ var _ interface {
 	ErrorName() string
 } = SetAchievementAgreeReqValidationError{}
 
+// Validate checks the field values on CancelAchievementAgreeReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *CancelAchievementAgreeReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CancelAchievementAgreeReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// CancelAchievementAgreeReqMultiError, or nil if none found.
+func (m *CancelAchievementAgreeReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CancelAchievementAgreeReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = CancelAchievementAgreeReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return CancelAchievementAgreeReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *CancelAchievementAgreeReq) _validateUuid(uuid string) error {
+	if matched := _achievement_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// CancelAchievementAgreeReqMultiError is an error wrapping multiple validation
+// errors returned by CancelAchievementAgreeReq.ValidateAll() if the
+// designated constraints aren't met.
+type CancelAchievementAgreeReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CancelAchievementAgreeReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CancelAchievementAgreeReqMultiError) AllErrors() []error { return m }
+
+// CancelAchievementAgreeReqValidationError is the validation error returned by
+// CancelAchievementAgreeReq.Validate if the designated constraints aren't met.
+type CancelAchievementAgreeReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CancelAchievementAgreeReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CancelAchievementAgreeReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CancelAchievementAgreeReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CancelAchievementAgreeReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CancelAchievementAgreeReqValidationError) ErrorName() string {
+	return "CancelAchievementAgreeReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CancelAchievementAgreeReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCancelAchievementAgreeReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CancelAchievementAgreeReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CancelAchievementAgreeReqValidationError{}
+
 // Validate checks the field values on SetAchievementViewReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -403,3 +525,126 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = SetAchievementCollectReqValidationError{}
+
+// Validate checks the field values on CancelAchievementCollectReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *CancelAchievementCollectReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CancelAchievementCollectReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// CancelAchievementCollectReqMultiError, or nil if none found.
+func (m *CancelAchievementCollectReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CancelAchievementCollectReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = CancelAchievementCollectReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return CancelAchievementCollectReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *CancelAchievementCollectReq) _validateUuid(uuid string) error {
+	if matched := _achievement_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// CancelAchievementCollectReqMultiError is an error wrapping multiple
+// validation errors returned by CancelAchievementCollectReq.ValidateAll() if
+// the designated constraints aren't met.
+type CancelAchievementCollectReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CancelAchievementCollectReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CancelAchievementCollectReqMultiError) AllErrors() []error { return m }
+
+// CancelAchievementCollectReqValidationError is the validation error returned
+// by CancelAchievementCollectReq.Validate if the designated constraints
+// aren't met.
+type CancelAchievementCollectReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CancelAchievementCollectReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CancelAchievementCollectReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CancelAchievementCollectReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CancelAchievementCollectReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CancelAchievementCollectReqValidationError) ErrorName() string {
+	return "CancelAchievementCollectReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CancelAchievementCollectReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCancelAchievementCollectReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CancelAchievementCollectReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CancelAchievementCollectReqValidationError{}
