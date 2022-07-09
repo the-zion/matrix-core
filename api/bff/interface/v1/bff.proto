@@ -147,11 +147,47 @@ service Bff{
 
   // --------------------creation service------------------------
 
+  // -------------------------creation----------------------------
   rpc GetLeaderBoard(google.protobuf.Empty) returns (GetLeaderBoardReply){
     option (google.api.http) = {
       get: "/v1/get/leaderboard"
     };
   }
+
+  rpc GetCollections(GetCollectionsReq) returns (GetCollectionsReply){
+    option (google.api.http) = {
+      post: "/v1/get/collections"
+      body: "*"
+    };
+  }
+
+  rpc GetCollectionsCount(google.protobuf.Empty) returns (GetCollectionsCountReply){
+    option (google.api.http) = {
+      post: "/v1/get/collections/count"
+      body: "*"
+    };
+  }
+
+  rpc GetCollectionsByVisitor(GetCollectionsByVisitorReq) returns (GetCollectionsReply){
+    option (google.api.http) = {
+      get: "/v1/get/collections/visitor"
+    };
+  }
+
+  rpc GetCollectionsVisitorCount(google.protobuf.Empty) returns (GetCollectionsCountReply){
+    option (google.api.http) = {
+      get: "/v1/get/collections/visitor/count"
+    };
+  }
+
+  rpc CreateCollections(CreateCollectionsReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/create/collections"
+      body: "*"
+    };
+  }
+
+  // -------------------------article----------------------------
 
   rpc GetArticleList(GetArticleListReq) returns (GetArticleListReply){
     option (google.api.http) = {
@@ -186,13 +222,6 @@ service Bff{
   rpc CreateArticleDraft(google.protobuf.Empty) returns (CreateArticleDraftReply){
     option (google.api.http) = {
       post: "/v1/create/article/draft"
-      body: "*"
-    };
-  }
-
-  rpc CreateCollections(CreateCollectionsReq) returns (google.protobuf.Empty){
-    option (google.api.http) = {
-      post: "/v1/create/article/collections"
       body: "*"
     };
   }
@@ -234,6 +263,27 @@ service Bff{
   rpc SetArticleCollect(SetArticleCollectReq) returns (google.protobuf.Empty){
     option (google.api.http) = {
       post: "/v1/set/article/collect"
+      body: "*"
+    };
+  }
+
+  rpc CancelArticleAgree(CancelArticleAgreeReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/cancel/article/agree"
+      body: "*"
+    };
+  }
+
+  rpc CancelArticleCollect(CancelArticleCollectReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/cancel/article/collect"
+      body: "*"
+    };
+  }
+
+  rpc ArticleStatisticJudge(ArticleStatisticJudgeReq) returns (ArticleStatisticJudgeReply){
+    option (google.api.http) = {
+      post: "/v1/article/statistic/judge"
       body: "*"
     };
   }
@@ -451,6 +501,27 @@ message CreateArticleDraftReply{
   int32 id = 1;
 }
 
+message GetCollectionsReq{
+  int32 page = 1;
+}
+
+message GetCollectionsReply{
+  message Collections {
+    string name = 1;
+    string introduce = 2;
+  }
+  repeated Collections collections = 1;
+}
+
+message GetCollectionsCountReply{
+  int32 count = 1;
+}
+
+message GetCollectionsByVisitorReq{
+  string uuid = 1;
+  int32 page = 2;
+}
+
 message CreateCollectionsReq{
   string name = 1;
   string introduce = 2;
@@ -486,4 +557,23 @@ message SetArticleCollectReq{
   int32 id = 1;
   int32 collections_id = 2;
   string uuid = 3;
+}
+
+message CancelArticleAgreeReq{
+  int32 id = 1;
+  string uuid = 2;
+}
+
+message CancelArticleCollectReq{
+  int32 id = 1;
+  string uuid = 2;
+}
+
+message ArticleStatisticJudgeReq{
+  int32 id = 1;
+}
+
+message ArticleStatisticJudgeReply{
+  bool agree = 1;
+  bool collect = 2;
 }
