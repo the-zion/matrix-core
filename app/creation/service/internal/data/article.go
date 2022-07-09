@@ -31,7 +31,7 @@ func NewArticleRepo(data *Data, logger log.Logger) biz.ArticleRepo {
 
 func (r *articleRepo) GetLastArticleDraft(ctx context.Context, uuid string) (*biz.ArticleDraft, error) {
 	draft := &ArticleDraft{}
-	err := r.data.db.Where("uuid = ?", uuid).Last(draft).Error
+	err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).Last(draft).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, kerrors.NotFound("draft not found from db", fmt.Sprintf("uuid(%s)", uuid))
 	}
@@ -65,6 +65,24 @@ func (r *articleRepo) GetArticleList(ctx context.Context, page int32) ([]*biz.Ar
 		go r.setArticleToCache("article", article)
 	}
 	return article, nil
+}
+
+func (r *articleRepo) GetArticleAgreeJudge(ctx context.Context, id int32, uuid string) (bool, error) {
+	ids := strconv.Itoa(int(id))
+	judge, err := r.data.redisCli.SIsMember(ctx, "article_agree_"+ids, uuid).Result()
+	if err != nil {
+		return false, errors.Wrapf(err, fmt.Sprintf("fail to judge article agree member: id(%v), uuid(%s)", id, uuid))
+	}
+	return judge, nil
+}
+
+func (r *articleRepo) GetArticleCollectJudge(ctx context.Context, id int32, uuid string) (bool, error) {
+	ids := strconv.Itoa(int(id))
+	judge, err := r.data.redisCli.SIsMember(ctx, "article_collect_"+ids, uuid).Result()
+	if err != nil {
+		return false, errors.Wrapf(err, fmt.Sprintf("fail to judge article collect member: id(%v), uuid(%s)", id, uuid))
+	}
+	return judge, nil
 }
 
 func (r *articleRepo) getArticleFromDB(ctx context.Context, page int32) ([]*biz.Article, error) {
@@ -225,7 +243,7 @@ func (r *articleRepo) GetArticleDraftList(ctx context.Context, uuid string) ([]*
 	return reply, nil
 }
 
-func (r *articleRepo) CreateArticle(ctx context.Context, uuid string, id int32) error {
+func (r *articleRepo) CreateArticle(ctx context.Context, id int32, uuid string) error {
 	article := &Article{
 		ArticleId: id,
 		Uuid:      uuid,
@@ -257,7 +275,7 @@ func (r *articleRepo) CreateArticleFolder(ctx context.Context, id int32) error {
 	return nil
 }
 
-func (r *articleRepo) CreateArticleStatistic(ctx context.Context, uuid string, id int32) error {
+func (r *articleRepo) CreateArticleStatistic(ctx context.Context, id int32, uuid string) error {
 	as := &ArticleStatistic{
 		ArticleId: id,
 		Uuid:      uuid,
@@ -269,7 +287,7 @@ func (r *articleRepo) CreateArticleStatistic(ctx context.Context, uuid string, i
 	return nil
 }
 
-func (r *articleRepo) CreateArticleCache(ctx context.Context, uuid string, id int32) error {
+func (r *articleRepo) CreateArticleCache(ctx context.Context, id int32, uuid string) error {
 	ids := strconv.Itoa(int(id))
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		pipe.ZAddNX(ctx, "article", &redis.Z{
@@ -297,11 +315,11 @@ func (r *articleRepo) CreateArticleCache(ctx context.Context, uuid string, id in
 	return nil
 }
 
-func (r *articleRepo) CreateArticleSearch(ctx context.Context, uuid string, id int32) error {
+func (r *articleRepo) CreateArticleSearch(ctx context.Context, id int32, uuid string) error {
 	return nil
 }
 
-func (r *articleRepo) DeleteArticleDraft(ctx context.Context, uuid string, id int32) error {
+func (r *articleRepo) DeleteArticleDraft(ctx context.Context, id int32, uuid string) error {
 	ad := &ArticleDraft{}
 	ad.ID = uint(id)
 	err := r.data.DB(ctx).Where("uuid = ?", uuid).Delete(ad).Error
@@ -311,7 +329,7 @@ func (r *articleRepo) DeleteArticleDraft(ctx context.Context, uuid string, id in
 	return nil
 }
 
-func (r *articleRepo) ArticleDraftMark(ctx context.Context, uuid string, id int32) error {
+func (r *articleRepo) ArticleDraftMark(ctx context.Context, id int32, uuid string) error {
 	err := r.data.db.WithContext(ctx).Model(&ArticleDraft{}).Where("id = ? and uuid = ?", id, uuid).Update("status", 3).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to mark draft to 3: uuid(%s), id(%v)", uuid, id))
@@ -319,7 +337,7 @@ func (r *articleRepo) ArticleDraftMark(ctx context.Context, uuid string, id int3
 	return nil
 }
 
-func (r *articleRepo) SendArticle(ctx context.Context, uuid string, id int32) (*biz.ArticleDraft, error) {
+func (r *articleRepo) SendArticle(ctx context.Context, id int32, uuid string) (*biz.ArticleDraft, error) {
 	ad := &ArticleDraft{
 		Status: 2,
 	}
@@ -368,6 +386,163 @@ func (r *articleRepo) SendArticleToMq(ctx context.Context, article *biz.Article,
 	_, err = r.data.articleDraftMqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send article to mq: %v", article))
+	}
+	return nil
+}
+
+func (r *articleRepo) SetArticleAgree(ctx context.Context, id int32, uuid string) error {
+	as := ArticleStatistic{}
+	err := r.data.DB(ctx).Model(&as).Where("article_id = ? and uuid = ?", id, uuid).Update("agree", gorm.Expr("agree + ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add article agree: id(%v)", id))
+	}
+	return nil
+}
+
+func (r *articleRepo) SetArticleAgreeToCache(ctx context.Context, id int32, uuid string) error {
+	ids := strconv.Itoa(int(id))
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.HIncrBy(ctx, "article_"+ids, "agree", 1)
+		pipe.ZIncrBy(ctx, "article_hot", 1, ids+"%"+uuid)
+		pipe.ZIncrBy(ctx, "leaderboard", 1, ids+"%"+uuid+"%article")
+		pipe.SAdd(ctx, "article_agree_"+ids, uuid)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to add article agree to cache: id(%v), uuid(%s)", id, uuid)
+	}
+	return nil
+}
+
+func (r *articleRepo) SetArticleView(ctx context.Context, id int32, uuid string) error {
+	as := ArticleStatistic{}
+	err := r.data.DB(ctx).Model(&as).Where("article_id = ? and uuid = ?", id, uuid).Update("view", gorm.Expr("view + ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add article view: id(%v)", id))
+	}
+	return nil
+}
+
+func (r *articleRepo) SetArticleViewToCache(ctx context.Context, id int32, uuid string) error {
+	ids := strconv.Itoa(int(id))
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.HIncrBy(ctx, "article_"+ids, "view", 1)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to add article agree to cache: id(%v), uuid(%s)", id, uuid)
+	}
+	return nil
+}
+
+func (r *articleRepo) SetArticleUserCollect(ctx context.Context, id, collectionsId int32, userUuid string) error {
+	collect := &Collect{
+		CollectionsId: collectionsId,
+		Uuid:          userUuid,
+		CreationsId:   id,
+		Mode:          1,
+	}
+	err := r.data.DB(ctx).Create(collect).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to collect an article: article_id(%v)", id))
+	}
+	return nil
+}
+
+func (r *articleRepo) SetArticleCollect(ctx context.Context, id int32, uuid string) error {
+	as := ArticleStatistic{}
+	err := r.data.DB(ctx).Model(&as).Where("article_id = ? and uuid = ?", id, uuid).Update("collect", gorm.Expr("collect + ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add article collect: id(%v)", id))
+	}
+	return nil
+}
+
+func (r *articleRepo) SetArticleCollectToCache(ctx context.Context, id int32, uuid string) error {
+	ids := strconv.Itoa(int(id))
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.HIncrBy(ctx, "article_"+ids, "collect", 1)
+		pipe.SAdd(ctx, "article_collect_"+ids, uuid)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to add article collect to cache: id(%v), uuid(%s)", id, uuid)
+	}
+	return nil
+}
+
+func (r *articleRepo) CancelArticleAgree(ctx context.Context, id int32, uuid string) error {
+	as := ArticleStatistic{}
+	err := r.data.DB(ctx).Model(&as).Where("article_id = ? and uuid = ?", id, uuid).Update("agree", gorm.Expr("agree - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to cancel article agree: id(%v)", id))
+	}
+	return nil
+}
+
+func (r *articleRepo) CancelArticleAgreeFromCache(ctx context.Context, id int32, uuid string) error {
+	ids := strconv.Itoa(int(id))
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.HIncrBy(ctx, "article_"+ids, "agree", -1)
+		pipe.ZIncrBy(ctx, "article_hot", -1, ids+"%"+uuid)
+		pipe.ZIncrBy(ctx, "leaderboard", -1, ids+"%"+uuid+"%article")
+		pipe.SRem(ctx, "article_agree_"+ids, uuid)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to cancel article agree from cache: id(%v), uuid(%s)", id, uuid)
+	}
+	return nil
+}
+
+func (r *articleRepo) CancelArticleUserCollect(ctx context.Context, id int32, userUuid string) error {
+	collect := &Collect{}
+	err := r.data.DB(ctx).Where("creations_id = ? and uuid = ?", id, userUuid).Delete(collect).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to cancel article collect: article_id(%v)", id))
+	}
+	return nil
+}
+
+func (r *articleRepo) CancelArticleCollect(ctx context.Context, id int32, uuid string) error {
+	as := &ArticleStatistic{}
+	err := r.data.DB(ctx).Model(as).Where("article_id = ? and uuid = ?", id, uuid).Update("collect", gorm.Expr("collect - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to cancel article collect: id(%v)", id))
+	}
+	return nil
+}
+
+func (r *articleRepo) CancelArticleCollectFromCache(ctx context.Context, id int32, uuid string) error {
+	ids := strconv.Itoa(int(id))
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.HIncrBy(ctx, "article_"+ids, "collect", -1)
+		pipe.SRem(ctx, "article_collect_"+ids, uuid)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to cancel article collect from cache: id(%v), uuid(%s)", id, uuid)
+	}
+	return nil
+}
+
+func (r *articleRepo) SendArticleStatisticToMq(ctx context.Context, uuid, mode string) error {
+	achievement := map[string]interface{}{}
+	achievement["uuid"] = uuid
+	achievement["mode"] = mode
+
+	data, err := json.Marshal(achievement)
+	if err != nil {
+		return err
+	}
+	msg := &primitive.Message{
+		Topic: "achievement",
+		Body:  data,
+	}
+	msg.WithKeys([]string{uuid})
+	_, err = r.data.achievementMqPro.producer.SendSync(ctx, msg)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to send article statistic to mq: uuid(%s)", uuid))
 	}
 	return nil
 }
