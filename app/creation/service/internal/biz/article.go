@@ -11,6 +11,8 @@ type ArticleRepo interface {
 	GetLastArticleDraft(ctx context.Context, uuid string) (*ArticleDraft, error)
 	GetArticleDraftList(ctx context.Context, uuid string) ([]*ArticleDraft, error)
 	GetArticleList(ctx context.Context, page int32) ([]*Article, error)
+	GetArticleAgreeJudge(ctx context.Context, id int32, uuid string) (bool, error)
+	GetArticleCollectJudge(ctx context.Context, id int32, uuid string) (bool, error)
 	GetArticleListHot(ctx context.Context, page int32) ([]*ArticleStatistic, error)
 	GetArticleStatistic(ctx context.Context, id int32) (*ArticleStatistic, error)
 	GetArticleListStatistic(ctx context.Context, ids []int32) ([]*ArticleStatistic, error)
@@ -32,6 +34,11 @@ type ArticleRepo interface {
 	SetArticleAgreeToCache(ctx context.Context, id int32, uuid string) error
 	SetArticleViewToCache(ctx context.Context, id int32, uuid string) error
 	SetArticleCollectToCache(ctx context.Context, id int32, uuid string) error
+	CancelArticleAgree(ctx context.Context, id int32, uuid string) error
+	CancelArticleAgreeFromCache(ctx context.Context, id int32, uuid string) error
+	CancelArticleUserCollect(ctx context.Context, id int32, userUuid string) error
+	CancelArticleCollect(ctx context.Context, id int32, uuid string) error
+	CancelArticleCollectFromCache(ctx context.Context, id int32, uuid string) error
 	SendArticleStatisticToMq(ctx context.Context, uuid, mode string) error
 }
 type ArticleUseCase struct {
@@ -241,4 +248,59 @@ func (r *ArticleUseCase) SetArticleCollect(ctx context.Context, id, collectionsI
 		}
 		return nil
 	})
+}
+
+func (r *ArticleUseCase) CancelArticleAgree(ctx context.Context, id int32, uuid string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		err := r.repo.CancelArticleAgree(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorCancelArticleAgreeFailed("cancel article agree failed: %s", err.Error())
+		}
+		err = r.repo.CancelArticleAgreeFromCache(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorCancelArticleAgreeFailed("cancel article agree from cache failed: %s", err.Error())
+		}
+		err = r.repo.SendArticleStatisticToMq(ctx, uuid, "agree_cancel")
+		if err != nil {
+			return v1.ErrorSendToMqFailed("set article agree to mq failed: %s", err.Error())
+		}
+		return nil
+	})
+}
+
+func (r *ArticleUseCase) CancelArticleCollect(ctx context.Context, id int32, uuid, userUuid string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		err := r.repo.CancelArticleUserCollect(ctx, id, userUuid)
+		if err != nil {
+			return v1.ErrorCancelArticleCollectFailed("cancel article user collect failed: %s", err.Error())
+		}
+		err = r.repo.CancelArticleCollect(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorCancelArticleCollectFailed("cancel article collect failed: %s", err.Error())
+		}
+		err = r.repo.CancelArticleCollectFromCache(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorCancelArticleCollectFailed("cancel article collect to cache failed: %s", err.Error())
+		}
+		err = r.repo.SendArticleStatisticToMq(ctx, uuid, "collect_cancel")
+		if err != nil {
+			return v1.ErrorSendToMqFailed("set article collect to mq failed: %s", err.Error())
+		}
+		return nil
+	})
+}
+
+func (r *ArticleUseCase) ArticleStatisticJudge(ctx context.Context, id int32, uuid string) (*ArticleStatisticJudge, error) {
+	agree, err := r.repo.GetArticleAgreeJudge(ctx, id, uuid)
+	if err != nil {
+		return nil, v1.ErrorArticleStatisticJudgeFailed("get article statistic judge failed: %s", err.Error())
+	}
+	collect, err := r.repo.GetArticleCollectJudge(ctx, id, uuid)
+	if err != nil {
+		return nil, v1.ErrorArticleStatisticJudgeFailed("get article statistic judge failed: %s", err.Error())
+	}
+	return &ArticleStatisticJudge{
+		Agree:   agree,
+		Collect: collect,
+	}, nil
 }
