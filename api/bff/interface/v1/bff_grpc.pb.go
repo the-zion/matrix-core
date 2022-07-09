@@ -43,20 +43,28 @@ type BffClient interface {
 	ChangeUserPassword(ctx context.Context, in *ChangeUserPasswordReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	UnbindUserPhone(ctx context.Context, in *UnbindUserPhoneReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	UnbindUserEmail(ctx context.Context, in *UnbindUserEmailReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// -------------------------creation----------------------------
 	GetLeaderBoard(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLeaderBoardReply, error)
+	GetCollections(ctx context.Context, in *GetCollectionsReq, opts ...grpc.CallOption) (*GetCollectionsReply, error)
+	GetCollectionsCount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCollectionsCountReply, error)
+	GetCollectionsByVisitor(ctx context.Context, in *GetCollectionsByVisitorReq, opts ...grpc.CallOption) (*GetCollectionsReply, error)
+	GetCollectionsVisitorCount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCollectionsCountReply, error)
+	CreateCollections(ctx context.Context, in *CreateCollectionsReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetArticleList(ctx context.Context, in *GetArticleListReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
 	GetArticleListHot(ctx context.Context, in *GetArticleListHotReq, opts ...grpc.CallOption) (*GetArticleListHotReply, error)
 	GetArticleStatistic(ctx context.Context, in *GetArticleStatisticReq, opts ...grpc.CallOption) (*GetArticleStatisticReply, error)
 	GetArticleListStatistic(ctx context.Context, in *GetArticleListStatisticReq, opts ...grpc.CallOption) (*GetArticleListStatisticReply, error)
 	GetLastArticleDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLastArticleDraftReply, error)
 	CreateArticleDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateArticleDraftReply, error)
-	CreateCollections(ctx context.Context, in *CreateCollectionsReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ArticleDraftMark(ctx context.Context, in *ArticleDraftMarkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetArticleDraftList(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetArticleDraftListReply, error)
 	SendArticle(ctx context.Context, in *SendArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetArticleAgree(ctx context.Context, in *SetArticleAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetArticleView(ctx context.Context, in *SetArticleViewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetArticleCollect(ctx context.Context, in *SetArticleCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CancelArticleAgree(ctx context.Context, in *CancelArticleAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CancelArticleCollect(ctx context.Context, in *CancelArticleCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	ArticleStatisticJudge(ctx context.Context, in *ArticleStatisticJudgeReq, opts ...grpc.CallOption) (*ArticleStatisticJudgeReply, error)
 }
 
 type bffClient struct {
@@ -256,6 +264,51 @@ func (c *bffClient) GetLeaderBoard(ctx context.Context, in *emptypb.Empty, opts 
 	return out, nil
 }
 
+func (c *bffClient) GetCollections(ctx context.Context, in *GetCollectionsReq, opts ...grpc.CallOption) (*GetCollectionsReply, error) {
+	out := new(GetCollectionsReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCollections", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetCollectionsCount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCollectionsCountReply, error) {
+	out := new(GetCollectionsCountReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCollectionsCount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetCollectionsByVisitor(ctx context.Context, in *GetCollectionsByVisitorReq, opts ...grpc.CallOption) (*GetCollectionsReply, error) {
+	out := new(GetCollectionsReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCollectionsByVisitor", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetCollectionsVisitorCount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCollectionsCountReply, error) {
+	out := new(GetCollectionsCountReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCollectionsVisitorCount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) CreateCollections(ctx context.Context, in *CreateCollectionsReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/CreateCollections", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) GetArticleList(ctx context.Context, in *GetArticleListReq, opts ...grpc.CallOption) (*GetArticleListReply, error) {
 	out := new(GetArticleListReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetArticleList", in, out, opts...)
@@ -304,15 +357,6 @@ func (c *bffClient) GetLastArticleDraft(ctx context.Context, in *emptypb.Empty, 
 func (c *bffClient) CreateArticleDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateArticleDraftReply, error) {
 	out := new(CreateArticleDraftReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/CreateArticleDraft", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *bffClient) CreateCollections(ctx context.Context, in *CreateCollectionsReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/bff.v1.Bff/CreateCollections", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -373,6 +417,33 @@ func (c *bffClient) SetArticleCollect(ctx context.Context, in *SetArticleCollect
 	return out, nil
 }
 
+func (c *bffClient) CancelArticleAgree(ctx context.Context, in *CancelArticleAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/CancelArticleAgree", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) CancelArticleCollect(ctx context.Context, in *CancelArticleCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/CancelArticleCollect", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) ArticleStatisticJudge(ctx context.Context, in *ArticleStatisticJudgeReq, opts ...grpc.CallOption) (*ArticleStatisticJudgeReply, error) {
+	out := new(ArticleStatisticJudgeReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/ArticleStatisticJudge", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BffServer is the server API for Bff service.
 // All implementations must embed UnimplementedBffServer
 // for forward compatibility
@@ -397,20 +468,28 @@ type BffServer interface {
 	ChangeUserPassword(context.Context, *ChangeUserPasswordReq) (*emptypb.Empty, error)
 	UnbindUserPhone(context.Context, *UnbindUserPhoneReq) (*emptypb.Empty, error)
 	UnbindUserEmail(context.Context, *UnbindUserEmailReq) (*emptypb.Empty, error)
+	// -------------------------creation----------------------------
 	GetLeaderBoard(context.Context, *emptypb.Empty) (*GetLeaderBoardReply, error)
+	GetCollections(context.Context, *GetCollectionsReq) (*GetCollectionsReply, error)
+	GetCollectionsCount(context.Context, *emptypb.Empty) (*GetCollectionsCountReply, error)
+	GetCollectionsByVisitor(context.Context, *GetCollectionsByVisitorReq) (*GetCollectionsReply, error)
+	GetCollectionsVisitorCount(context.Context, *emptypb.Empty) (*GetCollectionsCountReply, error)
+	CreateCollections(context.Context, *CreateCollectionsReq) (*emptypb.Empty, error)
 	GetArticleList(context.Context, *GetArticleListReq) (*GetArticleListReply, error)
 	GetArticleListHot(context.Context, *GetArticleListHotReq) (*GetArticleListHotReply, error)
 	GetArticleStatistic(context.Context, *GetArticleStatisticReq) (*GetArticleStatisticReply, error)
 	GetArticleListStatistic(context.Context, *GetArticleListStatisticReq) (*GetArticleListStatisticReply, error)
 	GetLastArticleDraft(context.Context, *emptypb.Empty) (*GetLastArticleDraftReply, error)
 	CreateArticleDraft(context.Context, *emptypb.Empty) (*CreateArticleDraftReply, error)
-	CreateCollections(context.Context, *CreateCollectionsReq) (*emptypb.Empty, error)
 	ArticleDraftMark(context.Context, *ArticleDraftMarkReq) (*emptypb.Empty, error)
 	GetArticleDraftList(context.Context, *emptypb.Empty) (*GetArticleDraftListReply, error)
 	SendArticle(context.Context, *SendArticleReq) (*emptypb.Empty, error)
 	SetArticleAgree(context.Context, *SetArticleAgreeReq) (*emptypb.Empty, error)
 	SetArticleView(context.Context, *SetArticleViewReq) (*emptypb.Empty, error)
 	SetArticleCollect(context.Context, *SetArticleCollectReq) (*emptypb.Empty, error)
+	CancelArticleAgree(context.Context, *CancelArticleAgreeReq) (*emptypb.Empty, error)
+	CancelArticleCollect(context.Context, *CancelArticleCollectReq) (*emptypb.Empty, error)
+	ArticleStatisticJudge(context.Context, *ArticleStatisticJudgeReq) (*ArticleStatisticJudgeReply, error)
 	mustEmbedUnimplementedBffServer()
 }
 
@@ -481,6 +560,21 @@ func (UnimplementedBffServer) UnbindUserEmail(context.Context, *UnbindUserEmailR
 func (UnimplementedBffServer) GetLeaderBoard(context.Context, *emptypb.Empty) (*GetLeaderBoardReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLeaderBoard not implemented")
 }
+func (UnimplementedBffServer) GetCollections(context.Context, *GetCollectionsReq) (*GetCollectionsReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCollections not implemented")
+}
+func (UnimplementedBffServer) GetCollectionsCount(context.Context, *emptypb.Empty) (*GetCollectionsCountReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCollectionsCount not implemented")
+}
+func (UnimplementedBffServer) GetCollectionsByVisitor(context.Context, *GetCollectionsByVisitorReq) (*GetCollectionsReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCollectionsByVisitor not implemented")
+}
+func (UnimplementedBffServer) GetCollectionsVisitorCount(context.Context, *emptypb.Empty) (*GetCollectionsCountReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCollectionsVisitorCount not implemented")
+}
+func (UnimplementedBffServer) CreateCollections(context.Context, *CreateCollectionsReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateCollections not implemented")
+}
 func (UnimplementedBffServer) GetArticleList(context.Context, *GetArticleListReq) (*GetArticleListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetArticleList not implemented")
 }
@@ -499,9 +593,6 @@ func (UnimplementedBffServer) GetLastArticleDraft(context.Context, *emptypb.Empt
 func (UnimplementedBffServer) CreateArticleDraft(context.Context, *emptypb.Empty) (*CreateArticleDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateArticleDraft not implemented")
 }
-func (UnimplementedBffServer) CreateCollections(context.Context, *CreateCollectionsReq) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateCollections not implemented")
-}
 func (UnimplementedBffServer) ArticleDraftMark(context.Context, *ArticleDraftMarkReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ArticleDraftMark not implemented")
 }
@@ -519,6 +610,15 @@ func (UnimplementedBffServer) SetArticleView(context.Context, *SetArticleViewReq
 }
 func (UnimplementedBffServer) SetArticleCollect(context.Context, *SetArticleCollectReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetArticleCollect not implemented")
+}
+func (UnimplementedBffServer) CancelArticleAgree(context.Context, *CancelArticleAgreeReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelArticleAgree not implemented")
+}
+func (UnimplementedBffServer) CancelArticleCollect(context.Context, *CancelArticleCollectReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelArticleCollect not implemented")
+}
+func (UnimplementedBffServer) ArticleStatisticJudge(context.Context, *ArticleStatisticJudgeReq) (*ArticleStatisticJudgeReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ArticleStatisticJudge not implemented")
 }
 func (UnimplementedBffServer) mustEmbedUnimplementedBffServer() {}
 
@@ -911,6 +1011,96 @@ func _Bff_GetLeaderBoard_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_GetCollections_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCollectionsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetCollections(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetCollections",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetCollections(ctx, req.(*GetCollectionsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetCollectionsCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetCollectionsCount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetCollectionsCount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetCollectionsCount(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetCollectionsByVisitor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCollectionsByVisitorReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetCollectionsByVisitor(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetCollectionsByVisitor",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetCollectionsByVisitor(ctx, req.(*GetCollectionsByVisitorReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetCollectionsVisitorCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetCollectionsVisitorCount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetCollectionsVisitorCount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetCollectionsVisitorCount(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_CreateCollections_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateCollectionsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).CreateCollections(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/CreateCollections",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).CreateCollections(ctx, req.(*CreateCollectionsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_GetArticleList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetArticleListReq)
 	if err := dec(in); err != nil {
@@ -1015,24 +1205,6 @@ func _Bff_CreateArticleDraft_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BffServer).CreateArticleDraft(ctx, req.(*emptypb.Empty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Bff_CreateCollections_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateCollectionsReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(BffServer).CreateCollections(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/bff.v1.Bff/CreateCollections",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BffServer).CreateCollections(ctx, req.(*CreateCollectionsReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1145,6 +1317,60 @@ func _Bff_SetArticleCollect_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_CancelArticleAgree_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelArticleAgreeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).CancelArticleAgree(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/CancelArticleAgree",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).CancelArticleAgree(ctx, req.(*CancelArticleAgreeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_CancelArticleCollect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelArticleCollectReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).CancelArticleCollect(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/CancelArticleCollect",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).CancelArticleCollect(ctx, req.(*CancelArticleCollectReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_ArticleStatisticJudge_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ArticleStatisticJudgeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).ArticleStatisticJudge(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/ArticleStatisticJudge",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).ArticleStatisticJudge(ctx, req.(*ArticleStatisticJudgeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Bff_ServiceDesc is the grpc.ServiceDesc for Bff service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1237,6 +1463,26 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Bff_GetLeaderBoard_Handler,
 		},
 		{
+			MethodName: "GetCollections",
+			Handler:    _Bff_GetCollections_Handler,
+		},
+		{
+			MethodName: "GetCollectionsCount",
+			Handler:    _Bff_GetCollectionsCount_Handler,
+		},
+		{
+			MethodName: "GetCollectionsByVisitor",
+			Handler:    _Bff_GetCollectionsByVisitor_Handler,
+		},
+		{
+			MethodName: "GetCollectionsVisitorCount",
+			Handler:    _Bff_GetCollectionsVisitorCount_Handler,
+		},
+		{
+			MethodName: "CreateCollections",
+			Handler:    _Bff_CreateCollections_Handler,
+		},
+		{
 			MethodName: "GetArticleList",
 			Handler:    _Bff_GetArticleList_Handler,
 		},
@@ -1261,10 +1507,6 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Bff_CreateArticleDraft_Handler,
 		},
 		{
-			MethodName: "CreateCollections",
-			Handler:    _Bff_CreateCollections_Handler,
-		},
-		{
 			MethodName: "ArticleDraftMark",
 			Handler:    _Bff_ArticleDraftMark_Handler,
 		},
@@ -1287,6 +1529,18 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetArticleCollect",
 			Handler:    _Bff_SetArticleCollect_Handler,
+		},
+		{
+			MethodName: "CancelArticleAgree",
+			Handler:    _Bff_CancelArticleAgree_Handler,
+		},
+		{
+			MethodName: "CancelArticleCollect",
+			Handler:    _Bff_CancelArticleCollect_Handler,
+		},
+		{
+			MethodName: "ArticleStatisticJudge",
+			Handler:    _Bff_ArticleStatisticJudge_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
