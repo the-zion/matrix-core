@@ -12,6 +12,16 @@ service Creation {
 
   rpc GetLeaderBoard(google.protobuf.Empty) returns (GetLeaderBoardReply){}
 
+  rpc GetCollections(GetCollectionsReq) returns (GetCollectionsReply){}
+
+  rpc GetCollectionsCount(GetCollectionsCountReq) returns (GetCollectionsCountReply){}
+
+  rpc GetCollectionsByVisitor(GetCollectionsReq) returns (GetCollectionsReply){}
+
+  rpc GetCollectionsVisitorCount(google.protobuf.Empty) returns (GetCollectionsCountReply){}
+
+  rpc CreateCollections(CreateCollectionsReq) returns (google.protobuf.Empty){}
+
   rpc GetArticleList(GetArticleListReq) returns (GetArticleListReply){}
 
   rpc GetArticleListHot(GetArticleListHotReq) returns (GetArticleListHotReply){}
@@ -28,8 +38,6 @@ service Creation {
 
   rpc CreateArticleDraft(CreateArticleDraftReq) returns (CreateArticleDraftReply){}
 
-  rpc CreateCollections(CreateCollectionsReq) returns (google.protobuf.Empty){}
-
   rpc ArticleDraftMark(ArticleDraftMarkReq) returns (google.protobuf.Empty){}
 
   rpc GetArticleDraftList(GetArticleDraftListReq) returns (GetArticleDraftListReply){}
@@ -41,6 +49,12 @@ service Creation {
   rpc SetArticleView(SetArticleViewReq) returns (google.protobuf.Empty){}
 
   rpc SetArticleCollect(SetArticleCollectReq) returns (google.protobuf.Empty){}
+
+  rpc CancelArticleAgree(CancelArticleAgreeReq) returns (google.protobuf.Empty){}
+
+  rpc CancelArticleCollect(CancelArticleCollectReq) returns (google.protobuf.Empty){}
+
+  rpc ArticleStatisticJudge(ArticleStatisticJudgeReq) returns (ArticleStatisticJudgeReply){}
 }
 
 message GetLeaderBoardReply{
@@ -50,6 +64,34 @@ message GetLeaderBoardReply{
     string mode = 3;
   }
   repeated Board board = 1;
+}
+
+message GetCollectionsReq{
+  int32 page = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message GetCollectionsReply{
+  message Collections {
+    string name = 1;
+    string introduce = 2;
+  }
+  repeated Collections collections = 1;
+}
+
+message GetCollectionsCountReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+message GetCollectionsCountReply{
+  int32 count = 1;
+}
+
+message CreateCollectionsReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+  string name = 2 [(validate.rules).string = {min_len:1, max_len: 50}];
+  string introduce = 3 [(validate.rules).string = {min_len:1, max_len: 100}];
+  int32 auth = 4;
 }
 
 message GetArticleListReq{
@@ -130,13 +172,6 @@ message CreateArticleDraftReply{
   int32 id = 1;
 }
 
-message CreateCollectionsReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
-  string name = 2 [(validate.rules).string = {min_len:1, max_len: 50}];
-  string introduce = 3 [(validate.rules).string = {min_len:1, max_len: 100}];
-  int32 auth = 4;
-}
-
 message ArticleDraftMarkReq{
   int32 id = 1;
   string uuid = 2 [(validate.rules).string.uuid = true];
@@ -173,4 +208,25 @@ message SetArticleCollectReq{
   int32 collections_id = 2;
   string uuid = 3 [(validate.rules).string.uuid = true];
   string user_uuid = 4 [(validate.rules).string.uuid = true];
+}
+
+message CancelArticleAgreeReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message CancelArticleCollectReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+  string user_uuid = 3 [(validate.rules).string.uuid = true];
+}
+
+message ArticleStatisticJudgeReq{
+  int32 id = 1;
+  string uuid = 3 [(validate.rules).string.uuid = true];
+}
+
+message ArticleStatisticJudgeReply{
+  bool agree = 1;
+  bool collect = 2;
 }
