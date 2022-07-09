@@ -6,6 +6,8 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
+// ------------------------------------------creation-------------------------------------------------
+
 func (s *BffService) GetLeaderBoard(ctx context.Context, _ *emptypb.Empty) (*v1.GetLeaderBoardReply, error) {
 	reply := &v1.GetLeaderBoardReply{Board: make([]*v1.GetLeaderBoardReply_Board, 0)}
 	boardList, err := s.cc.GetLeaderBoard(ctx)
@@ -21,6 +23,66 @@ func (s *BffService) GetLeaderBoard(ctx context.Context, _ *emptypb.Empty) (*v1.
 	}
 	return reply, nil
 }
+
+func (s *BffService) GetCollections(ctx context.Context, req *v1.GetCollectionsReq) (*v1.GetCollectionsReply, error) {
+	reply := &v1.GetCollectionsReply{Collections: make([]*v1.GetCollectionsReply_Collections, 0)}
+	collections, err := s.cc.GetCollections(ctx, req.Page)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range collections {
+		reply.Collections = append(reply.Collections, &v1.GetCollectionsReply_Collections{
+			Name:      item.Name,
+			Introduce: item.Name,
+		})
+	}
+	return reply, nil
+}
+
+func (s *BffService) GetCollectionsCount(ctx context.Context, _ *emptypb.Empty) (*v1.GetCollectionsCountReply, error) {
+	count, err := s.cc.GetCollectionsCount(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetCollectionsCountReply{
+		Count: count,
+	}, nil
+}
+
+func (s *BffService) GetCollectionsByVisitor(ctx context.Context, req *v1.GetCollectionsByVisitorReq) (*v1.GetCollectionsReply, error) {
+	reply := &v1.GetCollectionsReply{Collections: make([]*v1.GetCollectionsReply_Collections, 0)}
+	collections, err := s.cc.GetCollectionsByVisitor(ctx, req.Page, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range collections {
+		reply.Collections = append(reply.Collections, &v1.GetCollectionsReply_Collections{
+			Name:      item.Name,
+			Introduce: item.Name,
+		})
+	}
+	return reply, nil
+}
+
+func (s *BffService) GetCollectionsVisitorCount(ctx context.Context, _ *emptypb.Empty) (*v1.GetCollectionsCountReply, error) {
+	count, err := s.cc.GetCollectionsCount(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetCollectionsCountReply{
+		Count: count,
+	}, nil
+}
+
+func (s *BffService) CreateCollections(ctx context.Context, req *v1.CreateCollectionsReq) (*emptypb.Empty, error) {
+	err := s.cc.CreateCollections(ctx, req.Name, req.Introduce, req.Auth)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+// ------------------------------------------article-------------------------------------------------
 
 func (s *BffService) GetArticleList(ctx context.Context, req *v1.GetArticleListReq) (*v1.GetArticleListReply, error) {
 	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0)}
@@ -105,14 +167,6 @@ func (s *BffService) CreateArticleDraft(ctx context.Context, _ *emptypb.Empty) (
 	}, nil
 }
 
-func (s *BffService) CreateCollections(ctx context.Context, req *v1.CreateCollectionsReq) (*emptypb.Empty, error) {
-	err := s.cc.CreateCollections(ctx, req.Name, req.Introduce, req.Auth)
-	if err != nil {
-		return nil, err
-	}
-	return &emptypb.Empty{}, nil
-}
-
 func (s *BffService) ArticleDraftMark(ctx context.Context, req *v1.ArticleDraftMarkReq) (*emptypb.Empty, error) {
 	err := s.ac.ArticleDraftMark(ctx, req.Id)
 	if err != nil {
@@ -165,4 +219,31 @@ func (s *BffService) SetArticleCollect(ctx context.Context, req *v1.SetArticleCo
 		return nil, err
 	}
 	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) CancelArticleAgree(ctx context.Context, req *v1.CancelArticleAgreeReq) (*emptypb.Empty, error) {
+	err := s.ac.CancelArticleAgree(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) CancelArticleCollect(ctx context.Context, req *v1.CancelArticleCollectReq) (*emptypb.Empty, error) {
+	err := s.ac.CancelArticleCollect(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) ArticleStatisticJudge(ctx context.Context, req *v1.ArticleStatisticJudgeReq) (*v1.ArticleStatisticJudgeReply, error) {
+	judge, err := s.ac.ArticleStatisticJudge(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.ArticleStatisticJudgeReply{
+		Agree:   judge.Agree,
+		Collect: judge.Collect,
+	}, nil
 }
