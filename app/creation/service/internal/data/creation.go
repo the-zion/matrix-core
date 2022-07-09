@@ -49,3 +49,77 @@ func (r *creationRepo) getLeaderBoardFromCache(ctx context.Context) ([]*biz.Lead
 	}
 	return board, nil
 }
+
+func (r *creationRepo) GetCollections(ctx context.Context, uuid string, page int32) ([]*biz.Collections, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int(page - 1)
+	list := make([]*Collections, 0)
+	handle := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).Offset(index * 10).Limit(10).Find(&list)
+	err := handle.Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get collections: uuid(%s)", uuid))
+	}
+	collections := make([]*biz.Collections, 0)
+	for _, item := range list {
+		collections = append(collections, &biz.Collections{
+			Name:      item.Name,
+			Introduce: item.Introduce,
+		})
+	}
+	return collections, nil
+}
+
+func (r *creationRepo) GetCollectionsByVisitor(ctx context.Context, uuid string, page int32) ([]*biz.Collections, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int(page - 1)
+	list := make([]*Collections, 0)
+	handle := r.data.db.WithContext(ctx).Where("uuid = ? and auth = ?", uuid, 1).Offset(index * 10).Limit(10).Find(&list)
+	err := handle.Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get collections visitor: uuid(%s)", uuid))
+	}
+	collections := make([]*biz.Collections, 0)
+	for _, item := range list {
+		collections = append(collections, &biz.Collections{
+			Name:      item.Name,
+			Introduce: item.Introduce,
+		})
+	}
+	return collections, nil
+}
+
+func (r *creationRepo) GetCollectionsCount(ctx context.Context, uuid string) (int32, error) {
+	var count int64
+	err := r.data.db.WithContext(ctx).Model(&Collections{}).Where("uuid = ?", uuid).Count(&count).Error
+	if err != nil {
+		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get collections count: uuid(%s)", uuid))
+	}
+	return int32(count), nil
+}
+
+func (r *creationRepo) GetCollectionsVisitorCount(ctx context.Context, uuid string) (int32, error) {
+	var count int64
+	err := r.data.db.WithContext(ctx).Model(&Collections{}).Where("uuid = ? and auth = ?", uuid, 1).Count(&count).Error
+	if err != nil {
+		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get collections visitor count: uuid(%s)", uuid))
+	}
+	return int32(count), nil
+}
+
+func (r *creationRepo) CreateCollections(ctx context.Context, uuid, name, introduce string, auth int32) error {
+	collect := &Collections{
+		Uuid:      uuid,
+		Name:      name,
+		Introduce: introduce,
+		Auth:      auth,
+	}
+	err := r.data.DB(ctx).Create(collect).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to create an collections: uuid(%v)", uuid))
+	}
+	return nil
+}
