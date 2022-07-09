@@ -14,6 +14,14 @@ func (s *AchievementService) SetAchievementAgree(ctx context.Context, req *v1.Se
 	return &emptypb.Empty{}, nil
 }
 
+func (s *AchievementService) CancelAchievementAgree(ctx context.Context, req *v1.CancelAchievementAgreeReq) (*emptypb.Empty, error) {
+	err := s.ac.CancelAchievementAgree(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *AchievementService) SetAchievementView(ctx context.Context, req *v1.SetAchievementViewReq) (*emptypb.Empty, error) {
 	err := s.ac.SetAchievementView(ctx, req.Uuid)
 	if err != nil {
@@ -24,6 +32,14 @@ func (s *AchievementService) SetAchievementView(ctx context.Context, req *v1.Set
 
 func (s *AchievementService) SetAchievementCollect(ctx context.Context, req *v1.SetAchievementCollectReq) (*emptypb.Empty, error) {
 	err := s.ac.SetAchievementCollect(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *AchievementService) CancelAchievementCollect(ctx context.Context, req *v1.CancelAchievementCollectReq) (*emptypb.Empty, error) {
+	err := s.ac.CancelAchievementCollect(ctx, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
