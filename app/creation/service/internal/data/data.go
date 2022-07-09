@@ -19,9 +19,13 @@ import (
 	"time"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewTransaction, NewRocketmqArticleDraftProducer, NewCosServiceClient, NewArticleRepo, NewCreationRepo)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewTransaction, NewRocketmqArticleDraftProducer, NewRocketmqAchievementProducer, NewCosServiceClient, NewArticleRepo, NewCreationRepo)
 
 type ArticleDraftMqPro struct {
+	producer rocketmq.Producer
+}
+
+type AchievementMqPro struct {
 	producer rocketmq.Producer
 }
 
@@ -30,6 +34,7 @@ type Data struct {
 	log               *log.Helper
 	redisCli          redis.Cmdable
 	articleDraftMqPro *ArticleDraftMqPro
+	achievementMqPro  *AchievementMqPro
 	cosCli            *cos.Client
 }
 
@@ -102,15 +107,16 @@ func NewCosServiceClient(conf *conf.Data, logger log.Logger) *cos.Client {
 }
 
 func NewRocketmqArticleDraftProducer(conf *conf.Data, logger log.Logger) *ArticleDraftMqPro {
-	l := log.NewHelper(log.With(logger, "module", "user/data/rocketmq-article-draft-producer"))
+	l := log.NewHelper(log.With(logger, "module", "creation/data/rocketmq-article-draft-producer"))
 	p, err := rocketmq.NewProducer(
-		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.Rocketmq.ServerAddress})),
+		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.CreationMq.ServerAddress})),
 		producer.WithCredentials(primitive.Credentials{
-			SecretKey: conf.Rocketmq.SecretKey,
-			AccessKey: conf.Rocketmq.AccessKey,
+			SecretKey: conf.CreationMq.SecretKey,
+			AccessKey: conf.CreationMq.AccessKey,
 		}),
-		producer.WithGroupName(conf.Rocketmq.ArticleDraft.GroupName),
-		producer.WithNamespace(conf.Rocketmq.NameSpace),
+		producer.WithInstanceName("creation"),
+		producer.WithGroupName(conf.CreationMq.ArticleDraft.GroupName),
+		producer.WithNamespace(conf.CreationMq.NameSpace),
 	)
 
 	if err != nil {
@@ -126,7 +132,34 @@ func NewRocketmqArticleDraftProducer(conf *conf.Data, logger log.Logger) *Articl
 	}
 }
 
-func NewData(db *gorm.DB, redisCmd redis.Cmdable, cos *cos.Client, adp *ArticleDraftMqPro, logger log.Logger) (*Data, func(), error) {
+func NewRocketmqAchievementProducer(conf *conf.Data, logger log.Logger) *AchievementMqPro {
+	l := log.NewHelper(log.With(logger, "module", "creation/data/rocketmq-achievement-producer"))
+	p, err := rocketmq.NewProducer(
+		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.AchievementMq.ServerAddress})),
+		producer.WithCredentials(primitive.Credentials{
+			SecretKey: conf.AchievementMq.SecretKey,
+			AccessKey: conf.AchievementMq.AccessKey,
+		}),
+		producer.WithInstanceName("achievement"),
+		producer.WithGroupName(conf.AchievementMq.Achievement.GroupName),
+		producer.WithNamespace(conf.AchievementMq.NameSpace),
+	)
+
+	if err != nil {
+		l.Fatalf("init producer error: %v", err)
+	}
+
+	err = p.Start()
+	if err != nil {
+		l.Fatalf("start producer error: %v", err)
+	}
+
+	return &AchievementMqPro{
+		producer: p,
+	}
+}
+
+func NewData(db *gorm.DB, redisCmd redis.Cmdable, cos *cos.Client, adp *ArticleDraftMqPro, ap *AchievementMqPro, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(logger, "module", "creation/data/new-data"))
 
 	d := &Data{
@@ -134,6 +167,7 @@ func NewData(db *gorm.DB, redisCmd redis.Cmdable, cos *cos.Client, adp *ArticleD
 		cosCli:            cos,
 		redisCli:          redisCmd,
 		articleDraftMqPro: adp,
+		achievementMqPro:  ap,
 	}
 	return d, func() {
 		l.Info("closing the data resources")
@@ -141,6 +175,11 @@ func NewData(db *gorm.DB, redisCmd redis.Cmdable, cos *cos.Client, adp *ArticleD
 		err := d.articleDraftMqPro.producer.Shutdown()
 		if err != nil {
 			l.Errorf("shutdown article draft producer error: %v", err.Error())
+		}
+
+		err = d.achievementMqPro.producer.Shutdown()
+		if err != nil {
+			l.Errorf("shutdown achievement producer error: %v", err.Error())
 		}
 	}, nil
 }
