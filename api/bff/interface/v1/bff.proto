@@ -174,7 +174,7 @@ service Bff{
     };
   }
 
-  rpc GetCollectionsVisitorCount(google.protobuf.Empty) returns (GetCollectionsCountReply){
+  rpc GetCollectionsVisitorCount(GetCollectionsVisitorCountReq) returns (GetCollectionsCountReply){
     option (google.api.http) = {
       get: "/v1/get/collections/visitor/count"
     };
@@ -511,6 +511,10 @@ message GetCollectionsReply{
     string introduce = 2;
   }
   repeated Collections collections = 1;
+}
+
+message GetCollectionsVisitorCountReq{
+  string uuid = 1;
 }
 
 message GetCollectionsCountReply{
