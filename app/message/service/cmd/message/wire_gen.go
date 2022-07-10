@@ -23,11 +23,12 @@ import (
 func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, registry *nacos.Registry) (*kratos.App, func(), error) {
 	userClient := data.NewUserServiceClient(registry, logger)
 	creationClient := data.NewCreationServiceClient(registry, logger)
+	achievementClient := data.NewAchievementServiceClient(registry, logger)
 	cosUser := data.NewCosUserClient(confData, logger)
 	cosCreation := data.NewCosCreationClient(confData, logger)
 	txCode := data.NewPhoneCode(confData)
 	goMail := data.NewGoMail(confData)
-	dataData, err := data.NewData(logger, userClient, creationClient, cosUser, cosCreation, txCode, goMail)
+	dataData, err := data.NewData(logger, userClient, creationClient, achievementClient, cosUser, cosCreation, txCode, goMail)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -35,14 +36,17 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, re
 	userUseCase := biz.NewUserUseCase(userRepo, logger)
 	creationRepo := data.NewCreationRepo(dataData, logger)
 	creationUseCase := biz.NewCreationUseCase(creationRepo, logger)
-	messageService := service.NewMessageService(userUseCase, creationUseCase, logger)
+	achievementRepo := data.NewAchievementRepo(dataData, logger)
+	achievementCase := biz.NewAchievementUseCase(achievementRepo, logger)
+	messageService := service.NewMessageService(userUseCase, creationUseCase, achievementCase, logger)
 	httpServer := server.NewHTTPServer(confServer, messageService, logger)
 	grpcServer := server.NewGRPCServer(confServer, messageService, logger)
 	codeMqConsumerServer := server.NewCodeMqConsumerServer(confServer, messageService, logger)
 	profileMqConsumerServer := server.NewProfileMqConsumerServer(confServer, messageService, logger)
 	articleDraftMqConsumerServer := server.NewArticleDraftMqConsumerServer(confServer, messageService, logger)
 	articleMqConsumerServer := server.NewArticleMqConsumerServer(confServer, messageService, logger)
-	app := newApp(logger, registry, httpServer, grpcServer, codeMqConsumerServer, profileMqConsumerServer, articleDraftMqConsumerServer, articleMqConsumerServer)
+	achievementMqConsumerServer := server.NewAchievementMqConsumerServer(confServer, messageService, logger)
+	app := newApp(logger, registry, httpServer, grpcServer, codeMqConsumerServer, profileMqConsumerServer, articleDraftMqConsumerServer, articleMqConsumerServer, achievementMqConsumerServer)
 	return app, func() {
 	}, nil
 }
