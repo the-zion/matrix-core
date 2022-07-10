@@ -13,14 +13,16 @@ type MessageService struct {
 	v1.UnimplementedMessageServer
 	uc  *biz.UserUseCase
 	cc  *biz.CreationUseCase
+	ac  *biz.AchievementCase
 	log *log.Helper
 }
 
-func NewMessageService(uc *biz.UserUseCase, cc *biz.CreationUseCase, logger log.Logger) *MessageService {
+func NewMessageService(uc *biz.UserUseCase, cc *biz.CreationUseCase, ac *biz.AchievementCase, logger log.Logger) *MessageService {
 	return &MessageService{
 		log: log.NewHelper(log.With(logger, "module", "message/service")),
 		uc:  uc,
 		cc:  cc,
+		ac:  ac,
 	}
 }
 
