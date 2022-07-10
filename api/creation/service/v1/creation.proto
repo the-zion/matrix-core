@@ -18,7 +18,7 @@ service Creation {
 
   rpc GetCollectionsByVisitor(GetCollectionsReq) returns (GetCollectionsReply){}
 
-  rpc GetCollectionsVisitorCount(google.protobuf.Empty) returns (GetCollectionsCountReply){}
+  rpc GetCollectionsVisitorCount(GetCollectionsCountReq) returns (GetCollectionsCountReply){}
 
   rpc CreateCollections(CreateCollectionsReq) returns (google.protobuf.Empty){}
 
