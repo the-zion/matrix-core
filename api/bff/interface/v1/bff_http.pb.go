@@ -35,7 +35,7 @@ type BffHTTPServer interface {
 	GetCollections(context.Context, *GetCollectionsReq) (*GetCollectionsReply, error)
 	GetCollectionsByVisitor(context.Context, *GetCollectionsByVisitorReq) (*GetCollectionsReply, error)
 	GetCollectionsCount(context.Context, *emptypb.Empty) (*GetCollectionsCountReply, error)
-	GetCollectionsVisitorCount(context.Context, *emptypb.Empty) (*GetCollectionsCountReply, error)
+	GetCollectionsVisitorCount(context.Context, *GetCollectionsVisitorCountReq) (*GetCollectionsCountReply, error)
 	GetCosSessionKey(context.Context, *emptypb.Empty) (*GetCosSessionKeyReply, error)
 	GetLastArticleDraft(context.Context, *emptypb.Empty) (*GetLastArticleDraftReply, error)
 	GetLeaderBoard(context.Context, *emptypb.Empty) (*GetLeaderBoardReply, error)
@@ -565,13 +565,13 @@ func _Bff_GetCollectionsByVisitor0_HTTP_Handler(srv BffHTTPServer) func(ctx http
 
 func _Bff_GetCollectionsVisitorCount0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in emptypb.Empty
+		var in GetCollectionsVisitorCountReq
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, "/bff.v1.Bff/GetCollectionsVisitorCount")
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetCollectionsVisitorCount(ctx, req.(*emptypb.Empty))
+			return srv.GetCollectionsVisitorCount(ctx, req.(*GetCollectionsVisitorCountReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -903,7 +903,7 @@ type BffHTTPClient interface {
 	GetCollections(ctx context.Context, req *GetCollectionsReq, opts ...http.CallOption) (rsp *GetCollectionsReply, err error)
 	GetCollectionsByVisitor(ctx context.Context, req *GetCollectionsByVisitorReq, opts ...http.CallOption) (rsp *GetCollectionsReply, err error)
 	GetCollectionsCount(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetCollectionsCountReply, err error)
-	GetCollectionsVisitorCount(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetCollectionsCountReply, err error)
+	GetCollectionsVisitorCount(ctx context.Context, req *GetCollectionsVisitorCountReq, opts ...http.CallOption) (rsp *GetCollectionsCountReply, err error)
 	GetCosSessionKey(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetCosSessionKeyReply, err error)
 	GetLastArticleDraft(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetLastArticleDraftReply, err error)
 	GetLeaderBoard(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetLeaderBoardReply, err error)
@@ -1146,7 +1146,7 @@ func (c *BffHTTPClientImpl) GetCollectionsCount(ctx context.Context, in *emptypb
 	return &out, err
 }
 
-func (c *BffHTTPClientImpl) GetCollectionsVisitorCount(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*GetCollectionsCountReply, error) {
+func (c *BffHTTPClientImpl) GetCollectionsVisitorCount(ctx context.Context, in *GetCollectionsVisitorCountReq, opts ...http.CallOption) (*GetCollectionsCountReply, error) {
 	var out GetCollectionsCountReply
 	pattern := "/v1/get/collections/visitor/count"
 	path := binding.EncodeURL(pattern, in, true)

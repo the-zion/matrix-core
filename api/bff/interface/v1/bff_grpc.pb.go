@@ -48,7 +48,7 @@ type BffClient interface {
 	GetCollections(ctx context.Context, in *GetCollectionsReq, opts ...grpc.CallOption) (*GetCollectionsReply, error)
 	GetCollectionsCount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCollectionsCountReply, error)
 	GetCollectionsByVisitor(ctx context.Context, in *GetCollectionsByVisitorReq, opts ...grpc.CallOption) (*GetCollectionsReply, error)
-	GetCollectionsVisitorCount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCollectionsCountReply, error)
+	GetCollectionsVisitorCount(ctx context.Context, in *GetCollectionsVisitorCountReq, opts ...grpc.CallOption) (*GetCollectionsCountReply, error)
 	CreateCollections(ctx context.Context, in *CreateCollectionsReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetArticleList(ctx context.Context, in *GetArticleListReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
 	GetArticleListHot(ctx context.Context, in *GetArticleListHotReq, opts ...grpc.CallOption) (*GetArticleListHotReply, error)
@@ -291,7 +291,7 @@ func (c *bffClient) GetCollectionsByVisitor(ctx context.Context, in *GetCollecti
 	return out, nil
 }
 
-func (c *bffClient) GetCollectionsVisitorCount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCollectionsCountReply, error) {
+func (c *bffClient) GetCollectionsVisitorCount(ctx context.Context, in *GetCollectionsVisitorCountReq, opts ...grpc.CallOption) (*GetCollectionsCountReply, error) {
 	out := new(GetCollectionsCountReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCollectionsVisitorCount", in, out, opts...)
 	if err != nil {
@@ -473,7 +473,7 @@ type BffServer interface {
 	GetCollections(context.Context, *GetCollectionsReq) (*GetCollectionsReply, error)
 	GetCollectionsCount(context.Context, *emptypb.Empty) (*GetCollectionsCountReply, error)
 	GetCollectionsByVisitor(context.Context, *GetCollectionsByVisitorReq) (*GetCollectionsReply, error)
-	GetCollectionsVisitorCount(context.Context, *emptypb.Empty) (*GetCollectionsCountReply, error)
+	GetCollectionsVisitorCount(context.Context, *GetCollectionsVisitorCountReq) (*GetCollectionsCountReply, error)
 	CreateCollections(context.Context, *CreateCollectionsReq) (*emptypb.Empty, error)
 	GetArticleList(context.Context, *GetArticleListReq) (*GetArticleListReply, error)
 	GetArticleListHot(context.Context, *GetArticleListHotReq) (*GetArticleListHotReply, error)
@@ -569,7 +569,7 @@ func (UnimplementedBffServer) GetCollectionsCount(context.Context, *emptypb.Empt
 func (UnimplementedBffServer) GetCollectionsByVisitor(context.Context, *GetCollectionsByVisitorReq) (*GetCollectionsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCollectionsByVisitor not implemented")
 }
-func (UnimplementedBffServer) GetCollectionsVisitorCount(context.Context, *emptypb.Empty) (*GetCollectionsCountReply, error) {
+func (UnimplementedBffServer) GetCollectionsVisitorCount(context.Context, *GetCollectionsVisitorCountReq) (*GetCollectionsCountReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCollectionsVisitorCount not implemented")
 }
 func (UnimplementedBffServer) CreateCollections(context.Context, *CreateCollectionsReq) (*emptypb.Empty, error) {
@@ -1066,7 +1066,7 @@ func _Bff_GetCollectionsByVisitor_Handler(srv interface{}, ctx context.Context, 
 }
 
 func _Bff_GetCollectionsVisitorCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(GetCollectionsVisitorCountReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1078,7 +1078,7 @@ func _Bff_GetCollectionsVisitorCount_Handler(srv interface{}, ctx context.Contex
 		FullMethod: "/bff.v1.Bff/GetCollectionsVisitorCount",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BffServer).GetCollectionsVisitorCount(ctx, req.(*emptypb.Empty))
+		return srv.(BffServer).GetCollectionsVisitorCount(ctx, req.(*GetCollectionsVisitorCountReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
