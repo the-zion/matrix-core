@@ -31,3 +31,19 @@ type ArticleDraft struct {
 	Uuid   string `gorm:"index;size:36"`
 	Status int32  `gorm:"default:1"`
 }
+
+type Collections struct {
+	gorm.Model
+	Uuid      string `gorm:"index;size:36"`
+	Name      string `gorm:"size:50"`
+	Introduce string `gorm:"size:100"`
+	Auth      int32  `gorm:"default:1"`
+}
+
+type Collect struct {
+	gorm.Model
+	CollectionsId int32  `gorm:"index"`
+	Uuid          string `gorm:"size:36"`
+	CreationsId   int32  `gorm:"index"`
+	Mode          int32  `gorm:"default:1"`
+}
