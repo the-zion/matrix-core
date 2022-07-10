@@ -27,7 +27,7 @@ type CreationClient interface {
 	GetCollections(ctx context.Context, in *GetCollectionsReq, opts ...grpc.CallOption) (*GetCollectionsReply, error)
 	GetCollectionsCount(ctx context.Context, in *GetCollectionsCountReq, opts ...grpc.CallOption) (*GetCollectionsCountReply, error)
 	GetCollectionsByVisitor(ctx context.Context, in *GetCollectionsReq, opts ...grpc.CallOption) (*GetCollectionsReply, error)
-	GetCollectionsVisitorCount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCollectionsCountReply, error)
+	GetCollectionsVisitorCount(ctx context.Context, in *GetCollectionsCountReq, opts ...grpc.CallOption) (*GetCollectionsCountReply, error)
 	CreateCollections(ctx context.Context, in *CreateCollectionsReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetArticleList(ctx context.Context, in *GetArticleListReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
 	GetArticleListHot(ctx context.Context, in *GetArticleListHotReq, opts ...grpc.CallOption) (*GetArticleListHotReply, error)
@@ -92,7 +92,7 @@ func (c *creationClient) GetCollectionsByVisitor(ctx context.Context, in *GetCol
 	return out, nil
 }
 
-func (c *creationClient) GetCollectionsVisitorCount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCollectionsCountReply, error) {
+func (c *creationClient) GetCollectionsVisitorCount(ctx context.Context, in *GetCollectionsCountReq, opts ...grpc.CallOption) (*GetCollectionsCountReply, error) {
 	out := new(GetCollectionsCountReply)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetCollectionsVisitorCount", in, out, opts...)
 	if err != nil {
@@ -271,7 +271,7 @@ type CreationServer interface {
 	GetCollections(context.Context, *GetCollectionsReq) (*GetCollectionsReply, error)
 	GetCollectionsCount(context.Context, *GetCollectionsCountReq) (*GetCollectionsCountReply, error)
 	GetCollectionsByVisitor(context.Context, *GetCollectionsReq) (*GetCollectionsReply, error)
-	GetCollectionsVisitorCount(context.Context, *emptypb.Empty) (*GetCollectionsCountReply, error)
+	GetCollectionsVisitorCount(context.Context, *GetCollectionsCountReq) (*GetCollectionsCountReply, error)
 	CreateCollections(context.Context, *CreateCollectionsReq) (*emptypb.Empty, error)
 	GetArticleList(context.Context, *GetArticleListReq) (*GetArticleListReply, error)
 	GetArticleListHot(context.Context, *GetArticleListHotReq) (*GetArticleListHotReply, error)
@@ -309,7 +309,7 @@ func (UnimplementedCreationServer) GetCollectionsCount(context.Context, *GetColl
 func (UnimplementedCreationServer) GetCollectionsByVisitor(context.Context, *GetCollectionsReq) (*GetCollectionsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCollectionsByVisitor not implemented")
 }
-func (UnimplementedCreationServer) GetCollectionsVisitorCount(context.Context, *emptypb.Empty) (*GetCollectionsCountReply, error) {
+func (UnimplementedCreationServer) GetCollectionsVisitorCount(context.Context, *GetCollectionsCountReq) (*GetCollectionsCountReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCollectionsVisitorCount not implemented")
 }
 func (UnimplementedCreationServer) CreateCollections(context.Context, *CreateCollectionsReq) (*emptypb.Empty, error) {
@@ -452,7 +452,7 @@ func _Creation_GetCollectionsByVisitor_Handler(srv interface{}, ctx context.Cont
 }
 
 func _Creation_GetCollectionsVisitorCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(GetCollectionsCountReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -464,7 +464,7 @@ func _Creation_GetCollectionsVisitorCount_Handler(srv interface{}, ctx context.C
 		FullMethod: "/creation.v1.Creation/GetCollectionsVisitorCount",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CreationServer).GetCollectionsVisitorCount(ctx, req.(*emptypb.Empty))
+		return srv.(CreationServer).GetCollectionsVisitorCount(ctx, req.(*GetCollectionsCountReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
