@@ -159,10 +159,29 @@ func (s *CreationService) SetArticleCollect(ctx context.Context, req *v1.SetArti
 	return &emptypb.Empty{}, nil
 }
 
-func (s *CreationService) CreateCollections(ctx context.Context, req *v1.CreateCollectionsReq) (*emptypb.Empty, error) {
-	err := s.cc.CreateCollections(ctx, req.Uuid, req.Name, req.Introduce, req.Auth)
+func (s *CreationService) CancelArticleAgree(ctx context.Context, req *v1.CancelArticleAgreeReq) (*emptypb.Empty, error) {
+	err := s.ac.CancelArticleAgree(ctx, req.Id, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
 	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) CancelArticleCollect(ctx context.Context, req *v1.CancelArticleCollectReq) (*emptypb.Empty, error) {
+	err := s.ac.CancelArticleCollect(ctx, req.Id, req.Uuid, req.UserUuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) ArticleStatisticJudge(ctx context.Context, req *v1.ArticleStatisticJudgeReq) (*v1.ArticleStatisticJudgeReply, error) {
+	judge, err := s.ac.ArticleStatisticJudge(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.ArticleStatisticJudgeReply{
+		Agree:   judge.Agree,
+		Collect: judge.Collect,
+	}, nil
 }
