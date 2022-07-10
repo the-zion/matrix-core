@@ -12,6 +12,7 @@ import (
 	sms "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms/v20210111"
 	"github.com/tencentyun/cos-go-sdk-v5"
 	_ "github.com/tencentyun/cos-go-sdk-v5"
+	achievementv1 "github.com/the-zion/matrix-core/api/achievement/service/v1"
 	creationv1 "github.com/the-zion/matrix-core/api/creation/service/v1"
 	userv1 "github.com/the-zion/matrix-core/api/user/service/v1"
 	"github.com/the-zion/matrix-core/app/message/service/internal/conf"
@@ -20,7 +21,7 @@ import (
 	"net/url"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewCreationRepo, NewPhoneCode, NewGoMail, NewUserServiceClient, NewCreationServiceClient, NewCosUserClient, NewCosCreationClient)
+var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewCreationRepo, NewAchievementRepo, NewPhoneCode, NewGoMail, NewUserServiceClient, NewCreationServiceClient, NewAchievementServiceClient, NewCosUserClient, NewCosCreationClient)
 
 type TxCode struct {
 	client  *sms.Client
@@ -45,6 +46,7 @@ type Data struct {
 	log            *log.Helper
 	uc             userv1.UserClient
 	cc             creationv1.CreationClient
+	ac             achievementv1.AchievementClient
 	phoneCodeCli   *TxCode
 	goMailCli      *GoMail
 	cosUserCli     *CosUser
@@ -113,6 +115,24 @@ func NewCreationServiceClient(r *nacos.Registry, logger log.Logger) creationv1.C
 	return c
 }
 
+func NewAchievementServiceClient(r *nacos.Registry, logger log.Logger) achievementv1.AchievementClient {
+	l := log.NewHelper(log.With(logger, "module", "message/data/new-achievement-client"))
+	conn, err := grpc.DialInsecure(
+		context.Background(),
+		grpc.WithEndpoint("discovery:///matrix.achievement.service.grpc"),
+		grpc.WithDiscovery(r),
+		grpc.WithMiddleware(
+			//tracing.Client(tracing.WithTracerProvider(tp)),
+			recovery.Recovery(),
+		),
+	)
+	if err != nil {
+		l.Fatalf(err.Error())
+	}
+	c := achievementv1.NewAchievementClient(conn)
+	return c
+}
+
 func NewCosUserClient(conf *conf.Data, logger log.Logger) *CosUser {
 	l := log.NewHelper(log.With(logger, "module", "message/data/new-cos-user-client"))
 	u, err := url.Parse(conf.Cos.BucketUser.BucketUrl)
@@ -152,12 +172,13 @@ func NewCosCreationClient(conf *conf.Data, logger log.Logger) *CosCreation {
 	}
 }
 
-func NewData(logger log.Logger, uc userv1.UserClient, cc creationv1.CreationClient, cosUser *CosUser, cosCreation *CosCreation, phoneCodeCli *TxCode, goMailCli *GoMail) (*Data, error) {
+func NewData(logger log.Logger, uc userv1.UserClient, cc creationv1.CreationClient, ac achievementv1.AchievementClient, cosUser *CosUser, cosCreation *CosCreation, phoneCodeCli *TxCode, goMailCli *GoMail) (*Data, error) {
 	l := log.NewHelper(log.With(logger, "module", "message/data"))
 	d := &Data{
 		log:            l,
 		uc:             uc,
 		cc:             cc,
+		ac:             ac,
 		phoneCodeCli:   phoneCodeCli,
 		goMailCli:      goMailCli,
 		cosUserCli:     cosUser,
