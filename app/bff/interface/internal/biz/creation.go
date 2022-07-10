@@ -11,6 +11,7 @@ type CreationRepo interface {
 	GetCollections(ctx context.Context, uuid string, page int32) ([]*Collections, error)
 	GetCollectionsByVisitor(ctx context.Context, uuid string, page int32) ([]*Collections, error)
 	GetCollectionsCount(ctx context.Context, uuid string) (int32, error)
+	GetCollectionsVisitorCount(ctx context.Context, uuid string) (int32, error)
 }
 
 type ArticleRepo interface {
@@ -71,6 +72,10 @@ func (r *CreationUseCase) GetCollectionsCount(ctx context.Context) (int32, error
 
 func (r *CreationUseCase) GetCollectionsByVisitor(ctx context.Context, page int32, uuid string) ([]*Collections, error) {
 	return r.repo.GetCollectionsByVisitor(ctx, uuid, page)
+}
+
+func (r *CreationUseCase) GetCollectionsVisitorCount(ctx context.Context, uuid string) (int32, error) {
+	return r.repo.GetCollectionsVisitorCount(ctx, uuid)
 }
 
 func (r *CreationUseCase) CreateCollections(ctx context.Context, name, introduce string, auth int32) error {
