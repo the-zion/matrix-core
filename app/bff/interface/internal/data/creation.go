@@ -111,6 +111,16 @@ func (r *creationRepo) GetCollectionsCount(ctx context.Context, uuid string) (in
 	return reply.Count, nil
 }
 
+func (r *creationRepo) GetCollectionsVisitorCount(ctx context.Context, uuid string) (int32, error) {
+	reply, err := r.data.cc.GetCollectionsVisitorCount(ctx, &creationV1.GetCollectionsCountReq{
+		Uuid: uuid,
+	})
+	if err != nil {
+		return 0, err
+	}
+	return reply.Count, nil
+}
+
 func (r *creationRepo) CreateCollections(ctx context.Context, uuid, name, introduce string, auth int32) error {
 	_, err := r.data.cc.CreateCollections(ctx, &creationV1.CreateCollectionsReq{
 		Uuid:      uuid,
