@@ -64,8 +64,8 @@ func (s *BffService) GetCollectionsByVisitor(ctx context.Context, req *v1.GetCol
 	return reply, nil
 }
 
-func (s *BffService) GetCollectionsVisitorCount(ctx context.Context, _ *emptypb.Empty) (*v1.GetCollectionsCountReply, error) {
-	count, err := s.cc.GetCollectionsCount(ctx)
+func (s *BffService) GetCollectionsVisitorCount(ctx context.Context, req *v1.GetCollectionsVisitorCountReq) (*v1.GetCollectionsCountReply, error) {
+	count, err := s.cc.GetCollectionsVisitorCount(ctx, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
