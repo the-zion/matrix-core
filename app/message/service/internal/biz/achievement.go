@@ -7,8 +7,10 @@ import (
 
 type AchievementRepo interface {
 	SetAchievementAgree(ctx context.Context, uuid string) error
+	CancelAchievementAgree(ctx context.Context, uuid string) error
 	SetAchievementView(ctx context.Context, uuid string) error
 	SetAchievementCollect(ctx context.Context, uuid string) error
+	CancelAchievementCollect(ctx context.Context, uuid string) error
 }
 
 type AchievementCase struct {
@@ -27,10 +29,18 @@ func (r *AchievementCase) SetAchievementAgree(ctx context.Context, uuid string) 
 	return r.repo.SetAchievementAgree(ctx, uuid)
 }
 
+func (r *AchievementCase) CancelAchievementAgree(ctx context.Context, uuid string) error {
+	return r.repo.CancelAchievementAgree(ctx, uuid)
+}
+
 func (r *AchievementCase) SetAchievementView(ctx context.Context, uuid string) error {
 	return r.repo.SetAchievementView(ctx, uuid)
 }
 
 func (r *AchievementCase) SetAchievementCollect(ctx context.Context, uuid string) error {
 	return r.repo.SetAchievementCollect(ctx, uuid)
+}
+
+func (r *AchievementCase) CancelAchievementCollect(ctx context.Context, uuid string) error {
+	return r.repo.CancelAchievementCollect(ctx, uuid)
 }
