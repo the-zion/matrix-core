@@ -136,7 +136,7 @@ func (s *CreationService) SendArticle(ctx context.Context, req *v1.SendArticleRe
 }
 
 func (s *CreationService) SetArticleAgree(ctx context.Context, req *v1.SetArticleAgreeReq) (*emptypb.Empty, error) {
-	err := s.ac.SetArticleAgree(ctx, req.Id, req.Uuid)
+	err := s.ac.SetArticleAgree(ctx, req.Id, req.Uuid, req.UserUuid)
 	if err != nil {
 		return nil, err
 	}
@@ -160,7 +160,7 @@ func (s *CreationService) SetArticleCollect(ctx context.Context, req *v1.SetArti
 }
 
 func (s *CreationService) CancelArticleAgree(ctx context.Context, req *v1.CancelArticleAgreeReq) (*emptypb.Empty, error) {
-	err := s.ac.CancelArticleAgree(ctx, req.Id, req.Uuid)
+	err := s.ac.CancelArticleAgree(ctx, req.Id, req.Uuid, req.UserUuid)
 	if err != nil {
 		return nil, err
 	}
