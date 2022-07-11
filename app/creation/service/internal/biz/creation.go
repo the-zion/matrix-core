@@ -8,6 +8,8 @@ import (
 
 type CreationRepo interface {
 	GetLeaderBoard(ctx context.Context) ([]*LeaderBoard, error)
+	GetCollectArticle(ctx context.Context, id, page int32) ([]*Article, error)
+	GetCollectArticleCount(ctx context.Context, id int32) (int32, error)
 	GetCollections(ctx context.Context, uuid string, page int32) ([]*Collections, error)
 	GetCollectionsByVisitor(ctx context.Context, uuid string, page int32) ([]*Collections, error)
 	GetCollectionsCount(ctx context.Context, uuid string) (int32, error)
@@ -33,6 +35,22 @@ func (r *CreationUseCase) GetLeaderBoard(ctx context.Context) ([]*LeaderBoard, e
 		return nil, v1.ErrorGetLeaderBoardFailed("get leader board failed: %s", err.Error())
 	}
 	return boardList, nil
+}
+
+func (r *CreationUseCase) GetCollectArticle(ctx context.Context, id, page int32) ([]*Article, error) {
+	articleList, err := r.repo.GetCollectArticle(ctx, id, page)
+	if err != nil {
+		return nil, v1.ErrorGetCollectionsArticleFailed("get collect article list failed: %s", err.Error())
+	}
+	return articleList, nil
+}
+
+func (r *CreationUseCase) GetCollectArticleCount(ctx context.Context, id int32) (int32, error) {
+	count, err := r.repo.GetCollectArticleCount(ctx, id)
+	if err != nil {
+		return 0, v1.ErrorGetCollectionsArticleCountFailed("get collect article count failed: %s", err.Error())
+	}
+	return count, nil
 }
 
 func (r *CreationUseCase) GetCollections(ctx context.Context, uuid string, page int32) ([]*Collections, error) {
