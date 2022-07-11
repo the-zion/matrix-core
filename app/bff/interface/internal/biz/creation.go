@@ -7,6 +7,8 @@ import (
 
 type CreationRepo interface {
 	GetLeaderBoard(ctx context.Context) ([]*LeaderBoard, error)
+	GetCollectArticle(ctx context.Context, id, page int32) ([]*Article, error)
+	GetCollectArticleCount(ctx context.Context, id int32) (int32, error)
 	CreateCollections(ctx context.Context, uuid, name, introduce string, auth int32) error
 	GetCollections(ctx context.Context, uuid string, page int32) ([]*Collections, error)
 	GetCollectionsByVisitor(ctx context.Context, uuid string, page int32) ([]*Collections, error)
@@ -24,10 +26,10 @@ type ArticleRepo interface {
 	GetArticleDraftList(ctx context.Context, uuid string) ([]*ArticleDraft, error)
 	ArticleDraftMark(ctx context.Context, id int32, uuid string) error
 	SendArticle(ctx context.Context, id int32, uuid string) error
-	SetArticleAgree(ctx context.Context, id int32, uuid string) error
+	SetArticleAgree(ctx context.Context, id int32, uuid, userUuid string) error
 	SetArticleView(ctx context.Context, id int32, uuid string) error
 	SetArticleCollect(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error
-	CancelArticleAgree(ctx context.Context, id int32, uuid string) error
+	CancelArticleAgree(ctx context.Context, id int32, uuid, userUuid string) error
 	CancelArticleCollect(ctx context.Context, id int32, uuid, userUuid string) error
 	ArticleStatisticJudge(ctx context.Context, id int32, uuid string) (*ArticleStatisticJudge, error)
 }
@@ -58,6 +60,14 @@ func NewArticleUseCase(repo ArticleRepo, logger log.Logger) *ArticleUseCase {
 
 func (r *CreationUseCase) GetLeaderBoard(ctx context.Context) ([]*LeaderBoard, error) {
 	return r.repo.GetLeaderBoard(ctx)
+}
+
+func (r *CreationUseCase) GetCollectArticle(ctx context.Context, id, page int32) ([]*Article, error) {
+	return r.repo.GetCollectArticle(ctx, id, page)
+}
+
+func (r *CreationUseCase) GetCollectArticleCount(ctx context.Context, id int32) (int32, error) {
+	return r.repo.GetCollectArticleCount(ctx, id)
 }
 
 func (r *CreationUseCase) GetCollections(ctx context.Context, page int32) ([]*Collections, error) {
@@ -125,7 +135,8 @@ func (r *ArticleUseCase) SendArticle(ctx context.Context, id int32) error {
 }
 
 func (r *ArticleUseCase) SetArticleAgree(ctx context.Context, id int32, uuid string) error {
-	return r.repo.SetArticleAgree(ctx, id, uuid)
+	userUuid := ctx.Value("uuid").(string)
+	return r.repo.SetArticleAgree(ctx, id, uuid, userUuid)
 }
 
 func (r *ArticleUseCase) SetArticleView(ctx context.Context, id int32, uuid string) error {
@@ -138,7 +149,8 @@ func (r *ArticleUseCase) SetArticleCollect(ctx context.Context, id, collectionsI
 }
 
 func (r *ArticleUseCase) CancelArticleAgree(ctx context.Context, id int32, uuid string) error {
-	return r.repo.CancelArticleAgree(ctx, id, uuid)
+	userUuid := ctx.Value("uuid").(string)
+	return r.repo.CancelArticleAgree(ctx, id, uuid, userUuid)
 }
 
 func (r *ArticleUseCase) CancelArticleCollect(ctx context.Context, id int32, uuid string) error {
