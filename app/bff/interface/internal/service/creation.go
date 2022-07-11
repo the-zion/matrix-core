@@ -24,6 +24,31 @@ func (s *BffService) GetLeaderBoard(ctx context.Context, _ *emptypb.Empty) (*v1.
 	return reply, nil
 }
 
+func (s *BffService) GetCollectArticle(ctx context.Context, req *v1.GetCollectArticleReq) (*v1.GetArticleListReply, error) {
+	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0)}
+	articleList, err := s.cc.GetCollectArticle(ctx, req.Id, req.Page)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range articleList {
+		reply.Article = append(reply.Article, &v1.GetArticleListReply_Article{
+			Id:   item.Id,
+			Uuid: item.Uuid,
+		})
+	}
+	return reply, nil
+}
+
+func (s *BffService) GetCollectArticleCount(ctx context.Context, req *v1.GetCollectArticleCountReq) (*v1.GetCollectArticleCountReply, error) {
+	count, err := s.cc.GetCollectArticleCount(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetCollectArticleCountReply{
+		Count: count,
+	}, nil
+}
+
 func (s *BffService) GetCollections(ctx context.Context, req *v1.GetCollectionsReq) (*v1.GetCollectionsReply, error) {
 	reply := &v1.GetCollectionsReply{Collections: make([]*v1.GetCollectionsReply_Collections, 0)}
 	collections, err := s.cc.GetCollections(ctx, req.Page)
@@ -32,8 +57,9 @@ func (s *BffService) GetCollections(ctx context.Context, req *v1.GetCollectionsR
 	}
 	for _, item := range collections {
 		reply.Collections = append(reply.Collections, &v1.GetCollectionsReply_Collections{
+			Id:        item.Id,
 			Name:      item.Name,
-			Introduce: item.Name,
+			Introduce: item.Introduce,
 		})
 	}
 	return reply, nil
@@ -57,8 +83,9 @@ func (s *BffService) GetCollectionsByVisitor(ctx context.Context, req *v1.GetCol
 	}
 	for _, item := range collections {
 		reply.Collections = append(reply.Collections, &v1.GetCollectionsReply_Collections{
+			Id:        item.Id,
 			Name:      item.Name,
-			Introduce: item.Name,
+			Introduce: item.Introduce,
 		})
 	}
 	return reply, nil
