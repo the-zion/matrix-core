@@ -32,6 +32,8 @@ type BffHTTPServer interface {
 	GetArticleListHot(context.Context, *GetArticleListHotReq) (*GetArticleListHotReply, error)
 	GetArticleListStatistic(context.Context, *GetArticleListStatisticReq) (*GetArticleListStatisticReply, error)
 	GetArticleStatistic(context.Context, *GetArticleStatisticReq) (*GetArticleStatisticReply, error)
+	GetCollectArticle(context.Context, *GetCollectArticleReq) (*GetArticleListReply, error)
+	GetCollectArticleCount(context.Context, *GetCollectArticleCountReq) (*GetCollectArticleCountReply, error)
 	GetCollections(context.Context, *GetCollectionsReq) (*GetCollectionsReply, error)
 	GetCollectionsByVisitor(context.Context, *GetCollectionsByVisitorReq) (*GetCollectionsReply, error)
 	GetCollectionsCount(context.Context, *emptypb.Empty) (*GetCollectionsCountReply, error)
@@ -85,6 +87,8 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.POST("/v1/unbind/user/phone", _Bff_UnbindUserPhone0_HTTP_Handler(srv))
 	r.POST("/v1/unbind/user/email", _Bff_UnbindUserEmail0_HTTP_Handler(srv))
 	r.GET("/v1/get/leaderboard", _Bff_GetLeaderBoard0_HTTP_Handler(srv))
+	r.GET("/v1/get/collect/article", _Bff_GetCollectArticle0_HTTP_Handler(srv))
+	r.GET("/v1/get/collect/article", _Bff_GetCollectArticleCount0_HTTP_Handler(srv))
 	r.POST("/v1/get/collections", _Bff_GetCollections0_HTTP_Handler(srv))
 	r.POST("/v1/get/collections/count", _Bff_GetCollectionsCount0_HTTP_Handler(srv))
 	r.GET("/v1/get/collections/visitor", _Bff_GetCollectionsByVisitor0_HTTP_Handler(srv))
@@ -506,6 +510,44 @@ func _Bff_GetLeaderBoard0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context)
 	}
 }
 
+func _Bff_GetCollectArticle0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetCollectArticleReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/bff.v1.Bff/GetCollectArticle")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetCollectArticle(ctx, req.(*GetCollectArticleReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetArticleListReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_GetCollectArticleCount0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetCollectArticleCountReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/bff.v1.Bff/GetCollectArticleCount")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetCollectArticleCount(ctx, req.(*GetCollectArticleCountReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetCollectArticleCountReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _Bff_GetCollections0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in GetCollectionsReq
@@ -900,6 +942,8 @@ type BffHTTPClient interface {
 	GetArticleListHot(ctx context.Context, req *GetArticleListHotReq, opts ...http.CallOption) (rsp *GetArticleListHotReply, err error)
 	GetArticleListStatistic(ctx context.Context, req *GetArticleListStatisticReq, opts ...http.CallOption) (rsp *GetArticleListStatisticReply, err error)
 	GetArticleStatistic(ctx context.Context, req *GetArticleStatisticReq, opts ...http.CallOption) (rsp *GetArticleStatisticReply, err error)
+	GetCollectArticle(ctx context.Context, req *GetCollectArticleReq, opts ...http.CallOption) (rsp *GetArticleListReply, err error)
+	GetCollectArticleCount(ctx context.Context, req *GetCollectArticleCountReq, opts ...http.CallOption) (rsp *GetCollectArticleCountReply, err error)
 	GetCollections(ctx context.Context, req *GetCollectionsReq, opts ...http.CallOption) (rsp *GetCollectionsReply, err error)
 	GetCollectionsByVisitor(ctx context.Context, req *GetCollectionsByVisitorReq, opts ...http.CallOption) (rsp *GetCollectionsReply, err error)
 	GetCollectionsCount(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetCollectionsCountReply, err error)
@@ -1099,6 +1143,32 @@ func (c *BffHTTPClientImpl) GetArticleStatistic(ctx context.Context, in *GetArti
 	pattern := "/v1/get/article/statistic"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation("/bff.v1.Bff/GetArticleStatistic"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetCollectArticle(ctx context.Context, in *GetCollectArticleReq, opts ...http.CallOption) (*GetArticleListReply, error) {
+	var out GetArticleListReply
+	pattern := "/v1/get/collect/article"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation("/bff.v1.Bff/GetCollectArticle"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetCollectArticleCount(ctx context.Context, in *GetCollectArticleCountReq, opts ...http.CallOption) (*GetCollectArticleCountReply, error) {
+	var out GetCollectArticleCountReply
+	pattern := "/v1/get/collect/article"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation("/bff.v1.Bff/GetCollectArticleCount"))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

@@ -45,6 +45,8 @@ type BffClient interface {
 	UnbindUserEmail(ctx context.Context, in *UnbindUserEmailReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// -------------------------creation----------------------------
 	GetLeaderBoard(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLeaderBoardReply, error)
+	GetCollectArticle(ctx context.Context, in *GetCollectArticleReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
+	GetCollectArticleCount(ctx context.Context, in *GetCollectArticleCountReq, opts ...grpc.CallOption) (*GetCollectArticleCountReply, error)
 	GetCollections(ctx context.Context, in *GetCollectionsReq, opts ...grpc.CallOption) (*GetCollectionsReply, error)
 	GetCollectionsCount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCollectionsCountReply, error)
 	GetCollectionsByVisitor(ctx context.Context, in *GetCollectionsByVisitorReq, opts ...grpc.CallOption) (*GetCollectionsReply, error)
@@ -264,6 +266,24 @@ func (c *bffClient) GetLeaderBoard(ctx context.Context, in *emptypb.Empty, opts 
 	return out, nil
 }
 
+func (c *bffClient) GetCollectArticle(ctx context.Context, in *GetCollectArticleReq, opts ...grpc.CallOption) (*GetArticleListReply, error) {
+	out := new(GetArticleListReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCollectArticle", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetCollectArticleCount(ctx context.Context, in *GetCollectArticleCountReq, opts ...grpc.CallOption) (*GetCollectArticleCountReply, error) {
+	out := new(GetCollectArticleCountReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCollectArticleCount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) GetCollections(ctx context.Context, in *GetCollectionsReq, opts ...grpc.CallOption) (*GetCollectionsReply, error) {
 	out := new(GetCollectionsReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCollections", in, out, opts...)
@@ -470,6 +490,8 @@ type BffServer interface {
 	UnbindUserEmail(context.Context, *UnbindUserEmailReq) (*emptypb.Empty, error)
 	// -------------------------creation----------------------------
 	GetLeaderBoard(context.Context, *emptypb.Empty) (*GetLeaderBoardReply, error)
+	GetCollectArticle(context.Context, *GetCollectArticleReq) (*GetArticleListReply, error)
+	GetCollectArticleCount(context.Context, *GetCollectArticleCountReq) (*GetCollectArticleCountReply, error)
 	GetCollections(context.Context, *GetCollectionsReq) (*GetCollectionsReply, error)
 	GetCollectionsCount(context.Context, *emptypb.Empty) (*GetCollectionsCountReply, error)
 	GetCollectionsByVisitor(context.Context, *GetCollectionsByVisitorReq) (*GetCollectionsReply, error)
@@ -559,6 +581,12 @@ func (UnimplementedBffServer) UnbindUserEmail(context.Context, *UnbindUserEmailR
 }
 func (UnimplementedBffServer) GetLeaderBoard(context.Context, *emptypb.Empty) (*GetLeaderBoardReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLeaderBoard not implemented")
+}
+func (UnimplementedBffServer) GetCollectArticle(context.Context, *GetCollectArticleReq) (*GetArticleListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCollectArticle not implemented")
+}
+func (UnimplementedBffServer) GetCollectArticleCount(context.Context, *GetCollectArticleCountReq) (*GetCollectArticleCountReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCollectArticleCount not implemented")
 }
 func (UnimplementedBffServer) GetCollections(context.Context, *GetCollectionsReq) (*GetCollectionsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCollections not implemented")
@@ -1007,6 +1035,42 @@ func _Bff_GetLeaderBoard_Handler(srv interface{}, ctx context.Context, dec func(
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BffServer).GetLeaderBoard(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetCollectArticle_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCollectArticleReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetCollectArticle(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetCollectArticle",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetCollectArticle(ctx, req.(*GetCollectArticleReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetCollectArticleCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCollectArticleCountReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetCollectArticleCount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetCollectArticleCount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetCollectArticleCount(ctx, req.(*GetCollectArticleCountReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1461,6 +1525,14 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetLeaderBoard",
 			Handler:    _Bff_GetLeaderBoard_Handler,
+		},
+		{
+			MethodName: "GetCollectArticle",
+			Handler:    _Bff_GetCollectArticle_Handler,
+		},
+		{
+			MethodName: "GetCollectArticleCount",
+			Handler:    _Bff_GetCollectArticleCount_Handler,
 		},
 		{
 			MethodName: "GetCollections",
