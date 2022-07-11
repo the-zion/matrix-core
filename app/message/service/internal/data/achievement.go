@@ -30,7 +30,7 @@ func (r *achievementRepo) SetAchievementAgree(ctx context.Context, uuid string) 
 }
 
 func (r *achievementRepo) CancelAchievementAgree(ctx context.Context, uuid string) error {
-	_, err := r.data.ac.SetAchievementAgree(ctx, &achievementv1.SetAchievementAgreeReq{
+	_, err := r.data.ac.CancelAchievementAgree(ctx, &achievementv1.CancelAchievementAgreeReq{
 		Uuid: uuid,
 	})
 	if err != nil {
