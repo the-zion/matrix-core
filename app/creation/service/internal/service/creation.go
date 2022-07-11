@@ -22,6 +22,31 @@ func (s *CreationService) GetLeaderBoard(ctx context.Context, _ *emptypb.Empty) 
 	return reply, nil
 }
 
+func (s *CreationService) GetCollectArticle(ctx context.Context, req *v1.GetCollectArticleReq) (*v1.GetArticleListReply, error) {
+	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0)}
+	articleList, err := s.cc.GetCollectArticle(ctx, req.Id, req.Page)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range articleList {
+		reply.Article = append(reply.Article, &v1.GetArticleListReply_Article{
+			Id:   item.ArticleId,
+			Uuid: item.Uuid,
+		})
+	}
+	return reply, nil
+}
+
+func (s *CreationService) GetCollectArticleCount(ctx context.Context, req *v1.GetCollectArticleCountReq) (*v1.GetCollectArticleCountReply, error) {
+	count, err := s.cc.GetCollectArticleCount(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetCollectArticleCountReply{
+		Count: count,
+	}, nil
+}
+
 func (s *CreationService) GetCollections(ctx context.Context, req *v1.GetCollectionsReq) (*v1.GetCollectionsReply, error) {
 	reply := &v1.GetCollectionsReply{Collections: make([]*v1.GetCollectionsReply_Collections, 0)}
 	collections, err := s.cc.GetCollections(ctx, req.Uuid, req.Page)
@@ -30,8 +55,9 @@ func (s *CreationService) GetCollections(ctx context.Context, req *v1.GetCollect
 	}
 	for _, item := range collections {
 		reply.Collections = append(reply.Collections, &v1.GetCollectionsReply_Collections{
+			Id:        item.Id,
 			Name:      item.Name,
-			Introduce: item.Name,
+			Introduce: item.Introduce,
 		})
 	}
 	return reply, nil
@@ -45,8 +71,9 @@ func (s *CreationService) GetCollectionsByVisitor(ctx context.Context, req *v1.G
 	}
 	for _, item := range collections {
 		reply.Collections = append(reply.Collections, &v1.GetCollectionsReply_Collections{
+			Id:        item.Id,
 			Name:      item.Name,
-			Introduce: item.Name,
+			Introduce: item.Introduce,
 		})
 	}
 	return reply, nil
