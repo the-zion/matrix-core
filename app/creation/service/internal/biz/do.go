@@ -33,6 +33,7 @@ type LeaderBoard struct {
 }
 
 type Collections struct {
+	Id        int32
 	Name      string
 	Introduce string
 }
