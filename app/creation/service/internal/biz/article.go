@@ -31,14 +31,14 @@ type ArticleRepo interface {
 	SetArticleView(ctx context.Context, id int32, uuid string) error
 	SetArticleUserCollect(ctx context.Context, id, collectionsId int32, userUuid string) error
 	SetArticleCollect(ctx context.Context, id int32, uuid string) error
-	SetArticleAgreeToCache(ctx context.Context, id int32, uuid string) error
+	SetArticleAgreeToCache(ctx context.Context, id int32, uuid, userUuid string) error
 	SetArticleViewToCache(ctx context.Context, id int32, uuid string) error
-	SetArticleCollectToCache(ctx context.Context, id int32, uuid string) error
+	SetArticleCollectToCache(ctx context.Context, id int32, uuid, userUuid string) error
 	CancelArticleAgree(ctx context.Context, id int32, uuid string) error
-	CancelArticleAgreeFromCache(ctx context.Context, id int32, uuid string) error
+	CancelArticleAgreeFromCache(ctx context.Context, id int32, uuid, userUuid string) error
 	CancelArticleUserCollect(ctx context.Context, id int32, userUuid string) error
 	CancelArticleCollect(ctx context.Context, id int32, uuid string) error
-	CancelArticleCollectFromCache(ctx context.Context, id int32, uuid string) error
+	CancelArticleCollectFromCache(ctx context.Context, id int32, uuid, userUuid string) error
 	SendArticleStatisticToMq(ctx context.Context, uuid, mode string) error
 }
 type ArticleUseCase struct {
@@ -192,13 +192,13 @@ func (r *ArticleUseCase) SendArticle(ctx context.Context, id int32, uuid string)
 	})
 }
 
-func (r *ArticleUseCase) SetArticleAgree(ctx context.Context, id int32, uuid string) error {
+func (r *ArticleUseCase) SetArticleAgree(ctx context.Context, id int32, uuid, userUuid string) error {
 	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		err := r.repo.SetArticleAgree(ctx, id, uuid)
 		if err != nil {
 			return v1.ErrorSetArticleAgreeFailed("set article agree failed: %s", err.Error())
 		}
-		err = r.repo.SetArticleAgreeToCache(ctx, id, uuid)
+		err = r.repo.SetArticleAgreeToCache(ctx, id, uuid, userUuid)
 		if err != nil {
 			return v1.ErrorSetArticleAgreeFailed("set article agree to cache failed: %s", err.Error())
 		}
@@ -238,7 +238,7 @@ func (r *ArticleUseCase) SetArticleCollect(ctx context.Context, id, collectionsI
 		if err != nil {
 			return v1.ErrorSetArticleViewFailed("set article collect failed: %s", err.Error())
 		}
-		err = r.repo.SetArticleCollectToCache(ctx, id, uuid)
+		err = r.repo.SetArticleCollectToCache(ctx, id, uuid, userUuid)
 		if err != nil {
 			return v1.ErrorSetArticleViewFailed("set article collect to cache failed: %s", err.Error())
 		}
@@ -250,13 +250,13 @@ func (r *ArticleUseCase) SetArticleCollect(ctx context.Context, id, collectionsI
 	})
 }
 
-func (r *ArticleUseCase) CancelArticleAgree(ctx context.Context, id int32, uuid string) error {
+func (r *ArticleUseCase) CancelArticleAgree(ctx context.Context, id int32, uuid, userUuid string) error {
 	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		err := r.repo.CancelArticleAgree(ctx, id, uuid)
 		if err != nil {
 			return v1.ErrorCancelArticleAgreeFailed("cancel article agree failed: %s", err.Error())
 		}
-		err = r.repo.CancelArticleAgreeFromCache(ctx, id, uuid)
+		err = r.repo.CancelArticleAgreeFromCache(ctx, id, uuid, userUuid)
 		if err != nil {
 			return v1.ErrorCancelArticleAgreeFailed("cancel article agree from cache failed: %s", err.Error())
 		}
@@ -278,7 +278,7 @@ func (r *ArticleUseCase) CancelArticleCollect(ctx context.Context, id int32, uui
 		if err != nil {
 			return v1.ErrorCancelArticleCollectFailed("cancel article collect failed: %s", err.Error())
 		}
-		err = r.repo.CancelArticleCollectFromCache(ctx, id, uuid)
+		err = r.repo.CancelArticleCollectFromCache(ctx, id, uuid, userUuid)
 		if err != nil {
 			return v1.ErrorCancelArticleCollectFailed("cancel article collect to cache failed: %s", err.Error())
 		}
