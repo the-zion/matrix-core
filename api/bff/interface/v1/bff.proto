@@ -154,6 +154,18 @@ service Bff{
     };
   }
 
+  rpc GetCollectArticle(GetCollectArticleReq) returns (GetArticleListReply){
+    option (google.api.http) = {
+      get: "/v1/get/collect/article"
+    };
+  }
+
+  rpc GetCollectArticleCount(GetCollectArticleCountReq) returns (GetCollectArticleCountReply){
+    option (google.api.http) = {
+      get: "/v1/get/collect/article"
+    };
+  }
+
   rpc GetCollections(GetCollectionsReq) returns (GetCollectionsReply){
     option (google.api.http) = {
       post: "/v1/get/collections"
@@ -442,6 +454,19 @@ message GetLeaderBoardReply{
   repeated Board board = 1;
 }
 
+message GetCollectArticleReq{
+  int32 id = 1;
+  int32 page = 2;
+}
+
+message GetCollectArticleCountReq{
+  int32 id = 1;
+}
+
+message GetCollectArticleCountReply{
+  int32 count = 1;
+}
+
 message GetArticleListReq{
   int32 page = 1;
 }
@@ -507,8 +532,9 @@ message GetCollectionsReq{
 
 message GetCollectionsReply{
   message Collections {
-    string name = 1;
-    string introduce = 2;
+    int32 id = 1;
+    string name = 2;
+    string introduce = 3;
   }
   repeated Collections collections = 1;
 }
