@@ -399,17 +399,17 @@ func (r *articleRepo) SetArticleAgree(ctx context.Context, id int32, uuid string
 	return nil
 }
 
-func (r *articleRepo) SetArticleAgreeToCache(ctx context.Context, id int32, uuid string) error {
+func (r *articleRepo) SetArticleAgreeToCache(ctx context.Context, id int32, uuid, userUuid string) error {
 	ids := strconv.Itoa(int(id))
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		pipe.HIncrBy(ctx, "article_"+ids, "agree", 1)
 		pipe.ZIncrBy(ctx, "article_hot", 1, ids+"%"+uuid)
 		pipe.ZIncrBy(ctx, "leaderboard", 1, ids+"%"+uuid+"%article")
-		pipe.SAdd(ctx, "article_agree_"+ids, uuid)
+		pipe.SAdd(ctx, "article_agree_"+ids, userUuid)
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to add article agree to cache: id(%v), uuid(%s)", id, uuid)
+		r.log.Errorf("fail to add article agree to cache: id(%v), uuid(%s), userUuid(%s)", id, uuid, userUuid)
 	}
 	return nil
 }
@@ -444,7 +444,7 @@ func (r *articleRepo) SetArticleUserCollect(ctx context.Context, id, collections
 	}
 	err := r.data.DB(ctx).Create(collect).Error
 	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to collect an article: article_id(%v)", id))
+		return errors.Wrapf(err, fmt.Sprintf("fail to collect an article: article_id(%v), collectionsId(%v), userUuid(%s)", id, collectionsId, userUuid))
 	}
 	return nil
 }
@@ -458,15 +458,15 @@ func (r *articleRepo) SetArticleCollect(ctx context.Context, id int32, uuid stri
 	return nil
 }
 
-func (r *articleRepo) SetArticleCollectToCache(ctx context.Context, id int32, uuid string) error {
+func (r *articleRepo) SetArticleCollectToCache(ctx context.Context, id int32, uuid, userUuid string) error {
 	ids := strconv.Itoa(int(id))
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		pipe.HIncrBy(ctx, "article_"+ids, "collect", 1)
-		pipe.SAdd(ctx, "article_collect_"+ids, uuid)
+		pipe.SAdd(ctx, "article_collect_"+ids, userUuid)
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to add article collect to cache: id(%v), uuid(%s)", id, uuid)
+		r.log.Errorf("fail to add article collect to cache: id(%v), uuid(%s), userUuid(%s)", id, uuid, userUuid)
 	}
 	return nil
 }
@@ -480,17 +480,17 @@ func (r *articleRepo) CancelArticleAgree(ctx context.Context, id int32, uuid str
 	return nil
 }
 
-func (r *articleRepo) CancelArticleAgreeFromCache(ctx context.Context, id int32, uuid string) error {
+func (r *articleRepo) CancelArticleAgreeFromCache(ctx context.Context, id int32, uuid, userUuid string) error {
 	ids := strconv.Itoa(int(id))
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		pipe.HIncrBy(ctx, "article_"+ids, "agree", -1)
 		pipe.ZIncrBy(ctx, "article_hot", -1, ids+"%"+uuid)
 		pipe.ZIncrBy(ctx, "leaderboard", -1, ids+"%"+uuid+"%article")
-		pipe.SRem(ctx, "article_agree_"+ids, uuid)
+		pipe.SRem(ctx, "article_agree_"+ids, userUuid)
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to cancel article agree from cache: id(%v), uuid(%s)", id, uuid)
+		r.log.Errorf("fail to cancel article agree from cache: id(%v), uuid(%s), userUuid(%s)", id, uuid, userUuid)
 	}
 	return nil
 }
@@ -499,7 +499,7 @@ func (r *articleRepo) CancelArticleUserCollect(ctx context.Context, id int32, us
 	collect := &Collect{}
 	err := r.data.DB(ctx).Where("creations_id = ? and uuid = ?", id, userUuid).Delete(collect).Error
 	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to cancel article collect: article_id(%v)", id))
+		return errors.Wrapf(err, fmt.Sprintf("fail to cancel article collect: article_id(%v), userUuid(%s)", id, userUuid))
 	}
 	return nil
 }
@@ -513,15 +513,15 @@ func (r *articleRepo) CancelArticleCollect(ctx context.Context, id int32, uuid s
 	return nil
 }
 
-func (r *articleRepo) CancelArticleCollectFromCache(ctx context.Context, id int32, uuid string) error {
+func (r *articleRepo) CancelArticleCollectFromCache(ctx context.Context, id int32, uuid, userUuid string) error {
 	ids := strconv.Itoa(int(id))
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		pipe.HIncrBy(ctx, "article_"+ids, "collect", -1)
-		pipe.SRem(ctx, "article_collect_"+ids, uuid)
+		pipe.SRem(ctx, "article_collect_"+ids, userUuid)
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to cancel article collect from cache: id(%v), uuid(%s)", id, uuid)
+		r.log.Errorf("fail to cancel article collect from cache: id(%v), uuid(%s), userUuid(%s)", id, uuid, userUuid)
 	}
 	return nil
 }
