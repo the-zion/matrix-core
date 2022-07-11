@@ -8,7 +8,6 @@ import (
 	"github.com/the-zion/matrix-core/app/bff/interface/internal/biz"
 	"golang.org/x/sync/singleflight"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"strconv"
 )
 
 var _ biz.ArticleRepo = (*articleRepo)(nil)
@@ -65,6 +64,46 @@ func (r *creationRepo) GetLeaderBoard(ctx context.Context) ([]*biz.LeaderBoard, 
 	return result.([]*biz.LeaderBoard), nil
 }
 
+func (r *creationRepo) GetCollectArticle(ctx context.Context, id, page int32) ([]*biz.Article, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("collect_article_page_%v_%v", id, page), func() (interface{}, error) {
+		reply := make([]*biz.Article, 0)
+		articleList, err := r.data.cc.GetCollectArticle(ctx, &creationV1.GetCollectArticleReq{
+			Id:   id,
+			Page: page,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range articleList.Article {
+			reply = append(reply, &biz.Article{
+				Id:   item.Id,
+				Uuid: item.Uuid,
+			})
+		}
+		return reply, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.([]*biz.Article), nil
+}
+
+func (r *creationRepo) GetCollectArticleCount(ctx context.Context, id int32) (int32, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("collect_article_count_%v", id), func() (interface{}, error) {
+		reply, err := r.data.cc.GetCollectArticleCount(ctx, &creationV1.GetCollectArticleCountReq{
+			Id: id,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return reply.Count, nil
+	})
+	if err != nil {
+		return 0, err
+	}
+	return result.(int32), nil
+}
+
 func (r *creationRepo) GetCollections(ctx context.Context, uuid string, page int32) ([]*biz.Collections, error) {
 	collections := make([]*biz.Collections, 0)
 	reply, err := r.data.cc.GetCollections(ctx, &creationV1.GetCollectionsReq{
@@ -76,6 +115,7 @@ func (r *creationRepo) GetCollections(ctx context.Context, uuid string, page int
 	}
 	for _, item := range reply.Collections {
 		collections = append(collections, &biz.Collections{
+			Id:        item.Id,
 			Name:      item.Name,
 			Introduce: item.Introduce,
 		})
@@ -84,21 +124,28 @@ func (r *creationRepo) GetCollections(ctx context.Context, uuid string, page int
 }
 
 func (r *creationRepo) GetCollectionsByVisitor(ctx context.Context, uuid string, page int32) ([]*biz.Collections, error) {
-	collections := make([]*biz.Collections, 0)
-	reply, err := r.data.cc.GetCollectionsByVisitor(ctx, &creationV1.GetCollectionsReq{
-		Uuid: uuid,
-		Page: page,
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_collections_by_visitor_%s_%v", uuid, page), func() (interface{}, error) {
+		collections := make([]*biz.Collections, 0)
+		reply, err := r.data.cc.GetCollectionsByVisitor(ctx, &creationV1.GetCollectionsReq{
+			Uuid: uuid,
+			Page: page,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range reply.Collections {
+			collections = append(collections, &biz.Collections{
+				Id:        item.Id,
+				Name:      item.Name,
+				Introduce: item.Introduce,
+			})
+		}
+		return collections, nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	for _, item := range reply.Collections {
-		collections = append(collections, &biz.Collections{
-			Name:      item.Name,
-			Introduce: item.Introduce,
-		})
-	}
-	return collections, nil
+	return result.([]*biz.Collections), nil
 }
 
 func (r *creationRepo) GetCollectionsCount(ctx context.Context, uuid string) (int32, error) {
@@ -112,13 +159,19 @@ func (r *creationRepo) GetCollectionsCount(ctx context.Context, uuid string) (in
 }
 
 func (r *creationRepo) GetCollectionsVisitorCount(ctx context.Context, uuid string) (int32, error) {
-	reply, err := r.data.cc.GetCollectionsVisitorCount(ctx, &creationV1.GetCollectionsCountReq{
-		Uuid: uuid,
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_collections_visitor_count_%s", uuid), func() (interface{}, error) {
+		reply, err := r.data.cc.GetCollectionsVisitorCount(ctx, &creationV1.GetCollectionsCountReq{
+			Uuid: uuid,
+		})
+		if err != nil {
+			return 0, err
+		}
+		return reply.Count, nil
 	})
 	if err != nil {
 		return 0, err
 	}
-	return reply.Count, nil
+	return result.(int32), nil
 }
 
 func (r *creationRepo) CreateCollections(ctx context.Context, uuid, name, introduce string, auth int32) error {
@@ -148,7 +201,7 @@ func (r *articleRepo) GetLastArticleDraft(ctx context.Context, uuid string) (*bi
 }
 
 func (r *articleRepo) GetArticleList(ctx context.Context, page int32) ([]*biz.Article, error) {
-	result, err, _ := r.sg.Do(fmt.Sprintf("article_page_%s", strconv.Itoa(int(page))), func() (interface{}, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("article_page_%v", page), func() (interface{}, error) {
 		reply := make([]*biz.Article, 0)
 		articleList, err := r.data.cc.GetArticleList(ctx, &creationV1.GetArticleListReq{
 			Page: page,
@@ -171,7 +224,7 @@ func (r *articleRepo) GetArticleList(ctx context.Context, page int32) ([]*biz.Ar
 }
 
 func (r *articleRepo) GetArticleListHot(ctx context.Context, page int32) ([]*biz.Article, error) {
-	result, err, _ := r.sg.Do(fmt.Sprintf("article_page_hot_%s", strconv.Itoa(int(page))), func() (interface{}, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("article_page_hot_%v", page), func() (interface{}, error) {
 		reply := make([]*biz.Article, 0)
 		articleList, err := r.data.cc.GetArticleListHot(ctx, &creationV1.GetArticleListHotReq{
 			Page: page,
@@ -194,7 +247,7 @@ func (r *articleRepo) GetArticleListHot(ctx context.Context, page int32) ([]*biz
 }
 
 func (r *articleRepo) GetArticleStatistic(ctx context.Context, id int32) (*biz.ArticleStatistic, error) {
-	result, err, _ := r.sg.Do(fmt.Sprintf("article_statistic_%s", strconv.Itoa(int(id))), func() (interface{}, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("article_statistic_%v", id), func() (interface{}, error) {
 		statistic, err := r.data.cc.GetArticleStatistic(ctx, &creationV1.GetArticleStatisticReq{
 			Id: id,
 		})
@@ -283,10 +336,11 @@ func (r *articleRepo) SendArticle(ctx context.Context, id int32, uuid string) er
 	return nil
 }
 
-func (r *articleRepo) SetArticleAgree(ctx context.Context, id int32, uuid string) error {
+func (r *articleRepo) SetArticleAgree(ctx context.Context, id int32, uuid, userUuid string) error {
 	_, err := r.data.cc.SetArticleAgree(ctx, &creationV1.SetArticleAgreeReq{
-		Uuid: uuid,
-		Id:   id,
+		Uuid:     uuid,
+		Id:       id,
+		UserUuid: userUuid,
 	})
 	if err != nil {
 		return err
@@ -318,10 +372,11 @@ func (r *articleRepo) SetArticleCollect(ctx context.Context, id, collectionsId i
 	return nil
 }
 
-func (r *articleRepo) CancelArticleAgree(ctx context.Context, id int32, uuid string) error {
+func (r *articleRepo) CancelArticleAgree(ctx context.Context, id int32, uuid, userUuid string) error {
 	_, err := r.data.cc.CancelArticleAgree(ctx, &creationV1.CancelArticleAgreeReq{
-		Uuid: uuid,
-		Id:   id,
+		Uuid:     uuid,
+		Id:       id,
+		UserUuid: userUuid,
 	})
 	if err != nil {
 		return err
