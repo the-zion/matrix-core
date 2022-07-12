@@ -16,6 +16,8 @@ service Creation {
 
   rpc GetCollectArticleCount(GetCollectArticleCountReq) returns (GetCollectArticleCountReply){}
 
+  rpc GetCollection(GetCollectionReq) returns (GetCollectionReply){}
+
   rpc GetCollections(GetCollectionsReq) returns (GetCollectionsReply){}
 
   rpc GetCollectionsCount(GetCollectionsCountReq) returns (GetCollectionsCountReply){}
@@ -26,9 +28,17 @@ service Creation {
 
   rpc CreateCollections(CreateCollectionsReq) returns (google.protobuf.Empty){}
 
+  rpc EditCollections(EditCollectionsReq) returns (google.protobuf.Empty){}
+
+  rpc DeleteCollections(DeleteCollectionsReq) returns (google.protobuf.Empty){}
+
   rpc GetArticleList(GetArticleListReq) returns (GetArticleListReply){}
 
   rpc GetArticleListHot(GetArticleListHotReq) returns (GetArticleListHotReply){}
+
+  rpc GetUserArticleList(GetUserArticleListReq) returns (GetArticleListReply){}
+
+  rpc GetUserArticleListVisitor(GetUserArticleListVisitorReq) returns (GetArticleListReply){}
 
   rpc GetArticleStatistic(GetArticleStatisticReq)returns (GetArticleStatisticReply){}
 
@@ -83,6 +93,18 @@ message GetCollectArticleCountReply{
   int32 count = 1;
 }
 
+message GetCollectionReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message GetCollectionReply{
+  string uuid = 1;
+  string name = 2;
+  string introduce = 3;
+  int32 auth = 4;
+}
+
 message GetCollectionsReq{
   int32 page = 1;
   string uuid = 2 [(validate.rules).string.uuid = true];
@@ -112,6 +134,19 @@ message CreateCollectionsReq{
   int32 auth = 4;
 }
 
+message EditCollectionsReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+  string name = 3 [(validate.rules).string = {min_len:1, max_len: 50}];
+  string introduce = 4 [(validate.rules).string = {min_len:1, max_len: 100}];
+  int32 auth = 5;
+}
+
+message DeleteCollectionsReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
 message GetArticleListReq{
   int32 page = 1;
 }
@@ -134,6 +169,16 @@ message GetArticleListHotReply{
     string uuid = 2;
   }
   repeated Article article = 1;
+}
+
+message GetUserArticleListReq{
+  int32 page = 1;
+  string uuid = 2;
+}
+
+message GetUserArticleListVisitorReq{
+  int32 page = 1;
+  string uuid = 2;
 }
 
 message GetArticleStatisticReq{
