@@ -14,6 +14,8 @@ type ArticleRepo interface {
 	GetArticleAgreeJudge(ctx context.Context, id int32, uuid string) (bool, error)
 	GetArticleCollectJudge(ctx context.Context, id int32, uuid string) (bool, error)
 	GetArticleListHot(ctx context.Context, page int32) ([]*ArticleStatistic, error)
+	GetUserArticleList(ctx context.Context, page int32, uuid string) ([]*Article, error)
+	GetUserArticleListVisitor(ctx context.Context, page int32, uuid string) ([]*Article, error)
 	GetArticleStatistic(ctx context.Context, id int32) (*ArticleStatistic, error)
 	GetArticleListStatistic(ctx context.Context, ids []int32) ([]*ArticleStatistic, error)
 	CreateArticle(ctx context.Context, id int32, uuid string) error
@@ -150,6 +152,22 @@ func (r *ArticleUseCase) GetArticleListHot(ctx context.Context, page int32) ([]*
 	articleList, err := r.repo.GetArticleListHot(ctx, page)
 	if err != nil {
 		return nil, v1.ErrorGetArticleListHotFailed("get article hot list failed: %s", err.Error())
+	}
+	return articleList, nil
+}
+
+func (r *ArticleUseCase) GetUserArticleList(ctx context.Context, page int32, uuid string) ([]*Article, error) {
+	articleList, err := r.repo.GetUserArticleList(ctx, page, uuid)
+	if err != nil {
+		return nil, v1.ErrorGetUserArticleListFailed("get user article list failed: %s", err.Error())
+	}
+	return articleList, nil
+}
+
+func (r *ArticleUseCase) GetUserArticleListVisitor(ctx context.Context, page int32, uuid string) ([]*Article, error) {
+	articleList, err := r.repo.GetUserArticleListVisitor(ctx, page, uuid)
+	if err != nil {
+		return nil, v1.ErrorGetUserArticleListFailed("get user article list visitor failed: %s", err.Error())
 	}
 	return articleList, nil
 }
