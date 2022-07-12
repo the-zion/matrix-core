@@ -104,6 +104,28 @@ func (r *creationRepo) GetCollectArticleCount(ctx context.Context, id int32) (in
 	return result.(int32), nil
 }
 
+func (r *creationRepo) GetCollection(ctx context.Context, id int32, uuid string) (*biz.Collections, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_collection_%v", id), func() (interface{}, error) {
+		reply, err := r.data.cc.GetCollection(ctx, &creationV1.GetCollectionReq{
+			Id:   id,
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return &biz.Collections{
+			Uuid:      reply.Uuid,
+			Name:      reply.Name,
+			Introduce: reply.Introduce,
+			Auth:      reply.Auth,
+		}, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*biz.Collections), nil
+}
+
 func (r *creationRepo) GetCollections(ctx context.Context, uuid string, page int32) ([]*biz.Collections, error) {
 	collections := make([]*biz.Collections, 0)
 	reply, err := r.data.cc.GetCollections(ctx, &creationV1.GetCollectionsReq{
@@ -187,6 +209,31 @@ func (r *creationRepo) CreateCollections(ctx context.Context, uuid, name, introd
 	return nil
 }
 
+func (r *creationRepo) EditCollections(ctx context.Context, id int32, uuid, name, introduce string, auth int32) error {
+	_, err := r.data.cc.EditCollections(ctx, &creationV1.EditCollectionsReq{
+		Id:        id,
+		Uuid:      uuid,
+		Name:      name,
+		Introduce: introduce,
+		Auth:      auth,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) DeleteCollections(ctx context.Context, id int32, uuid string) error {
+	_, err := r.data.cc.DeleteCollections(ctx, &creationV1.DeleteCollectionsReq{
+		Id:   id,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *articleRepo) GetLastArticleDraft(ctx context.Context, uuid string) (*biz.ArticleDraft, error) {
 	reply, err := r.data.cc.GetLastArticleDraft(ctx, &creationV1.GetLastArticleDraftReq{
 		Uuid: uuid,
@@ -244,6 +291,42 @@ func (r *articleRepo) GetArticleListHot(ctx context.Context, page int32) ([]*biz
 		return nil, err
 	}
 	return result.([]*biz.Article), nil
+}
+
+func (r *articleRepo) GetUserArticleList(ctx context.Context, page int32, uuid string) ([]*biz.Article, error) {
+	reply := make([]*biz.Article, 0)
+	articleList, err := r.data.cc.GetUserArticleList(ctx, &creationV1.GetUserArticleListReq{
+		Page: page,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range articleList.Article {
+		reply = append(reply, &biz.Article{
+			Id:   item.Id,
+			Uuid: item.Uuid,
+		})
+	}
+	return reply, nil
+}
+
+func (r *articleRepo) GetUserArticleListVisitor(ctx context.Context, page int32, uuid string) ([]*biz.Article, error) {
+	reply := make([]*biz.Article, 0)
+	articleList, err := r.data.cc.GetUserArticleListVisitor(ctx, &creationV1.GetUserArticleListVisitorReq{
+		Page: page,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range articleList.Article {
+		reply = append(reply, &biz.Article{
+			Id:   item.Id,
+			Uuid: item.Uuid,
+		})
+	}
+	return reply, nil
 }
 
 func (r *articleRepo) GetArticleStatistic(ctx context.Context, id int32) (*biz.ArticleStatistic, error) {
