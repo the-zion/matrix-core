@@ -75,9 +75,35 @@ func (r *creationRepo) GetCollectArticleCount(ctx context.Context, id int32) (in
 	var count int64
 	err := r.data.db.WithContext(ctx).Model(&Collect{}).Where("collections_id = ? and mode = ?", id, 1).Count(&count).Error
 	if err != nil {
-		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get collect article count: id(%v)", id))
+		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get collect article count from db: id(%v)", id))
 	}
 	return int32(count), nil
+}
+
+func (r *creationRepo) GetCollection(ctx context.Context, id int32, uuid string) (*biz.Collections, error) {
+	collections := &Collections{}
+	err := r.data.db.WithContext(ctx).Where("id = ?", id).First(collections).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get collection from db: id(%v)", id))
+	}
+	if collections.Auth == 2 && collections.Uuid != uuid {
+		return nil, errors.Errorf("fail to get collection: no auth")
+	}
+	return &biz.Collections{
+		Uuid:      collections.Uuid,
+		Name:      collections.Name,
+		Introduce: collections.Introduce,
+		Auth:      collections.Auth,
+	}, nil
+}
+
+func (r *creationRepo) GetCollectCount(ctx context.Context, id int32) (int64, error) {
+	var count int64
+	err := r.data.db.WithContext(ctx).Model(&Collect{}).Where("collections_id = ?", id).Limit(1).Count(&count).Error
+	if err != nil {
+		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get collect count from db: collections_id(%v)", id))
+	}
+	return count, nil
 }
 
 func (r *creationRepo) GetCollections(ctx context.Context, uuid string, page int32) ([]*biz.Collections, error) {
@@ -86,10 +112,10 @@ func (r *creationRepo) GetCollections(ctx context.Context, uuid string, page int
 	}
 	index := int(page - 1)
 	list := make([]*Collections, 0)
-	handle := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).Offset(index * 10).Limit(10).Find(&list)
+	handle := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).Order("id desc").Offset(index * 10).Limit(10).Find(&list)
 	err := handle.Error
 	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get collections: uuid(%s)", uuid))
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get collections from db: uuid(%s)", uuid))
 	}
 	collections := make([]*biz.Collections, 0)
 	for _, item := range list {
@@ -111,7 +137,7 @@ func (r *creationRepo) GetCollectionsByVisitor(ctx context.Context, uuid string,
 	handle := r.data.db.WithContext(ctx).Where("uuid = ? and auth = ?", uuid, 1).Offset(index * 10).Limit(10).Find(&list)
 	err := handle.Error
 	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get collections visitor: uuid(%s)", uuid))
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get collections visitor from db: uuid(%s)", uuid))
 	}
 	collections := make([]*biz.Collections, 0)
 	for _, item := range list {
@@ -128,7 +154,7 @@ func (r *creationRepo) GetCollectionsCount(ctx context.Context, uuid string) (in
 	var count int64
 	err := r.data.db.WithContext(ctx).Model(&Collections{}).Where("uuid = ?", uuid).Count(&count).Error
 	if err != nil {
-		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get collections count: uuid(%s)", uuid))
+		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get collections count from db: uuid(%s)", uuid))
 	}
 	return int32(count), nil
 }
@@ -137,7 +163,7 @@ func (r *creationRepo) GetCollectionsVisitorCount(ctx context.Context, uuid stri
 	var count int64
 	err := r.data.db.WithContext(ctx).Model(&Collections{}).Where("uuid = ? and auth = ?", uuid, 1).Count(&count).Error
 	if err != nil {
-		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get collections visitor count: uuid(%s)", uuid))
+		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get collections visitor count from db: uuid(%s)", uuid))
 	}
 	return int32(count), nil
 }
@@ -151,7 +177,29 @@ func (r *creationRepo) CreateCollections(ctx context.Context, uuid, name, introd
 	}
 	err := r.data.DB(ctx).Create(collect).Error
 	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to create an collections: uuid(%v)", uuid))
+		return errors.Wrapf(err, fmt.Sprintf("fail to create an collection from db: uuid(%v)", uuid))
+	}
+	return nil
+}
+
+func (r *creationRepo) EditCollections(ctx context.Context, id int32, uuid, name, introduce string, auth int32) error {
+	collect := &Collections{
+		Name:      name,
+		Introduce: introduce,
+		Auth:      auth,
+	}
+	err := r.data.db.WithContext(ctx).Model(&Collections{}).Where("id = ? and uuid = ?", id, uuid).Updates(collect).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to edit an collection from db: id(%v), uuid(%v)", id, uuid))
+	}
+	return nil
+}
+
+func (r *creationRepo) DeleteCollections(ctx context.Context, id int32, uuid string) error {
+	collect := &Collections{}
+	err := r.data.DB(ctx).Where("id = ? and uuid = ?", id, uuid).Delete(collect).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to delete an collection from db: id(%v), uuid(%v)", id, uuid))
 	}
 	return nil
 }
