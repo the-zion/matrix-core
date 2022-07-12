@@ -129,6 +129,48 @@ func (r *articleRepo) GetArticleListHot(ctx context.Context, page int32) ([]*biz
 	return article, nil
 }
 
+func (r *articleRepo) GetUserArticleList(ctx context.Context, page int32, uuid string) ([]*biz.Article, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int(page - 1)
+	list := make([]*Article, 0)
+	err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).Order("article_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user article from db: page(%v), uuid(%s)", page, uuid))
+	}
+
+	article := make([]*biz.Article, 0)
+	for _, item := range list {
+		article = append(article, &biz.Article{
+			ArticleId: item.ArticleId,
+			Uuid:      item.Uuid,
+		})
+	}
+	return article, nil
+}
+
+func (r *articleRepo) GetUserArticleListVisitor(ctx context.Context, page int32, uuid string) ([]*biz.Article, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int(page - 1)
+	list := make([]*Article, 0)
+	err := r.data.db.WithContext(ctx).Where("uuid = ? and auth = ?", uuid, 1).Order("article_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user article visitor from db: page(%v), uuid(%s)", page, uuid))
+	}
+
+	article := make([]*biz.Article, 0)
+	for _, item := range list {
+		article = append(article, &biz.Article{
+			ArticleId: item.ArticleId,
+			Uuid:      item.Uuid,
+		})
+	}
+	return article, nil
+}
+
 func (r *articleRepo) getArticleHotFromDB(ctx context.Context, page int32) ([]*biz.ArticleStatistic, error) {
 	if page < 1 {
 		page = 1
