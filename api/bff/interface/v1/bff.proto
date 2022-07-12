@@ -162,7 +162,13 @@ service Bff{
 
   rpc GetCollectArticleCount(GetCollectArticleCountReq) returns (GetCollectArticleCountReply){
     option (google.api.http) = {
-      get: "/v1/get/collect/article"
+      get: "/v1/get/collect/article/count"
+    };
+  }
+
+  rpc GetCollection(GetCollectionReq) returns (GetCollectionReply){
+    option (google.api.http) = {
+      get: "/v1/get/collection"
     };
   }
 
@@ -199,6 +205,20 @@ service Bff{
     };
   }
 
+  rpc EditCollections(EditCollectionsReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/edit/collections"
+      body: "*"
+    };
+  }
+
+  rpc DeleteCollections(DeleteCollectionsReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/delete/collections"
+      body: "*"
+    };
+  }
+
   // -------------------------article----------------------------
 
   rpc GetArticleList(GetArticleListReq) returns (GetArticleListReply){
@@ -210,6 +230,18 @@ service Bff{
   rpc GetArticleListHot(GetArticleListHotReq) returns (GetArticleListHotReply){
     option (google.api.http) = {
       get: "/v1/get/article/list/hot"
+    };
+  }
+
+  rpc GetUserArticleList(GetUserArticleListReq) returns (GetArticleListReply){
+    option (google.api.http) = {
+      get: "/v1/get/user/article/list"
+    };
+  }
+
+  rpc GetUserArticleListVisitor(GetUserArticleListVisitorReq) returns (GetArticleListReply){
+    option (google.api.http) = {
+      get: "/v1/get/user/article/list/visitor"
     };
   }
 
@@ -467,6 +499,18 @@ message GetCollectArticleCountReply{
   int32 count = 1;
 }
 
+message GetCollectionReq{
+  int32 id = 1;
+  string uuid = 2;
+}
+
+message GetCollectionReply{
+  string uuid = 1;
+  string name = 2;
+  string introduce = 3;
+  int32 auth = 4;
+}
+
 message GetArticleListReq{
   int32 page = 1;
 }
@@ -489,6 +533,15 @@ message GetArticleListHotReply{
     string uuid = 2;
   }
   repeated Article article = 1;
+}
+
+message GetUserArticleListReq{
+  int32 page = 1;
+}
+
+message GetUserArticleListVisitorReq{
+  int32 page = 1;
+  string uuid = 2;
 }
 
 message GetArticleStatisticReq{
@@ -556,6 +609,17 @@ message CreateCollectionsReq{
   string name = 1;
   string introduce = 2;
   int32 auth = 3;
+}
+
+message EditCollectionsReq{
+  int32 id = 1;
+  string name = 2;
+  string introduce = 3;
+  int32 auth = 4;
+}
+
+message DeleteCollectionsReq{
+  int32 id = 1;
 }
 
 message ArticleDraftMarkReq{
