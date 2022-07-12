@@ -47,6 +47,19 @@ func (s *CreationService) GetCollectArticleCount(ctx context.Context, req *v1.Ge
 	}, nil
 }
 
+func (s *CreationService) GetCollection(ctx context.Context, req *v1.GetCollectionReq) (*v1.GetCollectionReply, error) {
+	collection, err := s.cc.GetCollection(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetCollectionReply{
+		Uuid:      collection.Uuid,
+		Name:      collection.Name,
+		Introduce: collection.Introduce,
+		Auth:      collection.Auth,
+	}, nil
+}
+
 func (s *CreationService) GetCollections(ctx context.Context, req *v1.GetCollectionsReq) (*v1.GetCollectionsReply, error) {
 	reply := &v1.GetCollectionsReply{Collections: make([]*v1.GetCollectionsReply_Collections, 0)}
 	collections, err := s.cc.GetCollections(ctx, req.Uuid, req.Page)
@@ -101,6 +114,22 @@ func (s *CreationService) GetCollectionsVisitorCount(ctx context.Context, req *v
 
 func (s *CreationService) CreateCollections(ctx context.Context, req *v1.CreateCollectionsReq) (*emptypb.Empty, error) {
 	err := s.cc.CreateCollections(ctx, req.Uuid, req.Name, req.Introduce, req.Auth)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) EditCollections(ctx context.Context, req *v1.EditCollectionsReq) (*emptypb.Empty, error) {
+	err := s.cc.EditCollections(ctx, req.Id, req.Uuid, req.Name, req.Introduce, req.Auth)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) DeleteCollections(ctx context.Context, req *v1.DeleteCollectionsReq) (*emptypb.Empty, error) {
+	err := s.cc.DeleteCollections(ctx, req.Id, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
