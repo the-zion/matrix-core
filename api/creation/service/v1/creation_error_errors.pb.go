@@ -71,6 +71,18 @@ func ErrorGetArticleListHotFailed(format string, args ...interface{}) *errors.Er
 	return errors.New(500, CreationErrorReason_GET_ARTICLE_LIST_HOT_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsGetUserArticleListFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_GET_USER_ARTICLE_LIST_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetUserArticleListFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_GET_USER_ARTICLE_LIST_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsGetArticleStatisticFailed(err error) bool {
 	if err == nil {
 		return false
@@ -107,28 +119,52 @@ func ErrorGetDraftListFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, CreationErrorReason_GET_DRAFT_LIST_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
-func IsGetCollectionsArticleFailed(err error) bool {
+func IsGetCollectArticleFailed(err error) bool {
 	if err == nil {
 		return false
 	}
 	e := errors.FromError(err)
-	return e.Reason == CreationErrorReason_GET_COLLECTIONS_ARTICLE_FAILED.String() && e.Code == 500
+	return e.Reason == CreationErrorReason_GET_COLLECT_ARTICLE_FAILED.String() && e.Code == 500
 }
 
-func ErrorGetCollectionsArticleFailed(format string, args ...interface{}) *errors.Error {
-	return errors.New(500, CreationErrorReason_GET_COLLECTIONS_ARTICLE_FAILED.String(), fmt.Sprintf(format, args...))
+func ErrorGetCollectArticleFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_GET_COLLECT_ARTICLE_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
-func IsGetCollectionsArticleCountFailed(err error) bool {
+func IsGetCollectArticleCountFailed(err error) bool {
 	if err == nil {
 		return false
 	}
 	e := errors.FromError(err)
-	return e.Reason == CreationErrorReason_GET_COLLECTIONS_ARTICLE_COUNT_FAILED.String() && e.Code == 500
+	return e.Reason == CreationErrorReason_GET_COLLECT_ARTICLE_COUNT_FAILED.String() && e.Code == 500
 }
 
-func ErrorGetCollectionsArticleCountFailed(format string, args ...interface{}) *errors.Error {
-	return errors.New(500, CreationErrorReason_GET_COLLECTIONS_ARTICLE_COUNT_FAILED.String(), fmt.Sprintf(format, args...))
+func ErrorGetCollectArticleCountFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_GET_COLLECT_ARTICLE_COUNT_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsGetCollectCountFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_GET_COLLECT_COUNT_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetCollectCountFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_GET_COLLECT_COUNT_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsGetCollectionFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_GET_COLLECTION_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetCollectionFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_GET_COLLECTION_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
 func IsGetCollectionsFailed(err error) bool {
@@ -239,6 +275,18 @@ func ErrorCreateCollectionsFailed(format string, args ...interface{}) *errors.Er
 	return errors.New(500, CreationErrorReason_CREATE_COLLECTIONS_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsEditCollectionsFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_EDIT_COLLECTIONS_FAILED.String() && e.Code == 500
+}
+
+func ErrorEditCollectionsFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_EDIT_COLLECTIONS_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsDeleteArticleDraftFailed(err error) bool {
 	if err == nil {
 		return false
@@ -249,6 +297,18 @@ func IsDeleteArticleDraftFailed(err error) bool {
 
 func ErrorDeleteArticleDraftFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, CreationErrorReason_DELETE_ARTICLE_DRAFT_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsDeleteCollectionsFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_DELETE_COLLECTIONS_FAILED.String() && e.Code == 500
+}
+
+func ErrorDeleteCollectionsFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_DELETE_COLLECTIONS_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
 func IsRecordNotFound(err error) bool {
@@ -369,4 +429,16 @@ func IsSendToMqFailed(err error) bool {
 
 func ErrorSendToMqFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, CreationErrorReason_SEND_TO_MQ_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsCollectionsIsNotEmpty(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_COLLECTIONS_IS_NOT_EMPTY.String() && e.Code == 500
+}
+
+func ErrorCollectionsIsNotEmpty(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_COLLECTIONS_IS_NOT_EMPTY.String(), fmt.Sprintf(format, args...))
 }
