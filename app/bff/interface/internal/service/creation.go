@@ -49,6 +49,19 @@ func (s *BffService) GetCollectArticleCount(ctx context.Context, req *v1.GetColl
 	}, nil
 }
 
+func (s *BffService) GetCollection(ctx context.Context, req *v1.GetCollectionReq) (*v1.GetCollectionReply, error) {
+	collection, err := s.cc.GetCollection(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetCollectionReply{
+		Uuid:      collection.Uuid,
+		Name:      collection.Name,
+		Introduce: collection.Introduce,
+		Auth:      collection.Auth,
+	}, nil
+}
+
 func (s *BffService) GetCollections(ctx context.Context, req *v1.GetCollectionsReq) (*v1.GetCollectionsReply, error) {
 	reply := &v1.GetCollectionsReply{Collections: make([]*v1.GetCollectionsReply_Collections, 0)}
 	collections, err := s.cc.GetCollections(ctx, req.Page)
@@ -109,6 +122,22 @@ func (s *BffService) CreateCollections(ctx context.Context, req *v1.CreateCollec
 	return &emptypb.Empty{}, nil
 }
 
+func (s *BffService) EditCollections(ctx context.Context, req *v1.EditCollectionsReq) (*emptypb.Empty, error) {
+	err := s.cc.EditCollections(ctx, req.Id, req.Name, req.Introduce, req.Auth)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) DeleteCollections(ctx context.Context, req *v1.DeleteCollectionsReq) (*emptypb.Empty, error) {
+	err := s.cc.DeleteCollections(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 // ------------------------------------------article-------------------------------------------------
 
 func (s *BffService) GetArticleList(ctx context.Context, req *v1.GetArticleListReq) (*v1.GetArticleListReply, error) {
@@ -134,6 +163,36 @@ func (s *BffService) GetArticleListHot(ctx context.Context, req *v1.GetArticleLi
 	}
 	for _, item := range articleList {
 		reply.Article = append(reply.Article, &v1.GetArticleListHotReply_Article{
+			Id:   item.Id,
+			Uuid: item.Uuid,
+		})
+	}
+	return reply, nil
+}
+
+func (s *BffService) GetUserArticleList(ctx context.Context, req *v1.GetUserArticleListReq) (*v1.GetArticleListReply, error) {
+	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0)}
+	articleList, err := s.ac.GetUserArticleList(ctx, req.Page)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range articleList {
+		reply.Article = append(reply.Article, &v1.GetArticleListReply_Article{
+			Id:   item.Id,
+			Uuid: item.Uuid,
+		})
+	}
+	return reply, nil
+}
+
+func (s *BffService) GetUserArticleListVisitor(ctx context.Context, req *v1.GetUserArticleListVisitorReq) (*v1.GetArticleListReply, error) {
+	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0)}
+	articleList, err := s.ac.GetUserArticleListVisitor(ctx, req.Page, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range articleList {
+		reply.Article = append(reply.Article, &v1.GetArticleListReply_Article{
 			Id:   item.Id,
 			Uuid: item.Uuid,
 		})
