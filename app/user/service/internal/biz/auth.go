@@ -30,7 +30,7 @@ type AuthRepo interface {
 	VerifyPassword(ctx context.Context, account, password, mode string) (*User, error)
 	PasswordResetByPhone(ctx context.Context, phone, password string) error
 	PasswordResetByEmail(ctx context.Context, email, password string) error
-	GetCosSessionKey(ctx context.Context) (*Credentials, error)
+	GetCosSessionKey(ctx context.Context, uuid string) (*Credentials, error)
 	UnbindUserPhone(ctx context.Context, uuid string) error
 	UnbindUserEmail(ctx context.Context, uuid string) error
 }
@@ -184,8 +184,8 @@ func (r *AuthUseCase) SendEmailCode(ctx context.Context, template, email string)
 	return nil
 }
 
-func (r *AuthUseCase) GetCosSessionKey(ctx context.Context) (*Credentials, error) {
-	credentials, err := r.repo.GetCosSessionKey(ctx)
+func (r *AuthUseCase) GetCosSessionKey(ctx context.Context, uuid string) (*Credentials, error) {
+	credentials, err := r.repo.GetCosSessionKey(ctx, uuid)
 	if err != nil {
 		return nil, err
 	}
