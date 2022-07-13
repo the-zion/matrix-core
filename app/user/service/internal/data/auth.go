@@ -1,12 +1,15 @@
 package data
 
 import (
+	"bytes"
 	"context"
+	"encoding/gob"
 	"fmt"
 	"github.com/apache/rocketmq-client-go/v2/primitive"
 	kerrors "github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/pkg/errors"
+	sts "github.com/tencentyun/qcloud-cos-sts-sdk/go"
 	"github.com/the-zion/matrix-core/app/user/service/internal/biz"
 	"github.com/the-zion/matrix-core/app/user/service/internal/pkg/util"
 	"gorm.io/gorm"
@@ -293,10 +296,29 @@ func (r *authRepo) PasswordResetByEmail(ctx context.Context, email, password str
 	return nil
 }
 
-func (r *authRepo) GetCosSessionKey(ctx context.Context) (*biz.Credentials, error) {
+func (r *authRepo) GetCosSessionKey(_ context.Context, uuid string) (*biz.Credentials, error) {
 	c := r.data.cos.client
 	opt := r.data.cos.opt
-	res, err := c.GetCredential(opt)
+
+	optNew := &sts.CredentialOptions{}
+	var buf bytes.Buffer
+
+	err := gob.NewEncoder(&buf).Encode(opt)
+	if err != nil {
+		return nil, errors.Wrapf(err, "fail to encoder cos credential options")
+	}
+
+	err = gob.NewDecoder(bytes.NewBuffer(buf.Bytes())).Decode(optNew)
+	if err != nil {
+		return nil, errors.Wrapf(err, "fail to decode cos credential options")
+	}
+
+	for _, statement := range optNew.Policy.Statement {
+		for index, _ := range statement.Resource {
+			statement.Resource[index] += uuid + "/*"
+		}
+	}
+	res, err := c.GetCredential(optNew)
 	if err != nil {
 		return nil, errors.Wrapf(err, "fail to get cos session key")
 	}
