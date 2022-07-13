@@ -21,7 +21,7 @@ type ArticleRepo interface {
 	CreateArticle(ctx context.Context, id int32, uuid string) error
 	CreateArticleStatistic(ctx context.Context, id int32, uuid string) error
 	CreateArticleDraft(ctx context.Context, uuid string) (int32, error)
-	CreateArticleFolder(ctx context.Context, id int32) error
+	CreateArticleFolder(ctx context.Context, id int32, uuid string) error
 	CreateArticleCache(ctx context.Context, id int32, uuid string) error
 	CreateArticleSearch(ctx context.Context, id int32, uuid string) error
 	DeleteArticleDraft(ctx context.Context, id int32, uuid string) error
@@ -120,7 +120,7 @@ func (r *ArticleUseCase) CreateArticleDraft(ctx context.Context, uuid string) (i
 			return v1.ErrorCreateArticleDraftFailed("create article draft failed: %s", err.Error())
 		}
 
-		err = r.repo.CreateArticleFolder(ctx, id)
+		err = r.repo.CreateArticleFolder(ctx, id, uuid)
 		if err != nil {
 			return v1.ErrorCreateArticleFolderFailed("create article folder failed: %s", err.Error())
 		}
