@@ -25,7 +25,7 @@ service User {
 
   rpc SendEmailCode (SendEmailCodeReq) returns (google.protobuf.Empty) {}
 
-  rpc GetCosSessionKey (google.protobuf.Empty) returns (GetCosSessionKeyReply) {}
+  rpc GetCosSessionKey (GetCosSessionKeyReq) returns (GetCosSessionKeyReply) {}
 
   rpc SetUserPhone (SetUserPhoneReq) returns (google.protobuf.Empty) {}
 
@@ -96,6 +96,10 @@ message SendPhoneCodeReq{
 message SendEmailCodeReq{
   string email = 1 [(validate.rules).string = {pattern: "\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*", max_len: 50}];
   string template = 2 [(validate.rules).string = {in: ["1", "2", "3", "4", "5"]}];
+}
+
+message GetCosSessionKeyReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
 }
 
 message GetCosSessionKeyReply{
