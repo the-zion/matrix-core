@@ -235,7 +235,8 @@ service Bff{
 
   rpc GetUserArticleList(GetUserArticleListReq) returns (GetArticleListReply){
     option (google.api.http) = {
-      get: "/v1/get/user/article/list"
+      post: "/v1/get/user/article/list",
+      body: "*"
     };
   }
 
