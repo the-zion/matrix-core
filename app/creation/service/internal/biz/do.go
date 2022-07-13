@@ -34,6 +34,8 @@ type LeaderBoard struct {
 
 type Collections struct {
 	Id        int32
+	Uuid      string
 	Name      string
 	Introduce string
+	Auth      int32
 }
