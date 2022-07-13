@@ -104,7 +104,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.POST("/v1/delete/collections", _Bff_DeleteCollections0_HTTP_Handler(srv))
 	r.GET("/v1/get/article/list", _Bff_GetArticleList0_HTTP_Handler(srv))
 	r.GET("/v1/get/article/list/hot", _Bff_GetArticleListHot0_HTTP_Handler(srv))
-	r.GET("/v1/get/user/article/list", _Bff_GetUserArticleList0_HTTP_Handler(srv))
+	r.POST("/v1/get/user/article/list", _Bff_GetUserArticleList0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/article/list/visitor", _Bff_GetUserArticleListVisitor0_HTTP_Handler(srv))
 	r.GET("/v1/get/article/statistic", _Bff_GetArticleStatistic0_HTTP_Handler(srv))
 	r.GET("/v1/get/article/list/statistic", _Bff_GetArticleListStatistic0_HTTP_Handler(srv))
@@ -751,7 +751,7 @@ func _Bff_GetArticleListHot0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Conte
 func _Bff_GetUserArticleList0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in GetUserArticleListReq
-		if err := ctx.BindQuery(&in); err != nil {
+		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, "/bff.v1.Bff/GetUserArticleList")
@@ -1446,10 +1446,10 @@ func (c *BffHTTPClientImpl) GetProfileUpdate(ctx context.Context, in *emptypb.Em
 func (c *BffHTTPClientImpl) GetUserArticleList(ctx context.Context, in *GetUserArticleListReq, opts ...http.CallOption) (*GetArticleListReply, error) {
 	var out GetArticleListReply
 	pattern := "/v1/get/user/article/list"
-	path := binding.EncodeURL(pattern, in, true)
+	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation("/bff.v1.Bff/GetUserArticleList"))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}
