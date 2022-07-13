@@ -308,8 +308,8 @@ func (r *articleRepo) CreateArticleDraft(ctx context.Context, uuid string) (int3
 	return int32(draft.ID), nil
 }
 
-func (r *articleRepo) CreateArticleFolder(ctx context.Context, id int32) error {
-	name := "article/" + strconv.Itoa(int(id)) + "/"
+func (r *articleRepo) CreateArticleFolder(ctx context.Context, id int32, uuid string) error {
+	name := "article/" + uuid + "/" + strconv.Itoa(int(id)) + "/"
 	_, err := r.data.cosCli.Object.Put(ctx, name, strings.NewReader(""), nil)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to create an article folder: id(%v)", id))
