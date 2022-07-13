@@ -82,8 +82,8 @@ func (s *UserService) SendEmailCode(ctx context.Context, req *v1.SendEmailCodeRe
 	return &emptypb.Empty{}, nil
 }
 
-func (s *UserService) GetCosSessionKey(ctx context.Context, _ *emptypb.Empty) (*v1.GetCosSessionKeyReply, error) {
-	credentials, err := s.ac.GetCosSessionKey(ctx)
+func (s *UserService) GetCosSessionKey(ctx context.Context, req *v1.GetCosSessionKeyReq) (*v1.GetCosSessionKeyReply, error) {
+	credentials, err := s.ac.GetCosSessionKey(ctx, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
