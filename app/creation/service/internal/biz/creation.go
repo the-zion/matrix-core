@@ -52,7 +52,7 @@ func (r *CreationUseCase) GetCollectArticle(ctx context.Context, id, page int32)
 func (r *CreationUseCase) GetCollectArticleCount(ctx context.Context, id int32) (int32, error) {
 	count, err := r.repo.GetCollectArticleCount(ctx, id)
 	if err != nil {
-		return 0, v1.ErrorGetCollectArticleCountFailed("get collect article count failed: %s", err.Error())
+		return 0, v1.ErrorGetCountFailed("get collect article count failed: %s", err.Error())
 	}
 	return count, nil
 }
@@ -83,7 +83,7 @@ func (r *CreationUseCase) GetCollectionsByVisitor(ctx context.Context, uuid stri
 func (r *CreationUseCase) GetCollectionsCount(ctx context.Context, uuid string) (int32, error) {
 	count, err := r.repo.GetCollectionsCount(ctx, uuid)
 	if err != nil {
-		return 0, v1.ErrorGetCollectionsCountFailed("get collections count failed: %s", err.Error())
+		return 0, v1.ErrorGetCountFailed("get collections count failed: %s", err.Error())
 	}
 	return count, nil
 }
@@ -91,7 +91,7 @@ func (r *CreationUseCase) GetCollectionsCount(ctx context.Context, uuid string) 
 func (r *CreationUseCase) GetCollectionsVisitorCount(ctx context.Context, uuid string) (int32, error) {
 	count, err := r.repo.GetCollectionsVisitorCount(ctx, uuid)
 	if err != nil {
-		return 0, v1.ErrorGetCollectionsCountFailed("get collections count failed: %s", err.Error())
+		return 0, v1.ErrorGetCountFailed("get collections count failed: %s", err.Error())
 	}
 	return count, nil
 }
@@ -115,11 +115,11 @@ func (r *CreationUseCase) EditCollections(ctx context.Context, id int32, uuid, n
 func (r *CreationUseCase) DeleteCollections(ctx context.Context, id int32, uuid string) error {
 	count, err := r.repo.GetCollectCount(ctx, id)
 	if err != nil {
-		return v1.ErrorGetCollectCountFailed("get collection count failed: %s", err.Error())
+		return v1.ErrorGetCountFailed("get collection count failed: %s", err.Error())
 	}
 
 	if count == 1 {
-		return v1.ErrorCollectionsIsNotEmpty("collections is not empty")
+		return v1.ErrorNotEmpty("collections is not empty")
 	}
 
 	err = r.repo.DeleteCollections(ctx, id, uuid)
