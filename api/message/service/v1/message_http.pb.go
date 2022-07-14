@@ -19,7 +19,8 @@ var _ = binding.EncodeURL
 const _ = http.SupportPackageIsVersion1
 
 type MessageHTTPServer interface {
-	ArticleDraftReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
+	ArticleCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
+	ArticleEditReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	AvatarReview(context.Context, *AvatarReviewReq) (*emptypb.Empty, error)
 	ProfileReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 }
@@ -28,7 +29,8 @@ func RegisterMessageHTTPServer(s *http.Server, srv MessageHTTPServer) {
 	r := s.Route("/")
 	r.POST("/tx/message/avatar/review", _Message_AvatarReview0_HTTP_Handler(srv))
 	r.POST("/tx/message/profile/review", _Message_ProfileReview0_HTTP_Handler(srv))
-	r.POST("/tx/message/article/draft/review", _Message_ArticleDraftReview0_HTTP_Handler(srv))
+	r.POST("/tx/message/article/create/review", _Message_ArticleCreateReview0_HTTP_Handler(srv))
+	r.POST("/tx/message/article/edit/review", _Message_ArticleEditReview0_HTTP_Handler(srv))
 }
 
 func _Message_AvatarReview0_HTTP_Handler(srv MessageHTTPServer) func(ctx http.Context) error {
@@ -69,15 +71,34 @@ func _Message_ProfileReview0_HTTP_Handler(srv MessageHTTPServer) func(ctx http.C
 	}
 }
 
-func _Message_ArticleDraftReview0_HTTP_Handler(srv MessageHTTPServer) func(ctx http.Context) error {
+func _Message_ArticleCreateReview0_HTTP_Handler(srv MessageHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in TextReviewReq
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, "/message.v1.Message/ArticleDraftReview")
+		http.SetOperation(ctx, "/message.v1.Message/ArticleCreateReview")
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ArticleDraftReview(ctx, req.(*TextReviewReq))
+			return srv.ArticleCreateReview(ctx, req.(*TextReviewReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Message_ArticleEditReview0_HTTP_Handler(srv MessageHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in TextReviewReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/message.v1.Message/ArticleEditReview")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ArticleEditReview(ctx, req.(*TextReviewReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -89,7 +110,8 @@ func _Message_ArticleDraftReview0_HTTP_Handler(srv MessageHTTPServer) func(ctx h
 }
 
 type MessageHTTPClient interface {
-	ArticleDraftReview(ctx context.Context, req *TextReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	ArticleCreateReview(ctx context.Context, req *TextReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	ArticleEditReview(ctx context.Context, req *TextReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	AvatarReview(ctx context.Context, req *AvatarReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	ProfileReview(ctx context.Context, req *TextReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
@@ -102,11 +124,24 @@ func NewMessageHTTPClient(client *http.Client) MessageHTTPClient {
 	return &MessageHTTPClientImpl{client}
 }
 
-func (c *MessageHTTPClientImpl) ArticleDraftReview(ctx context.Context, in *TextReviewReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+func (c *MessageHTTPClientImpl) ArticleCreateReview(ctx context.Context, in *TextReviewReq, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/tx/message/article/draft/review"
+	pattern := "/tx/message/article/create/review"
 	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation("/message.v1.Message/ArticleDraftReview"))
+	opts = append(opts, http.Operation("/message.v1.Message/ArticleCreateReview"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *MessageHTTPClientImpl) ArticleEditReview(ctx context.Context, in *TextReviewReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/tx/message/article/edit/review"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/message.v1.Message/ArticleEditReview"))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
