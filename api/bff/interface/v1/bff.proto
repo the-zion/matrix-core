@@ -291,6 +291,13 @@ service Bff{
     };
   }
 
+  rpc SendArticleEdit(SendArticleEditReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/send/article/edit"
+      body: "*"
+    };
+  }
+
   rpc SetArticleAgree(SetArticleAgreeReq) returns (google.protobuf.Empty){
     option (google.api.http) = {
       post: "/v1/set/article/agree"
@@ -635,6 +642,10 @@ message GetArticleDraftListReply{
 }
 
 message SendArticleReq{
+  int32 id = 1;
+}
+
+message SendArticleEditReq{
   int32 id = 1;
 }
 
