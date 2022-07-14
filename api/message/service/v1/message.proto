@@ -24,9 +24,16 @@ service Message {
     };
   }
 
-  rpc ArticleDraftReview(TextReviewReq) returns (google.protobuf.Empty){
+  rpc ArticleCreateReview(TextReviewReq) returns (google.protobuf.Empty){
     option (google.api.http) = {
-      post: "/tx/message/article/draft/review"
+      post: "/tx/message/article/create/review"
+      body: "*"
+    };
+  }
+
+  rpc ArticleEditReview(TextReviewReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/tx/message/article/edit/review"
       body: "*"
     };
   }
