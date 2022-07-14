@@ -19,9 +19,13 @@ import (
 	"time"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewTransaction, NewRocketmqArticleDraftProducer, NewRocketmqAchievementProducer, NewCosServiceClient, NewArticleRepo, NewCreationRepo)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewTransaction, NewRocketmqArticleProducer, NewRocketmqArticleReviewProducer, NewRocketmqAchievementProducer, NewCosServiceClient, NewArticleRepo, NewCreationRepo)
 
-type ArticleDraftMqPro struct {
+type ArticleReviewMqPro struct {
+	producer rocketmq.Producer
+}
+
+type ArticleMqPro struct {
 	producer rocketmq.Producer
 }
 
@@ -30,12 +34,13 @@ type AchievementMqPro struct {
 }
 
 type Data struct {
-	db                *gorm.DB
-	log               *log.Helper
-	redisCli          redis.Cmdable
-	articleDraftMqPro *ArticleDraftMqPro
-	achievementMqPro  *AchievementMqPro
-	cosCli            *cos.Client
+	db                 *gorm.DB
+	log                *log.Helper
+	redisCli           redis.Cmdable
+	articleMqPro       *ArticleMqPro
+	articleReviewMqPro *ArticleReviewMqPro
+	achievementMqPro   *AchievementMqPro
+	cosCli             *cos.Client
 }
 
 type contextTxKey struct{}
@@ -106,8 +111,8 @@ func NewCosServiceClient(conf *conf.Data, logger log.Logger) *cos.Client {
 	})
 }
 
-func NewRocketmqArticleDraftProducer(conf *conf.Data, logger log.Logger) *ArticleDraftMqPro {
-	l := log.NewHelper(log.With(logger, "module", "creation/data/rocketmq-article-draft-producer"))
+func NewRocketmqArticleReviewProducer(conf *conf.Data, logger log.Logger) *ArticleReviewMqPro {
+	l := log.NewHelper(log.With(logger, "module", "creation/data/rocketmq-article-review-producer"))
 	p, err := rocketmq.NewProducer(
 		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.CreationMq.ServerAddress})),
 		producer.WithCredentials(primitive.Credentials{
@@ -115,7 +120,7 @@ func NewRocketmqArticleDraftProducer(conf *conf.Data, logger log.Logger) *Articl
 			AccessKey: conf.CreationMq.AccessKey,
 		}),
 		producer.WithInstanceName("creation"),
-		producer.WithGroupName(conf.CreationMq.ArticleDraft.GroupName),
+		producer.WithGroupName(conf.CreationMq.ArticleReview.GroupName),
 		producer.WithNamespace(conf.CreationMq.NameSpace),
 	)
 
@@ -127,7 +132,33 @@ func NewRocketmqArticleDraftProducer(conf *conf.Data, logger log.Logger) *Articl
 	if err != nil {
 		l.Fatalf("start producer error: %v", err)
 	}
-	return &ArticleDraftMqPro{
+	return &ArticleReviewMqPro{
+		producer: p,
+	}
+}
+
+func NewRocketmqArticleProducer(conf *conf.Data, logger log.Logger) *ArticleMqPro {
+	l := log.NewHelper(log.With(logger, "module", "creation/data/rocketmq-article-producer"))
+	p, err := rocketmq.NewProducer(
+		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.CreationMq.ServerAddress})),
+		producer.WithCredentials(primitive.Credentials{
+			SecretKey: conf.CreationMq.SecretKey,
+			AccessKey: conf.CreationMq.AccessKey,
+		}),
+		producer.WithInstanceName("creation"),
+		producer.WithGroupName(conf.CreationMq.Article.GroupName),
+		producer.WithNamespace(conf.CreationMq.NameSpace),
+	)
+
+	if err != nil {
+		l.Fatalf("init producer error: %v", err)
+	}
+
+	err = p.Start()
+	if err != nil {
+		l.Fatalf("start producer error: %v", err)
+	}
+	return &ArticleMqPro{
 		producer: p,
 	}
 }
@@ -159,22 +190,28 @@ func NewRocketmqAchievementProducer(conf *conf.Data, logger log.Logger) *Achieve
 	}
 }
 
-func NewData(db *gorm.DB, redisCmd redis.Cmdable, cos *cos.Client, adp *ArticleDraftMqPro, ap *AchievementMqPro, logger log.Logger) (*Data, func(), error) {
+func NewData(db *gorm.DB, redisCmd redis.Cmdable, cos *cos.Client, amp *ArticleMqPro, arp *ArticleReviewMqPro, ap *AchievementMqPro, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(logger, "module", "creation/data/new-data"))
 
 	d := &Data{
-		db:                db,
-		cosCli:            cos,
-		redisCli:          redisCmd,
-		articleDraftMqPro: adp,
-		achievementMqPro:  ap,
+		db:                 db,
+		cosCli:             cos,
+		redisCli:           redisCmd,
+		articleMqPro:       amp,
+		articleReviewMqPro: arp,
+		achievementMqPro:   ap,
 	}
 	return d, func() {
 		l.Info("closing the data resources")
 
-		err := d.articleDraftMqPro.producer.Shutdown()
+		err := d.articleMqPro.producer.Shutdown()
 		if err != nil {
-			l.Errorf("shutdown article draft producer error: %v", err.Error())
+			l.Errorf("shutdown article producer error: %v", err.Error())
+		}
+
+		err = d.articleReviewMqPro.producer.Shutdown()
+		if err != nil {
+			l.Errorf("shutdown article review producer error: %v", err.Error())
 		}
 
 		err = d.achievementMqPro.producer.Shutdown()
