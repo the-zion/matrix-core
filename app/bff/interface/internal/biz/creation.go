@@ -31,6 +31,7 @@ type ArticleRepo interface {
 	GetArticleDraftList(ctx context.Context, uuid string) ([]*ArticleDraft, error)
 	ArticleDraftMark(ctx context.Context, id int32, uuid string) error
 	SendArticle(ctx context.Context, id int32, uuid string) error
+	SendArticleEdit(ctx context.Context, id int32, uuid string) error
 	SetArticleAgree(ctx context.Context, id int32, uuid, userUuid string) error
 	SetArticleView(ctx context.Context, id int32, uuid string) error
 	SetArticleCollect(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error
@@ -160,6 +161,11 @@ func (r *ArticleUseCase) GetArticleDraftList(ctx context.Context) ([]*ArticleDra
 func (r *ArticleUseCase) SendArticle(ctx context.Context, id int32) error {
 	uuid := ctx.Value("uuid").(string)
 	return r.repo.SendArticle(ctx, id, uuid)
+}
+
+func (r *ArticleUseCase) SendArticleEdit(ctx context.Context, id int32) error {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.SendArticleEdit(ctx, id, uuid)
 }
 
 func (r *ArticleUseCase) SetArticleAgree(ctx context.Context, id int32, uuid string) error {
