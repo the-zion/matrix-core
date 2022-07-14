@@ -44,6 +44,18 @@ func (r *articleRepo) GetLastArticleDraft(ctx context.Context, uuid string) (*bi
 	}, nil
 }
 
+func (r *articleRepo) GetArticle(ctx context.Context, id int32) (*biz.Article, error) {
+	article := &Article{}
+	err := r.data.db.WithContext(ctx).Where("article_id = ?", id).First(article).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get article from db: id(%v)", id))
+	}
+	return &biz.Article{
+		ArticleId: id,
+		Uuid:      article.Uuid,
+	}, nil
+}
+
 func (r *articleRepo) GetArticleList(ctx context.Context, page int32) ([]*biz.Article, error) {
 	article, err := r.getArticleFromCache(ctx, page)
 	if err != nil {
@@ -361,6 +373,47 @@ func (r *articleRepo) CreateArticleSearch(ctx context.Context, id int32, uuid st
 	return nil
 }
 
+func (r *articleRepo) EditArticleCos(ctx context.Context, id int32, uuid string) error {
+	err := r.EditArticleCosContent(ctx, id, uuid)
+	if err != nil {
+		return err
+	}
+
+	err = r.EditArticleCosIntroduce(ctx, id, uuid)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *articleRepo) EditArticleCosContent(ctx context.Context, id int32, uuid string) error {
+	ids := strconv.Itoa(int(id))
+	name := "article/" + uuid + "/" + ids + "/content-edit"
+	dest := "article/" + uuid + "/" + ids + "/content"
+	sourceURL := fmt.Sprintf("%s/%s", r.data.cosCli.BaseURL.BucketURL.Host, name)
+	_, _, err := r.data.cosCli.Object.Copy(ctx, dest, sourceURL, nil)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to copy article from edit to content: uuid(%s), id(%v)", uuid, id))
+	}
+	return nil
+}
+
+func (r *articleRepo) EditArticleCosIntroduce(ctx context.Context, id int32, uuid string) error {
+	ids := strconv.Itoa(int(id))
+	name := "article/" + uuid + "/" + ids + "/introduce-edit"
+	dest := "article/" + uuid + "/" + ids + "/introduce"
+	sourceURL := fmt.Sprintf("%s/%s", r.data.cosCli.BaseURL.BucketURL.Host, name)
+	_, _, err := r.data.cosCli.Object.Copy(ctx, dest, sourceURL, nil)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to copy article from edit to content: uuid(%s), id(%v)", uuid, id))
+	}
+	return nil
+}
+
+func (r *articleRepo) EditArticleSearch(ctx context.Context, id int32, uuid string) error {
+	return nil
+}
+
 func (r *articleRepo) DeleteArticleDraft(ctx context.Context, id int32, uuid string) error {
 	ad := &ArticleDraft{}
 	ad.ID = uint(id)
@@ -393,19 +446,19 @@ func (r *articleRepo) SendArticle(ctx context.Context, id int32, uuid string) (*
 	}, nil
 }
 
-func (r *articleRepo) SendDraftToMq(ctx context.Context, draft *biz.ArticleDraft) error {
-	data, err := json.Marshal(draft)
+func (r *articleRepo) SendReviewToMq(ctx context.Context, review *biz.ArticleReview) error {
+	data, err := json.Marshal(review)
 	if err != nil {
 		return err
 	}
 	msg := &primitive.Message{
-		Topic: "article_draft",
+		Topic: "article_review",
 		Body:  data,
 	}
-	msg.WithKeys([]string{draft.Uuid})
-	_, err = r.data.articleDraftMqPro.producer.SendSync(ctx, msg)
+	msg.WithKeys([]string{review.Uuid})
+	_, err = r.data.articleReviewMqPro.producer.SendSync(ctx, msg)
 	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to send draft to mq: %v", err))
+		return errors.Wrapf(err, fmt.Sprintf("fail to send review to mq: %v", err))
 	}
 	return nil
 }
@@ -425,7 +478,7 @@ func (r *articleRepo) SendArticleToMq(ctx context.Context, article *biz.Article,
 		Body:  data,
 	}
 	msg.WithKeys([]string{article.Uuid})
-	_, err = r.data.articleDraftMqPro.producer.SendSync(ctx, msg)
+	_, err = r.data.articleMqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send article to mq: %v", article))
 	}
