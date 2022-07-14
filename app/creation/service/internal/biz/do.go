@@ -26,6 +26,12 @@ type ArticleDraft struct {
 	Uuid   string
 }
 
+type ArticleReview struct {
+	Uuid string
+	Id   int32
+	Mode string
+}
+
 type LeaderBoard struct {
 	Id   int32
 	Uuid string
