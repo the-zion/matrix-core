@@ -43,10 +43,10 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, re
 	grpcServer := server.NewGRPCServer(confServer, messageService, logger)
 	codeMqConsumerServer := server.NewCodeMqConsumerServer(confServer, messageService, logger)
 	profileMqConsumerServer := server.NewProfileMqConsumerServer(confServer, messageService, logger)
-	articleDraftMqConsumerServer := server.NewArticleDraftMqConsumerServer(confServer, messageService, logger)
+	articleReviewMqConsumerServer := server.NewArticleReviewMqConsumerServer(confServer, messageService, logger)
 	articleMqConsumerServer := server.NewArticleMqConsumerServer(confServer, messageService, logger)
 	achievementMqConsumerServer := server.NewAchievementMqConsumerServer(confServer, messageService, logger)
-	app := newApp(logger, registry, httpServer, grpcServer, codeMqConsumerServer, profileMqConsumerServer, articleDraftMqConsumerServer, articleMqConsumerServer, achievementMqConsumerServer)
+	app := newApp(logger, registry, httpServer, grpcServer, codeMqConsumerServer, profileMqConsumerServer, articleReviewMqConsumerServer, articleMqConsumerServer, achievementMqConsumerServer)
 	return app, func() {
 	}, nil
 }
