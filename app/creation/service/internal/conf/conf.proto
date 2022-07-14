@@ -53,10 +53,14 @@ message Data {
     string nameSpace = 5;
   }
   message CreationMq{
-    message ArticleDraft{
+    message ArticleReview{
       string groupName = 1;
     }
-    ArticleDraft articleDraft = 1;
+    message Article{
+      string groupName = 1;
+    }
+    ArticleReview articleReview = 1;
+    Article article = 2;
     string serverAddress = 3;
     string secretKey = 4;
     string accessKey = 5;
