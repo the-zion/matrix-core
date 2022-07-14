@@ -419,6 +419,17 @@ func (r *articleRepo) SendArticle(ctx context.Context, id int32, uuid string) er
 	return nil
 }
 
+func (r *articleRepo) SendArticleEdit(ctx context.Context, id int32, uuid string) error {
+	_, err := r.data.cc.SendArticleEdit(ctx, &creationV1.SendArticleEditReq{
+		Uuid: uuid,
+		Id:   id,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *articleRepo) SetArticleAgree(ctx context.Context, id int32, uuid, userUuid string) error {
 	_, err := r.data.cc.SetArticleAgree(ctx, &creationV1.SetArticleAgreeReq{
 		Uuid:     uuid,
