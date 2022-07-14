@@ -48,7 +48,11 @@ service Creation {
 
   rpc CreateArticle(CreateArticleReq) returns (google.protobuf.Empty){}
 
+  rpc EditArticle(EditArticleReq) returns (google.protobuf.Empty){}
+
   rpc CreateArticleCacheAndSearch(CreateArticleCacheAndSearchReq) returns (google.protobuf.Empty){}
+
+  rpc EditArticleCosAndSearch(EditArticleCosAndSearchReq) returns (google.protobuf.Empty){}
 
   rpc CreateArticleDraft(CreateArticleDraftReq) returns (CreateArticleDraftReply){}
 
@@ -57,6 +61,8 @@ service Creation {
   rpc GetArticleDraftList(GetArticleDraftListReq) returns (GetArticleDraftListReply){}
 
   rpc SendArticle(SendArticleReq) returns (google.protobuf.Empty){}
+
+  rpc SendArticleEdit(SendArticleEditReq) returns (google.protobuf.Empty){}
 
   rpc SetArticleAgree(SetArticleAgreeReq) returns (google.protobuf.Empty){}
 
@@ -222,7 +228,17 @@ message CreateArticleReq{
   string uuid = 2 [(validate.rules).string.uuid = true];
 }
 
+message EditArticleReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
 message CreateArticleCacheAndSearchReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message EditArticleCosAndSearchReq{
   int32 id = 1;
   string uuid = 2 [(validate.rules).string.uuid = true];
 }
@@ -252,6 +268,11 @@ message GetArticleDraftListReply{
 }
 
 message SendArticleReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message SendArticleEditReq{
   int32 id = 1;
   string uuid = 2 [(validate.rules).string.uuid = true];
 }
