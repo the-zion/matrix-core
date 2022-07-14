@@ -42,11 +42,14 @@ type CreationClient interface {
 	GetArticleListStatistic(ctx context.Context, in *GetArticleListStatisticReq, opts ...grpc.CallOption) (*GetArticleListStatisticReply, error)
 	GetLastArticleDraft(ctx context.Context, in *GetLastArticleDraftReq, opts ...grpc.CallOption) (*GetLastArticleDraftReply, error)
 	CreateArticle(ctx context.Context, in *CreateArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	EditArticle(ctx context.Context, in *EditArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateArticleCacheAndSearch(ctx context.Context, in *CreateArticleCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	EditArticleCosAndSearch(ctx context.Context, in *EditArticleCosAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateArticleDraft(ctx context.Context, in *CreateArticleDraftReq, opts ...grpc.CallOption) (*CreateArticleDraftReply, error)
 	ArticleDraftMark(ctx context.Context, in *ArticleDraftMarkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetArticleDraftList(ctx context.Context, in *GetArticleDraftListReq, opts ...grpc.CallOption) (*GetArticleDraftListReply, error)
 	SendArticle(ctx context.Context, in *SendArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SendArticleEdit(ctx context.Context, in *SendArticleEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetArticleAgree(ctx context.Context, in *SetArticleAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetArticleView(ctx context.Context, in *SetArticleViewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetArticleCollect(ctx context.Context, in *SetArticleCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -234,9 +237,27 @@ func (c *creationClient) CreateArticle(ctx context.Context, in *CreateArticleReq
 	return out, nil
 }
 
+func (c *creationClient) EditArticle(ctx context.Context, in *EditArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/EditArticle", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *creationClient) CreateArticleCacheAndSearch(ctx context.Context, in *CreateArticleCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/CreateArticleCacheAndSearch", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) EditArticleCosAndSearch(ctx context.Context, in *EditArticleCosAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/EditArticleCosAndSearch", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -273,6 +294,15 @@ func (c *creationClient) GetArticleDraftList(ctx context.Context, in *GetArticle
 func (c *creationClient) SendArticle(ctx context.Context, in *SendArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/SendArticle", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) SendArticleEdit(ctx context.Context, in *SendArticleEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/SendArticleEdit", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -356,11 +386,14 @@ type CreationServer interface {
 	GetArticleListStatistic(context.Context, *GetArticleListStatisticReq) (*GetArticleListStatisticReply, error)
 	GetLastArticleDraft(context.Context, *GetLastArticleDraftReq) (*GetLastArticleDraftReply, error)
 	CreateArticle(context.Context, *CreateArticleReq) (*emptypb.Empty, error)
+	EditArticle(context.Context, *EditArticleReq) (*emptypb.Empty, error)
 	CreateArticleCacheAndSearch(context.Context, *CreateArticleCacheAndSearchReq) (*emptypb.Empty, error)
+	EditArticleCosAndSearch(context.Context, *EditArticleCosAndSearchReq) (*emptypb.Empty, error)
 	CreateArticleDraft(context.Context, *CreateArticleDraftReq) (*CreateArticleDraftReply, error)
 	ArticleDraftMark(context.Context, *ArticleDraftMarkReq) (*emptypb.Empty, error)
 	GetArticleDraftList(context.Context, *GetArticleDraftListReq) (*GetArticleDraftListReply, error)
 	SendArticle(context.Context, *SendArticleReq) (*emptypb.Empty, error)
+	SendArticleEdit(context.Context, *SendArticleEditReq) (*emptypb.Empty, error)
 	SetArticleAgree(context.Context, *SetArticleAgreeReq) (*emptypb.Empty, error)
 	SetArticleView(context.Context, *SetArticleViewReq) (*emptypb.Empty, error)
 	SetArticleCollect(context.Context, *SetArticleCollectReq) (*emptypb.Empty, error)
@@ -431,8 +464,14 @@ func (UnimplementedCreationServer) GetLastArticleDraft(context.Context, *GetLast
 func (UnimplementedCreationServer) CreateArticle(context.Context, *CreateArticleReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateArticle not implemented")
 }
+func (UnimplementedCreationServer) EditArticle(context.Context, *EditArticleReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EditArticle not implemented")
+}
 func (UnimplementedCreationServer) CreateArticleCacheAndSearch(context.Context, *CreateArticleCacheAndSearchReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateArticleCacheAndSearch not implemented")
+}
+func (UnimplementedCreationServer) EditArticleCosAndSearch(context.Context, *EditArticleCosAndSearchReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EditArticleCosAndSearch not implemented")
 }
 func (UnimplementedCreationServer) CreateArticleDraft(context.Context, *CreateArticleDraftReq) (*CreateArticleDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateArticleDraft not implemented")
@@ -445,6 +484,9 @@ func (UnimplementedCreationServer) GetArticleDraftList(context.Context, *GetArti
 }
 func (UnimplementedCreationServer) SendArticle(context.Context, *SendArticleReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendArticle not implemented")
+}
+func (UnimplementedCreationServer) SendArticleEdit(context.Context, *SendArticleEditReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendArticleEdit not implemented")
 }
 func (UnimplementedCreationServer) SetArticleAgree(context.Context, *SetArticleAgreeReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetArticleAgree not implemented")
@@ -819,6 +861,24 @@ func _Creation_CreateArticle_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Creation_EditArticle_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EditArticleReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).EditArticle(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/EditArticle",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).EditArticle(ctx, req.(*EditArticleReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Creation_CreateArticleCacheAndSearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateArticleCacheAndSearchReq)
 	if err := dec(in); err != nil {
@@ -833,6 +893,24 @@ func _Creation_CreateArticleCacheAndSearch_Handler(srv interface{}, ctx context.
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CreationServer).CreateArticleCacheAndSearch(ctx, req.(*CreateArticleCacheAndSearchReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_EditArticleCosAndSearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EditArticleCosAndSearchReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).EditArticleCosAndSearch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/EditArticleCosAndSearch",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).EditArticleCosAndSearch(ctx, req.(*EditArticleCosAndSearchReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -905,6 +983,24 @@ func _Creation_SendArticle_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CreationServer).SendArticle(ctx, req.(*SendArticleReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_SendArticleEdit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendArticleEditReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).SendArticleEdit(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/SendArticleEdit",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).SendArticleEdit(ctx, req.(*SendArticleEditReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1101,8 +1197,16 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Creation_CreateArticle_Handler,
 		},
 		{
+			MethodName: "EditArticle",
+			Handler:    _Creation_EditArticle_Handler,
+		},
+		{
 			MethodName: "CreateArticleCacheAndSearch",
 			Handler:    _Creation_CreateArticleCacheAndSearch_Handler,
+		},
+		{
+			MethodName: "EditArticleCosAndSearch",
+			Handler:    _Creation_EditArticleCosAndSearch_Handler,
 		},
 		{
 			MethodName: "CreateArticleDraft",
@@ -1119,6 +1223,10 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SendArticle",
 			Handler:    _Creation_SendArticle_Handler,
+		},
+		{
+			MethodName: "SendArticleEdit",
+			Handler:    _Creation_SendArticleEdit_Handler,
 		},
 		{
 			MethodName: "SetArticleAgree",

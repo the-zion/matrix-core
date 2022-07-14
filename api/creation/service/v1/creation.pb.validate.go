@@ -3123,6 +3123,128 @@ var _ interface {
 	ErrorName() string
 } = CreateArticleReqValidationError{}
 
+// Validate checks the field values on EditArticleReq with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *EditArticleReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on EditArticleReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in EditArticleReqMultiError,
+// or nil if none found.
+func (m *EditArticleReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *EditArticleReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = EditArticleReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return EditArticleReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *EditArticleReq) _validateUuid(uuid string) error {
+	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// EditArticleReqMultiError is an error wrapping multiple validation errors
+// returned by EditArticleReq.ValidateAll() if the designated constraints
+// aren't met.
+type EditArticleReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m EditArticleReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m EditArticleReqMultiError) AllErrors() []error { return m }
+
+// EditArticleReqValidationError is the validation error returned by
+// EditArticleReq.Validate if the designated constraints aren't met.
+type EditArticleReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e EditArticleReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e EditArticleReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e EditArticleReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e EditArticleReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e EditArticleReqValidationError) ErrorName() string { return "EditArticleReqValidationError" }
+
+// Error satisfies the builtin error interface
+func (e EditArticleReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sEditArticleReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = EditArticleReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = EditArticleReqValidationError{}
+
 // Validate checks the field values on CreateArticleCacheAndSearchReq with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -3247,6 +3369,130 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CreateArticleCacheAndSearchReqValidationError{}
+
+// Validate checks the field values on EditArticleCosAndSearchReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *EditArticleCosAndSearchReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on EditArticleCosAndSearchReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// EditArticleCosAndSearchReqMultiError, or nil if none found.
+func (m *EditArticleCosAndSearchReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *EditArticleCosAndSearchReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = EditArticleCosAndSearchReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return EditArticleCosAndSearchReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *EditArticleCosAndSearchReq) _validateUuid(uuid string) error {
+	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// EditArticleCosAndSearchReqMultiError is an error wrapping multiple
+// validation errors returned by EditArticleCosAndSearchReq.ValidateAll() if
+// the designated constraints aren't met.
+type EditArticleCosAndSearchReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m EditArticleCosAndSearchReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m EditArticleCosAndSearchReqMultiError) AllErrors() []error { return m }
+
+// EditArticleCosAndSearchReqValidationError is the validation error returned
+// by EditArticleCosAndSearchReq.Validate if the designated constraints aren't met.
+type EditArticleCosAndSearchReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e EditArticleCosAndSearchReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e EditArticleCosAndSearchReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e EditArticleCosAndSearchReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e EditArticleCosAndSearchReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e EditArticleCosAndSearchReqValidationError) ErrorName() string {
+	return "EditArticleCosAndSearchReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e EditArticleCosAndSearchReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sEditArticleCosAndSearchReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = EditArticleCosAndSearchReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = EditArticleCosAndSearchReqValidationError{}
 
 // Validate checks the field values on CreateArticleDraftReq with the rules
 // defined in the proto definition for this message. If any rules are
@@ -3977,6 +4223,130 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = SendArticleReqValidationError{}
+
+// Validate checks the field values on SendArticleEditReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SendArticleEditReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SendArticleEditReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SendArticleEditReqMultiError, or nil if none found.
+func (m *SendArticleEditReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SendArticleEditReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = SendArticleEditReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return SendArticleEditReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *SendArticleEditReq) _validateUuid(uuid string) error {
+	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// SendArticleEditReqMultiError is an error wrapping multiple validation errors
+// returned by SendArticleEditReq.ValidateAll() if the designated constraints
+// aren't met.
+type SendArticleEditReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SendArticleEditReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SendArticleEditReqMultiError) AllErrors() []error { return m }
+
+// SendArticleEditReqValidationError is the validation error returned by
+// SendArticleEditReq.Validate if the designated constraints aren't met.
+type SendArticleEditReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SendArticleEditReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SendArticleEditReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SendArticleEditReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SendArticleEditReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SendArticleEditReqValidationError) ErrorName() string {
+	return "SendArticleEditReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SendArticleEditReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSendArticleEditReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SendArticleEditReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SendArticleEditReqValidationError{}
 
 // Validate checks the field values on SetArticleAgreeReq with the rules
 // defined in the proto definition for this message. If any rules are
