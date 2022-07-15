@@ -143,6 +143,18 @@ func ErrorGetArticleDraftFailed(format string, args ...interface{}) *errors.Erro
 	return errors.New(500, CreationErrorReason_GET_ARTICLE_DRAFT_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsGetTalkDraftFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_GET_TALK_DRAFT_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetTalkDraftFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_GET_TALK_DRAFT_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsGetArticleListFailed(err error) bool {
 	if err == nil {
 		return false
@@ -177,6 +189,54 @@ func IsEditArticleFailed(err error) bool {
 
 func ErrorEditArticleFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, CreationErrorReason_EDIT_ARTICLE_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsDeleteArticleFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_DELETE_ARTICLE_FAILED.String() && e.Code == 500
+}
+
+func ErrorDeleteArticleFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_DELETE_ARTICLE_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsGetTalkFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_GET_TALK_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetTalkFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_GET_TALK_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsCreateTalkFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_CREATE_TALK_FAILED.String() && e.Code == 500
+}
+
+func ErrorCreateTalkFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_CREATE_TALK_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsEditTalkFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_EDIT_TALK_FAILED.String() && e.Code == 500
+}
+
+func ErrorEditTalkFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_EDIT_TALK_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
 func IsGetDraftListFailed(err error) bool {
