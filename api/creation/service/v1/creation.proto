@@ -54,6 +54,8 @@ service Creation {
 
   rpc EditArticleCosAndSearch(EditArticleCosAndSearchReq) returns (google.protobuf.Empty){}
 
+  rpc DeleteArticleCacheAndSearch(DeleteArticleCacheAndSearchReq) returns (google.protobuf.Empty){}
+
   rpc CreateArticleDraft(CreateArticleDraftReq) returns (CreateArticleDraftReply){}
 
   rpc ArticleDraftMark(ArticleDraftMarkReq) returns (google.protobuf.Empty){}
@@ -63,6 +65,8 @@ service Creation {
   rpc SendArticle(SendArticleReq) returns (google.protobuf.Empty){}
 
   rpc SendArticleEdit(SendArticleEditReq) returns (google.protobuf.Empty){}
+
+  rpc DeleteArticle(DeleteArticleReq) returns (google.protobuf.Empty){}
 
   rpc SetArticleAgree(SetArticleAgreeReq) returns (google.protobuf.Empty){}
 
@@ -75,6 +79,14 @@ service Creation {
   rpc CancelArticleCollect(CancelArticleCollectReq) returns (google.protobuf.Empty){}
 
   rpc ArticleStatisticJudge(ArticleStatisticJudgeReq) returns (ArticleStatisticJudgeReply){}
+
+  rpc GetLastTalkDraft(GetLastTalkDraftReq) returns (GetLastTalkDraftReply){}
+
+  rpc CreateTalkDraft(CreateTalkDraftReq) returns (CreateTalkDraftReply){}
+
+  rpc SendTalk(SendTalkReq) returns (google.protobuf.Empty){}
+
+  rpc SendTalkEdit(SendTalkEditReq) returns (google.protobuf.Empty){}
 }
 
 message GetLeaderBoardReply{
@@ -225,7 +237,8 @@ message GetLastArticleDraftReply{
 
 message CreateArticleReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  int32 auth = 2;
+  string uuid = 3 [(validate.rules).string.uuid = true];
 }
 
 message EditArticleReq{
@@ -235,10 +248,16 @@ message EditArticleReq{
 
 message CreateArticleCacheAndSearchReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  int32 auth = 2;
+  string uuid = 3 [(validate.rules).string.uuid = true];
 }
 
 message EditArticleCosAndSearchReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message DeleteArticleCacheAndSearchReq{
   int32 id = 1;
   string uuid = 2 [(validate.rules).string.uuid = true];
 }
@@ -273,6 +292,11 @@ message SendArticleReq{
 }
 
 message SendArticleEditReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message DeleteArticleReq{
   int32 id = 1;
   string uuid = 2 [(validate.rules).string.uuid = true];
 }
@@ -315,4 +339,31 @@ message ArticleStatisticJudgeReq{
 message ArticleStatisticJudgeReply{
   bool agree = 1;
   bool collect = 2;
+}
+
+message GetLastTalkDraftReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+message GetLastTalkDraftReply{
+  int32 id = 1;
+  int32 status = 2;
+}
+
+message CreateTalkDraftReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+message CreateTalkDraftReply{
+  int32 id = 1;
+}
+
+message SendTalkReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message SendTalkEditReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
 }
