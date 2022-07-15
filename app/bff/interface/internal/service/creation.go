@@ -291,6 +291,14 @@ func (s *BffService) SendArticleEdit(ctx context.Context, req *v1.SendArticleEdi
 	return &emptypb.Empty{}, nil
 }
 
+func (s *BffService) DeleteArticle(ctx context.Context, req *v1.DeleteArticleReq) (*emptypb.Empty, error) {
+	err := s.ac.DeleteArticle(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *BffService) SetArticleAgree(ctx context.Context, req *v1.SetArticleAgreeReq) (*emptypb.Empty, error) {
 	err := s.ac.SetArticleAgree(ctx, req.Id, req.Uuid)
 	if err != nil {
@@ -341,3 +349,42 @@ func (s *BffService) ArticleStatisticJudge(ctx context.Context, req *v1.ArticleS
 		Collect: judge.Collect,
 	}, nil
 }
+
+// ------------------------------------------talk-------------------------------------------------
+
+func (s *BffService) GetLastTalkDraft(ctx context.Context, _ *emptypb.Empty) (*v1.GetLastTalkDraftReply, error) {
+	draft, err := s.tc.GetLastTalkDraft(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetLastTalkDraftReply{
+		Id:     draft.Id,
+		Status: draft.Status,
+	}, nil
+}
+
+func (s *BffService) CreateTalkDraft(ctx context.Context, _ *emptypb.Empty) (*v1.CreateTalkDraftReply, error) {
+	id, err := s.tc.CreateTalkDraft(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.CreateTalkDraftReply{
+		Id: id,
+	}, nil
+}
+
+func (s *BffService) SendTalk(ctx context.Context, req *v1.SendTalkReq) (*emptypb.Empty, error) {
+	err := s.tc.SendTalk(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+//func (s *BffService) SendArticleEdit(ctx context.Context, req *v1.SendArticleEditReq) (*emptypb.Empty, error) {
+//	err := s.ac.SendArticleEdit(ctx, req.Id)
+//	if err != nil {
+//		return nil, err
+//	}
+//	return &emptypb.Empty{}, nil
+//}
