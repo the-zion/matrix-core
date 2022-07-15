@@ -110,7 +110,7 @@ func (s *CreationService) GetLastArticleDraft(ctx context.Context, req *v1.GetLa
 }
 
 func (s *CreationService) CreateArticle(ctx context.Context, req *v1.CreateArticleReq) (*emptypb.Empty, error) {
-	err := s.ac.CreateArticle(ctx, req.Id, req.Uuid)
+	err := s.ac.CreateArticle(ctx, req.Id, req.Auth, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -125,8 +125,16 @@ func (s *CreationService) EditArticle(ctx context.Context, req *v1.EditArticleRe
 	return &emptypb.Empty{}, nil
 }
 
+func (s *CreationService) DeleteArticle(ctx context.Context, req *v1.DeleteArticleReq) (*emptypb.Empty, error) {
+	err := s.ac.DeleteArticle(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *CreationService) CreateArticleCacheAndSearch(ctx context.Context, req *v1.CreateArticleCacheAndSearchReq) (*emptypb.Empty, error) {
-	err := s.ac.CreateArticleCacheAndSearch(ctx, req.Id, req.Uuid)
+	err := s.ac.CreateArticleCacheAndSearch(ctx, req.Id, req.Auth, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -135,6 +143,14 @@ func (s *CreationService) CreateArticleCacheAndSearch(ctx context.Context, req *
 
 func (s *CreationService) EditArticleCosAndSearch(ctx context.Context, req *v1.EditArticleCosAndSearchReq) (*emptypb.Empty, error) {
 	err := s.ac.EditArticleCosAndSearch(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) DeleteArticleCacheAndSearch(ctx context.Context, req *v1.DeleteArticleCacheAndSearchReq) (*emptypb.Empty, error) {
+	err := s.ac.DeleteArticleCacheAndSearch(ctx, req.Id, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
