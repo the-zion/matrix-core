@@ -45,17 +45,23 @@ type CreationClient interface {
 	EditArticle(ctx context.Context, in *EditArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateArticleCacheAndSearch(ctx context.Context, in *CreateArticleCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	EditArticleCosAndSearch(ctx context.Context, in *EditArticleCosAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DeleteArticleCacheAndSearch(ctx context.Context, in *DeleteArticleCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateArticleDraft(ctx context.Context, in *CreateArticleDraftReq, opts ...grpc.CallOption) (*CreateArticleDraftReply, error)
 	ArticleDraftMark(ctx context.Context, in *ArticleDraftMarkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetArticleDraftList(ctx context.Context, in *GetArticleDraftListReq, opts ...grpc.CallOption) (*GetArticleDraftListReply, error)
 	SendArticle(ctx context.Context, in *SendArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SendArticleEdit(ctx context.Context, in *SendArticleEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DeleteArticle(ctx context.Context, in *DeleteArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetArticleAgree(ctx context.Context, in *SetArticleAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetArticleView(ctx context.Context, in *SetArticleViewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetArticleCollect(ctx context.Context, in *SetArticleCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelArticleAgree(ctx context.Context, in *CancelArticleAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelArticleCollect(ctx context.Context, in *CancelArticleCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ArticleStatisticJudge(ctx context.Context, in *ArticleStatisticJudgeReq, opts ...grpc.CallOption) (*ArticleStatisticJudgeReply, error)
+	GetLastTalkDraft(ctx context.Context, in *GetLastTalkDraftReq, opts ...grpc.CallOption) (*GetLastTalkDraftReply, error)
+	CreateTalkDraft(ctx context.Context, in *CreateTalkDraftReq, opts ...grpc.CallOption) (*CreateTalkDraftReply, error)
+	SendTalk(ctx context.Context, in *SendTalkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SendTalkEdit(ctx context.Context, in *SendTalkEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type creationClient struct {
@@ -264,6 +270,15 @@ func (c *creationClient) EditArticleCosAndSearch(ctx context.Context, in *EditAr
 	return out, nil
 }
 
+func (c *creationClient) DeleteArticleCacheAndSearch(ctx context.Context, in *DeleteArticleCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/DeleteArticleCacheAndSearch", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *creationClient) CreateArticleDraft(ctx context.Context, in *CreateArticleDraftReq, opts ...grpc.CallOption) (*CreateArticleDraftReply, error) {
 	out := new(CreateArticleDraftReply)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/CreateArticleDraft", in, out, opts...)
@@ -303,6 +318,15 @@ func (c *creationClient) SendArticle(ctx context.Context, in *SendArticleReq, op
 func (c *creationClient) SendArticleEdit(ctx context.Context, in *SendArticleEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/SendArticleEdit", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) DeleteArticle(ctx context.Context, in *DeleteArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/DeleteArticle", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -363,6 +387,42 @@ func (c *creationClient) ArticleStatisticJudge(ctx context.Context, in *ArticleS
 	return out, nil
 }
 
+func (c *creationClient) GetLastTalkDraft(ctx context.Context, in *GetLastTalkDraftReq, opts ...grpc.CallOption) (*GetLastTalkDraftReply, error) {
+	out := new(GetLastTalkDraftReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetLastTalkDraft", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) CreateTalkDraft(ctx context.Context, in *CreateTalkDraftReq, opts ...grpc.CallOption) (*CreateTalkDraftReply, error) {
+	out := new(CreateTalkDraftReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/CreateTalkDraft", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) SendTalk(ctx context.Context, in *SendTalkReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/SendTalk", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) SendTalkEdit(ctx context.Context, in *SendTalkEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/SendTalkEdit", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CreationServer is the server API for Creation service.
 // All implementations must embed UnimplementedCreationServer
 // for forward compatibility
@@ -389,17 +449,23 @@ type CreationServer interface {
 	EditArticle(context.Context, *EditArticleReq) (*emptypb.Empty, error)
 	CreateArticleCacheAndSearch(context.Context, *CreateArticleCacheAndSearchReq) (*emptypb.Empty, error)
 	EditArticleCosAndSearch(context.Context, *EditArticleCosAndSearchReq) (*emptypb.Empty, error)
+	DeleteArticleCacheAndSearch(context.Context, *DeleteArticleCacheAndSearchReq) (*emptypb.Empty, error)
 	CreateArticleDraft(context.Context, *CreateArticleDraftReq) (*CreateArticleDraftReply, error)
 	ArticleDraftMark(context.Context, *ArticleDraftMarkReq) (*emptypb.Empty, error)
 	GetArticleDraftList(context.Context, *GetArticleDraftListReq) (*GetArticleDraftListReply, error)
 	SendArticle(context.Context, *SendArticleReq) (*emptypb.Empty, error)
 	SendArticleEdit(context.Context, *SendArticleEditReq) (*emptypb.Empty, error)
+	DeleteArticle(context.Context, *DeleteArticleReq) (*emptypb.Empty, error)
 	SetArticleAgree(context.Context, *SetArticleAgreeReq) (*emptypb.Empty, error)
 	SetArticleView(context.Context, *SetArticleViewReq) (*emptypb.Empty, error)
 	SetArticleCollect(context.Context, *SetArticleCollectReq) (*emptypb.Empty, error)
 	CancelArticleAgree(context.Context, *CancelArticleAgreeReq) (*emptypb.Empty, error)
 	CancelArticleCollect(context.Context, *CancelArticleCollectReq) (*emptypb.Empty, error)
 	ArticleStatisticJudge(context.Context, *ArticleStatisticJudgeReq) (*ArticleStatisticJudgeReply, error)
+	GetLastTalkDraft(context.Context, *GetLastTalkDraftReq) (*GetLastTalkDraftReply, error)
+	CreateTalkDraft(context.Context, *CreateTalkDraftReq) (*CreateTalkDraftReply, error)
+	SendTalk(context.Context, *SendTalkReq) (*emptypb.Empty, error)
+	SendTalkEdit(context.Context, *SendTalkEditReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedCreationServer()
 }
 
@@ -473,6 +539,9 @@ func (UnimplementedCreationServer) CreateArticleCacheAndSearch(context.Context, 
 func (UnimplementedCreationServer) EditArticleCosAndSearch(context.Context, *EditArticleCosAndSearchReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EditArticleCosAndSearch not implemented")
 }
+func (UnimplementedCreationServer) DeleteArticleCacheAndSearch(context.Context, *DeleteArticleCacheAndSearchReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteArticleCacheAndSearch not implemented")
+}
 func (UnimplementedCreationServer) CreateArticleDraft(context.Context, *CreateArticleDraftReq) (*CreateArticleDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateArticleDraft not implemented")
 }
@@ -487,6 +556,9 @@ func (UnimplementedCreationServer) SendArticle(context.Context, *SendArticleReq)
 }
 func (UnimplementedCreationServer) SendArticleEdit(context.Context, *SendArticleEditReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendArticleEdit not implemented")
+}
+func (UnimplementedCreationServer) DeleteArticle(context.Context, *DeleteArticleReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteArticle not implemented")
 }
 func (UnimplementedCreationServer) SetArticleAgree(context.Context, *SetArticleAgreeReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetArticleAgree not implemented")
@@ -505,6 +577,18 @@ func (UnimplementedCreationServer) CancelArticleCollect(context.Context, *Cancel
 }
 func (UnimplementedCreationServer) ArticleStatisticJudge(context.Context, *ArticleStatisticJudgeReq) (*ArticleStatisticJudgeReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ArticleStatisticJudge not implemented")
+}
+func (UnimplementedCreationServer) GetLastTalkDraft(context.Context, *GetLastTalkDraftReq) (*GetLastTalkDraftReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetLastTalkDraft not implemented")
+}
+func (UnimplementedCreationServer) CreateTalkDraft(context.Context, *CreateTalkDraftReq) (*CreateTalkDraftReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateTalkDraft not implemented")
+}
+func (UnimplementedCreationServer) SendTalk(context.Context, *SendTalkReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendTalk not implemented")
+}
+func (UnimplementedCreationServer) SendTalkEdit(context.Context, *SendTalkEditReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendTalkEdit not implemented")
 }
 func (UnimplementedCreationServer) mustEmbedUnimplementedCreationServer() {}
 
@@ -915,6 +999,24 @@ func _Creation_EditArticleCosAndSearch_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Creation_DeleteArticleCacheAndSearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteArticleCacheAndSearchReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).DeleteArticleCacheAndSearch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/DeleteArticleCacheAndSearch",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).DeleteArticleCacheAndSearch(ctx, req.(*DeleteArticleCacheAndSearchReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Creation_CreateArticleDraft_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateArticleDraftReq)
 	if err := dec(in); err != nil {
@@ -1001,6 +1103,24 @@ func _Creation_SendArticleEdit_Handler(srv interface{}, ctx context.Context, dec
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CreationServer).SendArticleEdit(ctx, req.(*SendArticleEditReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_DeleteArticle_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteArticleReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).DeleteArticle(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/DeleteArticle",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).DeleteArticle(ctx, req.(*DeleteArticleReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1113,6 +1233,78 @@ func _Creation_ArticleStatisticJudge_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Creation_GetLastTalkDraft_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetLastTalkDraftReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetLastTalkDraft(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetLastTalkDraft",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetLastTalkDraft(ctx, req.(*GetLastTalkDraftReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_CreateTalkDraft_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateTalkDraftReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).CreateTalkDraft(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/CreateTalkDraft",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).CreateTalkDraft(ctx, req.(*CreateTalkDraftReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_SendTalk_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendTalkReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).SendTalk(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/SendTalk",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).SendTalk(ctx, req.(*SendTalkReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_SendTalkEdit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendTalkEditReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).SendTalkEdit(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/SendTalkEdit",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).SendTalkEdit(ctx, req.(*SendTalkEditReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Creation_ServiceDesc is the grpc.ServiceDesc for Creation service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1209,6 +1401,10 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Creation_EditArticleCosAndSearch_Handler,
 		},
 		{
+			MethodName: "DeleteArticleCacheAndSearch",
+			Handler:    _Creation_DeleteArticleCacheAndSearch_Handler,
+		},
+		{
 			MethodName: "CreateArticleDraft",
 			Handler:    _Creation_CreateArticleDraft_Handler,
 		},
@@ -1227,6 +1423,10 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SendArticleEdit",
 			Handler:    _Creation_SendArticleEdit_Handler,
+		},
+		{
+			MethodName: "DeleteArticle",
+			Handler:    _Creation_DeleteArticle_Handler,
 		},
 		{
 			MethodName: "SetArticleAgree",
@@ -1251,6 +1451,22 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ArticleStatisticJudge",
 			Handler:    _Creation_ArticleStatisticJudge_Handler,
+		},
+		{
+			MethodName: "GetLastTalkDraft",
+			Handler:    _Creation_GetLastTalkDraft_Handler,
+		},
+		{
+			MethodName: "CreateTalkDraft",
+			Handler:    _Creation_CreateTalkDraft_Handler,
+		},
+		{
+			MethodName: "SendTalk",
+			Handler:    _Creation_SendTalk_Handler,
+		},
+		{
+			MethodName: "SendTalkEdit",
+			Handler:    _Creation_SendTalkEdit_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
