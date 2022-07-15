@@ -33,7 +33,7 @@ func (r *articleRepo) GetLastArticleDraft(ctx context.Context, uuid string) (*bi
 	draft := &ArticleDraft{}
 	err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).Last(draft).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, kerrors.NotFound("draft not found from db", fmt.Sprintf("uuid(%s)", uuid))
+		return nil, kerrors.NotFound("article draft not found from db", fmt.Sprintf("uuid(%s)", uuid))
 	}
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("db query system error: uuid(%s)", uuid))
@@ -103,7 +103,7 @@ func (r *articleRepo) getArticleFromDB(ctx context.Context, page int32) ([]*biz.
 	}
 	index := int(page - 1)
 	list := make([]*Article, 0)
-	err := r.data.db.WithContext(ctx).Order("article_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Where("auth", 1).Order("article_id desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get article from db: page(%v)", page))
 	}
@@ -189,7 +189,7 @@ func (r *articleRepo) getArticleHotFromDB(ctx context.Context, page int32) ([]*b
 	}
 	index := int(page - 1)
 	list := make([]*ArticleStatistic, 0)
-	err := r.data.db.WithContext(ctx).Order("agree desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Where("auth", 1).Order("agree desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get article statistic from db: page(%v)", page))
 	}
@@ -297,14 +297,24 @@ func (r *articleRepo) GetArticleDraftList(ctx context.Context, uuid string) ([]*
 	return reply, nil
 }
 
-func (r *articleRepo) CreateArticle(ctx context.Context, id int32, uuid string) error {
+func (r *articleRepo) CreateArticle(ctx context.Context, id, auth int32, uuid string) error {
 	article := &Article{
 		ArticleId: id,
 		Uuid:      uuid,
+		Auth:      auth,
 	}
-	err := r.data.DB(ctx).Select("ArticleId", "Uuid").Create(article).Error
+	err := r.data.DB(ctx).Select("ArticleId", "Uuid", "Auth").Create(article).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to create a article: uuid(%s), id(%v)", uuid, id))
+	}
+	return nil
+}
+
+func (r *articleRepo) DeleteArticle(ctx context.Context, id int32, uuid string) error {
+	article := &Article{}
+	err := r.data.DB(ctx).Where("article_id = ? and uuid = ?", id, uuid).Delete(article).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to delete a article: id(%v), uuid(%s)", id, uuid))
 	}
 	return nil
 }
@@ -320,6 +330,15 @@ func (r *articleRepo) CreateArticleDraft(ctx context.Context, uuid string) (int3
 	return int32(draft.ID), nil
 }
 
+func (r *articleRepo) DeleteArticleStatistic(ctx context.Context, id int32, uuid string) error {
+	statistic := &ArticleStatistic{}
+	err := r.data.DB(ctx).Where("article_id = ? and uuid = ?", id, uuid).Delete(statistic).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to delete an article statistic: uuid(%s)", uuid))
+	}
+	return nil
+}
+
 func (r *articleRepo) CreateArticleFolder(ctx context.Context, id int32, uuid string) error {
 	name := "article/" + uuid + "/" + strconv.Itoa(int(id)) + "/"
 	_, err := r.data.cosCli.Object.Put(ctx, name, strings.NewReader(""), nil)
@@ -329,21 +348,32 @@ func (r *articleRepo) CreateArticleFolder(ctx context.Context, id int32, uuid st
 	return nil
 }
 
-func (r *articleRepo) CreateArticleStatistic(ctx context.Context, id int32, uuid string) error {
+func (r *articleRepo) CreateArticleStatistic(ctx context.Context, id, auth int32, uuid string) error {
 	as := &ArticleStatistic{
 		ArticleId: id,
 		Uuid:      uuid,
+		Auth:      auth,
 	}
-	err := r.data.DB(ctx).Select("ArticleId", "Uuid").Create(as).Error
+	err := r.data.DB(ctx).Select("ArticleId", "Uuid", "Auth").Create(as).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to create a article statistic: id(%v)", id))
 	}
 	return nil
 }
 
-func (r *articleRepo) CreateArticleCache(ctx context.Context, id int32, uuid string) error {
+func (r *articleRepo) CreateArticleCache(ctx context.Context, id, auth int32, uuid string) error {
 	ids := strconv.Itoa(int(id))
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.HSetNX(ctx, "article_"+ids, "uuid", uuid)
+		pipe.HSetNX(ctx, "article_"+ids, "agree", 0)
+		pipe.HSetNX(ctx, "article_"+ids, "collect", 0)
+		pipe.HSetNX(ctx, "article_"+ids, "view", 0)
+		pipe.HSetNX(ctx, "article_"+ids, "comment", 0)
+
+		if auth == 2 {
+			return nil
+		}
+
 		pipe.ZAddNX(ctx, "article", &redis.Z{
 			Score:  float64(id),
 			Member: ids + "%" + uuid,
@@ -356,11 +386,6 @@ func (r *articleRepo) CreateArticleCache(ctx context.Context, id int32, uuid str
 			Score:  0,
 			Member: ids + "%" + uuid + "%article",
 		})
-		pipe.HSetNX(ctx, "article_"+ids, "uuid", uuid)
-		pipe.HSetNX(ctx, "article_"+ids, "agree", 0)
-		pipe.HSetNX(ctx, "article_"+ids, "collect", 0)
-		pipe.HSetNX(ctx, "article_"+ids, "view", 0)
-		pipe.HSetNX(ctx, "article_"+ids, "comment", 0)
 		return nil
 	})
 	if err != nil {
@@ -369,7 +394,37 @@ func (r *articleRepo) CreateArticleCache(ctx context.Context, id int32, uuid str
 	return nil
 }
 
+func (r *articleRepo) DeleteArticleCache(ctx context.Context, id int32, uuid string) error {
+	ids := strconv.Itoa(int(id))
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.ZRem(ctx, "article", ids+"%"+uuid)
+		pipe.ZRem(ctx, "article_hot", ids+"%"+uuid)
+		pipe.ZRem(ctx, "leaderboard", ids+"%"+uuid+"%article")
+		pipe.Del(ctx, "article_"+ids)
+		pipe.Del(ctx, "article_collect_"+ids)
+		return nil
+	})
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to delete article cache: id(%v), uuid(%s)", id, uuid))
+	}
+	return nil
+}
+
+func (r *articleRepo) FreezeArticleCos(ctx context.Context, id int32, uuid string) error {
+	ids := strconv.Itoa(int(id))
+	key := "article/" + uuid + "/" + ids + "/content"
+	_, err := r.data.cosCli.Object.Delete(ctx, key)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to freeze article: id(%v), uuid(%s)", id, uuid))
+	}
+	return nil
+}
+
 func (r *articleRepo) CreateArticleSearch(ctx context.Context, id int32, uuid string) error {
+	return nil
+}
+
+func (r *articleRepo) DeleteArticleSearch(ctx context.Context, id int32, uuid string) error {
 	return nil
 }
 
@@ -438,7 +493,7 @@ func (r *articleRepo) SendArticle(ctx context.Context, id int32, uuid string) (*
 	}
 	err := r.data.DB(ctx).Model(&ArticleDraft{}).Where("id = ? and uuid = ? and status = ?", id, uuid, 3).Updates(ad).Error
 	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("fail to mark draft to 2: uuid(%s), id(%v)", uuid, id))
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to mark draft to 3: uuid(%s), id(%v)", uuid, id))
 	}
 	return &biz.ArticleDraft{
 		Uuid: uuid,
@@ -467,6 +522,7 @@ func (r *articleRepo) SendArticleToMq(ctx context.Context, article *biz.Article,
 	articleMap := map[string]interface{}{}
 	articleMap["uuid"] = article.Uuid
 	articleMap["id"] = article.ArticleId
+	articleMap["auth"] = article.Auth
 	articleMap["mode"] = mode
 
 	data, err := json.Marshal(articleMap)
