@@ -4,6 +4,7 @@ type Article struct {
 	ArticleId int32
 	Uuid      string
 	Status    int32
+	Auth      int32
 }
 
 type ArticleStatistic struct {
@@ -26,7 +27,19 @@ type ArticleDraft struct {
 	Uuid   string
 }
 
+type TalkDraft struct {
+	Id     int32
+	Status int32
+	Uuid   string
+}
+
 type ArticleReview struct {
+	Uuid string
+	Id   int32
+	Mode string
+}
+
+type TalkReview struct {
 	Uuid string
 	Id   int32
 	Mode string
