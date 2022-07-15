@@ -56,7 +56,7 @@ func (r *creationRepo) GetCollectArticle(ctx context.Context, id, page int32) ([
 	}
 	index := int(page - 1)
 	list := make([]*Collect, 0)
-	err := r.data.db.WithContext(ctx).Where("collections_id = ? and mode = ?", id, 1).Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Where("collections_id = ? and mode = ?", id, 1).Order("id desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get collect article from db: id(%v), page(%v)", id, page))
 	}
