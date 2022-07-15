@@ -67,12 +67,17 @@ type BffClient interface {
 	GetArticleDraftList(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetArticleDraftListReply, error)
 	SendArticle(ctx context.Context, in *SendArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SendArticleEdit(ctx context.Context, in *SendArticleEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DeleteArticle(ctx context.Context, in *DeleteArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetArticleAgree(ctx context.Context, in *SetArticleAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetArticleView(ctx context.Context, in *SetArticleViewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetArticleCollect(ctx context.Context, in *SetArticleCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelArticleAgree(ctx context.Context, in *CancelArticleAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelArticleCollect(ctx context.Context, in *CancelArticleCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ArticleStatisticJudge(ctx context.Context, in *ArticleStatisticJudgeReq, opts ...grpc.CallOption) (*ArticleStatisticJudgeReply, error)
+	GetLastTalkDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLastTalkDraftReply, error)
+	CreateTalkDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateTalkDraftReply, error)
+	SendTalk(ctx context.Context, in *SendTalkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SendTalkEdit(ctx context.Context, in *SendTalkEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type bffClient struct {
@@ -470,6 +475,15 @@ func (c *bffClient) SendArticleEdit(ctx context.Context, in *SendArticleEditReq,
 	return out, nil
 }
 
+func (c *bffClient) DeleteArticle(ctx context.Context, in *DeleteArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/DeleteArticle", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) SetArticleAgree(ctx context.Context, in *SetArticleAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SetArticleAgree", in, out, opts...)
@@ -524,6 +538,42 @@ func (c *bffClient) ArticleStatisticJudge(ctx context.Context, in *ArticleStatis
 	return out, nil
 }
 
+func (c *bffClient) GetLastTalkDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLastTalkDraftReply, error) {
+	out := new(GetLastTalkDraftReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetLastTalkDraft", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) CreateTalkDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateTalkDraftReply, error) {
+	out := new(CreateTalkDraftReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/CreateTalkDraft", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) SendTalk(ctx context.Context, in *SendTalkReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SendTalk", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) SendTalkEdit(ctx context.Context, in *SendTalkEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SendTalkEdit", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BffServer is the server API for Bff service.
 // All implementations must embed UnimplementedBffServer
 // for forward compatibility
@@ -572,12 +622,17 @@ type BffServer interface {
 	GetArticleDraftList(context.Context, *emptypb.Empty) (*GetArticleDraftListReply, error)
 	SendArticle(context.Context, *SendArticleReq) (*emptypb.Empty, error)
 	SendArticleEdit(context.Context, *SendArticleEditReq) (*emptypb.Empty, error)
+	DeleteArticle(context.Context, *DeleteArticleReq) (*emptypb.Empty, error)
 	SetArticleAgree(context.Context, *SetArticleAgreeReq) (*emptypb.Empty, error)
 	SetArticleView(context.Context, *SetArticleViewReq) (*emptypb.Empty, error)
 	SetArticleCollect(context.Context, *SetArticleCollectReq) (*emptypb.Empty, error)
 	CancelArticleAgree(context.Context, *CancelArticleAgreeReq) (*emptypb.Empty, error)
 	CancelArticleCollect(context.Context, *CancelArticleCollectReq) (*emptypb.Empty, error)
 	ArticleStatisticJudge(context.Context, *ArticleStatisticJudgeReq) (*ArticleStatisticJudgeReply, error)
+	GetLastTalkDraft(context.Context, *emptypb.Empty) (*GetLastTalkDraftReply, error)
+	CreateTalkDraft(context.Context, *emptypb.Empty) (*CreateTalkDraftReply, error)
+	SendTalk(context.Context, *SendTalkReq) (*emptypb.Empty, error)
+	SendTalkEdit(context.Context, *SendTalkEditReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedBffServer()
 }
 
@@ -714,6 +769,9 @@ func (UnimplementedBffServer) SendArticle(context.Context, *SendArticleReq) (*em
 func (UnimplementedBffServer) SendArticleEdit(context.Context, *SendArticleEditReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendArticleEdit not implemented")
 }
+func (UnimplementedBffServer) DeleteArticle(context.Context, *DeleteArticleReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteArticle not implemented")
+}
 func (UnimplementedBffServer) SetArticleAgree(context.Context, *SetArticleAgreeReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetArticleAgree not implemented")
 }
@@ -731,6 +789,18 @@ func (UnimplementedBffServer) CancelArticleCollect(context.Context, *CancelArtic
 }
 func (UnimplementedBffServer) ArticleStatisticJudge(context.Context, *ArticleStatisticJudgeReq) (*ArticleStatisticJudgeReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ArticleStatisticJudge not implemented")
+}
+func (UnimplementedBffServer) GetLastTalkDraft(context.Context, *emptypb.Empty) (*GetLastTalkDraftReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetLastTalkDraft not implemented")
+}
+func (UnimplementedBffServer) CreateTalkDraft(context.Context, *emptypb.Empty) (*CreateTalkDraftReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateTalkDraft not implemented")
+}
+func (UnimplementedBffServer) SendTalk(context.Context, *SendTalkReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendTalk not implemented")
+}
+func (UnimplementedBffServer) SendTalkEdit(context.Context, *SendTalkEditReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendTalkEdit not implemented")
 }
 func (UnimplementedBffServer) mustEmbedUnimplementedBffServer() {}
 
@@ -1519,6 +1589,24 @@ func _Bff_SendArticleEdit_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_DeleteArticle_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteArticleReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).DeleteArticle(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/DeleteArticle",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).DeleteArticle(ctx, req.(*DeleteArticleReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_SetArticleAgree_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SetArticleAgreeReq)
 	if err := dec(in); err != nil {
@@ -1623,6 +1711,78 @@ func _Bff_ArticleStatisticJudge_Handler(srv interface{}, ctx context.Context, de
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BffServer).ArticleStatisticJudge(ctx, req.(*ArticleStatisticJudgeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetLastTalkDraft_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetLastTalkDraft(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetLastTalkDraft",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetLastTalkDraft(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_CreateTalkDraft_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).CreateTalkDraft(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/CreateTalkDraft",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).CreateTalkDraft(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_SendTalk_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendTalkReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).SendTalk(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/SendTalk",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).SendTalk(ctx, req.(*SendTalkReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_SendTalkEdit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendTalkEditReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).SendTalkEdit(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/SendTalkEdit",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).SendTalkEdit(ctx, req.(*SendTalkEditReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1807,6 +1967,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Bff_SendArticleEdit_Handler,
 		},
 		{
+			MethodName: "DeleteArticle",
+			Handler:    _Bff_DeleteArticle_Handler,
+		},
+		{
 			MethodName: "SetArticleAgree",
 			Handler:    _Bff_SetArticleAgree_Handler,
 		},
@@ -1829,6 +1993,22 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ArticleStatisticJudge",
 			Handler:    _Bff_ArticleStatisticJudge_Handler,
+		},
+		{
+			MethodName: "GetLastTalkDraft",
+			Handler:    _Bff_GetLastTalkDraft_Handler,
+		},
+		{
+			MethodName: "CreateTalkDraft",
+			Handler:    _Bff_CreateTalkDraft_Handler,
+		},
+		{
+			MethodName: "SendTalk",
+			Handler:    _Bff_SendTalk_Handler,
+		},
+		{
+			MethodName: "SendTalkEdit",
+			Handler:    _Bff_SendTalkEdit_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

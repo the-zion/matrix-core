@@ -26,6 +26,8 @@ type BffHTTPServer interface {
 	ChangeUserPassword(context.Context, *ChangeUserPasswordReq) (*emptypb.Empty, error)
 	CreateArticleDraft(context.Context, *emptypb.Empty) (*CreateArticleDraftReply, error)
 	CreateCollections(context.Context, *CreateCollectionsReq) (*emptypb.Empty, error)
+	CreateTalkDraft(context.Context, *emptypb.Empty) (*CreateTalkDraftReply, error)
+	DeleteArticle(context.Context, *DeleteArticleReq) (*emptypb.Empty, error)
 	DeleteCollections(context.Context, *DeleteCollectionsReq) (*emptypb.Empty, error)
 	EditCollections(context.Context, *EditCollectionsReq) (*emptypb.Empty, error)
 	GetAccount(context.Context, *emptypb.Empty) (*GetAccountReply, error)
@@ -43,6 +45,7 @@ type BffHTTPServer interface {
 	GetCollectionsVisitorCount(context.Context, *GetCollectionsVisitorCountReq) (*GetCollectionsCountReply, error)
 	GetCosSessionKey(context.Context, *emptypb.Empty) (*GetCosSessionKeyReply, error)
 	GetLastArticleDraft(context.Context, *emptypb.Empty) (*GetLastArticleDraftReply, error)
+	GetLastTalkDraft(context.Context, *emptypb.Empty) (*GetLastTalkDraftReply, error)
 	GetLeaderBoard(context.Context, *emptypb.Empty) (*GetLeaderBoardReply, error)
 	GetProfile(context.Context, *emptypb.Empty) (*GetProfileReply, error)
 	GetProfileUpdate(context.Context, *emptypb.Empty) (*GetProfileUpdateReply, error)
@@ -58,6 +61,8 @@ type BffHTTPServer interface {
 	SendArticleEdit(context.Context, *SendArticleEditReq) (*emptypb.Empty, error)
 	SendEmailCode(context.Context, *SendEmailCodeReq) (*emptypb.Empty, error)
 	SendPhoneCode(context.Context, *SendPhoneCodeReq) (*emptypb.Empty, error)
+	SendTalk(context.Context, *SendTalkReq) (*emptypb.Empty, error)
+	SendTalkEdit(context.Context, *SendTalkEditReq) (*emptypb.Empty, error)
 	SetArticleAgree(context.Context, *SetArticleAgreeReq) (*emptypb.Empty, error)
 	SetArticleCollect(context.Context, *SetArticleCollectReq) (*emptypb.Empty, error)
 	SetArticleView(context.Context, *SetArticleViewReq) (*emptypb.Empty, error)
@@ -115,12 +120,17 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.GET("/v1/get/article/draft/list", _Bff_GetArticleDraftList0_HTTP_Handler(srv))
 	r.POST("/v1/send/article", _Bff_SendArticle0_HTTP_Handler(srv))
 	r.POST("/v1/send/article/edit", _Bff_SendArticleEdit0_HTTP_Handler(srv))
+	r.POST("/v1/delete/article", _Bff_DeleteArticle0_HTTP_Handler(srv))
 	r.POST("/v1/set/article/agree", _Bff_SetArticleAgree0_HTTP_Handler(srv))
 	r.POST("/v1/set/article/view", _Bff_SetArticleView0_HTTP_Handler(srv))
 	r.POST("/v1/set/article/collect", _Bff_SetArticleCollect0_HTTP_Handler(srv))
 	r.POST("/v1/cancel/article/agree", _Bff_CancelArticleAgree0_HTTP_Handler(srv))
 	r.POST("/v1/cancel/article/collect", _Bff_CancelArticleCollect0_HTTP_Handler(srv))
 	r.POST("/v1/article/statistic/judge", _Bff_ArticleStatisticJudge0_HTTP_Handler(srv))
+	r.GET("/v1/get/last/talk/draft", _Bff_GetLastTalkDraft0_HTTP_Handler(srv))
+	r.POST("/v1/create/talk/draft", _Bff_CreateTalkDraft0_HTTP_Handler(srv))
+	r.POST("/v1/send/talk", _Bff_SendTalk0_HTTP_Handler(srv))
+	r.POST("/v1/send/talk/edit", _Bff_SendTalkEdit0_HTTP_Handler(srv))
 }
 
 func _Bff_UserRegister0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
@@ -940,6 +950,25 @@ func _Bff_SendArticleEdit0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context
 	}
 }
 
+func _Bff_DeleteArticle0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in DeleteArticleReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/bff.v1.Bff/DeleteArticle")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.DeleteArticle(ctx, req.(*DeleteArticleReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _Bff_SetArticleAgree0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in SetArticleAgreeReq
@@ -1054,6 +1083,82 @@ func _Bff_ArticleStatisticJudge0_HTTP_Handler(srv BffHTTPServer) func(ctx http.C
 	}
 }
 
+func _Bff_GetLastTalkDraft0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in emptypb.Empty
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/bff.v1.Bff/GetLastTalkDraft")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetLastTalkDraft(ctx, req.(*emptypb.Empty))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetLastTalkDraftReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_CreateTalkDraft0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in emptypb.Empty
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/bff.v1.Bff/CreateTalkDraft")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.CreateTalkDraft(ctx, req.(*emptypb.Empty))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*CreateTalkDraftReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_SendTalk0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SendTalkReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/bff.v1.Bff/SendTalk")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SendTalk(ctx, req.(*SendTalkReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_SendTalkEdit0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SendTalkEditReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/bff.v1.Bff/SendTalkEdit")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SendTalkEdit(ctx, req.(*SendTalkEditReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
 type BffHTTPClient interface {
 	ArticleDraftMark(ctx context.Context, req *ArticleDraftMarkReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	ArticleStatisticJudge(ctx context.Context, req *ArticleStatisticJudgeReq, opts ...http.CallOption) (rsp *ArticleStatisticJudgeReply, err error)
@@ -1062,6 +1167,8 @@ type BffHTTPClient interface {
 	ChangeUserPassword(ctx context.Context, req *ChangeUserPasswordReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	CreateArticleDraft(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *CreateArticleDraftReply, err error)
 	CreateCollections(ctx context.Context, req *CreateCollectionsReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	CreateTalkDraft(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *CreateTalkDraftReply, err error)
+	DeleteArticle(ctx context.Context, req *DeleteArticleReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	DeleteCollections(ctx context.Context, req *DeleteCollectionsReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	EditCollections(ctx context.Context, req *EditCollectionsReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	GetAccount(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetAccountReply, err error)
@@ -1079,6 +1186,7 @@ type BffHTTPClient interface {
 	GetCollectionsVisitorCount(ctx context.Context, req *GetCollectionsVisitorCountReq, opts ...http.CallOption) (rsp *GetCollectionsCountReply, err error)
 	GetCosSessionKey(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetCosSessionKeyReply, err error)
 	GetLastArticleDraft(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetLastArticleDraftReply, err error)
+	GetLastTalkDraft(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetLastTalkDraftReply, err error)
 	GetLeaderBoard(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetLeaderBoardReply, err error)
 	GetProfile(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetProfileReply, err error)
 	GetProfileUpdate(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetProfileUpdateReply, err error)
@@ -1094,6 +1202,8 @@ type BffHTTPClient interface {
 	SendArticleEdit(ctx context.Context, req *SendArticleEditReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SendEmailCode(ctx context.Context, req *SendEmailCodeReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SendPhoneCode(ctx context.Context, req *SendPhoneCodeReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	SendTalk(ctx context.Context, req *SendTalkReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	SendTalkEdit(ctx context.Context, req *SendTalkEditReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SetArticleAgree(ctx context.Context, req *SetArticleAgreeReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SetArticleCollect(ctx context.Context, req *SetArticleCollectReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SetArticleView(ctx context.Context, req *SetArticleViewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -1197,6 +1307,32 @@ func (c *BffHTTPClientImpl) CreateCollections(ctx context.Context, in *CreateCol
 	pattern := "/v1/create/collections"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation("/bff.v1.Bff/CreateCollections"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) CreateTalkDraft(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*CreateTalkDraftReply, error) {
+	var out CreateTalkDraftReply
+	pattern := "/v1/create/talk/draft"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/bff.v1.Bff/CreateTalkDraft"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) DeleteArticle(ctx context.Context, in *DeleteArticleReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/delete/article"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/bff.v1.Bff/DeleteArticle"))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
@@ -1426,6 +1562,19 @@ func (c *BffHTTPClientImpl) GetLastArticleDraft(ctx context.Context, in *emptypb
 	return &out, err
 }
 
+func (c *BffHTTPClientImpl) GetLastTalkDraft(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*GetLastTalkDraftReply, error) {
+	var out GetLastTalkDraftReply
+	pattern := "/v1/get/last/talk/draft"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation("/bff.v1.Bff/GetLastTalkDraft"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
 func (c *BffHTTPClientImpl) GetLeaderBoard(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*GetLeaderBoardReply, error) {
 	var out GetLeaderBoardReply
 	pattern := "/v1/get/leaderboard"
@@ -1613,6 +1762,32 @@ func (c *BffHTTPClientImpl) SendPhoneCode(ctx context.Context, in *SendPhoneCode
 	pattern := "/v1/user/code/phone"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation("/bff.v1.Bff/SendPhoneCode"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) SendTalk(ctx context.Context, in *SendTalkReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/send/talk"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/bff.v1.Bff/SendTalk"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) SendTalkEdit(ctx context.Context, in *SendTalkEditReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/send/talk/edit"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/bff.v1.Bff/SendTalkEdit"))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
