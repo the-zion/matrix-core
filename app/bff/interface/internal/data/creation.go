@@ -11,9 +11,16 @@ import (
 )
 
 var _ biz.ArticleRepo = (*articleRepo)(nil)
+var _ biz.TalkRepo = (*talkRepo)(nil)
 var _ biz.CreationRepo = (*creationRepo)(nil)
 
 type articleRepo struct {
+	data *Data
+	log  *log.Helper
+	sg   *singleflight.Group
+}
+
+type talkRepo struct {
 	data *Data
 	log  *log.Helper
 	sg   *singleflight.Group
@@ -29,6 +36,14 @@ func NewArticleRepo(data *Data, logger log.Logger) biz.ArticleRepo {
 	return &articleRepo{
 		data: data,
 		log:  log.NewHelper(log.With(logger, "module", "bff/data/article")),
+		sg:   &singleflight.Group{},
+	}
+}
+
+func NewTalkRepo(data *Data, logger log.Logger) biz.TalkRepo {
+	return &talkRepo{
+		data: data,
+		log:  log.NewHelper(log.With(logger, "module", "bff/data/talk")),
 		sg:   &singleflight.Group{},
 	}
 }
@@ -410,8 +425,8 @@ func (r *articleRepo) ArticleDraftMark(ctx context.Context, id int32, uuid strin
 
 func (r *articleRepo) SendArticle(ctx context.Context, id int32, uuid string) error {
 	_, err := r.data.cc.SendArticle(ctx, &creationV1.SendArticleReq{
-		Uuid: uuid,
 		Id:   id,
+		Uuid: uuid,
 	})
 	if err != nil {
 		return err
@@ -421,8 +436,19 @@ func (r *articleRepo) SendArticle(ctx context.Context, id int32, uuid string) er
 
 func (r *articleRepo) SendArticleEdit(ctx context.Context, id int32, uuid string) error {
 	_, err := r.data.cc.SendArticleEdit(ctx, &creationV1.SendArticleEditReq{
-		Uuid: uuid,
 		Id:   id,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *articleRepo) DeleteArticle(ctx context.Context, id int32, uuid string) error {
+	_, err := r.data.cc.DeleteArticle(ctx, &creationV1.DeleteArticleReq{
+		Id:   id,
+		Uuid: uuid,
 	})
 	if err != nil {
 		return err
@@ -502,4 +528,38 @@ func (r *articleRepo) ArticleStatisticJudge(ctx context.Context, id int32, uuid 
 		Agree:   reply.Agree,
 		Collect: reply.Collect,
 	}, nil
+}
+
+func (r *talkRepo) GetLastTalkDraft(ctx context.Context, uuid string) (*biz.TalkDraft, error) {
+	reply, err := r.data.cc.GetLastTalkDraft(ctx, &creationV1.GetLastTalkDraftReq{
+		Uuid: uuid,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &biz.TalkDraft{
+		Id:     reply.Id,
+		Status: reply.Status,
+	}, nil
+}
+
+func (r *talkRepo) CreateTalkDraft(ctx context.Context, uuid string) (int32, error) {
+	reply, err := r.data.cc.CreateTalkDraft(ctx, &creationV1.CreateTalkDraftReq{
+		Uuid: uuid,
+	})
+	if err != nil {
+		return 0, err
+	}
+	return reply.Id, nil
+}
+
+func (r *talkRepo) SendTalk(ctx context.Context, id int32, uuid string) error {
+	_, err := r.data.cc.SendTalk(ctx, &creationV1.SendTalkReq{
+		Id:   id,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }
