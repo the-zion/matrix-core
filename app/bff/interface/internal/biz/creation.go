@@ -32,12 +32,19 @@ type ArticleRepo interface {
 	ArticleDraftMark(ctx context.Context, id int32, uuid string) error
 	SendArticle(ctx context.Context, id int32, uuid string) error
 	SendArticleEdit(ctx context.Context, id int32, uuid string) error
+	DeleteArticle(ctx context.Context, id int32, uuid string) error
 	SetArticleAgree(ctx context.Context, id int32, uuid, userUuid string) error
 	SetArticleView(ctx context.Context, id int32, uuid string) error
 	SetArticleCollect(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error
 	CancelArticleAgree(ctx context.Context, id int32, uuid, userUuid string) error
 	CancelArticleCollect(ctx context.Context, id int32, uuid, userUuid string) error
 	ArticleStatisticJudge(ctx context.Context, id int32, uuid string) (*ArticleStatisticJudge, error)
+}
+
+type TalkRepo interface {
+	GetLastTalkDraft(ctx context.Context, uuid string) (*TalkDraft, error)
+	CreateTalkDraft(ctx context.Context, uuid string) (int32, error)
+	SendTalk(ctx context.Context, id int32, uuid string) error
 }
 
 type CreationUseCase struct {
@@ -47,6 +54,11 @@ type CreationUseCase struct {
 
 type ArticleUseCase struct {
 	repo ArticleRepo
+	log  *log.Helper
+}
+
+type TalkUseCase struct {
+	repo TalkRepo
 	log  *log.Helper
 }
 
@@ -61,6 +73,13 @@ func NewArticleUseCase(repo ArticleRepo, logger log.Logger) *ArticleUseCase {
 	return &ArticleUseCase{
 		repo: repo,
 		log:  log.NewHelper(log.With(logger, "module", "bff/biz/ArticleUseCase")),
+	}
+}
+
+func NewTalkUseCase(repo TalkRepo, logger log.Logger) *TalkUseCase {
+	return &TalkUseCase{
+		repo: repo,
+		log:  log.NewHelper(log.With(logger, "module", "bff/biz/TalkUseCase")),
 	}
 }
 
@@ -168,6 +187,11 @@ func (r *ArticleUseCase) SendArticleEdit(ctx context.Context, id int32) error {
 	return r.repo.SendArticleEdit(ctx, id, uuid)
 }
 
+func (r *ArticleUseCase) DeleteArticle(ctx context.Context, id int32) error {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.DeleteArticle(ctx, id, uuid)
+}
+
 func (r *ArticleUseCase) SetArticleAgree(ctx context.Context, id int32, uuid string) error {
 	userUuid := ctx.Value("uuid").(string)
 	return r.repo.SetArticleAgree(ctx, id, uuid, userUuid)
@@ -195,4 +219,19 @@ func (r *ArticleUseCase) CancelArticleCollect(ctx context.Context, id int32, uui
 func (r *ArticleUseCase) ArticleStatisticJudge(ctx context.Context, id int32) (*ArticleStatisticJudge, error) {
 	uuid := ctx.Value("uuid").(string)
 	return r.repo.ArticleStatisticJudge(ctx, id, uuid)
+}
+
+func (r *TalkUseCase) GetLastTalkDraft(ctx context.Context) (*TalkDraft, error) {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.GetLastTalkDraft(ctx, uuid)
+}
+
+func (r *TalkUseCase) CreateTalkDraft(ctx context.Context) (int32, error) {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.CreateTalkDraft(ctx, uuid)
+}
+
+func (r *TalkUseCase) SendTalk(ctx context.Context, id int32) error {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.SendTalk(ctx, id, uuid)
 }
