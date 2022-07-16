@@ -37,6 +37,20 @@ service Message {
       body: "*"
     };
   }
+
+  rpc TalkCreateReview(TextReviewReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/tx/message/talk/create/review"
+      body: "*"
+    };
+  }
+
+  rpc TalkEditReview(TextReviewReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/tx/message/talk/edit/review"
+      body: "*"
+    };
+  }
 }
 
 message AvatarReviewReq{
