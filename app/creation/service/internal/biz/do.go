@@ -7,6 +7,13 @@ type Article struct {
 	Auth      int32
 }
 
+type Talk struct {
+	TalkId int32
+	Uuid   string
+	Status int32
+	Auth   int32
+}
+
 type ArticleStatistic struct {
 	ArticleId int32
 	Uuid      string
