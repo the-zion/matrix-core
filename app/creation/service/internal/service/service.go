@@ -12,14 +12,16 @@ var ProviderSet = wire.NewSet(NewCreationService)
 type CreationService struct {
 	v1.UnimplementedCreationServer
 	ac  *biz.ArticleUseCase
+	tc  *biz.TalkUseCase
 	cc  *biz.CreationUseCase
 	log *log.Helper
 }
 
-func NewCreationService(ac *biz.ArticleUseCase, cc *biz.CreationUseCase, logger log.Logger) *CreationService {
+func NewCreationService(ac *biz.ArticleUseCase, tc *biz.TalkUseCase, cc *biz.CreationUseCase, logger log.Logger) *CreationService {
 	return &CreationService{
 		log: log.NewHelper(log.With(logger, "module", "creation/service")),
 		ac:  ac,
+		tc:  tc,
 		cc:  cc,
 	}
 }
