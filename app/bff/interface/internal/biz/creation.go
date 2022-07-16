@@ -42,9 +42,11 @@ type ArticleRepo interface {
 }
 
 type TalkRepo interface {
+	GetTalkList(ctx context.Context, page int32) ([]*Talk, error)
 	GetLastTalkDraft(ctx context.Context, uuid string) (*TalkDraft, error)
 	CreateTalkDraft(ctx context.Context, uuid string) (int32, error)
 	SendTalk(ctx context.Context, id int32, uuid string) error
+	SendTalkEdit(ctx context.Context, id int32, uuid string) error
 }
 
 type CreationUseCase struct {
@@ -221,6 +223,10 @@ func (r *ArticleUseCase) ArticleStatisticJudge(ctx context.Context, id int32) (*
 	return r.repo.ArticleStatisticJudge(ctx, id, uuid)
 }
 
+func (r *TalkUseCase) GetTalkList(ctx context.Context, page int32) ([]*Talk, error) {
+	return r.repo.GetTalkList(ctx, page)
+}
+
 func (r *TalkUseCase) GetLastTalkDraft(ctx context.Context) (*TalkDraft, error) {
 	uuid := ctx.Value("uuid").(string)
 	return r.repo.GetLastTalkDraft(ctx, uuid)
@@ -234,4 +240,9 @@ func (r *TalkUseCase) CreateTalkDraft(ctx context.Context) (int32, error) {
 func (r *TalkUseCase) SendTalk(ctx context.Context, id int32) error {
 	uuid := ctx.Value("uuid").(string)
 	return r.repo.SendTalk(ctx, id, uuid)
+}
+
+func (r *TalkUseCase) SendTalkEdit(ctx context.Context, id int32) error {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.SendTalkEdit(ctx, id, uuid)
 }
