@@ -80,6 +80,10 @@ service Creation {
 
   rpc ArticleStatisticJudge(ArticleStatisticJudgeReq) returns (ArticleStatisticJudgeReply){}
 
+  rpc GetTalkList(GetTalkListReq) returns (GetTalkListReply){}
+
+  rpc GetTalkListHot(GetTalkListHotReq) returns (GetTalkListHotReply){}
+
   rpc GetLastTalkDraft(GetLastTalkDraftReq) returns (GetLastTalkDraftReply){}
 
   rpc CreateTalkDraft(CreateTalkDraftReq) returns (CreateTalkDraftReply){}
@@ -87,6 +91,14 @@ service Creation {
   rpc SendTalk(SendTalkReq) returns (google.protobuf.Empty){}
 
   rpc SendTalkEdit(SendTalkEditReq) returns (google.protobuf.Empty){}
+
+  rpc CreateTalk(CreateTalkReq) returns (google.protobuf.Empty){}
+
+  rpc EditTalk(EditTalkReq) returns (google.protobuf.Empty){}
+
+  rpc CreateTalkCacheAndSearch(CreateTalkCacheAndSearchReq) returns (google.protobuf.Empty){}
+
+  rpc EditTalkCosAndSearch(EditTalkCosAndSearchReq) returns (google.protobuf.Empty){}
 }
 
 message GetLeaderBoardReply{
@@ -341,6 +353,30 @@ message ArticleStatisticJudgeReply{
   bool collect = 2;
 }
 
+message GetTalkListReq{
+  int32 page = 1;
+}
+
+message GetTalkListReply{
+  message Talk{
+    int32 id = 1;
+    string uuid = 2;
+  }
+  repeated Talk talk = 1;
+}
+
+message GetTalkListHotReq{
+  int32 page = 1;
+}
+
+message GetTalkListHotReply{
+  message Talk{
+    int32 id = 1;
+    string uuid = 2;
+  }
+  repeated Talk talk = 1;
+}
+
 message GetLastTalkDraftReq{
   string uuid = 1 [(validate.rules).string.uuid = true];
 }
@@ -364,6 +400,28 @@ message SendTalkReq{
 }
 
 message SendTalkEditReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message CreateTalkReq{
+  int32 id = 1;
+  int32 auth = 2;
+  string uuid = 3 [(validate.rules).string.uuid = true];
+}
+
+message EditTalkReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message CreateTalkCacheAndSearchReq{
+  int32 id = 1;
+  int32 auth = 2;
+  string uuid = 3 [(validate.rules).string.uuid = true];
+}
+
+message EditTalkCosAndSearchReq{
   int32 id = 1;
   string uuid = 2 [(validate.rules).string.uuid = true];
 }
