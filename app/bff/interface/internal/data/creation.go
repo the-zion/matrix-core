@@ -530,6 +530,29 @@ func (r *articleRepo) ArticleStatisticJudge(ctx context.Context, id int32, uuid 
 	}, nil
 }
 
+func (r *talkRepo) GetTalkList(ctx context.Context, page int32) ([]*biz.Talk, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("talk_page_%v", page), func() (interface{}, error) {
+		reply := make([]*biz.Talk, 0)
+		talkList, err := r.data.cc.GetTalkList(ctx, &creationV1.GetTalkListReq{
+			Page: page,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range talkList.Talk {
+			reply = append(reply, &biz.Talk{
+				Id:   item.Id,
+				Uuid: item.Uuid,
+			})
+		}
+		return reply, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.([]*biz.Talk), nil
+}
+
 func (r *talkRepo) GetLastTalkDraft(ctx context.Context, uuid string) (*biz.TalkDraft, error) {
 	reply, err := r.data.cc.GetLastTalkDraft(ctx, &creationV1.GetLastTalkDraftReq{
 		Uuid: uuid,
@@ -555,6 +578,17 @@ func (r *talkRepo) CreateTalkDraft(ctx context.Context, uuid string) (int32, err
 
 func (r *talkRepo) SendTalk(ctx context.Context, id int32, uuid string) error {
 	_, err := r.data.cc.SendTalk(ctx, &creationV1.SendTalkReq{
+		Id:   id,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *talkRepo) SendTalkEdit(ctx context.Context, id int32, uuid string) error {
+	_, err := r.data.cc.SendTalkEdit(ctx, &creationV1.SendTalkEditReq{
 		Id:   id,
 		Uuid: uuid,
 	})
