@@ -352,6 +352,21 @@ func (s *BffService) ArticleStatisticJudge(ctx context.Context, req *v1.ArticleS
 
 // ------------------------------------------talk-------------------------------------------------
 
+func (s *BffService) GetTalkList(ctx context.Context, req *v1.GetTalkListReq) (*v1.GetTalkListReply, error) {
+	reply := &v1.GetTalkListReply{Talk: make([]*v1.GetTalkListReply_Talk, 0)}
+	talkList, err := s.tc.GetTalkList(ctx, req.Page)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range talkList {
+		reply.Talk = append(reply.Talk, &v1.GetTalkListReply_Talk{
+			Id:   item.Id,
+			Uuid: item.Uuid,
+		})
+	}
+	return reply, nil
+}
+
 func (s *BffService) GetLastTalkDraft(ctx context.Context, _ *emptypb.Empty) (*v1.GetLastTalkDraftReply, error) {
 	draft, err := s.tc.GetLastTalkDraft(ctx)
 	if err != nil {
@@ -381,10 +396,10 @@ func (s *BffService) SendTalk(ctx context.Context, req *v1.SendTalkReq) (*emptyp
 	return &emptypb.Empty{}, nil
 }
 
-//func (s *BffService) SendArticleEdit(ctx context.Context, req *v1.SendArticleEditReq) (*emptypb.Empty, error) {
-//	err := s.ac.SendArticleEdit(ctx, req.Id)
-//	if err != nil {
-//		return nil, err
-//	}
-//	return &emptypb.Empty{}, nil
-//}
+func (s *BffService) SendTalkEdit(ctx context.Context, req *v1.SendTalkEditReq) (*emptypb.Empty, error) {
+	err := s.tc.SendTalkEdit(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
