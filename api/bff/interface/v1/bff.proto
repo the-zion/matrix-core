@@ -349,6 +349,18 @@ service Bff{
 
   // -------------------------talk----------------------------
 
+  rpc GetTalkList(GetTalkListReq) returns (GetTalkListReply){
+    option (google.api.http) = {
+      get: "/v1/get/talk/list"
+    };
+  }
+
+  rpc GetTalkListHot(GetTalkListHotReq) returns (GetTalkListHotReply){
+    option (google.api.http) = {
+      get: "/v1/get/talk/list/hot"
+    };
+  }
+
   rpc GetLastTalkDraft(google.protobuf.Empty) returns (GetLastTalkDraftReply){
     option (google.api.http) = {
       get: "/v1/get/last/talk/draft"
@@ -724,6 +736,30 @@ message ArticleStatisticJudgeReq{
 message ArticleStatisticJudgeReply{
   bool agree = 1;
   bool collect = 2;
+}
+
+message GetTalkListReq{
+  int32 page = 1;
+}
+
+message GetTalkListReply{
+  message Talk{
+    int32 id = 1;
+    string uuid = 2;
+  }
+  repeated Talk talk = 1;
+}
+
+message GetTalkListHotReq{
+  int32 page = 1;
+}
+
+message GetTalkListHotReply{
+  message Talk{
+    int32 id = 1;
+    string uuid = 2;
+  }
+  repeated Talk talk = 1;
 }
 
 message GetLastTalkDraftReply{
