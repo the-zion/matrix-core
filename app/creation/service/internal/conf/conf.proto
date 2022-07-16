@@ -59,12 +59,20 @@ message Data {
     message Article{
       string groupName = 1;
     }
+    message TalkReview{
+      string groupName = 1;
+    }
+    message Talk{
+      string groupName = 1;
+    }
     ArticleReview articleReview = 1;
     Article article = 2;
-    string serverAddress = 3;
-    string secretKey = 4;
-    string accessKey = 5;
-    string nameSpace = 6;
+    TalkReview talkReview = 3;
+    Talk talk = 4;
+    string serverAddress = 5;
+    string secretKey = 6;
+    string accessKey = 7;
+    string nameSpace = 8;
   }
   Database database = 1;
   Redis redis = 2;
