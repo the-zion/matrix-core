@@ -58,10 +58,16 @@ type CreationClient interface {
 	CancelArticleAgree(ctx context.Context, in *CancelArticleAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelArticleCollect(ctx context.Context, in *CancelArticleCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ArticleStatisticJudge(ctx context.Context, in *ArticleStatisticJudgeReq, opts ...grpc.CallOption) (*ArticleStatisticJudgeReply, error)
+	GetTalkList(ctx context.Context, in *GetTalkListReq, opts ...grpc.CallOption) (*GetTalkListReply, error)
+	GetTalkListHot(ctx context.Context, in *GetTalkListHotReq, opts ...grpc.CallOption) (*GetTalkListHotReply, error)
 	GetLastTalkDraft(ctx context.Context, in *GetLastTalkDraftReq, opts ...grpc.CallOption) (*GetLastTalkDraftReply, error)
 	CreateTalkDraft(ctx context.Context, in *CreateTalkDraftReq, opts ...grpc.CallOption) (*CreateTalkDraftReply, error)
 	SendTalk(ctx context.Context, in *SendTalkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SendTalkEdit(ctx context.Context, in *SendTalkEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CreateTalk(ctx context.Context, in *CreateTalkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	EditTalk(ctx context.Context, in *EditTalkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CreateTalkCacheAndSearch(ctx context.Context, in *CreateTalkCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	EditTalkCosAndSearch(ctx context.Context, in *EditTalkCosAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type creationClient struct {
@@ -387,6 +393,24 @@ func (c *creationClient) ArticleStatisticJudge(ctx context.Context, in *ArticleS
 	return out, nil
 }
 
+func (c *creationClient) GetTalkList(ctx context.Context, in *GetTalkListReq, opts ...grpc.CallOption) (*GetTalkListReply, error) {
+	out := new(GetTalkListReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetTalkList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) GetTalkListHot(ctx context.Context, in *GetTalkListHotReq, opts ...grpc.CallOption) (*GetTalkListHotReply, error) {
+	out := new(GetTalkListHotReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetTalkListHot", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *creationClient) GetLastTalkDraft(ctx context.Context, in *GetLastTalkDraftReq, opts ...grpc.CallOption) (*GetLastTalkDraftReply, error) {
 	out := new(GetLastTalkDraftReply)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetLastTalkDraft", in, out, opts...)
@@ -417,6 +441,42 @@ func (c *creationClient) SendTalk(ctx context.Context, in *SendTalkReq, opts ...
 func (c *creationClient) SendTalkEdit(ctx context.Context, in *SendTalkEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/SendTalkEdit", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) CreateTalk(ctx context.Context, in *CreateTalkReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/CreateTalk", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) EditTalk(ctx context.Context, in *EditTalkReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/EditTalk", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) CreateTalkCacheAndSearch(ctx context.Context, in *CreateTalkCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/CreateTalkCacheAndSearch", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) EditTalkCosAndSearch(ctx context.Context, in *EditTalkCosAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/EditTalkCosAndSearch", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -462,10 +522,16 @@ type CreationServer interface {
 	CancelArticleAgree(context.Context, *CancelArticleAgreeReq) (*emptypb.Empty, error)
 	CancelArticleCollect(context.Context, *CancelArticleCollectReq) (*emptypb.Empty, error)
 	ArticleStatisticJudge(context.Context, *ArticleStatisticJudgeReq) (*ArticleStatisticJudgeReply, error)
+	GetTalkList(context.Context, *GetTalkListReq) (*GetTalkListReply, error)
+	GetTalkListHot(context.Context, *GetTalkListHotReq) (*GetTalkListHotReply, error)
 	GetLastTalkDraft(context.Context, *GetLastTalkDraftReq) (*GetLastTalkDraftReply, error)
 	CreateTalkDraft(context.Context, *CreateTalkDraftReq) (*CreateTalkDraftReply, error)
 	SendTalk(context.Context, *SendTalkReq) (*emptypb.Empty, error)
 	SendTalkEdit(context.Context, *SendTalkEditReq) (*emptypb.Empty, error)
+	CreateTalk(context.Context, *CreateTalkReq) (*emptypb.Empty, error)
+	EditTalk(context.Context, *EditTalkReq) (*emptypb.Empty, error)
+	CreateTalkCacheAndSearch(context.Context, *CreateTalkCacheAndSearchReq) (*emptypb.Empty, error)
+	EditTalkCosAndSearch(context.Context, *EditTalkCosAndSearchReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedCreationServer()
 }
 
@@ -578,6 +644,12 @@ func (UnimplementedCreationServer) CancelArticleCollect(context.Context, *Cancel
 func (UnimplementedCreationServer) ArticleStatisticJudge(context.Context, *ArticleStatisticJudgeReq) (*ArticleStatisticJudgeReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ArticleStatisticJudge not implemented")
 }
+func (UnimplementedCreationServer) GetTalkList(context.Context, *GetTalkListReq) (*GetTalkListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTalkList not implemented")
+}
+func (UnimplementedCreationServer) GetTalkListHot(context.Context, *GetTalkListHotReq) (*GetTalkListHotReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTalkListHot not implemented")
+}
 func (UnimplementedCreationServer) GetLastTalkDraft(context.Context, *GetLastTalkDraftReq) (*GetLastTalkDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLastTalkDraft not implemented")
 }
@@ -589,6 +661,18 @@ func (UnimplementedCreationServer) SendTalk(context.Context, *SendTalkReq) (*emp
 }
 func (UnimplementedCreationServer) SendTalkEdit(context.Context, *SendTalkEditReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendTalkEdit not implemented")
+}
+func (UnimplementedCreationServer) CreateTalk(context.Context, *CreateTalkReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateTalk not implemented")
+}
+func (UnimplementedCreationServer) EditTalk(context.Context, *EditTalkReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EditTalk not implemented")
+}
+func (UnimplementedCreationServer) CreateTalkCacheAndSearch(context.Context, *CreateTalkCacheAndSearchReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateTalkCacheAndSearch not implemented")
+}
+func (UnimplementedCreationServer) EditTalkCosAndSearch(context.Context, *EditTalkCosAndSearchReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EditTalkCosAndSearch not implemented")
 }
 func (UnimplementedCreationServer) mustEmbedUnimplementedCreationServer() {}
 
@@ -1233,6 +1317,42 @@ func _Creation_ArticleStatisticJudge_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Creation_GetTalkList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTalkListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetTalkList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetTalkList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetTalkList(ctx, req.(*GetTalkListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_GetTalkListHot_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTalkListHotReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetTalkListHot(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetTalkListHot",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetTalkListHot(ctx, req.(*GetTalkListHotReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Creation_GetLastTalkDraft_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetLastTalkDraftReq)
 	if err := dec(in); err != nil {
@@ -1301,6 +1421,78 @@ func _Creation_SendTalkEdit_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CreationServer).SendTalkEdit(ctx, req.(*SendTalkEditReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_CreateTalk_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateTalkReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).CreateTalk(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/CreateTalk",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).CreateTalk(ctx, req.(*CreateTalkReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_EditTalk_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EditTalkReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).EditTalk(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/EditTalk",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).EditTalk(ctx, req.(*EditTalkReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_CreateTalkCacheAndSearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateTalkCacheAndSearchReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).CreateTalkCacheAndSearch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/CreateTalkCacheAndSearch",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).CreateTalkCacheAndSearch(ctx, req.(*CreateTalkCacheAndSearchReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_EditTalkCosAndSearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EditTalkCosAndSearchReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).EditTalkCosAndSearch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/EditTalkCosAndSearch",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).EditTalkCosAndSearch(ctx, req.(*EditTalkCosAndSearchReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1453,6 +1645,14 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Creation_ArticleStatisticJudge_Handler,
 		},
 		{
+			MethodName: "GetTalkList",
+			Handler:    _Creation_GetTalkList_Handler,
+		},
+		{
+			MethodName: "GetTalkListHot",
+			Handler:    _Creation_GetTalkListHot_Handler,
+		},
+		{
 			MethodName: "GetLastTalkDraft",
 			Handler:    _Creation_GetLastTalkDraft_Handler,
 		},
@@ -1467,6 +1667,22 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SendTalkEdit",
 			Handler:    _Creation_SendTalkEdit_Handler,
+		},
+		{
+			MethodName: "CreateTalk",
+			Handler:    _Creation_CreateTalk_Handler,
+		},
+		{
+			MethodName: "EditTalk",
+			Handler:    _Creation_EditTalk_Handler,
+		},
+		{
+			MethodName: "CreateTalkCacheAndSearch",
+			Handler:    _Creation_CreateTalkCacheAndSearch_Handler,
+		},
+		{
+			MethodName: "EditTalkCosAndSearch",
+			Handler:    _Creation_EditTalkCosAndSearch_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
