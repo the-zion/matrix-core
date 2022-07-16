@@ -27,6 +27,8 @@ type MessageClient interface {
 	ProfileReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ArticleCreateReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ArticleEditReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	TalkCreateReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	TalkEditReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type messageClient struct {
@@ -73,6 +75,24 @@ func (c *messageClient) ArticleEditReview(ctx context.Context, in *TextReviewReq
 	return out, nil
 }
 
+func (c *messageClient) TalkCreateReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/message.v1.Message/TalkCreateReview", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *messageClient) TalkEditReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/message.v1.Message/TalkEditReview", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MessageServer is the server API for Message service.
 // All implementations must embed UnimplementedMessageServer
 // for forward compatibility
@@ -81,6 +101,8 @@ type MessageServer interface {
 	ProfileReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	ArticleCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	ArticleEditReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
+	TalkCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
+	TalkEditReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedMessageServer()
 }
 
@@ -99,6 +121,12 @@ func (UnimplementedMessageServer) ArticleCreateReview(context.Context, *TextRevi
 }
 func (UnimplementedMessageServer) ArticleEditReview(context.Context, *TextReviewReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ArticleEditReview not implemented")
+}
+func (UnimplementedMessageServer) TalkCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TalkCreateReview not implemented")
+}
+func (UnimplementedMessageServer) TalkEditReview(context.Context, *TextReviewReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TalkEditReview not implemented")
 }
 func (UnimplementedMessageServer) mustEmbedUnimplementedMessageServer() {}
 
@@ -185,6 +213,42 @@ func _Message_ArticleEditReview_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Message_TalkCreateReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TextReviewReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MessageServer).TalkCreateReview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/message.v1.Message/TalkCreateReview",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MessageServer).TalkCreateReview(ctx, req.(*TextReviewReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Message_TalkEditReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TextReviewReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MessageServer).TalkEditReview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/message.v1.Message/TalkEditReview",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MessageServer).TalkEditReview(ctx, req.(*TextReviewReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Message_ServiceDesc is the grpc.ServiceDesc for Message service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -207,6 +271,14 @@ var Message_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ArticleEditReview",
 			Handler:    _Message_ArticleEditReview_Handler,
+		},
+		{
+			MethodName: "TalkCreateReview",
+			Handler:    _Message_TalkCreateReview_Handler,
+		},
+		{
+			MethodName: "TalkEditReview",
+			Handler:    _Message_TalkEditReview_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
