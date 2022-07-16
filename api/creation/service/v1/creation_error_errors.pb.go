@@ -215,6 +215,18 @@ func ErrorGetTalkFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, CreationErrorReason_GET_TALK_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsGetTalkListFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_GET_TALK_LIST_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetTalkListFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_GET_TALK_LIST_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsCreateTalkFailed(err error) bool {
 	if err == nil {
 		return false
