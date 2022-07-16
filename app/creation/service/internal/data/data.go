@@ -19,13 +19,21 @@ import (
 	"time"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewTransaction, NewRocketmqArticleProducer, NewRocketmqArticleReviewProducer, NewRocketmqAchievementProducer, NewCosServiceClient, NewArticleRepo, NewTalkRepo, NewCreationRepo)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewTransaction, NewRocketmqArticleProducer, NewRocketmqArticleReviewProducer, NewRocketmqAchievementProducer, NewRocketmqTalkReviewProducer, NewRocketmqTalkProducer, NewCosServiceClient, NewArticleRepo, NewTalkRepo, NewCreationRepo)
 
 type ArticleReviewMqPro struct {
 	producer rocketmq.Producer
 }
 
 type ArticleMqPro struct {
+	producer rocketmq.Producer
+}
+
+type TalkReviewMqPro struct {
+	producer rocketmq.Producer
+}
+
+type TalkMqPro struct {
 	producer rocketmq.Producer
 }
 
@@ -39,6 +47,8 @@ type Data struct {
 	redisCli           redis.Cmdable
 	articleMqPro       *ArticleMqPro
 	articleReviewMqPro *ArticleReviewMqPro
+	talkMqPro          *TalkMqPro
+	talkReviewMqPro    *TalkReviewMqPro
 	achievementMqPro   *AchievementMqPro
 	cosCli             *cos.Client
 }
@@ -163,6 +173,58 @@ func NewRocketmqArticleProducer(conf *conf.Data, logger log.Logger) *ArticleMqPr
 	}
 }
 
+func NewRocketmqTalkReviewProducer(conf *conf.Data, logger log.Logger) *TalkReviewMqPro {
+	l := log.NewHelper(log.With(logger, "module", "creation/data/rocketmq-talk-review-producer"))
+	p, err := rocketmq.NewProducer(
+		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.CreationMq.ServerAddress})),
+		producer.WithCredentials(primitive.Credentials{
+			SecretKey: conf.CreationMq.SecretKey,
+			AccessKey: conf.CreationMq.AccessKey,
+		}),
+		producer.WithInstanceName("creation"),
+		producer.WithGroupName(conf.CreationMq.TalkReview.GroupName),
+		producer.WithNamespace(conf.CreationMq.NameSpace),
+	)
+
+	if err != nil {
+		l.Fatalf("init producer error: %v", err)
+	}
+
+	err = p.Start()
+	if err != nil {
+		l.Fatalf("start producer error: %v", err)
+	}
+	return &TalkReviewMqPro{
+		producer: p,
+	}
+}
+
+func NewRocketmqTalkProducer(conf *conf.Data, logger log.Logger) *TalkMqPro {
+	l := log.NewHelper(log.With(logger, "module", "creation/data/rocketmq-talk-producer"))
+	p, err := rocketmq.NewProducer(
+		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.CreationMq.ServerAddress})),
+		producer.WithCredentials(primitive.Credentials{
+			SecretKey: conf.CreationMq.SecretKey,
+			AccessKey: conf.CreationMq.AccessKey,
+		}),
+		producer.WithInstanceName("creation"),
+		producer.WithGroupName(conf.CreationMq.Talk.GroupName),
+		producer.WithNamespace(conf.CreationMq.NameSpace),
+	)
+
+	if err != nil {
+		l.Fatalf("init producer error: %v", err)
+	}
+
+	err = p.Start()
+	if err != nil {
+		l.Fatalf("start producer error: %v", err)
+	}
+	return &TalkMqPro{
+		producer: p,
+	}
+}
+
 func NewRocketmqAchievementProducer(conf *conf.Data, logger log.Logger) *AchievementMqPro {
 	l := log.NewHelper(log.With(logger, "module", "creation/data/rocketmq-achievement-producer"))
 	p, err := rocketmq.NewProducer(
@@ -190,7 +252,7 @@ func NewRocketmqAchievementProducer(conf *conf.Data, logger log.Logger) *Achieve
 	}
 }
 
-func NewData(db *gorm.DB, redisCmd redis.Cmdable, cos *cos.Client, amp *ArticleMqPro, arp *ArticleReviewMqPro, ap *AchievementMqPro, logger log.Logger) (*Data, func(), error) {
+func NewData(db *gorm.DB, redisCmd redis.Cmdable, cos *cos.Client, amp *ArticleMqPro, arp *ArticleReviewMqPro, tmp *TalkMqPro, trp *TalkReviewMqPro, ap *AchievementMqPro, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(logger, "module", "creation/data/new-data"))
 
 	d := &Data{
@@ -199,6 +261,8 @@ func NewData(db *gorm.DB, redisCmd redis.Cmdable, cos *cos.Client, amp *ArticleM
 		redisCli:           redisCmd,
 		articleMqPro:       amp,
 		articleReviewMqPro: arp,
+		talkMqPro:          tmp,
+		talkReviewMqPro:    trp,
 		achievementMqPro:   ap,
 	}
 	return d, func() {
@@ -212,6 +276,16 @@ func NewData(db *gorm.DB, redisCmd redis.Cmdable, cos *cos.Client, amp *ArticleM
 		err = d.articleReviewMqPro.producer.Shutdown()
 		if err != nil {
 			l.Errorf("shutdown article review producer error: %v", err.Error())
+		}
+
+		err = d.talkMqPro.producer.Shutdown()
+		if err != nil {
+			l.Errorf("shutdown talk producer error: %v", err.Error())
+		}
+
+		err = d.talkReviewMqPro.producer.Shutdown()
+		if err != nil {
+			l.Errorf("shutdown talk review producer error: %v", err.Error())
 		}
 
 		err = d.achievementMqPro.producer.Shutdown()
