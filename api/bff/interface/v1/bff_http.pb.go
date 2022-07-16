@@ -49,6 +49,8 @@ type BffHTTPServer interface {
 	GetLeaderBoard(context.Context, *emptypb.Empty) (*GetLeaderBoardReply, error)
 	GetProfile(context.Context, *emptypb.Empty) (*GetProfileReply, error)
 	GetProfileUpdate(context.Context, *emptypb.Empty) (*GetProfileUpdateReply, error)
+	GetTalkList(context.Context, *GetTalkListReq) (*GetTalkListReply, error)
+	GetTalkListHot(context.Context, *GetTalkListHotReq) (*GetTalkListHotReply, error)
 	GetUserArticleList(context.Context, *GetUserArticleListReq) (*GetArticleListReply, error)
 	GetUserArticleListVisitor(context.Context, *GetUserArticleListVisitorReq) (*GetArticleListReply, error)
 	GetUserInfo(context.Context, *GetUserInfoReq) (*GetUserInfoReply, error)
@@ -127,6 +129,8 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.POST("/v1/cancel/article/agree", _Bff_CancelArticleAgree0_HTTP_Handler(srv))
 	r.POST("/v1/cancel/article/collect", _Bff_CancelArticleCollect0_HTTP_Handler(srv))
 	r.POST("/v1/article/statistic/judge", _Bff_ArticleStatisticJudge0_HTTP_Handler(srv))
+	r.GET("/v1/get/talk/list", _Bff_GetTalkList0_HTTP_Handler(srv))
+	r.GET("/v1/get/talk/list/hot", _Bff_GetTalkListHot0_HTTP_Handler(srv))
 	r.GET("/v1/get/last/talk/draft", _Bff_GetLastTalkDraft0_HTTP_Handler(srv))
 	r.POST("/v1/create/talk/draft", _Bff_CreateTalkDraft0_HTTP_Handler(srv))
 	r.POST("/v1/send/talk", _Bff_SendTalk0_HTTP_Handler(srv))
@@ -1083,6 +1087,44 @@ func _Bff_ArticleStatisticJudge0_HTTP_Handler(srv BffHTTPServer) func(ctx http.C
 	}
 }
 
+func _Bff_GetTalkList0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetTalkListReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/bff.v1.Bff/GetTalkList")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetTalkList(ctx, req.(*GetTalkListReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetTalkListReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_GetTalkListHot0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetTalkListHotReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/bff.v1.Bff/GetTalkListHot")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetTalkListHot(ctx, req.(*GetTalkListHotReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetTalkListHotReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _Bff_GetLastTalkDraft0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in emptypb.Empty
@@ -1190,6 +1232,8 @@ type BffHTTPClient interface {
 	GetLeaderBoard(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetLeaderBoardReply, err error)
 	GetProfile(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetProfileReply, err error)
 	GetProfileUpdate(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetProfileUpdateReply, err error)
+	GetTalkList(ctx context.Context, req *GetTalkListReq, opts ...http.CallOption) (rsp *GetTalkListReply, err error)
+	GetTalkListHot(ctx context.Context, req *GetTalkListHotReq, opts ...http.CallOption) (rsp *GetTalkListHotReply, err error)
 	GetUserArticleList(ctx context.Context, req *GetUserArticleListReq, opts ...http.CallOption) (rsp *GetArticleListReply, err error)
 	GetUserArticleListVisitor(ctx context.Context, req *GetUserArticleListVisitorReq, opts ...http.CallOption) (rsp *GetArticleListReply, err error)
 	GetUserInfo(ctx context.Context, req *GetUserInfoReq, opts ...http.CallOption) (rsp *GetUserInfoReply, err error)
@@ -1606,6 +1650,32 @@ func (c *BffHTTPClientImpl) GetProfileUpdate(ctx context.Context, in *emptypb.Em
 	pattern := "/v1/get/user/profile/update"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation("/bff.v1.Bff/GetProfileUpdate"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetTalkList(ctx context.Context, in *GetTalkListReq, opts ...http.CallOption) (*GetTalkListReply, error) {
+	var out GetTalkListReply
+	pattern := "/v1/get/talk/list"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation("/bff.v1.Bff/GetTalkList"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetTalkListHot(ctx context.Context, in *GetTalkListHotReq, opts ...http.CallOption) (*GetTalkListHotReply, error) {
+	var out GetTalkListHotReply
+	pattern := "/v1/get/talk/list/hot"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation("/bff.v1.Bff/GetTalkListHot"))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
