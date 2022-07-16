@@ -152,6 +152,11 @@ type ArticleDraft struct {
 	Status int32
 }
 
+type Talk struct {
+	Id   int32
+	Uuid string
+}
+
 type TalkDraft struct {
 	Id     int32
 	Status int32
