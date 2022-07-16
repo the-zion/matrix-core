@@ -169,12 +169,12 @@ func (r *ArticleUseCase) CreateArticleCacheAndSearch(ctx context.Context, id, au
 func (r *ArticleUseCase) EditArticleCosAndSearch(ctx context.Context, id int32, uuid string) error {
 	err := r.repo.EditArticleCos(ctx, id, uuid)
 	if err != nil {
-		return v1.ErrorEditArticleFailed("create article cache failed: %s", err.Error())
+		return v1.ErrorEditArticleFailed("edit article cache failed: %s", err.Error())
 	}
 
 	err = r.repo.EditArticleSearch(ctx, id, uuid)
 	if err != nil {
-		return v1.ErrorEditArticleFailed("create article search failed: %s", err.Error())
+		return v1.ErrorEditArticleFailed("edit article search failed: %s", err.Error())
 	}
 	return nil
 }
@@ -291,7 +291,7 @@ func (r *ArticleUseCase) SendArticle(ctx context.Context, id int32, uuid string)
 		err = r.repo.SendReviewToMq(ctx, &ArticleReview{
 			Uuid: draft.Uuid,
 			Id:   draft.Id,
-			Mode: "create_article",
+			Mode: "create",
 		})
 		if err != nil {
 			return v1.ErrorCreateArticleFailed("send create review to mq failed: %s", err.Error())
@@ -313,7 +313,7 @@ func (r *ArticleUseCase) SendArticleEdit(ctx context.Context, id int32, uuid str
 	err = r.repo.SendReviewToMq(ctx, &ArticleReview{
 		Uuid: article.Uuid,
 		Id:   article.ArticleId,
-		Mode: "edit_article",
+		Mode: "edit",
 	})
 	if err != nil {
 		return v1.ErrorEditArticleFailed("send edit review to mq failed: %s", err.Error())
