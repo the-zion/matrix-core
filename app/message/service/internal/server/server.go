@@ -5,4 +5,5 @@ import (
 )
 
 // ProviderSet is user providers.
-var ProviderSet = wire.NewSet(NewHTTPServer, NewGRPCServer, NewCodeMqConsumerServer, NewProfileMqConsumerServer, NewArticleReviewMqConsumerServer, NewArticleMqConsumerServer, NewAchievementMqConsumerServer)
+var ProviderSet = wire.NewSet(NewHTTPServer, NewGRPCServer, NewCodeMqConsumerServer, NewProfileMqConsumerServer, NewArticleReviewMqConsumerServer, NewArticleMqConsumerServer, NewTalkReviewMqConsumerServer, NewTalkMqConsumerServer,
+	NewAchievementMqConsumerServer)
