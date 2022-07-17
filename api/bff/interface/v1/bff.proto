@@ -361,6 +361,18 @@ service Bff{
     };
   }
 
+  rpc GetTalkListStatistic(GetTalkListStatisticReq)returns (GetTalkListStatisticReply){
+    option (google.api.http) = {
+      get: "/v1/get/talk/list/statistic"
+    };
+  }
+
+  rpc GetTalkStatistic(GetTalkStatisticReq)returns (GetTalkStatisticReply){
+    option (google.api.http) = {
+      get: "/v1/get/talk/statistic"
+    };
+  }
+
   rpc GetLastTalkDraft(google.protobuf.Empty) returns (GetLastTalkDraftReply){
     option (google.api.http) = {
       get: "/v1/get/last/talk/draft"
@@ -384,6 +396,48 @@ service Bff{
   rpc SendTalkEdit(SendTalkEditReq) returns (google.protobuf.Empty){
     option (google.api.http) = {
       post: "/v1/send/talk/edit"
+      body: "*"
+    };
+  }
+
+  rpc SetTalkView(SetTalkViewReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/set/talk/view"
+      body: "*"
+    };
+  }
+
+  rpc TalkStatisticJudge(TalkStatisticJudgeReq) returns (TalkStatisticJudgeReply){
+    option (google.api.http) = {
+      post: "/v1/talk/statistic/judge"
+      body: "*"
+    };
+  }
+
+  rpc SetTalkAgree(SetTalkAgreeReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/set/talk/agree"
+      body: "*"
+    };
+  }
+
+  rpc SetTalkCollect(SetTalkCollectReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/set/talk/collect"
+      body: "*"
+    };
+  }
+
+  rpc CancelTalkAgree(CancelTalkAgreeReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/cancel/talk/agree"
+      body: "*"
+    };
+  }
+
+  rpc CancelTalkCollect(CancelTalkCollectReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/cancel/talk/collect"
       body: "*"
     };
   }
@@ -613,6 +667,7 @@ message GetArticleStatisticReply{
   int32 view = 4;
   int32  comment = 5;
 }
+
 message GetArticleListStatisticReq{
   repeated int32 ids = 1;
 }
@@ -762,6 +817,33 @@ message GetTalkListHotReply{
   repeated Talk talk = 1;
 }
 
+message GetTalkListStatisticReq{
+  repeated int32 ids = 1;
+}
+
+message GetTalkListStatisticReply{
+  message Count{
+    int32 id = 1;
+    int32 agree = 2;
+    int32 collect = 3;
+    int32 view = 4;
+    int32 comment = 5;
+  }
+  repeated Count count = 1;
+}
+
+message GetTalkStatisticReq{
+  int32 id = 1;
+}
+
+message GetTalkStatisticReply{
+  string uuid = 1;
+  int32 agree = 2;
+  int32 collect = 3;
+  int32 view = 4;
+  int32  comment = 5;
+}
+
 message GetLastTalkDraftReply{
   int32 id = 1;
   int32 status = 2;
@@ -777,4 +859,39 @@ message SendTalkReq{
 
 message SendTalkEditReq{
   int32 id = 1;
+}
+
+message SetTalkViewReq{
+  int32 id = 1;
+  string uuid = 2;
+}
+
+message TalkStatisticJudgeReq{
+  int32 id = 1;
+}
+
+message TalkStatisticJudgeReply{
+  bool agree = 1;
+  bool collect = 2;
+}
+
+message SetTalkAgreeReq{
+  int32 id = 1;
+  string uuid = 2;
+}
+
+message SetTalkCollectReq{
+  int32 id = 1;
+  int32 collections_id = 2;
+  string uuid = 3;
+}
+
+message CancelTalkAgreeReq{
+  int32 id = 1;
+  string uuid = 2;
+}
+
+message CancelTalkCollectReq{
+  int32 id = 1;
+  string uuid = 2;
 }
