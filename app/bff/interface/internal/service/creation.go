@@ -367,6 +367,53 @@ func (s *BffService) GetTalkList(ctx context.Context, req *v1.GetTalkListReq) (*
 	return reply, nil
 }
 
+func (s *BffService) GetTalkListHot(ctx context.Context, req *v1.GetTalkListHotReq) (*v1.GetTalkListHotReply, error) {
+	reply := &v1.GetTalkListHotReply{Talk: make([]*v1.GetTalkListHotReply_Talk, 0)}
+	talkList, err := s.tc.GetTalkListHot(ctx, req.Page)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range talkList {
+		reply.Talk = append(reply.Talk, &v1.GetTalkListHotReply_Talk{
+			Id:   item.Id,
+			Uuid: item.Uuid,
+		})
+	}
+	return reply, nil
+}
+
+func (s *BffService) GetTalkListStatistic(ctx context.Context, req *v1.GetTalkListStatisticReq) (*v1.GetTalkListStatisticReply, error) {
+	reply := &v1.GetTalkListStatisticReply{Count: make([]*v1.GetTalkListStatisticReply_Count, 0)}
+	statisticList, err := s.tc.GetTalkListStatistic(ctx, req.Ids)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range statisticList {
+		reply.Count = append(reply.Count, &v1.GetTalkListStatisticReply_Count{
+			Id:      item.Id,
+			Agree:   item.Agree,
+			Collect: item.Collect,
+			View:    item.View,
+			Comment: item.Comment,
+		})
+	}
+	return reply, nil
+}
+
+func (s *BffService) GetTalkStatistic(ctx context.Context, req *v1.GetTalkStatisticReq) (*v1.GetTalkStatisticReply, error) {
+	talkStatistic, err := s.tc.GetTalkStatistic(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetTalkStatisticReply{
+		Uuid:    talkStatistic.Uuid,
+		Agree:   talkStatistic.Agree,
+		Collect: talkStatistic.Collect,
+		View:    talkStatistic.View,
+		Comment: talkStatistic.Comment,
+	}, nil
+}
+
 func (s *BffService) GetLastTalkDraft(ctx context.Context, _ *emptypb.Empty) (*v1.GetLastTalkDraftReply, error) {
 	draft, err := s.tc.GetLastTalkDraft(ctx)
 	if err != nil {
@@ -402,4 +449,55 @@ func (s *BffService) SendTalkEdit(ctx context.Context, req *v1.SendTalkEditReq) 
 		return nil, err
 	}
 	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) SetTalkAgree(ctx context.Context, req *v1.SetTalkAgreeReq) (*emptypb.Empty, error) {
+	err := s.tc.SetTalkAgree(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) CancelTalkAgree(ctx context.Context, req *v1.CancelTalkAgreeReq) (*emptypb.Empty, error) {
+	err := s.tc.CancelTalkAgree(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) CancelTalkCollect(ctx context.Context, req *v1.CancelTalkCollectReq) (*emptypb.Empty, error) {
+	err := s.tc.CancelTalkCollect(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) SetTalkView(ctx context.Context, req *v1.SetTalkViewReq) (*emptypb.Empty, error) {
+	err := s.tc.SetTalkView(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) SetTalkCollect(ctx context.Context, req *v1.SetTalkCollectReq) (*emptypb.Empty, error) {
+	err := s.tc.SetTalkCollect(ctx, req.Id, req.CollectionsId, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) TalkStatisticJudge(ctx context.Context, req *v1.TalkStatisticJudgeReq) (*v1.TalkStatisticJudgeReply, error) {
+	judge, err := s.tc.TalkStatisticJudge(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.TalkStatisticJudgeReply{
+		Agree:   judge.Agree,
+		Collect: judge.Collect,
+	}, nil
 }
