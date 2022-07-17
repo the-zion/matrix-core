@@ -553,6 +553,71 @@ func (r *talkRepo) GetTalkList(ctx context.Context, page int32) ([]*biz.Talk, er
 	return result.([]*biz.Talk), nil
 }
 
+func (r *talkRepo) GetTalkListHot(ctx context.Context, page int32) ([]*biz.Talk, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("talk_page_hot_%v", page), func() (interface{}, error) {
+		reply := make([]*biz.Talk, 0)
+		talkList, err := r.data.cc.GetTalkListHot(ctx, &creationV1.GetTalkListHotReq{
+			Page: page,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range talkList.Talk {
+			reply = append(reply, &biz.Talk{
+				Id:   item.Id,
+				Uuid: item.Uuid,
+			})
+		}
+		return reply, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.([]*biz.Talk), nil
+}
+
+func (r *talkRepo) GetTalkListStatistic(ctx context.Context, ids []int32) ([]*biz.TalkStatistic, error) {
+	reply := make([]*biz.TalkStatistic, 0)
+	statisticList, err := r.data.cc.GetTalkListStatistic(ctx, &creationV1.GetTalkListStatisticReq{
+		Ids: ids,
+	})
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range statisticList.Count {
+		reply = append(reply, &biz.TalkStatistic{
+			Id:      item.Id,
+			Agree:   item.Agree,
+			Collect: item.Collect,
+			View:    item.View,
+			Comment: item.Comment,
+		})
+	}
+	return reply, nil
+}
+
+func (r *talkRepo) GetTalkStatistic(ctx context.Context, id int32) (*biz.TalkStatistic, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("talk_statistic_%v", id), func() (interface{}, error) {
+		statistic, err := r.data.cc.GetTalkStatistic(ctx, &creationV1.GetTalkStatisticReq{
+			Id: id,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return &biz.TalkStatistic{
+			Uuid:    statistic.Uuid,
+			Agree:   statistic.Agree,
+			Collect: statistic.Collect,
+			View:    statistic.View,
+			Comment: statistic.Comment,
+		}, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*biz.TalkStatistic), nil
+}
+
 func (r *talkRepo) GetLastTalkDraft(ctx context.Context, uuid string) (*biz.TalkDraft, error) {
 	reply, err := r.data.cc.GetLastTalkDraft(ctx, &creationV1.GetLastTalkDraftReq{
 		Uuid: uuid,
@@ -596,4 +661,78 @@ func (r *talkRepo) SendTalkEdit(ctx context.Context, id int32, uuid string) erro
 		return err
 	}
 	return nil
+}
+
+func (r *talkRepo) SetTalkAgree(ctx context.Context, id int32, uuid, userUuid string) error {
+	_, err := r.data.cc.SetTalkAgree(ctx, &creationV1.SetTalkAgreeReq{
+		Uuid:     uuid,
+		Id:       id,
+		UserUuid: userUuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *talkRepo) CancelTalkAgree(ctx context.Context, id int32, uuid, userUuid string) error {
+	_, err := r.data.cc.CancelTalkAgree(ctx, &creationV1.CancelTalkAgreeReq{
+		Uuid:     uuid,
+		Id:       id,
+		UserUuid: userUuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *talkRepo) CancelTalkCollect(ctx context.Context, id int32, uuid, userUuid string) error {
+	_, err := r.data.cc.CancelTalkCollect(ctx, &creationV1.CancelTalkCollectReq{
+		Uuid:     uuid,
+		UserUuid: userUuid,
+		Id:       id,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *talkRepo) SetTalkView(ctx context.Context, id int32, uuid string) error {
+	_, err := r.data.cc.SetTalkView(ctx, &creationV1.SetTalkViewReq{
+		Uuid: uuid,
+		Id:   id,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *talkRepo) SetTalkCollect(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error {
+	_, err := r.data.cc.SetTalkCollect(ctx, &creationV1.SetTalkCollectReq{
+		CollectionsId: collectionsId,
+		Uuid:          uuid,
+		UserUuid:      userUuid,
+		Id:            id,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *talkRepo) TalkStatisticJudge(ctx context.Context, id int32, uuid string) (*biz.TalkStatisticJudge, error) {
+	reply, err := r.data.cc.TalkStatisticJudge(ctx, &creationV1.TalkStatisticJudgeReq{
+		Id:   id,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &biz.TalkStatisticJudge{
+		Agree:   reply.Agree,
+		Collect: reply.Collect,
+	}, nil
 }
