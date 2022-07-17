@@ -84,6 +84,10 @@ service Creation {
 
   rpc GetTalkListHot(GetTalkListHotReq) returns (GetTalkListHotReply){}
 
+  rpc GetTalkListStatistic(GetTalkListStatisticReq)returns (GetTalkListStatisticReply){}
+
+  rpc GetTalkStatistic(GetTalkStatisticReq)returns (GetTalkStatisticReply){}
+
   rpc GetLastTalkDraft(GetLastTalkDraftReq) returns (GetLastTalkDraftReply){}
 
   rpc CreateTalkDraft(CreateTalkDraftReq) returns (CreateTalkDraftReply){}
@@ -99,6 +103,18 @@ service Creation {
   rpc CreateTalkCacheAndSearch(CreateTalkCacheAndSearchReq) returns (google.protobuf.Empty){}
 
   rpc EditTalkCosAndSearch(EditTalkCosAndSearchReq) returns (google.protobuf.Empty){}
+
+  rpc SetTalkView(SetTalkViewReq) returns (google.protobuf.Empty){}
+
+  rpc TalkStatisticJudge(TalkStatisticJudgeReq) returns (TalkStatisticJudgeReply){}
+
+  rpc SetTalkAgree(SetTalkAgreeReq) returns (google.protobuf.Empty){}
+
+  rpc SetTalkCollect(SetTalkCollectReq) returns (google.protobuf.Empty){}
+
+  rpc CancelTalkAgree(CancelTalkAgreeReq) returns (google.protobuf.Empty){}
+
+  rpc CancelTalkCollect(CancelTalkCollectReq) returns (google.protobuf.Empty){}
 }
 
 message GetLeaderBoardReply{
@@ -215,16 +231,16 @@ message GetArticleStatisticReq{
   int32 id = 1;
 }
 
-message GetArticleListStatisticReq{
-  repeated int32 ids = 1;
-}
-
 message GetArticleStatisticReply{
   string uuid = 1;
   int32 agree = 2;
   int32 collect = 3;
   int32 view = 4;
   int32  comment = 5;
+}
+
+message GetArticleListStatisticReq{
+  repeated int32 ids = 1;
 }
 
 message GetArticleListStatisticReply{
@@ -377,6 +393,33 @@ message GetTalkListHotReply{
   repeated Talk talk = 1;
 }
 
+message GetTalkListStatisticReq{
+  repeated int32 ids = 1;
+}
+
+message GetTalkListStatisticReply{
+  message Count{
+    int32 id = 1;
+    int32 agree = 2;
+    int32 collect = 3;
+    int32 view = 4;
+    int32 comment = 5;
+  }
+  repeated Count count = 1;
+}
+
+message GetTalkStatisticReq{
+  int32 id = 1;
+}
+
+message GetTalkStatisticReply{
+  string uuid = 1;
+  int32 agree = 2;
+  int32 collect = 3;
+  int32 view = 4;
+  int32  comment = 5;
+}
+
 message GetLastTalkDraftReq{
   string uuid = 1 [(validate.rules).string.uuid = true];
 }
@@ -424,4 +467,44 @@ message CreateTalkCacheAndSearchReq{
 message EditTalkCosAndSearchReq{
   int32 id = 1;
   string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message SetTalkViewReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message TalkStatisticJudgeReq{
+  int32 id = 1;
+  string uuid = 3 [(validate.rules).string.uuid = true];
+}
+
+message TalkStatisticJudgeReply{
+  bool agree = 1;
+  bool collect = 2;
+}
+
+message SetTalkAgreeReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+  string user_uuid = 3 [(validate.rules).string.uuid = true];
+}
+
+message SetTalkCollectReq{
+  int32 id = 1;
+  int32 collections_id = 2;
+  string uuid = 3 [(validate.rules).string.uuid = true];
+  string user_uuid = 4 [(validate.rules).string.uuid = true];
+}
+
+message CancelTalkAgreeReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+  string user_uuid = 3 [(validate.rules).string.uuid = true];
+}
+
+message CancelTalkCollectReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+  string user_uuid = 3 [(validate.rules).string.uuid = true];
 }
