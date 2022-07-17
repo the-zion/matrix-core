@@ -7062,6 +7062,460 @@ var _ interface {
 	ErrorName() string
 } = GetTalkListHotReplyValidationError{}
 
+// Validate checks the field values on GetTalkListStatisticReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetTalkListStatisticReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetTalkListStatisticReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetTalkListStatisticReqMultiError, or nil if none found.
+func (m *GetTalkListStatisticReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetTalkListStatisticReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return GetTalkListStatisticReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetTalkListStatisticReqMultiError is an error wrapping multiple validation
+// errors returned by GetTalkListStatisticReq.ValidateAll() if the designated
+// constraints aren't met.
+type GetTalkListStatisticReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetTalkListStatisticReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetTalkListStatisticReqMultiError) AllErrors() []error { return m }
+
+// GetTalkListStatisticReqValidationError is the validation error returned by
+// GetTalkListStatisticReq.Validate if the designated constraints aren't met.
+type GetTalkListStatisticReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetTalkListStatisticReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetTalkListStatisticReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetTalkListStatisticReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetTalkListStatisticReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetTalkListStatisticReqValidationError) ErrorName() string {
+	return "GetTalkListStatisticReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetTalkListStatisticReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetTalkListStatisticReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetTalkListStatisticReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetTalkListStatisticReqValidationError{}
+
+// Validate checks the field values on GetTalkListStatisticReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetTalkListStatisticReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetTalkListStatisticReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetTalkListStatisticReplyMultiError, or nil if none found.
+func (m *GetTalkListStatisticReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetTalkListStatisticReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetCount() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetTalkListStatisticReplyValidationError{
+						field:  fmt.Sprintf("Count[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetTalkListStatisticReplyValidationError{
+						field:  fmt.Sprintf("Count[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetTalkListStatisticReplyValidationError{
+					field:  fmt.Sprintf("Count[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return GetTalkListStatisticReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetTalkListStatisticReplyMultiError is an error wrapping multiple validation
+// errors returned by GetTalkListStatisticReply.ValidateAll() if the
+// designated constraints aren't met.
+type GetTalkListStatisticReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetTalkListStatisticReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetTalkListStatisticReplyMultiError) AllErrors() []error { return m }
+
+// GetTalkListStatisticReplyValidationError is the validation error returned by
+// GetTalkListStatisticReply.Validate if the designated constraints aren't met.
+type GetTalkListStatisticReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetTalkListStatisticReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetTalkListStatisticReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetTalkListStatisticReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetTalkListStatisticReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetTalkListStatisticReplyValidationError) ErrorName() string {
+	return "GetTalkListStatisticReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetTalkListStatisticReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetTalkListStatisticReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetTalkListStatisticReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetTalkListStatisticReplyValidationError{}
+
+// Validate checks the field values on GetTalkStatisticReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetTalkStatisticReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetTalkStatisticReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetTalkStatisticReqMultiError, or nil if none found.
+func (m *GetTalkStatisticReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetTalkStatisticReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	if len(errors) > 0 {
+		return GetTalkStatisticReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetTalkStatisticReqMultiError is an error wrapping multiple validation
+// errors returned by GetTalkStatisticReq.ValidateAll() if the designated
+// constraints aren't met.
+type GetTalkStatisticReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetTalkStatisticReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetTalkStatisticReqMultiError) AllErrors() []error { return m }
+
+// GetTalkStatisticReqValidationError is the validation error returned by
+// GetTalkStatisticReq.Validate if the designated constraints aren't met.
+type GetTalkStatisticReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetTalkStatisticReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetTalkStatisticReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetTalkStatisticReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetTalkStatisticReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetTalkStatisticReqValidationError) ErrorName() string {
+	return "GetTalkStatisticReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetTalkStatisticReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetTalkStatisticReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetTalkStatisticReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetTalkStatisticReqValidationError{}
+
+// Validate checks the field values on GetTalkStatisticReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetTalkStatisticReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetTalkStatisticReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetTalkStatisticReplyMultiError, or nil if none found.
+func (m *GetTalkStatisticReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetTalkStatisticReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Uuid
+
+	// no validation rules for Agree
+
+	// no validation rules for Collect
+
+	// no validation rules for View
+
+	// no validation rules for Comment
+
+	if len(errors) > 0 {
+		return GetTalkStatisticReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetTalkStatisticReplyMultiError is an error wrapping multiple validation
+// errors returned by GetTalkStatisticReply.ValidateAll() if the designated
+// constraints aren't met.
+type GetTalkStatisticReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetTalkStatisticReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetTalkStatisticReplyMultiError) AllErrors() []error { return m }
+
+// GetTalkStatisticReplyValidationError is the validation error returned by
+// GetTalkStatisticReply.Validate if the designated constraints aren't met.
+type GetTalkStatisticReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetTalkStatisticReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetTalkStatisticReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetTalkStatisticReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetTalkStatisticReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetTalkStatisticReplyValidationError) ErrorName() string {
+	return "GetTalkStatisticReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetTalkStatisticReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetTalkStatisticReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetTalkStatisticReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetTalkStatisticReplyValidationError{}
+
 // Validate checks the field values on GetLastTalkDraftReply with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -7474,6 +7928,744 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = SendTalkEditReqValidationError{}
+
+// Validate checks the field values on SetTalkViewReq with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *SetTalkViewReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SetTalkViewReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in SetTalkViewReqMultiError,
+// or nil if none found.
+func (m *SetTalkViewReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SetTalkViewReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Uuid
+
+	if len(errors) > 0 {
+		return SetTalkViewReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// SetTalkViewReqMultiError is an error wrapping multiple validation errors
+// returned by SetTalkViewReq.ValidateAll() if the designated constraints
+// aren't met.
+type SetTalkViewReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SetTalkViewReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SetTalkViewReqMultiError) AllErrors() []error { return m }
+
+// SetTalkViewReqValidationError is the validation error returned by
+// SetTalkViewReq.Validate if the designated constraints aren't met.
+type SetTalkViewReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SetTalkViewReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SetTalkViewReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SetTalkViewReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SetTalkViewReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SetTalkViewReqValidationError) ErrorName() string { return "SetTalkViewReqValidationError" }
+
+// Error satisfies the builtin error interface
+func (e SetTalkViewReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSetTalkViewReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SetTalkViewReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SetTalkViewReqValidationError{}
+
+// Validate checks the field values on TalkStatisticJudgeReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *TalkStatisticJudgeReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on TalkStatisticJudgeReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// TalkStatisticJudgeReqMultiError, or nil if none found.
+func (m *TalkStatisticJudgeReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *TalkStatisticJudgeReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	if len(errors) > 0 {
+		return TalkStatisticJudgeReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// TalkStatisticJudgeReqMultiError is an error wrapping multiple validation
+// errors returned by TalkStatisticJudgeReq.ValidateAll() if the designated
+// constraints aren't met.
+type TalkStatisticJudgeReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m TalkStatisticJudgeReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m TalkStatisticJudgeReqMultiError) AllErrors() []error { return m }
+
+// TalkStatisticJudgeReqValidationError is the validation error returned by
+// TalkStatisticJudgeReq.Validate if the designated constraints aren't met.
+type TalkStatisticJudgeReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e TalkStatisticJudgeReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e TalkStatisticJudgeReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e TalkStatisticJudgeReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e TalkStatisticJudgeReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e TalkStatisticJudgeReqValidationError) ErrorName() string {
+	return "TalkStatisticJudgeReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e TalkStatisticJudgeReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sTalkStatisticJudgeReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = TalkStatisticJudgeReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = TalkStatisticJudgeReqValidationError{}
+
+// Validate checks the field values on TalkStatisticJudgeReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *TalkStatisticJudgeReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on TalkStatisticJudgeReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// TalkStatisticJudgeReplyMultiError, or nil if none found.
+func (m *TalkStatisticJudgeReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *TalkStatisticJudgeReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Agree
+
+	// no validation rules for Collect
+
+	if len(errors) > 0 {
+		return TalkStatisticJudgeReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// TalkStatisticJudgeReplyMultiError is an error wrapping multiple validation
+// errors returned by TalkStatisticJudgeReply.ValidateAll() if the designated
+// constraints aren't met.
+type TalkStatisticJudgeReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m TalkStatisticJudgeReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m TalkStatisticJudgeReplyMultiError) AllErrors() []error { return m }
+
+// TalkStatisticJudgeReplyValidationError is the validation error returned by
+// TalkStatisticJudgeReply.Validate if the designated constraints aren't met.
+type TalkStatisticJudgeReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e TalkStatisticJudgeReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e TalkStatisticJudgeReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e TalkStatisticJudgeReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e TalkStatisticJudgeReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e TalkStatisticJudgeReplyValidationError) ErrorName() string {
+	return "TalkStatisticJudgeReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e TalkStatisticJudgeReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sTalkStatisticJudgeReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = TalkStatisticJudgeReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = TalkStatisticJudgeReplyValidationError{}
+
+// Validate checks the field values on SetTalkAgreeReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *SetTalkAgreeReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SetTalkAgreeReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SetTalkAgreeReqMultiError, or nil if none found.
+func (m *SetTalkAgreeReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SetTalkAgreeReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Uuid
+
+	if len(errors) > 0 {
+		return SetTalkAgreeReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// SetTalkAgreeReqMultiError is an error wrapping multiple validation errors
+// returned by SetTalkAgreeReq.ValidateAll() if the designated constraints
+// aren't met.
+type SetTalkAgreeReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SetTalkAgreeReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SetTalkAgreeReqMultiError) AllErrors() []error { return m }
+
+// SetTalkAgreeReqValidationError is the validation error returned by
+// SetTalkAgreeReq.Validate if the designated constraints aren't met.
+type SetTalkAgreeReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SetTalkAgreeReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SetTalkAgreeReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SetTalkAgreeReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SetTalkAgreeReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SetTalkAgreeReqValidationError) ErrorName() string { return "SetTalkAgreeReqValidationError" }
+
+// Error satisfies the builtin error interface
+func (e SetTalkAgreeReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSetTalkAgreeReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SetTalkAgreeReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SetTalkAgreeReqValidationError{}
+
+// Validate checks the field values on SetTalkCollectReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *SetTalkCollectReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SetTalkCollectReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SetTalkCollectReqMultiError, or nil if none found.
+func (m *SetTalkCollectReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SetTalkCollectReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for CollectionsId
+
+	// no validation rules for Uuid
+
+	if len(errors) > 0 {
+		return SetTalkCollectReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// SetTalkCollectReqMultiError is an error wrapping multiple validation errors
+// returned by SetTalkCollectReq.ValidateAll() if the designated constraints
+// aren't met.
+type SetTalkCollectReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SetTalkCollectReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SetTalkCollectReqMultiError) AllErrors() []error { return m }
+
+// SetTalkCollectReqValidationError is the validation error returned by
+// SetTalkCollectReq.Validate if the designated constraints aren't met.
+type SetTalkCollectReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SetTalkCollectReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SetTalkCollectReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SetTalkCollectReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SetTalkCollectReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SetTalkCollectReqValidationError) ErrorName() string {
+	return "SetTalkCollectReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SetTalkCollectReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSetTalkCollectReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SetTalkCollectReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SetTalkCollectReqValidationError{}
+
+// Validate checks the field values on CancelTalkAgreeReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *CancelTalkAgreeReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CancelTalkAgreeReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// CancelTalkAgreeReqMultiError, or nil if none found.
+func (m *CancelTalkAgreeReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CancelTalkAgreeReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Uuid
+
+	if len(errors) > 0 {
+		return CancelTalkAgreeReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// CancelTalkAgreeReqMultiError is an error wrapping multiple validation errors
+// returned by CancelTalkAgreeReq.ValidateAll() if the designated constraints
+// aren't met.
+type CancelTalkAgreeReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CancelTalkAgreeReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CancelTalkAgreeReqMultiError) AllErrors() []error { return m }
+
+// CancelTalkAgreeReqValidationError is the validation error returned by
+// CancelTalkAgreeReq.Validate if the designated constraints aren't met.
+type CancelTalkAgreeReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CancelTalkAgreeReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CancelTalkAgreeReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CancelTalkAgreeReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CancelTalkAgreeReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CancelTalkAgreeReqValidationError) ErrorName() string {
+	return "CancelTalkAgreeReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CancelTalkAgreeReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCancelTalkAgreeReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CancelTalkAgreeReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CancelTalkAgreeReqValidationError{}
+
+// Validate checks the field values on CancelTalkCollectReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *CancelTalkCollectReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CancelTalkCollectReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// CancelTalkCollectReqMultiError, or nil if none found.
+func (m *CancelTalkCollectReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CancelTalkCollectReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Uuid
+
+	if len(errors) > 0 {
+		return CancelTalkCollectReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// CancelTalkCollectReqMultiError is an error wrapping multiple validation
+// errors returned by CancelTalkCollectReq.ValidateAll() if the designated
+// constraints aren't met.
+type CancelTalkCollectReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CancelTalkCollectReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CancelTalkCollectReqMultiError) AllErrors() []error { return m }
+
+// CancelTalkCollectReqValidationError is the validation error returned by
+// CancelTalkCollectReq.Validate if the designated constraints aren't met.
+type CancelTalkCollectReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CancelTalkCollectReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CancelTalkCollectReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CancelTalkCollectReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CancelTalkCollectReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CancelTalkCollectReqValidationError) ErrorName() string {
+	return "CancelTalkCollectReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CancelTalkCollectReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCancelTalkCollectReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CancelTalkCollectReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CancelTalkCollectReqValidationError{}
 
 // Validate checks the field values on GetLeaderBoardReply_Board with the rules
 // defined in the proto definition for this message. If any rules are
@@ -8337,3 +9529,116 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetTalkListHotReply_TalkValidationError{}
+
+// Validate checks the field values on GetTalkListStatisticReply_Count with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetTalkListStatisticReply_Count) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetTalkListStatisticReply_Count with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// GetTalkListStatisticReply_CountMultiError, or nil if none found.
+func (m *GetTalkListStatisticReply_Count) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetTalkListStatisticReply_Count) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Agree
+
+	// no validation rules for Collect
+
+	// no validation rules for View
+
+	// no validation rules for Comment
+
+	if len(errors) > 0 {
+		return GetTalkListStatisticReply_CountMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetTalkListStatisticReply_CountMultiError is an error wrapping multiple
+// validation errors returned by GetTalkListStatisticReply_Count.ValidateAll()
+// if the designated constraints aren't met.
+type GetTalkListStatisticReply_CountMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetTalkListStatisticReply_CountMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetTalkListStatisticReply_CountMultiError) AllErrors() []error { return m }
+
+// GetTalkListStatisticReply_CountValidationError is the validation error
+// returned by GetTalkListStatisticReply_Count.Validate if the designated
+// constraints aren't met.
+type GetTalkListStatisticReply_CountValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetTalkListStatisticReply_CountValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetTalkListStatisticReply_CountValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetTalkListStatisticReply_CountValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetTalkListStatisticReply_CountValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetTalkListStatisticReply_CountValidationError) ErrorName() string {
+	return "GetTalkListStatisticReply_CountValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetTalkListStatisticReply_CountValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetTalkListStatisticReply_Count.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetTalkListStatisticReply_CountValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetTalkListStatisticReply_CountValidationError{}

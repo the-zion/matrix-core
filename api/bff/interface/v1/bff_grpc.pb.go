@@ -76,10 +76,18 @@ type BffClient interface {
 	ArticleStatisticJudge(ctx context.Context, in *ArticleStatisticJudgeReq, opts ...grpc.CallOption) (*ArticleStatisticJudgeReply, error)
 	GetTalkList(ctx context.Context, in *GetTalkListReq, opts ...grpc.CallOption) (*GetTalkListReply, error)
 	GetTalkListHot(ctx context.Context, in *GetTalkListHotReq, opts ...grpc.CallOption) (*GetTalkListHotReply, error)
+	GetTalkListStatistic(ctx context.Context, in *GetTalkListStatisticReq, opts ...grpc.CallOption) (*GetTalkListStatisticReply, error)
+	GetTalkStatistic(ctx context.Context, in *GetTalkStatisticReq, opts ...grpc.CallOption) (*GetTalkStatisticReply, error)
 	GetLastTalkDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLastTalkDraftReply, error)
 	CreateTalkDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateTalkDraftReply, error)
 	SendTalk(ctx context.Context, in *SendTalkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SendTalkEdit(ctx context.Context, in *SendTalkEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetTalkView(ctx context.Context, in *SetTalkViewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	TalkStatisticJudge(ctx context.Context, in *TalkStatisticJudgeReq, opts ...grpc.CallOption) (*TalkStatisticJudgeReply, error)
+	SetTalkAgree(ctx context.Context, in *SetTalkAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetTalkCollect(ctx context.Context, in *SetTalkCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CancelTalkAgree(ctx context.Context, in *CancelTalkAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CancelTalkCollect(ctx context.Context, in *CancelTalkCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type bffClient struct {
@@ -558,6 +566,24 @@ func (c *bffClient) GetTalkListHot(ctx context.Context, in *GetTalkListHotReq, o
 	return out, nil
 }
 
+func (c *bffClient) GetTalkListStatistic(ctx context.Context, in *GetTalkListStatisticReq, opts ...grpc.CallOption) (*GetTalkListStatisticReply, error) {
+	out := new(GetTalkListStatisticReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetTalkListStatistic", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetTalkStatistic(ctx context.Context, in *GetTalkStatisticReq, opts ...grpc.CallOption) (*GetTalkStatisticReply, error) {
+	out := new(GetTalkStatisticReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetTalkStatistic", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) GetLastTalkDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLastTalkDraftReply, error) {
 	out := new(GetLastTalkDraftReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetLastTalkDraft", in, out, opts...)
@@ -588,6 +614,60 @@ func (c *bffClient) SendTalk(ctx context.Context, in *SendTalkReq, opts ...grpc.
 func (c *bffClient) SendTalkEdit(ctx context.Context, in *SendTalkEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SendTalkEdit", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) SetTalkView(ctx context.Context, in *SetTalkViewReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SetTalkView", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) TalkStatisticJudge(ctx context.Context, in *TalkStatisticJudgeReq, opts ...grpc.CallOption) (*TalkStatisticJudgeReply, error) {
+	out := new(TalkStatisticJudgeReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/TalkStatisticJudge", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) SetTalkAgree(ctx context.Context, in *SetTalkAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SetTalkAgree", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) SetTalkCollect(ctx context.Context, in *SetTalkCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SetTalkCollect", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) CancelTalkAgree(ctx context.Context, in *CancelTalkAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/CancelTalkAgree", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) CancelTalkCollect(ctx context.Context, in *CancelTalkCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/CancelTalkCollect", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -651,10 +731,18 @@ type BffServer interface {
 	ArticleStatisticJudge(context.Context, *ArticleStatisticJudgeReq) (*ArticleStatisticJudgeReply, error)
 	GetTalkList(context.Context, *GetTalkListReq) (*GetTalkListReply, error)
 	GetTalkListHot(context.Context, *GetTalkListHotReq) (*GetTalkListHotReply, error)
+	GetTalkListStatistic(context.Context, *GetTalkListStatisticReq) (*GetTalkListStatisticReply, error)
+	GetTalkStatistic(context.Context, *GetTalkStatisticReq) (*GetTalkStatisticReply, error)
 	GetLastTalkDraft(context.Context, *emptypb.Empty) (*GetLastTalkDraftReply, error)
 	CreateTalkDraft(context.Context, *emptypb.Empty) (*CreateTalkDraftReply, error)
 	SendTalk(context.Context, *SendTalkReq) (*emptypb.Empty, error)
 	SendTalkEdit(context.Context, *SendTalkEditReq) (*emptypb.Empty, error)
+	SetTalkView(context.Context, *SetTalkViewReq) (*emptypb.Empty, error)
+	TalkStatisticJudge(context.Context, *TalkStatisticJudgeReq) (*TalkStatisticJudgeReply, error)
+	SetTalkAgree(context.Context, *SetTalkAgreeReq) (*emptypb.Empty, error)
+	SetTalkCollect(context.Context, *SetTalkCollectReq) (*emptypb.Empty, error)
+	CancelTalkAgree(context.Context, *CancelTalkAgreeReq) (*emptypb.Empty, error)
+	CancelTalkCollect(context.Context, *CancelTalkCollectReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedBffServer()
 }
 
@@ -818,6 +906,12 @@ func (UnimplementedBffServer) GetTalkList(context.Context, *GetTalkListReq) (*Ge
 func (UnimplementedBffServer) GetTalkListHot(context.Context, *GetTalkListHotReq) (*GetTalkListHotReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTalkListHot not implemented")
 }
+func (UnimplementedBffServer) GetTalkListStatistic(context.Context, *GetTalkListStatisticReq) (*GetTalkListStatisticReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTalkListStatistic not implemented")
+}
+func (UnimplementedBffServer) GetTalkStatistic(context.Context, *GetTalkStatisticReq) (*GetTalkStatisticReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTalkStatistic not implemented")
+}
 func (UnimplementedBffServer) GetLastTalkDraft(context.Context, *emptypb.Empty) (*GetLastTalkDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLastTalkDraft not implemented")
 }
@@ -829,6 +923,24 @@ func (UnimplementedBffServer) SendTalk(context.Context, *SendTalkReq) (*emptypb.
 }
 func (UnimplementedBffServer) SendTalkEdit(context.Context, *SendTalkEditReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendTalkEdit not implemented")
+}
+func (UnimplementedBffServer) SetTalkView(context.Context, *SetTalkViewReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetTalkView not implemented")
+}
+func (UnimplementedBffServer) TalkStatisticJudge(context.Context, *TalkStatisticJudgeReq) (*TalkStatisticJudgeReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TalkStatisticJudge not implemented")
+}
+func (UnimplementedBffServer) SetTalkAgree(context.Context, *SetTalkAgreeReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetTalkAgree not implemented")
+}
+func (UnimplementedBffServer) SetTalkCollect(context.Context, *SetTalkCollectReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetTalkCollect not implemented")
+}
+func (UnimplementedBffServer) CancelTalkAgree(context.Context, *CancelTalkAgreeReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelTalkAgree not implemented")
+}
+func (UnimplementedBffServer) CancelTalkCollect(context.Context, *CancelTalkCollectReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelTalkCollect not implemented")
 }
 func (UnimplementedBffServer) mustEmbedUnimplementedBffServer() {}
 
@@ -1779,6 +1891,42 @@ func _Bff_GetTalkListHot_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_GetTalkListStatistic_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTalkListStatisticReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetTalkListStatistic(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetTalkListStatistic",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetTalkListStatistic(ctx, req.(*GetTalkListStatisticReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetTalkStatistic_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTalkStatisticReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetTalkStatistic(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetTalkStatistic",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetTalkStatistic(ctx, req.(*GetTalkStatisticReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_GetLastTalkDraft_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
@@ -1847,6 +1995,114 @@ func _Bff_SendTalkEdit_Handler(srv interface{}, ctx context.Context, dec func(in
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BffServer).SendTalkEdit(ctx, req.(*SendTalkEditReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_SetTalkView_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetTalkViewReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).SetTalkView(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/SetTalkView",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).SetTalkView(ctx, req.(*SetTalkViewReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_TalkStatisticJudge_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TalkStatisticJudgeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).TalkStatisticJudge(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/TalkStatisticJudge",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).TalkStatisticJudge(ctx, req.(*TalkStatisticJudgeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_SetTalkAgree_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetTalkAgreeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).SetTalkAgree(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/SetTalkAgree",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).SetTalkAgree(ctx, req.(*SetTalkAgreeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_SetTalkCollect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetTalkCollectReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).SetTalkCollect(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/SetTalkCollect",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).SetTalkCollect(ctx, req.(*SetTalkCollectReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_CancelTalkAgree_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelTalkAgreeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).CancelTalkAgree(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/CancelTalkAgree",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).CancelTalkAgree(ctx, req.(*CancelTalkAgreeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_CancelTalkCollect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelTalkCollectReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).CancelTalkCollect(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/CancelTalkCollect",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).CancelTalkCollect(ctx, req.(*CancelTalkCollectReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2067,6 +2323,14 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Bff_GetTalkListHot_Handler,
 		},
 		{
+			MethodName: "GetTalkListStatistic",
+			Handler:    _Bff_GetTalkListStatistic_Handler,
+		},
+		{
+			MethodName: "GetTalkStatistic",
+			Handler:    _Bff_GetTalkStatistic_Handler,
+		},
+		{
 			MethodName: "GetLastTalkDraft",
 			Handler:    _Bff_GetLastTalkDraft_Handler,
 		},
@@ -2081,6 +2345,30 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SendTalkEdit",
 			Handler:    _Bff_SendTalkEdit_Handler,
+		},
+		{
+			MethodName: "SetTalkView",
+			Handler:    _Bff_SetTalkView_Handler,
+		},
+		{
+			MethodName: "TalkStatisticJudge",
+			Handler:    _Bff_TalkStatisticJudge_Handler,
+		},
+		{
+			MethodName: "SetTalkAgree",
+			Handler:    _Bff_SetTalkAgree_Handler,
+		},
+		{
+			MethodName: "SetTalkCollect",
+			Handler:    _Bff_SetTalkCollect_Handler,
+		},
+		{
+			MethodName: "CancelTalkAgree",
+			Handler:    _Bff_CancelTalkAgree_Handler,
+		},
+		{
+			MethodName: "CancelTalkCollect",
+			Handler:    _Bff_CancelTalkCollect_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
