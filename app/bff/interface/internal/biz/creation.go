@@ -43,10 +43,19 @@ type ArticleRepo interface {
 
 type TalkRepo interface {
 	GetTalkList(ctx context.Context, page int32) ([]*Talk, error)
+	GetTalkListHot(ctx context.Context, page int32) ([]*Talk, error)
+	GetTalkListStatistic(ctx context.Context, ids []int32) ([]*TalkStatistic, error)
+	GetTalkStatistic(ctx context.Context, id int32) (*TalkStatistic, error)
 	GetLastTalkDraft(ctx context.Context, uuid string) (*TalkDraft, error)
 	CreateTalkDraft(ctx context.Context, uuid string) (int32, error)
 	SendTalk(ctx context.Context, id int32, uuid string) error
 	SendTalkEdit(ctx context.Context, id int32, uuid string) error
+	SetTalkAgree(ctx context.Context, id int32, uuid, userUuid string) error
+	CancelTalkAgree(ctx context.Context, id int32, uuid, userUuid string) error
+	CancelTalkCollect(ctx context.Context, id int32, uuid, userUuid string) error
+	SetTalkView(ctx context.Context, id int32, uuid string) error
+	SetTalkCollect(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error
+	TalkStatisticJudge(ctx context.Context, id int32, uuid string) (*TalkStatisticJudge, error)
 }
 
 type CreationUseCase struct {
@@ -227,6 +236,18 @@ func (r *TalkUseCase) GetTalkList(ctx context.Context, page int32) ([]*Talk, err
 	return r.repo.GetTalkList(ctx, page)
 }
 
+func (r *TalkUseCase) GetTalkListHot(ctx context.Context, page int32) ([]*Talk, error) {
+	return r.repo.GetTalkListHot(ctx, page)
+}
+
+func (r *TalkUseCase) GetTalkListStatistic(ctx context.Context, ids []int32) ([]*TalkStatistic, error) {
+	return r.repo.GetTalkListStatistic(ctx, ids)
+}
+
+func (r *TalkUseCase) GetTalkStatistic(ctx context.Context, id int32) (*TalkStatistic, error) {
+	return r.repo.GetTalkStatistic(ctx, id)
+}
+
 func (r *TalkUseCase) GetLastTalkDraft(ctx context.Context) (*TalkDraft, error) {
 	uuid := ctx.Value("uuid").(string)
 	return r.repo.GetLastTalkDraft(ctx, uuid)
@@ -245,4 +266,33 @@ func (r *TalkUseCase) SendTalk(ctx context.Context, id int32) error {
 func (r *TalkUseCase) SendTalkEdit(ctx context.Context, id int32) error {
 	uuid := ctx.Value("uuid").(string)
 	return r.repo.SendTalkEdit(ctx, id, uuid)
+}
+
+func (r *TalkUseCase) SetTalkAgree(ctx context.Context, id int32, uuid string) error {
+	userUuid := ctx.Value("uuid").(string)
+	return r.repo.SetTalkAgree(ctx, id, uuid, userUuid)
+}
+
+func (r *TalkUseCase) CancelTalkAgree(ctx context.Context, id int32, uuid string) error {
+	userUuid := ctx.Value("uuid").(string)
+	return r.repo.CancelTalkAgree(ctx, id, uuid, userUuid)
+}
+
+func (r *TalkUseCase) CancelTalkCollect(ctx context.Context, id int32, uuid string) error {
+	userUuid := ctx.Value("uuid").(string)
+	return r.repo.CancelTalkCollect(ctx, id, uuid, userUuid)
+}
+
+func (r *TalkUseCase) SetTalkView(ctx context.Context, id int32, uuid string) error {
+	return r.repo.SetTalkView(ctx, id, uuid)
+}
+
+func (r *TalkUseCase) SetTalkCollect(ctx context.Context, id, collectionsId int32, uuid string) error {
+	userUuid := ctx.Value("uuid").(string)
+	return r.repo.SetTalkCollect(ctx, id, collectionsId, uuid, userUuid)
+}
+
+func (r *TalkUseCase) TalkStatisticJudge(ctx context.Context, id int32) (*TalkStatisticJudge, error) {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.TalkStatisticJudge(ctx, id, uuid)
 }
