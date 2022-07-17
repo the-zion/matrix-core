@@ -162,6 +162,20 @@ type TalkDraft struct {
 	Status int32
 }
 
+type TalkStatistic struct {
+	Id      int32
+	Uuid    string
+	Agree   int32
+	View    int32
+	Collect int32
+	Comment int32
+}
+
+type TalkStatisticJudge struct {
+	Agree   bool
+	Collect bool
+}
+
 type Collections struct {
 	Id        int32
 	Uuid      string
