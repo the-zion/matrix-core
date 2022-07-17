@@ -648,7 +648,7 @@ func (r *articleRepo) CancelArticleAgreeFromCache(ctx context.Context, id int32,
 
 func (r *articleRepo) CancelArticleUserCollect(ctx context.Context, id int32, userUuid string) error {
 	collect := &Collect{}
-	err := r.data.DB(ctx).Where("creations_id = ? and uuid = ?", id, userUuid).Delete(collect).Error
+	err := r.data.DB(ctx).Where("creations_id = ? and uuid = ? and mode = ?", id, userUuid, 1).Delete(collect).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel article collect: article_id(%v), userUuid(%s)", id, userUuid))
 	}
