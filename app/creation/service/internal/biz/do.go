@@ -23,7 +23,21 @@ type ArticleStatistic struct {
 	Comment   int32
 }
 
+type TalkStatistic struct {
+	TalkId  int32
+	Uuid    string
+	Agree   int32
+	View    int32
+	Collect int32
+	Comment int32
+}
+
 type ArticleStatisticJudge struct {
+	Agree   bool
+	Collect bool
+}
+
+type TalkStatisticJudge struct {
 	Agree   bool
 	Collect bool
 }
