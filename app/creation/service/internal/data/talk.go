@@ -64,6 +64,93 @@ func (r *talkRepo) GetTalkList(ctx context.Context, page int32) ([]*biz.Talk, er
 	return talk, nil
 }
 
+func (r *talkRepo) GetTalkListHot(ctx context.Context, page int32) ([]*biz.TalkStatistic, error) {
+	talk, err := r.getTalkHotFromCache(ctx, page)
+	if err != nil {
+		return nil, err
+	}
+
+	size := len(talk)
+	if size != 0 {
+		return talk, nil
+	}
+
+	talk, err = r.getTalkHotFromDB(ctx, page)
+	if err != nil {
+		return nil, err
+	}
+
+	size = len(talk)
+	if size != 0 {
+		go r.setTalkHotToCache("talk_hot", talk)
+	}
+	return talk, nil
+}
+
+func (r *talkRepo) setTalkHotToCache(key string, talk []*biz.TalkStatistic) {
+	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
+		z := make([]*redis.Z, 0)
+		for _, item := range talk {
+			z = append(z, &redis.Z{
+				Score:  float64(item.Agree),
+				Member: strconv.Itoa(int(item.TalkId)) + "%" + item.Uuid,
+			})
+		}
+		pipe.ZAddNX(context.Background(), key, z...)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to set talk to cache: talk(%v)", talk)
+	}
+}
+
+func (r *talkRepo) getTalkHotFromCache(ctx context.Context, page int32) ([]*biz.TalkStatistic, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int64(page - 1)
+	list, err := r.data.redisCli.ZRevRange(ctx, "talk_hot", index*10, index+9).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get talk hot from cache: key(%s), page(%v)", "talk_hot", page))
+	}
+
+	talk := make([]*biz.TalkStatistic, 0)
+	for _, item := range list {
+		member := strings.Split(item, "%")
+		id, err := strconv.ParseInt(member[0], 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s)", member[0]))
+		}
+		talk = append(talk, &biz.TalkStatistic{
+			TalkId: int32(id),
+			Uuid:   member[1],
+		})
+	}
+	return talk, nil
+}
+
+func (r *talkRepo) getTalkHotFromDB(ctx context.Context, page int32) ([]*biz.TalkStatistic, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int(page - 1)
+	list := make([]*TalkStatistic, 0)
+	err := r.data.db.WithContext(ctx).Where("auth", 1).Order("agree desc").Offset(index * 10).Limit(10).Find(&list).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get talk statistic from db: page(%v)", page))
+	}
+
+	talk := make([]*biz.TalkStatistic, 0)
+	for _, item := range list {
+		talk = append(talk, &biz.TalkStatistic{
+			TalkId: item.TalkId,
+			Uuid:   item.Uuid,
+			Agree:  item.Agree,
+		})
+	}
+	return talk, nil
+}
+
 func (r *talkRepo) getTalkFromCache(ctx context.Context, page int32) ([]*biz.Talk, error) {
 	if page < 1 {
 		page = 1
@@ -124,6 +211,114 @@ func (r *talkRepo) setTalkToCache(key string, talk []*biz.Talk) {
 	})
 	if err != nil {
 		r.log.Errorf("fail to set talk to cache: talk(%v)", talk)
+	}
+}
+
+func (r *talkRepo) GetTalkListStatistic(ctx context.Context, ids []int32) ([]*biz.TalkStatistic, error) {
+	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		for _, id := range ids {
+			pipe.HMGet(ctx, "talk_"+strconv.Itoa(int(id)), "agree", "collect", "view", "comment")
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get talk list statistic from cache: ids(%v)", ids))
+	}
+
+	statistic := make([]*biz.TalkStatistic, 0)
+	for index, item := range cmd {
+		val := []int32{0, 0, 0, 0}
+		for _index, count := range item.(*redis.SliceCmd).Val() {
+			if count == nil {
+				break
+			}
+			num, err := strconv.ParseInt(count.(string), 10, 32)
+			if err != nil {
+				return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: count(%v)", count))
+			}
+			val[_index] = int32(num)
+		}
+		statistic = append(statistic, &biz.TalkStatistic{
+			TalkId:  ids[index],
+			Agree:   val[0],
+			Collect: val[1],
+			View:    val[2],
+			Comment: val[3],
+		})
+	}
+	return statistic, nil
+}
+
+func (r *talkRepo) GetTalkStatistic(ctx context.Context, id int32) (*biz.TalkStatistic, error) {
+	var statistic *biz.TalkStatistic
+	key := "talk_" + strconv.Itoa(int(id))
+	exist, err := r.data.redisCli.Exists(ctx, key).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to judge if key exist or not from cache: key(%s)", key))
+	}
+
+	if exist == 1 {
+		statistic, err = r.getTalkStatisticFromCache(ctx, key)
+		if err != nil {
+			return nil, err
+		}
+		return statistic, nil
+	}
+
+	statistic, err = r.getTalkStatisticFromDB(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	go r.setTalkStatisticToCache(key, statistic)
+
+	return statistic, nil
+}
+
+func (r *talkRepo) getTalkStatisticFromCache(ctx context.Context, key string) (*biz.TalkStatistic, error) {
+	statistic, err := r.data.redisCli.HMGet(ctx, key, "uuid", "agree", "collect", "view", "comment").Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get talk statistic form cache: key(%s)", key))
+	}
+	val := []int32{0, 0, 0, 0}
+	for _index, count := range statistic[1:] {
+		if count == nil {
+			break
+		}
+		num, err := strconv.ParseInt(count.(string), 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: count(%v)", count))
+		}
+		val[_index] = int32(num)
+	}
+	return &biz.TalkStatistic{
+		Uuid:    statistic[0].(string),
+		Agree:   val[0],
+		Collect: val[1],
+		View:    val[2],
+		Comment: val[3],
+	}, nil
+}
+
+func (r *talkRepo) getTalkStatisticFromDB(ctx context.Context, id int32) (*biz.TalkStatistic, error) {
+	as := &TalkStatistic{}
+	err := r.data.db.WithContext(ctx).Where("talk_id = ?", id).First(as).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("faile to get statistic from db: id(%v)", id))
+	}
+	return &biz.TalkStatistic{
+		Uuid:    as.Uuid,
+		Agree:   as.Agree,
+		Collect: as.Collect,
+		View:    as.View,
+		Comment: as.Comment,
+	}, nil
+}
+
+func (r *talkRepo) setTalkStatisticToCache(key string, statistic *biz.TalkStatistic) {
+	err := r.data.redisCli.HMSet(context.Background(), key, "uuid", statistic.Uuid, "agree", statistic.Agree, "collect", statistic.Collect, "view", statistic.View, "comment", statistic.Comment).Err()
+	if err != nil {
+		r.log.Errorf("fail to set talk statistic to cache, err(%s)", err.Error())
 	}
 }
 
@@ -298,6 +493,93 @@ func (r *talkRepo) EditTalkCos(ctx context.Context, id int32, uuid string) error
 	return nil
 }
 
+func (r *talkRepo) SetTalkAgree(ctx context.Context, id int32, uuid string) error {
+	ts := TalkStatistic{}
+	err := r.data.DB(ctx).Model(&ts).Where("talk_id = ? and uuid = ?", id, uuid).Update("agree", gorm.Expr("agree + ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add talk agree: id(%v)", id))
+	}
+	return nil
+}
+
+func (r *talkRepo) SetTalkAgreeToCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	ids := strconv.Itoa(int(id))
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.HIncrBy(ctx, "talk_"+ids, "agree", 1)
+		pipe.ZIncrBy(ctx, "talk_hot", 1, ids+"%"+uuid)
+		pipe.ZIncrBy(ctx, "leaderboard", 1, ids+"%"+uuid+"%talk")
+		pipe.SAdd(ctx, "talk_agree_"+ids, userUuid)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to add talk agree to cache: id(%v), uuid(%s), userUuid(%s)", id, uuid, userUuid)
+	}
+	return nil
+}
+
+func (r *talkRepo) CancelTalkAgree(ctx context.Context, id int32, uuid string) error {
+	ts := TalkStatistic{}
+	err := r.data.DB(ctx).Model(&ts).Where("talk_id = ? and uuid = ?", id, uuid).Update("agree", gorm.Expr("agree - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to cancel talk agree: id(%v)", id))
+	}
+	return nil
+}
+
+func (r *talkRepo) CancelTalkAgreeFromCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	ids := strconv.Itoa(int(id))
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.HIncrBy(ctx, "talk_"+ids, "agree", -1)
+		pipe.ZIncrBy(ctx, "talk_hot", -1, ids+"%"+uuid)
+		pipe.ZIncrBy(ctx, "leaderboard", -1, ids+"%"+uuid+"%talk")
+		pipe.SRem(ctx, "talk_agree_"+ids, userUuid)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to cancel article agree from cache: id(%v), uuid(%s), userUuid(%s)", id, uuid, userUuid)
+	}
+	return nil
+}
+
+func (r *talkRepo) SetTalkView(ctx context.Context, id int32, uuid string) error {
+	ts := TalkStatistic{}
+	err := r.data.DB(ctx).Model(&ts).Where("talk_id = ? and uuid = ?", id, uuid).Update("view", gorm.Expr("view + ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add talk view: id(%v)", id))
+	}
+	return nil
+}
+
+func (r *talkRepo) SetTalkViewToCache(ctx context.Context, id int32, uuid string) error {
+	ids := strconv.Itoa(int(id))
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.HIncrBy(ctx, "talk_"+ids, "view", 1)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to add talk agree to cache: id(%v), uuid(%s)", id, uuid)
+	}
+	return nil
+}
+
+func (r *talkRepo) GetTalkAgreeJudge(ctx context.Context, id int32, uuid string) (bool, error) {
+	ids := strconv.Itoa(int(id))
+	judge, err := r.data.redisCli.SIsMember(ctx, "talk_agree_"+ids, uuid).Result()
+	if err != nil {
+		return false, errors.Wrapf(err, fmt.Sprintf("fail to judge talk agree member: id(%v), uuid(%s)", id, uuid))
+	}
+	return judge, nil
+}
+
+func (r *talkRepo) GetTalkCollectJudge(ctx context.Context, id int32, uuid string) (bool, error) {
+	ids := strconv.Itoa(int(id))
+	judge, err := r.data.redisCli.SIsMember(ctx, "talk_collect_"+ids, uuid).Result()
+	if err != nil {
+		return false, errors.Wrapf(err, fmt.Sprintf("fail to judge talk collect member: id(%v), uuid(%s)", id, uuid))
+	}
+	return judge, nil
+}
+
 func (r *talkRepo) EditTalkCosContent(ctx context.Context, id int32, uuid string) error {
 	ids := strconv.Itoa(int(id))
 	name := "talk/" + uuid + "/" + ids + "/content-edit"
@@ -318,6 +600,94 @@ func (r *talkRepo) EditTalkCosIntroduce(ctx context.Context, id int32, uuid stri
 	_, _, err := r.data.cosCli.Object.Copy(ctx, dest, sourceURL, nil)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to copy talk from edit to content: uuid(%s), id(%v)", uuid, id))
+	}
+	return nil
+}
+
+func (r *talkRepo) SendTalkStatisticToMq(ctx context.Context, uuid, mode string) error {
+	achievement := map[string]interface{}{}
+	achievement["uuid"] = uuid
+	achievement["mode"] = mode
+
+	data, err := json.Marshal(achievement)
+	if err != nil {
+		return err
+	}
+	msg := &primitive.Message{
+		Topic: "achievement",
+		Body:  data,
+	}
+	msg.WithKeys([]string{uuid})
+	_, err = r.data.achievementMqPro.producer.SendSync(ctx, msg)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to send talk statistic to mq: uuid(%s)", uuid))
+	}
+	return nil
+}
+
+func (r *talkRepo) SetTalkUserCollect(ctx context.Context, id, collectionsId int32, userUuid string) error {
+	collect := &Collect{
+		CollectionsId: collectionsId,
+		Uuid:          userUuid,
+		CreationsId:   id,
+		Mode:          2,
+	}
+	err := r.data.DB(ctx).Create(collect).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to collect a talk: talk_id(%v), collectionsId(%v), userUuid(%s)", id, collectionsId, userUuid))
+	}
+	return nil
+}
+
+func (r *talkRepo) SetTalkCollect(ctx context.Context, id int32, uuid string) error {
+	ts := TalkStatistic{}
+	err := r.data.DB(ctx).Model(&ts).Where("talk_id = ? and uuid = ?", id, uuid).Update("collect", gorm.Expr("collect + ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add talk collect: id(%v)", id))
+	}
+	return nil
+}
+
+func (r *talkRepo) SetTalkCollectToCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	ids := strconv.Itoa(int(id))
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.HIncrBy(ctx, "talk_"+ids, "collect", 1)
+		pipe.SAdd(ctx, "talk_collect_"+ids, userUuid)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to add talk collect to cache: id(%v), uuid(%s), userUuid(%s)", id, uuid, userUuid)
+	}
+	return nil
+}
+
+func (r *talkRepo) CancelTalkUserCollect(ctx context.Context, id int32, userUuid string) error {
+	collect := &Collect{}
+	err := r.data.DB(ctx).Where("creations_id = ? and uuid = ? and mode = ?", id, userUuid, 2).Delete(collect).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to cancel talk collect: talk_id(%v), userUuid(%s)", id, userUuid))
+	}
+	return nil
+}
+
+func (r *talkRepo) CancelTalkCollect(ctx context.Context, id int32, uuid string) error {
+	as := &TalkStatistic{}
+	err := r.data.DB(ctx).Model(as).Where("talk_id = ? and uuid = ?", id, uuid).Update("collect", gorm.Expr("collect - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to cancel talk collect: id(%v)", id))
+	}
+	return nil
+}
+
+func (r *talkRepo) CancelTalkCollectFromCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	ids := strconv.Itoa(int(id))
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.HIncrBy(ctx, "talk_"+ids, "collect", -1)
+		pipe.SRem(ctx, "talk_collect_"+ids, userUuid)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to cancel talk collect from cache: id(%v), uuid(%s), userUuid(%s)", id, uuid, userUuid)
 	}
 	return nil
 }
