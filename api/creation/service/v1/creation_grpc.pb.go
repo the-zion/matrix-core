@@ -60,6 +60,8 @@ type CreationClient interface {
 	ArticleStatisticJudge(ctx context.Context, in *ArticleStatisticJudgeReq, opts ...grpc.CallOption) (*ArticleStatisticJudgeReply, error)
 	GetTalkList(ctx context.Context, in *GetTalkListReq, opts ...grpc.CallOption) (*GetTalkListReply, error)
 	GetTalkListHot(ctx context.Context, in *GetTalkListHotReq, opts ...grpc.CallOption) (*GetTalkListHotReply, error)
+	GetTalkListStatistic(ctx context.Context, in *GetTalkListStatisticReq, opts ...grpc.CallOption) (*GetTalkListStatisticReply, error)
+	GetTalkStatistic(ctx context.Context, in *GetTalkStatisticReq, opts ...grpc.CallOption) (*GetTalkStatisticReply, error)
 	GetLastTalkDraft(ctx context.Context, in *GetLastTalkDraftReq, opts ...grpc.CallOption) (*GetLastTalkDraftReply, error)
 	CreateTalkDraft(ctx context.Context, in *CreateTalkDraftReq, opts ...grpc.CallOption) (*CreateTalkDraftReply, error)
 	SendTalk(ctx context.Context, in *SendTalkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -68,6 +70,12 @@ type CreationClient interface {
 	EditTalk(ctx context.Context, in *EditTalkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateTalkCacheAndSearch(ctx context.Context, in *CreateTalkCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	EditTalkCosAndSearch(ctx context.Context, in *EditTalkCosAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetTalkView(ctx context.Context, in *SetTalkViewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	TalkStatisticJudge(ctx context.Context, in *TalkStatisticJudgeReq, opts ...grpc.CallOption) (*TalkStatisticJudgeReply, error)
+	SetTalkAgree(ctx context.Context, in *SetTalkAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetTalkCollect(ctx context.Context, in *SetTalkCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CancelTalkAgree(ctx context.Context, in *CancelTalkAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CancelTalkCollect(ctx context.Context, in *CancelTalkCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type creationClient struct {
@@ -411,6 +419,24 @@ func (c *creationClient) GetTalkListHot(ctx context.Context, in *GetTalkListHotR
 	return out, nil
 }
 
+func (c *creationClient) GetTalkListStatistic(ctx context.Context, in *GetTalkListStatisticReq, opts ...grpc.CallOption) (*GetTalkListStatisticReply, error) {
+	out := new(GetTalkListStatisticReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetTalkListStatistic", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) GetTalkStatistic(ctx context.Context, in *GetTalkStatisticReq, opts ...grpc.CallOption) (*GetTalkStatisticReply, error) {
+	out := new(GetTalkStatisticReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetTalkStatistic", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *creationClient) GetLastTalkDraft(ctx context.Context, in *GetLastTalkDraftReq, opts ...grpc.CallOption) (*GetLastTalkDraftReply, error) {
 	out := new(GetLastTalkDraftReply)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetLastTalkDraft", in, out, opts...)
@@ -483,6 +509,60 @@ func (c *creationClient) EditTalkCosAndSearch(ctx context.Context, in *EditTalkC
 	return out, nil
 }
 
+func (c *creationClient) SetTalkView(ctx context.Context, in *SetTalkViewReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/SetTalkView", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) TalkStatisticJudge(ctx context.Context, in *TalkStatisticJudgeReq, opts ...grpc.CallOption) (*TalkStatisticJudgeReply, error) {
+	out := new(TalkStatisticJudgeReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/TalkStatisticJudge", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) SetTalkAgree(ctx context.Context, in *SetTalkAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/SetTalkAgree", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) SetTalkCollect(ctx context.Context, in *SetTalkCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/SetTalkCollect", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) CancelTalkAgree(ctx context.Context, in *CancelTalkAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/CancelTalkAgree", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) CancelTalkCollect(ctx context.Context, in *CancelTalkCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/CancelTalkCollect", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CreationServer is the server API for Creation service.
 // All implementations must embed UnimplementedCreationServer
 // for forward compatibility
@@ -524,6 +604,8 @@ type CreationServer interface {
 	ArticleStatisticJudge(context.Context, *ArticleStatisticJudgeReq) (*ArticleStatisticJudgeReply, error)
 	GetTalkList(context.Context, *GetTalkListReq) (*GetTalkListReply, error)
 	GetTalkListHot(context.Context, *GetTalkListHotReq) (*GetTalkListHotReply, error)
+	GetTalkListStatistic(context.Context, *GetTalkListStatisticReq) (*GetTalkListStatisticReply, error)
+	GetTalkStatistic(context.Context, *GetTalkStatisticReq) (*GetTalkStatisticReply, error)
 	GetLastTalkDraft(context.Context, *GetLastTalkDraftReq) (*GetLastTalkDraftReply, error)
 	CreateTalkDraft(context.Context, *CreateTalkDraftReq) (*CreateTalkDraftReply, error)
 	SendTalk(context.Context, *SendTalkReq) (*emptypb.Empty, error)
@@ -532,6 +614,12 @@ type CreationServer interface {
 	EditTalk(context.Context, *EditTalkReq) (*emptypb.Empty, error)
 	CreateTalkCacheAndSearch(context.Context, *CreateTalkCacheAndSearchReq) (*emptypb.Empty, error)
 	EditTalkCosAndSearch(context.Context, *EditTalkCosAndSearchReq) (*emptypb.Empty, error)
+	SetTalkView(context.Context, *SetTalkViewReq) (*emptypb.Empty, error)
+	TalkStatisticJudge(context.Context, *TalkStatisticJudgeReq) (*TalkStatisticJudgeReply, error)
+	SetTalkAgree(context.Context, *SetTalkAgreeReq) (*emptypb.Empty, error)
+	SetTalkCollect(context.Context, *SetTalkCollectReq) (*emptypb.Empty, error)
+	CancelTalkAgree(context.Context, *CancelTalkAgreeReq) (*emptypb.Empty, error)
+	CancelTalkCollect(context.Context, *CancelTalkCollectReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedCreationServer()
 }
 
@@ -650,6 +738,12 @@ func (UnimplementedCreationServer) GetTalkList(context.Context, *GetTalkListReq)
 func (UnimplementedCreationServer) GetTalkListHot(context.Context, *GetTalkListHotReq) (*GetTalkListHotReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTalkListHot not implemented")
 }
+func (UnimplementedCreationServer) GetTalkListStatistic(context.Context, *GetTalkListStatisticReq) (*GetTalkListStatisticReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTalkListStatistic not implemented")
+}
+func (UnimplementedCreationServer) GetTalkStatistic(context.Context, *GetTalkStatisticReq) (*GetTalkStatisticReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTalkStatistic not implemented")
+}
 func (UnimplementedCreationServer) GetLastTalkDraft(context.Context, *GetLastTalkDraftReq) (*GetLastTalkDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLastTalkDraft not implemented")
 }
@@ -673,6 +767,24 @@ func (UnimplementedCreationServer) CreateTalkCacheAndSearch(context.Context, *Cr
 }
 func (UnimplementedCreationServer) EditTalkCosAndSearch(context.Context, *EditTalkCosAndSearchReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EditTalkCosAndSearch not implemented")
+}
+func (UnimplementedCreationServer) SetTalkView(context.Context, *SetTalkViewReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetTalkView not implemented")
+}
+func (UnimplementedCreationServer) TalkStatisticJudge(context.Context, *TalkStatisticJudgeReq) (*TalkStatisticJudgeReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TalkStatisticJudge not implemented")
+}
+func (UnimplementedCreationServer) SetTalkAgree(context.Context, *SetTalkAgreeReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetTalkAgree not implemented")
+}
+func (UnimplementedCreationServer) SetTalkCollect(context.Context, *SetTalkCollectReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetTalkCollect not implemented")
+}
+func (UnimplementedCreationServer) CancelTalkAgree(context.Context, *CancelTalkAgreeReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelTalkAgree not implemented")
+}
+func (UnimplementedCreationServer) CancelTalkCollect(context.Context, *CancelTalkCollectReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelTalkCollect not implemented")
 }
 func (UnimplementedCreationServer) mustEmbedUnimplementedCreationServer() {}
 
@@ -1353,6 +1465,42 @@ func _Creation_GetTalkListHot_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Creation_GetTalkListStatistic_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTalkListStatisticReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetTalkListStatistic(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetTalkListStatistic",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetTalkListStatistic(ctx, req.(*GetTalkListStatisticReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_GetTalkStatistic_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTalkStatisticReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetTalkStatistic(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetTalkStatistic",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetTalkStatistic(ctx, req.(*GetTalkStatisticReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Creation_GetLastTalkDraft_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetLastTalkDraftReq)
 	if err := dec(in); err != nil {
@@ -1493,6 +1641,114 @@ func _Creation_EditTalkCosAndSearch_Handler(srv interface{}, ctx context.Context
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CreationServer).EditTalkCosAndSearch(ctx, req.(*EditTalkCosAndSearchReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_SetTalkView_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetTalkViewReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).SetTalkView(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/SetTalkView",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).SetTalkView(ctx, req.(*SetTalkViewReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_TalkStatisticJudge_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TalkStatisticJudgeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).TalkStatisticJudge(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/TalkStatisticJudge",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).TalkStatisticJudge(ctx, req.(*TalkStatisticJudgeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_SetTalkAgree_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetTalkAgreeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).SetTalkAgree(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/SetTalkAgree",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).SetTalkAgree(ctx, req.(*SetTalkAgreeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_SetTalkCollect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetTalkCollectReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).SetTalkCollect(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/SetTalkCollect",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).SetTalkCollect(ctx, req.(*SetTalkCollectReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_CancelTalkAgree_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelTalkAgreeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).CancelTalkAgree(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/CancelTalkAgree",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).CancelTalkAgree(ctx, req.(*CancelTalkAgreeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_CancelTalkCollect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelTalkCollectReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).CancelTalkCollect(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/CancelTalkCollect",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).CancelTalkCollect(ctx, req.(*CancelTalkCollectReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1653,6 +1909,14 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Creation_GetTalkListHot_Handler,
 		},
 		{
+			MethodName: "GetTalkListStatistic",
+			Handler:    _Creation_GetTalkListStatistic_Handler,
+		},
+		{
+			MethodName: "GetTalkStatistic",
+			Handler:    _Creation_GetTalkStatistic_Handler,
+		},
+		{
 			MethodName: "GetLastTalkDraft",
 			Handler:    _Creation_GetLastTalkDraft_Handler,
 		},
@@ -1683,6 +1947,30 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "EditTalkCosAndSearch",
 			Handler:    _Creation_EditTalkCosAndSearch_Handler,
+		},
+		{
+			MethodName: "SetTalkView",
+			Handler:    _Creation_SetTalkView_Handler,
+		},
+		{
+			MethodName: "TalkStatisticJudge",
+			Handler:    _Creation_TalkStatisticJudge_Handler,
+		},
+		{
+			MethodName: "SetTalkAgree",
+			Handler:    _Creation_SetTalkAgree_Handler,
+		},
+		{
+			MethodName: "SetTalkCollect",
+			Handler:    _Creation_SetTalkCollect_Handler,
+		},
+		{
+			MethodName: "CancelTalkAgree",
+			Handler:    _Creation_CancelTalkAgree_Handler,
+		},
+		{
+			MethodName: "CancelTalkCollect",
+			Handler:    _Creation_CancelTalkCollect_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
