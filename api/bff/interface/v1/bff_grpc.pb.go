@@ -47,6 +47,8 @@ type BffClient interface {
 	GetLeaderBoard(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLeaderBoardReply, error)
 	GetCollectArticle(ctx context.Context, in *GetCollectArticleReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
 	GetCollectArticleCount(ctx context.Context, in *GetCollectArticleCountReq, opts ...grpc.CallOption) (*GetCollectArticleCountReply, error)
+	GetCollectTalk(ctx context.Context, in *GetCollectTalkReq, opts ...grpc.CallOption) (*GetTalkListReply, error)
+	GetCollectTalkCount(ctx context.Context, in *GetCollectTalkCountReq, opts ...grpc.CallOption) (*GetCollectTalkCountReply, error)
 	GetCollection(ctx context.Context, in *GetCollectionReq, opts ...grpc.CallOption) (*GetCollectionReply, error)
 	GetCollections(ctx context.Context, in *GetCollectionsReq, opts ...grpc.CallOption) (*GetCollectionsReply, error)
 	GetCollectionsCount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCollectionsCountReply, error)
@@ -57,6 +59,8 @@ type BffClient interface {
 	DeleteCollections(ctx context.Context, in *DeleteCollectionsReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetArticleList(ctx context.Context, in *GetArticleListReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
 	GetArticleListHot(ctx context.Context, in *GetArticleListHotReq, opts ...grpc.CallOption) (*GetArticleListHotReply, error)
+	GetArticleCount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetArticleCountReply, error)
+	GetArticleCountVisitor(ctx context.Context, in *GetArticleCountVisitorReq, opts ...grpc.CallOption) (*GetArticleCountReply, error)
 	GetUserArticleList(ctx context.Context, in *GetUserArticleListReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
 	GetUserArticleListVisitor(ctx context.Context, in *GetUserArticleListVisitorReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
 	GetArticleStatistic(ctx context.Context, in *GetArticleStatisticReq, opts ...grpc.CallOption) (*GetArticleStatisticReply, error)
@@ -77,11 +81,16 @@ type BffClient interface {
 	GetTalkList(ctx context.Context, in *GetTalkListReq, opts ...grpc.CallOption) (*GetTalkListReply, error)
 	GetTalkListHot(ctx context.Context, in *GetTalkListHotReq, opts ...grpc.CallOption) (*GetTalkListHotReply, error)
 	GetTalkListStatistic(ctx context.Context, in *GetTalkListStatisticReq, opts ...grpc.CallOption) (*GetTalkListStatisticReply, error)
+	GetUserTalkList(ctx context.Context, in *GetUserTalkListReq, opts ...grpc.CallOption) (*GetTalkListReply, error)
+	GetUserTalkListVisitor(ctx context.Context, in *GetUserTalkListVisitorReq, opts ...grpc.CallOption) (*GetTalkListReply, error)
+	GetTalkCount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetTalkCountReply, error)
+	GetTalkCountVisitor(ctx context.Context, in *GetTalkCountVisitorReq, opts ...grpc.CallOption) (*GetTalkCountReply, error)
 	GetTalkStatistic(ctx context.Context, in *GetTalkStatisticReq, opts ...grpc.CallOption) (*GetTalkStatisticReply, error)
 	GetLastTalkDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLastTalkDraftReply, error)
 	CreateTalkDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateTalkDraftReply, error)
 	SendTalk(ctx context.Context, in *SendTalkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SendTalkEdit(ctx context.Context, in *SendTalkEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DeleteTalk(ctx context.Context, in *DeleteTalkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetTalkView(ctx context.Context, in *SetTalkViewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	TalkStatisticJudge(ctx context.Context, in *TalkStatisticJudgeReq, opts ...grpc.CallOption) (*TalkStatisticJudgeReply, error)
 	SetTalkAgree(ctx context.Context, in *SetTalkAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -305,6 +314,24 @@ func (c *bffClient) GetCollectArticleCount(ctx context.Context, in *GetCollectAr
 	return out, nil
 }
 
+func (c *bffClient) GetCollectTalk(ctx context.Context, in *GetCollectTalkReq, opts ...grpc.CallOption) (*GetTalkListReply, error) {
+	out := new(GetTalkListReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCollectTalk", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetCollectTalkCount(ctx context.Context, in *GetCollectTalkCountReq, opts ...grpc.CallOption) (*GetCollectTalkCountReply, error) {
+	out := new(GetCollectTalkCountReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCollectTalkCount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) GetCollection(ctx context.Context, in *GetCollectionReq, opts ...grpc.CallOption) (*GetCollectionReply, error) {
 	out := new(GetCollectionReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCollection", in, out, opts...)
@@ -389,6 +416,24 @@ func (c *bffClient) GetArticleList(ctx context.Context, in *GetArticleListReq, o
 func (c *bffClient) GetArticleListHot(ctx context.Context, in *GetArticleListHotReq, opts ...grpc.CallOption) (*GetArticleListHotReply, error) {
 	out := new(GetArticleListHotReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetArticleListHot", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetArticleCount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetArticleCountReply, error) {
+	out := new(GetArticleCountReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetArticleCount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetArticleCountVisitor(ctx context.Context, in *GetArticleCountVisitorReq, opts ...grpc.CallOption) (*GetArticleCountReply, error) {
+	out := new(GetArticleCountReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetArticleCountVisitor", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -575,6 +620,42 @@ func (c *bffClient) GetTalkListStatistic(ctx context.Context, in *GetTalkListSta
 	return out, nil
 }
 
+func (c *bffClient) GetUserTalkList(ctx context.Context, in *GetUserTalkListReq, opts ...grpc.CallOption) (*GetTalkListReply, error) {
+	out := new(GetTalkListReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserTalkList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetUserTalkListVisitor(ctx context.Context, in *GetUserTalkListVisitorReq, opts ...grpc.CallOption) (*GetTalkListReply, error) {
+	out := new(GetTalkListReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserTalkListVisitor", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetTalkCount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetTalkCountReply, error) {
+	out := new(GetTalkCountReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetTalkCount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetTalkCountVisitor(ctx context.Context, in *GetTalkCountVisitorReq, opts ...grpc.CallOption) (*GetTalkCountReply, error) {
+	out := new(GetTalkCountReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetTalkCountVisitor", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) GetTalkStatistic(ctx context.Context, in *GetTalkStatisticReq, opts ...grpc.CallOption) (*GetTalkStatisticReply, error) {
 	out := new(GetTalkStatisticReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetTalkStatistic", in, out, opts...)
@@ -614,6 +695,15 @@ func (c *bffClient) SendTalk(ctx context.Context, in *SendTalkReq, opts ...grpc.
 func (c *bffClient) SendTalkEdit(ctx context.Context, in *SendTalkEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SendTalkEdit", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) DeleteTalk(ctx context.Context, in *DeleteTalkReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/DeleteTalk", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -702,6 +792,8 @@ type BffServer interface {
 	GetLeaderBoard(context.Context, *emptypb.Empty) (*GetLeaderBoardReply, error)
 	GetCollectArticle(context.Context, *GetCollectArticleReq) (*GetArticleListReply, error)
 	GetCollectArticleCount(context.Context, *GetCollectArticleCountReq) (*GetCollectArticleCountReply, error)
+	GetCollectTalk(context.Context, *GetCollectTalkReq) (*GetTalkListReply, error)
+	GetCollectTalkCount(context.Context, *GetCollectTalkCountReq) (*GetCollectTalkCountReply, error)
 	GetCollection(context.Context, *GetCollectionReq) (*GetCollectionReply, error)
 	GetCollections(context.Context, *GetCollectionsReq) (*GetCollectionsReply, error)
 	GetCollectionsCount(context.Context, *emptypb.Empty) (*GetCollectionsCountReply, error)
@@ -712,6 +804,8 @@ type BffServer interface {
 	DeleteCollections(context.Context, *DeleteCollectionsReq) (*emptypb.Empty, error)
 	GetArticleList(context.Context, *GetArticleListReq) (*GetArticleListReply, error)
 	GetArticleListHot(context.Context, *GetArticleListHotReq) (*GetArticleListHotReply, error)
+	GetArticleCount(context.Context, *emptypb.Empty) (*GetArticleCountReply, error)
+	GetArticleCountVisitor(context.Context, *GetArticleCountVisitorReq) (*GetArticleCountReply, error)
 	GetUserArticleList(context.Context, *GetUserArticleListReq) (*GetArticleListReply, error)
 	GetUserArticleListVisitor(context.Context, *GetUserArticleListVisitorReq) (*GetArticleListReply, error)
 	GetArticleStatistic(context.Context, *GetArticleStatisticReq) (*GetArticleStatisticReply, error)
@@ -732,11 +826,16 @@ type BffServer interface {
 	GetTalkList(context.Context, *GetTalkListReq) (*GetTalkListReply, error)
 	GetTalkListHot(context.Context, *GetTalkListHotReq) (*GetTalkListHotReply, error)
 	GetTalkListStatistic(context.Context, *GetTalkListStatisticReq) (*GetTalkListStatisticReply, error)
+	GetUserTalkList(context.Context, *GetUserTalkListReq) (*GetTalkListReply, error)
+	GetUserTalkListVisitor(context.Context, *GetUserTalkListVisitorReq) (*GetTalkListReply, error)
+	GetTalkCount(context.Context, *emptypb.Empty) (*GetTalkCountReply, error)
+	GetTalkCountVisitor(context.Context, *GetTalkCountVisitorReq) (*GetTalkCountReply, error)
 	GetTalkStatistic(context.Context, *GetTalkStatisticReq) (*GetTalkStatisticReply, error)
 	GetLastTalkDraft(context.Context, *emptypb.Empty) (*GetLastTalkDraftReply, error)
 	CreateTalkDraft(context.Context, *emptypb.Empty) (*CreateTalkDraftReply, error)
 	SendTalk(context.Context, *SendTalkReq) (*emptypb.Empty, error)
 	SendTalkEdit(context.Context, *SendTalkEditReq) (*emptypb.Empty, error)
+	DeleteTalk(context.Context, *DeleteTalkReq) (*emptypb.Empty, error)
 	SetTalkView(context.Context, *SetTalkViewReq) (*emptypb.Empty, error)
 	TalkStatisticJudge(context.Context, *TalkStatisticJudgeReq) (*TalkStatisticJudgeReply, error)
 	SetTalkAgree(context.Context, *SetTalkAgreeReq) (*emptypb.Empty, error)
@@ -819,6 +918,12 @@ func (UnimplementedBffServer) GetCollectArticle(context.Context, *GetCollectArti
 func (UnimplementedBffServer) GetCollectArticleCount(context.Context, *GetCollectArticleCountReq) (*GetCollectArticleCountReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCollectArticleCount not implemented")
 }
+func (UnimplementedBffServer) GetCollectTalk(context.Context, *GetCollectTalkReq) (*GetTalkListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCollectTalk not implemented")
+}
+func (UnimplementedBffServer) GetCollectTalkCount(context.Context, *GetCollectTalkCountReq) (*GetCollectTalkCountReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCollectTalkCount not implemented")
+}
 func (UnimplementedBffServer) GetCollection(context.Context, *GetCollectionReq) (*GetCollectionReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCollection not implemented")
 }
@@ -848,6 +953,12 @@ func (UnimplementedBffServer) GetArticleList(context.Context, *GetArticleListReq
 }
 func (UnimplementedBffServer) GetArticleListHot(context.Context, *GetArticleListHotReq) (*GetArticleListHotReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetArticleListHot not implemented")
+}
+func (UnimplementedBffServer) GetArticleCount(context.Context, *emptypb.Empty) (*GetArticleCountReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetArticleCount not implemented")
+}
+func (UnimplementedBffServer) GetArticleCountVisitor(context.Context, *GetArticleCountVisitorReq) (*GetArticleCountReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetArticleCountVisitor not implemented")
 }
 func (UnimplementedBffServer) GetUserArticleList(context.Context, *GetUserArticleListReq) (*GetArticleListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserArticleList not implemented")
@@ -909,6 +1020,18 @@ func (UnimplementedBffServer) GetTalkListHot(context.Context, *GetTalkListHotReq
 func (UnimplementedBffServer) GetTalkListStatistic(context.Context, *GetTalkListStatisticReq) (*GetTalkListStatisticReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTalkListStatistic not implemented")
 }
+func (UnimplementedBffServer) GetUserTalkList(context.Context, *GetUserTalkListReq) (*GetTalkListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserTalkList not implemented")
+}
+func (UnimplementedBffServer) GetUserTalkListVisitor(context.Context, *GetUserTalkListVisitorReq) (*GetTalkListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserTalkListVisitor not implemented")
+}
+func (UnimplementedBffServer) GetTalkCount(context.Context, *emptypb.Empty) (*GetTalkCountReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTalkCount not implemented")
+}
+func (UnimplementedBffServer) GetTalkCountVisitor(context.Context, *GetTalkCountVisitorReq) (*GetTalkCountReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTalkCountVisitor not implemented")
+}
 func (UnimplementedBffServer) GetTalkStatistic(context.Context, *GetTalkStatisticReq) (*GetTalkStatisticReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTalkStatistic not implemented")
 }
@@ -923,6 +1046,9 @@ func (UnimplementedBffServer) SendTalk(context.Context, *SendTalkReq) (*emptypb.
 }
 func (UnimplementedBffServer) SendTalkEdit(context.Context, *SendTalkEditReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendTalkEdit not implemented")
+}
+func (UnimplementedBffServer) DeleteTalk(context.Context, *DeleteTalkReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteTalk not implemented")
 }
 func (UnimplementedBffServer) SetTalkView(context.Context, *SetTalkViewReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetTalkView not implemented")
@@ -1369,6 +1495,42 @@ func _Bff_GetCollectArticleCount_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_GetCollectTalk_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCollectTalkReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetCollectTalk(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetCollectTalk",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetCollectTalk(ctx, req.(*GetCollectTalkReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetCollectTalkCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCollectTalkCountReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetCollectTalkCount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetCollectTalkCount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetCollectTalkCount(ctx, req.(*GetCollectTalkCountReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_GetCollection_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetCollectionReq)
 	if err := dec(in); err != nil {
@@ -1545,6 +1707,42 @@ func _Bff_GetArticleListHot_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BffServer).GetArticleListHot(ctx, req.(*GetArticleListHotReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetArticleCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetArticleCount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetArticleCount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetArticleCount(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetArticleCountVisitor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetArticleCountVisitorReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetArticleCountVisitor(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetArticleCountVisitor",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetArticleCountVisitor(ctx, req.(*GetArticleCountVisitorReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1909,6 +2107,78 @@ func _Bff_GetTalkListStatistic_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_GetUserTalkList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserTalkListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetUserTalkList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetUserTalkList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetUserTalkList(ctx, req.(*GetUserTalkListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetUserTalkListVisitor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserTalkListVisitorReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetUserTalkListVisitor(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetUserTalkListVisitor",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetUserTalkListVisitor(ctx, req.(*GetUserTalkListVisitorReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetTalkCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetTalkCount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetTalkCount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetTalkCount(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetTalkCountVisitor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTalkCountVisitorReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetTalkCountVisitor(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetTalkCountVisitor",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetTalkCountVisitor(ctx, req.(*GetTalkCountVisitorReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_GetTalkStatistic_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetTalkStatisticReq)
 	if err := dec(in); err != nil {
@@ -1995,6 +2265,24 @@ func _Bff_SendTalkEdit_Handler(srv interface{}, ctx context.Context, dec func(in
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BffServer).SendTalkEdit(ctx, req.(*SendTalkEditReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_DeleteTalk_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteTalkReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).DeleteTalk(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/DeleteTalk",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).DeleteTalk(ctx, req.(*DeleteTalkReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2207,6 +2495,14 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Bff_GetCollectArticleCount_Handler,
 		},
 		{
+			MethodName: "GetCollectTalk",
+			Handler:    _Bff_GetCollectTalk_Handler,
+		},
+		{
+			MethodName: "GetCollectTalkCount",
+			Handler:    _Bff_GetCollectTalkCount_Handler,
+		},
+		{
 			MethodName: "GetCollection",
 			Handler:    _Bff_GetCollection_Handler,
 		},
@@ -2245,6 +2541,14 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetArticleListHot",
 			Handler:    _Bff_GetArticleListHot_Handler,
+		},
+		{
+			MethodName: "GetArticleCount",
+			Handler:    _Bff_GetArticleCount_Handler,
+		},
+		{
+			MethodName: "GetArticleCountVisitor",
+			Handler:    _Bff_GetArticleCountVisitor_Handler,
 		},
 		{
 			MethodName: "GetUserArticleList",
@@ -2327,6 +2631,22 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Bff_GetTalkListStatistic_Handler,
 		},
 		{
+			MethodName: "GetUserTalkList",
+			Handler:    _Bff_GetUserTalkList_Handler,
+		},
+		{
+			MethodName: "GetUserTalkListVisitor",
+			Handler:    _Bff_GetUserTalkListVisitor_Handler,
+		},
+		{
+			MethodName: "GetTalkCount",
+			Handler:    _Bff_GetTalkCount_Handler,
+		},
+		{
+			MethodName: "GetTalkCountVisitor",
+			Handler:    _Bff_GetTalkCountVisitor_Handler,
+		},
+		{
 			MethodName: "GetTalkStatistic",
 			Handler:    _Bff_GetTalkStatistic_Handler,
 		},
@@ -2345,6 +2665,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SendTalkEdit",
 			Handler:    _Bff_SendTalkEdit_Handler,
+		},
+		{
+			MethodName: "DeleteTalk",
+			Handler:    _Bff_DeleteTalk_Handler,
 		},
 		{
 			MethodName: "SetTalkView",

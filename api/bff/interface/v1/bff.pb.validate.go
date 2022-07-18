@@ -2849,6 +2849,320 @@ var _ interface {
 	ErrorName() string
 } = GetCollectArticleCountReplyValidationError{}
 
+// Validate checks the field values on GetCollectTalkReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *GetCollectTalkReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetCollectTalkReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetCollectTalkReqMultiError, or nil if none found.
+func (m *GetCollectTalkReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetCollectTalkReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Page
+
+	if len(errors) > 0 {
+		return GetCollectTalkReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetCollectTalkReqMultiError is an error wrapping multiple validation errors
+// returned by GetCollectTalkReq.ValidateAll() if the designated constraints
+// aren't met.
+type GetCollectTalkReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetCollectTalkReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetCollectTalkReqMultiError) AllErrors() []error { return m }
+
+// GetCollectTalkReqValidationError is the validation error returned by
+// GetCollectTalkReq.Validate if the designated constraints aren't met.
+type GetCollectTalkReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetCollectTalkReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetCollectTalkReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetCollectTalkReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetCollectTalkReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetCollectTalkReqValidationError) ErrorName() string {
+	return "GetCollectTalkReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetCollectTalkReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetCollectTalkReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetCollectTalkReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetCollectTalkReqValidationError{}
+
+// Validate checks the field values on GetCollectTalkCountReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetCollectTalkCountReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetCollectTalkCountReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetCollectTalkCountReqMultiError, or nil if none found.
+func (m *GetCollectTalkCountReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetCollectTalkCountReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	if len(errors) > 0 {
+		return GetCollectTalkCountReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetCollectTalkCountReqMultiError is an error wrapping multiple validation
+// errors returned by GetCollectTalkCountReq.ValidateAll() if the designated
+// constraints aren't met.
+type GetCollectTalkCountReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetCollectTalkCountReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetCollectTalkCountReqMultiError) AllErrors() []error { return m }
+
+// GetCollectTalkCountReqValidationError is the validation error returned by
+// GetCollectTalkCountReq.Validate if the designated constraints aren't met.
+type GetCollectTalkCountReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetCollectTalkCountReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetCollectTalkCountReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetCollectTalkCountReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetCollectTalkCountReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetCollectTalkCountReqValidationError) ErrorName() string {
+	return "GetCollectTalkCountReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetCollectTalkCountReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetCollectTalkCountReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetCollectTalkCountReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetCollectTalkCountReqValidationError{}
+
+// Validate checks the field values on GetCollectTalkCountReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetCollectTalkCountReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetCollectTalkCountReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetCollectTalkCountReplyMultiError, or nil if none found.
+func (m *GetCollectTalkCountReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetCollectTalkCountReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Count
+
+	if len(errors) > 0 {
+		return GetCollectTalkCountReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetCollectTalkCountReplyMultiError is an error wrapping multiple validation
+// errors returned by GetCollectTalkCountReply.ValidateAll() if the designated
+// constraints aren't met.
+type GetCollectTalkCountReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetCollectTalkCountReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetCollectTalkCountReplyMultiError) AllErrors() []error { return m }
+
+// GetCollectTalkCountReplyValidationError is the validation error returned by
+// GetCollectTalkCountReply.Validate if the designated constraints aren't met.
+type GetCollectTalkCountReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetCollectTalkCountReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetCollectTalkCountReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetCollectTalkCountReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetCollectTalkCountReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetCollectTalkCountReplyValidationError) ErrorName() string {
+	return "GetCollectTalkCountReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetCollectTalkCountReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetCollectTalkCountReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetCollectTalkCountReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetCollectTalkCountReplyValidationError{}
+
 // Validate checks the field values on GetCollectionReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -3302,6 +3616,214 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetArticleListReplyValidationError{}
+
+// Validate checks the field values on GetArticleCountReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetArticleCountReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetArticleCountReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetArticleCountReplyMultiError, or nil if none found.
+func (m *GetArticleCountReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetArticleCountReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Count
+
+	if len(errors) > 0 {
+		return GetArticleCountReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetArticleCountReplyMultiError is an error wrapping multiple validation
+// errors returned by GetArticleCountReply.ValidateAll() if the designated
+// constraints aren't met.
+type GetArticleCountReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetArticleCountReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetArticleCountReplyMultiError) AllErrors() []error { return m }
+
+// GetArticleCountReplyValidationError is the validation error returned by
+// GetArticleCountReply.Validate if the designated constraints aren't met.
+type GetArticleCountReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetArticleCountReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetArticleCountReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetArticleCountReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetArticleCountReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetArticleCountReplyValidationError) ErrorName() string {
+	return "GetArticleCountReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetArticleCountReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetArticleCountReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetArticleCountReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetArticleCountReplyValidationError{}
+
+// Validate checks the field values on GetArticleCountVisitorReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetArticleCountVisitorReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetArticleCountVisitorReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetArticleCountVisitorReqMultiError, or nil if none found.
+func (m *GetArticleCountVisitorReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetArticleCountVisitorReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Uuid
+
+	if len(errors) > 0 {
+		return GetArticleCountVisitorReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetArticleCountVisitorReqMultiError is an error wrapping multiple validation
+// errors returned by GetArticleCountVisitorReq.ValidateAll() if the
+// designated constraints aren't met.
+type GetArticleCountVisitorReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetArticleCountVisitorReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetArticleCountVisitorReqMultiError) AllErrors() []error { return m }
+
+// GetArticleCountVisitorReqValidationError is the validation error returned by
+// GetArticleCountVisitorReq.Validate if the designated constraints aren't met.
+type GetArticleCountVisitorReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetArticleCountVisitorReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetArticleCountVisitorReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetArticleCountVisitorReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetArticleCountVisitorReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetArticleCountVisitorReqValidationError) ErrorName() string {
+	return "GetArticleCountVisitorReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetArticleCountVisitorReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetArticleCountVisitorReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetArticleCountVisitorReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetArticleCountVisitorReqValidationError{}
 
 // Validate checks the field values on GetArticleListHotReq with the rules
 // defined in the proto definition for this message. If any rules are
@@ -6822,6 +7344,214 @@ var _ interface {
 	ErrorName() string
 } = GetTalkListReplyValidationError{}
 
+// Validate checks the field values on GetTalkCountReply with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *GetTalkCountReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetTalkCountReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetTalkCountReplyMultiError, or nil if none found.
+func (m *GetTalkCountReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetTalkCountReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Count
+
+	if len(errors) > 0 {
+		return GetTalkCountReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetTalkCountReplyMultiError is an error wrapping multiple validation errors
+// returned by GetTalkCountReply.ValidateAll() if the designated constraints
+// aren't met.
+type GetTalkCountReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetTalkCountReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetTalkCountReplyMultiError) AllErrors() []error { return m }
+
+// GetTalkCountReplyValidationError is the validation error returned by
+// GetTalkCountReply.Validate if the designated constraints aren't met.
+type GetTalkCountReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetTalkCountReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetTalkCountReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetTalkCountReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetTalkCountReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetTalkCountReplyValidationError) ErrorName() string {
+	return "GetTalkCountReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetTalkCountReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetTalkCountReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetTalkCountReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetTalkCountReplyValidationError{}
+
+// Validate checks the field values on GetTalkCountVisitorReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetTalkCountVisitorReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetTalkCountVisitorReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetTalkCountVisitorReqMultiError, or nil if none found.
+func (m *GetTalkCountVisitorReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetTalkCountVisitorReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Uuid
+
+	if len(errors) > 0 {
+		return GetTalkCountVisitorReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetTalkCountVisitorReqMultiError is an error wrapping multiple validation
+// errors returned by GetTalkCountVisitorReq.ValidateAll() if the designated
+// constraints aren't met.
+type GetTalkCountVisitorReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetTalkCountVisitorReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetTalkCountVisitorReqMultiError) AllErrors() []error { return m }
+
+// GetTalkCountVisitorReqValidationError is the validation error returned by
+// GetTalkCountVisitorReq.Validate if the designated constraints aren't met.
+type GetTalkCountVisitorReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetTalkCountVisitorReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetTalkCountVisitorReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetTalkCountVisitorReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetTalkCountVisitorReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetTalkCountVisitorReqValidationError) ErrorName() string {
+	return "GetTalkCountVisitorReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetTalkCountVisitorReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetTalkCountVisitorReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetTalkCountVisitorReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetTalkCountVisitorReqValidationError{}
+
 // Validate checks the field values on GetTalkListHotReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -7299,6 +8029,216 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetTalkListStatisticReplyValidationError{}
+
+// Validate checks the field values on GetUserTalkListReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetUserTalkListReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserTalkListReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetUserTalkListReqMultiError, or nil if none found.
+func (m *GetUserTalkListReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserTalkListReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Page
+
+	if len(errors) > 0 {
+		return GetUserTalkListReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetUserTalkListReqMultiError is an error wrapping multiple validation errors
+// returned by GetUserTalkListReq.ValidateAll() if the designated constraints
+// aren't met.
+type GetUserTalkListReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserTalkListReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserTalkListReqMultiError) AllErrors() []error { return m }
+
+// GetUserTalkListReqValidationError is the validation error returned by
+// GetUserTalkListReq.Validate if the designated constraints aren't met.
+type GetUserTalkListReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserTalkListReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserTalkListReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserTalkListReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserTalkListReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserTalkListReqValidationError) ErrorName() string {
+	return "GetUserTalkListReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetUserTalkListReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserTalkListReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserTalkListReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserTalkListReqValidationError{}
+
+// Validate checks the field values on GetUserTalkListVisitorReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetUserTalkListVisitorReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserTalkListVisitorReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetUserTalkListVisitorReqMultiError, or nil if none found.
+func (m *GetUserTalkListVisitorReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserTalkListVisitorReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Page
+
+	// no validation rules for Uuid
+
+	if len(errors) > 0 {
+		return GetUserTalkListVisitorReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetUserTalkListVisitorReqMultiError is an error wrapping multiple validation
+// errors returned by GetUserTalkListVisitorReq.ValidateAll() if the
+// designated constraints aren't met.
+type GetUserTalkListVisitorReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserTalkListVisitorReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserTalkListVisitorReqMultiError) AllErrors() []error { return m }
+
+// GetUserTalkListVisitorReqValidationError is the validation error returned by
+// GetUserTalkListVisitorReq.Validate if the designated constraints aren't met.
+type GetUserTalkListVisitorReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserTalkListVisitorReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserTalkListVisitorReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserTalkListVisitorReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserTalkListVisitorReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserTalkListVisitorReqValidationError) ErrorName() string {
+	return "GetUserTalkListVisitorReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetUserTalkListVisitorReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserTalkListVisitorReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserTalkListVisitorReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserTalkListVisitorReqValidationError{}
 
 // Validate checks the field values on GetTalkStatisticReq with the rules
 // defined in the proto definition for this message. If any rules are
@@ -7928,6 +8868,108 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = SendTalkEditReqValidationError{}
+
+// Validate checks the field values on DeleteTalkReq with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *DeleteTalkReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on DeleteTalkReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in DeleteTalkReqMultiError, or
+// nil if none found.
+func (m *DeleteTalkReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *DeleteTalkReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	if len(errors) > 0 {
+		return DeleteTalkReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// DeleteTalkReqMultiError is an error wrapping multiple validation errors
+// returned by DeleteTalkReq.ValidateAll() if the designated constraints
+// aren't met.
+type DeleteTalkReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m DeleteTalkReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m DeleteTalkReqMultiError) AllErrors() []error { return m }
+
+// DeleteTalkReqValidationError is the validation error returned by
+// DeleteTalkReq.Validate if the designated constraints aren't met.
+type DeleteTalkReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e DeleteTalkReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e DeleteTalkReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e DeleteTalkReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e DeleteTalkReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e DeleteTalkReqValidationError) ErrorName() string { return "DeleteTalkReqValidationError" }
+
+// Error satisfies the builtin error interface
+func (e DeleteTalkReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sDeleteTalkReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = DeleteTalkReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = DeleteTalkReqValidationError{}
 
 // Validate checks the field values on SetTalkViewReq with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
