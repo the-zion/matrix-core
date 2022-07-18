@@ -16,6 +16,10 @@ service Creation {
 
   rpc GetCollectArticleCount(GetCollectArticleCountReq) returns (GetCollectArticleCountReply){}
 
+  rpc GetCollectTalk(GetCollectTalkReq) returns (GetTalkListReply){}
+
+  rpc GetCollectTalkCount(GetCollectTalkCountReq) returns (GetCollectTalkCountReply){}
+
   rpc GetCollection(GetCollectionReq) returns (GetCollectionReply){}
 
   rpc GetCollections(GetCollectionsReq) returns (GetCollectionsReply){}
@@ -35,6 +39,10 @@ service Creation {
   rpc GetArticleList(GetArticleListReq) returns (GetArticleListReply){}
 
   rpc GetArticleListHot(GetArticleListHotReq) returns (GetArticleListHotReply){}
+
+  rpc GetArticleCount(GetArticleCountReq) returns (GetArticleCountReply){}
+
+  rpc GetArticleCountVisitor(GetArticleCountVisitorReq) returns (GetArticleCountReply){}
 
   rpc GetUserArticleList(GetUserArticleListReq) returns (GetArticleListReply){}
 
@@ -84,6 +92,14 @@ service Creation {
 
   rpc GetTalkListHot(GetTalkListHotReq) returns (GetTalkListHotReply){}
 
+  rpc GetUserTalkList(GetUserTalkListReq) returns (GetTalkListReply){}
+
+  rpc GetUserTalkListVisitor(GetUserTalkListVisitorReq) returns (GetTalkListReply){}
+
+  rpc GetTalkCount(GetTalkCountReq) returns (GetTalkCountReply){}
+
+  rpc GetTalkCountVisitor(GetTalkCountVisitorReq) returns (GetTalkCountReply){}
+
   rpc GetTalkListStatistic(GetTalkListStatisticReq)returns (GetTalkListStatisticReply){}
 
   rpc GetTalkStatistic(GetTalkStatisticReq)returns (GetTalkStatisticReply){}
@@ -100,9 +116,13 @@ service Creation {
 
   rpc EditTalk(EditTalkReq) returns (google.protobuf.Empty){}
 
+  rpc DeleteTalk(DeleteTalkReq) returns (google.protobuf.Empty){}
+
   rpc CreateTalkCacheAndSearch(CreateTalkCacheAndSearchReq) returns (google.protobuf.Empty){}
 
   rpc EditTalkCosAndSearch(EditTalkCosAndSearchReq) returns (google.protobuf.Empty){}
+
+  rpc DeleteTalkCacheAndSearch(DeleteTalkCacheAndSearchReq) returns (google.protobuf.Empty){}
 
   rpc SetTalkView(SetTalkViewReq) returns (google.protobuf.Empty){}
 
@@ -136,6 +156,19 @@ message GetCollectArticleCountReq{
 }
 
 message GetCollectArticleCountReply{
+  int32 count = 1;
+}
+
+message GetCollectTalkReq{
+  int32 id = 1;
+  int32 page = 2;
+}
+
+message GetCollectTalkCountReq{
+  int32 id = 1;
+}
+
+message GetCollectTalkCountReply{
   int32 count = 1;
 }
 
@@ -215,6 +248,18 @@ message GetArticleListHotReply{
     string uuid = 2;
   }
   repeated Article article = 1;
+}
+
+message GetArticleCountReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+message GetArticleCountVisitorReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+message GetArticleCountReply{
+  int32 count = 1;
 }
 
 message GetUserArticleListReq{
@@ -381,6 +426,18 @@ message GetTalkListReply{
   repeated Talk talk = 1;
 }
 
+message GetTalkCountReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+message GetTalkCountVisitorReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+message GetTalkCountReply{
+  int32 count = 1;
+}
+
 message GetTalkListHotReq{
   int32 page = 1;
 }
@@ -391,6 +448,16 @@ message GetTalkListHotReply{
     string uuid = 2;
   }
   repeated Talk talk = 1;
+}
+
+message GetUserTalkListReq{
+  int32 page = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message GetUserTalkListVisitorReq{
+  int32 page = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
 }
 
 message GetTalkListStatisticReq{
@@ -458,6 +525,11 @@ message EditTalkReq{
   string uuid = 2 [(validate.rules).string.uuid = true];
 }
 
+message DeleteTalkReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
 message CreateTalkCacheAndSearchReq{
   int32 id = 1;
   int32 auth = 2;
@@ -465,6 +537,11 @@ message CreateTalkCacheAndSearchReq{
 }
 
 message EditTalkCosAndSearchReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message DeleteTalkCacheAndSearchReq{
   int32 id = 1;
   string uuid = 2 [(validate.rules).string.uuid = true];
 }
