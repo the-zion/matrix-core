@@ -80,6 +80,36 @@ func (r *creationRepo) GetCollectArticleCount(ctx context.Context, id int32) (in
 	return int32(count), nil
 }
 
+func (r *creationRepo) GetCollectTalk(ctx context.Context, id, page int32) ([]*biz.Talk, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int(page - 1)
+	list := make([]*Collect, 0)
+	err := r.data.db.WithContext(ctx).Where("collections_id = ? and mode = ?", id, 2).Order("id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get collect talk from db: id(%v), page(%v)", id, page))
+	}
+
+	talk := make([]*biz.Talk, 0)
+	for _, item := range list {
+		talk = append(talk, &biz.Talk{
+			TalkId: item.CreationsId,
+			Uuid:   item.Uuid,
+		})
+	}
+	return talk, nil
+}
+
+func (r *creationRepo) GetCollectTalkCount(ctx context.Context, id int32) (int32, error) {
+	var count int64
+	err := r.data.db.WithContext(ctx).Model(&Collect{}).Where("collections_id = ? and mode = ?", id, 2).Count(&count).Error
+	if err != nil {
+		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get collect talk count from db: id(%v)", id))
+	}
+	return int32(count), nil
+}
+
 func (r *creationRepo) GetCollection(ctx context.Context, id int32, uuid string) (*biz.Collections, error) {
 	collections := &Collections{}
 	err := r.data.db.WithContext(ctx).Where("id = ?", id).First(collections).Error
