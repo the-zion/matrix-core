@@ -15,6 +15,8 @@ type ArticleRepo interface {
 	GetArticleAgreeJudge(ctx context.Context, id int32, uuid string) (bool, error)
 	GetArticleCollectJudge(ctx context.Context, id int32, uuid string) (bool, error)
 	GetArticleListHot(ctx context.Context, page int32) ([]*ArticleStatistic, error)
+	GetArticleCount(ctx context.Context, uuid string) (int32, error)
+	GetArticleCountVisitor(ctx context.Context, uuid string) (int32, error)
 	GetUserArticleList(ctx context.Context, page int32, uuid string) ([]*Article, error)
 	GetUserArticleListVisitor(ctx context.Context, page int32, uuid string) ([]*Article, error)
 	GetArticleStatistic(ctx context.Context, id int32) (*ArticleStatistic, error)
@@ -240,6 +242,22 @@ func (r *ArticleUseCase) GetArticleListHot(ctx context.Context, page int32) ([]*
 		return nil, v1.ErrorGetArticleListFailed("get article hot list failed: %s", err.Error())
 	}
 	return articleList, nil
+}
+
+func (r *ArticleUseCase) GetArticleCount(ctx context.Context, uuid string) (int32, error) {
+	count, err := r.repo.GetArticleCount(ctx, uuid)
+	if err != nil {
+		return 0, v1.ErrorGetCountFailed("get article count failed: %s", err.Error())
+	}
+	return count, nil
+}
+
+func (r *ArticleUseCase) GetArticleCountVisitor(ctx context.Context, uuid string) (int32, error) {
+	count, err := r.repo.GetArticleCountVisitor(ctx, uuid)
+	if err != nil {
+		return 0, v1.ErrorGetCountFailed("get article count visitor failed: %s", err.Error())
+	}
+	return count, nil
 }
 
 func (r *ArticleUseCase) GetUserArticleList(ctx context.Context, page int32, uuid string) ([]*Article, error) {
