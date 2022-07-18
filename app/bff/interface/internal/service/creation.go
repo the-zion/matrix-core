@@ -49,6 +49,31 @@ func (s *BffService) GetCollectArticleCount(ctx context.Context, req *v1.GetColl
 	}, nil
 }
 
+func (s *BffService) GetCollectTalk(ctx context.Context, req *v1.GetCollectTalkReq) (*v1.GetTalkListReply, error) {
+	reply := &v1.GetTalkListReply{Talk: make([]*v1.GetTalkListReply_Talk, 0)}
+	talkList, err := s.cc.GetCollectTalk(ctx, req.Id, req.Page)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range talkList {
+		reply.Talk = append(reply.Talk, &v1.GetTalkListReply_Talk{
+			Id:   item.Id,
+			Uuid: item.Uuid,
+		})
+	}
+	return reply, nil
+}
+
+func (s *BffService) GetCollectTalkCount(ctx context.Context, req *v1.GetCollectTalkCountReq) (*v1.GetCollectTalkCountReply, error) {
+	count, err := s.cc.GetCollectTalkCount(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetCollectTalkCountReply{
+		Count: count,
+	}, nil
+}
+
 func (s *BffService) GetCollection(ctx context.Context, req *v1.GetCollectionReq) (*v1.GetCollectionReply, error) {
 	collection, err := s.cc.GetCollection(ctx, req.Id, req.Uuid)
 	if err != nil {
@@ -168,6 +193,26 @@ func (s *BffService) GetArticleListHot(ctx context.Context, req *v1.GetArticleLi
 		})
 	}
 	return reply, nil
+}
+
+func (s *BffService) GetArticleCountVisitor(ctx context.Context, req *v1.GetArticleCountVisitorReq) (*v1.GetArticleCountReply, error) {
+	count, err := s.ac.GetArticleCountVisitor(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetArticleCountReply{
+		Count: count,
+	}, nil
+}
+
+func (s *BffService) GetArticleCount(ctx context.Context, _ *emptypb.Empty) (*v1.GetArticleCountReply, error) {
+	count, err := s.ac.GetArticleCount(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetArticleCountReply{
+		Count: count,
+	}, nil
 }
 
 func (s *BffService) GetUserArticleList(ctx context.Context, req *v1.GetUserArticleListReq) (*v1.GetArticleListReply, error) {
@@ -382,6 +427,56 @@ func (s *BffService) GetTalkListHot(ctx context.Context, req *v1.GetTalkListHotR
 	return reply, nil
 }
 
+func (s *BffService) GetUserTalkList(ctx context.Context, req *v1.GetUserTalkListReq) (*v1.GetTalkListReply, error) {
+	reply := &v1.GetTalkListReply{Talk: make([]*v1.GetTalkListReply_Talk, 0)}
+	talkList, err := s.tc.GetUserTalkList(ctx, req.Page)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range talkList {
+		reply.Talk = append(reply.Talk, &v1.GetTalkListReply_Talk{
+			Id:   item.Id,
+			Uuid: item.Uuid,
+		})
+	}
+	return reply, nil
+}
+
+func (s *BffService) GetUserTalkListVisitor(ctx context.Context, req *v1.GetUserTalkListVisitorReq) (*v1.GetTalkListReply, error) {
+	reply := &v1.GetTalkListReply{Talk: make([]*v1.GetTalkListReply_Talk, 0)}
+	talkList, err := s.tc.GetUserTalkListVisitor(ctx, req.Page, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range talkList {
+		reply.Talk = append(reply.Talk, &v1.GetTalkListReply_Talk{
+			Id:   item.Id,
+			Uuid: item.Uuid,
+		})
+	}
+	return reply, nil
+}
+
+func (s *BffService) GetTalkCount(ctx context.Context, _ *emptypb.Empty) (*v1.GetTalkCountReply, error) {
+	count, err := s.tc.GetTalkCount(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetTalkCountReply{
+		Count: count,
+	}, nil
+}
+
+func (s *BffService) GetTalkCountVisitor(ctx context.Context, req *v1.GetTalkCountVisitorReq) (*v1.GetTalkCountReply, error) {
+	count, err := s.tc.GetTalkCountVisitor(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetTalkCountReply{
+		Count: count,
+	}, nil
+}
+
 func (s *BffService) GetTalkListStatistic(ctx context.Context, req *v1.GetTalkListStatisticReq) (*v1.GetTalkListStatisticReply, error) {
 	reply := &v1.GetTalkListStatisticReply{Count: make([]*v1.GetTalkListStatisticReply_Count, 0)}
 	statisticList, err := s.tc.GetTalkListStatistic(ctx, req.Ids)
@@ -445,6 +540,14 @@ func (s *BffService) SendTalk(ctx context.Context, req *v1.SendTalkReq) (*emptyp
 
 func (s *BffService) SendTalkEdit(ctx context.Context, req *v1.SendTalkEditReq) (*emptypb.Empty, error) {
 	err := s.tc.SendTalkEdit(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) DeleteTalk(ctx context.Context, req *v1.DeleteTalkReq) (*emptypb.Empty, error) {
+	err := s.tc.DeleteTalk(ctx, req.Id)
 	if err != nil {
 		return nil, err
 	}
