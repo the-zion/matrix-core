@@ -47,6 +47,56 @@ func (s *CreationService) GetTalkListHot(ctx context.Context, req *v1.GetTalkLis
 	return reply, nil
 }
 
+func (s *CreationService) GetUserTalkList(ctx context.Context, req *v1.GetUserTalkListReq) (*v1.GetTalkListReply, error) {
+	reply := &v1.GetTalkListReply{Talk: make([]*v1.GetTalkListReply_Talk, 0)}
+	talkList, err := s.tc.GetUserTalkList(ctx, req.Page, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range talkList {
+		reply.Talk = append(reply.Talk, &v1.GetTalkListReply_Talk{
+			Id:   item.TalkId,
+			Uuid: item.Uuid,
+		})
+	}
+	return reply, nil
+}
+
+func (s *CreationService) GetUserTalkListVisitor(ctx context.Context, req *v1.GetUserTalkListVisitorReq) (*v1.GetTalkListReply, error) {
+	reply := &v1.GetTalkListReply{Talk: make([]*v1.GetTalkListReply_Talk, 0)}
+	talkList, err := s.tc.GetUserTalkListVisitor(ctx, req.Page, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range talkList {
+		reply.Talk = append(reply.Talk, &v1.GetTalkListReply_Talk{
+			Id:   item.TalkId,
+			Uuid: item.Uuid,
+		})
+	}
+	return reply, nil
+}
+
+func (s *CreationService) GetTalkCount(ctx context.Context, req *v1.GetTalkCountReq) (*v1.GetTalkCountReply, error) {
+	count, err := s.tc.GetTalkCount(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetTalkCountReply{
+		Count: count,
+	}, nil
+}
+
+func (s *CreationService) GetTalkCountVisitor(ctx context.Context, req *v1.GetTalkCountVisitorReq) (*v1.GetTalkCountReply, error) {
+	count, err := s.tc.GetTalkCountVisitor(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetTalkCountReply{
+		Count: count,
+	}, nil
+}
+
 func (s *CreationService) GetTalkListStatistic(ctx context.Context, req *v1.GetTalkListStatisticReq) (*v1.GetTalkListStatisticReply, error) {
 	reply := &v1.GetTalkListStatisticReply{Count: make([]*v1.GetTalkListStatisticReply_Count, 0)}
 	statisticList, err := s.tc.GetTalkListStatistic(ctx, req.Ids)
@@ -105,6 +155,14 @@ func (s *CreationService) SendTalkEdit(ctx context.Context, req *v1.SendTalkEdit
 	return &emptypb.Empty{}, nil
 }
 
+func (s *CreationService) DeleteTalk(ctx context.Context, req *v1.DeleteTalkReq) (*emptypb.Empty, error) {
+	err := s.tc.DeleteTalk(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *CreationService) CreateTalk(ctx context.Context, req *v1.CreateTalkReq) (*emptypb.Empty, error) {
 	err := s.tc.CreateTalk(ctx, req.Id, req.Auth, req.Uuid)
 	if err != nil {
@@ -131,6 +189,14 @@ func (s *CreationService) CreateTalkCacheAndSearch(ctx context.Context, req *v1.
 
 func (s *CreationService) EditTalkCosAndSearch(ctx context.Context, req *v1.EditTalkCosAndSearchReq) (*emptypb.Empty, error) {
 	err := s.tc.EditTalkCosAndSearch(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) DeleteTalkCacheAndSearch(ctx context.Context, req *v1.DeleteTalkCacheAndSearchReq) (*emptypb.Empty, error) {
+	err := s.tc.DeleteTalkCacheAndSearch(ctx, req.Id, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
