@@ -87,6 +87,66 @@ func (r *talkRepo) GetTalkListHot(ctx context.Context, page int32) ([]*biz.TalkS
 	return talk, nil
 }
 
+func (r *talkRepo) GetUserTalkList(ctx context.Context, page int32, uuid string) ([]*biz.Talk, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int(page - 1)
+	list := make([]*Talk, 0)
+	err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).Order("talk_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user talk from db: page(%v), uuid(%s)", page, uuid))
+	}
+
+	talk := make([]*biz.Talk, 0)
+	for _, item := range list {
+		talk = append(talk, &biz.Talk{
+			TalkId: item.TalkId,
+			Uuid:   item.Uuid,
+		})
+	}
+	return talk, nil
+}
+
+func (r *talkRepo) GetUserTalkListVisitor(ctx context.Context, page int32, uuid string) ([]*biz.Talk, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int(page - 1)
+	list := make([]*Talk, 0)
+	err := r.data.db.WithContext(ctx).Where("uuid = ? and auth = ?", uuid, 1).Order("talk_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user talk visitor from db: page(%v), uuid(%s)", page, uuid))
+	}
+
+	talk := make([]*biz.Talk, 0)
+	for _, item := range list {
+		talk = append(talk, &biz.Talk{
+			TalkId: item.TalkId,
+			Uuid:   item.Uuid,
+		})
+	}
+	return talk, nil
+}
+
+func (r *talkRepo) GetTalkCount(ctx context.Context, uuid string) (int32, error) {
+	var count int64
+	err := r.data.db.WithContext(ctx).Model(&Talk{}).Where("uuid = ?", uuid).Count(&count).Error
+	if err != nil {
+		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get talk count from db: uuid(%s)", uuid))
+	}
+	return int32(count), nil
+}
+
+func (r *talkRepo) GetTalkCountVisitor(ctx context.Context, uuid string) (int32, error) {
+	var count int64
+	err := r.data.db.WithContext(ctx).Model(&Talk{}).Where("uuid = ? and auth = ?", uuid, 1).Count(&count).Error
+	if err != nil {
+		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get talk count from db: uuid(%s)", uuid))
+	}
+	return int32(count), nil
+}
+
 func (r *talkRepo) setTalkHotToCache(key string, talk []*biz.TalkStatistic) {
 	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
 		z := make([]*redis.Z, 0)
@@ -411,6 +471,50 @@ func (r *talkRepo) CreateTalk(ctx context.Context, id, auth int32, uuid string) 
 	return nil
 }
 
+func (r *talkRepo) DeleteTalk(ctx context.Context, id int32, uuid string) error {
+	talk := &Talk{}
+	err := r.data.DB(ctx).Where("talk_id = ? and uuid = ?", id, uuid).Delete(talk).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to delete a talk: id(%v), uuid(%s)", id, uuid))
+	}
+	return nil
+}
+
+func (r *talkRepo) DeleteTalkStatistic(ctx context.Context, id int32, uuid string) error {
+	statistic := &TalkStatistic{}
+	err := r.data.DB(ctx).Where("talk_id = ? and uuid = ?", id, uuid).Delete(statistic).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to delete a talk statistic: uuid(%s)", uuid))
+	}
+	return nil
+}
+
+func (r *talkRepo) DeleteTalkCache(ctx context.Context, id int32, uuid string) error {
+	ids := strconv.Itoa(int(id))
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.ZRem(ctx, "talk", ids+"%"+uuid)
+		pipe.ZRem(ctx, "talk_hot", ids+"%"+uuid)
+		pipe.ZRem(ctx, "leaderboard", ids+"%"+uuid+"%talk")
+		pipe.Del(ctx, "talk_"+ids)
+		pipe.Del(ctx, "talk_collect_"+ids)
+		return nil
+	})
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to delete talk cache: id(%v), uuid(%s)", id, uuid))
+	}
+	return nil
+}
+
+func (r *talkRepo) FreezeTalkCos(ctx context.Context, id int32, uuid string) error {
+	ids := strconv.Itoa(int(id))
+	key := "talk/" + uuid + "/" + ids + "/content"
+	_, err := r.data.cosCli.Object.Delete(ctx, key)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to freeze talk: id(%v), uuid(%s)", id, uuid))
+	}
+	return nil
+}
+
 func (r *talkRepo) CreateTalkStatistic(ctx context.Context, id, auth int32, uuid string) error {
 	ts := &TalkStatistic{
 		TalkId: id,
@@ -536,7 +640,7 @@ func (r *talkRepo) CancelTalkAgreeFromCache(ctx context.Context, id int32, uuid,
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to cancel article agree from cache: id(%v), uuid(%s), userUuid(%s)", id, uuid, userUuid)
+		r.log.Errorf("fail to cancel talk agree from cache: id(%v), uuid(%s), userUuid(%s)", id, uuid, userUuid)
 	}
 	return nil
 }
@@ -697,5 +801,9 @@ func (r *talkRepo) CreateTalkSearch(ctx context.Context, id int32, uuid string) 
 }
 
 func (r *talkRepo) EditTalkSearch(ctx context.Context, id int32, uuid string) error {
+	return nil
+}
+
+func (r *talkRepo) DeleteTalkSearch(ctx context.Context, id int32, uuid string) error {
 	return nil
 }
