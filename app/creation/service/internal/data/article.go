@@ -141,6 +141,24 @@ func (r *articleRepo) GetArticleListHot(ctx context.Context, page int32) ([]*biz
 	return article, nil
 }
 
+func (r *articleRepo) GetArticleCount(ctx context.Context, uuid string) (int32, error) {
+	var count int64
+	err := r.data.db.WithContext(ctx).Model(&Article{}).Where("uuid = ?", uuid).Count(&count).Error
+	if err != nil {
+		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get article count from db: uuid(%s)", uuid))
+	}
+	return int32(count), nil
+}
+
+func (r *articleRepo) GetArticleCountVisitor(ctx context.Context, uuid string) (int32, error) {
+	var count int64
+	err := r.data.db.WithContext(ctx).Model(&Article{}).Where("uuid = ? and auth = ?", uuid, 1).Count(&count).Error
+	if err != nil {
+		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get article count from db: uuid(%s)", uuid))
+	}
+	return int32(count), nil
+}
+
 func (r *articleRepo) GetUserArticleList(ctx context.Context, page int32, uuid string) ([]*biz.Article, error) {
 	if page < 1 {
 		page = 1
