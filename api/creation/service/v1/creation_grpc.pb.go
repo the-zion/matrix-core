@@ -26,6 +26,8 @@ type CreationClient interface {
 	GetLeaderBoard(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLeaderBoardReply, error)
 	GetCollectArticle(ctx context.Context, in *GetCollectArticleReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
 	GetCollectArticleCount(ctx context.Context, in *GetCollectArticleCountReq, opts ...grpc.CallOption) (*GetCollectArticleCountReply, error)
+	GetCollectTalk(ctx context.Context, in *GetCollectTalkReq, opts ...grpc.CallOption) (*GetTalkListReply, error)
+	GetCollectTalkCount(ctx context.Context, in *GetCollectTalkCountReq, opts ...grpc.CallOption) (*GetCollectTalkCountReply, error)
 	GetCollection(ctx context.Context, in *GetCollectionReq, opts ...grpc.CallOption) (*GetCollectionReply, error)
 	GetCollections(ctx context.Context, in *GetCollectionsReq, opts ...grpc.CallOption) (*GetCollectionsReply, error)
 	GetCollectionsCount(ctx context.Context, in *GetCollectionsCountReq, opts ...grpc.CallOption) (*GetCollectionsCountReply, error)
@@ -36,6 +38,8 @@ type CreationClient interface {
 	DeleteCollections(ctx context.Context, in *DeleteCollectionsReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetArticleList(ctx context.Context, in *GetArticleListReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
 	GetArticleListHot(ctx context.Context, in *GetArticleListHotReq, opts ...grpc.CallOption) (*GetArticleListHotReply, error)
+	GetArticleCount(ctx context.Context, in *GetArticleCountReq, opts ...grpc.CallOption) (*GetArticleCountReply, error)
+	GetArticleCountVisitor(ctx context.Context, in *GetArticleCountVisitorReq, opts ...grpc.CallOption) (*GetArticleCountReply, error)
 	GetUserArticleList(ctx context.Context, in *GetUserArticleListReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
 	GetUserArticleListVisitor(ctx context.Context, in *GetUserArticleListVisitorReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
 	GetArticleStatistic(ctx context.Context, in *GetArticleStatisticReq, opts ...grpc.CallOption) (*GetArticleStatisticReply, error)
@@ -60,6 +64,10 @@ type CreationClient interface {
 	ArticleStatisticJudge(ctx context.Context, in *ArticleStatisticJudgeReq, opts ...grpc.CallOption) (*ArticleStatisticJudgeReply, error)
 	GetTalkList(ctx context.Context, in *GetTalkListReq, opts ...grpc.CallOption) (*GetTalkListReply, error)
 	GetTalkListHot(ctx context.Context, in *GetTalkListHotReq, opts ...grpc.CallOption) (*GetTalkListHotReply, error)
+	GetUserTalkList(ctx context.Context, in *GetUserTalkListReq, opts ...grpc.CallOption) (*GetTalkListReply, error)
+	GetUserTalkListVisitor(ctx context.Context, in *GetUserTalkListVisitorReq, opts ...grpc.CallOption) (*GetTalkListReply, error)
+	GetTalkCount(ctx context.Context, in *GetTalkCountReq, opts ...grpc.CallOption) (*GetTalkCountReply, error)
+	GetTalkCountVisitor(ctx context.Context, in *GetTalkCountVisitorReq, opts ...grpc.CallOption) (*GetTalkCountReply, error)
 	GetTalkListStatistic(ctx context.Context, in *GetTalkListStatisticReq, opts ...grpc.CallOption) (*GetTalkListStatisticReply, error)
 	GetTalkStatistic(ctx context.Context, in *GetTalkStatisticReq, opts ...grpc.CallOption) (*GetTalkStatisticReply, error)
 	GetLastTalkDraft(ctx context.Context, in *GetLastTalkDraftReq, opts ...grpc.CallOption) (*GetLastTalkDraftReply, error)
@@ -68,8 +76,10 @@ type CreationClient interface {
 	SendTalkEdit(ctx context.Context, in *SendTalkEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateTalk(ctx context.Context, in *CreateTalkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	EditTalk(ctx context.Context, in *EditTalkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DeleteTalk(ctx context.Context, in *DeleteTalkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateTalkCacheAndSearch(ctx context.Context, in *CreateTalkCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	EditTalkCosAndSearch(ctx context.Context, in *EditTalkCosAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DeleteTalkCacheAndSearch(ctx context.Context, in *DeleteTalkCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetTalkView(ctx context.Context, in *SetTalkViewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	TalkStatisticJudge(ctx context.Context, in *TalkStatisticJudgeReq, opts ...grpc.CallOption) (*TalkStatisticJudgeReply, error)
 	SetTalkAgree(ctx context.Context, in *SetTalkAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -107,6 +117,24 @@ func (c *creationClient) GetCollectArticle(ctx context.Context, in *GetCollectAr
 func (c *creationClient) GetCollectArticleCount(ctx context.Context, in *GetCollectArticleCountReq, opts ...grpc.CallOption) (*GetCollectArticleCountReply, error) {
 	out := new(GetCollectArticleCountReply)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetCollectArticleCount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) GetCollectTalk(ctx context.Context, in *GetCollectTalkReq, opts ...grpc.CallOption) (*GetTalkListReply, error) {
+	out := new(GetTalkListReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetCollectTalk", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) GetCollectTalkCount(ctx context.Context, in *GetCollectTalkCountReq, opts ...grpc.CallOption) (*GetCollectTalkCountReply, error) {
+	out := new(GetCollectTalkCountReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetCollectTalkCount", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -197,6 +225,24 @@ func (c *creationClient) GetArticleList(ctx context.Context, in *GetArticleListR
 func (c *creationClient) GetArticleListHot(ctx context.Context, in *GetArticleListHotReq, opts ...grpc.CallOption) (*GetArticleListHotReply, error) {
 	out := new(GetArticleListHotReply)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetArticleListHot", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) GetArticleCount(ctx context.Context, in *GetArticleCountReq, opts ...grpc.CallOption) (*GetArticleCountReply, error) {
+	out := new(GetArticleCountReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetArticleCount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) GetArticleCountVisitor(ctx context.Context, in *GetArticleCountVisitorReq, opts ...grpc.CallOption) (*GetArticleCountReply, error) {
+	out := new(GetArticleCountReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetArticleCountVisitor", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -419,6 +465,42 @@ func (c *creationClient) GetTalkListHot(ctx context.Context, in *GetTalkListHotR
 	return out, nil
 }
 
+func (c *creationClient) GetUserTalkList(ctx context.Context, in *GetUserTalkListReq, opts ...grpc.CallOption) (*GetTalkListReply, error) {
+	out := new(GetTalkListReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetUserTalkList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) GetUserTalkListVisitor(ctx context.Context, in *GetUserTalkListVisitorReq, opts ...grpc.CallOption) (*GetTalkListReply, error) {
+	out := new(GetTalkListReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetUserTalkListVisitor", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) GetTalkCount(ctx context.Context, in *GetTalkCountReq, opts ...grpc.CallOption) (*GetTalkCountReply, error) {
+	out := new(GetTalkCountReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetTalkCount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) GetTalkCountVisitor(ctx context.Context, in *GetTalkCountVisitorReq, opts ...grpc.CallOption) (*GetTalkCountReply, error) {
+	out := new(GetTalkCountReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetTalkCountVisitor", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *creationClient) GetTalkListStatistic(ctx context.Context, in *GetTalkListStatisticReq, opts ...grpc.CallOption) (*GetTalkListStatisticReply, error) {
 	out := new(GetTalkListStatisticReply)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetTalkListStatistic", in, out, opts...)
@@ -491,6 +573,15 @@ func (c *creationClient) EditTalk(ctx context.Context, in *EditTalkReq, opts ...
 	return out, nil
 }
 
+func (c *creationClient) DeleteTalk(ctx context.Context, in *DeleteTalkReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/DeleteTalk", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *creationClient) CreateTalkCacheAndSearch(ctx context.Context, in *CreateTalkCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/CreateTalkCacheAndSearch", in, out, opts...)
@@ -503,6 +594,15 @@ func (c *creationClient) CreateTalkCacheAndSearch(ctx context.Context, in *Creat
 func (c *creationClient) EditTalkCosAndSearch(ctx context.Context, in *EditTalkCosAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/EditTalkCosAndSearch", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) DeleteTalkCacheAndSearch(ctx context.Context, in *DeleteTalkCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/DeleteTalkCacheAndSearch", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -570,6 +670,8 @@ type CreationServer interface {
 	GetLeaderBoard(context.Context, *emptypb.Empty) (*GetLeaderBoardReply, error)
 	GetCollectArticle(context.Context, *GetCollectArticleReq) (*GetArticleListReply, error)
 	GetCollectArticleCount(context.Context, *GetCollectArticleCountReq) (*GetCollectArticleCountReply, error)
+	GetCollectTalk(context.Context, *GetCollectTalkReq) (*GetTalkListReply, error)
+	GetCollectTalkCount(context.Context, *GetCollectTalkCountReq) (*GetCollectTalkCountReply, error)
 	GetCollection(context.Context, *GetCollectionReq) (*GetCollectionReply, error)
 	GetCollections(context.Context, *GetCollectionsReq) (*GetCollectionsReply, error)
 	GetCollectionsCount(context.Context, *GetCollectionsCountReq) (*GetCollectionsCountReply, error)
@@ -580,6 +682,8 @@ type CreationServer interface {
 	DeleteCollections(context.Context, *DeleteCollectionsReq) (*emptypb.Empty, error)
 	GetArticleList(context.Context, *GetArticleListReq) (*GetArticleListReply, error)
 	GetArticleListHot(context.Context, *GetArticleListHotReq) (*GetArticleListHotReply, error)
+	GetArticleCount(context.Context, *GetArticleCountReq) (*GetArticleCountReply, error)
+	GetArticleCountVisitor(context.Context, *GetArticleCountVisitorReq) (*GetArticleCountReply, error)
 	GetUserArticleList(context.Context, *GetUserArticleListReq) (*GetArticleListReply, error)
 	GetUserArticleListVisitor(context.Context, *GetUserArticleListVisitorReq) (*GetArticleListReply, error)
 	GetArticleStatistic(context.Context, *GetArticleStatisticReq) (*GetArticleStatisticReply, error)
@@ -604,6 +708,10 @@ type CreationServer interface {
 	ArticleStatisticJudge(context.Context, *ArticleStatisticJudgeReq) (*ArticleStatisticJudgeReply, error)
 	GetTalkList(context.Context, *GetTalkListReq) (*GetTalkListReply, error)
 	GetTalkListHot(context.Context, *GetTalkListHotReq) (*GetTalkListHotReply, error)
+	GetUserTalkList(context.Context, *GetUserTalkListReq) (*GetTalkListReply, error)
+	GetUserTalkListVisitor(context.Context, *GetUserTalkListVisitorReq) (*GetTalkListReply, error)
+	GetTalkCount(context.Context, *GetTalkCountReq) (*GetTalkCountReply, error)
+	GetTalkCountVisitor(context.Context, *GetTalkCountVisitorReq) (*GetTalkCountReply, error)
 	GetTalkListStatistic(context.Context, *GetTalkListStatisticReq) (*GetTalkListStatisticReply, error)
 	GetTalkStatistic(context.Context, *GetTalkStatisticReq) (*GetTalkStatisticReply, error)
 	GetLastTalkDraft(context.Context, *GetLastTalkDraftReq) (*GetLastTalkDraftReply, error)
@@ -612,8 +720,10 @@ type CreationServer interface {
 	SendTalkEdit(context.Context, *SendTalkEditReq) (*emptypb.Empty, error)
 	CreateTalk(context.Context, *CreateTalkReq) (*emptypb.Empty, error)
 	EditTalk(context.Context, *EditTalkReq) (*emptypb.Empty, error)
+	DeleteTalk(context.Context, *DeleteTalkReq) (*emptypb.Empty, error)
 	CreateTalkCacheAndSearch(context.Context, *CreateTalkCacheAndSearchReq) (*emptypb.Empty, error)
 	EditTalkCosAndSearch(context.Context, *EditTalkCosAndSearchReq) (*emptypb.Empty, error)
+	DeleteTalkCacheAndSearch(context.Context, *DeleteTalkCacheAndSearchReq) (*emptypb.Empty, error)
 	SetTalkView(context.Context, *SetTalkViewReq) (*emptypb.Empty, error)
 	TalkStatisticJudge(context.Context, *TalkStatisticJudgeReq) (*TalkStatisticJudgeReply, error)
 	SetTalkAgree(context.Context, *SetTalkAgreeReq) (*emptypb.Empty, error)
@@ -635,6 +745,12 @@ func (UnimplementedCreationServer) GetCollectArticle(context.Context, *GetCollec
 }
 func (UnimplementedCreationServer) GetCollectArticleCount(context.Context, *GetCollectArticleCountReq) (*GetCollectArticleCountReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCollectArticleCount not implemented")
+}
+func (UnimplementedCreationServer) GetCollectTalk(context.Context, *GetCollectTalkReq) (*GetTalkListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCollectTalk not implemented")
+}
+func (UnimplementedCreationServer) GetCollectTalkCount(context.Context, *GetCollectTalkCountReq) (*GetCollectTalkCountReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCollectTalkCount not implemented")
 }
 func (UnimplementedCreationServer) GetCollection(context.Context, *GetCollectionReq) (*GetCollectionReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCollection not implemented")
@@ -665,6 +781,12 @@ func (UnimplementedCreationServer) GetArticleList(context.Context, *GetArticleLi
 }
 func (UnimplementedCreationServer) GetArticleListHot(context.Context, *GetArticleListHotReq) (*GetArticleListHotReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetArticleListHot not implemented")
+}
+func (UnimplementedCreationServer) GetArticleCount(context.Context, *GetArticleCountReq) (*GetArticleCountReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetArticleCount not implemented")
+}
+func (UnimplementedCreationServer) GetArticleCountVisitor(context.Context, *GetArticleCountVisitorReq) (*GetArticleCountReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetArticleCountVisitor not implemented")
 }
 func (UnimplementedCreationServer) GetUserArticleList(context.Context, *GetUserArticleListReq) (*GetArticleListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserArticleList not implemented")
@@ -738,6 +860,18 @@ func (UnimplementedCreationServer) GetTalkList(context.Context, *GetTalkListReq)
 func (UnimplementedCreationServer) GetTalkListHot(context.Context, *GetTalkListHotReq) (*GetTalkListHotReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTalkListHot not implemented")
 }
+func (UnimplementedCreationServer) GetUserTalkList(context.Context, *GetUserTalkListReq) (*GetTalkListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserTalkList not implemented")
+}
+func (UnimplementedCreationServer) GetUserTalkListVisitor(context.Context, *GetUserTalkListVisitorReq) (*GetTalkListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserTalkListVisitor not implemented")
+}
+func (UnimplementedCreationServer) GetTalkCount(context.Context, *GetTalkCountReq) (*GetTalkCountReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTalkCount not implemented")
+}
+func (UnimplementedCreationServer) GetTalkCountVisitor(context.Context, *GetTalkCountVisitorReq) (*GetTalkCountReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTalkCountVisitor not implemented")
+}
 func (UnimplementedCreationServer) GetTalkListStatistic(context.Context, *GetTalkListStatisticReq) (*GetTalkListStatisticReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTalkListStatistic not implemented")
 }
@@ -762,11 +896,17 @@ func (UnimplementedCreationServer) CreateTalk(context.Context, *CreateTalkReq) (
 func (UnimplementedCreationServer) EditTalk(context.Context, *EditTalkReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EditTalk not implemented")
 }
+func (UnimplementedCreationServer) DeleteTalk(context.Context, *DeleteTalkReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteTalk not implemented")
+}
 func (UnimplementedCreationServer) CreateTalkCacheAndSearch(context.Context, *CreateTalkCacheAndSearchReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTalkCacheAndSearch not implemented")
 }
 func (UnimplementedCreationServer) EditTalkCosAndSearch(context.Context, *EditTalkCosAndSearchReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EditTalkCosAndSearch not implemented")
+}
+func (UnimplementedCreationServer) DeleteTalkCacheAndSearch(context.Context, *DeleteTalkCacheAndSearchReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteTalkCacheAndSearch not implemented")
 }
 func (UnimplementedCreationServer) SetTalkView(context.Context, *SetTalkViewReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetTalkView not implemented")
@@ -849,6 +989,42 @@ func _Creation_GetCollectArticleCount_Handler(srv interface{}, ctx context.Conte
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CreationServer).GetCollectArticleCount(ctx, req.(*GetCollectArticleCountReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_GetCollectTalk_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCollectTalkReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetCollectTalk(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetCollectTalk",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetCollectTalk(ctx, req.(*GetCollectTalkReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_GetCollectTalkCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCollectTalkCountReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetCollectTalkCount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetCollectTalkCount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetCollectTalkCount(ctx, req.(*GetCollectTalkCountReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1029,6 +1205,42 @@ func _Creation_GetArticleListHot_Handler(srv interface{}, ctx context.Context, d
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CreationServer).GetArticleListHot(ctx, req.(*GetArticleListHotReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_GetArticleCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetArticleCountReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetArticleCount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetArticleCount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetArticleCount(ctx, req.(*GetArticleCountReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_GetArticleCountVisitor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetArticleCountVisitorReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetArticleCountVisitor(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetArticleCountVisitor",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetArticleCountVisitor(ctx, req.(*GetArticleCountVisitorReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1465,6 +1677,78 @@ func _Creation_GetTalkListHot_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Creation_GetUserTalkList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserTalkListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetUserTalkList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetUserTalkList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetUserTalkList(ctx, req.(*GetUserTalkListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_GetUserTalkListVisitor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserTalkListVisitorReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetUserTalkListVisitor(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetUserTalkListVisitor",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetUserTalkListVisitor(ctx, req.(*GetUserTalkListVisitorReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_GetTalkCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTalkCountReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetTalkCount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetTalkCount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetTalkCount(ctx, req.(*GetTalkCountReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_GetTalkCountVisitor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTalkCountVisitorReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetTalkCountVisitor(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetTalkCountVisitor",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetTalkCountVisitor(ctx, req.(*GetTalkCountVisitorReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Creation_GetTalkListStatistic_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetTalkListStatisticReq)
 	if err := dec(in); err != nil {
@@ -1609,6 +1893,24 @@ func _Creation_EditTalk_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Creation_DeleteTalk_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteTalkReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).DeleteTalk(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/DeleteTalk",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).DeleteTalk(ctx, req.(*DeleteTalkReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Creation_CreateTalkCacheAndSearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateTalkCacheAndSearchReq)
 	if err := dec(in); err != nil {
@@ -1641,6 +1943,24 @@ func _Creation_EditTalkCosAndSearch_Handler(srv interface{}, ctx context.Context
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CreationServer).EditTalkCosAndSearch(ctx, req.(*EditTalkCosAndSearchReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_DeleteTalkCacheAndSearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteTalkCacheAndSearchReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).DeleteTalkCacheAndSearch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/DeleteTalkCacheAndSearch",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).DeleteTalkCacheAndSearch(ctx, req.(*DeleteTalkCacheAndSearchReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1773,6 +2093,14 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Creation_GetCollectArticleCount_Handler,
 		},
 		{
+			MethodName: "GetCollectTalk",
+			Handler:    _Creation_GetCollectTalk_Handler,
+		},
+		{
+			MethodName: "GetCollectTalkCount",
+			Handler:    _Creation_GetCollectTalkCount_Handler,
+		},
+		{
 			MethodName: "GetCollection",
 			Handler:    _Creation_GetCollection_Handler,
 		},
@@ -1811,6 +2139,14 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetArticleListHot",
 			Handler:    _Creation_GetArticleListHot_Handler,
+		},
+		{
+			MethodName: "GetArticleCount",
+			Handler:    _Creation_GetArticleCount_Handler,
+		},
+		{
+			MethodName: "GetArticleCountVisitor",
+			Handler:    _Creation_GetArticleCountVisitor_Handler,
 		},
 		{
 			MethodName: "GetUserArticleList",
@@ -1909,6 +2245,22 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Creation_GetTalkListHot_Handler,
 		},
 		{
+			MethodName: "GetUserTalkList",
+			Handler:    _Creation_GetUserTalkList_Handler,
+		},
+		{
+			MethodName: "GetUserTalkListVisitor",
+			Handler:    _Creation_GetUserTalkListVisitor_Handler,
+		},
+		{
+			MethodName: "GetTalkCount",
+			Handler:    _Creation_GetTalkCount_Handler,
+		},
+		{
+			MethodName: "GetTalkCountVisitor",
+			Handler:    _Creation_GetTalkCountVisitor_Handler,
+		},
+		{
 			MethodName: "GetTalkListStatistic",
 			Handler:    _Creation_GetTalkListStatistic_Handler,
 		},
@@ -1941,12 +2293,20 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Creation_EditTalk_Handler,
 		},
 		{
+			MethodName: "DeleteTalk",
+			Handler:    _Creation_DeleteTalk_Handler,
+		},
+		{
 			MethodName: "CreateTalkCacheAndSearch",
 			Handler:    _Creation_CreateTalkCacheAndSearch_Handler,
 		},
 		{
 			MethodName: "EditTalkCosAndSearch",
 			Handler:    _Creation_EditTalkCosAndSearch_Handler,
+		},
+		{
+			MethodName: "DeleteTalkCacheAndSearch",
+			Handler:    _Creation_DeleteTalkCacheAndSearch_Handler,
 		},
 		{
 			MethodName: "SetTalkView",
