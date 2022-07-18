@@ -11,6 +11,10 @@ type TalkRepo interface {
 	GetTalk(ctx context.Context, id int32) (*Talk, error)
 	GetTalkList(ctx context.Context, page int32) ([]*Talk, error)
 	GetTalkListHot(ctx context.Context, page int32) ([]*TalkStatistic, error)
+	GetUserTalkList(ctx context.Context, page int32, uuid string) ([]*Talk, error)
+	GetUserTalkListVisitor(ctx context.Context, page int32, uuid string) ([]*Talk, error)
+	GetTalkCount(ctx context.Context, uuid string) (int32, error)
+	GetTalkCountVisitor(ctx context.Context, uuid string) (int32, error)
 	GetTalkListStatistic(ctx context.Context, ids []int32) ([]*TalkStatistic, error)
 	GetTalkStatistic(ctx context.Context, id int32) (*TalkStatistic, error)
 	GetLastTalkDraft(ctx context.Context, uuid string) (*TalkDraft, error)
@@ -42,7 +46,14 @@ type TalkRepo interface {
 	SendTalkToMq(ctx context.Context, talk *Talk, mode string) error
 	SendTalkStatisticToMq(ctx context.Context, uuid, mode string) error
 
+	DeleteTalk(ctx context.Context, id int32, uuid string) error
 	DeleteTalkDraft(ctx context.Context, id int32, uuid string) error
+	DeleteTalkStatistic(ctx context.Context, id int32, uuid string) error
+	DeleteTalkCache(ctx context.Context, id int32, uuid string) error
+	DeleteTalkSearch(ctx context.Context, id int32, uuid string) error
+
+	FreezeTalkCos(ctx context.Context, id int32, uuid string) error
+
 	EditTalkCos(ctx context.Context, id int32, uuid string) error
 	EditTalkSearch(ctx context.Context, id int32, uuid string) error
 }
@@ -86,6 +97,37 @@ func (r *TalkUseCase) GetTalkListHot(ctx context.Context, page int32) ([]*TalkSt
 		return nil, v1.ErrorGetTalkListFailed("get talk hot list failed: %s", err.Error())
 	}
 	return talkList, nil
+}
+
+func (r *TalkUseCase) GetUserTalkList(ctx context.Context, page int32, uuid string) ([]*Talk, error) {
+	talkList, err := r.repo.GetUserTalkList(ctx, page, uuid)
+	if err != nil {
+		return nil, v1.ErrorGetTalkListFailed("get user talk list failed: %s", err.Error())
+	}
+	return talkList, nil
+}
+
+func (r *TalkUseCase) GetUserTalkListVisitor(ctx context.Context, page int32, uuid string) ([]*Talk, error) {
+	talkList, err := r.repo.GetUserTalkListVisitor(ctx, page, uuid)
+	if err != nil {
+		return nil, v1.ErrorGetTalkListFailed("get user talk list visitor failed: %s", err.Error())
+	}
+	return talkList, nil
+}
+
+func (r *TalkUseCase) GetTalkCount(ctx context.Context, uuid string) (int32, error) {
+	count, err := r.repo.GetTalkCount(ctx, uuid)
+	if err != nil {
+		return 0, v1.ErrorGetCountFailed("get talk count failed: %s", err.Error())
+	}
+	return count, nil
+}
+func (r *TalkUseCase) GetTalkCountVisitor(ctx context.Context, uuid string) (int32, error) {
+	count, err := r.repo.GetTalkCountVisitor(ctx, uuid)
+	if err != nil {
+		return 0, v1.ErrorGetCountFailed("get talk count visitor failed: %s", err.Error())
+	}
+	return count, nil
 }
 
 func (r *TalkUseCase) GetTalkListStatistic(ctx context.Context, ids []int32) ([]*TalkStatistic, error) {
@@ -206,6 +248,30 @@ func (r *TalkUseCase) EditTalk(ctx context.Context, id int32, uuid string) error
 	return nil
 }
 
+func (r *TalkUseCase) DeleteTalk(ctx context.Context, id int32, uuid string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		var err error
+		err = r.repo.DeleteTalk(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorDeleteTalkFailed("delete talk failed: %s", err.Error())
+		}
+
+		err = r.repo.DeleteTalkStatistic(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorDeleteTalkFailed("delete talk statistic failed: %s", err.Error())
+		}
+
+		err = r.repo.SendTalkToMq(ctx, &Talk{
+			TalkId: id,
+			Uuid:   uuid,
+		}, "delete_talk_cache_and_search")
+		if err != nil {
+			return v1.ErrorDeleteTalkFailed("delete talk to mq failed: %s", err.Error())
+		}
+		return nil
+	})
+}
+
 func (r *TalkUseCase) CreateTalkCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error {
 	err := r.repo.CreateTalkCache(ctx, id, auth, uuid)
 	if err != nil {
@@ -232,6 +298,24 @@ func (r *TalkUseCase) EditTalkCosAndSearch(ctx context.Context, id int32, uuid s
 	err = r.repo.EditTalkSearch(ctx, id, uuid)
 	if err != nil {
 		return v1.ErrorEditTalkFailed("edit talk search failed: %s", err.Error())
+	}
+	return nil
+}
+
+func (r *TalkUseCase) DeleteTalkCacheAndSearch(ctx context.Context, id int32, uuid string) error {
+	err := r.repo.DeleteTalkCache(ctx, id, uuid)
+	if err != nil {
+		return v1.ErrorDeleteTalkFailed("delete talk cache failed: %s", err.Error())
+	}
+
+	err = r.repo.FreezeTalkCos(ctx, id, uuid)
+	if err != nil {
+		return v1.ErrorDeleteTalkFailed("freeze talk cos failed: %s", err.Error())
+	}
+
+	err = r.repo.DeleteTalkSearch(ctx, id, uuid)
+	if err != nil {
+		return v1.ErrorDeleteTalkFailed("delete talk search failed: %s", err.Error())
 	}
 	return nil
 }
