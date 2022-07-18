@@ -166,6 +166,18 @@ service Bff{
     };
   }
 
+  rpc GetCollectTalk(GetCollectTalkReq) returns (GetTalkListReply){
+    option (google.api.http) = {
+      get: "/v1/get/collect/talk"
+    };
+  }
+
+  rpc GetCollectTalkCount(GetCollectTalkCountReq) returns (GetCollectTalkCountReply){
+    option (google.api.http) = {
+      get: "/v1/get/collect/talk/count"
+    };
+  }
+
   rpc GetCollection(GetCollectionReq) returns (GetCollectionReply){
     option (google.api.http) = {
       get: "/v1/get/collection"
@@ -230,6 +242,20 @@ service Bff{
   rpc GetArticleListHot(GetArticleListHotReq) returns (GetArticleListHotReply){
     option (google.api.http) = {
       get: "/v1/get/article/list/hot"
+    };
+  }
+
+  rpc GetArticleCount(google.protobuf.Empty) returns (GetArticleCountReply){
+    option (google.api.http) = {
+      post: "/v1/get/article/count"
+      body: "*"
+    };
+  }
+
+  rpc GetArticleCountVisitor(GetArticleCountVisitorReq) returns (GetArticleCountReply){
+    option (google.api.http) = {
+      post: "/v1/get/article/count/visitor"
+      body: "*"
     };
   }
 
@@ -367,6 +393,33 @@ service Bff{
     };
   }
 
+  rpc GetUserTalkList(GetUserTalkListReq) returns (GetTalkListReply){
+    option (google.api.http) = {
+      post: "/v1/get/user/talk/list",
+      body: "*"
+    };
+  }
+
+  rpc GetUserTalkListVisitor(GetUserTalkListVisitorReq) returns (GetTalkListReply){
+    option (google.api.http) = {
+      get: "/v1/get/user/talk/list/visitor"
+    };
+  }
+
+  rpc GetTalkCount(google.protobuf.Empty) returns (GetTalkCountReply){
+    option (google.api.http) = {
+      post: "/v1/get/talk/count"
+      body: "*"
+    };
+  }
+
+  rpc GetTalkCountVisitor(GetTalkCountVisitorReq) returns (GetTalkCountReply){
+    option (google.api.http) = {
+      post: "/v1/get/talk/count/visitor"
+      body: "*"
+    };
+  }
+
   rpc GetTalkStatistic(GetTalkStatisticReq)returns (GetTalkStatisticReply){
     option (google.api.http) = {
       get: "/v1/get/talk/statistic"
@@ -396,6 +449,13 @@ service Bff{
   rpc SendTalkEdit(SendTalkEditReq) returns (google.protobuf.Empty){
     option (google.api.http) = {
       post: "/v1/send/talk/edit"
+      body: "*"
+    };
+  }
+
+  rpc DeleteTalk(DeleteTalkReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/delete/talk"
       body: "*"
     };
   }
@@ -442,8 +502,6 @@ service Bff{
     };
   }
 }
-
-
 
 // --------------------user service-------------------------
 
@@ -611,6 +669,19 @@ message GetCollectArticleCountReply{
   int32 count = 1;
 }
 
+message GetCollectTalkReq{
+  int32 id = 1;
+  int32 page = 2;
+}
+
+message GetCollectTalkCountReq{
+  int32 id = 1;
+}
+
+message GetCollectTalkCountReply{
+  int32 count = 1;
+}
+
 message GetCollectionReq{
   int32 id = 1;
   string uuid = 2;
@@ -633,6 +704,14 @@ message GetArticleListReply{
     string uuid = 2;
   }
   repeated Article article = 1;
+}
+
+message GetArticleCountReply{
+  int32 count = 1;
+}
+
+message GetArticleCountVisitorReq{
+  string uuid = 1;
 }
 
 message GetArticleListHotReq{
@@ -805,6 +884,14 @@ message GetTalkListReply{
   repeated Talk talk = 1;
 }
 
+message GetTalkCountReply{
+  int32 count = 1;
+}
+
+message GetTalkCountVisitorReq{
+  string uuid = 1;
+}
+
 message GetTalkListHotReq{
   int32 page = 1;
 }
@@ -830,6 +917,15 @@ message GetTalkListStatisticReply{
     int32 comment = 5;
   }
   repeated Count count = 1;
+}
+
+message GetUserTalkListReq{
+  int32 page = 1;
+}
+
+message GetUserTalkListVisitorReq{
+  int32 page = 1;
+  string uuid = 2;
 }
 
 message GetTalkStatisticReq{
@@ -858,6 +954,10 @@ message SendTalkReq{
 }
 
 message SendTalkEditReq{
+  int32 id = 1;
+}
+
+message DeleteTalkReq{
   int32 id = 1;
 }
 
