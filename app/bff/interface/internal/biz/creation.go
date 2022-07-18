@@ -9,6 +9,8 @@ type CreationRepo interface {
 	GetLeaderBoard(ctx context.Context) ([]*LeaderBoard, error)
 	GetCollectArticle(ctx context.Context, id, page int32) ([]*Article, error)
 	GetCollectArticleCount(ctx context.Context, id int32) (int32, error)
+	GetCollectTalk(ctx context.Context, id, page int32) ([]*Talk, error)
+	GetCollectTalkCount(ctx context.Context, id int32) (int32, error)
 	CreateCollections(ctx context.Context, uuid, name, introduce string, auth int32) error
 	EditCollections(ctx context.Context, id int32, uuid, name, introduce string, auth int32) error
 	DeleteCollections(ctx context.Context, id int32, uuid string) error
@@ -24,6 +26,8 @@ type ArticleRepo interface {
 	GetLastArticleDraft(ctx context.Context, uuid string) (*ArticleDraft, error)
 	GetArticleList(ctx context.Context, page int32) ([]*Article, error)
 	GetArticleListHot(ctx context.Context, page int32) ([]*Article, error)
+	GetArticleCount(ctx context.Context, uuid string) (int32, error)
+	GetArticleCountVisitor(ctx context.Context, uuid string) (int32, error)
 	GetUserArticleList(ctx context.Context, page int32, uuid string) ([]*Article, error)
 	GetUserArticleListVisitor(ctx context.Context, page int32, uuid string) ([]*Article, error)
 	GetArticleStatistic(ctx context.Context, id int32) (*ArticleStatistic, error)
@@ -44,12 +48,17 @@ type ArticleRepo interface {
 type TalkRepo interface {
 	GetTalkList(ctx context.Context, page int32) ([]*Talk, error)
 	GetTalkListHot(ctx context.Context, page int32) ([]*Talk, error)
+	GetUserTalkList(ctx context.Context, page int32, uuid string) ([]*Talk, error)
+	GetUserTalkListVisitor(ctx context.Context, page int32, uuid string) ([]*Talk, error)
+	GetTalkCount(ctx context.Context, uuid string) (int32, error)
+	GetTalkCountVisitor(ctx context.Context, uuid string) (int32, error)
 	GetTalkListStatistic(ctx context.Context, ids []int32) ([]*TalkStatistic, error)
 	GetTalkStatistic(ctx context.Context, id int32) (*TalkStatistic, error)
 	GetLastTalkDraft(ctx context.Context, uuid string) (*TalkDraft, error)
 	CreateTalkDraft(ctx context.Context, uuid string) (int32, error)
 	SendTalk(ctx context.Context, id int32, uuid string) error
 	SendTalkEdit(ctx context.Context, id int32, uuid string) error
+	DeleteTalk(ctx context.Context, id int32, uuid string) error
 	SetTalkAgree(ctx context.Context, id int32, uuid, userUuid string) error
 	CancelTalkAgree(ctx context.Context, id int32, uuid, userUuid string) error
 	CancelTalkCollect(ctx context.Context, id int32, uuid, userUuid string) error
@@ -106,6 +115,14 @@ func (r *CreationUseCase) GetCollectArticleCount(ctx context.Context, id int32) 
 	return r.repo.GetCollectArticleCount(ctx, id)
 }
 
+func (r *CreationUseCase) GetCollectTalk(ctx context.Context, id, page int32) ([]*Talk, error) {
+	return r.repo.GetCollectTalk(ctx, id, page)
+}
+
+func (r *CreationUseCase) GetCollectTalkCount(ctx context.Context, id int32) (int32, error) {
+	return r.repo.GetCollectTalkCount(ctx, id)
+}
+
 func (r *CreationUseCase) GetCollection(ctx context.Context, id int32, uuid string) (*Collections, error) {
 	return r.repo.GetCollection(ctx, id, uuid)
 }
@@ -149,6 +166,15 @@ func (r *ArticleUseCase) GetArticleList(ctx context.Context, page int32) ([]*Art
 
 func (r *ArticleUseCase) GetArticleListHot(ctx context.Context, page int32) ([]*Article, error) {
 	return r.repo.GetArticleListHot(ctx, page)
+}
+
+func (r *ArticleUseCase) GetArticleCount(ctx context.Context) (int32, error) {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.GetArticleCount(ctx, uuid)
+}
+
+func (r *ArticleUseCase) GetArticleCountVisitor(ctx context.Context, uuid string) (int32, error) {
+	return r.repo.GetArticleCountVisitor(ctx, uuid)
 }
 
 func (r *ArticleUseCase) GetUserArticleList(ctx context.Context, page int32) ([]*Article, error) {
@@ -240,6 +266,24 @@ func (r *TalkUseCase) GetTalkListHot(ctx context.Context, page int32) ([]*Talk, 
 	return r.repo.GetTalkListHot(ctx, page)
 }
 
+func (r *TalkUseCase) GetUserTalkList(ctx context.Context, page int32) ([]*Talk, error) {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.GetUserTalkList(ctx, page, uuid)
+}
+
+func (r *TalkUseCase) GetUserTalkListVisitor(ctx context.Context, page int32, uuid string) ([]*Talk, error) {
+	return r.repo.GetUserTalkListVisitor(ctx, page, uuid)
+}
+
+func (r *TalkUseCase) GetTalkCount(ctx context.Context) (int32, error) {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.GetTalkCount(ctx, uuid)
+}
+
+func (r *TalkUseCase) GetTalkCountVisitor(ctx context.Context, uuid string) (int32, error) {
+	return r.repo.GetTalkCountVisitor(ctx, uuid)
+}
+
 func (r *TalkUseCase) GetTalkListStatistic(ctx context.Context, ids []int32) ([]*TalkStatistic, error) {
 	return r.repo.GetTalkListStatistic(ctx, ids)
 }
@@ -266,6 +310,11 @@ func (r *TalkUseCase) SendTalk(ctx context.Context, id int32) error {
 func (r *TalkUseCase) SendTalkEdit(ctx context.Context, id int32) error {
 	uuid := ctx.Value("uuid").(string)
 	return r.repo.SendTalkEdit(ctx, id, uuid)
+}
+
+func (r *TalkUseCase) DeleteTalk(ctx context.Context, id int32) error {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.DeleteTalk(ctx, id, uuid)
 }
 
 func (r *TalkUseCase) SetTalkAgree(ctx context.Context, id int32, uuid string) error {
