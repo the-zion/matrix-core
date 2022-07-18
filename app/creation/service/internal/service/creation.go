@@ -47,6 +47,31 @@ func (s *CreationService) GetCollectArticleCount(ctx context.Context, req *v1.Ge
 	}, nil
 }
 
+func (s *CreationService) GetCollectTalk(ctx context.Context, req *v1.GetCollectTalkReq) (*v1.GetTalkListReply, error) {
+	reply := &v1.GetTalkListReply{Talk: make([]*v1.GetTalkListReply_Talk, 0)}
+	talkList, err := s.cc.GetCollectTalk(ctx, req.Id, req.Page)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range talkList {
+		reply.Talk = append(reply.Talk, &v1.GetTalkListReply_Talk{
+			Id:   item.TalkId,
+			Uuid: item.Uuid,
+		})
+	}
+	return reply, nil
+}
+
+func (s *CreationService) GetCollectTalkCount(ctx context.Context, req *v1.GetCollectTalkCountReq) (*v1.GetCollectTalkCountReply, error) {
+	count, err := s.cc.GetCollectTalkCount(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetCollectTalkCountReply{
+		Count: count,
+	}, nil
+}
+
 func (s *CreationService) GetCollection(ctx context.Context, req *v1.GetCollectionReq) (*v1.GetCollectionReply, error) {
 	collection, err := s.cc.GetCollection(ctx, req.Id, req.Uuid)
 	if err != nil {
