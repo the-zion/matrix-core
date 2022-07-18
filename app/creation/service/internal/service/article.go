@@ -36,6 +36,26 @@ func (s *CreationService) GetArticleListHot(ctx context.Context, req *v1.GetArti
 	return reply, nil
 }
 
+func (s *CreationService) GetArticleCount(ctx context.Context, req *v1.GetArticleCountReq) (*v1.GetArticleCountReply, error) {
+	count, err := s.ac.GetArticleCount(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetArticleCountReply{
+		Count: count,
+	}, nil
+}
+
+func (s *CreationService) GetArticleCountVisitor(ctx context.Context, req *v1.GetArticleCountVisitorReq) (*v1.GetArticleCountReply, error) {
+	count, err := s.ac.GetArticleCountVisitor(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetArticleCountReply{
+		Count: count,
+	}, nil
+}
+
 func (s *CreationService) GetUserArticleList(ctx context.Context, req *v1.GetUserArticleListReq) (*v1.GetArticleListReply, error) {
 	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0)}
 	articleList, err := s.ac.GetUserArticleList(ctx, req.Page, req.Uuid)
