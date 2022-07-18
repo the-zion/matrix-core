@@ -251,6 +251,18 @@ func ErrorEditTalkFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, CreationErrorReason_EDIT_TALK_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsDeleteTalkFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_DELETE_TALK_FAILED.String() && e.Code == 500
+}
+
+func ErrorDeleteTalkFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_DELETE_TALK_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsGetDraftListFailed(err error) bool {
 	if err == nil {
 		return false
