@@ -119,6 +119,46 @@ func (r *creationRepo) GetCollectArticleCount(ctx context.Context, id int32) (in
 	return result.(int32), nil
 }
 
+func (r *creationRepo) GetCollectTalk(ctx context.Context, id, page int32) ([]*biz.Talk, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("collect_talk_page_%v_%v", id, page), func() (interface{}, error) {
+		reply := make([]*biz.Talk, 0)
+		talkList, err := r.data.cc.GetCollectTalk(ctx, &creationV1.GetCollectTalkReq{
+			Id:   id,
+			Page: page,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range talkList.Talk {
+			reply = append(reply, &biz.Talk{
+				Id:   item.Id,
+				Uuid: item.Uuid,
+			})
+		}
+		return reply, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.([]*biz.Talk), nil
+}
+
+func (r *creationRepo) GetCollectTalkCount(ctx context.Context, id int32) (int32, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("collect_talk_count_%v", id), func() (interface{}, error) {
+		reply, err := r.data.cc.GetCollectTalkCount(ctx, &creationV1.GetCollectTalkCountReq{
+			Id: id,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return reply.Count, nil
+	})
+	if err != nil {
+		return 0, err
+	}
+	return result.(int32), nil
+}
+
 func (r *creationRepo) GetCollection(ctx context.Context, id int32, uuid string) (*biz.Collections, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_collection_%v", id), func() (interface{}, error) {
 		reply, err := r.data.cc.GetCollection(ctx, &creationV1.GetCollectionReq{
@@ -308,6 +348,32 @@ func (r *articleRepo) GetArticleListHot(ctx context.Context, page int32) ([]*biz
 	return result.([]*biz.Article), nil
 }
 
+func (r *articleRepo) GetArticleCount(ctx context.Context, uuid string) (int32, error) {
+	reply, err := r.data.cc.GetArticleCount(ctx, &creationV1.GetArticleCountReq{
+		Uuid: uuid,
+	})
+	if err != nil {
+		return 0, err
+	}
+	return reply.Count, nil
+}
+
+func (r *articleRepo) GetArticleCountVisitor(ctx context.Context, uuid string) (int32, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_article_visitor_count_%s", uuid), func() (interface{}, error) {
+		reply, err := r.data.cc.GetArticleCountVisitor(ctx, &creationV1.GetArticleCountVisitorReq{
+			Uuid: uuid,
+		})
+		if err != nil {
+			return 0, err
+		}
+		return reply.Count, nil
+	})
+	if err != nil {
+		return 0, err
+	}
+	return result.(int32), nil
+}
+
 func (r *articleRepo) GetUserArticleList(ctx context.Context, page int32, uuid string) ([]*biz.Article, error) {
 	reply := make([]*biz.Article, 0)
 	articleList, err := r.data.cc.GetUserArticleList(ctx, &creationV1.GetUserArticleListReq{
@@ -327,21 +393,27 @@ func (r *articleRepo) GetUserArticleList(ctx context.Context, page int32, uuid s
 }
 
 func (r *articleRepo) GetUserArticleListVisitor(ctx context.Context, page int32, uuid string) ([]*biz.Article, error) {
-	reply := make([]*biz.Article, 0)
-	articleList, err := r.data.cc.GetUserArticleListVisitor(ctx, &creationV1.GetUserArticleListVisitorReq{
-		Page: page,
-		Uuid: uuid,
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_user_article_by_visitor_%s_%v", uuid, page), func() (interface{}, error) {
+		reply := make([]*biz.Article, 0)
+		articleList, err := r.data.cc.GetUserArticleListVisitor(ctx, &creationV1.GetUserArticleListVisitorReq{
+			Page: page,
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range articleList.Article {
+			reply = append(reply, &biz.Article{
+				Id:   item.Id,
+				Uuid: item.Uuid,
+			})
+		}
+		return reply, nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	for _, item := range articleList.Article {
-		reply = append(reply, &biz.Article{
-			Id:   item.Id,
-			Uuid: item.Uuid,
-		})
-	}
-	return reply, nil
+	return result.([]*biz.Article), nil
 }
 
 func (r *articleRepo) GetArticleStatistic(ctx context.Context, id int32) (*biz.ArticleStatistic, error) {
@@ -576,6 +648,74 @@ func (r *talkRepo) GetTalkListHot(ctx context.Context, page int32) ([]*biz.Talk,
 	return result.([]*biz.Talk), nil
 }
 
+func (r *talkRepo) GetUserTalkList(ctx context.Context, page int32, uuid string) ([]*biz.Talk, error) {
+	reply := make([]*biz.Talk, 0)
+	talkList, err := r.data.cc.GetUserTalkList(ctx, &creationV1.GetUserTalkListReq{
+		Page: page,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range talkList.Talk {
+		reply = append(reply, &biz.Talk{
+			Id:   item.Id,
+			Uuid: item.Uuid,
+		})
+	}
+	return reply, nil
+}
+
+func (r *talkRepo) GetUserTalkListVisitor(ctx context.Context, page int32, uuid string) ([]*biz.Talk, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_user_talk_by_visitor_%s_%v", uuid, page), func() (interface{}, error) {
+		reply := make([]*biz.Talk, 0)
+		talkList, err := r.data.cc.GetUserTalkListVisitor(ctx, &creationV1.GetUserTalkListVisitorReq{
+			Page: page,
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range talkList.Talk {
+			reply = append(reply, &biz.Talk{
+				Id:   item.Id,
+				Uuid: item.Uuid,
+			})
+		}
+		return reply, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.([]*biz.Talk), nil
+}
+
+func (r *talkRepo) GetTalkCount(ctx context.Context, uuid string) (int32, error) {
+	reply, err := r.data.cc.GetTalkCount(ctx, &creationV1.GetTalkCountReq{
+		Uuid: uuid,
+	})
+	if err != nil {
+		return 0, err
+	}
+	return reply.Count, nil
+}
+
+func (r *talkRepo) GetTalkCountVisitor(ctx context.Context, uuid string) (int32, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_talk_visitor_count_%s", uuid), func() (interface{}, error) {
+		reply, err := r.data.cc.GetTalkCountVisitor(ctx, &creationV1.GetTalkCountVisitorReq{
+			Uuid: uuid,
+		})
+		if err != nil {
+			return 0, err
+		}
+		return reply.Count, nil
+	})
+	if err != nil {
+		return 0, err
+	}
+	return result.(int32), nil
+}
+
 func (r *talkRepo) GetTalkListStatistic(ctx context.Context, ids []int32) ([]*biz.TalkStatistic, error) {
 	reply := make([]*biz.TalkStatistic, 0)
 	statisticList, err := r.data.cc.GetTalkListStatistic(ctx, &creationV1.GetTalkListStatisticReq{
@@ -654,6 +794,17 @@ func (r *talkRepo) SendTalk(ctx context.Context, id int32, uuid string) error {
 
 func (r *talkRepo) SendTalkEdit(ctx context.Context, id int32, uuid string) error {
 	_, err := r.data.cc.SendTalkEdit(ctx, &creationV1.SendTalkEditReq{
+		Id:   id,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *talkRepo) DeleteTalk(ctx context.Context, id int32, uuid string) error {
+	_, err := r.data.cc.DeleteTalk(ctx, &creationV1.DeleteTalkReq{
 		Id:   id,
 		Uuid: uuid,
 	})
