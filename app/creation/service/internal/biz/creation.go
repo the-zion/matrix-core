@@ -10,6 +10,8 @@ type CreationRepo interface {
 	GetLeaderBoard(ctx context.Context) ([]*LeaderBoard, error)
 	GetCollectArticle(ctx context.Context, id, page int32) ([]*Article, error)
 	GetCollectArticleCount(ctx context.Context, id int32) (int32, error)
+	GetCollectTalk(ctx context.Context, id, page int32) ([]*Talk, error)
+	GetCollectTalkCount(ctx context.Context, id int32) (int32, error)
 	GetCollectCount(ctx context.Context, id int32) (int64, error)
 	GetCollection(ctx context.Context, id int32, uuid string) (*Collections, error)
 	GetCollections(ctx context.Context, uuid string, page int32) ([]*Collections, error)
@@ -53,6 +55,22 @@ func (r *CreationUseCase) GetCollectArticleCount(ctx context.Context, id int32) 
 	count, err := r.repo.GetCollectArticleCount(ctx, id)
 	if err != nil {
 		return 0, v1.ErrorGetCountFailed("get collect article count failed: %s", err.Error())
+	}
+	return count, nil
+}
+
+func (r *CreationUseCase) GetCollectTalk(ctx context.Context, id, page int32) ([]*Talk, error) {
+	talkList, err := r.repo.GetCollectTalk(ctx, id, page)
+	if err != nil {
+		return nil, v1.ErrorGetTalkListFailed("get collect talk list failed: %s", err.Error())
+	}
+	return talkList, nil
+}
+
+func (r *CreationUseCase) GetCollectTalkCount(ctx context.Context, id int32) (int32, error) {
+	count, err := r.repo.GetCollectTalkCount(ctx, id)
+	if err != nil {
+		return 0, v1.ErrorGetCountFailed("get collect talk count failed: %s", err.Error())
 	}
 	return count, nil
 }
