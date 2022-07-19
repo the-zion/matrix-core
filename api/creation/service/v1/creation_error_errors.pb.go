@@ -143,18 +143,6 @@ func ErrorGetArticleDraftFailed(format string, args ...interface{}) *errors.Erro
 	return errors.New(500, CreationErrorReason_GET_ARTICLE_DRAFT_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
-func IsGetTalkDraftFailed(err error) bool {
-	if err == nil {
-		return false
-	}
-	e := errors.FromError(err)
-	return e.Reason == CreationErrorReason_GET_TALK_DRAFT_FAILED.String() && e.Code == 500
-}
-
-func ErrorGetTalkDraftFailed(format string, args ...interface{}) *errors.Error {
-	return errors.New(500, CreationErrorReason_GET_TALK_DRAFT_FAILED.String(), fmt.Sprintf(format, args...))
-}
-
 func IsGetArticleListFailed(err error) bool {
 	if err == nil {
 		return false
@@ -213,6 +201,18 @@ func IsGetTalkFailed(err error) bool {
 
 func ErrorGetTalkFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, CreationErrorReason_GET_TALK_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsGetTalkDraftFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_GET_TALK_DRAFT_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetTalkDraftFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_GET_TALK_DRAFT_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
 func IsGetTalkListFailed(err error) bool {
@@ -297,6 +297,42 @@ func IsDraftMarkFailed(err error) bool {
 
 func ErrorDraftMarkFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, CreationErrorReason_DRAFT_MARK_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsGetColumnDraftFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_GET_COLUMN_DRAFT_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetColumnDraftFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_GET_COLUMN_DRAFT_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsCreateColumnFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_CREATE_COLUMN_FAILED.String() && e.Code == 500
+}
+
+func ErrorCreateColumnFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_CREATE_COLUMN_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsGetColumnListFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_GET_COLUMN_LIST_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetColumnListFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_GET_COLUMN_LIST_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
 func IsSetAgreeFailed(err error) bool {
