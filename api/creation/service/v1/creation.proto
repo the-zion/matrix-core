@@ -135,6 +135,20 @@ service Creation {
   rpc CancelTalkAgree(CancelTalkAgreeReq) returns (google.protobuf.Empty){}
 
   rpc CancelTalkCollect(CancelTalkCollectReq) returns (google.protobuf.Empty){}
+
+  rpc GetLastColumnDraft(GetLastColumnDraftReq) returns (GetLastColumnDraftReply){}
+  
+  rpc CreateColumnDraft(CreateColumnDraftReq) returns (CreateColumnDraftReply){}
+
+  rpc CreateColumn(CreateColumnReq) returns (google.protobuf.Empty){}
+
+  rpc CreateColumnCacheAndSearch(CreateColumnCacheAndSearchReq) returns (google.protobuf.Empty){}
+
+  rpc GetColumnList(GetColumnListReq) returns (GetColumnListReply){}
+
+  rpc GetColumnListHot(GetColumnListHotReq) returns (GetColumnListHotReply){}
+
+  rpc GetColumnListStatistic(GetColumnListStatisticReq)returns (GetColumnListStatisticReply){}
 }
 
 message GetLeaderBoardReply{
@@ -584,4 +598,81 @@ message CancelTalkCollectReq{
   int32 id = 1;
   string uuid = 2 [(validate.rules).string.uuid = true];
   string user_uuid = 3 [(validate.rules).string.uuid = true];
+}
+
+message GetLastColumnDraftReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+message GetLastColumnDraftReply{
+  int32 id = 1;
+  int32 status = 2;
+}
+
+message CreateColumnDraftReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+message CreateColumnDraftReply{
+  int32 id = 1;
+}
+
+message CreateColumnReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+  string name = 2 [(validate.rules).string = {min_len:1, max_len: 50}];
+  string introduce = 3 [(validate.rules).string = {min_len:1, max_len: 100}];
+  string cover = 4 [(validate.rules).string = {min_len:1, max_len: 50}];
+  int32 auth = 5;
+}
+
+message CreateColumnCacheAndSearchReq{
+  int32 id = 1;
+  int32 auth = 2;
+  string uuid = 3 [(validate.rules).string.uuid = true];
+}
+
+message GetColumnListReq{
+  int32 page = 1;
+}
+
+message GetColumnListReply{
+  message Column{
+    int32 id = 1;
+    string uuid = 2;
+    string name = 3;
+    string introduce = 4;
+    string cover = 5;
+    string tags = 6;
+  }
+  repeated Column column = 1;
+}
+
+message GetColumnListHotReq{
+  int32 page = 1;
+}
+
+message GetColumnListHotReply{
+  message Column{
+    int32 id = 1;
+    string uuid = 2;
+    string name = 3;
+    string introduce = 4;
+    string cover = 5;
+    string tags = 6;
+  }
+  repeated Column column = 1;
+}
+
+message GetColumnListStatisticReq{
+  repeated int32 ids = 1;
+}
+
+message GetColumnListStatisticReply{
+  message Count{
+    int32 id = 1;
+    int32 agree = 2;
+    int32 collect = 3;
+    int32 view = 4;
+  }
+  repeated Count count = 1;
 }
