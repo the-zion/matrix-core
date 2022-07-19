@@ -13,6 +13,7 @@ import (
 var _ biz.ArticleRepo = (*articleRepo)(nil)
 var _ biz.TalkRepo = (*talkRepo)(nil)
 var _ biz.CreationRepo = (*creationRepo)(nil)
+var _ biz.ColumnRepo = (*columnRepo)(nil)
 
 type articleRepo struct {
 	data *Data
@@ -27,6 +28,12 @@ type talkRepo struct {
 }
 
 type creationRepo struct {
+	data *Data
+	log  *log.Helper
+	sg   *singleflight.Group
+}
+
+type columnRepo struct {
 	data *Data
 	log  *log.Helper
 	sg   *singleflight.Group
@@ -52,6 +59,14 @@ func NewCreationRepo(data *Data, logger log.Logger) biz.CreationRepo {
 	return &creationRepo{
 		data: data,
 		log:  log.NewHelper(log.With(logger, "module", "bff/data/creation")),
+		sg:   &singleflight.Group{},
+	}
+}
+
+func NewColumnRepo(data *Data, logger log.Logger) biz.ColumnRepo {
+	return &columnRepo{
+		data: data,
+		log:  log.NewHelper(log.With(logger, "module", "bff/data/column")),
 		sg:   &singleflight.Group{},
 	}
 }
@@ -886,4 +901,106 @@ func (r *talkRepo) TalkStatisticJudge(ctx context.Context, id int32, uuid string
 		Agree:   reply.Agree,
 		Collect: reply.Collect,
 	}, nil
+}
+
+func (r *columnRepo) GetLastColumnDraft(ctx context.Context, uuid string) (*biz.ColumnDraft, error) {
+	reply, err := r.data.cc.GetLastColumnDraft(ctx, &creationV1.GetLastColumnDraftReq{
+		Uuid: uuid,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &biz.ColumnDraft{
+		Id:     reply.Id,
+		Status: reply.Status,
+	}, nil
+}
+
+func (r *columnRepo) CreateColumnDraft(ctx context.Context, uuid string) (int32, error) {
+	reply, err := r.data.cc.CreateColumnDraft(ctx, &creationV1.CreateColumnDraftReq{
+		Uuid: uuid,
+	})
+	if err != nil {
+		return 0, err
+	}
+	return reply.Id, nil
+}
+
+func (r *columnRepo) CreateColumn(ctx context.Context, uuid, name, introduce, cover string, auth int32) error {
+	_, err := r.data.cc.CreateColumn(ctx, &creationV1.CreateColumnReq{
+		Uuid:      uuid,
+		Name:      name,
+		Introduce: introduce,
+		Cover:     cover,
+		Auth:      auth,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *columnRepo) GetColumnList(ctx context.Context, page int32) ([]*biz.Column, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("column_page_%v", page), func() (interface{}, error) {
+		reply := make([]*biz.Column, 0)
+		columnList, err := r.data.cc.GetColumnList(ctx, &creationV1.GetColumnListReq{
+			Page: page,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range columnList.Column {
+			reply = append(reply, &biz.Column{
+				Id:   item.Id,
+				Uuid: item.Uuid,
+			})
+		}
+		return reply, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.([]*biz.Column), nil
+}
+
+func (r *columnRepo) GetColumnListHot(ctx context.Context, page int32) ([]*biz.Column, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("column_page_hot_%v", page), func() (interface{}, error) {
+		reply := make([]*biz.Column, 0)
+		columnList, err := r.data.cc.GetColumnListHot(ctx, &creationV1.GetColumnListHotReq{
+			Page: page,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range columnList.Column {
+			reply = append(reply, &biz.Column{
+				Id:   item.Id,
+				Uuid: item.Uuid,
+			})
+		}
+		return reply, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.([]*biz.Column), nil
+}
+
+func (r *columnRepo) GetColumnListStatistic(ctx context.Context, ids []int32) ([]*biz.ColumnStatistic, error) {
+	reply := make([]*biz.ColumnStatistic, 0)
+	statisticList, err := r.data.cc.GetColumnListStatistic(ctx, &creationV1.GetColumnListStatisticReq{
+		Ids: ids,
+	})
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range statisticList.Count {
+		reply = append(reply, &biz.ColumnStatistic{
+			Id:      item.Id,
+			Agree:   item.Agree,
+			Collect: item.Collect,
+			View:    item.View,
+		})
+	}
+	return reply, nil
 }
