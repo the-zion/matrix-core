@@ -183,3 +183,21 @@ type Collections struct {
 	Introduce string
 	Auth      int32
 }
+
+type Column struct {
+	Id   int32
+	Uuid string
+}
+
+type ColumnDraft struct {
+	Id     int32
+	Status int32
+}
+
+type ColumnStatistic struct {
+	Id      int32
+	Uuid    string
+	Agree   int32
+	View    int32
+	Collect int32
+}
