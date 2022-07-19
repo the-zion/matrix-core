@@ -67,6 +67,15 @@ type TalkRepo interface {
 	TalkStatisticJudge(ctx context.Context, id int32, uuid string) (*TalkStatisticJudge, error)
 }
 
+type ColumnRepo interface {
+	GetLastColumnDraft(ctx context.Context, uuid string) (*ColumnDraft, error)
+	CreateColumnDraft(ctx context.Context, uuid string) (int32, error)
+	CreateColumn(ctx context.Context, uuid, name, introduce, cover string, auth int32) error
+	GetColumnList(ctx context.Context, page int32) ([]*Column, error)
+	GetColumnListHot(ctx context.Context, page int32) ([]*Column, error)
+	GetColumnListStatistic(ctx context.Context, ids []int32) ([]*ColumnStatistic, error)
+}
+
 type CreationUseCase struct {
 	repo CreationRepo
 	log  *log.Helper
@@ -79,6 +88,11 @@ type ArticleUseCase struct {
 
 type TalkUseCase struct {
 	repo TalkRepo
+	log  *log.Helper
+}
+
+type ColumnUseCase struct {
+	repo ColumnRepo
 	log  *log.Helper
 }
 
@@ -100,6 +114,13 @@ func NewTalkUseCase(repo TalkRepo, logger log.Logger) *TalkUseCase {
 	return &TalkUseCase{
 		repo: repo,
 		log:  log.NewHelper(log.With(logger, "module", "bff/biz/TalkUseCase")),
+	}
+}
+
+func NewColumnUseCase(repo ColumnRepo, logger log.Logger) *ColumnUseCase {
+	return &ColumnUseCase{
+		repo: repo,
+		log:  log.NewHelper(log.With(logger, "module", "bff/biz/ColumnUseCase")),
 	}
 }
 
@@ -344,4 +365,31 @@ func (r *TalkUseCase) SetTalkCollect(ctx context.Context, id, collectionsId int3
 func (r *TalkUseCase) TalkStatisticJudge(ctx context.Context, id int32) (*TalkStatisticJudge, error) {
 	uuid := ctx.Value("uuid").(string)
 	return r.repo.TalkStatisticJudge(ctx, id, uuid)
+}
+
+func (r *ColumnUseCase) GetLastColumnDraft(ctx context.Context) (*ColumnDraft, error) {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.GetLastColumnDraft(ctx, uuid)
+}
+
+func (r *ColumnUseCase) CreateColumnDraft(ctx context.Context) (int32, error) {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.CreateColumnDraft(ctx, uuid)
+}
+
+func (r *ColumnUseCase) CreateColumn(ctx context.Context, name, introduce, cover string, auth int32) error {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.CreateColumn(ctx, uuid, name, introduce, cover, auth)
+}
+
+func (r *ColumnUseCase) GetColumnList(ctx context.Context, page int32) ([]*Column, error) {
+	return r.repo.GetColumnList(ctx, page)
+}
+
+func (r *ColumnUseCase) GetColumnListHot(ctx context.Context, page int32) ([]*Column, error) {
+	return r.repo.GetColumnListHot(ctx, page)
+}
+
+func (r *ColumnUseCase) GetColumnListStatistic(ctx context.Context, ids []int32) ([]*ColumnStatistic, error) {
+	return r.repo.GetColumnListStatistic(ctx, ids)
 }
