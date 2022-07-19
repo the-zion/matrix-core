@@ -97,6 +97,12 @@ type BffClient interface {
 	SetTalkCollect(ctx context.Context, in *SetTalkCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelTalkAgree(ctx context.Context, in *CancelTalkAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelTalkCollect(ctx context.Context, in *CancelTalkCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetLastColumnDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLastColumnDraftReply, error)
+	CreateColumnDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateColumnDraftReply, error)
+	CreateColumn(ctx context.Context, in *CreateColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetColumnList(ctx context.Context, in *GetColumnListReq, opts ...grpc.CallOption) (*GetColumnListReply, error)
+	GetColumnListHot(ctx context.Context, in *GetColumnListHotReq, opts ...grpc.CallOption) (*GetColumnListHotReply, error)
+	GetColumnListStatistic(ctx context.Context, in *GetColumnListStatisticReq, opts ...grpc.CallOption) (*GetColumnListStatisticReply, error)
 }
 
 type bffClient struct {
@@ -764,6 +770,60 @@ func (c *bffClient) CancelTalkCollect(ctx context.Context, in *CancelTalkCollect
 	return out, nil
 }
 
+func (c *bffClient) GetLastColumnDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLastColumnDraftReply, error) {
+	out := new(GetLastColumnDraftReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetLastColumnDraft", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) CreateColumnDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateColumnDraftReply, error) {
+	out := new(CreateColumnDraftReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/CreateColumnDraft", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) CreateColumn(ctx context.Context, in *CreateColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/CreateColumn", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetColumnList(ctx context.Context, in *GetColumnListReq, opts ...grpc.CallOption) (*GetColumnListReply, error) {
+	out := new(GetColumnListReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetColumnList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetColumnListHot(ctx context.Context, in *GetColumnListHotReq, opts ...grpc.CallOption) (*GetColumnListHotReply, error) {
+	out := new(GetColumnListHotReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetColumnListHot", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetColumnListStatistic(ctx context.Context, in *GetColumnListStatisticReq, opts ...grpc.CallOption) (*GetColumnListStatisticReply, error) {
+	out := new(GetColumnListStatisticReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetColumnListStatistic", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BffServer is the server API for Bff service.
 // All implementations must embed UnimplementedBffServer
 // for forward compatibility
@@ -842,6 +902,12 @@ type BffServer interface {
 	SetTalkCollect(context.Context, *SetTalkCollectReq) (*emptypb.Empty, error)
 	CancelTalkAgree(context.Context, *CancelTalkAgreeReq) (*emptypb.Empty, error)
 	CancelTalkCollect(context.Context, *CancelTalkCollectReq) (*emptypb.Empty, error)
+	GetLastColumnDraft(context.Context, *emptypb.Empty) (*GetLastColumnDraftReply, error)
+	CreateColumnDraft(context.Context, *emptypb.Empty) (*CreateColumnDraftReply, error)
+	CreateColumn(context.Context, *CreateColumnReq) (*emptypb.Empty, error)
+	GetColumnList(context.Context, *GetColumnListReq) (*GetColumnListReply, error)
+	GetColumnListHot(context.Context, *GetColumnListHotReq) (*GetColumnListHotReply, error)
+	GetColumnListStatistic(context.Context, *GetColumnListStatisticReq) (*GetColumnListStatisticReply, error)
 	mustEmbedUnimplementedBffServer()
 }
 
@@ -1067,6 +1133,24 @@ func (UnimplementedBffServer) CancelTalkAgree(context.Context, *CancelTalkAgreeR
 }
 func (UnimplementedBffServer) CancelTalkCollect(context.Context, *CancelTalkCollectReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CancelTalkCollect not implemented")
+}
+func (UnimplementedBffServer) GetLastColumnDraft(context.Context, *emptypb.Empty) (*GetLastColumnDraftReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetLastColumnDraft not implemented")
+}
+func (UnimplementedBffServer) CreateColumnDraft(context.Context, *emptypb.Empty) (*CreateColumnDraftReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateColumnDraft not implemented")
+}
+func (UnimplementedBffServer) CreateColumn(context.Context, *CreateColumnReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateColumn not implemented")
+}
+func (UnimplementedBffServer) GetColumnList(context.Context, *GetColumnListReq) (*GetColumnListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetColumnList not implemented")
+}
+func (UnimplementedBffServer) GetColumnListHot(context.Context, *GetColumnListHotReq) (*GetColumnListHotReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetColumnListHot not implemented")
+}
+func (UnimplementedBffServer) GetColumnListStatistic(context.Context, *GetColumnListStatisticReq) (*GetColumnListStatisticReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetColumnListStatistic not implemented")
 }
 func (UnimplementedBffServer) mustEmbedUnimplementedBffServer() {}
 
@@ -2395,6 +2479,114 @@ func _Bff_CancelTalkCollect_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_GetLastColumnDraft_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetLastColumnDraft(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetLastColumnDraft",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetLastColumnDraft(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_CreateColumnDraft_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).CreateColumnDraft(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/CreateColumnDraft",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).CreateColumnDraft(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_CreateColumn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateColumnReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).CreateColumn(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/CreateColumn",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).CreateColumn(ctx, req.(*CreateColumnReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetColumnList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetColumnListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetColumnList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetColumnList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetColumnList(ctx, req.(*GetColumnListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetColumnListHot_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetColumnListHotReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetColumnListHot(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetColumnListHot",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetColumnListHot(ctx, req.(*GetColumnListHotReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetColumnListStatistic_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetColumnListStatisticReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetColumnListStatistic(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetColumnListStatistic",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetColumnListStatistic(ctx, req.(*GetColumnListStatisticReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Bff_ServiceDesc is the grpc.ServiceDesc for Bff service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -2693,6 +2885,30 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CancelTalkCollect",
 			Handler:    _Bff_CancelTalkCollect_Handler,
+		},
+		{
+			MethodName: "GetLastColumnDraft",
+			Handler:    _Bff_GetLastColumnDraft_Handler,
+		},
+		{
+			MethodName: "CreateColumnDraft",
+			Handler:    _Bff_CreateColumnDraft_Handler,
+		},
+		{
+			MethodName: "CreateColumn",
+			Handler:    _Bff_CreateColumn_Handler,
+		},
+		{
+			MethodName: "GetColumnList",
+			Handler:    _Bff_GetColumnList_Handler,
+		},
+		{
+			MethodName: "GetColumnListHot",
+			Handler:    _Bff_GetColumnListHot_Handler,
+		},
+		{
+			MethodName: "GetColumnListStatistic",
+			Handler:    _Bff_GetColumnListStatistic_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

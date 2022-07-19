@@ -28,6 +28,8 @@ type BffHTTPServer interface {
 	ChangeUserPassword(context.Context, *ChangeUserPasswordReq) (*emptypb.Empty, error)
 	CreateArticleDraft(context.Context, *emptypb.Empty) (*CreateArticleDraftReply, error)
 	CreateCollections(context.Context, *CreateCollectionsReq) (*emptypb.Empty, error)
+	CreateColumn(context.Context, *CreateColumnReq) (*emptypb.Empty, error)
+	CreateColumnDraft(context.Context, *emptypb.Empty) (*CreateColumnDraftReply, error)
 	CreateTalkDraft(context.Context, *emptypb.Empty) (*CreateTalkDraftReply, error)
 	DeleteArticle(context.Context, *DeleteArticleReq) (*emptypb.Empty, error)
 	DeleteCollections(context.Context, *DeleteCollectionsReq) (*emptypb.Empty, error)
@@ -50,8 +52,12 @@ type BffHTTPServer interface {
 	GetCollectionsByVisitor(context.Context, *GetCollectionsByVisitorReq) (*GetCollectionsReply, error)
 	GetCollectionsCount(context.Context, *emptypb.Empty) (*GetCollectionsCountReply, error)
 	GetCollectionsVisitorCount(context.Context, *GetCollectionsVisitorCountReq) (*GetCollectionsCountReply, error)
+	GetColumnList(context.Context, *GetColumnListReq) (*GetColumnListReply, error)
+	GetColumnListHot(context.Context, *GetColumnListHotReq) (*GetColumnListHotReply, error)
+	GetColumnListStatistic(context.Context, *GetColumnListStatisticReq) (*GetColumnListStatisticReply, error)
 	GetCosSessionKey(context.Context, *emptypb.Empty) (*GetCosSessionKeyReply, error)
 	GetLastArticleDraft(context.Context, *emptypb.Empty) (*GetLastArticleDraftReply, error)
+	GetLastColumnDraft(context.Context, *emptypb.Empty) (*GetLastColumnDraftReply, error)
 	GetLastTalkDraft(context.Context, *emptypb.Empty) (*GetLastTalkDraftReply, error)
 	GetLeaderBoard(context.Context, *emptypb.Empty) (*GetLeaderBoardReply, error)
 	GetProfile(context.Context, *emptypb.Empty) (*GetProfileReply, error)
@@ -169,6 +175,12 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.POST("/v1/set/talk/collect", _Bff_SetTalkCollect0_HTTP_Handler(srv))
 	r.POST("/v1/cancel/talk/agree", _Bff_CancelTalkAgree0_HTTP_Handler(srv))
 	r.POST("/v1/cancel/talk/collect", _Bff_CancelTalkCollect0_HTTP_Handler(srv))
+	r.GET("/v1/get/last/column/draft", _Bff_GetLastColumnDraft0_HTTP_Handler(srv))
+	r.POST("/v1/create/column/draft", _Bff_CreateColumnDraft0_HTTP_Handler(srv))
+	r.POST("/v1/create/column", _Bff_CreateColumn0_HTTP_Handler(srv))
+	r.GET("/v1/get/column/list", _Bff_GetColumnList0_HTTP_Handler(srv))
+	r.GET("/v1/get/column/list/hot", _Bff_GetColumnListHot0_HTTP_Handler(srv))
+	r.GET("/v1/get/column/list/statistic", _Bff_GetColumnListStatistic0_HTTP_Handler(srv))
 }
 
 func _Bff_UserRegister0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
@@ -1558,6 +1570,120 @@ func _Bff_CancelTalkCollect0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Conte
 	}
 }
 
+func _Bff_GetLastColumnDraft0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in emptypb.Empty
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/bff.v1.Bff/GetLastColumnDraft")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetLastColumnDraft(ctx, req.(*emptypb.Empty))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetLastColumnDraftReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_CreateColumnDraft0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in emptypb.Empty
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/bff.v1.Bff/CreateColumnDraft")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.CreateColumnDraft(ctx, req.(*emptypb.Empty))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*CreateColumnDraftReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_CreateColumn0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in CreateColumnReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/bff.v1.Bff/CreateColumn")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.CreateColumn(ctx, req.(*CreateColumnReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_GetColumnList0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetColumnListReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/bff.v1.Bff/GetColumnList")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetColumnList(ctx, req.(*GetColumnListReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetColumnListReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_GetColumnListHot0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetColumnListHotReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/bff.v1.Bff/GetColumnListHot")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetColumnListHot(ctx, req.(*GetColumnListHotReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetColumnListHotReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_GetColumnListStatistic0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetColumnListStatisticReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/bff.v1.Bff/GetColumnListStatistic")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetColumnListStatistic(ctx, req.(*GetColumnListStatisticReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetColumnListStatisticReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 type BffHTTPClient interface {
 	ArticleDraftMark(ctx context.Context, req *ArticleDraftMarkReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	ArticleStatisticJudge(ctx context.Context, req *ArticleStatisticJudgeReq, opts ...http.CallOption) (rsp *ArticleStatisticJudgeReply, err error)
@@ -1568,6 +1694,8 @@ type BffHTTPClient interface {
 	ChangeUserPassword(ctx context.Context, req *ChangeUserPasswordReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	CreateArticleDraft(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *CreateArticleDraftReply, err error)
 	CreateCollections(ctx context.Context, req *CreateCollectionsReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	CreateColumn(ctx context.Context, req *CreateColumnReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	CreateColumnDraft(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *CreateColumnDraftReply, err error)
 	CreateTalkDraft(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *CreateTalkDraftReply, err error)
 	DeleteArticle(ctx context.Context, req *DeleteArticleReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	DeleteCollections(ctx context.Context, req *DeleteCollectionsReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -1590,8 +1718,12 @@ type BffHTTPClient interface {
 	GetCollectionsByVisitor(ctx context.Context, req *GetCollectionsByVisitorReq, opts ...http.CallOption) (rsp *GetCollectionsReply, err error)
 	GetCollectionsCount(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetCollectionsCountReply, err error)
 	GetCollectionsVisitorCount(ctx context.Context, req *GetCollectionsVisitorCountReq, opts ...http.CallOption) (rsp *GetCollectionsCountReply, err error)
+	GetColumnList(ctx context.Context, req *GetColumnListReq, opts ...http.CallOption) (rsp *GetColumnListReply, err error)
+	GetColumnListHot(ctx context.Context, req *GetColumnListHotReq, opts ...http.CallOption) (rsp *GetColumnListHotReply, err error)
+	GetColumnListStatistic(ctx context.Context, req *GetColumnListStatisticReq, opts ...http.CallOption) (rsp *GetColumnListStatisticReply, err error)
 	GetCosSessionKey(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetCosSessionKeyReply, err error)
 	GetLastArticleDraft(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetLastArticleDraftReply, err error)
+	GetLastColumnDraft(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetLastColumnDraftReply, err error)
 	GetLastTalkDraft(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetLastTalkDraftReply, err error)
 	GetLeaderBoard(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetLeaderBoardReply, err error)
 	GetProfile(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetProfileReply, err error)
@@ -1751,6 +1883,32 @@ func (c *BffHTTPClientImpl) CreateCollections(ctx context.Context, in *CreateCol
 	pattern := "/v1/create/collections"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation("/bff.v1.Bff/CreateCollections"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) CreateColumn(ctx context.Context, in *CreateColumnReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/create/column"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/bff.v1.Bff/CreateColumn"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) CreateColumnDraft(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*CreateColumnDraftReply, error) {
+	var out CreateColumnDraftReply
+	pattern := "/v1/create/column/draft"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation("/bff.v1.Bff/CreateColumnDraft"))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
@@ -2045,6 +2203,45 @@ func (c *BffHTTPClientImpl) GetCollectionsVisitorCount(ctx context.Context, in *
 	return &out, err
 }
 
+func (c *BffHTTPClientImpl) GetColumnList(ctx context.Context, in *GetColumnListReq, opts ...http.CallOption) (*GetColumnListReply, error) {
+	var out GetColumnListReply
+	pattern := "/v1/get/column/list"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation("/bff.v1.Bff/GetColumnList"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetColumnListHot(ctx context.Context, in *GetColumnListHotReq, opts ...http.CallOption) (*GetColumnListHotReply, error) {
+	var out GetColumnListHotReply
+	pattern := "/v1/get/column/list/hot"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation("/bff.v1.Bff/GetColumnListHot"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetColumnListStatistic(ctx context.Context, in *GetColumnListStatisticReq, opts ...http.CallOption) (*GetColumnListStatisticReply, error) {
+	var out GetColumnListStatisticReply
+	pattern := "/v1/get/column/list/statistic"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation("/bff.v1.Bff/GetColumnListStatistic"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
 func (c *BffHTTPClientImpl) GetCosSessionKey(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*GetCosSessionKeyReply, error) {
 	var out GetCosSessionKeyReply
 	pattern := "/v1/get/cos/session/key"
@@ -2063,6 +2260,19 @@ func (c *BffHTTPClientImpl) GetLastArticleDraft(ctx context.Context, in *emptypb
 	pattern := "/v1/get/last/article/draft"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation("/bff.v1.Bff/GetLastArticleDraft"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetLastColumnDraft(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*GetLastColumnDraftReply, error) {
+	var out GetLastColumnDraftReply
+	pattern := "/v1/get/last/column/draft"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation("/bff.v1.Bff/GetLastColumnDraft"))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
