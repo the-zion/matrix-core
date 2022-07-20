@@ -605,6 +605,8 @@ func (s *BffService) TalkStatisticJudge(ctx context.Context, req *v1.TalkStatist
 	}, nil
 }
 
+// ------------------------------------------column-------------------------------------------------
+
 func (s *BffService) GetLastColumnDraft(ctx context.Context, _ *emptypb.Empty) (*v1.GetLastColumnDraftReply, error) {
 	draft, err := s.coc.GetLastColumnDraft(ctx)
 	if err != nil {
@@ -624,14 +626,6 @@ func (s *BffService) CreateColumnDraft(ctx context.Context, _ *emptypb.Empty) (*
 	return &v1.CreateColumnDraftReply{
 		Id: id,
 	}, nil
-}
-
-func (s *BffService) CreateColumn(ctx context.Context, req *v1.CreateColumnReq) (*emptypb.Empty, error) {
-	err := s.coc.CreateColumn(ctx, req.Name, req.Introduce, req.Cover, req.Auth)
-	if err != nil {
-		return nil, err
-	}
-	return &emptypb.Empty{}, nil
 }
 
 func (s *BffService) GetColumnList(ctx context.Context, req *v1.GetColumnListReq) (*v1.GetColumnListReply, error) {
@@ -664,6 +658,56 @@ func (s *BffService) GetColumnListHot(ctx context.Context, req *v1.GetColumnList
 	return reply, nil
 }
 
+func (s *BffService) GetUserColumnList(ctx context.Context, req *v1.GetUserColumnListReq) (*v1.GetColumnListReply, error) {
+	reply := &v1.GetColumnListReply{Column: make([]*v1.GetColumnListReply_Column, 0)}
+	columnList, err := s.coc.GetUserColumnList(ctx, req.Page)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range columnList {
+		reply.Column = append(reply.Column, &v1.GetColumnListReply_Column{
+			Id:   item.Id,
+			Uuid: item.Uuid,
+		})
+	}
+	return reply, nil
+}
+
+func (s *BffService) GetUserColumnListVisitor(ctx context.Context, req *v1.GetUserColumnListVisitorReq) (*v1.GetColumnListReply, error) {
+	reply := &v1.GetColumnListReply{Column: make([]*v1.GetColumnListReply_Column, 0)}
+	columnList, err := s.coc.GetUserColumnListVisitor(ctx, req.Page, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range columnList {
+		reply.Column = append(reply.Column, &v1.GetColumnListReply_Column{
+			Id:   item.Id,
+			Uuid: item.Uuid,
+		})
+	}
+	return reply, nil
+}
+
+func (s *BffService) GetColumnCount(ctx context.Context, _ *emptypb.Empty) (*v1.GetColumnCountReply, error) {
+	count, err := s.coc.GetColumnCount(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetColumnCountReply{
+		Count: count,
+	}, nil
+}
+
+func (s *BffService) GetColumnCountVisitor(ctx context.Context, req *v1.GetColumnCountVisitorReq) (*v1.GetColumnCountReply, error) {
+	count, err := s.coc.GetColumnCountVisitor(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetColumnCountReply{
+		Count: count,
+	}, nil
+}
+
 func (s *BffService) GetColumnListStatistic(ctx context.Context, req *v1.GetColumnListStatisticReq) (*v1.GetColumnListStatisticReply, error) {
 	reply := &v1.GetColumnListStatisticReply{Count: make([]*v1.GetColumnListStatisticReply_Count, 0)}
 	statisticList, err := s.coc.GetColumnListStatistic(ctx, req.Ids)
@@ -679,4 +723,28 @@ func (s *BffService) GetColumnListStatistic(ctx context.Context, req *v1.GetColu
 		})
 	}
 	return reply, nil
+}
+
+func (s *BffService) SendColumn(ctx context.Context, req *v1.SendColumnReq) (*emptypb.Empty, error) {
+	err := s.coc.SendColumn(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) SendColumnEdit(ctx context.Context, req *v1.SendColumnEditReq) (*emptypb.Empty, error) {
+	err := s.coc.SendColumnEdit(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) DeleteColumn(ctx context.Context, req *v1.DeleteColumnReq) (*emptypb.Empty, error) {
+	err := s.coc.DeleteColumn(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
 }
