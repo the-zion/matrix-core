@@ -65,6 +65,9 @@ message Data {
     message Talk{
       string groupName = 1;
     }
+    message ColumnReview{
+      string groupName = 1;
+    }
     message Column{
       string groupName = 1;
     }
@@ -72,11 +75,12 @@ message Data {
     Article article = 2;
     TalkReview talkReview = 3;
     Talk talk = 4;
-    Column column = 5;
-    string serverAddress = 6;
-    string secretKey = 7;
-    string accessKey = 8;
-    string nameSpace = 9;
+    ColumnReview columnReview = 5;
+    Column column = 6;
+    string serverAddress = 7;
+    string secretKey = 8;
+    string accessKey = 9;
+    string nameSpace = 10;
   }
   Database database = 1;
   Redis redis = 2;
