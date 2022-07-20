@@ -54,6 +54,7 @@ type TalkRepo interface {
 
 	FreezeTalkCos(ctx context.Context, id int32, uuid string) error
 
+	UpdateTalkCache(ctx context.Context, id, auth int32, uuid string) error
 	EditTalkCos(ctx context.Context, id int32, uuid string) error
 	EditTalkSearch(ctx context.Context, id int32, uuid string) error
 }
@@ -122,6 +123,7 @@ func (r *TalkUseCase) GetTalkCount(ctx context.Context, uuid string) (int32, err
 	}
 	return count, nil
 }
+
 func (r *TalkUseCase) GetTalkCountVisitor(ctx context.Context, uuid string) (int32, error) {
 	count, err := r.repo.GetTalkCountVisitor(ctx, uuid)
 	if err != nil {
@@ -237,9 +239,10 @@ func (r *TalkUseCase) CreateTalk(ctx context.Context, id, auth int32, uuid strin
 	})
 }
 
-func (r *TalkUseCase) EditTalk(ctx context.Context, id int32, uuid string) error {
+func (r *TalkUseCase) EditTalk(ctx context.Context, id, auth int32, uuid string) error {
 	err := r.repo.SendTalkToMq(ctx, &Talk{
 		TalkId: id,
+		Auth:   auth,
 		Uuid:   uuid,
 	}, "edit_talk_cos_and_search")
 	if err != nil {
@@ -289,8 +292,13 @@ func (r *TalkUseCase) CreateTalkCacheAndSearch(ctx context.Context, id, auth int
 	return nil
 }
 
-func (r *TalkUseCase) EditTalkCosAndSearch(ctx context.Context, id int32, uuid string) error {
-	err := r.repo.EditTalkCos(ctx, id, uuid)
+func (r *TalkUseCase) EditTalkCosAndSearch(ctx context.Context, id, auth int32, uuid string) error {
+	err := r.repo.UpdateTalkCache(ctx, id, auth, uuid)
+	if err != nil {
+		return v1.ErrorEditTalkFailed("edit talk cache failed: %s", err.Error())
+	}
+
+	err = r.repo.EditTalkCos(ctx, id, uuid)
 	if err != nil {
 		return v1.ErrorEditTalkFailed("edit talk cache failed: %s", err.Error())
 	}
