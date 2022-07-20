@@ -137,18 +137,38 @@ service Creation {
   rpc CancelTalkCollect(CancelTalkCollectReq) returns (google.protobuf.Empty){}
 
   rpc GetLastColumnDraft(GetLastColumnDraftReq) returns (GetLastColumnDraftReply){}
-  
+
   rpc CreateColumnDraft(CreateColumnDraftReq) returns (CreateColumnDraftReply){}
+
+  rpc SendColumn(SendColumnReq) returns (google.protobuf.Empty){}
 
   rpc CreateColumn(CreateColumnReq) returns (google.protobuf.Empty){}
 
   rpc CreateColumnCacheAndSearch(CreateColumnCacheAndSearchReq) returns (google.protobuf.Empty){}
+
+  rpc EditColumnCosAndSearch(EditColumnCosAndSearchReq) returns (google.protobuf.Empty){}
 
   rpc GetColumnList(GetColumnListReq) returns (GetColumnListReply){}
 
   rpc GetColumnListHot(GetColumnListHotReq) returns (GetColumnListHotReply){}
 
   rpc GetColumnListStatistic(GetColumnListStatisticReq)returns (GetColumnListStatisticReply){}
+
+  rpc GetUserColumnList(GetUserColumnListReq) returns (GetColumnListReply){}
+
+  rpc GetUserColumnListVisitor(GetUserColumnListVisitorReq) returns (GetColumnListReply){}
+
+  rpc GetColumnCount(GetColumnCountReq) returns (GetColumnCountReply){}
+
+  rpc GetColumnCountVisitor(GetColumnCountVisitorReq) returns (GetColumnCountReply){}
+
+  rpc SendColumnEdit(SendColumnEditReq) returns (google.protobuf.Empty){}
+
+  rpc EditColumn(EditColumnReq) returns (google.protobuf.Empty){}
+
+  rpc DeleteColumn(DeleteColumnReq) returns (google.protobuf.Empty){}
+
+  rpc DeleteColumnCacheAndSearch(DeleteColumnCacheAndSearchReq) returns (google.protobuf.Empty){}
 }
 
 message GetLeaderBoardReply{
@@ -330,7 +350,8 @@ message CreateArticleReq{
 
 message EditArticleReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  int32 auth = 2;
+  string uuid = 3 [(validate.rules).string.uuid = true];
 }
 
 message CreateArticleCacheAndSearchReq{
@@ -341,7 +362,8 @@ message CreateArticleCacheAndSearchReq{
 
 message EditArticleCosAndSearchReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  int32 auth = 2;
+  string uuid = 3 [(validate.rules).string.uuid = true];
 }
 
 message DeleteArticleCacheAndSearchReq{
@@ -536,7 +558,8 @@ message CreateTalkReq{
 
 message EditTalkReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  int32 auth = 2;
+  string uuid = 3 [(validate.rules).string.uuid = true];
 }
 
 message DeleteTalkReq{
@@ -552,7 +575,8 @@ message CreateTalkCacheAndSearchReq{
 
 message EditTalkCosAndSearchReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  int32 auth = 2;
+  string uuid = 3 [(validate.rules).string.uuid = true];
 }
 
 message DeleteTalkCacheAndSearchReq{
@@ -617,15 +641,24 @@ message CreateColumnDraftReply{
   int32 id = 1;
 }
 
+message SendColumnReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
 message CreateColumnReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
-  string name = 2 [(validate.rules).string = {min_len:1, max_len: 50}];
-  string introduce = 3 [(validate.rules).string = {min_len:1, max_len: 100}];
-  string cover = 4 [(validate.rules).string = {min_len:1, max_len: 50}];
-  int32 auth = 5;
+  int32 id = 1;
+  int32 auth = 2;
+  string uuid = 3 [(validate.rules).string.uuid = true];
 }
 
 message CreateColumnCacheAndSearchReq{
+  int32 id = 1;
+  int32 auth = 2;
+  string uuid = 3 [(validate.rules).string.uuid = true];
+}
+
+message EditColumnCosAndSearchReq{
   int32 id = 1;
   int32 auth = 2;
   string uuid = 3 [(validate.rules).string.uuid = true];
@@ -639,10 +672,6 @@ message GetColumnListReply{
   message Column{
     int32 id = 1;
     string uuid = 2;
-    string name = 3;
-    string introduce = 4;
-    string cover = 5;
-    string tags = 6;
   }
   repeated Column column = 1;
 }
@@ -655,10 +684,6 @@ message GetColumnListHotReply{
   message Column{
     int32 id = 1;
     string uuid = 2;
-    string name = 3;
-    string introduce = 4;
-    string cover = 5;
-    string tags = 6;
   }
   repeated Column column = 1;
 }
@@ -675,4 +700,47 @@ message GetColumnListStatisticReply{
     int32 view = 4;
   }
   repeated Count count = 1;
+}
+
+message GetUserColumnListReq{
+  int32 page = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message GetUserColumnListVisitorReq{
+  int32 page = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message GetColumnCountReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+message GetColumnCountVisitorReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+message GetColumnCountReply{
+  int32 count = 1;
+}
+
+message SendColumnEditReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message EditColumnReq{
+  int32 id = 1;
+  int32 auth = 2;
+  string uuid = 3 [(validate.rules).string.uuid = true];
+}
+
+message DeleteColumnReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message DeleteColumnCacheAndSearchReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
 }
