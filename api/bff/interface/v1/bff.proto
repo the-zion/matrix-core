@@ -517,9 +517,9 @@ service Bff{
     };
   }
 
-  rpc CreateColumn(CreateColumnReq) returns (google.protobuf.Empty){
+  rpc SendColumn(SendColumnReq) returns (google.protobuf.Empty){
     option (google.api.http) = {
-      post: "/v1/create/column"
+      post: "/v1/send/column"
       body: "*"
     };
   }
@@ -539,6 +539,47 @@ service Bff{
   rpc GetColumnListStatistic(GetColumnListStatisticReq)returns (GetColumnListStatisticReply){
     option (google.api.http) = {
       get: "/v1/get/column/list/statistic"
+    };
+  }
+
+  rpc GetUserColumnList(GetUserColumnListReq) returns (GetColumnListReply){
+    option (google.api.http) = {
+      post: "/v1/get/user/column/list",
+      body: "*"
+    };
+  }
+
+  rpc GetUserColumnListVisitor(GetUserColumnListVisitorReq) returns (GetColumnListReply){
+    option (google.api.http) = {
+      get: "/v1/get/user/column/list/visitor"
+    };
+  }
+
+  rpc GetColumnCount(google.protobuf.Empty) returns (GetColumnCountReply){
+    option (google.api.http) = {
+      post: "/v1/get/column/count"
+      body: "*"
+    };
+  }
+
+  rpc GetColumnCountVisitor(GetColumnCountVisitorReq) returns (GetColumnCountReply){
+    option (google.api.http) = {
+      post: "/v1/get/column/count/visitor"
+      body: "*"
+    };
+  }
+
+  rpc SendColumnEdit(SendColumnEditReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/send/column/edit"
+      body: "*"
+    };
+  }
+
+  rpc DeleteColumn(DeleteColumnReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/delete/column"
+      body: "*"
     };
   }
 }
@@ -1046,11 +1087,8 @@ message CreateColumnDraftReply{
   int32 id = 1;
 }
 
-message CreateColumnReq{
-  string name = 1;
-  string introduce = 2;
-  string cover = 3;
-  int32 auth = 4;
+message SendColumnReq{
+  int32 id = 1;
 }
 
 message GetColumnListReq{
@@ -1061,10 +1099,6 @@ message GetColumnListReply{
   message Column{
     int32 id = 1;
     string uuid = 2;
-    string name = 3;
-    string introduce = 4;
-    string cover = 5;
-    string tags = 6;
   }
   repeated Column column = 1;
 }
@@ -1077,10 +1111,6 @@ message GetColumnListHotReply{
   message Column{
     int32 id = 1;
     string uuid = 2;
-    string name = 3;
-    string introduce = 4;
-    string cover = 5;
-    string tags = 6;
   }
   repeated Column column = 1;
 }
@@ -1097,4 +1127,29 @@ message GetColumnListStatisticReply{
     int32 view = 4;
   }
   repeated Count count = 1;
+}
+
+message GetUserColumnListReq{
+  int32 page = 1;
+}
+
+message GetUserColumnListVisitorReq{
+  int32 page = 1;
+  string uuid = 2;
+}
+
+message GetColumnCountVisitorReq{
+  string uuid = 1;
+}
+
+message GetColumnCountReply{
+  int32 count = 1;
+}
+
+message SendColumnEditReq{
+  int32 id = 1;
+}
+
+message DeleteColumnReq{
+  int32 id = 1;
 }
