@@ -88,11 +88,21 @@ type CreationClient interface {
 	CancelTalkCollect(ctx context.Context, in *CancelTalkCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetLastColumnDraft(ctx context.Context, in *GetLastColumnDraftReq, opts ...grpc.CallOption) (*GetLastColumnDraftReply, error)
 	CreateColumnDraft(ctx context.Context, in *CreateColumnDraftReq, opts ...grpc.CallOption) (*CreateColumnDraftReply, error)
+	SendColumn(ctx context.Context, in *SendColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateColumn(ctx context.Context, in *CreateColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateColumnCacheAndSearch(ctx context.Context, in *CreateColumnCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	EditColumnCosAndSearch(ctx context.Context, in *EditColumnCosAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetColumnList(ctx context.Context, in *GetColumnListReq, opts ...grpc.CallOption) (*GetColumnListReply, error)
 	GetColumnListHot(ctx context.Context, in *GetColumnListHotReq, opts ...grpc.CallOption) (*GetColumnListHotReply, error)
 	GetColumnListStatistic(ctx context.Context, in *GetColumnListStatisticReq, opts ...grpc.CallOption) (*GetColumnListStatisticReply, error)
+	GetUserColumnList(ctx context.Context, in *GetUserColumnListReq, opts ...grpc.CallOption) (*GetColumnListReply, error)
+	GetUserColumnListVisitor(ctx context.Context, in *GetUserColumnListVisitorReq, opts ...grpc.CallOption) (*GetColumnListReply, error)
+	GetColumnCount(ctx context.Context, in *GetColumnCountReq, opts ...grpc.CallOption) (*GetColumnCountReply, error)
+	GetColumnCountVisitor(ctx context.Context, in *GetColumnCountVisitorReq, opts ...grpc.CallOption) (*GetColumnCountReply, error)
+	SendColumnEdit(ctx context.Context, in *SendColumnEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	EditColumn(ctx context.Context, in *EditColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DeleteColumn(ctx context.Context, in *DeleteColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DeleteColumnCacheAndSearch(ctx context.Context, in *DeleteColumnCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type creationClient struct {
@@ -688,6 +698,15 @@ func (c *creationClient) CreateColumnDraft(ctx context.Context, in *CreateColumn
 	return out, nil
 }
 
+func (c *creationClient) SendColumn(ctx context.Context, in *SendColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/SendColumn", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *creationClient) CreateColumn(ctx context.Context, in *CreateColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/CreateColumn", in, out, opts...)
@@ -700,6 +719,15 @@ func (c *creationClient) CreateColumn(ctx context.Context, in *CreateColumnReq, 
 func (c *creationClient) CreateColumnCacheAndSearch(ctx context.Context, in *CreateColumnCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/CreateColumnCacheAndSearch", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) EditColumnCosAndSearch(ctx context.Context, in *EditColumnCosAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/EditColumnCosAndSearch", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -727,6 +755,78 @@ func (c *creationClient) GetColumnListHot(ctx context.Context, in *GetColumnList
 func (c *creationClient) GetColumnListStatistic(ctx context.Context, in *GetColumnListStatisticReq, opts ...grpc.CallOption) (*GetColumnListStatisticReply, error) {
 	out := new(GetColumnListStatisticReply)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetColumnListStatistic", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) GetUserColumnList(ctx context.Context, in *GetUserColumnListReq, opts ...grpc.CallOption) (*GetColumnListReply, error) {
+	out := new(GetColumnListReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetUserColumnList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) GetUserColumnListVisitor(ctx context.Context, in *GetUserColumnListVisitorReq, opts ...grpc.CallOption) (*GetColumnListReply, error) {
+	out := new(GetColumnListReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetUserColumnListVisitor", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) GetColumnCount(ctx context.Context, in *GetColumnCountReq, opts ...grpc.CallOption) (*GetColumnCountReply, error) {
+	out := new(GetColumnCountReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetColumnCount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) GetColumnCountVisitor(ctx context.Context, in *GetColumnCountVisitorReq, opts ...grpc.CallOption) (*GetColumnCountReply, error) {
+	out := new(GetColumnCountReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetColumnCountVisitor", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) SendColumnEdit(ctx context.Context, in *SendColumnEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/SendColumnEdit", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) EditColumn(ctx context.Context, in *EditColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/EditColumn", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) DeleteColumn(ctx context.Context, in *DeleteColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/DeleteColumn", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) DeleteColumnCacheAndSearch(ctx context.Context, in *DeleteColumnCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/DeleteColumnCacheAndSearch", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -802,11 +902,21 @@ type CreationServer interface {
 	CancelTalkCollect(context.Context, *CancelTalkCollectReq) (*emptypb.Empty, error)
 	GetLastColumnDraft(context.Context, *GetLastColumnDraftReq) (*GetLastColumnDraftReply, error)
 	CreateColumnDraft(context.Context, *CreateColumnDraftReq) (*CreateColumnDraftReply, error)
+	SendColumn(context.Context, *SendColumnReq) (*emptypb.Empty, error)
 	CreateColumn(context.Context, *CreateColumnReq) (*emptypb.Empty, error)
 	CreateColumnCacheAndSearch(context.Context, *CreateColumnCacheAndSearchReq) (*emptypb.Empty, error)
+	EditColumnCosAndSearch(context.Context, *EditColumnCosAndSearchReq) (*emptypb.Empty, error)
 	GetColumnList(context.Context, *GetColumnListReq) (*GetColumnListReply, error)
 	GetColumnListHot(context.Context, *GetColumnListHotReq) (*GetColumnListHotReply, error)
 	GetColumnListStatistic(context.Context, *GetColumnListStatisticReq) (*GetColumnListStatisticReply, error)
+	GetUserColumnList(context.Context, *GetUserColumnListReq) (*GetColumnListReply, error)
+	GetUserColumnListVisitor(context.Context, *GetUserColumnListVisitorReq) (*GetColumnListReply, error)
+	GetColumnCount(context.Context, *GetColumnCountReq) (*GetColumnCountReply, error)
+	GetColumnCountVisitor(context.Context, *GetColumnCountVisitorReq) (*GetColumnCountReply, error)
+	SendColumnEdit(context.Context, *SendColumnEditReq) (*emptypb.Empty, error)
+	EditColumn(context.Context, *EditColumnReq) (*emptypb.Empty, error)
+	DeleteColumn(context.Context, *DeleteColumnReq) (*emptypb.Empty, error)
+	DeleteColumnCacheAndSearch(context.Context, *DeleteColumnCacheAndSearchReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedCreationServer()
 }
 
@@ -1009,11 +1119,17 @@ func (UnimplementedCreationServer) GetLastColumnDraft(context.Context, *GetLastC
 func (UnimplementedCreationServer) CreateColumnDraft(context.Context, *CreateColumnDraftReq) (*CreateColumnDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateColumnDraft not implemented")
 }
+func (UnimplementedCreationServer) SendColumn(context.Context, *SendColumnReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendColumn not implemented")
+}
 func (UnimplementedCreationServer) CreateColumn(context.Context, *CreateColumnReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateColumn not implemented")
 }
 func (UnimplementedCreationServer) CreateColumnCacheAndSearch(context.Context, *CreateColumnCacheAndSearchReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateColumnCacheAndSearch not implemented")
+}
+func (UnimplementedCreationServer) EditColumnCosAndSearch(context.Context, *EditColumnCosAndSearchReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EditColumnCosAndSearch not implemented")
 }
 func (UnimplementedCreationServer) GetColumnList(context.Context, *GetColumnListReq) (*GetColumnListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetColumnList not implemented")
@@ -1023,6 +1139,30 @@ func (UnimplementedCreationServer) GetColumnListHot(context.Context, *GetColumnL
 }
 func (UnimplementedCreationServer) GetColumnListStatistic(context.Context, *GetColumnListStatisticReq) (*GetColumnListStatisticReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetColumnListStatistic not implemented")
+}
+func (UnimplementedCreationServer) GetUserColumnList(context.Context, *GetUserColumnListReq) (*GetColumnListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserColumnList not implemented")
+}
+func (UnimplementedCreationServer) GetUserColumnListVisitor(context.Context, *GetUserColumnListVisitorReq) (*GetColumnListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserColumnListVisitor not implemented")
+}
+func (UnimplementedCreationServer) GetColumnCount(context.Context, *GetColumnCountReq) (*GetColumnCountReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetColumnCount not implemented")
+}
+func (UnimplementedCreationServer) GetColumnCountVisitor(context.Context, *GetColumnCountVisitorReq) (*GetColumnCountReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetColumnCountVisitor not implemented")
+}
+func (UnimplementedCreationServer) SendColumnEdit(context.Context, *SendColumnEditReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendColumnEdit not implemented")
+}
+func (UnimplementedCreationServer) EditColumn(context.Context, *EditColumnReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EditColumn not implemented")
+}
+func (UnimplementedCreationServer) DeleteColumn(context.Context, *DeleteColumnReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteColumn not implemented")
+}
+func (UnimplementedCreationServer) DeleteColumnCacheAndSearch(context.Context, *DeleteColumnCacheAndSearchReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteColumnCacheAndSearch not implemented")
 }
 func (UnimplementedCreationServer) mustEmbedUnimplementedCreationServer() {}
 
@@ -2207,6 +2347,24 @@ func _Creation_CreateColumnDraft_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Creation_SendColumn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendColumnReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).SendColumn(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/SendColumn",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).SendColumn(ctx, req.(*SendColumnReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Creation_CreateColumn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateColumnReq)
 	if err := dec(in); err != nil {
@@ -2239,6 +2397,24 @@ func _Creation_CreateColumnCacheAndSearch_Handler(srv interface{}, ctx context.C
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CreationServer).CreateColumnCacheAndSearch(ctx, req.(*CreateColumnCacheAndSearchReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_EditColumnCosAndSearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EditColumnCosAndSearchReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).EditColumnCosAndSearch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/EditColumnCosAndSearch",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).EditColumnCosAndSearch(ctx, req.(*EditColumnCosAndSearchReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2293,6 +2469,150 @@ func _Creation_GetColumnListStatistic_Handler(srv interface{}, ctx context.Conte
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CreationServer).GetColumnListStatistic(ctx, req.(*GetColumnListStatisticReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_GetUserColumnList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserColumnListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetUserColumnList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetUserColumnList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetUserColumnList(ctx, req.(*GetUserColumnListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_GetUserColumnListVisitor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserColumnListVisitorReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetUserColumnListVisitor(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetUserColumnListVisitor",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetUserColumnListVisitor(ctx, req.(*GetUserColumnListVisitorReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_GetColumnCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetColumnCountReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetColumnCount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetColumnCount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetColumnCount(ctx, req.(*GetColumnCountReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_GetColumnCountVisitor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetColumnCountVisitorReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetColumnCountVisitor(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetColumnCountVisitor",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetColumnCountVisitor(ctx, req.(*GetColumnCountVisitorReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_SendColumnEdit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendColumnEditReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).SendColumnEdit(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/SendColumnEdit",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).SendColumnEdit(ctx, req.(*SendColumnEditReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_EditColumn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EditColumnReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).EditColumn(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/EditColumn",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).EditColumn(ctx, req.(*EditColumnReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_DeleteColumn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteColumnReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).DeleteColumn(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/DeleteColumn",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).DeleteColumn(ctx, req.(*DeleteColumnReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_DeleteColumnCacheAndSearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteColumnCacheAndSearchReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).DeleteColumnCacheAndSearch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/DeleteColumnCacheAndSearch",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).DeleteColumnCacheAndSearch(ctx, req.(*DeleteColumnCacheAndSearchReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2565,12 +2885,20 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Creation_CreateColumnDraft_Handler,
 		},
 		{
+			MethodName: "SendColumn",
+			Handler:    _Creation_SendColumn_Handler,
+		},
+		{
 			MethodName: "CreateColumn",
 			Handler:    _Creation_CreateColumn_Handler,
 		},
 		{
 			MethodName: "CreateColumnCacheAndSearch",
 			Handler:    _Creation_CreateColumnCacheAndSearch_Handler,
+		},
+		{
+			MethodName: "EditColumnCosAndSearch",
+			Handler:    _Creation_EditColumnCosAndSearch_Handler,
 		},
 		{
 			MethodName: "GetColumnList",
@@ -2583,6 +2911,38 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetColumnListStatistic",
 			Handler:    _Creation_GetColumnListStatistic_Handler,
+		},
+		{
+			MethodName: "GetUserColumnList",
+			Handler:    _Creation_GetUserColumnList_Handler,
+		},
+		{
+			MethodName: "GetUserColumnListVisitor",
+			Handler:    _Creation_GetUserColumnListVisitor_Handler,
+		},
+		{
+			MethodName: "GetColumnCount",
+			Handler:    _Creation_GetColumnCount_Handler,
+		},
+		{
+			MethodName: "GetColumnCountVisitor",
+			Handler:    _Creation_GetColumnCountVisitor_Handler,
+		},
+		{
+			MethodName: "SendColumnEdit",
+			Handler:    _Creation_SendColumnEdit_Handler,
+		},
+		{
+			MethodName: "EditColumn",
+			Handler:    _Creation_EditColumn_Handler,
+		},
+		{
+			MethodName: "DeleteColumn",
+			Handler:    _Creation_DeleteColumn_Handler,
+		},
+		{
+			MethodName: "DeleteColumnCacheAndSearch",
+			Handler:    _Creation_DeleteColumnCacheAndSearch_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

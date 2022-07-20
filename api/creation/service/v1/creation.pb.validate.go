@@ -3811,6 +3811,8 @@ func (m *EditArticleReq) validate(all bool) error {
 
 	// no validation rules for Id
 
+	// no validation rules for Auth
+
 	if err := m._validateUuid(m.GetUuid()); err != nil {
 		err = EditArticleReqValidationError{
 			field:  "Uuid",
@@ -4059,6 +4061,8 @@ func (m *EditArticleCosAndSearchReq) validate(all bool) error {
 	var errors []error
 
 	// no validation rules for Id
+
+	// no validation rules for Auth
 
 	if err := m._validateUuid(m.GetUuid()); err != nil {
 		err = EditArticleCosAndSearchReqValidationError{
@@ -8530,6 +8534,8 @@ func (m *EditTalkReq) validate(all bool) error {
 
 	// no validation rules for Id
 
+	// no validation rules for Auth
+
 	if err := m._validateUuid(m.GetUuid()); err != nil {
 		err = EditTalkReqValidationError{
 			field:  "Uuid",
@@ -8899,6 +8905,8 @@ func (m *EditTalkCosAndSearchReq) validate(all bool) error {
 	var errors []error
 
 	// no validation rules for Id
+
+	// no validation rules for Auth
 
 	if err := m._validateUuid(m.GetUuid()); err != nil {
 		err = EditTalkCosAndSearchReqValidationError{
@@ -10475,6 +10483,128 @@ var _ interface {
 	ErrorName() string
 } = CreateColumnDraftReplyValidationError{}
 
+// Validate checks the field values on SendColumnReq with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *SendColumnReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SendColumnReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in SendColumnReqMultiError, or
+// nil if none found.
+func (m *SendColumnReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SendColumnReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = SendColumnReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return SendColumnReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *SendColumnReq) _validateUuid(uuid string) error {
+	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// SendColumnReqMultiError is an error wrapping multiple validation errors
+// returned by SendColumnReq.ValidateAll() if the designated constraints
+// aren't met.
+type SendColumnReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SendColumnReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SendColumnReqMultiError) AllErrors() []error { return m }
+
+// SendColumnReqValidationError is the validation error returned by
+// SendColumnReq.Validate if the designated constraints aren't met.
+type SendColumnReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SendColumnReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SendColumnReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SendColumnReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SendColumnReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SendColumnReqValidationError) ErrorName() string { return "SendColumnReqValidationError" }
+
+// Error satisfies the builtin error interface
+func (e SendColumnReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSendColumnReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SendColumnReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SendColumnReqValidationError{}
+
 // Validate checks the field values on CreateColumnReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -10497,6 +10627,10 @@ func (m *CreateColumnReq) validate(all bool) error {
 
 	var errors []error
 
+	// no validation rules for Id
+
+	// no validation rules for Auth
+
 	if err := m._validateUuid(m.GetUuid()); err != nil {
 		err = CreateColumnReqValidationError{
 			field:  "Uuid",
@@ -10508,41 +10642,6 @@ func (m *CreateColumnReq) validate(all bool) error {
 		}
 		errors = append(errors, err)
 	}
-
-	if l := utf8.RuneCountInString(m.GetName()); l < 1 || l > 50 {
-		err := CreateColumnReqValidationError{
-			field:  "Name",
-			reason: "value length must be between 1 and 50 runes, inclusive",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if l := utf8.RuneCountInString(m.GetIntroduce()); l < 1 || l > 100 {
-		err := CreateColumnReqValidationError{
-			field:  "Introduce",
-			reason: "value length must be between 1 and 100 runes, inclusive",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if l := utf8.RuneCountInString(m.GetCover()); l < 1 || l > 50 {
-		err := CreateColumnReqValidationError{
-			field:  "Cover",
-			reason: "value length must be between 1 and 50 runes, inclusive",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	// no validation rules for Auth
 
 	if len(errors) > 0 {
 		return CreateColumnReqMultiError(errors)
@@ -10756,6 +10855,132 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CreateColumnCacheAndSearchReqValidationError{}
+
+// Validate checks the field values on EditColumnCosAndSearchReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *EditColumnCosAndSearchReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on EditColumnCosAndSearchReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// EditColumnCosAndSearchReqMultiError, or nil if none found.
+func (m *EditColumnCosAndSearchReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *EditColumnCosAndSearchReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Auth
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = EditColumnCosAndSearchReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return EditColumnCosAndSearchReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *EditColumnCosAndSearchReq) _validateUuid(uuid string) error {
+	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// EditColumnCosAndSearchReqMultiError is an error wrapping multiple validation
+// errors returned by EditColumnCosAndSearchReq.ValidateAll() if the
+// designated constraints aren't met.
+type EditColumnCosAndSearchReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m EditColumnCosAndSearchReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m EditColumnCosAndSearchReqMultiError) AllErrors() []error { return m }
+
+// EditColumnCosAndSearchReqValidationError is the validation error returned by
+// EditColumnCosAndSearchReq.Validate if the designated constraints aren't met.
+type EditColumnCosAndSearchReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e EditColumnCosAndSearchReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e EditColumnCosAndSearchReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e EditColumnCosAndSearchReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e EditColumnCosAndSearchReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e EditColumnCosAndSearchReqValidationError) ErrorName() string {
+	return "EditColumnCosAndSearchReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e EditColumnCosAndSearchReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sEditColumnCosAndSearchReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = EditColumnCosAndSearchReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = EditColumnCosAndSearchReqValidationError{}
 
 // Validate checks the field values on GetColumnListReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the
@@ -11473,6 +11698,1098 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetColumnListStatisticReplyValidationError{}
+
+// Validate checks the field values on GetUserColumnListReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetUserColumnListReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserColumnListReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetUserColumnListReqMultiError, or nil if none found.
+func (m *GetUserColumnListReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserColumnListReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Page
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = GetUserColumnListReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return GetUserColumnListReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *GetUserColumnListReq) _validateUuid(uuid string) error {
+	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// GetUserColumnListReqMultiError is an error wrapping multiple validation
+// errors returned by GetUserColumnListReq.ValidateAll() if the designated
+// constraints aren't met.
+type GetUserColumnListReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserColumnListReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserColumnListReqMultiError) AllErrors() []error { return m }
+
+// GetUserColumnListReqValidationError is the validation error returned by
+// GetUserColumnListReq.Validate if the designated constraints aren't met.
+type GetUserColumnListReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserColumnListReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserColumnListReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserColumnListReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserColumnListReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserColumnListReqValidationError) ErrorName() string {
+	return "GetUserColumnListReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetUserColumnListReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserColumnListReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserColumnListReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserColumnListReqValidationError{}
+
+// Validate checks the field values on GetUserColumnListVisitorReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetUserColumnListVisitorReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserColumnListVisitorReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetUserColumnListVisitorReqMultiError, or nil if none found.
+func (m *GetUserColumnListVisitorReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserColumnListVisitorReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Page
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = GetUserColumnListVisitorReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return GetUserColumnListVisitorReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *GetUserColumnListVisitorReq) _validateUuid(uuid string) error {
+	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// GetUserColumnListVisitorReqMultiError is an error wrapping multiple
+// validation errors returned by GetUserColumnListVisitorReq.ValidateAll() if
+// the designated constraints aren't met.
+type GetUserColumnListVisitorReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserColumnListVisitorReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserColumnListVisitorReqMultiError) AllErrors() []error { return m }
+
+// GetUserColumnListVisitorReqValidationError is the validation error returned
+// by GetUserColumnListVisitorReq.Validate if the designated constraints
+// aren't met.
+type GetUserColumnListVisitorReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserColumnListVisitorReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserColumnListVisitorReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserColumnListVisitorReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserColumnListVisitorReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserColumnListVisitorReqValidationError) ErrorName() string {
+	return "GetUserColumnListVisitorReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetUserColumnListVisitorReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserColumnListVisitorReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserColumnListVisitorReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserColumnListVisitorReqValidationError{}
+
+// Validate checks the field values on GetColumnCountReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *GetColumnCountReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetColumnCountReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetColumnCountReqMultiError, or nil if none found.
+func (m *GetColumnCountReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetColumnCountReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = GetColumnCountReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return GetColumnCountReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *GetColumnCountReq) _validateUuid(uuid string) error {
+	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// GetColumnCountReqMultiError is an error wrapping multiple validation errors
+// returned by GetColumnCountReq.ValidateAll() if the designated constraints
+// aren't met.
+type GetColumnCountReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetColumnCountReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetColumnCountReqMultiError) AllErrors() []error { return m }
+
+// GetColumnCountReqValidationError is the validation error returned by
+// GetColumnCountReq.Validate if the designated constraints aren't met.
+type GetColumnCountReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetColumnCountReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetColumnCountReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetColumnCountReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetColumnCountReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetColumnCountReqValidationError) ErrorName() string {
+	return "GetColumnCountReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetColumnCountReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetColumnCountReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetColumnCountReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetColumnCountReqValidationError{}
+
+// Validate checks the field values on GetColumnCountVisitorReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetColumnCountVisitorReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetColumnCountVisitorReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetColumnCountVisitorReqMultiError, or nil if none found.
+func (m *GetColumnCountVisitorReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetColumnCountVisitorReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = GetColumnCountVisitorReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return GetColumnCountVisitorReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *GetColumnCountVisitorReq) _validateUuid(uuid string) error {
+	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// GetColumnCountVisitorReqMultiError is an error wrapping multiple validation
+// errors returned by GetColumnCountVisitorReq.ValidateAll() if the designated
+// constraints aren't met.
+type GetColumnCountVisitorReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetColumnCountVisitorReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetColumnCountVisitorReqMultiError) AllErrors() []error { return m }
+
+// GetColumnCountVisitorReqValidationError is the validation error returned by
+// GetColumnCountVisitorReq.Validate if the designated constraints aren't met.
+type GetColumnCountVisitorReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetColumnCountVisitorReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetColumnCountVisitorReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetColumnCountVisitorReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetColumnCountVisitorReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetColumnCountVisitorReqValidationError) ErrorName() string {
+	return "GetColumnCountVisitorReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetColumnCountVisitorReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetColumnCountVisitorReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetColumnCountVisitorReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetColumnCountVisitorReqValidationError{}
+
+// Validate checks the field values on GetColumnCountReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetColumnCountReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetColumnCountReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetColumnCountReplyMultiError, or nil if none found.
+func (m *GetColumnCountReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetColumnCountReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Count
+
+	if len(errors) > 0 {
+		return GetColumnCountReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetColumnCountReplyMultiError is an error wrapping multiple validation
+// errors returned by GetColumnCountReply.ValidateAll() if the designated
+// constraints aren't met.
+type GetColumnCountReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetColumnCountReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetColumnCountReplyMultiError) AllErrors() []error { return m }
+
+// GetColumnCountReplyValidationError is the validation error returned by
+// GetColumnCountReply.Validate if the designated constraints aren't met.
+type GetColumnCountReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetColumnCountReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetColumnCountReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetColumnCountReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetColumnCountReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetColumnCountReplyValidationError) ErrorName() string {
+	return "GetColumnCountReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetColumnCountReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetColumnCountReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetColumnCountReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetColumnCountReplyValidationError{}
+
+// Validate checks the field values on SendColumnEditReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *SendColumnEditReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SendColumnEditReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SendColumnEditReqMultiError, or nil if none found.
+func (m *SendColumnEditReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SendColumnEditReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = SendColumnEditReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return SendColumnEditReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *SendColumnEditReq) _validateUuid(uuid string) error {
+	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// SendColumnEditReqMultiError is an error wrapping multiple validation errors
+// returned by SendColumnEditReq.ValidateAll() if the designated constraints
+// aren't met.
+type SendColumnEditReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SendColumnEditReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SendColumnEditReqMultiError) AllErrors() []error { return m }
+
+// SendColumnEditReqValidationError is the validation error returned by
+// SendColumnEditReq.Validate if the designated constraints aren't met.
+type SendColumnEditReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SendColumnEditReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SendColumnEditReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SendColumnEditReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SendColumnEditReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SendColumnEditReqValidationError) ErrorName() string {
+	return "SendColumnEditReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SendColumnEditReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSendColumnEditReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SendColumnEditReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SendColumnEditReqValidationError{}
+
+// Validate checks the field values on EditColumnReq with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *EditColumnReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on EditColumnReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in EditColumnReqMultiError, or
+// nil if none found.
+func (m *EditColumnReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *EditColumnReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Auth
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = EditColumnReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return EditColumnReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *EditColumnReq) _validateUuid(uuid string) error {
+	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// EditColumnReqMultiError is an error wrapping multiple validation errors
+// returned by EditColumnReq.ValidateAll() if the designated constraints
+// aren't met.
+type EditColumnReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m EditColumnReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m EditColumnReqMultiError) AllErrors() []error { return m }
+
+// EditColumnReqValidationError is the validation error returned by
+// EditColumnReq.Validate if the designated constraints aren't met.
+type EditColumnReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e EditColumnReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e EditColumnReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e EditColumnReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e EditColumnReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e EditColumnReqValidationError) ErrorName() string { return "EditColumnReqValidationError" }
+
+// Error satisfies the builtin error interface
+func (e EditColumnReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sEditColumnReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = EditColumnReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = EditColumnReqValidationError{}
+
+// Validate checks the field values on DeleteColumnReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *DeleteColumnReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on DeleteColumnReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// DeleteColumnReqMultiError, or nil if none found.
+func (m *DeleteColumnReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *DeleteColumnReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = DeleteColumnReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return DeleteColumnReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *DeleteColumnReq) _validateUuid(uuid string) error {
+	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// DeleteColumnReqMultiError is an error wrapping multiple validation errors
+// returned by DeleteColumnReq.ValidateAll() if the designated constraints
+// aren't met.
+type DeleteColumnReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m DeleteColumnReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m DeleteColumnReqMultiError) AllErrors() []error { return m }
+
+// DeleteColumnReqValidationError is the validation error returned by
+// DeleteColumnReq.Validate if the designated constraints aren't met.
+type DeleteColumnReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e DeleteColumnReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e DeleteColumnReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e DeleteColumnReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e DeleteColumnReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e DeleteColumnReqValidationError) ErrorName() string { return "DeleteColumnReqValidationError" }
+
+// Error satisfies the builtin error interface
+func (e DeleteColumnReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sDeleteColumnReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = DeleteColumnReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = DeleteColumnReqValidationError{}
+
+// Validate checks the field values on DeleteColumnCacheAndSearchReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *DeleteColumnCacheAndSearchReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on DeleteColumnCacheAndSearchReq with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// DeleteColumnCacheAndSearchReqMultiError, or nil if none found.
+func (m *DeleteColumnCacheAndSearchReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *DeleteColumnCacheAndSearchReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = DeleteColumnCacheAndSearchReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return DeleteColumnCacheAndSearchReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *DeleteColumnCacheAndSearchReq) _validateUuid(uuid string) error {
+	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// DeleteColumnCacheAndSearchReqMultiError is an error wrapping multiple
+// validation errors returned by DeleteColumnCacheAndSearchReq.ValidateAll()
+// if the designated constraints aren't met.
+type DeleteColumnCacheAndSearchReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m DeleteColumnCacheAndSearchReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m DeleteColumnCacheAndSearchReqMultiError) AllErrors() []error { return m }
+
+// DeleteColumnCacheAndSearchReqValidationError is the validation error
+// returned by DeleteColumnCacheAndSearchReq.Validate if the designated
+// constraints aren't met.
+type DeleteColumnCacheAndSearchReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e DeleteColumnCacheAndSearchReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e DeleteColumnCacheAndSearchReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e DeleteColumnCacheAndSearchReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e DeleteColumnCacheAndSearchReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e DeleteColumnCacheAndSearchReqValidationError) ErrorName() string {
+	return "DeleteColumnCacheAndSearchReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e DeleteColumnCacheAndSearchReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sDeleteColumnCacheAndSearchReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = DeleteColumnCacheAndSearchReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = DeleteColumnCacheAndSearchReqValidationError{}
 
 // Validate checks the field values on GetLeaderBoardReply_Board with the rules
 // defined in the proto definition for this message. If any rules are
@@ -12476,14 +13793,6 @@ func (m *GetColumnListReply_Column) validate(all bool) error {
 
 	// no validation rules for Uuid
 
-	// no validation rules for Name
-
-	// no validation rules for Introduce
-
-	// no validation rules for Cover
-
-	// no validation rules for Tags
-
 	if len(errors) > 0 {
 		return GetColumnListReply_ColumnMultiError(errors)
 	}
@@ -12589,14 +13898,6 @@ func (m *GetColumnListHotReply_Column) validate(all bool) error {
 	// no validation rules for Id
 
 	// no validation rules for Uuid
-
-	// no validation rules for Name
-
-	// no validation rules for Introduce
-
-	// no validation rules for Cover
-
-	// no validation rules for Tags
 
 	if len(errors) > 0 {
 		return GetColumnListHotReply_ColumnMultiError(errors)
