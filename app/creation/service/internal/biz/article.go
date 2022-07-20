@@ -31,6 +31,7 @@ type ArticleRepo interface {
 
 	EditArticleCos(ctx context.Context, id int32, uuid string) error
 	EditArticleSearch(ctx context.Context, id int32, uuid string) error
+	UpdateArticleCache(ctx context.Context, id, auth int32, uuid string) error
 
 	DeleteArticle(ctx context.Context, id int32, uuid string) error
 	DeleteArticleStatistic(ctx context.Context, id int32, uuid string) error
@@ -116,9 +117,10 @@ func (r *ArticleUseCase) CreateArticle(ctx context.Context, id, auth int32, uuid
 	})
 }
 
-func (r *ArticleUseCase) EditArticle(ctx context.Context, id int32, uuid string) error {
+func (r *ArticleUseCase) EditArticle(ctx context.Context, id, auth int32, uuid string) error {
 	err := r.repo.SendArticleToMq(ctx, &Article{
 		ArticleId: id,
+		Auth:      auth,
 		Uuid:      uuid,
 	}, "edit_article_cos_and_search")
 	if err != nil {
@@ -168,8 +170,13 @@ func (r *ArticleUseCase) CreateArticleCacheAndSearch(ctx context.Context, id, au
 	return nil
 }
 
-func (r *ArticleUseCase) EditArticleCosAndSearch(ctx context.Context, id int32, uuid string) error {
-	err := r.repo.EditArticleCos(ctx, id, uuid)
+func (r *ArticleUseCase) EditArticleCosAndSearch(ctx context.Context, id, auth int32, uuid string) error {
+	err := r.repo.UpdateArticleCache(ctx, id, auth, uuid)
+	if err != nil {
+		return v1.ErrorEditArticleFailed("edit article cache failed: %s", err.Error())
+	}
+
+	err = r.repo.EditArticleCos(ctx, id, uuid)
 	if err != nil {
 		return v1.ErrorEditArticleFailed("edit article cache failed: %s", err.Error())
 	}
