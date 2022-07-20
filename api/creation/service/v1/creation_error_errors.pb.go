@@ -299,6 +299,18 @@ func ErrorDraftMarkFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, CreationErrorReason_DRAFT_MARK_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsGetColumnFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_GET_COLUMN_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetColumnFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_GET_COLUMN_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsGetColumnDraftFailed(err error) bool {
 	if err == nil {
 		return false
@@ -321,6 +333,30 @@ func IsCreateColumnFailed(err error) bool {
 
 func ErrorCreateColumnFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, CreationErrorReason_CREATE_COLUMN_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsEditColumnFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_EDIT_COLUMN_FAILED.String() && e.Code == 500
+}
+
+func ErrorEditColumnFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_EDIT_COLUMN_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsDeleteColumnFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_DELETE_COLUMN_FAILED.String() && e.Code == 500
+}
+
+func ErrorDeleteColumnFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_DELETE_COLUMN_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
 func IsGetColumnListFailed(err error) bool {
