@@ -926,20 +926,6 @@ func (r *columnRepo) CreateColumnDraft(ctx context.Context, uuid string) (int32,
 	return reply.Id, nil
 }
 
-func (r *columnRepo) CreateColumn(ctx context.Context, uuid, name, introduce, cover string, auth int32) error {
-	_, err := r.data.cc.CreateColumn(ctx, &creationV1.CreateColumnReq{
-		Uuid:      uuid,
-		Name:      name,
-		Introduce: introduce,
-		Cover:     cover,
-		Auth:      auth,
-	})
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 func (r *columnRepo) GetColumnList(ctx context.Context, page int32) ([]*biz.Column, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("column_page_%v", page), func() (interface{}, error) {
 		reply := make([]*biz.Column, 0)
@@ -986,6 +972,74 @@ func (r *columnRepo) GetColumnListHot(ctx context.Context, page int32) ([]*biz.C
 	return result.([]*biz.Column), nil
 }
 
+func (r *columnRepo) GetUserColumnList(ctx context.Context, page int32, uuid string) ([]*biz.Column, error) {
+	reply := make([]*biz.Column, 0)
+	columnList, err := r.data.cc.GetUserColumnList(ctx, &creationV1.GetUserColumnListReq{
+		Page: page,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range columnList.Column {
+		reply = append(reply, &biz.Column{
+			Id:   item.Id,
+			Uuid: item.Uuid,
+		})
+	}
+	return reply, nil
+}
+
+func (r *columnRepo) GetUserColumnListVisitor(ctx context.Context, page int32, uuid string) ([]*biz.Column, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_user_column_by_visitor_%s_%v", uuid, page), func() (interface{}, error) {
+		reply := make([]*biz.Column, 0)
+		columnList, err := r.data.cc.GetUserColumnListVisitor(ctx, &creationV1.GetUserColumnListVisitorReq{
+			Page: page,
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range columnList.Column {
+			reply = append(reply, &biz.Column{
+				Id:   item.Id,
+				Uuid: item.Uuid,
+			})
+		}
+		return reply, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.([]*biz.Column), nil
+}
+
+func (r *columnRepo) GetColumnCount(ctx context.Context, uuid string) (int32, error) {
+	reply, err := r.data.cc.GetColumnCount(ctx, &creationV1.GetColumnCountReq{
+		Uuid: uuid,
+	})
+	if err != nil {
+		return 0, err
+	}
+	return reply.Count, nil
+}
+
+func (r *columnRepo) GetColumnCountVisitor(ctx context.Context, uuid string) (int32, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_column_visitor_count_%s", uuid), func() (interface{}, error) {
+		reply, err := r.data.cc.GetColumnCountVisitor(ctx, &creationV1.GetColumnCountVisitorReq{
+			Uuid: uuid,
+		})
+		if err != nil {
+			return 0, err
+		}
+		return reply.Count, nil
+	})
+	if err != nil {
+		return 0, err
+	}
+	return result.(int32), nil
+}
+
 func (r *columnRepo) GetColumnListStatistic(ctx context.Context, ids []int32) ([]*biz.ColumnStatistic, error) {
 	reply := make([]*biz.ColumnStatistic, 0)
 	statisticList, err := r.data.cc.GetColumnListStatistic(ctx, &creationV1.GetColumnListStatisticReq{
@@ -1003,4 +1057,37 @@ func (r *columnRepo) GetColumnListStatistic(ctx context.Context, ids []int32) ([
 		})
 	}
 	return reply, nil
+}
+
+func (r *columnRepo) SendColumn(ctx context.Context, id int32, uuid string) error {
+	_, err := r.data.cc.SendColumn(ctx, &creationV1.SendColumnReq{
+		Id:   id,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *columnRepo) SendColumnEdit(ctx context.Context, id int32, uuid string) error {
+	_, err := r.data.cc.SendColumnEdit(ctx, &creationV1.SendColumnEditReq{
+		Id:   id,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *columnRepo) DeleteColumn(ctx context.Context, id int32, uuid string) error {
+	_, err := r.data.cc.DeleteColumn(ctx, &creationV1.DeleteColumnReq{
+		Id:   id,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }
