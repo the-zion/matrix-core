@@ -81,15 +81,21 @@ type Collections struct {
 }
 
 type Column struct {
-	Id   int32
-	Uuid string
-	Auth int32
+	ColumnId int32
+	Uuid     string
+	Auth     int32
 }
 
 type ColumnDraft struct {
 	Id     int32
 	Status int32
 	Uuid   string
+}
+
+type ColumnReview struct {
+	Uuid string
+	Id   int32
+	Mode string
 }
 
 type ColumnStatistic struct {
