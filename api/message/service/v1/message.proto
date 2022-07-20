@@ -51,6 +51,20 @@ service Message {
       body: "*"
     };
   }
+
+  rpc ColumnCreateReview(TextReviewReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/tx/message/column/create/review"
+      body: "*"
+    };
+  }
+
+  rpc ColumnEditReview(TextReviewReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/tx/message/column/edit/review"
+      body: "*"
+    };
+  }
 }
 
 message AvatarReviewReq{
