@@ -99,10 +99,16 @@ type BffClient interface {
 	CancelTalkCollect(ctx context.Context, in *CancelTalkCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetLastColumnDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLastColumnDraftReply, error)
 	CreateColumnDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateColumnDraftReply, error)
-	CreateColumn(ctx context.Context, in *CreateColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SendColumn(ctx context.Context, in *SendColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetColumnList(ctx context.Context, in *GetColumnListReq, opts ...grpc.CallOption) (*GetColumnListReply, error)
 	GetColumnListHot(ctx context.Context, in *GetColumnListHotReq, opts ...grpc.CallOption) (*GetColumnListHotReply, error)
 	GetColumnListStatistic(ctx context.Context, in *GetColumnListStatisticReq, opts ...grpc.CallOption) (*GetColumnListStatisticReply, error)
+	GetUserColumnList(ctx context.Context, in *GetUserColumnListReq, opts ...grpc.CallOption) (*GetColumnListReply, error)
+	GetUserColumnListVisitor(ctx context.Context, in *GetUserColumnListVisitorReq, opts ...grpc.CallOption) (*GetColumnListReply, error)
+	GetColumnCount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetColumnCountReply, error)
+	GetColumnCountVisitor(ctx context.Context, in *GetColumnCountVisitorReq, opts ...grpc.CallOption) (*GetColumnCountReply, error)
+	SendColumnEdit(ctx context.Context, in *SendColumnEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DeleteColumn(ctx context.Context, in *DeleteColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type bffClient struct {
@@ -788,9 +794,9 @@ func (c *bffClient) CreateColumnDraft(ctx context.Context, in *emptypb.Empty, op
 	return out, nil
 }
 
-func (c *bffClient) CreateColumn(ctx context.Context, in *CreateColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *bffClient) SendColumn(ctx context.Context, in *SendColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/bff.v1.Bff/CreateColumn", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SendColumn", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -818,6 +824,60 @@ func (c *bffClient) GetColumnListHot(ctx context.Context, in *GetColumnListHotRe
 func (c *bffClient) GetColumnListStatistic(ctx context.Context, in *GetColumnListStatisticReq, opts ...grpc.CallOption) (*GetColumnListStatisticReply, error) {
 	out := new(GetColumnListStatisticReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetColumnListStatistic", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetUserColumnList(ctx context.Context, in *GetUserColumnListReq, opts ...grpc.CallOption) (*GetColumnListReply, error) {
+	out := new(GetColumnListReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserColumnList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetUserColumnListVisitor(ctx context.Context, in *GetUserColumnListVisitorReq, opts ...grpc.CallOption) (*GetColumnListReply, error) {
+	out := new(GetColumnListReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserColumnListVisitor", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetColumnCount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetColumnCountReply, error) {
+	out := new(GetColumnCountReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetColumnCount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetColumnCountVisitor(ctx context.Context, in *GetColumnCountVisitorReq, opts ...grpc.CallOption) (*GetColumnCountReply, error) {
+	out := new(GetColumnCountReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetColumnCountVisitor", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) SendColumnEdit(ctx context.Context, in *SendColumnEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SendColumnEdit", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) DeleteColumn(ctx context.Context, in *DeleteColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/DeleteColumn", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -904,10 +964,16 @@ type BffServer interface {
 	CancelTalkCollect(context.Context, *CancelTalkCollectReq) (*emptypb.Empty, error)
 	GetLastColumnDraft(context.Context, *emptypb.Empty) (*GetLastColumnDraftReply, error)
 	CreateColumnDraft(context.Context, *emptypb.Empty) (*CreateColumnDraftReply, error)
-	CreateColumn(context.Context, *CreateColumnReq) (*emptypb.Empty, error)
+	SendColumn(context.Context, *SendColumnReq) (*emptypb.Empty, error)
 	GetColumnList(context.Context, *GetColumnListReq) (*GetColumnListReply, error)
 	GetColumnListHot(context.Context, *GetColumnListHotReq) (*GetColumnListHotReply, error)
 	GetColumnListStatistic(context.Context, *GetColumnListStatisticReq) (*GetColumnListStatisticReply, error)
+	GetUserColumnList(context.Context, *GetUserColumnListReq) (*GetColumnListReply, error)
+	GetUserColumnListVisitor(context.Context, *GetUserColumnListVisitorReq) (*GetColumnListReply, error)
+	GetColumnCount(context.Context, *emptypb.Empty) (*GetColumnCountReply, error)
+	GetColumnCountVisitor(context.Context, *GetColumnCountVisitorReq) (*GetColumnCountReply, error)
+	SendColumnEdit(context.Context, *SendColumnEditReq) (*emptypb.Empty, error)
+	DeleteColumn(context.Context, *DeleteColumnReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedBffServer()
 }
 
@@ -1140,8 +1206,8 @@ func (UnimplementedBffServer) GetLastColumnDraft(context.Context, *emptypb.Empty
 func (UnimplementedBffServer) CreateColumnDraft(context.Context, *emptypb.Empty) (*CreateColumnDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateColumnDraft not implemented")
 }
-func (UnimplementedBffServer) CreateColumn(context.Context, *CreateColumnReq) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateColumn not implemented")
+func (UnimplementedBffServer) SendColumn(context.Context, *SendColumnReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendColumn not implemented")
 }
 func (UnimplementedBffServer) GetColumnList(context.Context, *GetColumnListReq) (*GetColumnListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetColumnList not implemented")
@@ -1151,6 +1217,24 @@ func (UnimplementedBffServer) GetColumnListHot(context.Context, *GetColumnListHo
 }
 func (UnimplementedBffServer) GetColumnListStatistic(context.Context, *GetColumnListStatisticReq) (*GetColumnListStatisticReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetColumnListStatistic not implemented")
+}
+func (UnimplementedBffServer) GetUserColumnList(context.Context, *GetUserColumnListReq) (*GetColumnListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserColumnList not implemented")
+}
+func (UnimplementedBffServer) GetUserColumnListVisitor(context.Context, *GetUserColumnListVisitorReq) (*GetColumnListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserColumnListVisitor not implemented")
+}
+func (UnimplementedBffServer) GetColumnCount(context.Context, *emptypb.Empty) (*GetColumnCountReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetColumnCount not implemented")
+}
+func (UnimplementedBffServer) GetColumnCountVisitor(context.Context, *GetColumnCountVisitorReq) (*GetColumnCountReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetColumnCountVisitor not implemented")
+}
+func (UnimplementedBffServer) SendColumnEdit(context.Context, *SendColumnEditReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendColumnEdit not implemented")
+}
+func (UnimplementedBffServer) DeleteColumn(context.Context, *DeleteColumnReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteColumn not implemented")
 }
 func (UnimplementedBffServer) mustEmbedUnimplementedBffServer() {}
 
@@ -2515,20 +2599,20 @@ func _Bff_CreateColumnDraft_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Bff_CreateColumn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateColumnReq)
+func _Bff_SendColumn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendColumnReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BffServer).CreateColumn(ctx, in)
+		return srv.(BffServer).SendColumn(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/bff.v1.Bff/CreateColumn",
+		FullMethod: "/bff.v1.Bff/SendColumn",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BffServer).CreateColumn(ctx, req.(*CreateColumnReq))
+		return srv.(BffServer).SendColumn(ctx, req.(*SendColumnReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2583,6 +2667,114 @@ func _Bff_GetColumnListStatistic_Handler(srv interface{}, ctx context.Context, d
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BffServer).GetColumnListStatistic(ctx, req.(*GetColumnListStatisticReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetUserColumnList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserColumnListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetUserColumnList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetUserColumnList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetUserColumnList(ctx, req.(*GetUserColumnListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetUserColumnListVisitor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserColumnListVisitorReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetUserColumnListVisitor(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetUserColumnListVisitor",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetUserColumnListVisitor(ctx, req.(*GetUserColumnListVisitorReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetColumnCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetColumnCount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetColumnCount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetColumnCount(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetColumnCountVisitor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetColumnCountVisitorReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetColumnCountVisitor(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetColumnCountVisitor",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetColumnCountVisitor(ctx, req.(*GetColumnCountVisitorReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_SendColumnEdit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendColumnEditReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).SendColumnEdit(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/SendColumnEdit",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).SendColumnEdit(ctx, req.(*SendColumnEditReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_DeleteColumn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteColumnReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).DeleteColumn(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/DeleteColumn",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).DeleteColumn(ctx, req.(*DeleteColumnReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2895,8 +3087,8 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Bff_CreateColumnDraft_Handler,
 		},
 		{
-			MethodName: "CreateColumn",
-			Handler:    _Bff_CreateColumn_Handler,
+			MethodName: "SendColumn",
+			Handler:    _Bff_SendColumn_Handler,
 		},
 		{
 			MethodName: "GetColumnList",
@@ -2909,6 +3101,30 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetColumnListStatistic",
 			Handler:    _Bff_GetColumnListStatistic_Handler,
+		},
+		{
+			MethodName: "GetUserColumnList",
+			Handler:    _Bff_GetUserColumnList_Handler,
+		},
+		{
+			MethodName: "GetUserColumnListVisitor",
+			Handler:    _Bff_GetUserColumnListVisitor_Handler,
+		},
+		{
+			MethodName: "GetColumnCount",
+			Handler:    _Bff_GetColumnCount_Handler,
+		},
+		{
+			MethodName: "GetColumnCountVisitor",
+			Handler:    _Bff_GetColumnCountVisitor_Handler,
+		},
+		{
+			MethodName: "SendColumnEdit",
+			Handler:    _Bff_SendColumnEdit_Handler,
+		},
+		{
+			MethodName: "DeleteColumn",
+			Handler:    _Bff_DeleteColumn_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
