@@ -69,11 +69,17 @@ type TalkRepo interface {
 
 type ColumnRepo interface {
 	GetLastColumnDraft(ctx context.Context, uuid string) (*ColumnDraft, error)
-	CreateColumnDraft(ctx context.Context, uuid string) (int32, error)
-	CreateColumn(ctx context.Context, uuid, name, introduce, cover string, auth int32) error
 	GetColumnList(ctx context.Context, page int32) ([]*Column, error)
 	GetColumnListHot(ctx context.Context, page int32) ([]*Column, error)
+	GetUserColumnList(ctx context.Context, page int32, uuid string) ([]*Column, error)
+	GetUserColumnListVisitor(ctx context.Context, page int32, uuid string) ([]*Column, error)
+	GetColumnCount(ctx context.Context, uuid string) (int32, error)
+	GetColumnCountVisitor(ctx context.Context, uuid string) (int32, error)
 	GetColumnListStatistic(ctx context.Context, ids []int32) ([]*ColumnStatistic, error)
+	SendColumn(ctx context.Context, id int32, uuid string) error
+	SendColumnEdit(ctx context.Context, id int32, uuid string) error
+	CreateColumnDraft(ctx context.Context, uuid string) (int32, error)
+	DeleteColumn(ctx context.Context, id int32, uuid string) error
 }
 
 type CreationUseCase struct {
@@ -377,11 +383,6 @@ func (r *ColumnUseCase) CreateColumnDraft(ctx context.Context) (int32, error) {
 	return r.repo.CreateColumnDraft(ctx, uuid)
 }
 
-func (r *ColumnUseCase) CreateColumn(ctx context.Context, name, introduce, cover string, auth int32) error {
-	uuid := ctx.Value("uuid").(string)
-	return r.repo.CreateColumn(ctx, uuid, name, introduce, cover, auth)
-}
-
 func (r *ColumnUseCase) GetColumnList(ctx context.Context, page int32) ([]*Column, error) {
 	return r.repo.GetColumnList(ctx, page)
 }
@@ -390,6 +391,39 @@ func (r *ColumnUseCase) GetColumnListHot(ctx context.Context, page int32) ([]*Co
 	return r.repo.GetColumnListHot(ctx, page)
 }
 
+func (r *ColumnUseCase) GetUserColumnList(ctx context.Context, page int32) ([]*Column, error) {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.GetUserColumnList(ctx, page, uuid)
+}
+
+func (r *ColumnUseCase) GetUserColumnListVisitor(ctx context.Context, page int32, uuid string) ([]*Column, error) {
+	return r.repo.GetUserColumnListVisitor(ctx, page, uuid)
+}
+
+func (r *ColumnUseCase) GetColumnCount(ctx context.Context) (int32, error) {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.GetColumnCount(ctx, uuid)
+}
+
+func (r *ColumnUseCase) GetColumnCountVisitor(ctx context.Context, uuid string) (int32, error) {
+	return r.repo.GetColumnCountVisitor(ctx, uuid)
+}
+
 func (r *ColumnUseCase) GetColumnListStatistic(ctx context.Context, ids []int32) ([]*ColumnStatistic, error) {
 	return r.repo.GetColumnListStatistic(ctx, ids)
+}
+
+func (r *ColumnUseCase) SendColumn(ctx context.Context, id int32) error {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.SendColumn(ctx, id, uuid)
+}
+
+func (r *ColumnUseCase) SendColumnEdit(ctx context.Context, id int32) error {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.SendColumnEdit(ctx, id, uuid)
+}
+
+func (r *ColumnUseCase) DeleteColumn(ctx context.Context, id int32) error {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.DeleteColumn(ctx, id, uuid)
 }
