@@ -27,8 +27,40 @@ func (s *CreationService) CreateColumnDraft(ctx context.Context, req *v1.CreateC
 	}, nil
 }
 
+func (s *CreationService) SendColumn(ctx context.Context, req *v1.SendColumnReq) (*emptypb.Empty, error) {
+	err := s.coc.SendColumn(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) SendColumnEdit(ctx context.Context, req *v1.SendColumnEditReq) (*emptypb.Empty, error) {
+	err := s.coc.SendColumnEdit(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) DeleteColumn(ctx context.Context, req *v1.DeleteColumnReq) (*emptypb.Empty, error) {
+	err := s.coc.DeleteColumn(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *CreationService) CreateColumn(ctx context.Context, req *v1.CreateColumnReq) (*emptypb.Empty, error) {
-	err := s.coc.CreateColumn(ctx, req.Uuid, req.Name, req.Introduce, req.Cover, req.Auth)
+	err := s.coc.CreateColumn(ctx, req.Id, req.Auth, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) EditColumn(ctx context.Context, req *v1.EditColumnReq) (*emptypb.Empty, error) {
+	err := s.coc.EditColumn(ctx, req.Id, req.Auth, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -43,6 +75,22 @@ func (s *CreationService) CreateColumnCacheAndSearch(ctx context.Context, req *v
 	return &emptypb.Empty{}, nil
 }
 
+func (s *CreationService) EditColumnCosAndSearch(ctx context.Context, req *v1.EditColumnCosAndSearchReq) (*emptypb.Empty, error) {
+	err := s.coc.EditColumnCosAndSearch(ctx, req.Id, req.Auth, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) DeleteColumnCacheAndSearch(ctx context.Context, req *v1.DeleteColumnCacheAndSearchReq) (*emptypb.Empty, error) {
+	err := s.coc.DeleteColumnCacheAndSearch(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *CreationService) GetColumnList(ctx context.Context, req *v1.GetColumnListReq) (*v1.GetColumnListReply, error) {
 	reply := &v1.GetColumnListReply{Column: make([]*v1.GetColumnListReply_Column, 0)}
 	columnList, err := s.coc.GetColumnList(ctx, req.Page)
@@ -51,7 +99,7 @@ func (s *CreationService) GetColumnList(ctx context.Context, req *v1.GetColumnLi
 	}
 	for _, item := range columnList {
 		reply.Column = append(reply.Column, &v1.GetColumnListReply_Column{
-			Id:   item.Id,
+			Id:   item.ColumnId,
 			Uuid: item.Uuid,
 		})
 	}
@@ -71,6 +119,56 @@ func (s *CreationService) GetColumnListHot(ctx context.Context, req *v1.GetColum
 		})
 	}
 	return reply, nil
+}
+
+func (s *CreationService) GetUserColumnList(ctx context.Context, req *v1.GetUserColumnListReq) (*v1.GetColumnListReply, error) {
+	reply := &v1.GetColumnListReply{Column: make([]*v1.GetColumnListReply_Column, 0)}
+	columnList, err := s.coc.GetUserColumnList(ctx, req.Page, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range columnList {
+		reply.Column = append(reply.Column, &v1.GetColumnListReply_Column{
+			Id:   item.ColumnId,
+			Uuid: item.Uuid,
+		})
+	}
+	return reply, nil
+}
+
+func (s *CreationService) GetUserColumnListVisitor(ctx context.Context, req *v1.GetUserColumnListVisitorReq) (*v1.GetColumnListReply, error) {
+	reply := &v1.GetColumnListReply{Column: make([]*v1.GetColumnListReply_Column, 0)}
+	columnList, err := s.coc.GetUserColumnListVisitor(ctx, req.Page, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range columnList {
+		reply.Column = append(reply.Column, &v1.GetColumnListReply_Column{
+			Id:   item.ColumnId,
+			Uuid: item.Uuid,
+		})
+	}
+	return reply, nil
+}
+
+func (s *CreationService) GetColumnCount(ctx context.Context, req *v1.GetColumnCountReq) (*v1.GetColumnCountReply, error) {
+	count, err := s.coc.GetColumnCount(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetColumnCountReply{
+		Count: count,
+	}, nil
+}
+
+func (s *CreationService) GetColumnCountVisitor(ctx context.Context, req *v1.GetColumnCountVisitorReq) (*v1.GetColumnCountReply, error) {
+	count, err := s.coc.GetColumnCountVisitor(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetColumnCountReply{
+		Count: count,
+	}, nil
 }
 
 func (s *CreationService) GetColumnListStatistic(ctx context.Context, req *v1.GetColumnListStatisticReq) (*v1.GetColumnListStatisticReply, error) {
