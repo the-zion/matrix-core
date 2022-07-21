@@ -384,7 +384,7 @@ func (r *talkRepo) setTalkStatisticToCache(key string, statistic *biz.TalkStatis
 
 func (r *talkRepo) GetLastTalkDraft(ctx context.Context, uuid string) (*biz.TalkDraft, error) {
 	draft := &TalkDraft{}
-	err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).Last(draft).Error
+	err := r.data.db.WithContext(ctx).Where("uuid = ? and status = ?", uuid, 1).Last(draft).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, kerrors.NotFound("talk draft not found from db", fmt.Sprintf("uuid(%s)", uuid))
 	}
@@ -421,9 +421,9 @@ func (r *talkRepo) SendTalk(ctx context.Context, id int32, uuid string) (*biz.Ta
 	td := &TalkDraft{
 		Status: 2,
 	}
-	err := r.data.DB(ctx).Model(&TalkDraft{}).Where("id = ? and uuid = ? and status = ?", id, uuid, 3).Updates(td).Error
+	err := r.data.DB(ctx).Model(&TalkDraft{}).Where("id = ? and uuid = ? and status = ?", id, uuid, 1).Updates(td).Error
 	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("fail to mark draft to 3: uuid(%s), id(%v)", uuid, id))
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to mark draft to 2: uuid(%s), id(%v)", uuid, id))
 	}
 	return &biz.TalkDraft{
 		Uuid: uuid,
@@ -579,9 +579,13 @@ func (r *talkRepo) CreateTalkCache(ctx context.Context, id, auth int32, uuid str
 		return nil
 	})
 	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to create talk cache: uuid(%s), id(%v)", uuid, id))
+		return errors.Wrapf(err, fmt.Sprintf("fail to create(update) talk cache: uuid(%s), id(%v)", uuid, id))
 	}
 	return nil
+}
+
+func (r *talkRepo) UpdateTalkCache(ctx context.Context, id, auth int32, uuid string) error {
+	return r.CreateTalkCache(ctx, id, auth, uuid)
 }
 
 func (r *talkRepo) EditTalkCos(ctx context.Context, id int32, uuid string) error {
@@ -775,8 +779,8 @@ func (r *talkRepo) CancelTalkUserCollect(ctx context.Context, id int32, userUuid
 }
 
 func (r *talkRepo) CancelTalkCollect(ctx context.Context, id int32, uuid string) error {
-	as := &TalkStatistic{}
-	err := r.data.DB(ctx).Model(as).Where("talk_id = ? and uuid = ?", id, uuid).Update("collect", gorm.Expr("collect - ?", 1)).Error
+	ts := &TalkStatistic{}
+	err := r.data.DB(ctx).Model(ts).Where("talk_id = ? and uuid = ?", id, uuid).Update("collect", gorm.Expr("collect - ?", 1)).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel talk collect: id(%v)", id))
 	}
