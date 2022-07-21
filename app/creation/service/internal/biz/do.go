@@ -106,3 +106,8 @@ type ColumnStatistic struct {
 	Collect  int32
 	Auth     int32
 }
+
+type ColumnStatisticJudge struct {
+	Agree   bool
+	Collect bool
+}
