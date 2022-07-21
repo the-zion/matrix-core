@@ -31,6 +31,10 @@ func NewDB(logger log.Logger) *gorm.DB {
 		&data.Talk{},
 		&data.TalkDraft{},
 		&data.TalkStatistic{},
+		&data.Column{},
+		&data.ColumnDraft{},
+		&data.ColumnStatistic{},
+		&data.ColumnInclusion{},
 	); err != nil {
 		l.Fatalf("failed creat or update table resources: %v", err)
 	}
