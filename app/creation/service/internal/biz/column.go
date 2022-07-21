@@ -15,6 +15,7 @@ type ColumnRepo interface {
 	CreateColumnStatistic(ctx context.Context, id, auth int32, uuid string) error
 	CreateColumnCache(ctx context.Context, id, auth int32, uuid string) error
 	CreateColumnSearch(ctx context.Context, id int32, uuid string) error
+	AddColumnIncludes(ctx context.Context, id, articleId int32, uuid string) error
 
 	UpdateColumnCache(ctx context.Context, id, auth int32, uuid string) error
 	EditColumnCos(ctx context.Context, id int32, uuid string) error
@@ -25,6 +26,7 @@ type ColumnRepo interface {
 	DeleteColumn(ctx context.Context, id int32, uuid string) error
 	DeleteColumnCache(ctx context.Context, id int32, uuid string) error
 	DeleteColumnSearch(ctx context.Context, id int32, uuid string) error
+	DeleteColumnIncludes(ctx context.Context, id, articleId int32, uuid string) error
 
 	GetColumn(ctx context.Context, id int32) (*Column, error)
 	GetLastColumnDraft(ctx context.Context, uuid string) (*ColumnDraft, error)
@@ -34,13 +36,28 @@ type ColumnRepo interface {
 	GetUserColumnListVisitor(ctx context.Context, page int32, uuid string) ([]*Column, error)
 	GetColumnCount(ctx context.Context, uuid string) (int32, error)
 	GetColumnCountVisitor(ctx context.Context, uuid string) (int32, error)
+	GetColumnStatistic(ctx context.Context, id int32) (*ColumnStatistic, error)
 	GetColumnListStatistic(ctx context.Context, ids []int32) ([]*ColumnStatistic, error)
+	GetColumnAgreeJudge(ctx context.Context, id int32, uuid string) (bool, error)
+	GetColumnCollectJudge(ctx context.Context, id int32, uuid string) (bool, error)
 
 	SendColumn(ctx context.Context, id int32, uuid string) (*ColumnDraft, error)
 	SendColumnToMq(ctx context.Context, column *Column, mode string) error
 	SendReviewToMq(ctx context.Context, review *ColumnReview) error
 
 	FreezeColumnCos(ctx context.Context, id int32, uuid string) error
+
+	SetColumnAgree(ctx context.Context, id int32, uuid string) error
+	SetColumnAgreeToCache(ctx context.Context, id int32, uuid, userUuid string) error
+	SendColumnStatisticToMq(ctx context.Context, uuid, mode string) error
+	SetColumnView(ctx context.Context, id int32, uuid string) error
+	SetColumnViewToCache(ctx context.Context, id int32, uuid string) error
+
+	CancelColumnAgree(ctx context.Context, id int32, uuid string) error
+	CancelColumnAgreeFromCache(ctx context.Context, id int32, uuid, userUuid string) error
+	CancelColumnCollect(ctx context.Context, id int32, uuid string) error
+	CancelColumnCollectFromCache(ctx context.Context, id int32, uuid, userUuid string) error
+	CancelColumnUserCollect(ctx context.Context, id int32, userUuid string) error
 }
 
 type ColumnUseCase struct {
@@ -301,4 +318,119 @@ func (r *ColumnUseCase) GetColumnListStatistic(ctx context.Context, ids []int32)
 		return nil, v1.ErrorGetStatisticFailed("get column list statistic failed: %s", err.Error())
 	}
 	return statisticList, nil
+}
+
+func (r *ColumnUseCase) GetColumnStatistic(ctx context.Context, id int32) (*ColumnStatistic, error) {
+	statistic, err := r.repo.GetColumnStatistic(ctx, id)
+	if err != nil {
+		return nil, v1.ErrorGetStatisticFailed("get column statistic failed: %s", err.Error())
+	}
+	return statistic, nil
+}
+
+func (r *ColumnUseCase) ColumnStatisticJudge(ctx context.Context, id int32, uuid string) (*ColumnStatisticJudge, error) {
+	agree, err := r.repo.GetColumnAgreeJudge(ctx, id, uuid)
+	if err != nil {
+		return nil, v1.ErrorGetStatisticJudgeFailed("get column statistic judge failed: %s", err.Error())
+	}
+	collect, err := r.repo.GetColumnCollectJudge(ctx, id, uuid)
+	if err != nil {
+		return nil, v1.ErrorGetStatisticJudgeFailed("get column statistic judge failed: %s", err.Error())
+	}
+	return &ColumnStatisticJudge{
+		Agree:   agree,
+		Collect: collect,
+	}, nil
+}
+
+func (r *ColumnUseCase) SetColumnAgree(ctx context.Context, id int32, uuid, userUuid string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		err := r.repo.SetColumnAgree(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorSetAgreeFailed("set column agree failed: %s", err.Error())
+		}
+		err = r.repo.SetColumnAgreeToCache(ctx, id, uuid, userUuid)
+		if err != nil {
+			return v1.ErrorSetAgreeFailed("set column agree to cache failed: %s", err.Error())
+		}
+		err = r.repo.SendColumnStatisticToMq(ctx, uuid, "agree")
+		if err != nil {
+			return v1.ErrorSetAgreeFailed("set column agree to mq failed: %s", err.Error())
+		}
+		return nil
+	})
+}
+
+func (r *ColumnUseCase) SetColumnView(ctx context.Context, id int32, uuid string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		err := r.repo.SetColumnView(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorSetViewFailed("set column view failed: %s", err.Error())
+		}
+		err = r.repo.SetColumnViewToCache(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorSetViewFailed("set column view to cache failed: %s", err.Error())
+		}
+		err = r.repo.SendColumnStatisticToMq(ctx, uuid, "view")
+		if err != nil {
+			return v1.ErrorSetViewFailed("set column view to mq failed: %s", err.Error())
+		}
+		return nil
+	})
+}
+
+func (r *ColumnUseCase) CancelColumnAgree(ctx context.Context, id int32, uuid, userUuid string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		err := r.repo.CancelColumnAgree(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorCancelAgreeFailed("cancel column agree failed: %s", err.Error())
+		}
+		err = r.repo.CancelColumnAgreeFromCache(ctx, id, uuid, userUuid)
+		if err != nil {
+			return v1.ErrorCancelAgreeFailed("cancel column agree from cache failed: %s", err.Error())
+		}
+		err = r.repo.SendColumnStatisticToMq(ctx, uuid, "agree_cancel")
+		if err != nil {
+			return v1.ErrorCancelAgreeFailed("set column agree to mq failed: %s", err.Error())
+		}
+		return nil
+	})
+}
+
+func (r *ColumnUseCase) CancelColumnCollect(ctx context.Context, id int32, uuid, userUuid string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		err := r.repo.CancelColumnUserCollect(ctx, id, userUuid)
+		if err != nil {
+			return v1.ErrorCancelCollectFailed("cancel column user collect failed: %s", err.Error())
+		}
+		err = r.repo.CancelColumnCollect(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorCancelCollectFailed("cancel column collect failed: %s", err.Error())
+		}
+		err = r.repo.CancelColumnCollectFromCache(ctx, id, uuid, userUuid)
+		if err != nil {
+			return v1.ErrorCancelCollectFailed("cancel column collect to cache failed: %s", err.Error())
+		}
+		err = r.repo.SendColumnStatisticToMq(ctx, uuid, "collect_cancel")
+		if err != nil {
+			return v1.ErrorCancelCollectFailed("set column collect to mq failed: %s", err.Error())
+		}
+		return nil
+	})
+}
+
+func (r *ColumnUseCase) AddColumnIncludes(ctx context.Context, id, articleId int32, uuid string) error {
+	err := r.repo.AddColumnIncludes(ctx, id, articleId, uuid)
+	if err != nil {
+		return v1.ErrorAddColumnIncludesFailed("add column includes failed: %s", err.Error())
+	}
+	return nil
+}
+
+func (r *ColumnUseCase) DeleteColumnIncludes(ctx context.Context, id, articleId int32, uuid string) error {
+	err := r.repo.DeleteColumnIncludes(ctx, id, articleId, uuid)
+	if err != nil {
+		return v1.ErrorDeleteColumnIncludesFailed("delete column includes failed: %s", err.Error())
+	}
+	return nil
 }
