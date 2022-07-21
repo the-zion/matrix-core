@@ -76,10 +76,18 @@ type ColumnRepo interface {
 	GetColumnCount(ctx context.Context, uuid string) (int32, error)
 	GetColumnCountVisitor(ctx context.Context, uuid string) (int32, error)
 	GetColumnListStatistic(ctx context.Context, ids []int32) ([]*ColumnStatistic, error)
+	GetColumnStatistic(ctx context.Context, id int32) (*ColumnStatistic, error)
 	SendColumn(ctx context.Context, id int32, uuid string) error
 	SendColumnEdit(ctx context.Context, id int32, uuid string) error
 	CreateColumnDraft(ctx context.Context, uuid string) (int32, error)
 	DeleteColumn(ctx context.Context, id int32, uuid string) error
+	ColumnStatisticJudge(ctx context.Context, id int32, uuid string) (*ColumnStatisticJudge, error)
+	SetColumnView(ctx context.Context, id int32, uuid string) error
+	SetColumnAgree(ctx context.Context, id int32, uuid, userUuid string) error
+	CancelColumnAgree(ctx context.Context, id int32, uuid, userUuid string) error
+	CancelColumnCollect(ctx context.Context, id int32, uuid, userUuid string) error
+	AddColumnIncludes(ctx context.Context, id, articleId int32, uuid string) error
+	DeleteColumnIncludes(ctx context.Context, id, articleId int32, uuid string) error
 }
 
 type CreationUseCase struct {
@@ -413,6 +421,11 @@ func (r *ColumnUseCase) GetColumnListStatistic(ctx context.Context, ids []int32)
 	return r.repo.GetColumnListStatistic(ctx, ids)
 }
 
+func (r *ColumnUseCase) ColumnStatisticJudge(ctx context.Context, id int32) (*ColumnStatisticJudge, error) {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.ColumnStatisticJudge(ctx, id, uuid)
+}
+
 func (r *ColumnUseCase) SendColumn(ctx context.Context, id int32) error {
 	uuid := ctx.Value("uuid").(string)
 	return r.repo.SendColumn(ctx, id, uuid)
@@ -426,4 +439,37 @@ func (r *ColumnUseCase) SendColumnEdit(ctx context.Context, id int32) error {
 func (r *ColumnUseCase) DeleteColumn(ctx context.Context, id int32) error {
 	uuid := ctx.Value("uuid").(string)
 	return r.repo.DeleteColumn(ctx, id, uuid)
+}
+
+func (r *ColumnUseCase) GetColumnStatistic(ctx context.Context, id int32) (*ColumnStatistic, error) {
+	return r.repo.GetColumnStatistic(ctx, id)
+}
+
+func (r *ColumnUseCase) SetColumnAgree(ctx context.Context, id int32, uuid string) error {
+	userUuid := ctx.Value("uuid").(string)
+	return r.repo.SetColumnAgree(ctx, id, uuid, userUuid)
+}
+
+func (r *ColumnUseCase) CancelColumnAgree(ctx context.Context, id int32, uuid string) error {
+	userUuid := ctx.Value("uuid").(string)
+	return r.repo.CancelColumnAgree(ctx, id, uuid, userUuid)
+}
+
+func (r *ColumnUseCase) CancelColumnCollect(ctx context.Context, id int32, uuid string) error {
+	userUuid := ctx.Value("uuid").(string)
+	return r.repo.CancelColumnCollect(ctx, id, uuid, userUuid)
+}
+
+func (r *ColumnUseCase) SetColumnView(ctx context.Context, id int32, uuid string) error {
+	return r.repo.SetColumnView(ctx, id, uuid)
+}
+
+func (r *ColumnUseCase) AddColumnIncludes(ctx context.Context, id, articleId int32) error {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.AddColumnIncludes(ctx, id, articleId, uuid)
+}
+
+func (r *ColumnUseCase) DeleteColumnIncludes(ctx context.Context, id, articleId int32) error {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.DeleteColumnIncludes(ctx, id, articleId, uuid)
 }
