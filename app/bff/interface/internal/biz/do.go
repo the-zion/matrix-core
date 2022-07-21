@@ -201,3 +201,8 @@ type ColumnStatistic struct {
 	View    int32
 	Collect int32
 }
+
+type ColumnStatisticJudge struct {
+	Agree   bool
+	Collect bool
+}
