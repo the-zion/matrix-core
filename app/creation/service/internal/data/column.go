@@ -103,6 +103,27 @@ func (r *columnRepo) CreateColumn(ctx context.Context, id, auth int32, uuid stri
 	return nil
 }
 
+func (r *columnRepo) AddColumnIncludes(ctx context.Context, id, articleId int32, uuid string) error {
+	inclusion := &ColumnInclusion{
+		ColumnId:  id,
+		ArticleId: articleId,
+		Uuid:      uuid,
+	}
+	err := r.data.db.WithContext(ctx).Select("ColumnId", "Uuid", "ArticleId").Create(inclusion).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add an article to column: uuid(%s), id(%v), articleId(%v)", uuid, id, articleId))
+	}
+	return nil
+}
+
+func (r *columnRepo) DeleteColumnIncludes(ctx context.Context, id, articleId int32, uuid string) error {
+	err := r.data.DB(ctx).Where("column_id = ? and article_id = ? and uuid = ?", id, articleId, uuid).Delete(&ColumnInclusion{}).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to delete an article from column: uuid(%s), id(%v), articleId(%v)", uuid, id, articleId))
+	}
+	return nil
+}
+
 func (r *columnRepo) DeleteColumnDraft(ctx context.Context, id int32, uuid string) error {
 	cd := &ColumnDraft{}
 	cd.ID = uint(id)
@@ -510,6 +531,77 @@ func (r *columnRepo) GetColumnListStatistic(ctx context.Context, ids []int32) ([
 	return statistic, nil
 }
 
+func (r *columnRepo) GetColumnStatistic(ctx context.Context, id int32) (*biz.ColumnStatistic, error) {
+	var statistic *biz.ColumnStatistic
+	key := "column_" + strconv.Itoa(int(id))
+	exist, err := r.data.redisCli.Exists(ctx, key).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to judge if key exist or not from cache: key(%s)", key))
+	}
+
+	if exist == 1 {
+		statistic, err = r.getColumnStatisticFromCache(ctx, key)
+		if err != nil {
+			return nil, err
+		}
+		return statistic, nil
+	}
+
+	statistic, err = r.getColumnStatisticFromDB(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	go r.setColumnStatisticToCache(key, statistic)
+
+	return statistic, nil
+}
+
+func (r *columnRepo) getColumnStatisticFromCache(ctx context.Context, key string) (*biz.ColumnStatistic, error) {
+	statistic, err := r.data.redisCli.HMGet(ctx, key, "uuid", "agree", "collect", "view").Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get column statistic form cache: key(%s)", key))
+	}
+	val := []int32{0, 0, 0}
+	for _index, count := range statistic[1:] {
+		if count == nil {
+			break
+		}
+		num, err := strconv.ParseInt(count.(string), 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: count(%v)", count))
+		}
+		val[_index] = int32(num)
+	}
+	return &biz.ColumnStatistic{
+		Uuid:    statistic[0].(string),
+		Agree:   val[0],
+		Collect: val[1],
+		View:    val[2],
+	}, nil
+}
+
+func (r *columnRepo) getColumnStatisticFromDB(ctx context.Context, id int32) (*biz.ColumnStatistic, error) {
+	cs := &ColumnStatistic{}
+	err := r.data.db.WithContext(ctx).Where("column_id = ?", id).First(cs).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("faile to get statistic from db: id(%v)", id))
+	}
+	return &biz.ColumnStatistic{
+		Uuid:    cs.Uuid,
+		Agree:   cs.Agree,
+		Collect: cs.Collect,
+		View:    cs.View,
+	}, nil
+}
+
+func (r *columnRepo) setColumnStatisticToCache(key string, statistic *biz.ColumnStatistic) {
+	err := r.data.redisCli.HMSet(context.Background(), key, "uuid", statistic.Uuid, "agree", statistic.Agree, "collect", statistic.Collect, "view", statistic.View).Err()
+	if err != nil {
+		r.log.Errorf("fail to set column statistic to cache, err(%s)", err.Error())
+	}
+}
+
 func (r *columnRepo) DeleteColumn(ctx context.Context, id int32, uuid string) error {
 	column := &Column{}
 	err := r.data.DB(ctx).Where("column_id = ? and uuid = ?", id, uuid).Delete(column).Error
@@ -554,10 +646,149 @@ func (r *columnRepo) FreezeColumnCos(ctx context.Context, id int32, uuid string)
 	return nil
 }
 
+func (r *columnRepo) GetColumnAgreeJudge(ctx context.Context, id int32, uuid string) (bool, error) {
+	ids := strconv.Itoa(int(id))
+	judge, err := r.data.redisCli.SIsMember(ctx, "column_agree_"+ids, uuid).Result()
+	if err != nil {
+		return false, errors.Wrapf(err, fmt.Sprintf("fail to judge column agree member: id(%v), uuid(%s)", id, uuid))
+	}
+	return judge, nil
+}
+
+func (r *columnRepo) GetColumnCollectJudge(ctx context.Context, id int32, uuid string) (bool, error) {
+	ids := strconv.Itoa(int(id))
+	judge, err := r.data.redisCli.SIsMember(ctx, "column_collect_"+ids, uuid).Result()
+	if err != nil {
+		return false, errors.Wrapf(err, fmt.Sprintf("fail to judge column collect member: id(%v), uuid(%s)", id, uuid))
+	}
+	return judge, nil
+}
+
 func (r *columnRepo) DeleteColumnSearch(ctx context.Context, id int32, uuid string) error {
 	return nil
 }
 
 func (r *columnRepo) EditColumnSearch(ctx context.Context, id int32, uuid string) error {
+	return nil
+}
+
+func (r *columnRepo) SetColumnAgree(ctx context.Context, id int32, uuid string) error {
+	cs := ColumnStatistic{}
+	err := r.data.DB(ctx).Model(&cs).Where("column_id = ? and uuid = ?", id, uuid).Update("agree", gorm.Expr("agree + ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add column agree: id(%v)", id))
+	}
+	return nil
+}
+
+func (r *columnRepo) SetColumnView(ctx context.Context, id int32, uuid string) error {
+	cs := ColumnStatistic{}
+	err := r.data.DB(ctx).Model(&cs).Where("column_id = ? and uuid = ?", id, uuid).Update("view", gorm.Expr("view + ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add column view: id(%v)", id))
+	}
+	return nil
+}
+
+func (r *columnRepo) SetColumnViewToCache(ctx context.Context, id int32, uuid string) error {
+	ids := strconv.Itoa(int(id))
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.HIncrBy(ctx, "column_"+ids, "view", 1)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to add column agree to cache: id(%v), uuid(%s)", id, uuid)
+	}
+	return nil
+}
+
+func (r *columnRepo) SetColumnAgreeToCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	ids := strconv.Itoa(int(id))
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.HIncrBy(ctx, "column_"+ids, "agree", 1)
+		pipe.ZIncrBy(ctx, "column_hot", 1, ids+"%"+uuid)
+		pipe.ZIncrBy(ctx, "leaderboard", 1, ids+"%"+uuid+"%column")
+		pipe.SAdd(ctx, "column_agree_"+ids, userUuid)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to add column agree to cache: id(%v), uuid(%s), userUuid(%s)", id, uuid, userUuid)
+	}
+	return nil
+}
+
+func (r *columnRepo) SendColumnStatisticToMq(ctx context.Context, uuid, mode string) error {
+	achievement := map[string]interface{}{}
+	achievement["uuid"] = uuid
+	achievement["mode"] = mode
+
+	data, err := json.Marshal(achievement)
+	if err != nil {
+		return err
+	}
+	msg := &primitive.Message{
+		Topic: "achievement",
+		Body:  data,
+	}
+	msg.WithKeys([]string{uuid})
+	_, err = r.data.achievementMqPro.producer.SendSync(ctx, msg)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to send column statistic to mq: uuid(%s)", uuid))
+	}
+	return nil
+}
+
+func (r *columnRepo) CancelColumnAgree(ctx context.Context, id int32, uuid string) error {
+	cs := ColumnStatistic{}
+	err := r.data.DB(ctx).Model(&cs).Where("column_id = ? and uuid = ?", id, uuid).Update("agree", gorm.Expr("agree - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to cancel column agree: id(%v)", id))
+	}
+	return nil
+}
+
+func (r *columnRepo) CancelColumnAgreeFromCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	ids := strconv.Itoa(int(id))
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.HIncrBy(ctx, "column_"+ids, "agree", -1)
+		pipe.ZIncrBy(ctx, "column_hot", -1, ids+"%"+uuid)
+		pipe.ZIncrBy(ctx, "leaderboard", -1, ids+"%"+uuid+"%column")
+		pipe.SRem(ctx, "column_agree_"+ids, userUuid)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to cancel column agree from cache: id(%v), uuid(%s), userUuid(%s)", id, uuid, userUuid)
+	}
+	return nil
+}
+
+func (r *columnRepo) CancelColumnCollect(ctx context.Context, id int32, uuid string) error {
+	cs := &ColumnStatistic{}
+	err := r.data.DB(ctx).Model(cs).Where("column_id = ? and uuid = ?", id, uuid).Update("collect", gorm.Expr("collect - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to cancel column collect: id(%v)", id))
+	}
+	return nil
+}
+
+func (r *columnRepo) CancelColumnCollectFromCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	ids := strconv.Itoa(int(id))
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.HIncrBy(ctx, "column_"+ids, "collect", -1)
+		pipe.SRem(ctx, "column_collect_"+ids, userUuid)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to cancel column collect from cache: id(%v), uuid(%s), userUuid(%s)", id, uuid, userUuid)
+	}
+	return nil
+}
+
+func (r *columnRepo) CancelColumnUserCollect(ctx context.Context, id int32, userUuid string) error {
+	collect := &Collect{}
+	err := r.data.DB(ctx).Where("creations_id = ? and uuid = ? and mode = ?", id, userUuid, 3).Delete(collect).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to cancel column collect: column_id(%v), userUuid(%s)", id, userUuid))
+	}
 	return nil
 }
