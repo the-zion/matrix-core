@@ -381,6 +381,7 @@ func (r *TalkUseCase) SetTalkView(ctx context.Context, id int32, uuid string) er
 		return nil
 	})
 }
+
 func (r *TalkUseCase) SetTalkCollect(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error {
 	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		err := r.repo.SetTalkUserCollect(ctx, id, collectionsId, userUuid)
