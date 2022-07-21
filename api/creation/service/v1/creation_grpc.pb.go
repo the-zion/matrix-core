@@ -95,6 +95,7 @@ type CreationClient interface {
 	GetColumnList(ctx context.Context, in *GetColumnListReq, opts ...grpc.CallOption) (*GetColumnListReply, error)
 	GetColumnListHot(ctx context.Context, in *GetColumnListHotReq, opts ...grpc.CallOption) (*GetColumnListHotReply, error)
 	GetColumnListStatistic(ctx context.Context, in *GetColumnListStatisticReq, opts ...grpc.CallOption) (*GetColumnListStatisticReply, error)
+	GetColumnStatistic(ctx context.Context, in *GetColumnStatisticReq, opts ...grpc.CallOption) (*GetColumnStatisticReply, error)
 	GetUserColumnList(ctx context.Context, in *GetUserColumnListReq, opts ...grpc.CallOption) (*GetColumnListReply, error)
 	GetUserColumnListVisitor(ctx context.Context, in *GetUserColumnListVisitorReq, opts ...grpc.CallOption) (*GetColumnListReply, error)
 	GetColumnCount(ctx context.Context, in *GetColumnCountReq, opts ...grpc.CallOption) (*GetColumnCountReply, error)
@@ -103,6 +104,13 @@ type CreationClient interface {
 	EditColumn(ctx context.Context, in *EditColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteColumn(ctx context.Context, in *DeleteColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteColumnCacheAndSearch(ctx context.Context, in *DeleteColumnCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	ColumnStatisticJudge(ctx context.Context, in *ColumnStatisticJudgeReq, opts ...grpc.CallOption) (*ColumnStatisticJudgeReply, error)
+	SetColumnAgree(ctx context.Context, in *SetColumnAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CancelColumnAgree(ctx context.Context, in *CancelColumnAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CancelColumnCollect(ctx context.Context, in *CancelColumnCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetColumnView(ctx context.Context, in *SetColumnViewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AddColumnIncludes(ctx context.Context, in *AddColumnIncludesReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DeleteColumnIncludes(ctx context.Context, in *DeleteColumnIncludesReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type creationClient struct {
@@ -761,6 +769,15 @@ func (c *creationClient) GetColumnListStatistic(ctx context.Context, in *GetColu
 	return out, nil
 }
 
+func (c *creationClient) GetColumnStatistic(ctx context.Context, in *GetColumnStatisticReq, opts ...grpc.CallOption) (*GetColumnStatisticReply, error) {
+	out := new(GetColumnStatisticReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetColumnStatistic", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *creationClient) GetUserColumnList(ctx context.Context, in *GetUserColumnListReq, opts ...grpc.CallOption) (*GetColumnListReply, error) {
 	out := new(GetColumnListReply)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetUserColumnList", in, out, opts...)
@@ -827,6 +844,69 @@ func (c *creationClient) DeleteColumn(ctx context.Context, in *DeleteColumnReq, 
 func (c *creationClient) DeleteColumnCacheAndSearch(ctx context.Context, in *DeleteColumnCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/DeleteColumnCacheAndSearch", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) ColumnStatisticJudge(ctx context.Context, in *ColumnStatisticJudgeReq, opts ...grpc.CallOption) (*ColumnStatisticJudgeReply, error) {
+	out := new(ColumnStatisticJudgeReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/ColumnStatisticJudge", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) SetColumnAgree(ctx context.Context, in *SetColumnAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/SetColumnAgree", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) CancelColumnAgree(ctx context.Context, in *CancelColumnAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/CancelColumnAgree", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) CancelColumnCollect(ctx context.Context, in *CancelColumnCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/CancelColumnCollect", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) SetColumnView(ctx context.Context, in *SetColumnViewReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/SetColumnView", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) AddColumnIncludes(ctx context.Context, in *AddColumnIncludesReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/AddColumnIncludes", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) DeleteColumnIncludes(ctx context.Context, in *DeleteColumnIncludesReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/DeleteColumnIncludes", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -909,6 +989,7 @@ type CreationServer interface {
 	GetColumnList(context.Context, *GetColumnListReq) (*GetColumnListReply, error)
 	GetColumnListHot(context.Context, *GetColumnListHotReq) (*GetColumnListHotReply, error)
 	GetColumnListStatistic(context.Context, *GetColumnListStatisticReq) (*GetColumnListStatisticReply, error)
+	GetColumnStatistic(context.Context, *GetColumnStatisticReq) (*GetColumnStatisticReply, error)
 	GetUserColumnList(context.Context, *GetUserColumnListReq) (*GetColumnListReply, error)
 	GetUserColumnListVisitor(context.Context, *GetUserColumnListVisitorReq) (*GetColumnListReply, error)
 	GetColumnCount(context.Context, *GetColumnCountReq) (*GetColumnCountReply, error)
@@ -917,6 +998,13 @@ type CreationServer interface {
 	EditColumn(context.Context, *EditColumnReq) (*emptypb.Empty, error)
 	DeleteColumn(context.Context, *DeleteColumnReq) (*emptypb.Empty, error)
 	DeleteColumnCacheAndSearch(context.Context, *DeleteColumnCacheAndSearchReq) (*emptypb.Empty, error)
+	ColumnStatisticJudge(context.Context, *ColumnStatisticJudgeReq) (*ColumnStatisticJudgeReply, error)
+	SetColumnAgree(context.Context, *SetColumnAgreeReq) (*emptypb.Empty, error)
+	CancelColumnAgree(context.Context, *CancelColumnAgreeReq) (*emptypb.Empty, error)
+	CancelColumnCollect(context.Context, *CancelColumnCollectReq) (*emptypb.Empty, error)
+	SetColumnView(context.Context, *SetColumnViewReq) (*emptypb.Empty, error)
+	AddColumnIncludes(context.Context, *AddColumnIncludesReq) (*emptypb.Empty, error)
+	DeleteColumnIncludes(context.Context, *DeleteColumnIncludesReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedCreationServer()
 }
 
@@ -1140,6 +1228,9 @@ func (UnimplementedCreationServer) GetColumnListHot(context.Context, *GetColumnL
 func (UnimplementedCreationServer) GetColumnListStatistic(context.Context, *GetColumnListStatisticReq) (*GetColumnListStatisticReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetColumnListStatistic not implemented")
 }
+func (UnimplementedCreationServer) GetColumnStatistic(context.Context, *GetColumnStatisticReq) (*GetColumnStatisticReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetColumnStatistic not implemented")
+}
 func (UnimplementedCreationServer) GetUserColumnList(context.Context, *GetUserColumnListReq) (*GetColumnListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserColumnList not implemented")
 }
@@ -1163,6 +1254,27 @@ func (UnimplementedCreationServer) DeleteColumn(context.Context, *DeleteColumnRe
 }
 func (UnimplementedCreationServer) DeleteColumnCacheAndSearch(context.Context, *DeleteColumnCacheAndSearchReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteColumnCacheAndSearch not implemented")
+}
+func (UnimplementedCreationServer) ColumnStatisticJudge(context.Context, *ColumnStatisticJudgeReq) (*ColumnStatisticJudgeReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ColumnStatisticJudge not implemented")
+}
+func (UnimplementedCreationServer) SetColumnAgree(context.Context, *SetColumnAgreeReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetColumnAgree not implemented")
+}
+func (UnimplementedCreationServer) CancelColumnAgree(context.Context, *CancelColumnAgreeReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelColumnAgree not implemented")
+}
+func (UnimplementedCreationServer) CancelColumnCollect(context.Context, *CancelColumnCollectReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelColumnCollect not implemented")
+}
+func (UnimplementedCreationServer) SetColumnView(context.Context, *SetColumnViewReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetColumnView not implemented")
+}
+func (UnimplementedCreationServer) AddColumnIncludes(context.Context, *AddColumnIncludesReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddColumnIncludes not implemented")
+}
+func (UnimplementedCreationServer) DeleteColumnIncludes(context.Context, *DeleteColumnIncludesReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteColumnIncludes not implemented")
 }
 func (UnimplementedCreationServer) mustEmbedUnimplementedCreationServer() {}
 
@@ -2473,6 +2585,24 @@ func _Creation_GetColumnListStatistic_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Creation_GetColumnStatistic_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetColumnStatisticReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetColumnStatistic(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetColumnStatistic",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetColumnStatistic(ctx, req.(*GetColumnStatisticReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Creation_GetUserColumnList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetUserColumnListReq)
 	if err := dec(in); err != nil {
@@ -2613,6 +2743,132 @@ func _Creation_DeleteColumnCacheAndSearch_Handler(srv interface{}, ctx context.C
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CreationServer).DeleteColumnCacheAndSearch(ctx, req.(*DeleteColumnCacheAndSearchReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_ColumnStatisticJudge_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ColumnStatisticJudgeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).ColumnStatisticJudge(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/ColumnStatisticJudge",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).ColumnStatisticJudge(ctx, req.(*ColumnStatisticJudgeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_SetColumnAgree_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetColumnAgreeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).SetColumnAgree(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/SetColumnAgree",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).SetColumnAgree(ctx, req.(*SetColumnAgreeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_CancelColumnAgree_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelColumnAgreeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).CancelColumnAgree(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/CancelColumnAgree",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).CancelColumnAgree(ctx, req.(*CancelColumnAgreeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_CancelColumnCollect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelColumnCollectReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).CancelColumnCollect(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/CancelColumnCollect",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).CancelColumnCollect(ctx, req.(*CancelColumnCollectReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_SetColumnView_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetColumnViewReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).SetColumnView(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/SetColumnView",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).SetColumnView(ctx, req.(*SetColumnViewReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_AddColumnIncludes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddColumnIncludesReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).AddColumnIncludes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/AddColumnIncludes",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).AddColumnIncludes(ctx, req.(*AddColumnIncludesReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_DeleteColumnIncludes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteColumnIncludesReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).DeleteColumnIncludes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/DeleteColumnIncludes",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).DeleteColumnIncludes(ctx, req.(*DeleteColumnIncludesReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2913,6 +3169,10 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Creation_GetColumnListStatistic_Handler,
 		},
 		{
+			MethodName: "GetColumnStatistic",
+			Handler:    _Creation_GetColumnStatistic_Handler,
+		},
+		{
 			MethodName: "GetUserColumnList",
 			Handler:    _Creation_GetUserColumnList_Handler,
 		},
@@ -2943,6 +3203,34 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteColumnCacheAndSearch",
 			Handler:    _Creation_DeleteColumnCacheAndSearch_Handler,
+		},
+		{
+			MethodName: "ColumnStatisticJudge",
+			Handler:    _Creation_ColumnStatisticJudge_Handler,
+		},
+		{
+			MethodName: "SetColumnAgree",
+			Handler:    _Creation_SetColumnAgree_Handler,
+		},
+		{
+			MethodName: "CancelColumnAgree",
+			Handler:    _Creation_CancelColumnAgree_Handler,
+		},
+		{
+			MethodName: "CancelColumnCollect",
+			Handler:    _Creation_CancelColumnCollect_Handler,
+		},
+		{
+			MethodName: "SetColumnView",
+			Handler:    _Creation_SetColumnView_Handler,
+		},
+		{
+			MethodName: "AddColumnIncludes",
+			Handler:    _Creation_AddColumnIncludes_Handler,
+		},
+		{
+			MethodName: "DeleteColumnIncludes",
+			Handler:    _Creation_DeleteColumnIncludes_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
