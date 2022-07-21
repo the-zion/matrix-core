@@ -582,6 +582,61 @@ service Bff{
       body: "*"
     };
   }
+
+  rpc GetColumnStatistic(GetColumnStatisticReq)returns (GetColumnStatisticReply){
+    option (google.api.http) = {
+      get: "/v1/get/column/statistic"
+    };
+  }
+
+  rpc ColumnStatisticJudge(ColumnStatisticJudgeReq) returns (ColumnStatisticJudgeReply){
+    option (google.api.http) = {
+      post: "/v1/column/statistic/judge"
+      body: "*"
+    };
+  }
+
+  rpc SetColumnAgree(SetColumnAgreeReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/set/column/agree"
+      body: "*"
+    };
+  }
+
+  rpc CancelColumnAgree(CancelColumnAgreeReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/cancel/column/agree"
+      body: "*"
+    };
+  }
+
+  rpc CancelColumnCollect(CancelColumnCollectReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/cancel/column/collect"
+      body: "*"
+    };
+  }
+
+  rpc SetColumnView(SetColumnViewReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/set/column/view"
+      body: "*"
+    };
+  }
+
+  rpc AddColumnIncludes(AddColumnIncludesReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/add/column/includes"
+      body: "*"
+    };
+  }
+
+  rpc DeleteColumnIncludes(DeleteColumnIncludesReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/delete/column/includes"
+      body: "*"
+    };
+  }
 }
 
 // --------------------user service-------------------------
@@ -1077,7 +1132,6 @@ message CancelTalkCollectReq{
   string uuid = 2;
 }
 
-
 message GetLastColumnDraftReply{
   int32 id = 1;
   int32 status = 2;
@@ -1152,4 +1206,54 @@ message SendColumnEditReq{
 
 message DeleteColumnReq{
   int32 id = 1;
+}
+
+message GetColumnStatisticReq{
+  int32 id = 1;
+}
+
+message GetColumnStatisticReply{
+  string uuid = 1;
+  int32 agree = 2;
+  int32 collect = 3;
+  int32 view = 4;
+}
+
+message ColumnStatisticJudgeReq{
+  int32 id = 1;
+}
+
+message ColumnStatisticJudgeReply{
+  bool agree = 1;
+  bool collect = 2;
+}
+
+message SetColumnAgreeReq{
+  int32 id = 1;
+  string uuid = 2;
+}
+
+message CancelColumnAgreeReq{
+  int32 id = 1;
+  string uuid = 2;
+}
+
+message CancelColumnCollectReq{
+  int32 id = 1;
+  string uuid = 2;
+}
+
+message SetColumnViewReq{
+  int32 id = 1;
+  string uuid = 2;
+}
+
+message AddColumnIncludesReq{
+  int32 id = 1;
+  int32 article_id = 2;
+}
+
+message DeleteColumnIncludesReq{
+  int32 id = 1;
+  int32 article_id = 2;
 }
