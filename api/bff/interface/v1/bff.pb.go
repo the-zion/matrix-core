@@ -5638,6 +5638,556 @@ func (x *DeleteColumnReq) GetId() int32 {
 	return 0
 }
 
+type GetColumnStatisticReq struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id int32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+}
+
+func (x *GetColumnStatisticReq) Reset() {
+	*x = GetColumnStatisticReq{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_bff_interface_v1_bff_proto_msgTypes[104]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetColumnStatisticReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetColumnStatisticReq) ProtoMessage() {}
+
+func (x *GetColumnStatisticReq) ProtoReflect() protoreflect.Message {
+	mi := &file_bff_interface_v1_bff_proto_msgTypes[104]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetColumnStatisticReq.ProtoReflect.Descriptor instead.
+func (*GetColumnStatisticReq) Descriptor() ([]byte, []int) {
+	return file_bff_interface_v1_bff_proto_rawDescGZIP(), []int{104}
+}
+
+func (x *GetColumnStatisticReq) GetId() int32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+type GetColumnStatisticReply struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Uuid    string `protobuf:"bytes,1,opt,name=uuid,proto3" json:"uuid,omitempty"`
+	Agree   int32  `protobuf:"varint,2,opt,name=agree,proto3" json:"agree,omitempty"`
+	Collect int32  `protobuf:"varint,3,opt,name=collect,proto3" json:"collect,omitempty"`
+	View    int32  `protobuf:"varint,4,opt,name=view,proto3" json:"view,omitempty"`
+}
+
+func (x *GetColumnStatisticReply) Reset() {
+	*x = GetColumnStatisticReply{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_bff_interface_v1_bff_proto_msgTypes[105]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetColumnStatisticReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetColumnStatisticReply) ProtoMessage() {}
+
+func (x *GetColumnStatisticReply) ProtoReflect() protoreflect.Message {
+	mi := &file_bff_interface_v1_bff_proto_msgTypes[105]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetColumnStatisticReply.ProtoReflect.Descriptor instead.
+func (*GetColumnStatisticReply) Descriptor() ([]byte, []int) {
+	return file_bff_interface_v1_bff_proto_rawDescGZIP(), []int{105}
+}
+
+func (x *GetColumnStatisticReply) GetUuid() string {
+	if x != nil {
+		return x.Uuid
+	}
+	return ""
+}
+
+func (x *GetColumnStatisticReply) GetAgree() int32 {
+	if x != nil {
+		return x.Agree
+	}
+	return 0
+}
+
+func (x *GetColumnStatisticReply) GetCollect() int32 {
+	if x != nil {
+		return x.Collect
+	}
+	return 0
+}
+
+func (x *GetColumnStatisticReply) GetView() int32 {
+	if x != nil {
+		return x.View
+	}
+	return 0
+}
+
+type ColumnStatisticJudgeReq struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id int32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+}
+
+func (x *ColumnStatisticJudgeReq) Reset() {
+	*x = ColumnStatisticJudgeReq{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_bff_interface_v1_bff_proto_msgTypes[106]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ColumnStatisticJudgeReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ColumnStatisticJudgeReq) ProtoMessage() {}
+
+func (x *ColumnStatisticJudgeReq) ProtoReflect() protoreflect.Message {
+	mi := &file_bff_interface_v1_bff_proto_msgTypes[106]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ColumnStatisticJudgeReq.ProtoReflect.Descriptor instead.
+func (*ColumnStatisticJudgeReq) Descriptor() ([]byte, []int) {
+	return file_bff_interface_v1_bff_proto_rawDescGZIP(), []int{106}
+}
+
+func (x *ColumnStatisticJudgeReq) GetId() int32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+type ColumnStatisticJudgeReply struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Agree   bool `protobuf:"varint,1,opt,name=agree,proto3" json:"agree,omitempty"`
+	Collect bool `protobuf:"varint,2,opt,name=collect,proto3" json:"collect,omitempty"`
+}
+
+func (x *ColumnStatisticJudgeReply) Reset() {
+	*x = ColumnStatisticJudgeReply{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_bff_interface_v1_bff_proto_msgTypes[107]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ColumnStatisticJudgeReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ColumnStatisticJudgeReply) ProtoMessage() {}
+
+func (x *ColumnStatisticJudgeReply) ProtoReflect() protoreflect.Message {
+	mi := &file_bff_interface_v1_bff_proto_msgTypes[107]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ColumnStatisticJudgeReply.ProtoReflect.Descriptor instead.
+func (*ColumnStatisticJudgeReply) Descriptor() ([]byte, []int) {
+	return file_bff_interface_v1_bff_proto_rawDescGZIP(), []int{107}
+}
+
+func (x *ColumnStatisticJudgeReply) GetAgree() bool {
+	if x != nil {
+		return x.Agree
+	}
+	return false
+}
+
+func (x *ColumnStatisticJudgeReply) GetCollect() bool {
+	if x != nil {
+		return x.Collect
+	}
+	return false
+}
+
+type SetColumnAgreeReq struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id   int32  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Uuid string `protobuf:"bytes,2,opt,name=uuid,proto3" json:"uuid,omitempty"`
+}
+
+func (x *SetColumnAgreeReq) Reset() {
+	*x = SetColumnAgreeReq{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_bff_interface_v1_bff_proto_msgTypes[108]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SetColumnAgreeReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetColumnAgreeReq) ProtoMessage() {}
+
+func (x *SetColumnAgreeReq) ProtoReflect() protoreflect.Message {
+	mi := &file_bff_interface_v1_bff_proto_msgTypes[108]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetColumnAgreeReq.ProtoReflect.Descriptor instead.
+func (*SetColumnAgreeReq) Descriptor() ([]byte, []int) {
+	return file_bff_interface_v1_bff_proto_rawDescGZIP(), []int{108}
+}
+
+func (x *SetColumnAgreeReq) GetId() int32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *SetColumnAgreeReq) GetUuid() string {
+	if x != nil {
+		return x.Uuid
+	}
+	return ""
+}
+
+type CancelColumnAgreeReq struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id   int32  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Uuid string `protobuf:"bytes,2,opt,name=uuid,proto3" json:"uuid,omitempty"`
+}
+
+func (x *CancelColumnAgreeReq) Reset() {
+	*x = CancelColumnAgreeReq{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_bff_interface_v1_bff_proto_msgTypes[109]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CancelColumnAgreeReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CancelColumnAgreeReq) ProtoMessage() {}
+
+func (x *CancelColumnAgreeReq) ProtoReflect() protoreflect.Message {
+	mi := &file_bff_interface_v1_bff_proto_msgTypes[109]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CancelColumnAgreeReq.ProtoReflect.Descriptor instead.
+func (*CancelColumnAgreeReq) Descriptor() ([]byte, []int) {
+	return file_bff_interface_v1_bff_proto_rawDescGZIP(), []int{109}
+}
+
+func (x *CancelColumnAgreeReq) GetId() int32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *CancelColumnAgreeReq) GetUuid() string {
+	if x != nil {
+		return x.Uuid
+	}
+	return ""
+}
+
+type CancelColumnCollectReq struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id   int32  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Uuid string `protobuf:"bytes,2,opt,name=uuid,proto3" json:"uuid,omitempty"`
+}
+
+func (x *CancelColumnCollectReq) Reset() {
+	*x = CancelColumnCollectReq{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_bff_interface_v1_bff_proto_msgTypes[110]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CancelColumnCollectReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CancelColumnCollectReq) ProtoMessage() {}
+
+func (x *CancelColumnCollectReq) ProtoReflect() protoreflect.Message {
+	mi := &file_bff_interface_v1_bff_proto_msgTypes[110]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CancelColumnCollectReq.ProtoReflect.Descriptor instead.
+func (*CancelColumnCollectReq) Descriptor() ([]byte, []int) {
+	return file_bff_interface_v1_bff_proto_rawDescGZIP(), []int{110}
+}
+
+func (x *CancelColumnCollectReq) GetId() int32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *CancelColumnCollectReq) GetUuid() string {
+	if x != nil {
+		return x.Uuid
+	}
+	return ""
+}
+
+type SetColumnViewReq struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id   int32  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Uuid string `protobuf:"bytes,2,opt,name=uuid,proto3" json:"uuid,omitempty"`
+}
+
+func (x *SetColumnViewReq) Reset() {
+	*x = SetColumnViewReq{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_bff_interface_v1_bff_proto_msgTypes[111]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SetColumnViewReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetColumnViewReq) ProtoMessage() {}
+
+func (x *SetColumnViewReq) ProtoReflect() protoreflect.Message {
+	mi := &file_bff_interface_v1_bff_proto_msgTypes[111]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetColumnViewReq.ProtoReflect.Descriptor instead.
+func (*SetColumnViewReq) Descriptor() ([]byte, []int) {
+	return file_bff_interface_v1_bff_proto_rawDescGZIP(), []int{111}
+}
+
+func (x *SetColumnViewReq) GetId() int32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *SetColumnViewReq) GetUuid() string {
+	if x != nil {
+		return x.Uuid
+	}
+	return ""
+}
+
+type AddColumnIncludesReq struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id        int32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	ArticleId int32 `protobuf:"varint,2,opt,name=article_id,json=articleId,proto3" json:"article_id,omitempty"`
+}
+
+func (x *AddColumnIncludesReq) Reset() {
+	*x = AddColumnIncludesReq{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_bff_interface_v1_bff_proto_msgTypes[112]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *AddColumnIncludesReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AddColumnIncludesReq) ProtoMessage() {}
+
+func (x *AddColumnIncludesReq) ProtoReflect() protoreflect.Message {
+	mi := &file_bff_interface_v1_bff_proto_msgTypes[112]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AddColumnIncludesReq.ProtoReflect.Descriptor instead.
+func (*AddColumnIncludesReq) Descriptor() ([]byte, []int) {
+	return file_bff_interface_v1_bff_proto_rawDescGZIP(), []int{112}
+}
+
+func (x *AddColumnIncludesReq) GetId() int32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *AddColumnIncludesReq) GetArticleId() int32 {
+	if x != nil {
+		return x.ArticleId
+	}
+	return 0
+}
+
+type DeleteColumnIncludesReq struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id        int32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	ArticleId int32 `protobuf:"varint,2,opt,name=article_id,json=articleId,proto3" json:"article_id,omitempty"`
+}
+
+func (x *DeleteColumnIncludesReq) Reset() {
+	*x = DeleteColumnIncludesReq{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_bff_interface_v1_bff_proto_msgTypes[113]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DeleteColumnIncludesReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteColumnIncludesReq) ProtoMessage() {}
+
+func (x *DeleteColumnIncludesReq) ProtoReflect() protoreflect.Message {
+	mi := &file_bff_interface_v1_bff_proto_msgTypes[113]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteColumnIncludesReq.ProtoReflect.Descriptor instead.
+func (*DeleteColumnIncludesReq) Descriptor() ([]byte, []int) {
+	return file_bff_interface_v1_bff_proto_rawDescGZIP(), []int{113}
+}
+
+func (x *DeleteColumnIncludesReq) GetId() int32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *DeleteColumnIncludesReq) GetArticleId() int32 {
+	if x != nil {
+		return x.ArticleId
+	}
+	return 0
+}
+
 type GetLeaderBoardReply_Board struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -5651,7 +6201,7 @@ type GetLeaderBoardReply_Board struct {
 func (x *GetLeaderBoardReply_Board) Reset() {
 	*x = GetLeaderBoardReply_Board{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bff_interface_v1_bff_proto_msgTypes[104]
+		mi := &file_bff_interface_v1_bff_proto_msgTypes[114]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -5664,7 +6214,7 @@ func (x *GetLeaderBoardReply_Board) String() string {
 func (*GetLeaderBoardReply_Board) ProtoMessage() {}
 
 func (x *GetLeaderBoardReply_Board) ProtoReflect() protoreflect.Message {
-	mi := &file_bff_interface_v1_bff_proto_msgTypes[104]
+	mi := &file_bff_interface_v1_bff_proto_msgTypes[114]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5713,7 +6263,7 @@ type GetArticleListReply_Article struct {
 func (x *GetArticleListReply_Article) Reset() {
 	*x = GetArticleListReply_Article{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bff_interface_v1_bff_proto_msgTypes[105]
+		mi := &file_bff_interface_v1_bff_proto_msgTypes[115]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -5726,7 +6276,7 @@ func (x *GetArticleListReply_Article) String() string {
 func (*GetArticleListReply_Article) ProtoMessage() {}
 
 func (x *GetArticleListReply_Article) ProtoReflect() protoreflect.Message {
-	mi := &file_bff_interface_v1_bff_proto_msgTypes[105]
+	mi := &file_bff_interface_v1_bff_proto_msgTypes[115]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5768,7 +6318,7 @@ type GetArticleListHotReply_Article struct {
 func (x *GetArticleListHotReply_Article) Reset() {
 	*x = GetArticleListHotReply_Article{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bff_interface_v1_bff_proto_msgTypes[106]
+		mi := &file_bff_interface_v1_bff_proto_msgTypes[116]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -5781,7 +6331,7 @@ func (x *GetArticleListHotReply_Article) String() string {
 func (*GetArticleListHotReply_Article) ProtoMessage() {}
 
 func (x *GetArticleListHotReply_Article) ProtoReflect() protoreflect.Message {
-	mi := &file_bff_interface_v1_bff_proto_msgTypes[106]
+	mi := &file_bff_interface_v1_bff_proto_msgTypes[116]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5826,7 +6376,7 @@ type GetArticleListStatisticReply_Count struct {
 func (x *GetArticleListStatisticReply_Count) Reset() {
 	*x = GetArticleListStatisticReply_Count{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bff_interface_v1_bff_proto_msgTypes[107]
+		mi := &file_bff_interface_v1_bff_proto_msgTypes[117]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -5839,7 +6389,7 @@ func (x *GetArticleListStatisticReply_Count) String() string {
 func (*GetArticleListStatisticReply_Count) ProtoMessage() {}
 
 func (x *GetArticleListStatisticReply_Count) ProtoReflect() protoreflect.Message {
-	mi := &file_bff_interface_v1_bff_proto_msgTypes[107]
+	mi := &file_bff_interface_v1_bff_proto_msgTypes[117]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5903,7 +6453,7 @@ type GetCollectionsReply_Collections struct {
 func (x *GetCollectionsReply_Collections) Reset() {
 	*x = GetCollectionsReply_Collections{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bff_interface_v1_bff_proto_msgTypes[108]
+		mi := &file_bff_interface_v1_bff_proto_msgTypes[118]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -5916,7 +6466,7 @@ func (x *GetCollectionsReply_Collections) String() string {
 func (*GetCollectionsReply_Collections) ProtoMessage() {}
 
 func (x *GetCollectionsReply_Collections) ProtoReflect() protoreflect.Message {
-	mi := &file_bff_interface_v1_bff_proto_msgTypes[108]
+	mi := &file_bff_interface_v1_bff_proto_msgTypes[118]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5964,7 +6514,7 @@ type GetArticleDraftListReply_Draft struct {
 func (x *GetArticleDraftListReply_Draft) Reset() {
 	*x = GetArticleDraftListReply_Draft{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bff_interface_v1_bff_proto_msgTypes[109]
+		mi := &file_bff_interface_v1_bff_proto_msgTypes[119]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -5977,7 +6527,7 @@ func (x *GetArticleDraftListReply_Draft) String() string {
 func (*GetArticleDraftListReply_Draft) ProtoMessage() {}
 
 func (x *GetArticleDraftListReply_Draft) ProtoReflect() protoreflect.Message {
-	mi := &file_bff_interface_v1_bff_proto_msgTypes[109]
+	mi := &file_bff_interface_v1_bff_proto_msgTypes[119]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6012,7 +6562,7 @@ type GetTalkListReply_Talk struct {
 func (x *GetTalkListReply_Talk) Reset() {
 	*x = GetTalkListReply_Talk{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bff_interface_v1_bff_proto_msgTypes[110]
+		mi := &file_bff_interface_v1_bff_proto_msgTypes[120]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -6025,7 +6575,7 @@ func (x *GetTalkListReply_Talk) String() string {
 func (*GetTalkListReply_Talk) ProtoMessage() {}
 
 func (x *GetTalkListReply_Talk) ProtoReflect() protoreflect.Message {
-	mi := &file_bff_interface_v1_bff_proto_msgTypes[110]
+	mi := &file_bff_interface_v1_bff_proto_msgTypes[120]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6067,7 +6617,7 @@ type GetTalkListHotReply_Talk struct {
 func (x *GetTalkListHotReply_Talk) Reset() {
 	*x = GetTalkListHotReply_Talk{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bff_interface_v1_bff_proto_msgTypes[111]
+		mi := &file_bff_interface_v1_bff_proto_msgTypes[121]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -6080,7 +6630,7 @@ func (x *GetTalkListHotReply_Talk) String() string {
 func (*GetTalkListHotReply_Talk) ProtoMessage() {}
 
 func (x *GetTalkListHotReply_Talk) ProtoReflect() protoreflect.Message {
-	mi := &file_bff_interface_v1_bff_proto_msgTypes[111]
+	mi := &file_bff_interface_v1_bff_proto_msgTypes[121]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6125,7 +6675,7 @@ type GetTalkListStatisticReply_Count struct {
 func (x *GetTalkListStatisticReply_Count) Reset() {
 	*x = GetTalkListStatisticReply_Count{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bff_interface_v1_bff_proto_msgTypes[112]
+		mi := &file_bff_interface_v1_bff_proto_msgTypes[122]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -6138,7 +6688,7 @@ func (x *GetTalkListStatisticReply_Count) String() string {
 func (*GetTalkListStatisticReply_Count) ProtoMessage() {}
 
 func (x *GetTalkListStatisticReply_Count) ProtoReflect() protoreflect.Message {
-	mi := &file_bff_interface_v1_bff_proto_msgTypes[112]
+	mi := &file_bff_interface_v1_bff_proto_msgTypes[122]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6201,7 +6751,7 @@ type GetColumnListReply_Column struct {
 func (x *GetColumnListReply_Column) Reset() {
 	*x = GetColumnListReply_Column{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bff_interface_v1_bff_proto_msgTypes[113]
+		mi := &file_bff_interface_v1_bff_proto_msgTypes[123]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -6214,7 +6764,7 @@ func (x *GetColumnListReply_Column) String() string {
 func (*GetColumnListReply_Column) ProtoMessage() {}
 
 func (x *GetColumnListReply_Column) ProtoReflect() protoreflect.Message {
-	mi := &file_bff_interface_v1_bff_proto_msgTypes[113]
+	mi := &file_bff_interface_v1_bff_proto_msgTypes[123]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6256,7 +6806,7 @@ type GetColumnListHotReply_Column struct {
 func (x *GetColumnListHotReply_Column) Reset() {
 	*x = GetColumnListHotReply_Column{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bff_interface_v1_bff_proto_msgTypes[114]
+		mi := &file_bff_interface_v1_bff_proto_msgTypes[124]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -6269,7 +6819,7 @@ func (x *GetColumnListHotReply_Column) String() string {
 func (*GetColumnListHotReply_Column) ProtoMessage() {}
 
 func (x *GetColumnListHotReply_Column) ProtoReflect() protoreflect.Message {
-	mi := &file_bff_interface_v1_bff_proto_msgTypes[114]
+	mi := &file_bff_interface_v1_bff_proto_msgTypes[124]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6313,7 +6863,7 @@ type GetColumnListStatisticReply_Count struct {
 func (x *GetColumnListStatisticReply_Count) Reset() {
 	*x = GetColumnListStatisticReply_Count{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bff_interface_v1_bff_proto_msgTypes[115]
+		mi := &file_bff_interface_v1_bff_proto_msgTypes[125]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -6326,7 +6876,7 @@ func (x *GetColumnListStatisticReply_Count) String() string {
 func (*GetColumnListStatisticReply_Count) ProtoMessage() {}
 
 func (x *GetColumnListStatisticReply_Count) ProtoReflect() protoreflect.Message {
-	mi := &file_bff_interface_v1_bff_proto_msgTypes[115]
+	mi := &file_bff_interface_v1_bff_proto_msgTypes[125]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6878,7 +7428,48 @@ var file_bff_interface_v1_bff_proto_rawDesc = []byte{
 	0x74, 0x52, 0x65, 0x71, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05,
 	0x52, 0x02, 0x69, 0x64, 0x22, 0x21, 0x0a, 0x0f, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x43, 0x6f,
 	0x6c, 0x75, 0x6d, 0x6e, 0x52, 0x65, 0x71, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20,
-	0x01, 0x28, 0x05, 0x52, 0x02, 0x69, 0x64, 0x32, 0xe9, 0x48, 0x0a, 0x03, 0x42, 0x66, 0x66, 0x12,
+	0x01, 0x28, 0x05, 0x52, 0x02, 0x69, 0x64, 0x22, 0x27, 0x0a, 0x15, 0x47, 0x65, 0x74, 0x43, 0x6f,
+	0x6c, 0x75, 0x6d, 0x6e, 0x53, 0x74, 0x61, 0x74, 0x69, 0x73, 0x74, 0x69, 0x63, 0x52, 0x65, 0x71,
+	0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x02, 0x69, 0x64,
+	0x22, 0x71, 0x0a, 0x17, 0x47, 0x65, 0x74, 0x43, 0x6f, 0x6c, 0x75, 0x6d, 0x6e, 0x53, 0x74, 0x61,
+	0x74, 0x69, 0x73, 0x74, 0x69, 0x63, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x12, 0x12, 0x0a, 0x04, 0x75,
+	0x75, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x75, 0x75, 0x69, 0x64, 0x12,
+	0x14, 0x0a, 0x05, 0x61, 0x67, 0x72, 0x65, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x05,
+	0x61, 0x67, 0x72, 0x65, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x63, 0x6f, 0x6c, 0x6c, 0x65, 0x63, 0x74,
+	0x18, 0x03, 0x20, 0x01, 0x28, 0x05, 0x52, 0x07, 0x63, 0x6f, 0x6c, 0x6c, 0x65, 0x63, 0x74, 0x12,
+	0x12, 0x0a, 0x04, 0x76, 0x69, 0x65, 0x77, 0x18, 0x04, 0x20, 0x01, 0x28, 0x05, 0x52, 0x04, 0x76,
+	0x69, 0x65, 0x77, 0x22, 0x29, 0x0a, 0x17, 0x43, 0x6f, 0x6c, 0x75, 0x6d, 0x6e, 0x53, 0x74, 0x61,
+	0x74, 0x69, 0x73, 0x74, 0x69, 0x63, 0x4a, 0x75, 0x64, 0x67, 0x65, 0x52, 0x65, 0x71, 0x12, 0x0e,
+	0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x02, 0x69, 0x64, 0x22, 0x4b,
+	0x0a, 0x19, 0x43, 0x6f, 0x6c, 0x75, 0x6d, 0x6e, 0x53, 0x74, 0x61, 0x74, 0x69, 0x73, 0x74, 0x69,
+	0x63, 0x4a, 0x75, 0x64, 0x67, 0x65, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x12, 0x14, 0x0a, 0x05, 0x61,
+	0x67, 0x72, 0x65, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x05, 0x61, 0x67, 0x72, 0x65,
+	0x65, 0x12, 0x18, 0x0a, 0x07, 0x63, 0x6f, 0x6c, 0x6c, 0x65, 0x63, 0x74, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x08, 0x52, 0x07, 0x63, 0x6f, 0x6c, 0x6c, 0x65, 0x63, 0x74, 0x22, 0x37, 0x0a, 0x11, 0x53,
+	0x65, 0x74, 0x43, 0x6f, 0x6c, 0x75, 0x6d, 0x6e, 0x41, 0x67, 0x72, 0x65, 0x65, 0x52, 0x65, 0x71,
+	0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x02, 0x69, 0x64,
+	0x12, 0x12, 0x0a, 0x04, 0x75, 0x75, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04,
+	0x75, 0x75, 0x69, 0x64, 0x22, 0x3a, 0x0a, 0x14, 0x43, 0x61, 0x6e, 0x63, 0x65, 0x6c, 0x43, 0x6f,
+	0x6c, 0x75, 0x6d, 0x6e, 0x41, 0x67, 0x72, 0x65, 0x65, 0x52, 0x65, 0x71, 0x12, 0x0e, 0x0a, 0x02,
+	0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x02, 0x69, 0x64, 0x12, 0x12, 0x0a, 0x04,
+	0x75, 0x75, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x75, 0x75, 0x69, 0x64,
+	0x22, 0x3c, 0x0a, 0x16, 0x43, 0x61, 0x6e, 0x63, 0x65, 0x6c, 0x43, 0x6f, 0x6c, 0x75, 0x6d, 0x6e,
+	0x43, 0x6f, 0x6c, 0x6c, 0x65, 0x63, 0x74, 0x52, 0x65, 0x71, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x02, 0x69, 0x64, 0x12, 0x12, 0x0a, 0x04, 0x75, 0x75,
+	0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x75, 0x75, 0x69, 0x64, 0x22, 0x36,
+	0x0a, 0x10, 0x53, 0x65, 0x74, 0x43, 0x6f, 0x6c, 0x75, 0x6d, 0x6e, 0x56, 0x69, 0x65, 0x77, 0x52,
+	0x65, 0x71, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x02,
+	0x69, 0x64, 0x12, 0x12, 0x0a, 0x04, 0x75, 0x75, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x04, 0x75, 0x75, 0x69, 0x64, 0x22, 0x45, 0x0a, 0x14, 0x41, 0x64, 0x64, 0x43, 0x6f, 0x6c,
+	0x75, 0x6d, 0x6e, 0x49, 0x6e, 0x63, 0x6c, 0x75, 0x64, 0x65, 0x73, 0x52, 0x65, 0x71, 0x12, 0x0e,
+	0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x02, 0x69, 0x64, 0x12, 0x1d,
+	0x0a, 0x0a, 0x61, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x05, 0x52, 0x09, 0x61, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x49, 0x64, 0x22, 0x48, 0x0a,
+	0x17, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x43, 0x6f, 0x6c, 0x75, 0x6d, 0x6e, 0x49, 0x6e, 0x63,
+	0x6c, 0x75, 0x64, 0x65, 0x73, 0x52, 0x65, 0x71, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x05, 0x52, 0x02, 0x69, 0x64, 0x12, 0x1d, 0x0a, 0x0a, 0x61, 0x72, 0x74, 0x69,
+	0x63, 0x6c, 0x65, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x09, 0x61, 0x72,
+	0x74, 0x69, 0x63, 0x6c, 0x65, 0x49, 0x64, 0x32, 0xf9, 0x4f, 0x0a, 0x03, 0x42, 0x66, 0x66, 0x12,
 	0x5d, 0x0a, 0x0c, 0x55, 0x73, 0x65, 0x72, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x12,
 	0x17, 0x2e, 0x62, 0x66, 0x66, 0x2e, 0x76, 0x31, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x52, 0x65, 0x67,
 	0x69, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x71, 0x1a, 0x16, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c,
@@ -7461,6 +8052,63 @@ var file_bff_interface_v1_bff_proto_rawDesc = []byte{
 	0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e,
 	0x45, 0x6d, 0x70, 0x74, 0x79, 0x22, 0x1c, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x16, 0x22, 0x11, 0x2f,
 	0x76, 0x31, 0x2f, 0x64, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x2f, 0x63, 0x6f, 0x6c, 0x75, 0x6d, 0x6e,
+	0x3a, 0x01, 0x2a, 0x12, 0x76, 0x0a, 0x12, 0x47, 0x65, 0x74, 0x43, 0x6f, 0x6c, 0x75, 0x6d, 0x6e,
+	0x53, 0x74, 0x61, 0x74, 0x69, 0x73, 0x74, 0x69, 0x63, 0x12, 0x1d, 0x2e, 0x62, 0x66, 0x66, 0x2e,
+	0x76, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x43, 0x6f, 0x6c, 0x75, 0x6d, 0x6e, 0x53, 0x74, 0x61, 0x74,
+	0x69, 0x73, 0x74, 0x69, 0x63, 0x52, 0x65, 0x71, 0x1a, 0x1f, 0x2e, 0x62, 0x66, 0x66, 0x2e, 0x76,
+	0x31, 0x2e, 0x47, 0x65, 0x74, 0x43, 0x6f, 0x6c, 0x75, 0x6d, 0x6e, 0x53, 0x74, 0x61, 0x74, 0x69,
+	0x73, 0x74, 0x69, 0x63, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x22, 0x20, 0x82, 0xd3, 0xe4, 0x93, 0x02,
+	0x1a, 0x12, 0x18, 0x2f, 0x76, 0x31, 0x2f, 0x67, 0x65, 0x74, 0x2f, 0x63, 0x6f, 0x6c, 0x75, 0x6d,
+	0x6e, 0x2f, 0x73, 0x74, 0x61, 0x74, 0x69, 0x73, 0x74, 0x69, 0x63, 0x12, 0x81, 0x01, 0x0a, 0x14,
+	0x43, 0x6f, 0x6c, 0x75, 0x6d, 0x6e, 0x53, 0x74, 0x61, 0x74, 0x69, 0x73, 0x74, 0x69, 0x63, 0x4a,
+	0x75, 0x64, 0x67, 0x65, 0x12, 0x1f, 0x2e, 0x62, 0x66, 0x66, 0x2e, 0x76, 0x31, 0x2e, 0x43, 0x6f,
+	0x6c, 0x75, 0x6d, 0x6e, 0x53, 0x74, 0x61, 0x74, 0x69, 0x73, 0x74, 0x69, 0x63, 0x4a, 0x75, 0x64,
+	0x67, 0x65, 0x52, 0x65, 0x71, 0x1a, 0x21, 0x2e, 0x62, 0x66, 0x66, 0x2e, 0x76, 0x31, 0x2e, 0x43,
+	0x6f, 0x6c, 0x75, 0x6d, 0x6e, 0x53, 0x74, 0x61, 0x74, 0x69, 0x73, 0x74, 0x69, 0x63, 0x4a, 0x75,
+	0x64, 0x67, 0x65, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x22, 0x25, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x1f,
+	0x22, 0x1a, 0x2f, 0x76, 0x31, 0x2f, 0x63, 0x6f, 0x6c, 0x75, 0x6d, 0x6e, 0x2f, 0x73, 0x74, 0x61,
+	0x74, 0x69, 0x73, 0x74, 0x69, 0x63, 0x2f, 0x6a, 0x75, 0x64, 0x67, 0x65, 0x3a, 0x01, 0x2a, 0x12,
+	0x64, 0x0a, 0x0e, 0x53, 0x65, 0x74, 0x43, 0x6f, 0x6c, 0x75, 0x6d, 0x6e, 0x41, 0x67, 0x72, 0x65,
+	0x65, 0x12, 0x19, 0x2e, 0x62, 0x66, 0x66, 0x2e, 0x76, 0x31, 0x2e, 0x53, 0x65, 0x74, 0x43, 0x6f,
+	0x6c, 0x75, 0x6d, 0x6e, 0x41, 0x67, 0x72, 0x65, 0x65, 0x52, 0x65, 0x71, 0x1a, 0x16, 0x2e, 0x67,
+	0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x45,
+	0x6d, 0x70, 0x74, 0x79, 0x22, 0x1f, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x19, 0x22, 0x14, 0x2f, 0x76,
+	0x31, 0x2f, 0x73, 0x65, 0x74, 0x2f, 0x63, 0x6f, 0x6c, 0x75, 0x6d, 0x6e, 0x2f, 0x61, 0x67, 0x72,
+	0x65, 0x65, 0x3a, 0x01, 0x2a, 0x12, 0x6d, 0x0a, 0x11, 0x43, 0x61, 0x6e, 0x63, 0x65, 0x6c, 0x43,
+	0x6f, 0x6c, 0x75, 0x6d, 0x6e, 0x41, 0x67, 0x72, 0x65, 0x65, 0x12, 0x1c, 0x2e, 0x62, 0x66, 0x66,
+	0x2e, 0x76, 0x31, 0x2e, 0x43, 0x61, 0x6e, 0x63, 0x65, 0x6c, 0x43, 0x6f, 0x6c, 0x75, 0x6d, 0x6e,
+	0x41, 0x67, 0x72, 0x65, 0x65, 0x52, 0x65, 0x71, 0x1a, 0x16, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c,
+	0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79,
+	0x22, 0x22, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x1c, 0x22, 0x17, 0x2f, 0x76, 0x31, 0x2f, 0x63, 0x61,
+	0x6e, 0x63, 0x65, 0x6c, 0x2f, 0x63, 0x6f, 0x6c, 0x75, 0x6d, 0x6e, 0x2f, 0x61, 0x67, 0x72, 0x65,
+	0x65, 0x3a, 0x01, 0x2a, 0x12, 0x73, 0x0a, 0x13, 0x43, 0x61, 0x6e, 0x63, 0x65, 0x6c, 0x43, 0x6f,
+	0x6c, 0x75, 0x6d, 0x6e, 0x43, 0x6f, 0x6c, 0x6c, 0x65, 0x63, 0x74, 0x12, 0x1e, 0x2e, 0x62, 0x66,
+	0x66, 0x2e, 0x76, 0x31, 0x2e, 0x43, 0x61, 0x6e, 0x63, 0x65, 0x6c, 0x43, 0x6f, 0x6c, 0x75, 0x6d,
+	0x6e, 0x43, 0x6f, 0x6c, 0x6c, 0x65, 0x63, 0x74, 0x52, 0x65, 0x71, 0x1a, 0x16, 0x2e, 0x67, 0x6f,
+	0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x45, 0x6d,
+	0x70, 0x74, 0x79, 0x22, 0x24, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x1e, 0x22, 0x19, 0x2f, 0x76, 0x31,
+	0x2f, 0x63, 0x61, 0x6e, 0x63, 0x65, 0x6c, 0x2f, 0x63, 0x6f, 0x6c, 0x75, 0x6d, 0x6e, 0x2f, 0x63,
+	0x6f, 0x6c, 0x6c, 0x65, 0x63, 0x74, 0x3a, 0x01, 0x2a, 0x12, 0x61, 0x0a, 0x0d, 0x53, 0x65, 0x74,
+	0x43, 0x6f, 0x6c, 0x75, 0x6d, 0x6e, 0x56, 0x69, 0x65, 0x77, 0x12, 0x18, 0x2e, 0x62, 0x66, 0x66,
+	0x2e, 0x76, 0x31, 0x2e, 0x53, 0x65, 0x74, 0x43, 0x6f, 0x6c, 0x75, 0x6d, 0x6e, 0x56, 0x69, 0x65,
+	0x77, 0x52, 0x65, 0x71, 0x1a, 0x16, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72,
+	0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x22, 0x1e, 0x82, 0xd3,
+	0xe4, 0x93, 0x02, 0x18, 0x22, 0x13, 0x2f, 0x76, 0x31, 0x2f, 0x73, 0x65, 0x74, 0x2f, 0x63, 0x6f,
+	0x6c, 0x75, 0x6d, 0x6e, 0x2f, 0x76, 0x69, 0x65, 0x77, 0x3a, 0x01, 0x2a, 0x12, 0x6d, 0x0a, 0x11,
+	0x41, 0x64, 0x64, 0x43, 0x6f, 0x6c, 0x75, 0x6d, 0x6e, 0x49, 0x6e, 0x63, 0x6c, 0x75, 0x64, 0x65,
+	0x73, 0x12, 0x1c, 0x2e, 0x62, 0x66, 0x66, 0x2e, 0x76, 0x31, 0x2e, 0x41, 0x64, 0x64, 0x43, 0x6f,
+	0x6c, 0x75, 0x6d, 0x6e, 0x49, 0x6e, 0x63, 0x6c, 0x75, 0x64, 0x65, 0x73, 0x52, 0x65, 0x71, 0x1a,
+	0x16, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75,
+	0x66, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x22, 0x22, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x1c, 0x22,
+	0x17, 0x2f, 0x76, 0x31, 0x2f, 0x61, 0x64, 0x64, 0x2f, 0x63, 0x6f, 0x6c, 0x75, 0x6d, 0x6e, 0x2f,
+	0x69, 0x6e, 0x63, 0x6c, 0x75, 0x64, 0x65, 0x73, 0x3a, 0x01, 0x2a, 0x12, 0x76, 0x0a, 0x14, 0x44,
+	0x65, 0x6c, 0x65, 0x74, 0x65, 0x43, 0x6f, 0x6c, 0x75, 0x6d, 0x6e, 0x49, 0x6e, 0x63, 0x6c, 0x75,
+	0x64, 0x65, 0x73, 0x12, 0x1f, 0x2e, 0x62, 0x66, 0x66, 0x2e, 0x76, 0x31, 0x2e, 0x44, 0x65, 0x6c,
+	0x65, 0x74, 0x65, 0x43, 0x6f, 0x6c, 0x75, 0x6d, 0x6e, 0x49, 0x6e, 0x63, 0x6c, 0x75, 0x64, 0x65,
+	0x73, 0x52, 0x65, 0x71, 0x1a, 0x16, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72,
+	0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x22, 0x25, 0x82, 0xd3,
+	0xe4, 0x93, 0x02, 0x1f, 0x22, 0x1a, 0x2f, 0x76, 0x31, 0x2f, 0x64, 0x65, 0x6c, 0x65, 0x74, 0x65,
+	0x2f, 0x63, 0x6f, 0x6c, 0x75, 0x6d, 0x6e, 0x2f, 0x69, 0x6e, 0x63, 0x6c, 0x75, 0x64, 0x65, 0x73,
 	0x3a, 0x01, 0x2a, 0x42, 0x19, 0x5a, 0x17, 0x61, 0x70, 0x69, 0x2f, 0x62, 0x66, 0x66, 0x2f, 0x69,
 	0x6e, 0x74, 0x65, 0x72, 0x66, 0x61, 0x63, 0x65, 0x2f, 0x76, 0x31, 0x3b, 0x76, 0x31, 0x62, 0x06,
 	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
@@ -7478,7 +8126,7 @@ func file_bff_interface_v1_bff_proto_rawDescGZIP() []byte {
 	return file_bff_interface_v1_bff_proto_rawDescData
 }
 
-var file_bff_interface_v1_bff_proto_msgTypes = make([]protoimpl.MessageInfo, 116)
+var file_bff_interface_v1_bff_proto_msgTypes = make([]protoimpl.MessageInfo, 126)
 var file_bff_interface_v1_bff_proto_goTypes = []interface{}{
 	(*UserRegisterReq)(nil),                    // 0: bff.v1.UserRegisterReq
 	(*LoginByPasswordReq)(nil),                 // 1: bff.v1.LoginByPasswordReq
@@ -7584,33 +8232,43 @@ var file_bff_interface_v1_bff_proto_goTypes = []interface{}{
 	(*GetColumnCountReply)(nil),                // 101: bff.v1.GetColumnCountReply
 	(*SendColumnEditReq)(nil),                  // 102: bff.v1.SendColumnEditReq
 	(*DeleteColumnReq)(nil),                    // 103: bff.v1.DeleteColumnReq
-	(*GetLeaderBoardReply_Board)(nil),          // 104: bff.v1.GetLeaderBoardReply.Board
-	(*GetArticleListReply_Article)(nil),        // 105: bff.v1.GetArticleListReply.Article
-	(*GetArticleListHotReply_Article)(nil),     // 106: bff.v1.GetArticleListHotReply.Article
-	(*GetArticleListStatisticReply_Count)(nil), // 107: bff.v1.GetArticleListStatisticReply.Count
-	(*GetCollectionsReply_Collections)(nil),    // 108: bff.v1.GetCollectionsReply.Collections
-	(*GetArticleDraftListReply_Draft)(nil),     // 109: bff.v1.GetArticleDraftListReply.Draft
-	(*GetTalkListReply_Talk)(nil),              // 110: bff.v1.GetTalkListReply.Talk
-	(*GetTalkListHotReply_Talk)(nil),           // 111: bff.v1.GetTalkListHotReply.Talk
-	(*GetTalkListStatisticReply_Count)(nil),    // 112: bff.v1.GetTalkListStatisticReply.Count
-	(*GetColumnListReply_Column)(nil),          // 113: bff.v1.GetColumnListReply.Column
-	(*GetColumnListHotReply_Column)(nil),       // 114: bff.v1.GetColumnListHotReply.Column
-	(*GetColumnListStatisticReply_Count)(nil),  // 115: bff.v1.GetColumnListStatisticReply.Count
-	(*emptypb.Empty)(nil),                      // 116: google.protobuf.Empty
+	(*GetColumnStatisticReq)(nil),              // 104: bff.v1.GetColumnStatisticReq
+	(*GetColumnStatisticReply)(nil),            // 105: bff.v1.GetColumnStatisticReply
+	(*ColumnStatisticJudgeReq)(nil),            // 106: bff.v1.ColumnStatisticJudgeReq
+	(*ColumnStatisticJudgeReply)(nil),          // 107: bff.v1.ColumnStatisticJudgeReply
+	(*SetColumnAgreeReq)(nil),                  // 108: bff.v1.SetColumnAgreeReq
+	(*CancelColumnAgreeReq)(nil),               // 109: bff.v1.CancelColumnAgreeReq
+	(*CancelColumnCollectReq)(nil),             // 110: bff.v1.CancelColumnCollectReq
+	(*SetColumnViewReq)(nil),                   // 111: bff.v1.SetColumnViewReq
+	(*AddColumnIncludesReq)(nil),               // 112: bff.v1.AddColumnIncludesReq
+	(*DeleteColumnIncludesReq)(nil),            // 113: bff.v1.DeleteColumnIncludesReq
+	(*GetLeaderBoardReply_Board)(nil),          // 114: bff.v1.GetLeaderBoardReply.Board
+	(*GetArticleListReply_Article)(nil),        // 115: bff.v1.GetArticleListReply.Article
+	(*GetArticleListHotReply_Article)(nil),     // 116: bff.v1.GetArticleListHotReply.Article
+	(*GetArticleListStatisticReply_Count)(nil), // 117: bff.v1.GetArticleListStatisticReply.Count
+	(*GetCollectionsReply_Collections)(nil),    // 118: bff.v1.GetCollectionsReply.Collections
+	(*GetArticleDraftListReply_Draft)(nil),     // 119: bff.v1.GetArticleDraftListReply.Draft
+	(*GetTalkListReply_Talk)(nil),              // 120: bff.v1.GetTalkListReply.Talk
+	(*GetTalkListHotReply_Talk)(nil),           // 121: bff.v1.GetTalkListHotReply.Talk
+	(*GetTalkListStatisticReply_Count)(nil),    // 122: bff.v1.GetTalkListStatisticReply.Count
+	(*GetColumnListReply_Column)(nil),          // 123: bff.v1.GetColumnListReply.Column
+	(*GetColumnListHotReply_Column)(nil),       // 124: bff.v1.GetColumnListHotReply.Column
+	(*GetColumnListStatisticReply_Count)(nil),  // 125: bff.v1.GetColumnListStatisticReply.Count
+	(*emptypb.Empty)(nil),                      // 126: google.protobuf.Empty
 }
 var file_bff_interface_v1_bff_proto_depIdxs = []int32{
-	104, // 0: bff.v1.GetLeaderBoardReply.board:type_name -> bff.v1.GetLeaderBoardReply.Board
-	105, // 1: bff.v1.GetArticleListReply.article:type_name -> bff.v1.GetArticleListReply.Article
-	106, // 2: bff.v1.GetArticleListHotReply.article:type_name -> bff.v1.GetArticleListHotReply.Article
-	107, // 3: bff.v1.GetArticleListStatisticReply.count:type_name -> bff.v1.GetArticleListStatisticReply.Count
-	108, // 4: bff.v1.GetCollectionsReply.collections:type_name -> bff.v1.GetCollectionsReply.Collections
-	109, // 5: bff.v1.GetArticleDraftListReply.draft:type_name -> bff.v1.GetArticleDraftListReply.Draft
-	110, // 6: bff.v1.GetTalkListReply.talk:type_name -> bff.v1.GetTalkListReply.Talk
-	111, // 7: bff.v1.GetTalkListHotReply.talk:type_name -> bff.v1.GetTalkListHotReply.Talk
-	112, // 8: bff.v1.GetTalkListStatisticReply.count:type_name -> bff.v1.GetTalkListStatisticReply.Count
-	113, // 9: bff.v1.GetColumnListReply.column:type_name -> bff.v1.GetColumnListReply.Column
-	114, // 10: bff.v1.GetColumnListHotReply.column:type_name -> bff.v1.GetColumnListHotReply.Column
-	115, // 11: bff.v1.GetColumnListStatisticReply.count:type_name -> bff.v1.GetColumnListStatisticReply.Count
+	114, // 0: bff.v1.GetLeaderBoardReply.board:type_name -> bff.v1.GetLeaderBoardReply.Board
+	115, // 1: bff.v1.GetArticleListReply.article:type_name -> bff.v1.GetArticleListReply.Article
+	116, // 2: bff.v1.GetArticleListHotReply.article:type_name -> bff.v1.GetArticleListHotReply.Article
+	117, // 3: bff.v1.GetArticleListStatisticReply.count:type_name -> bff.v1.GetArticleListStatisticReply.Count
+	118, // 4: bff.v1.GetCollectionsReply.collections:type_name -> bff.v1.GetCollectionsReply.Collections
+	119, // 5: bff.v1.GetArticleDraftListReply.draft:type_name -> bff.v1.GetArticleDraftListReply.Draft
+	120, // 6: bff.v1.GetTalkListReply.talk:type_name -> bff.v1.GetTalkListReply.Talk
+	121, // 7: bff.v1.GetTalkListHotReply.talk:type_name -> bff.v1.GetTalkListHotReply.Talk
+	122, // 8: bff.v1.GetTalkListStatisticReply.count:type_name -> bff.v1.GetTalkListStatisticReply.Count
+	123, // 9: bff.v1.GetColumnListReply.column:type_name -> bff.v1.GetColumnListReply.Column
+	124, // 10: bff.v1.GetColumnListHotReply.column:type_name -> bff.v1.GetColumnListHotReply.Column
+	125, // 11: bff.v1.GetColumnListStatisticReply.count:type_name -> bff.v1.GetColumnListStatisticReply.Count
 	0,   // 12: bff.v1.Bff.UserRegister:input_type -> bff.v1.UserRegisterReq
 	1,   // 13: bff.v1.Bff.LoginByPassword:input_type -> bff.v1.LoginByPasswordReq
 	2,   // 14: bff.v1.Bff.LoginByCode:input_type -> bff.v1.LoginByCodeReq
@@ -7619,11 +8277,11 @@ var file_bff_interface_v1_bff_proto_depIdxs = []int32{
 	6,   // 17: bff.v1.Bff.LoginPasswordReset:input_type -> bff.v1.LoginPasswordResetReq
 	7,   // 18: bff.v1.Bff.SendPhoneCode:input_type -> bff.v1.SendPhoneCodeReq
 	8,   // 19: bff.v1.Bff.SendEmailCode:input_type -> bff.v1.SendEmailCodeReq
-	116, // 20: bff.v1.Bff.GetCosSessionKey:input_type -> google.protobuf.Empty
-	116, // 21: bff.v1.Bff.GetAccount:input_type -> google.protobuf.Empty
-	116, // 22: bff.v1.Bff.GetProfile:input_type -> google.protobuf.Empty
+	126, // 20: bff.v1.Bff.GetCosSessionKey:input_type -> google.protobuf.Empty
+	126, // 21: bff.v1.Bff.GetAccount:input_type -> google.protobuf.Empty
+	126, // 22: bff.v1.Bff.GetProfile:input_type -> google.protobuf.Empty
 	12,  // 23: bff.v1.Bff.GetUserInfo:input_type -> bff.v1.GetUserInfoReq
-	116, // 24: bff.v1.Bff.GetProfileUpdate:input_type -> google.protobuf.Empty
+	126, // 24: bff.v1.Bff.GetProfileUpdate:input_type -> google.protobuf.Empty
 	15,  // 25: bff.v1.Bff.SetProfileUpdate:input_type -> bff.v1.SetProfileUpdateReq
 	16,  // 26: bff.v1.Bff.SetUserPhone:input_type -> bff.v1.SetUserPhoneReq
 	17,  // 27: bff.v1.Bff.SetUserEmail:input_type -> bff.v1.SetUserEmailReq
@@ -7631,14 +8289,14 @@ var file_bff_interface_v1_bff_proto_depIdxs = []int32{
 	19,  // 29: bff.v1.Bff.ChangeUserPassword:input_type -> bff.v1.ChangeUserPasswordReq
 	20,  // 30: bff.v1.Bff.UnbindUserPhone:input_type -> bff.v1.UnbindUserPhoneReq
 	21,  // 31: bff.v1.Bff.UnbindUserEmail:input_type -> bff.v1.UnbindUserEmailReq
-	116, // 32: bff.v1.Bff.GetLeaderBoard:input_type -> google.protobuf.Empty
+	126, // 32: bff.v1.Bff.GetLeaderBoard:input_type -> google.protobuf.Empty
 	23,  // 33: bff.v1.Bff.GetCollectArticle:input_type -> bff.v1.GetCollectArticleReq
 	24,  // 34: bff.v1.Bff.GetCollectArticleCount:input_type -> bff.v1.GetCollectArticleCountReq
 	26,  // 35: bff.v1.Bff.GetCollectTalk:input_type -> bff.v1.GetCollectTalkReq
 	27,  // 36: bff.v1.Bff.GetCollectTalkCount:input_type -> bff.v1.GetCollectTalkCountReq
 	29,  // 37: bff.v1.Bff.GetCollection:input_type -> bff.v1.GetCollectionReq
 	45,  // 38: bff.v1.Bff.GetCollections:input_type -> bff.v1.GetCollectionsReq
-	116, // 39: bff.v1.Bff.GetCollectionsCount:input_type -> google.protobuf.Empty
+	126, // 39: bff.v1.Bff.GetCollectionsCount:input_type -> google.protobuf.Empty
 	49,  // 40: bff.v1.Bff.GetCollectionsByVisitor:input_type -> bff.v1.GetCollectionsByVisitorReq
 	47,  // 41: bff.v1.Bff.GetCollectionsVisitorCount:input_type -> bff.v1.GetCollectionsVisitorCountReq
 	50,  // 42: bff.v1.Bff.CreateCollections:input_type -> bff.v1.CreateCollectionsReq
@@ -7646,16 +8304,16 @@ var file_bff_interface_v1_bff_proto_depIdxs = []int32{
 	52,  // 44: bff.v1.Bff.DeleteCollections:input_type -> bff.v1.DeleteCollectionsReq
 	31,  // 45: bff.v1.Bff.GetArticleList:input_type -> bff.v1.GetArticleListReq
 	35,  // 46: bff.v1.Bff.GetArticleListHot:input_type -> bff.v1.GetArticleListHotReq
-	116, // 47: bff.v1.Bff.GetArticleCount:input_type -> google.protobuf.Empty
+	126, // 47: bff.v1.Bff.GetArticleCount:input_type -> google.protobuf.Empty
 	34,  // 48: bff.v1.Bff.GetArticleCountVisitor:input_type -> bff.v1.GetArticleCountVisitorReq
 	37,  // 49: bff.v1.Bff.GetUserArticleList:input_type -> bff.v1.GetUserArticleListReq
 	38,  // 50: bff.v1.Bff.GetUserArticleListVisitor:input_type -> bff.v1.GetUserArticleListVisitorReq
 	39,  // 51: bff.v1.Bff.GetArticleStatistic:input_type -> bff.v1.GetArticleStatisticReq
 	41,  // 52: bff.v1.Bff.GetArticleListStatistic:input_type -> bff.v1.GetArticleListStatisticReq
-	116, // 53: bff.v1.Bff.GetLastArticleDraft:input_type -> google.protobuf.Empty
-	116, // 54: bff.v1.Bff.CreateArticleDraft:input_type -> google.protobuf.Empty
+	126, // 53: bff.v1.Bff.GetLastArticleDraft:input_type -> google.protobuf.Empty
+	126, // 54: bff.v1.Bff.CreateArticleDraft:input_type -> google.protobuf.Empty
 	53,  // 55: bff.v1.Bff.ArticleDraftMark:input_type -> bff.v1.ArticleDraftMarkReq
-	116, // 56: bff.v1.Bff.GetArticleDraftList:input_type -> google.protobuf.Empty
+	126, // 56: bff.v1.Bff.GetArticleDraftList:input_type -> google.protobuf.Empty
 	55,  // 57: bff.v1.Bff.SendArticle:input_type -> bff.v1.SendArticleReq
 	56,  // 58: bff.v1.Bff.SendArticleEdit:input_type -> bff.v1.SendArticleEditReq
 	57,  // 59: bff.v1.Bff.DeleteArticle:input_type -> bff.v1.DeleteArticleReq
@@ -7670,11 +8328,11 @@ var file_bff_interface_v1_bff_proto_depIdxs = []int32{
 	71,  // 68: bff.v1.Bff.GetTalkListStatistic:input_type -> bff.v1.GetTalkListStatisticReq
 	73,  // 69: bff.v1.Bff.GetUserTalkList:input_type -> bff.v1.GetUserTalkListReq
 	74,  // 70: bff.v1.Bff.GetUserTalkListVisitor:input_type -> bff.v1.GetUserTalkListVisitorReq
-	116, // 71: bff.v1.Bff.GetTalkCount:input_type -> google.protobuf.Empty
+	126, // 71: bff.v1.Bff.GetTalkCount:input_type -> google.protobuf.Empty
 	68,  // 72: bff.v1.Bff.GetTalkCountVisitor:input_type -> bff.v1.GetTalkCountVisitorReq
 	75,  // 73: bff.v1.Bff.GetTalkStatistic:input_type -> bff.v1.GetTalkStatisticReq
-	116, // 74: bff.v1.Bff.GetLastTalkDraft:input_type -> google.protobuf.Empty
-	116, // 75: bff.v1.Bff.CreateTalkDraft:input_type -> google.protobuf.Empty
+	126, // 74: bff.v1.Bff.GetLastTalkDraft:input_type -> google.protobuf.Empty
+	126, // 75: bff.v1.Bff.CreateTalkDraft:input_type -> google.protobuf.Empty
 	79,  // 76: bff.v1.Bff.SendTalk:input_type -> bff.v1.SendTalkReq
 	80,  // 77: bff.v1.Bff.SendTalkEdit:input_type -> bff.v1.SendTalkEditReq
 	81,  // 78: bff.v1.Bff.DeleteTalk:input_type -> bff.v1.DeleteTalkReq
@@ -7684,105 +8342,121 @@ var file_bff_interface_v1_bff_proto_depIdxs = []int32{
 	86,  // 82: bff.v1.Bff.SetTalkCollect:input_type -> bff.v1.SetTalkCollectReq
 	87,  // 83: bff.v1.Bff.CancelTalkAgree:input_type -> bff.v1.CancelTalkAgreeReq
 	88,  // 84: bff.v1.Bff.CancelTalkCollect:input_type -> bff.v1.CancelTalkCollectReq
-	116, // 85: bff.v1.Bff.GetLastColumnDraft:input_type -> google.protobuf.Empty
-	116, // 86: bff.v1.Bff.CreateColumnDraft:input_type -> google.protobuf.Empty
+	126, // 85: bff.v1.Bff.GetLastColumnDraft:input_type -> google.protobuf.Empty
+	126, // 86: bff.v1.Bff.CreateColumnDraft:input_type -> google.protobuf.Empty
 	91,  // 87: bff.v1.Bff.SendColumn:input_type -> bff.v1.SendColumnReq
 	92,  // 88: bff.v1.Bff.GetColumnList:input_type -> bff.v1.GetColumnListReq
 	94,  // 89: bff.v1.Bff.GetColumnListHot:input_type -> bff.v1.GetColumnListHotReq
 	96,  // 90: bff.v1.Bff.GetColumnListStatistic:input_type -> bff.v1.GetColumnListStatisticReq
 	98,  // 91: bff.v1.Bff.GetUserColumnList:input_type -> bff.v1.GetUserColumnListReq
 	99,  // 92: bff.v1.Bff.GetUserColumnListVisitor:input_type -> bff.v1.GetUserColumnListVisitorReq
-	116, // 93: bff.v1.Bff.GetColumnCount:input_type -> google.protobuf.Empty
+	126, // 93: bff.v1.Bff.GetColumnCount:input_type -> google.protobuf.Empty
 	100, // 94: bff.v1.Bff.GetColumnCountVisitor:input_type -> bff.v1.GetColumnCountVisitorReq
 	102, // 95: bff.v1.Bff.SendColumnEdit:input_type -> bff.v1.SendColumnEditReq
 	103, // 96: bff.v1.Bff.DeleteColumn:input_type -> bff.v1.DeleteColumnReq
-	116, // 97: bff.v1.Bff.UserRegister:output_type -> google.protobuf.Empty
-	5,   // 98: bff.v1.Bff.LoginByPassword:output_type -> bff.v1.LoginReply
-	5,   // 99: bff.v1.Bff.LoginByCode:output_type -> bff.v1.LoginReply
-	5,   // 100: bff.v1.Bff.LoginByWeChat:output_type -> bff.v1.LoginReply
-	5,   // 101: bff.v1.Bff.LoginByGithub:output_type -> bff.v1.LoginReply
-	116, // 102: bff.v1.Bff.LoginPasswordReset:output_type -> google.protobuf.Empty
-	116, // 103: bff.v1.Bff.SendPhoneCode:output_type -> google.protobuf.Empty
-	116, // 104: bff.v1.Bff.SendEmailCode:output_type -> google.protobuf.Empty
-	9,   // 105: bff.v1.Bff.GetCosSessionKey:output_type -> bff.v1.GetCosSessionKeyReply
-	10,  // 106: bff.v1.Bff.GetAccount:output_type -> bff.v1.GetAccountReply
-	11,  // 107: bff.v1.Bff.GetProfile:output_type -> bff.v1.GetProfileReply
-	13,  // 108: bff.v1.Bff.GetUserInfo:output_type -> bff.v1.GetUserInfoReply
-	14,  // 109: bff.v1.Bff.GetProfileUpdate:output_type -> bff.v1.GetProfileUpdateReply
-	116, // 110: bff.v1.Bff.SetProfileUpdate:output_type -> google.protobuf.Empty
-	116, // 111: bff.v1.Bff.SetUserPhone:output_type -> google.protobuf.Empty
-	116, // 112: bff.v1.Bff.SetUserEmail:output_type -> google.protobuf.Empty
-	116, // 113: bff.v1.Bff.SetUserPassword:output_type -> google.protobuf.Empty
-	116, // 114: bff.v1.Bff.ChangeUserPassword:output_type -> google.protobuf.Empty
-	116, // 115: bff.v1.Bff.UnbindUserPhone:output_type -> google.protobuf.Empty
-	116, // 116: bff.v1.Bff.UnbindUserEmail:output_type -> google.protobuf.Empty
-	22,  // 117: bff.v1.Bff.GetLeaderBoard:output_type -> bff.v1.GetLeaderBoardReply
-	32,  // 118: bff.v1.Bff.GetCollectArticle:output_type -> bff.v1.GetArticleListReply
-	25,  // 119: bff.v1.Bff.GetCollectArticleCount:output_type -> bff.v1.GetCollectArticleCountReply
-	66,  // 120: bff.v1.Bff.GetCollectTalk:output_type -> bff.v1.GetTalkListReply
-	28,  // 121: bff.v1.Bff.GetCollectTalkCount:output_type -> bff.v1.GetCollectTalkCountReply
-	30,  // 122: bff.v1.Bff.GetCollection:output_type -> bff.v1.GetCollectionReply
-	46,  // 123: bff.v1.Bff.GetCollections:output_type -> bff.v1.GetCollectionsReply
-	48,  // 124: bff.v1.Bff.GetCollectionsCount:output_type -> bff.v1.GetCollectionsCountReply
-	46,  // 125: bff.v1.Bff.GetCollectionsByVisitor:output_type -> bff.v1.GetCollectionsReply
-	48,  // 126: bff.v1.Bff.GetCollectionsVisitorCount:output_type -> bff.v1.GetCollectionsCountReply
-	116, // 127: bff.v1.Bff.CreateCollections:output_type -> google.protobuf.Empty
-	116, // 128: bff.v1.Bff.EditCollections:output_type -> google.protobuf.Empty
-	116, // 129: bff.v1.Bff.DeleteCollections:output_type -> google.protobuf.Empty
-	32,  // 130: bff.v1.Bff.GetArticleList:output_type -> bff.v1.GetArticleListReply
-	36,  // 131: bff.v1.Bff.GetArticleListHot:output_type -> bff.v1.GetArticleListHotReply
-	33,  // 132: bff.v1.Bff.GetArticleCount:output_type -> bff.v1.GetArticleCountReply
-	33,  // 133: bff.v1.Bff.GetArticleCountVisitor:output_type -> bff.v1.GetArticleCountReply
-	32,  // 134: bff.v1.Bff.GetUserArticleList:output_type -> bff.v1.GetArticleListReply
-	32,  // 135: bff.v1.Bff.GetUserArticleListVisitor:output_type -> bff.v1.GetArticleListReply
-	40,  // 136: bff.v1.Bff.GetArticleStatistic:output_type -> bff.v1.GetArticleStatisticReply
-	42,  // 137: bff.v1.Bff.GetArticleListStatistic:output_type -> bff.v1.GetArticleListStatisticReply
-	43,  // 138: bff.v1.Bff.GetLastArticleDraft:output_type -> bff.v1.GetLastArticleDraftReply
-	44,  // 139: bff.v1.Bff.CreateArticleDraft:output_type -> bff.v1.CreateArticleDraftReply
-	116, // 140: bff.v1.Bff.ArticleDraftMark:output_type -> google.protobuf.Empty
-	54,  // 141: bff.v1.Bff.GetArticleDraftList:output_type -> bff.v1.GetArticleDraftListReply
-	116, // 142: bff.v1.Bff.SendArticle:output_type -> google.protobuf.Empty
-	116, // 143: bff.v1.Bff.SendArticleEdit:output_type -> google.protobuf.Empty
-	116, // 144: bff.v1.Bff.DeleteArticle:output_type -> google.protobuf.Empty
-	116, // 145: bff.v1.Bff.SetArticleAgree:output_type -> google.protobuf.Empty
-	116, // 146: bff.v1.Bff.SetArticleView:output_type -> google.protobuf.Empty
-	116, // 147: bff.v1.Bff.SetArticleCollect:output_type -> google.protobuf.Empty
-	116, // 148: bff.v1.Bff.CancelArticleAgree:output_type -> google.protobuf.Empty
-	116, // 149: bff.v1.Bff.CancelArticleCollect:output_type -> google.protobuf.Empty
-	64,  // 150: bff.v1.Bff.ArticleStatisticJudge:output_type -> bff.v1.ArticleStatisticJudgeReply
-	66,  // 151: bff.v1.Bff.GetTalkList:output_type -> bff.v1.GetTalkListReply
-	70,  // 152: bff.v1.Bff.GetTalkListHot:output_type -> bff.v1.GetTalkListHotReply
-	72,  // 153: bff.v1.Bff.GetTalkListStatistic:output_type -> bff.v1.GetTalkListStatisticReply
-	66,  // 154: bff.v1.Bff.GetUserTalkList:output_type -> bff.v1.GetTalkListReply
-	66,  // 155: bff.v1.Bff.GetUserTalkListVisitor:output_type -> bff.v1.GetTalkListReply
-	67,  // 156: bff.v1.Bff.GetTalkCount:output_type -> bff.v1.GetTalkCountReply
-	67,  // 157: bff.v1.Bff.GetTalkCountVisitor:output_type -> bff.v1.GetTalkCountReply
-	76,  // 158: bff.v1.Bff.GetTalkStatistic:output_type -> bff.v1.GetTalkStatisticReply
-	77,  // 159: bff.v1.Bff.GetLastTalkDraft:output_type -> bff.v1.GetLastTalkDraftReply
-	78,  // 160: bff.v1.Bff.CreateTalkDraft:output_type -> bff.v1.CreateTalkDraftReply
-	116, // 161: bff.v1.Bff.SendTalk:output_type -> google.protobuf.Empty
-	116, // 162: bff.v1.Bff.SendTalkEdit:output_type -> google.protobuf.Empty
-	116, // 163: bff.v1.Bff.DeleteTalk:output_type -> google.protobuf.Empty
-	116, // 164: bff.v1.Bff.SetTalkView:output_type -> google.protobuf.Empty
-	84,  // 165: bff.v1.Bff.TalkStatisticJudge:output_type -> bff.v1.TalkStatisticJudgeReply
-	116, // 166: bff.v1.Bff.SetTalkAgree:output_type -> google.protobuf.Empty
-	116, // 167: bff.v1.Bff.SetTalkCollect:output_type -> google.protobuf.Empty
-	116, // 168: bff.v1.Bff.CancelTalkAgree:output_type -> google.protobuf.Empty
-	116, // 169: bff.v1.Bff.CancelTalkCollect:output_type -> google.protobuf.Empty
-	89,  // 170: bff.v1.Bff.GetLastColumnDraft:output_type -> bff.v1.GetLastColumnDraftReply
-	90,  // 171: bff.v1.Bff.CreateColumnDraft:output_type -> bff.v1.CreateColumnDraftReply
-	116, // 172: bff.v1.Bff.SendColumn:output_type -> google.protobuf.Empty
-	93,  // 173: bff.v1.Bff.GetColumnList:output_type -> bff.v1.GetColumnListReply
-	95,  // 174: bff.v1.Bff.GetColumnListHot:output_type -> bff.v1.GetColumnListHotReply
-	97,  // 175: bff.v1.Bff.GetColumnListStatistic:output_type -> bff.v1.GetColumnListStatisticReply
-	93,  // 176: bff.v1.Bff.GetUserColumnList:output_type -> bff.v1.GetColumnListReply
-	93,  // 177: bff.v1.Bff.GetUserColumnListVisitor:output_type -> bff.v1.GetColumnListReply
-	101, // 178: bff.v1.Bff.GetColumnCount:output_type -> bff.v1.GetColumnCountReply
-	101, // 179: bff.v1.Bff.GetColumnCountVisitor:output_type -> bff.v1.GetColumnCountReply
-	116, // 180: bff.v1.Bff.SendColumnEdit:output_type -> google.protobuf.Empty
-	116, // 181: bff.v1.Bff.DeleteColumn:output_type -> google.protobuf.Empty
-	97,  // [97:182] is the sub-list for method output_type
-	12,  // [12:97] is the sub-list for method input_type
+	104, // 97: bff.v1.Bff.GetColumnStatistic:input_type -> bff.v1.GetColumnStatisticReq
+	106, // 98: bff.v1.Bff.ColumnStatisticJudge:input_type -> bff.v1.ColumnStatisticJudgeReq
+	108, // 99: bff.v1.Bff.SetColumnAgree:input_type -> bff.v1.SetColumnAgreeReq
+	109, // 100: bff.v1.Bff.CancelColumnAgree:input_type -> bff.v1.CancelColumnAgreeReq
+	110, // 101: bff.v1.Bff.CancelColumnCollect:input_type -> bff.v1.CancelColumnCollectReq
+	111, // 102: bff.v1.Bff.SetColumnView:input_type -> bff.v1.SetColumnViewReq
+	112, // 103: bff.v1.Bff.AddColumnIncludes:input_type -> bff.v1.AddColumnIncludesReq
+	113, // 104: bff.v1.Bff.DeleteColumnIncludes:input_type -> bff.v1.DeleteColumnIncludesReq
+	126, // 105: bff.v1.Bff.UserRegister:output_type -> google.protobuf.Empty
+	5,   // 106: bff.v1.Bff.LoginByPassword:output_type -> bff.v1.LoginReply
+	5,   // 107: bff.v1.Bff.LoginByCode:output_type -> bff.v1.LoginReply
+	5,   // 108: bff.v1.Bff.LoginByWeChat:output_type -> bff.v1.LoginReply
+	5,   // 109: bff.v1.Bff.LoginByGithub:output_type -> bff.v1.LoginReply
+	126, // 110: bff.v1.Bff.LoginPasswordReset:output_type -> google.protobuf.Empty
+	126, // 111: bff.v1.Bff.SendPhoneCode:output_type -> google.protobuf.Empty
+	126, // 112: bff.v1.Bff.SendEmailCode:output_type -> google.protobuf.Empty
+	9,   // 113: bff.v1.Bff.GetCosSessionKey:output_type -> bff.v1.GetCosSessionKeyReply
+	10,  // 114: bff.v1.Bff.GetAccount:output_type -> bff.v1.GetAccountReply
+	11,  // 115: bff.v1.Bff.GetProfile:output_type -> bff.v1.GetProfileReply
+	13,  // 116: bff.v1.Bff.GetUserInfo:output_type -> bff.v1.GetUserInfoReply
+	14,  // 117: bff.v1.Bff.GetProfileUpdate:output_type -> bff.v1.GetProfileUpdateReply
+	126, // 118: bff.v1.Bff.SetProfileUpdate:output_type -> google.protobuf.Empty
+	126, // 119: bff.v1.Bff.SetUserPhone:output_type -> google.protobuf.Empty
+	126, // 120: bff.v1.Bff.SetUserEmail:output_type -> google.protobuf.Empty
+	126, // 121: bff.v1.Bff.SetUserPassword:output_type -> google.protobuf.Empty
+	126, // 122: bff.v1.Bff.ChangeUserPassword:output_type -> google.protobuf.Empty
+	126, // 123: bff.v1.Bff.UnbindUserPhone:output_type -> google.protobuf.Empty
+	126, // 124: bff.v1.Bff.UnbindUserEmail:output_type -> google.protobuf.Empty
+	22,  // 125: bff.v1.Bff.GetLeaderBoard:output_type -> bff.v1.GetLeaderBoardReply
+	32,  // 126: bff.v1.Bff.GetCollectArticle:output_type -> bff.v1.GetArticleListReply
+	25,  // 127: bff.v1.Bff.GetCollectArticleCount:output_type -> bff.v1.GetCollectArticleCountReply
+	66,  // 128: bff.v1.Bff.GetCollectTalk:output_type -> bff.v1.GetTalkListReply
+	28,  // 129: bff.v1.Bff.GetCollectTalkCount:output_type -> bff.v1.GetCollectTalkCountReply
+	30,  // 130: bff.v1.Bff.GetCollection:output_type -> bff.v1.GetCollectionReply
+	46,  // 131: bff.v1.Bff.GetCollections:output_type -> bff.v1.GetCollectionsReply
+	48,  // 132: bff.v1.Bff.GetCollectionsCount:output_type -> bff.v1.GetCollectionsCountReply
+	46,  // 133: bff.v1.Bff.GetCollectionsByVisitor:output_type -> bff.v1.GetCollectionsReply
+	48,  // 134: bff.v1.Bff.GetCollectionsVisitorCount:output_type -> bff.v1.GetCollectionsCountReply
+	126, // 135: bff.v1.Bff.CreateCollections:output_type -> google.protobuf.Empty
+	126, // 136: bff.v1.Bff.EditCollections:output_type -> google.protobuf.Empty
+	126, // 137: bff.v1.Bff.DeleteCollections:output_type -> google.protobuf.Empty
+	32,  // 138: bff.v1.Bff.GetArticleList:output_type -> bff.v1.GetArticleListReply
+	36,  // 139: bff.v1.Bff.GetArticleListHot:output_type -> bff.v1.GetArticleListHotReply
+	33,  // 140: bff.v1.Bff.GetArticleCount:output_type -> bff.v1.GetArticleCountReply
+	33,  // 141: bff.v1.Bff.GetArticleCountVisitor:output_type -> bff.v1.GetArticleCountReply
+	32,  // 142: bff.v1.Bff.GetUserArticleList:output_type -> bff.v1.GetArticleListReply
+	32,  // 143: bff.v1.Bff.GetUserArticleListVisitor:output_type -> bff.v1.GetArticleListReply
+	40,  // 144: bff.v1.Bff.GetArticleStatistic:output_type -> bff.v1.GetArticleStatisticReply
+	42,  // 145: bff.v1.Bff.GetArticleListStatistic:output_type -> bff.v1.GetArticleListStatisticReply
+	43,  // 146: bff.v1.Bff.GetLastArticleDraft:output_type -> bff.v1.GetLastArticleDraftReply
+	44,  // 147: bff.v1.Bff.CreateArticleDraft:output_type -> bff.v1.CreateArticleDraftReply
+	126, // 148: bff.v1.Bff.ArticleDraftMark:output_type -> google.protobuf.Empty
+	54,  // 149: bff.v1.Bff.GetArticleDraftList:output_type -> bff.v1.GetArticleDraftListReply
+	126, // 150: bff.v1.Bff.SendArticle:output_type -> google.protobuf.Empty
+	126, // 151: bff.v1.Bff.SendArticleEdit:output_type -> google.protobuf.Empty
+	126, // 152: bff.v1.Bff.DeleteArticle:output_type -> google.protobuf.Empty
+	126, // 153: bff.v1.Bff.SetArticleAgree:output_type -> google.protobuf.Empty
+	126, // 154: bff.v1.Bff.SetArticleView:output_type -> google.protobuf.Empty
+	126, // 155: bff.v1.Bff.SetArticleCollect:output_type -> google.protobuf.Empty
+	126, // 156: bff.v1.Bff.CancelArticleAgree:output_type -> google.protobuf.Empty
+	126, // 157: bff.v1.Bff.CancelArticleCollect:output_type -> google.protobuf.Empty
+	64,  // 158: bff.v1.Bff.ArticleStatisticJudge:output_type -> bff.v1.ArticleStatisticJudgeReply
+	66,  // 159: bff.v1.Bff.GetTalkList:output_type -> bff.v1.GetTalkListReply
+	70,  // 160: bff.v1.Bff.GetTalkListHot:output_type -> bff.v1.GetTalkListHotReply
+	72,  // 161: bff.v1.Bff.GetTalkListStatistic:output_type -> bff.v1.GetTalkListStatisticReply
+	66,  // 162: bff.v1.Bff.GetUserTalkList:output_type -> bff.v1.GetTalkListReply
+	66,  // 163: bff.v1.Bff.GetUserTalkListVisitor:output_type -> bff.v1.GetTalkListReply
+	67,  // 164: bff.v1.Bff.GetTalkCount:output_type -> bff.v1.GetTalkCountReply
+	67,  // 165: bff.v1.Bff.GetTalkCountVisitor:output_type -> bff.v1.GetTalkCountReply
+	76,  // 166: bff.v1.Bff.GetTalkStatistic:output_type -> bff.v1.GetTalkStatisticReply
+	77,  // 167: bff.v1.Bff.GetLastTalkDraft:output_type -> bff.v1.GetLastTalkDraftReply
+	78,  // 168: bff.v1.Bff.CreateTalkDraft:output_type -> bff.v1.CreateTalkDraftReply
+	126, // 169: bff.v1.Bff.SendTalk:output_type -> google.protobuf.Empty
+	126, // 170: bff.v1.Bff.SendTalkEdit:output_type -> google.protobuf.Empty
+	126, // 171: bff.v1.Bff.DeleteTalk:output_type -> google.protobuf.Empty
+	126, // 172: bff.v1.Bff.SetTalkView:output_type -> google.protobuf.Empty
+	84,  // 173: bff.v1.Bff.TalkStatisticJudge:output_type -> bff.v1.TalkStatisticJudgeReply
+	126, // 174: bff.v1.Bff.SetTalkAgree:output_type -> google.protobuf.Empty
+	126, // 175: bff.v1.Bff.SetTalkCollect:output_type -> google.protobuf.Empty
+	126, // 176: bff.v1.Bff.CancelTalkAgree:output_type -> google.protobuf.Empty
+	126, // 177: bff.v1.Bff.CancelTalkCollect:output_type -> google.protobuf.Empty
+	89,  // 178: bff.v1.Bff.GetLastColumnDraft:output_type -> bff.v1.GetLastColumnDraftReply
+	90,  // 179: bff.v1.Bff.CreateColumnDraft:output_type -> bff.v1.CreateColumnDraftReply
+	126, // 180: bff.v1.Bff.SendColumn:output_type -> google.protobuf.Empty
+	93,  // 181: bff.v1.Bff.GetColumnList:output_type -> bff.v1.GetColumnListReply
+	95,  // 182: bff.v1.Bff.GetColumnListHot:output_type -> bff.v1.GetColumnListHotReply
+	97,  // 183: bff.v1.Bff.GetColumnListStatistic:output_type -> bff.v1.GetColumnListStatisticReply
+	93,  // 184: bff.v1.Bff.GetUserColumnList:output_type -> bff.v1.GetColumnListReply
+	93,  // 185: bff.v1.Bff.GetUserColumnListVisitor:output_type -> bff.v1.GetColumnListReply
+	101, // 186: bff.v1.Bff.GetColumnCount:output_type -> bff.v1.GetColumnCountReply
+	101, // 187: bff.v1.Bff.GetColumnCountVisitor:output_type -> bff.v1.GetColumnCountReply
+	126, // 188: bff.v1.Bff.SendColumnEdit:output_type -> google.protobuf.Empty
+	126, // 189: bff.v1.Bff.DeleteColumn:output_type -> google.protobuf.Empty
+	105, // 190: bff.v1.Bff.GetColumnStatistic:output_type -> bff.v1.GetColumnStatisticReply
+	107, // 191: bff.v1.Bff.ColumnStatisticJudge:output_type -> bff.v1.ColumnStatisticJudgeReply
+	126, // 192: bff.v1.Bff.SetColumnAgree:output_type -> google.protobuf.Empty
+	126, // 193: bff.v1.Bff.CancelColumnAgree:output_type -> google.protobuf.Empty
+	126, // 194: bff.v1.Bff.CancelColumnCollect:output_type -> google.protobuf.Empty
+	126, // 195: bff.v1.Bff.SetColumnView:output_type -> google.protobuf.Empty
+	126, // 196: bff.v1.Bff.AddColumnIncludes:output_type -> google.protobuf.Empty
+	126, // 197: bff.v1.Bff.DeleteColumnIncludes:output_type -> google.protobuf.Empty
+	105, // [105:198] is the sub-list for method output_type
+	12,  // [12:105] is the sub-list for method input_type
 	12,  // [12:12] is the sub-list for extension type_name
 	12,  // [12:12] is the sub-list for extension extendee
 	0,   // [0:12] is the sub-list for field type_name
@@ -9043,7 +9717,7 @@ func file_bff_interface_v1_bff_proto_init() {
 			}
 		}
 		file_bff_interface_v1_bff_proto_msgTypes[104].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetLeaderBoardReply_Board); i {
+			switch v := v.(*GetColumnStatisticReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -9055,7 +9729,7 @@ func file_bff_interface_v1_bff_proto_init() {
 			}
 		}
 		file_bff_interface_v1_bff_proto_msgTypes[105].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetArticleListReply_Article); i {
+			switch v := v.(*GetColumnStatisticReply); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -9067,7 +9741,7 @@ func file_bff_interface_v1_bff_proto_init() {
 			}
 		}
 		file_bff_interface_v1_bff_proto_msgTypes[106].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetArticleListHotReply_Article); i {
+			switch v := v.(*ColumnStatisticJudgeReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -9079,7 +9753,7 @@ func file_bff_interface_v1_bff_proto_init() {
 			}
 		}
 		file_bff_interface_v1_bff_proto_msgTypes[107].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetArticleListStatisticReply_Count); i {
+			switch v := v.(*ColumnStatisticJudgeReply); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -9091,7 +9765,7 @@ func file_bff_interface_v1_bff_proto_init() {
 			}
 		}
 		file_bff_interface_v1_bff_proto_msgTypes[108].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetCollectionsReply_Collections); i {
+			switch v := v.(*SetColumnAgreeReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -9103,7 +9777,7 @@ func file_bff_interface_v1_bff_proto_init() {
 			}
 		}
 		file_bff_interface_v1_bff_proto_msgTypes[109].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetArticleDraftListReply_Draft); i {
+			switch v := v.(*CancelColumnAgreeReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -9115,7 +9789,7 @@ func file_bff_interface_v1_bff_proto_init() {
 			}
 		}
 		file_bff_interface_v1_bff_proto_msgTypes[110].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetTalkListReply_Talk); i {
+			switch v := v.(*CancelColumnCollectReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -9127,7 +9801,7 @@ func file_bff_interface_v1_bff_proto_init() {
 			}
 		}
 		file_bff_interface_v1_bff_proto_msgTypes[111].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetTalkListHotReply_Talk); i {
+			switch v := v.(*SetColumnViewReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -9139,7 +9813,7 @@ func file_bff_interface_v1_bff_proto_init() {
 			}
 		}
 		file_bff_interface_v1_bff_proto_msgTypes[112].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetTalkListStatisticReply_Count); i {
+			switch v := v.(*AddColumnIncludesReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -9151,7 +9825,7 @@ func file_bff_interface_v1_bff_proto_init() {
 			}
 		}
 		file_bff_interface_v1_bff_proto_msgTypes[113].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetColumnListReply_Column); i {
+			switch v := v.(*DeleteColumnIncludesReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -9163,7 +9837,7 @@ func file_bff_interface_v1_bff_proto_init() {
 			}
 		}
 		file_bff_interface_v1_bff_proto_msgTypes[114].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetColumnListHotReply_Column); i {
+			switch v := v.(*GetLeaderBoardReply_Board); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -9175,6 +9849,126 @@ func file_bff_interface_v1_bff_proto_init() {
 			}
 		}
 		file_bff_interface_v1_bff_proto_msgTypes[115].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetArticleListReply_Article); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_bff_interface_v1_bff_proto_msgTypes[116].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetArticleListHotReply_Article); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_bff_interface_v1_bff_proto_msgTypes[117].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetArticleListStatisticReply_Count); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_bff_interface_v1_bff_proto_msgTypes[118].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetCollectionsReply_Collections); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_bff_interface_v1_bff_proto_msgTypes[119].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetArticleDraftListReply_Draft); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_bff_interface_v1_bff_proto_msgTypes[120].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetTalkListReply_Talk); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_bff_interface_v1_bff_proto_msgTypes[121].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetTalkListHotReply_Talk); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_bff_interface_v1_bff_proto_msgTypes[122].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetTalkListStatisticReply_Count); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_bff_interface_v1_bff_proto_msgTypes[123].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetColumnListReply_Column); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_bff_interface_v1_bff_proto_msgTypes[124].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetColumnListHotReply_Column); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_bff_interface_v1_bff_proto_msgTypes[125].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*GetColumnListStatisticReply_Count); i {
 			case 0:
 				return &v.state
@@ -9193,7 +9987,7 @@ func file_bff_interface_v1_bff_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_bff_interface_v1_bff_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   116,
+			NumMessages:   126,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

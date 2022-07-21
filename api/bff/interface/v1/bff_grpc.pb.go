@@ -109,6 +109,14 @@ type BffClient interface {
 	GetColumnCountVisitor(ctx context.Context, in *GetColumnCountVisitorReq, opts ...grpc.CallOption) (*GetColumnCountReply, error)
 	SendColumnEdit(ctx context.Context, in *SendColumnEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteColumn(ctx context.Context, in *DeleteColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetColumnStatistic(ctx context.Context, in *GetColumnStatisticReq, opts ...grpc.CallOption) (*GetColumnStatisticReply, error)
+	ColumnStatisticJudge(ctx context.Context, in *ColumnStatisticJudgeReq, opts ...grpc.CallOption) (*ColumnStatisticJudgeReply, error)
+	SetColumnAgree(ctx context.Context, in *SetColumnAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CancelColumnAgree(ctx context.Context, in *CancelColumnAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CancelColumnCollect(ctx context.Context, in *CancelColumnCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetColumnView(ctx context.Context, in *SetColumnViewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AddColumnIncludes(ctx context.Context, in *AddColumnIncludesReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DeleteColumnIncludes(ctx context.Context, in *DeleteColumnIncludesReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type bffClient struct {
@@ -884,6 +892,78 @@ func (c *bffClient) DeleteColumn(ctx context.Context, in *DeleteColumnReq, opts 
 	return out, nil
 }
 
+func (c *bffClient) GetColumnStatistic(ctx context.Context, in *GetColumnStatisticReq, opts ...grpc.CallOption) (*GetColumnStatisticReply, error) {
+	out := new(GetColumnStatisticReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetColumnStatistic", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) ColumnStatisticJudge(ctx context.Context, in *ColumnStatisticJudgeReq, opts ...grpc.CallOption) (*ColumnStatisticJudgeReply, error) {
+	out := new(ColumnStatisticJudgeReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/ColumnStatisticJudge", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) SetColumnAgree(ctx context.Context, in *SetColumnAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SetColumnAgree", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) CancelColumnAgree(ctx context.Context, in *CancelColumnAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/CancelColumnAgree", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) CancelColumnCollect(ctx context.Context, in *CancelColumnCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/CancelColumnCollect", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) SetColumnView(ctx context.Context, in *SetColumnViewReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SetColumnView", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) AddColumnIncludes(ctx context.Context, in *AddColumnIncludesReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/AddColumnIncludes", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) DeleteColumnIncludes(ctx context.Context, in *DeleteColumnIncludesReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/DeleteColumnIncludes", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BffServer is the server API for Bff service.
 // All implementations must embed UnimplementedBffServer
 // for forward compatibility
@@ -974,6 +1054,14 @@ type BffServer interface {
 	GetColumnCountVisitor(context.Context, *GetColumnCountVisitorReq) (*GetColumnCountReply, error)
 	SendColumnEdit(context.Context, *SendColumnEditReq) (*emptypb.Empty, error)
 	DeleteColumn(context.Context, *DeleteColumnReq) (*emptypb.Empty, error)
+	GetColumnStatistic(context.Context, *GetColumnStatisticReq) (*GetColumnStatisticReply, error)
+	ColumnStatisticJudge(context.Context, *ColumnStatisticJudgeReq) (*ColumnStatisticJudgeReply, error)
+	SetColumnAgree(context.Context, *SetColumnAgreeReq) (*emptypb.Empty, error)
+	CancelColumnAgree(context.Context, *CancelColumnAgreeReq) (*emptypb.Empty, error)
+	CancelColumnCollect(context.Context, *CancelColumnCollectReq) (*emptypb.Empty, error)
+	SetColumnView(context.Context, *SetColumnViewReq) (*emptypb.Empty, error)
+	AddColumnIncludes(context.Context, *AddColumnIncludesReq) (*emptypb.Empty, error)
+	DeleteColumnIncludes(context.Context, *DeleteColumnIncludesReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedBffServer()
 }
 
@@ -1235,6 +1323,30 @@ func (UnimplementedBffServer) SendColumnEdit(context.Context, *SendColumnEditReq
 }
 func (UnimplementedBffServer) DeleteColumn(context.Context, *DeleteColumnReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteColumn not implemented")
+}
+func (UnimplementedBffServer) GetColumnStatistic(context.Context, *GetColumnStatisticReq) (*GetColumnStatisticReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetColumnStatistic not implemented")
+}
+func (UnimplementedBffServer) ColumnStatisticJudge(context.Context, *ColumnStatisticJudgeReq) (*ColumnStatisticJudgeReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ColumnStatisticJudge not implemented")
+}
+func (UnimplementedBffServer) SetColumnAgree(context.Context, *SetColumnAgreeReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetColumnAgree not implemented")
+}
+func (UnimplementedBffServer) CancelColumnAgree(context.Context, *CancelColumnAgreeReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelColumnAgree not implemented")
+}
+func (UnimplementedBffServer) CancelColumnCollect(context.Context, *CancelColumnCollectReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelColumnCollect not implemented")
+}
+func (UnimplementedBffServer) SetColumnView(context.Context, *SetColumnViewReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetColumnView not implemented")
+}
+func (UnimplementedBffServer) AddColumnIncludes(context.Context, *AddColumnIncludesReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddColumnIncludes not implemented")
+}
+func (UnimplementedBffServer) DeleteColumnIncludes(context.Context, *DeleteColumnIncludesReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteColumnIncludes not implemented")
 }
 func (UnimplementedBffServer) mustEmbedUnimplementedBffServer() {}
 
@@ -2779,6 +2891,150 @@ func _Bff_DeleteColumn_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_GetColumnStatistic_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetColumnStatisticReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetColumnStatistic(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetColumnStatistic",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetColumnStatistic(ctx, req.(*GetColumnStatisticReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_ColumnStatisticJudge_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ColumnStatisticJudgeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).ColumnStatisticJudge(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/ColumnStatisticJudge",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).ColumnStatisticJudge(ctx, req.(*ColumnStatisticJudgeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_SetColumnAgree_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetColumnAgreeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).SetColumnAgree(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/SetColumnAgree",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).SetColumnAgree(ctx, req.(*SetColumnAgreeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_CancelColumnAgree_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelColumnAgreeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).CancelColumnAgree(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/CancelColumnAgree",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).CancelColumnAgree(ctx, req.(*CancelColumnAgreeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_CancelColumnCollect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelColumnCollectReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).CancelColumnCollect(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/CancelColumnCollect",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).CancelColumnCollect(ctx, req.(*CancelColumnCollectReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_SetColumnView_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetColumnViewReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).SetColumnView(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/SetColumnView",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).SetColumnView(ctx, req.(*SetColumnViewReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_AddColumnIncludes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddColumnIncludesReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).AddColumnIncludes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/AddColumnIncludes",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).AddColumnIncludes(ctx, req.(*AddColumnIncludesReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_DeleteColumnIncludes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteColumnIncludesReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).DeleteColumnIncludes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/DeleteColumnIncludes",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).DeleteColumnIncludes(ctx, req.(*DeleteColumnIncludesReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Bff_ServiceDesc is the grpc.ServiceDesc for Bff service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -3125,6 +3381,38 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteColumn",
 			Handler:    _Bff_DeleteColumn_Handler,
+		},
+		{
+			MethodName: "GetColumnStatistic",
+			Handler:    _Bff_GetColumnStatistic_Handler,
+		},
+		{
+			MethodName: "ColumnStatisticJudge",
+			Handler:    _Bff_ColumnStatisticJudge_Handler,
+		},
+		{
+			MethodName: "SetColumnAgree",
+			Handler:    _Bff_SetColumnAgree_Handler,
+		},
+		{
+			MethodName: "CancelColumnAgree",
+			Handler:    _Bff_CancelColumnAgree_Handler,
+		},
+		{
+			MethodName: "CancelColumnCollect",
+			Handler:    _Bff_CancelColumnCollect_Handler,
+		},
+		{
+			MethodName: "SetColumnView",
+			Handler:    _Bff_SetColumnView_Handler,
+		},
+		{
+			MethodName: "AddColumnIncludes",
+			Handler:    _Bff_AddColumnIncludes_Handler,
+		},
+		{
+			MethodName: "DeleteColumnIncludes",
+			Handler:    _Bff_DeleteColumnIncludes_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
