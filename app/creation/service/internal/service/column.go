@@ -187,3 +187,75 @@ func (s *CreationService) GetColumnListStatistic(ctx context.Context, req *v1.Ge
 	}
 	return reply, nil
 }
+
+func (s *CreationService) GetColumnStatistic(ctx context.Context, req *v1.GetColumnStatisticReq) (*v1.GetColumnStatisticReply, error) {
+	columnStatistic, err := s.coc.GetColumnStatistic(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetColumnStatisticReply{
+		Uuid:    columnStatistic.Uuid,
+		Agree:   columnStatistic.Agree,
+		Collect: columnStatistic.Collect,
+		View:    columnStatistic.View,
+	}, nil
+}
+
+func (s *CreationService) ColumnStatisticJudge(ctx context.Context, req *v1.ColumnStatisticJudgeReq) (*v1.ColumnStatisticJudgeReply, error) {
+	judge, err := s.coc.ColumnStatisticJudge(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.ColumnStatisticJudgeReply{
+		Agree:   judge.Agree,
+		Collect: judge.Collect,
+	}, nil
+}
+
+func (s *CreationService) SetColumnAgree(ctx context.Context, req *v1.SetColumnAgreeReq) (*emptypb.Empty, error) {
+	err := s.coc.SetColumnAgree(ctx, req.Id, req.Uuid, req.UserUuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) CancelColumnAgree(ctx context.Context, req *v1.CancelColumnAgreeReq) (*emptypb.Empty, error) {
+	err := s.coc.CancelColumnAgree(ctx, req.Id, req.Uuid, req.UserUuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) CancelColumnCollect(ctx context.Context, req *v1.CancelColumnCollectReq) (*emptypb.Empty, error) {
+	err := s.coc.CancelColumnCollect(ctx, req.Id, req.Uuid, req.UserUuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) SetColumnView(ctx context.Context, req *v1.SetColumnViewReq) (*emptypb.Empty, error) {
+	err := s.coc.SetColumnView(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) AddColumnIncludes(ctx context.Context, req *v1.AddColumnIncludesReq) (*emptypb.Empty, error) {
+	err := s.coc.AddColumnIncludes(ctx, req.Id, req.ArticleId, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) DeleteColumnIncludes(ctx context.Context, req *v1.DeleteColumnIncludesReq) (*emptypb.Empty, error) {
+	err := s.coc.DeleteColumnIncludes(ctx, req.Id, req.ArticleId, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
