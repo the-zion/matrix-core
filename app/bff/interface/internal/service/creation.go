@@ -725,6 +725,30 @@ func (s *BffService) GetColumnListStatistic(ctx context.Context, req *v1.GetColu
 	return reply, nil
 }
 
+func (s *BffService) GetColumnStatistic(ctx context.Context, req *v1.GetColumnStatisticReq) (*v1.GetColumnStatisticReply, error) {
+	columnStatistic, err := s.coc.GetColumnStatistic(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetColumnStatisticReply{
+		Uuid:    columnStatistic.Uuid,
+		Agree:   columnStatistic.Agree,
+		Collect: columnStatistic.Collect,
+		View:    columnStatistic.View,
+	}, nil
+}
+
+func (s *BffService) ColumnStatisticJudge(ctx context.Context, req *v1.ColumnStatisticJudgeReq) (*v1.ColumnStatisticJudgeReply, error) {
+	judge, err := s.coc.ColumnStatisticJudge(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.ColumnStatisticJudgeReply{
+		Agree:   judge.Agree,
+		Collect: judge.Collect,
+	}, nil
+}
+
 func (s *BffService) SendColumn(ctx context.Context, req *v1.SendColumnReq) (*emptypb.Empty, error) {
 	err := s.coc.SendColumn(ctx, req.Id)
 	if err != nil {
@@ -743,6 +767,54 @@ func (s *BffService) SendColumnEdit(ctx context.Context, req *v1.SendColumnEditR
 
 func (s *BffService) DeleteColumn(ctx context.Context, req *v1.DeleteColumnReq) (*emptypb.Empty, error) {
 	err := s.coc.DeleteColumn(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) SetColumnAgree(ctx context.Context, req *v1.SetColumnAgreeReq) (*emptypb.Empty, error) {
+	err := s.coc.SetColumnAgree(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) CancelColumnAgree(ctx context.Context, req *v1.CancelColumnAgreeReq) (*emptypb.Empty, error) {
+	err := s.coc.CancelColumnAgree(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) CancelColumnCollect(ctx context.Context, req *v1.CancelColumnCollectReq) (*emptypb.Empty, error) {
+	err := s.coc.CancelColumnCollect(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) SetColumnView(ctx context.Context, req *v1.SetColumnViewReq) (*emptypb.Empty, error) {
+	err := s.coc.SetColumnView(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) AddColumnIncludes(ctx context.Context, req *v1.AddColumnIncludesReq) (*emptypb.Empty, error) {
+	err := s.coc.AddColumnIncludes(ctx, req.Id, req.ArticleId)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) DeleteColumnIncludes(ctx context.Context, req *v1.DeleteColumnIncludesReq) (*emptypb.Empty, error) {
+	err := s.coc.DeleteColumnIncludes(ctx, req.Id, req.ArticleId)
 	if err != nil {
 		return nil, err
 	}
