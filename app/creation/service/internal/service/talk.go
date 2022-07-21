@@ -172,7 +172,7 @@ func (s *CreationService) CreateTalk(ctx context.Context, req *v1.CreateTalkReq)
 }
 
 func (s *CreationService) EditTalk(ctx context.Context, req *v1.EditTalkReq) (*emptypb.Empty, error) {
-	err := s.tc.EditTalk(ctx, req.Id, req.Uuid)
+	err := s.tc.EditTalk(ctx, req.Id, req.Auth, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -188,7 +188,7 @@ func (s *CreationService) CreateTalkCacheAndSearch(ctx context.Context, req *v1.
 }
 
 func (s *CreationService) EditTalkCosAndSearch(ctx context.Context, req *v1.EditTalkCosAndSearchReq) (*emptypb.Empty, error) {
-	err := s.tc.EditTalkCosAndSearch(ctx, req.Id, req.Uuid)
+	err := s.tc.EditTalkCosAndSearch(ctx, req.Id, req.Auth, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
