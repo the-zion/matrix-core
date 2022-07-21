@@ -407,9 +407,13 @@ func (r *articleRepo) CreateArticleCache(ctx context.Context, id, auth int32, uu
 		return nil
 	})
 	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to create article cache: uuid(%s), id(%v)", uuid, id))
+		return errors.Wrapf(err, fmt.Sprintf("fail to create(update) article cache: uuid(%s), id(%v)", uuid, id))
 	}
 	return nil
+}
+
+func (r *articleRepo) UpdateArticleCache(ctx context.Context, id, auth int32, uuid string) error {
+	return r.CreateArticleCache(ctx, id, auth, uuid)
 }
 
 func (r *articleRepo) DeleteArticleCache(ctx context.Context, id int32, uuid string) error {
@@ -511,7 +515,7 @@ func (r *articleRepo) SendArticle(ctx context.Context, id int32, uuid string) (*
 	}
 	err := r.data.DB(ctx).Model(&ArticleDraft{}).Where("id = ? and uuid = ? and status = ?", id, uuid, 3).Updates(ad).Error
 	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("fail to mark draft to 3: uuid(%s), id(%v)", uuid, id))
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to mark draft to 2: uuid(%s), id(%v)", uuid, id))
 	}
 	return &biz.ArticleDraft{
 		Uuid: uuid,
