@@ -1059,6 +1059,27 @@ func (r *columnRepo) GetColumnListStatistic(ctx context.Context, ids []int32) ([
 	return reply, nil
 }
 
+func (r *columnRepo) GetColumnStatistic(ctx context.Context, id int32) (*biz.ColumnStatistic, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("column_statistic_%v", id), func() (interface{}, error) {
+		statistic, err := r.data.cc.GetColumnStatistic(ctx, &creationV1.GetColumnStatisticReq{
+			Id: id,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return &biz.ColumnStatistic{
+			Uuid:    statistic.Uuid,
+			Agree:   statistic.Agree,
+			Collect: statistic.Collect,
+			View:    statistic.View,
+		}, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*biz.ColumnStatistic), nil
+}
+
 func (r *columnRepo) SendColumn(ctx context.Context, id int32, uuid string) error {
 	_, err := r.data.cc.SendColumn(ctx, &creationV1.SendColumnReq{
 		Id:   id,
@@ -1085,6 +1106,91 @@ func (r *columnRepo) DeleteColumn(ctx context.Context, id int32, uuid string) er
 	_, err := r.data.cc.DeleteColumn(ctx, &creationV1.DeleteColumnReq{
 		Id:   id,
 		Uuid: uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *columnRepo) ColumnStatisticJudge(ctx context.Context, id int32, uuid string) (*biz.ColumnStatisticJudge, error) {
+	reply, err := r.data.cc.ColumnStatisticJudge(ctx, &creationV1.ColumnStatisticJudgeReq{
+		Id:   id,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &biz.ColumnStatisticJudge{
+		Agree:   reply.Agree,
+		Collect: reply.Collect,
+	}, nil
+}
+
+func (r *columnRepo) SetColumnAgree(ctx context.Context, id int32, uuid, userUuid string) error {
+	_, err := r.data.cc.SetColumnAgree(ctx, &creationV1.SetColumnAgreeReq{
+		Uuid:     uuid,
+		Id:       id,
+		UserUuid: userUuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *columnRepo) CancelColumnAgree(ctx context.Context, id int32, uuid, userUuid string) error {
+	_, err := r.data.cc.CancelColumnAgree(ctx, &creationV1.CancelColumnAgreeReq{
+		Uuid:     uuid,
+		Id:       id,
+		UserUuid: userUuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *columnRepo) CancelColumnCollect(ctx context.Context, id int32, uuid, userUuid string) error {
+	_, err := r.data.cc.CancelColumnCollect(ctx, &creationV1.CancelColumnCollectReq{
+		Uuid:     uuid,
+		UserUuid: userUuid,
+		Id:       id,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *columnRepo) SetColumnView(ctx context.Context, id int32, uuid string) error {
+	_, err := r.data.cc.SetColumnView(ctx, &creationV1.SetColumnViewReq{
+		Uuid: uuid,
+		Id:   id,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *columnRepo) AddColumnIncludes(ctx context.Context, id, articleId int32, uuid string) error {
+	_, err := r.data.cc.AddColumnIncludes(ctx, &creationV1.AddColumnIncludesReq{
+		Id:        id,
+		ArticleId: articleId,
+		Uuid:      uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *columnRepo) DeleteColumnIncludes(ctx context.Context, id, articleId int32, uuid string) error {
+	_, err := r.data.cc.DeleteColumnIncludes(ctx, &creationV1.DeleteColumnIncludesReq{
+		Id:        id,
+		ArticleId: articleId,
+		Uuid:      uuid,
 	})
 	if err != nil {
 		return err
