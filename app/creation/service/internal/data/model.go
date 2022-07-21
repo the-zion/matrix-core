@@ -78,3 +78,40 @@ type Collect struct {
 	CreationsId   int32  `gorm:"index"`
 	Mode          int32  `gorm:"default:1"`
 }
+
+type Column struct {
+	ColumnId  int32 `gorm:"primarykey"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+	Uuid      string         `gorm:"index;size:36"`
+	Status    int32          `gorm:"default:1"`
+	Auth      int32          `gorm:"default:1"`
+}
+
+type ColumnDraft struct {
+	gorm.Model
+	Uuid   string `gorm:"index;size:36"`
+	Status int32  `gorm:"default:1"`
+}
+
+type ColumnStatistic struct {
+	ColumnId  int32 `gorm:"primarykey"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+	Uuid      string         `gorm:"index;size:36"`
+	Agree     int32          `gorm:"index;default:0"`
+	View      int32          `gorm:"default:0"`
+	Collect   int32          `gorm:"default:0"`
+	Auth      int32          `gorm:"default:1"`
+}
+
+type ColumnInclusion struct {
+	ColumnId  int32 `gorm:"primarykey"`
+	ArticleId int32 `gorm:"primarykey"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+	Uuid      string         `gorm:"index;size:36"`
+}
