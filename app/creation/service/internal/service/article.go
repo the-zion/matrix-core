@@ -138,7 +138,7 @@ func (s *CreationService) CreateArticle(ctx context.Context, req *v1.CreateArtic
 }
 
 func (s *CreationService) EditArticle(ctx context.Context, req *v1.EditArticleReq) (*emptypb.Empty, error) {
-	err := s.ac.EditArticle(ctx, req.Id, req.Uuid)
+	err := s.ac.EditArticle(ctx, req.Id, req.Auth, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -162,7 +162,7 @@ func (s *CreationService) CreateArticleCacheAndSearch(ctx context.Context, req *
 }
 
 func (s *CreationService) EditArticleCosAndSearch(ctx context.Context, req *v1.EditArticleCosAndSearchReq) (*emptypb.Empty, error) {
-	err := s.ac.EditArticleCosAndSearch(ctx, req.Id, req.Uuid)
+	err := s.ac.EditArticleCosAndSearch(ctx, req.Id, req.Auth, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
