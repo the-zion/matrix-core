@@ -371,6 +371,30 @@ func ErrorGetColumnListFailed(format string, args ...interface{}) *errors.Error 
 	return errors.New(500, CreationErrorReason_GET_COLUMN_LIST_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsAddColumnIncludesFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_ADD_COLUMN_INCLUDES_FAILED.String() && e.Code == 500
+}
+
+func ErrorAddColumnIncludesFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_ADD_COLUMN_INCLUDES_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsDeleteColumnIncludesFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_DELETE_COLUMN_INCLUDES_FAILED.String() && e.Code == 500
+}
+
+func ErrorDeleteColumnIncludesFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_DELETE_COLUMN_INCLUDES_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsSetAgreeFailed(err error) bool {
 	if err == nil {
 		return false
