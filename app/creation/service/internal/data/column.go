@@ -11,8 +11,10 @@ import (
 	"github.com/pkg/errors"
 	"github.com/the-zion/matrix-core/app/creation/service/internal/biz"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"strconv"
 	"strings"
+	"time"
 )
 
 var _ biz.ColumnRepo = (*columnRepo)(nil)
@@ -108,18 +110,54 @@ func (r *columnRepo) AddColumnIncludes(ctx context.Context, id, articleId int32,
 		ColumnId:  id,
 		ArticleId: articleId,
 		Uuid:      uuid,
+		Status:    1,
 	}
-	err := r.data.db.WithContext(ctx).Select("ColumnId", "Uuid", "ArticleId").Create(inclusion).Error
+	err := r.data.DB(ctx).Clauses(clause.OnConflict{
+		DoUpdates: clause.Assignments(map[string]interface{}{"status": 1}),
+	}).Create(inclusion).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to add an article to column: uuid(%s), id(%v), articleId(%v)", uuid, id, articleId))
 	}
 	return nil
 }
 
+func (r *columnRepo) AddColumnIncludesToCache(ctx context.Context, id, articleId int32, uuid string) error {
+	ids := strconv.Itoa(int(id))
+	articleIds := strconv.Itoa(int(articleId))
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+
+		pipe.ZAddNX(ctx, "column_includes_"+ids, &redis.Z{
+			Score:  float64(time.Now().Unix()),
+			Member: articleIds + "%" + uuid,
+		})
+		return nil
+	})
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add column includes to cache: uuid(%s), id(%v)", uuid, id))
+	}
+	return nil
+}
+
 func (r *columnRepo) DeleteColumnIncludes(ctx context.Context, id, articleId int32, uuid string) error {
-	err := r.data.DB(ctx).Where("column_id = ? and article_id = ? and uuid = ?", id, articleId, uuid).Delete(&ColumnInclusion{}).Error
+	cc := &ColumnInclusion{
+		Status: 2,
+	}
+	err := r.data.db.WithContext(ctx).Model(&ColumnInclusion{}).Where("column_id = ? and article_id = ? and uuid = ?", id, articleId, uuid).Updates(cc).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to delete an article from column: uuid(%s), id(%v), articleId(%v)", uuid, id, articleId))
+	}
+	return nil
+}
+
+func (r *columnRepo) DeleteColumnIncludesFromCache(ctx context.Context, id, articleId int32, uuid string) error {
+	ids := strconv.Itoa(int(id))
+	articleIds := strconv.Itoa(int(articleId))
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.ZRem(ctx, "column_includes_"+ids, articleIds+"%"+uuid)
+		return nil
+	})
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to delete column includes from cache: uuid(%s), id(%v)", uuid, id))
 	}
 	return nil
 }
@@ -734,6 +772,45 @@ func (r *columnRepo) SendColumnStatisticToMq(ctx context.Context, uuid, mode str
 	_, err = r.data.achievementMqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send column statistic to mq: uuid(%s)", uuid))
+	}
+	return nil
+}
+
+func (r *columnRepo) SetColumnUserCollect(ctx context.Context, id, collectionsId int32, userUuid string) error {
+	collect := &Collect{
+		CollectionsId: collectionsId,
+		Uuid:          userUuid,
+		CreationsId:   id,
+		Mode:          3,
+		Status:        1,
+	}
+	err := r.data.DB(ctx).Clauses(clause.OnConflict{
+		DoUpdates: clause.Assignments(map[string]interface{}{"status": 1}),
+	}).Create(collect).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to collect an column: column_id(%v), collectionsId(%v), userUuid(%s)", id, collectionsId, userUuid))
+	}
+	return nil
+}
+
+func (r *columnRepo) SetColumnCollect(ctx context.Context, id int32, uuid string) error {
+	cs := ColumnStatistic{}
+	err := r.data.DB(ctx).Model(&cs).Where("column_id = ? and uuid = ?", id, uuid).Update("collect", gorm.Expr("collect + ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add column collect: id(%v)", id))
+	}
+	return nil
+}
+
+func (r *columnRepo) SetColumnCollectToCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	ids := strconv.Itoa(int(id))
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.HIncrBy(ctx, "column_"+ids, "collect", 1)
+		pipe.SAdd(ctx, "column_collect_"+ids, userUuid)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to add column collect to cache: id(%v), uuid(%s), userUuid(%s)", id, uuid, userUuid)
 	}
 	return nil
 }
