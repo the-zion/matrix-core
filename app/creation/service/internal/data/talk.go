@@ -11,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/the-zion/matrix-core/app/creation/service/internal/biz"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"strconv"
 	"strings"
 )
@@ -739,8 +740,11 @@ func (r *talkRepo) SetTalkUserCollect(ctx context.Context, id, collectionsId int
 		Uuid:          userUuid,
 		CreationsId:   id,
 		Mode:          2,
+		Status:        1,
 	}
-	err := r.data.DB(ctx).Create(collect).Error
+	err := r.data.DB(ctx).Clauses(clause.OnConflict{
+		DoUpdates: clause.Assignments(map[string]interface{}{"status": 1}),
+	}).Create(collect).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to collect a talk: talk_id(%v), collectionsId(%v), userUuid(%s)", id, collectionsId, userUuid))
 	}
@@ -770,8 +774,10 @@ func (r *talkRepo) SetTalkCollectToCache(ctx context.Context, id int32, uuid, us
 }
 
 func (r *talkRepo) CancelTalkUserCollect(ctx context.Context, id int32, userUuid string) error {
-	collect := &Collect{}
-	err := r.data.DB(ctx).Where("creations_id = ? and uuid = ? and mode = ?", id, userUuid, 2).Delete(collect).Error
+	collect := &Collect{
+		Status: 2,
+	}
+	err := r.data.DB(ctx).Model(&Collect{}).Where("creations_id = ? and mode = ? and uuid = ?", id, 2, userUuid).Updates(collect).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel talk collect: talk_id(%v), userUuid(%s)", id, userUuid))
 	}
