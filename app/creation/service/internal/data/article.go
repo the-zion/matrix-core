@@ -11,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/the-zion/matrix-core/app/creation/service/internal/biz"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"strconv"
 	"strings"
 )
@@ -137,6 +138,29 @@ func (r *articleRepo) GetArticleListHot(ctx context.Context, page int32) ([]*biz
 	size = len(article)
 	if size != 0 {
 		go r.setArticleHotToCache("article_hot", article)
+	}
+	return article, nil
+}
+
+func (r *articleRepo) GetColumnArticleList(ctx context.Context, id int32) ([]*biz.Article, error) {
+	article, err := r.getColumnArticleFromCache(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	size := len(article)
+	if size != 0 {
+		return article, nil
+	}
+
+	article, err = r.getColumnArticleFromDB(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	size = len(article)
+	if size != 0 {
+		go r.setColumnArticleToCache(id, article)
 	}
 	return article, nil
 }
@@ -614,8 +638,11 @@ func (r *articleRepo) SetArticleUserCollect(ctx context.Context, id, collections
 		Uuid:          userUuid,
 		CreationsId:   id,
 		Mode:          1,
+		Status:        1,
 	}
-	err := r.data.DB(ctx).Create(collect).Error
+	err := r.data.DB(ctx).Clauses(clause.OnConflict{
+		DoUpdates: clause.Assignments(map[string]interface{}{"status": 1}),
+	}).Create(collect).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to collect an article: article_id(%v), collectionsId(%v), userUuid(%s)", id, collectionsId, userUuid))
 	}
@@ -669,8 +696,10 @@ func (r *articleRepo) CancelArticleAgreeFromCache(ctx context.Context, id int32,
 }
 
 func (r *articleRepo) CancelArticleUserCollect(ctx context.Context, id int32, userUuid string) error {
-	collect := &Collect{}
-	err := r.data.DB(ctx).Where("creations_id = ? and uuid = ? and mode = ?", id, userUuid, 1).Delete(collect).Error
+	collect := &Collect{
+		Status: 2,
+	}
+	err := r.data.DB(ctx).Model(&Collect{}).Where("creations_id = ? and mode = ? and uuid = ?", id, 1, userUuid).Updates(collect).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel article collect: article_id(%v), userUuid(%s)", id, userUuid))
 	}
@@ -770,6 +799,45 @@ func (r *articleRepo) getArticleHotFromCache(ctx context.Context, page int32) ([
 	return article, nil
 }
 
+func (r *articleRepo) getColumnArticleFromCache(ctx context.Context, id int32) ([]*biz.Article, error) {
+	ids := strconv.Itoa(int(id))
+	list, err := r.data.redisCli.ZRevRange(ctx, "column_includes_"+ids, 0, -1).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get column article from cache: columnId(%v)", id))
+	}
+
+	article := make([]*biz.Article, 0)
+	for _, item := range list {
+		member := strings.Split(item, "%")
+		articleId, err := strconv.ParseInt(member[0], 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s)", member[0]))
+		}
+		article = append(article, &biz.Article{
+			ArticleId: int32(articleId),
+			Uuid:      member[1],
+		})
+	}
+	return article, nil
+}
+
+func (r *articleRepo) getColumnArticleFromDB(ctx context.Context, id int32) ([]*biz.Article, error) {
+	list := make([]*ColumnInclusion, 0)
+	err := r.data.db.WithContext(ctx).Where("column_id = ? and status = ?", id, 1).Order("updated_at desc").Find(&list).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get column article from db: columnId(%v)", id))
+	}
+
+	article := make([]*biz.Article, 0)
+	for _, item := range list {
+		article = append(article, &biz.Article{
+			ArticleId: item.ArticleId,
+			Uuid:      item.Uuid,
+		})
+	}
+	return article, nil
+}
+
 func (r *articleRepo) setArticleToCache(key string, article []*biz.Article) {
 	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
 		z := make([]*redis.Z, 0)
@@ -801,6 +869,25 @@ func (r *articleRepo) setArticleHotToCache(key string, article []*biz.ArticleSta
 	})
 	if err != nil {
 		r.log.Errorf("fail to set article to cache: article(%v)", article)
+	}
+}
+
+func (r *articleRepo) setColumnArticleToCache(id int32, article []*biz.Article) {
+	ids := strconv.Itoa(int(id))
+	length := len(article)
+	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
+		z := make([]*redis.Z, 0)
+		for index, item := range article {
+			z = append(z, &redis.Z{
+				Score:  float64(length - index),
+				Member: strconv.Itoa(int(item.ArticleId)) + "%" + item.Uuid,
+			})
+		}
+		pipe.ZAddNX(context.Background(), "column_includes_"+ids, z...)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to set column article to cache: article(%v)", article)
 	}
 }
 
