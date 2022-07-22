@@ -20,6 +20,10 @@ service Creation {
 
   rpc GetCollectTalkCount(GetCollectTalkCountReq) returns (GetCollectTalkCountReply){}
 
+  rpc GetCollectColumn(GetCollectColumnReq) returns (GetColumnListReply){}
+
+  rpc GetCollectColumnCount(GetCollectColumnCountReq) returns (GetCollectColumnCountReply){}
+
   rpc GetCollection(GetCollectionReq) returns (GetCollectionReply){}
 
   rpc GetCollections(GetCollectionsReq) returns (GetCollectionsReply){}
@@ -39,6 +43,8 @@ service Creation {
   rpc GetArticleList(GetArticleListReq) returns (GetArticleListReply){}
 
   rpc GetArticleListHot(GetArticleListHotReq) returns (GetArticleListHotReply){}
+
+  rpc GetColumnArticleList(GetColumnArticleListReq) returns (GetArticleListReply){}
 
   rpc GetArticleCount(GetArticleCountReq) returns (GetArticleCountReply){}
 
@@ -178,6 +184,8 @@ service Creation {
 
   rpc CancelColumnAgree(CancelColumnAgreeReq) returns (google.protobuf.Empty){}
 
+  rpc SetColumnCollect(SetColumnCollectReq) returns (google.protobuf.Empty){}
+
   rpc CancelColumnCollect(CancelColumnCollectReq) returns (google.protobuf.Empty){}
 
   rpc SetColumnView(SetColumnViewReq) returns (google.protobuf.Empty){}
@@ -219,6 +227,19 @@ message GetCollectTalkCountReq{
 }
 
 message GetCollectTalkCountReply{
+  int32 count = 1;
+}
+
+message GetCollectColumnReq{
+  int32 id = 1;
+  int32 page = 2;
+}
+
+message GetCollectColumnCountReq{
+  int32 id = 1;
+}
+
+message GetCollectColumnCountReply{
   int32 count = 1;
 }
 
@@ -739,6 +760,10 @@ message GetUserColumnListVisitorReq{
   string uuid = 2 [(validate.rules).string.uuid = true];
 }
 
+message GetColumnArticleListReq{
+  int32 id = 1;
+}
+
 message GetColumnCountReq{
   string uuid = 1 [(validate.rules).string.uuid = true];
 }
@@ -792,6 +817,13 @@ message CancelColumnAgreeReq{
   int32 id = 1;
   string uuid = 2 [(validate.rules).string.uuid = true];
   string user_uuid = 3 [(validate.rules).string.uuid = true];
+}
+
+message SetColumnCollectReq{
+  int32 id = 1;
+  int32 collections_id = 2;
+  string uuid = 3 [(validate.rules).string.uuid = true];
+  string user_uuid = 4 [(validate.rules).string.uuid = true];
 }
 
 message CancelColumnCollectReq{
