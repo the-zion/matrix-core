@@ -12,6 +12,8 @@ type CreationRepo interface {
 	GetCollectArticleCount(ctx context.Context, id int32) (int32, error)
 	GetCollectTalk(ctx context.Context, id, page int32) ([]*Talk, error)
 	GetCollectTalkCount(ctx context.Context, id int32) (int32, error)
+	GetCollectColumn(ctx context.Context, id, page int32) ([]*Column, error)
+	GetCollectColumnCount(ctx context.Context, id int32) (int32, error)
 	GetCollectCount(ctx context.Context, id int32) (int64, error)
 	GetCollection(ctx context.Context, id int32, uuid string) (*Collections, error)
 	GetCollections(ctx context.Context, uuid string, page int32) ([]*Collections, error)
@@ -71,6 +73,22 @@ func (r *CreationUseCase) GetCollectTalkCount(ctx context.Context, id int32) (in
 	count, err := r.repo.GetCollectTalkCount(ctx, id)
 	if err != nil {
 		return 0, v1.ErrorGetCountFailed("get collect talk count failed: %s", err.Error())
+	}
+	return count, nil
+}
+
+func (r *CreationUseCase) GetCollectColumn(ctx context.Context, id, page int32) ([]*Column, error) {
+	columnList, err := r.repo.GetCollectColumn(ctx, id, page)
+	if err != nil {
+		return nil, v1.ErrorGetColumnListFailed("get collect column list failed: %s", err.Error())
+	}
+	return columnList, nil
+}
+
+func (r *CreationUseCase) GetCollectColumnCount(ctx context.Context, id int32) (int32, error) {
+	count, err := r.repo.GetCollectColumnCount(ctx, id)
+	if err != nil {
+		return 0, v1.ErrorGetCountFailed("get collect column count failed: %s", err.Error())
 	}
 	return count, nil
 }
