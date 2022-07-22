@@ -178,6 +178,18 @@ service Bff{
     };
   }
 
+  rpc GetCollectColumn(GetCollectColumnReq) returns (GetColumnListReply){
+    option (google.api.http) = {
+      get: "/v1/get/collect/column"
+    };
+  }
+
+  rpc GetCollectColumnCount(GetCollectColumnCountReq) returns (GetCollectColumnCountReply){
+    option (google.api.http) = {
+      get: "/v1/get/collect/column/count"
+    };
+  }
+
   rpc GetCollection(GetCollectionReq) returns (GetCollectionReply){
     option (google.api.http) = {
       get: "/v1/get/collection"
@@ -242,6 +254,12 @@ service Bff{
   rpc GetArticleListHot(GetArticleListHotReq) returns (GetArticleListHotReply){
     option (google.api.http) = {
       get: "/v1/get/article/list/hot"
+    };
+  }
+
+  rpc GetColumnArticleList(GetColumnArticleListReq) returns (GetArticleListReply){
+    option (google.api.http) = {
+      get: "/v1/get/column/article/list"
     };
   }
 
@@ -610,6 +628,13 @@ service Bff{
     };
   }
 
+  rpc SetColumnCollect(SetColumnCollectReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/set/column/collect"
+      body: "*"
+    };
+  }
+
   rpc CancelColumnCollect(CancelColumnCollectReq) returns (google.protobuf.Empty){
     option (google.api.http) = {
       post: "/v1/cancel/column/collect"
@@ -817,6 +842,20 @@ message GetCollectTalkCountReq{
 message GetCollectTalkCountReply{
   int32 count = 1;
 }
+
+message GetCollectColumnReq{
+  int32 id = 1;
+  int32 page = 2;
+}
+
+message GetCollectColumnCountReq{
+  int32 id = 1;
+}
+
+message GetCollectColumnCountReply{
+  int32 count = 1;
+}
+
 
 message GetCollectionReq{
   int32 id = 1;
@@ -1192,6 +1231,10 @@ message GetUserColumnListVisitorReq{
   string uuid = 2;
 }
 
+message GetColumnArticleListReq{
+  int32 id = 1;
+}
+
 message GetColumnCountVisitorReq{
   string uuid = 1;
 }
@@ -1236,6 +1279,12 @@ message SetColumnAgreeReq{
 message CancelColumnAgreeReq{
   int32 id = 1;
   string uuid = 2;
+}
+
+message SetColumnCollectReq{
+  int32 id = 1;
+  int32 collections_id = 2;
+  string uuid = 3;
 }
 
 message CancelColumnCollectReq{
