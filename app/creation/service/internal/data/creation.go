@@ -56,7 +56,7 @@ func (r *creationRepo) GetCollectArticle(ctx context.Context, id, page int32) ([
 	}
 	index := int(page - 1)
 	list := make([]*Collect, 0)
-	err := r.data.db.WithContext(ctx).Where("collections_id = ? and mode = ?", id, 1).Order("id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Where("collections_id = ? and mode = ? and status = ?", id, 1, 1).Order("updated_at desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get collect article from db: id(%v), page(%v)", id, page))
 	}
@@ -73,7 +73,7 @@ func (r *creationRepo) GetCollectArticle(ctx context.Context, id, page int32) ([
 
 func (r *creationRepo) GetCollectArticleCount(ctx context.Context, id int32) (int32, error) {
 	var count int64
-	err := r.data.db.WithContext(ctx).Model(&Collect{}).Where("collections_id = ? and mode = ?", id, 1).Count(&count).Error
+	err := r.data.db.WithContext(ctx).Model(&Collect{}).Where("collections_id = ? and mode = ? and status = ?", id, 1, 1).Count(&count).Error
 	if err != nil {
 		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get collect article count from db: id(%v)", id))
 	}
@@ -86,7 +86,7 @@ func (r *creationRepo) GetCollectTalk(ctx context.Context, id, page int32) ([]*b
 	}
 	index := int(page - 1)
 	list := make([]*Collect, 0)
-	err := r.data.db.WithContext(ctx).Where("collections_id = ? and mode = ?", id, 2).Order("id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Where("collections_id = ? and mode = ? and status = ?", id, 2, 1).Order("updated_at desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get collect talk from db: id(%v), page(%v)", id, page))
 	}
@@ -103,9 +103,39 @@ func (r *creationRepo) GetCollectTalk(ctx context.Context, id, page int32) ([]*b
 
 func (r *creationRepo) GetCollectTalkCount(ctx context.Context, id int32) (int32, error) {
 	var count int64
-	err := r.data.db.WithContext(ctx).Model(&Collect{}).Where("collections_id = ? and mode = ?", id, 2).Count(&count).Error
+	err := r.data.db.WithContext(ctx).Model(&Collect{}).Where("collections_id = ? and mode = ? and status = ?", id, 2, 1).Count(&count).Error
 	if err != nil {
 		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get collect talk count from db: id(%v)", id))
+	}
+	return int32(count), nil
+}
+
+func (r *creationRepo) GetCollectColumn(ctx context.Context, id, page int32) ([]*biz.Column, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int(page - 1)
+	list := make([]*Collect, 0)
+	err := r.data.db.WithContext(ctx).Where("collections_id = ? and mode = ? and status = ?", id, 3, 1).Order("updated_at desc").Offset(index * 10).Limit(10).Find(&list).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get collect column from db: id(%v), page(%v)", id, page))
+	}
+
+	column := make([]*biz.Column, 0)
+	for _, item := range list {
+		column = append(column, &biz.Column{
+			ColumnId: item.CreationsId,
+			Uuid:     item.Uuid,
+		})
+	}
+	return column, nil
+}
+
+func (r *creationRepo) GetCollectColumnCount(ctx context.Context, id int32) (int32, error) {
+	var count int64
+	err := r.data.db.WithContext(ctx).Model(&Collect{}).Where("collections_id = ? and mode = ? and status = ?", id, 3, 1).Count(&count).Error
+	if err != nil {
+		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get collect column count from db: id(%v)", id))
 	}
 	return int32(count), nil
 }
@@ -129,7 +159,7 @@ func (r *creationRepo) GetCollection(ctx context.Context, id int32, uuid string)
 
 func (r *creationRepo) GetCollectCount(ctx context.Context, id int32) (int64, error) {
 	var count int64
-	err := r.data.db.WithContext(ctx).Model(&Collect{}).Where("collections_id = ?", id).Limit(1).Count(&count).Error
+	err := r.data.db.WithContext(ctx).Model(&Collect{}).Where("collections_id = ? and status = ?", id, 1).Limit(1).Count(&count).Error
 	if err != nil {
 		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get collect count from db: collections_id(%v)", id))
 	}
