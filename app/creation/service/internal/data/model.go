@@ -72,11 +72,13 @@ type Collections struct {
 }
 
 type Collect struct {
-	gorm.Model
-	CollectionsId int32  `gorm:"index"`
+	CollectionsId int32 `gorm:"primarykey"`
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 	Uuid          string `gorm:"size:36"`
-	CreationsId   int32  `gorm:"index"`
-	Mode          int32  `gorm:"default:1"`
+	CreationsId   int32  `gorm:"primarykey"`
+	Mode          int32  `gorm:"primarykey;default:1"`
+	Status        int32  `gorm:"default:1"`
 }
 
 type Column struct {
@@ -112,6 +114,6 @@ type ColumnInclusion struct {
 	ArticleId int32 `gorm:"primarykey"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `gorm:"index"`
-	Uuid      string         `gorm:"index;size:36"`
+	Uuid      string `gorm:"size:36"`
+	Status    int32  `gorm:"default:1"`
 }
