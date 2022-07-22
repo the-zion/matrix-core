@@ -36,6 +36,21 @@ func (s *CreationService) GetArticleListHot(ctx context.Context, req *v1.GetArti
 	return reply, nil
 }
 
+func (s *CreationService) GetColumnArticleList(ctx context.Context, req *v1.GetColumnArticleListReq) (*v1.GetArticleListReply, error) {
+	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0)}
+	articleList, err := s.ac.GetColumnArticleList(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range articleList {
+		reply.Article = append(reply.Article, &v1.GetArticleListReply_Article{
+			Id:   item.ArticleId,
+			Uuid: item.Uuid,
+		})
+	}
+	return reply, nil
+}
+
 func (s *CreationService) GetArticleCount(ctx context.Context, req *v1.GetArticleCountReq) (*v1.GetArticleCountReply, error) {
 	count, err := s.ac.GetArticleCount(ctx, req.Uuid)
 	if err != nil {
