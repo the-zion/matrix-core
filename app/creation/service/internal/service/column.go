@@ -228,6 +228,14 @@ func (s *CreationService) CancelColumnAgree(ctx context.Context, req *v1.CancelC
 	return &emptypb.Empty{}, nil
 }
 
+func (s *CreationService) SetColumnCollect(ctx context.Context, req *v1.SetColumnCollectReq) (*emptypb.Empty, error) {
+	err := s.coc.SetColumnCollect(ctx, req.Id, req.CollectionsId, req.Uuid, req.UserUuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *CreationService) CancelColumnCollect(ctx context.Context, req *v1.CancelColumnCollectReq) (*emptypb.Empty, error) {
 	err := s.coc.CancelColumnCollect(ctx, req.Id, req.Uuid, req.UserUuid)
 	if err != nil {
