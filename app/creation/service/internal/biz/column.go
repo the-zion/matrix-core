@@ -16,6 +16,7 @@ type ColumnRepo interface {
 	CreateColumnCache(ctx context.Context, id, auth int32, uuid string) error
 	CreateColumnSearch(ctx context.Context, id int32, uuid string) error
 	AddColumnIncludes(ctx context.Context, id, articleId int32, uuid string) error
+	AddColumnIncludesToCache(ctx context.Context, id, articleId int32, uuid string) error
 
 	UpdateColumnCache(ctx context.Context, id, auth int32, uuid string) error
 	EditColumnCos(ctx context.Context, id int32, uuid string) error
@@ -27,6 +28,7 @@ type ColumnRepo interface {
 	DeleteColumnCache(ctx context.Context, id int32, uuid string) error
 	DeleteColumnSearch(ctx context.Context, id int32, uuid string) error
 	DeleteColumnIncludes(ctx context.Context, id, articleId int32, uuid string) error
+	DeleteColumnIncludesFromCache(ctx context.Context, id, articleId int32, uuid string) error
 
 	GetColumn(ctx context.Context, id int32) (*Column, error)
 	GetLastColumnDraft(ctx context.Context, uuid string) (*ColumnDraft, error)
@@ -52,6 +54,9 @@ type ColumnRepo interface {
 	SendColumnStatisticToMq(ctx context.Context, uuid, mode string) error
 	SetColumnView(ctx context.Context, id int32, uuid string) error
 	SetColumnViewToCache(ctx context.Context, id int32, uuid string) error
+	SetColumnUserCollect(ctx context.Context, id, collectionsId int32, userUuid string) error
+	SetColumnCollect(ctx context.Context, id int32, uuid string) error
+	SetColumnCollectToCache(ctx context.Context, id int32, uuid, userUuid string) error
 
 	CancelColumnAgree(ctx context.Context, id int32, uuid string) error
 	CancelColumnAgreeFromCache(ctx context.Context, id int32, uuid, userUuid string) error
@@ -397,6 +402,28 @@ func (r *ColumnUseCase) CancelColumnAgree(ctx context.Context, id int32, uuid, u
 	})
 }
 
+func (r *ColumnUseCase) SetColumnCollect(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		err := r.repo.SetColumnUserCollect(ctx, id, collectionsId, userUuid)
+		if err != nil {
+			return v1.ErrorSetCollectFailed("set column user collect failed: %s", err.Error())
+		}
+		err = r.repo.SetColumnCollect(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorSetCollectFailed("set column collect failed: %s", err.Error())
+		}
+		err = r.repo.SetColumnCollectToCache(ctx, id, uuid, userUuid)
+		if err != nil {
+			return v1.ErrorSetCollectFailed("set column collect to cache failed: %s", err.Error())
+		}
+		err = r.repo.SendColumnStatisticToMq(ctx, uuid, "collect")
+		if err != nil {
+			return v1.ErrorSetCollectFailed("set column collect to mq failed: %s", err.Error())
+		}
+		return nil
+	})
+}
+
 func (r *ColumnUseCase) CancelColumnCollect(ctx context.Context, id int32, uuid, userUuid string) error {
 	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		err := r.repo.CancelColumnUserCollect(ctx, id, userUuid)
@@ -420,17 +447,29 @@ func (r *ColumnUseCase) CancelColumnCollect(ctx context.Context, id int32, uuid,
 }
 
 func (r *ColumnUseCase) AddColumnIncludes(ctx context.Context, id, articleId int32, uuid string) error {
-	err := r.repo.AddColumnIncludes(ctx, id, articleId, uuid)
-	if err != nil {
-		return v1.ErrorAddColumnIncludesFailed("add column includes failed: %s", err.Error())
-	}
-	return nil
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		err := r.repo.AddColumnIncludes(ctx, id, articleId, uuid)
+		if err != nil {
+			return v1.ErrorAddColumnIncludesFailed("add column includes failed: %s", err.Error())
+		}
+
+		err = r.repo.AddColumnIncludesToCache(ctx, id, articleId, uuid)
+		if err != nil {
+			return v1.ErrorAddColumnIncludesFailed("add column includes to cache failed: %s", err.Error())
+		}
+		return nil
+	})
 }
 
 func (r *ColumnUseCase) DeleteColumnIncludes(ctx context.Context, id, articleId int32, uuid string) error {
 	err := r.repo.DeleteColumnIncludes(ctx, id, articleId, uuid)
 	if err != nil {
 		return v1.ErrorDeleteColumnIncludesFailed("delete column includes failed: %s", err.Error())
+	}
+
+	err = r.repo.DeleteColumnIncludesFromCache(ctx, id, articleId, uuid)
+	if err != nil {
+		return v1.ErrorDeleteColumnIncludesFailed("delete column includes from cache failed: %s", err.Error())
 	}
 	return nil
 }
