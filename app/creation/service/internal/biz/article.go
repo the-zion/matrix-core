@@ -15,6 +15,7 @@ type ArticleRepo interface {
 	GetArticleAgreeJudge(ctx context.Context, id int32, uuid string) (bool, error)
 	GetArticleCollectJudge(ctx context.Context, id int32, uuid string) (bool, error)
 	GetArticleListHot(ctx context.Context, page int32) ([]*ArticleStatistic, error)
+	GetColumnArticleList(ctx context.Context, id int32) ([]*Article, error)
 	GetArticleCount(ctx context.Context, uuid string) (int32, error)
 	GetArticleCountVisitor(ctx context.Context, uuid string) (int32, error)
 	GetUserArticleList(ctx context.Context, page int32, uuid string) ([]*Article, error)
@@ -247,6 +248,14 @@ func (r *ArticleUseCase) GetArticleListHot(ctx context.Context, page int32) ([]*
 	articleList, err := r.repo.GetArticleListHot(ctx, page)
 	if err != nil {
 		return nil, v1.ErrorGetArticleListFailed("get article hot list failed: %s", err.Error())
+	}
+	return articleList, nil
+}
+
+func (r *ArticleUseCase) GetColumnArticleList(ctx context.Context, id int32) ([]*Article, error) {
+	articleList, err := r.repo.GetColumnArticleList(ctx, id)
+	if err != nil {
+		return nil, v1.ErrorGetArticleListFailed("get column article list failed: %s", err.Error())
 	}
 	return articleList, nil
 }
