@@ -28,6 +28,8 @@ type CreationClient interface {
 	GetCollectArticleCount(ctx context.Context, in *GetCollectArticleCountReq, opts ...grpc.CallOption) (*GetCollectArticleCountReply, error)
 	GetCollectTalk(ctx context.Context, in *GetCollectTalkReq, opts ...grpc.CallOption) (*GetTalkListReply, error)
 	GetCollectTalkCount(ctx context.Context, in *GetCollectTalkCountReq, opts ...grpc.CallOption) (*GetCollectTalkCountReply, error)
+	GetCollectColumn(ctx context.Context, in *GetCollectColumnReq, opts ...grpc.CallOption) (*GetColumnListReply, error)
+	GetCollectColumnCount(ctx context.Context, in *GetCollectColumnCountReq, opts ...grpc.CallOption) (*GetCollectColumnCountReply, error)
 	GetCollection(ctx context.Context, in *GetCollectionReq, opts ...grpc.CallOption) (*GetCollectionReply, error)
 	GetCollections(ctx context.Context, in *GetCollectionsReq, opts ...grpc.CallOption) (*GetCollectionsReply, error)
 	GetCollectionsCount(ctx context.Context, in *GetCollectionsCountReq, opts ...grpc.CallOption) (*GetCollectionsCountReply, error)
@@ -38,6 +40,7 @@ type CreationClient interface {
 	DeleteCollections(ctx context.Context, in *DeleteCollectionsReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetArticleList(ctx context.Context, in *GetArticleListReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
 	GetArticleListHot(ctx context.Context, in *GetArticleListHotReq, opts ...grpc.CallOption) (*GetArticleListHotReply, error)
+	GetColumnArticleList(ctx context.Context, in *GetColumnArticleListReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
 	GetArticleCount(ctx context.Context, in *GetArticleCountReq, opts ...grpc.CallOption) (*GetArticleCountReply, error)
 	GetArticleCountVisitor(ctx context.Context, in *GetArticleCountVisitorReq, opts ...grpc.CallOption) (*GetArticleCountReply, error)
 	GetUserArticleList(ctx context.Context, in *GetUserArticleListReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
@@ -107,6 +110,7 @@ type CreationClient interface {
 	ColumnStatisticJudge(ctx context.Context, in *ColumnStatisticJudgeReq, opts ...grpc.CallOption) (*ColumnStatisticJudgeReply, error)
 	SetColumnAgree(ctx context.Context, in *SetColumnAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelColumnAgree(ctx context.Context, in *CancelColumnAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetColumnCollect(ctx context.Context, in *SetColumnCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelColumnCollect(ctx context.Context, in *CancelColumnCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetColumnView(ctx context.Context, in *SetColumnViewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	AddColumnIncludes(ctx context.Context, in *AddColumnIncludesReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -160,6 +164,24 @@ func (c *creationClient) GetCollectTalk(ctx context.Context, in *GetCollectTalkR
 func (c *creationClient) GetCollectTalkCount(ctx context.Context, in *GetCollectTalkCountReq, opts ...grpc.CallOption) (*GetCollectTalkCountReply, error) {
 	out := new(GetCollectTalkCountReply)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetCollectTalkCount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) GetCollectColumn(ctx context.Context, in *GetCollectColumnReq, opts ...grpc.CallOption) (*GetColumnListReply, error) {
+	out := new(GetColumnListReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetCollectColumn", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) GetCollectColumnCount(ctx context.Context, in *GetCollectColumnCountReq, opts ...grpc.CallOption) (*GetCollectColumnCountReply, error) {
+	out := new(GetCollectColumnCountReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetCollectColumnCount", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -250,6 +272,15 @@ func (c *creationClient) GetArticleList(ctx context.Context, in *GetArticleListR
 func (c *creationClient) GetArticleListHot(ctx context.Context, in *GetArticleListHotReq, opts ...grpc.CallOption) (*GetArticleListHotReply, error) {
 	out := new(GetArticleListHotReply)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetArticleListHot", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) GetColumnArticleList(ctx context.Context, in *GetColumnArticleListReq, opts ...grpc.CallOption) (*GetArticleListReply, error) {
+	out := new(GetArticleListReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetColumnArticleList", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -877,6 +908,15 @@ func (c *creationClient) CancelColumnAgree(ctx context.Context, in *CancelColumn
 	return out, nil
 }
 
+func (c *creationClient) SetColumnCollect(ctx context.Context, in *SetColumnCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/SetColumnCollect", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *creationClient) CancelColumnCollect(ctx context.Context, in *CancelColumnCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/CancelColumnCollect", in, out, opts...)
@@ -922,6 +962,8 @@ type CreationServer interface {
 	GetCollectArticleCount(context.Context, *GetCollectArticleCountReq) (*GetCollectArticleCountReply, error)
 	GetCollectTalk(context.Context, *GetCollectTalkReq) (*GetTalkListReply, error)
 	GetCollectTalkCount(context.Context, *GetCollectTalkCountReq) (*GetCollectTalkCountReply, error)
+	GetCollectColumn(context.Context, *GetCollectColumnReq) (*GetColumnListReply, error)
+	GetCollectColumnCount(context.Context, *GetCollectColumnCountReq) (*GetCollectColumnCountReply, error)
 	GetCollection(context.Context, *GetCollectionReq) (*GetCollectionReply, error)
 	GetCollections(context.Context, *GetCollectionsReq) (*GetCollectionsReply, error)
 	GetCollectionsCount(context.Context, *GetCollectionsCountReq) (*GetCollectionsCountReply, error)
@@ -932,6 +974,7 @@ type CreationServer interface {
 	DeleteCollections(context.Context, *DeleteCollectionsReq) (*emptypb.Empty, error)
 	GetArticleList(context.Context, *GetArticleListReq) (*GetArticleListReply, error)
 	GetArticleListHot(context.Context, *GetArticleListHotReq) (*GetArticleListHotReply, error)
+	GetColumnArticleList(context.Context, *GetColumnArticleListReq) (*GetArticleListReply, error)
 	GetArticleCount(context.Context, *GetArticleCountReq) (*GetArticleCountReply, error)
 	GetArticleCountVisitor(context.Context, *GetArticleCountVisitorReq) (*GetArticleCountReply, error)
 	GetUserArticleList(context.Context, *GetUserArticleListReq) (*GetArticleListReply, error)
@@ -1001,6 +1044,7 @@ type CreationServer interface {
 	ColumnStatisticJudge(context.Context, *ColumnStatisticJudgeReq) (*ColumnStatisticJudgeReply, error)
 	SetColumnAgree(context.Context, *SetColumnAgreeReq) (*emptypb.Empty, error)
 	CancelColumnAgree(context.Context, *CancelColumnAgreeReq) (*emptypb.Empty, error)
+	SetColumnCollect(context.Context, *SetColumnCollectReq) (*emptypb.Empty, error)
 	CancelColumnCollect(context.Context, *CancelColumnCollectReq) (*emptypb.Empty, error)
 	SetColumnView(context.Context, *SetColumnViewReq) (*emptypb.Empty, error)
 	AddColumnIncludes(context.Context, *AddColumnIncludesReq) (*emptypb.Empty, error)
@@ -1026,6 +1070,12 @@ func (UnimplementedCreationServer) GetCollectTalk(context.Context, *GetCollectTa
 }
 func (UnimplementedCreationServer) GetCollectTalkCount(context.Context, *GetCollectTalkCountReq) (*GetCollectTalkCountReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCollectTalkCount not implemented")
+}
+func (UnimplementedCreationServer) GetCollectColumn(context.Context, *GetCollectColumnReq) (*GetColumnListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCollectColumn not implemented")
+}
+func (UnimplementedCreationServer) GetCollectColumnCount(context.Context, *GetCollectColumnCountReq) (*GetCollectColumnCountReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCollectColumnCount not implemented")
 }
 func (UnimplementedCreationServer) GetCollection(context.Context, *GetCollectionReq) (*GetCollectionReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCollection not implemented")
@@ -1056,6 +1106,9 @@ func (UnimplementedCreationServer) GetArticleList(context.Context, *GetArticleLi
 }
 func (UnimplementedCreationServer) GetArticleListHot(context.Context, *GetArticleListHotReq) (*GetArticleListHotReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetArticleListHot not implemented")
+}
+func (UnimplementedCreationServer) GetColumnArticleList(context.Context, *GetColumnArticleListReq) (*GetArticleListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetColumnArticleList not implemented")
 }
 func (UnimplementedCreationServer) GetArticleCount(context.Context, *GetArticleCountReq) (*GetArticleCountReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetArticleCount not implemented")
@@ -1264,6 +1317,9 @@ func (UnimplementedCreationServer) SetColumnAgree(context.Context, *SetColumnAgr
 func (UnimplementedCreationServer) CancelColumnAgree(context.Context, *CancelColumnAgreeReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CancelColumnAgree not implemented")
 }
+func (UnimplementedCreationServer) SetColumnCollect(context.Context, *SetColumnCollectReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetColumnCollect not implemented")
+}
 func (UnimplementedCreationServer) CancelColumnCollect(context.Context, *CancelColumnCollectReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CancelColumnCollect not implemented")
 }
@@ -1375,6 +1431,42 @@ func _Creation_GetCollectTalkCount_Handler(srv interface{}, ctx context.Context,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CreationServer).GetCollectTalkCount(ctx, req.(*GetCollectTalkCountReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_GetCollectColumn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCollectColumnReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetCollectColumn(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetCollectColumn",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetCollectColumn(ctx, req.(*GetCollectColumnReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_GetCollectColumnCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCollectColumnCountReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetCollectColumnCount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetCollectColumnCount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetCollectColumnCount(ctx, req.(*GetCollectColumnCountReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1555,6 +1647,24 @@ func _Creation_GetArticleListHot_Handler(srv interface{}, ctx context.Context, d
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CreationServer).GetArticleListHot(ctx, req.(*GetArticleListHotReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_GetColumnArticleList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetColumnArticleListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetColumnArticleList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetColumnArticleList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetColumnArticleList(ctx, req.(*GetColumnArticleListReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2801,6 +2911,24 @@ func _Creation_CancelColumnAgree_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Creation_SetColumnCollect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetColumnCollectReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).SetColumnCollect(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/SetColumnCollect",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).SetColumnCollect(ctx, req.(*SetColumnCollectReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Creation_CancelColumnCollect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CancelColumnCollectReq)
 	if err := dec(in); err != nil {
@@ -2901,6 +3029,14 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Creation_GetCollectTalkCount_Handler,
 		},
 		{
+			MethodName: "GetCollectColumn",
+			Handler:    _Creation_GetCollectColumn_Handler,
+		},
+		{
+			MethodName: "GetCollectColumnCount",
+			Handler:    _Creation_GetCollectColumnCount_Handler,
+		},
+		{
 			MethodName: "GetCollection",
 			Handler:    _Creation_GetCollection_Handler,
 		},
@@ -2939,6 +3075,10 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetArticleListHot",
 			Handler:    _Creation_GetArticleListHot_Handler,
+		},
+		{
+			MethodName: "GetColumnArticleList",
+			Handler:    _Creation_GetColumnArticleList_Handler,
 		},
 		{
 			MethodName: "GetArticleCount",
@@ -3215,6 +3355,10 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CancelColumnAgree",
 			Handler:    _Creation_CancelColumnAgree_Handler,
+		},
+		{
+			MethodName: "SetColumnCollect",
+			Handler:    _Creation_SetColumnCollect_Handler,
 		},
 		{
 			MethodName: "CancelColumnCollect",
