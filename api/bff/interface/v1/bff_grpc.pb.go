@@ -49,6 +49,8 @@ type BffClient interface {
 	GetCollectArticleCount(ctx context.Context, in *GetCollectArticleCountReq, opts ...grpc.CallOption) (*GetCollectArticleCountReply, error)
 	GetCollectTalk(ctx context.Context, in *GetCollectTalkReq, opts ...grpc.CallOption) (*GetTalkListReply, error)
 	GetCollectTalkCount(ctx context.Context, in *GetCollectTalkCountReq, opts ...grpc.CallOption) (*GetCollectTalkCountReply, error)
+	GetCollectColumn(ctx context.Context, in *GetCollectColumnReq, opts ...grpc.CallOption) (*GetColumnListReply, error)
+	GetCollectColumnCount(ctx context.Context, in *GetCollectColumnCountReq, opts ...grpc.CallOption) (*GetCollectColumnCountReply, error)
 	GetCollection(ctx context.Context, in *GetCollectionReq, opts ...grpc.CallOption) (*GetCollectionReply, error)
 	GetCollections(ctx context.Context, in *GetCollectionsReq, opts ...grpc.CallOption) (*GetCollectionsReply, error)
 	GetCollectionsCount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCollectionsCountReply, error)
@@ -59,6 +61,7 @@ type BffClient interface {
 	DeleteCollections(ctx context.Context, in *DeleteCollectionsReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetArticleList(ctx context.Context, in *GetArticleListReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
 	GetArticleListHot(ctx context.Context, in *GetArticleListHotReq, opts ...grpc.CallOption) (*GetArticleListHotReply, error)
+	GetColumnArticleList(ctx context.Context, in *GetColumnArticleListReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
 	GetArticleCount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetArticleCountReply, error)
 	GetArticleCountVisitor(ctx context.Context, in *GetArticleCountVisitorReq, opts ...grpc.CallOption) (*GetArticleCountReply, error)
 	GetUserArticleList(ctx context.Context, in *GetUserArticleListReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
@@ -113,6 +116,7 @@ type BffClient interface {
 	ColumnStatisticJudge(ctx context.Context, in *ColumnStatisticJudgeReq, opts ...grpc.CallOption) (*ColumnStatisticJudgeReply, error)
 	SetColumnAgree(ctx context.Context, in *SetColumnAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelColumnAgree(ctx context.Context, in *CancelColumnAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetColumnCollect(ctx context.Context, in *SetColumnCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelColumnCollect(ctx context.Context, in *CancelColumnCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetColumnView(ctx context.Context, in *SetColumnViewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	AddColumnIncludes(ctx context.Context, in *AddColumnIncludesReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -352,6 +356,24 @@ func (c *bffClient) GetCollectTalkCount(ctx context.Context, in *GetCollectTalkC
 	return out, nil
 }
 
+func (c *bffClient) GetCollectColumn(ctx context.Context, in *GetCollectColumnReq, opts ...grpc.CallOption) (*GetColumnListReply, error) {
+	out := new(GetColumnListReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCollectColumn", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetCollectColumnCount(ctx context.Context, in *GetCollectColumnCountReq, opts ...grpc.CallOption) (*GetCollectColumnCountReply, error) {
+	out := new(GetCollectColumnCountReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCollectColumnCount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) GetCollection(ctx context.Context, in *GetCollectionReq, opts ...grpc.CallOption) (*GetCollectionReply, error) {
 	out := new(GetCollectionReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCollection", in, out, opts...)
@@ -436,6 +458,15 @@ func (c *bffClient) GetArticleList(ctx context.Context, in *GetArticleListReq, o
 func (c *bffClient) GetArticleListHot(ctx context.Context, in *GetArticleListHotReq, opts ...grpc.CallOption) (*GetArticleListHotReply, error) {
 	out := new(GetArticleListHotReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetArticleListHot", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetColumnArticleList(ctx context.Context, in *GetColumnArticleListReq, opts ...grpc.CallOption) (*GetArticleListReply, error) {
+	out := new(GetArticleListReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetColumnArticleList", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -928,6 +959,15 @@ func (c *bffClient) CancelColumnAgree(ctx context.Context, in *CancelColumnAgree
 	return out, nil
 }
 
+func (c *bffClient) SetColumnCollect(ctx context.Context, in *SetColumnCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SetColumnCollect", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) CancelColumnCollect(ctx context.Context, in *CancelColumnCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/CancelColumnCollect", in, out, opts...)
@@ -994,6 +1034,8 @@ type BffServer interface {
 	GetCollectArticleCount(context.Context, *GetCollectArticleCountReq) (*GetCollectArticleCountReply, error)
 	GetCollectTalk(context.Context, *GetCollectTalkReq) (*GetTalkListReply, error)
 	GetCollectTalkCount(context.Context, *GetCollectTalkCountReq) (*GetCollectTalkCountReply, error)
+	GetCollectColumn(context.Context, *GetCollectColumnReq) (*GetColumnListReply, error)
+	GetCollectColumnCount(context.Context, *GetCollectColumnCountReq) (*GetCollectColumnCountReply, error)
 	GetCollection(context.Context, *GetCollectionReq) (*GetCollectionReply, error)
 	GetCollections(context.Context, *GetCollectionsReq) (*GetCollectionsReply, error)
 	GetCollectionsCount(context.Context, *emptypb.Empty) (*GetCollectionsCountReply, error)
@@ -1004,6 +1046,7 @@ type BffServer interface {
 	DeleteCollections(context.Context, *DeleteCollectionsReq) (*emptypb.Empty, error)
 	GetArticleList(context.Context, *GetArticleListReq) (*GetArticleListReply, error)
 	GetArticleListHot(context.Context, *GetArticleListHotReq) (*GetArticleListHotReply, error)
+	GetColumnArticleList(context.Context, *GetColumnArticleListReq) (*GetArticleListReply, error)
 	GetArticleCount(context.Context, *emptypb.Empty) (*GetArticleCountReply, error)
 	GetArticleCountVisitor(context.Context, *GetArticleCountVisitorReq) (*GetArticleCountReply, error)
 	GetUserArticleList(context.Context, *GetUserArticleListReq) (*GetArticleListReply, error)
@@ -1058,6 +1101,7 @@ type BffServer interface {
 	ColumnStatisticJudge(context.Context, *ColumnStatisticJudgeReq) (*ColumnStatisticJudgeReply, error)
 	SetColumnAgree(context.Context, *SetColumnAgreeReq) (*emptypb.Empty, error)
 	CancelColumnAgree(context.Context, *CancelColumnAgreeReq) (*emptypb.Empty, error)
+	SetColumnCollect(context.Context, *SetColumnCollectReq) (*emptypb.Empty, error)
 	CancelColumnCollect(context.Context, *CancelColumnCollectReq) (*emptypb.Empty, error)
 	SetColumnView(context.Context, *SetColumnViewReq) (*emptypb.Empty, error)
 	AddColumnIncludes(context.Context, *AddColumnIncludesReq) (*emptypb.Empty, error)
@@ -1144,6 +1188,12 @@ func (UnimplementedBffServer) GetCollectTalk(context.Context, *GetCollectTalkReq
 func (UnimplementedBffServer) GetCollectTalkCount(context.Context, *GetCollectTalkCountReq) (*GetCollectTalkCountReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCollectTalkCount not implemented")
 }
+func (UnimplementedBffServer) GetCollectColumn(context.Context, *GetCollectColumnReq) (*GetColumnListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCollectColumn not implemented")
+}
+func (UnimplementedBffServer) GetCollectColumnCount(context.Context, *GetCollectColumnCountReq) (*GetCollectColumnCountReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCollectColumnCount not implemented")
+}
 func (UnimplementedBffServer) GetCollection(context.Context, *GetCollectionReq) (*GetCollectionReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCollection not implemented")
 }
@@ -1173,6 +1223,9 @@ func (UnimplementedBffServer) GetArticleList(context.Context, *GetArticleListReq
 }
 func (UnimplementedBffServer) GetArticleListHot(context.Context, *GetArticleListHotReq) (*GetArticleListHotReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetArticleListHot not implemented")
+}
+func (UnimplementedBffServer) GetColumnArticleList(context.Context, *GetColumnArticleListReq) (*GetArticleListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetColumnArticleList not implemented")
 }
 func (UnimplementedBffServer) GetArticleCount(context.Context, *emptypb.Empty) (*GetArticleCountReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetArticleCount not implemented")
@@ -1335,6 +1388,9 @@ func (UnimplementedBffServer) SetColumnAgree(context.Context, *SetColumnAgreeReq
 }
 func (UnimplementedBffServer) CancelColumnAgree(context.Context, *CancelColumnAgreeReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CancelColumnAgree not implemented")
+}
+func (UnimplementedBffServer) SetColumnCollect(context.Context, *SetColumnCollectReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetColumnCollect not implemented")
 }
 func (UnimplementedBffServer) CancelColumnCollect(context.Context, *CancelColumnCollectReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CancelColumnCollect not implemented")
@@ -1811,6 +1867,42 @@ func _Bff_GetCollectTalkCount_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_GetCollectColumn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCollectColumnReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetCollectColumn(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetCollectColumn",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetCollectColumn(ctx, req.(*GetCollectColumnReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetCollectColumnCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCollectColumnCountReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetCollectColumnCount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetCollectColumnCount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetCollectColumnCount(ctx, req.(*GetCollectColumnCountReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_GetCollection_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetCollectionReq)
 	if err := dec(in); err != nil {
@@ -1987,6 +2079,24 @@ func _Bff_GetArticleListHot_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BffServer).GetArticleListHot(ctx, req.(*GetArticleListHotReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetColumnArticleList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetColumnArticleListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetColumnArticleList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetColumnArticleList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetColumnArticleList(ctx, req.(*GetColumnArticleListReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2963,6 +3073,24 @@ func _Bff_CancelColumnAgree_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_SetColumnCollect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetColumnCollectReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).SetColumnCollect(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/SetColumnCollect",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).SetColumnCollect(ctx, req.(*SetColumnCollectReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_CancelColumnCollect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CancelColumnCollectReq)
 	if err := dec(in); err != nil {
@@ -3143,6 +3271,14 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Bff_GetCollectTalkCount_Handler,
 		},
 		{
+			MethodName: "GetCollectColumn",
+			Handler:    _Bff_GetCollectColumn_Handler,
+		},
+		{
+			MethodName: "GetCollectColumnCount",
+			Handler:    _Bff_GetCollectColumnCount_Handler,
+		},
+		{
 			MethodName: "GetCollection",
 			Handler:    _Bff_GetCollection_Handler,
 		},
@@ -3181,6 +3317,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetArticleListHot",
 			Handler:    _Bff_GetArticleListHot_Handler,
+		},
+		{
+			MethodName: "GetColumnArticleList",
+			Handler:    _Bff_GetColumnArticleList_Handler,
 		},
 		{
 			MethodName: "GetArticleCount",
@@ -3397,6 +3537,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CancelColumnAgree",
 			Handler:    _Bff_CancelColumnAgree_Handler,
+		},
+		{
+			MethodName: "SetColumnCollect",
+			Handler:    _Bff_SetColumnCollect_Handler,
 		},
 		{
 			MethodName: "CancelColumnCollect",
