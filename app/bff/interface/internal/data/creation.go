@@ -174,6 +174,46 @@ func (r *creationRepo) GetCollectTalkCount(ctx context.Context, id int32) (int32
 	return result.(int32), nil
 }
 
+func (r *creationRepo) GetCollectColumn(ctx context.Context, id, page int32) ([]*biz.Column, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("collect_column_page_%v_%v", id, page), func() (interface{}, error) {
+		reply := make([]*biz.Column, 0)
+		columnList, err := r.data.cc.GetCollectColumn(ctx, &creationV1.GetCollectColumnReq{
+			Id:   id,
+			Page: page,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range columnList.Column {
+			reply = append(reply, &biz.Column{
+				Id:   item.Id,
+				Uuid: item.Uuid,
+			})
+		}
+		return reply, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.([]*biz.Column), nil
+}
+
+func (r *creationRepo) GetCollectColumnCount(ctx context.Context, id int32) (int32, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("collect_column_count_%v", id), func() (interface{}, error) {
+		reply, err := r.data.cc.GetCollectColumnCount(ctx, &creationV1.GetCollectColumnCountReq{
+			Id: id,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return reply.Count, nil
+	})
+	if err != nil {
+		return 0, err
+	}
+	return result.(int32), nil
+}
+
 func (r *creationRepo) GetCollection(ctx context.Context, id int32, uuid string) (*biz.Collections, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_collection_%v", id), func() (interface{}, error) {
 		reply, err := r.data.cc.GetCollection(ctx, &creationV1.GetCollectionReq{
@@ -345,6 +385,29 @@ func (r *articleRepo) GetArticleListHot(ctx context.Context, page int32) ([]*biz
 		reply := make([]*biz.Article, 0)
 		articleList, err := r.data.cc.GetArticleListHot(ctx, &creationV1.GetArticleListHotReq{
 			Page: page,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range articleList.Article {
+			reply = append(reply, &biz.Article{
+				Id:   item.Id,
+				Uuid: item.Uuid,
+			})
+		}
+		return reply, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.([]*biz.Article), nil
+}
+
+func (r *articleRepo) GetColumnArticleList(ctx context.Context, id int32) ([]*biz.Article, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_column_article_list_%v", id), func() (interface{}, error) {
+		reply := make([]*biz.Article, 0)
+		articleList, err := r.data.cc.GetColumnArticleList(ctx, &creationV1.GetColumnArticleListReq{
+			Id: id,
 		})
 		if err != nil {
 			return nil, err
@@ -1144,6 +1207,19 @@ func (r *columnRepo) CancelColumnAgree(ctx context.Context, id int32, uuid, user
 		Uuid:     uuid,
 		Id:       id,
 		UserUuid: userUuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *columnRepo) SetColumnCollect(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error {
+	_, err := r.data.cc.SetColumnCollect(ctx, &creationV1.SetColumnCollectReq{
+		CollectionsId: collectionsId,
+		Uuid:          uuid,
+		UserUuid:      userUuid,
+		Id:            id,
 	})
 	if err != nil {
 		return err
