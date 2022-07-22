@@ -11,6 +11,8 @@ type CreationRepo interface {
 	GetCollectArticleCount(ctx context.Context, id int32) (int32, error)
 	GetCollectTalk(ctx context.Context, id, page int32) ([]*Talk, error)
 	GetCollectTalkCount(ctx context.Context, id int32) (int32, error)
+	GetCollectColumn(ctx context.Context, id, page int32) ([]*Column, error)
+	GetCollectColumnCount(ctx context.Context, id int32) (int32, error)
 	CreateCollections(ctx context.Context, uuid, name, introduce string, auth int32) error
 	EditCollections(ctx context.Context, id int32, uuid, name, introduce string, auth int32) error
 	DeleteCollections(ctx context.Context, id int32, uuid string) error
@@ -26,6 +28,7 @@ type ArticleRepo interface {
 	GetLastArticleDraft(ctx context.Context, uuid string) (*ArticleDraft, error)
 	GetArticleList(ctx context.Context, page int32) ([]*Article, error)
 	GetArticleListHot(ctx context.Context, page int32) ([]*Article, error)
+	GetColumnArticleList(ctx context.Context, id int32) ([]*Article, error)
 	GetArticleCount(ctx context.Context, uuid string) (int32, error)
 	GetArticleCountVisitor(ctx context.Context, uuid string) (int32, error)
 	GetUserArticleList(ctx context.Context, page int32, uuid string) ([]*Article, error)
@@ -84,6 +87,7 @@ type ColumnRepo interface {
 	ColumnStatisticJudge(ctx context.Context, id int32, uuid string) (*ColumnStatisticJudge, error)
 	SetColumnView(ctx context.Context, id int32, uuid string) error
 	SetColumnAgree(ctx context.Context, id int32, uuid, userUuid string) error
+	SetColumnCollect(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error
 	CancelColumnAgree(ctx context.Context, id int32, uuid, userUuid string) error
 	CancelColumnCollect(ctx context.Context, id int32, uuid, userUuid string) error
 	AddColumnIncludes(ctx context.Context, id, articleId int32, uuid string) error
@@ -158,6 +162,14 @@ func (r *CreationUseCase) GetCollectTalkCount(ctx context.Context, id int32) (in
 	return r.repo.GetCollectTalkCount(ctx, id)
 }
 
+func (r *CreationUseCase) GetCollectColumn(ctx context.Context, id, page int32) ([]*Column, error) {
+	return r.repo.GetCollectColumn(ctx, id, page)
+}
+
+func (r *CreationUseCase) GetCollectColumnCount(ctx context.Context, id int32) (int32, error) {
+	return r.repo.GetCollectColumnCount(ctx, id)
+}
+
 func (r *CreationUseCase) GetCollection(ctx context.Context, id int32, uuid string) (*Collections, error) {
 	return r.repo.GetCollection(ctx, id, uuid)
 }
@@ -201,6 +213,10 @@ func (r *ArticleUseCase) GetArticleList(ctx context.Context, page int32) ([]*Art
 
 func (r *ArticleUseCase) GetArticleListHot(ctx context.Context, page int32) ([]*Article, error) {
 	return r.repo.GetArticleListHot(ctx, page)
+}
+
+func (r *ArticleUseCase) GetColumnArticleList(ctx context.Context, id int32) ([]*Article, error) {
+	return r.repo.GetColumnArticleList(ctx, id)
 }
 
 func (r *ArticleUseCase) GetArticleCount(ctx context.Context) (int32, error) {
@@ -453,6 +469,11 @@ func (r *ColumnUseCase) SetColumnAgree(ctx context.Context, id int32, uuid strin
 func (r *ColumnUseCase) CancelColumnAgree(ctx context.Context, id int32, uuid string) error {
 	userUuid := ctx.Value("uuid").(string)
 	return r.repo.CancelColumnAgree(ctx, id, uuid, userUuid)
+}
+
+func (r *ColumnUseCase) SetColumnCollect(ctx context.Context, id, collectionsId int32, uuid string) error {
+	userUuid := ctx.Value("uuid").(string)
+	return r.repo.SetColumnCollect(ctx, id, collectionsId, uuid, userUuid)
 }
 
 func (r *ColumnUseCase) CancelColumnCollect(ctx context.Context, id int32, uuid string) error {
