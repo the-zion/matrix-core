@@ -72,6 +72,31 @@ func (s *CreationService) GetCollectTalkCount(ctx context.Context, req *v1.GetCo
 	}, nil
 }
 
+func (s *CreationService) GetCollectColumn(ctx context.Context, req *v1.GetCollectColumnReq) (*v1.GetColumnListReply, error) {
+	reply := &v1.GetColumnListReply{Column: make([]*v1.GetColumnListReply_Column, 0)}
+	columnList, err := s.cc.GetCollectColumn(ctx, req.Id, req.Page)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range columnList {
+		reply.Column = append(reply.Column, &v1.GetColumnListReply_Column{
+			Id:   item.ColumnId,
+			Uuid: item.Uuid,
+		})
+	}
+	return reply, nil
+}
+
+func (s *CreationService) GetCollectColumnCount(ctx context.Context, req *v1.GetCollectColumnCountReq) (*v1.GetCollectColumnCountReply, error) {
+	count, err := s.cc.GetCollectColumnCount(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetCollectColumnCountReply{
+		Count: count,
+	}, nil
+}
+
 func (s *CreationService) GetCollection(ctx context.Context, req *v1.GetCollectionReq) (*v1.GetCollectionReply, error) {
 	collection, err := s.cc.GetCollection(ctx, req.Id, req.Uuid)
 	if err != nil {
