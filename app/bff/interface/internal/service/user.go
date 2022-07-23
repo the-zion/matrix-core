@@ -140,6 +140,64 @@ func (s *BffService) GetProfileUpdate(ctx context.Context, _ *emptypb.Empty) (*v
 	}, nil
 }
 
+func (s *BffService) GetUserFollow(ctx context.Context, req *v1.GetUserFollowReq) (*v1.GetUserFollowReply, error) {
+	follow, err := s.uc.GetUserFollow(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetUserFollowReply{
+		Follow: follow,
+	}, nil
+}
+
+func (s *BffService) GetFollowList(ctx context.Context, req *v1.GetFollowListReq) (*v1.GetFollowListReply, error) {
+	reply := &v1.GetFollowListReply{Follow: make([]*v1.GetFollowListReply_Follow, 0)}
+	followList, err := s.uc.GetFollowList(ctx, req.Page, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range followList {
+		reply.Follow = append(reply.Follow, &v1.GetFollowListReply_Follow{
+			Uuid: item.Follow,
+		})
+	}
+	return reply, nil
+}
+
+func (s *BffService) GetFollowListCount(ctx context.Context, req *v1.GetFollowListCountReq) (*v1.GetFollowListCountReply, error) {
+	count, err := s.uc.GetFollowListCount(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetFollowListCountReply{
+		Count: count,
+	}, nil
+}
+
+func (s *BffService) GetFollowedList(ctx context.Context, req *v1.GetFollowedListReq) (*v1.GetFollowedListReply, error) {
+	reply := &v1.GetFollowedListReply{Follow: make([]*v1.GetFollowedListReply_Follow, 0)}
+	followedList, err := s.uc.GetFollowList(ctx, req.Page, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range followedList {
+		reply.Follow = append(reply.Follow, &v1.GetFollowedListReply_Follow{
+			Uuid: item.Followed,
+		})
+	}
+	return reply, nil
+}
+
+func (s *BffService) GetFollowedListCount(ctx context.Context, req *v1.GetFollowedListCountReq) (*v1.GetFollowedListCountReply, error) {
+	count, err := s.uc.GetFollowedListCount(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetFollowedListCountReply{
+		Count: count,
+	}, nil
+}
+
 func (s *BffService) SetProfileUpdate(ctx context.Context, req *v1.SetProfileUpdateReq) (*emptypb.Empty, error) {
 	profile := &biz.UserProfileUpdate{}
 	profile.Username = req.Username
@@ -173,6 +231,22 @@ func (s *BffService) SetUserEmail(ctx context.Context, req *v1.SetUserEmailReq) 
 
 func (s *BffService) SetUserPassword(ctx context.Context, req *v1.SetUserPasswordReq) (*emptypb.Empty, error) {
 	err := s.uc.SetUserPassword(ctx, req.Password)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) SetUserFollow(ctx context.Context, req *v1.SetUserFollowReq) (*emptypb.Empty, error) {
+	err := s.uc.SetUserFollow(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) CancelUserFollow(ctx context.Context, req *v1.CancelUserFollowReq) (*emptypb.Empty, error) {
+	err := s.uc.CancelUserFollow(ctx, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
