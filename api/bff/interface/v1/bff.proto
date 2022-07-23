@@ -90,6 +90,38 @@ service Bff{
     };
   }
 
+  rpc GetUserFollow (GetUserFollowReq) returns (GetUserFollowReply) {
+    option (google.api.http) = {
+      post: "/v1/get/user/follow",
+      body: "*"
+    };
+  }
+
+  rpc GetFollowList (GetFollowListReq) returns (GetFollowListReply) {
+    option (google.api.http) = {
+      get: "/v1/get/follow/list",
+    };
+  }
+
+  rpc GetFollowListCount (GetFollowListCountReq) returns (GetFollowListCountReply) {
+    option (google.api.http) = {
+      get: "/v1/get/follow/list/count",
+    };
+  }
+
+  rpc GetFollowedList (GetFollowedListReq) returns (GetFollowedListReply) {
+    option (google.api.http) = {
+      get: "/v1/get/followed/list",
+    };
+  }
+
+  rpc GetFollowedListCount (GetFollowedListCountReq) returns (GetFollowedListCountReply) {
+    option (google.api.http) = {
+      get: "/v1/get/followed/list/count",
+    };
+  }
+
+
   rpc GetProfileUpdate (google.protobuf.Empty) returns (GetProfileUpdateReply) {
     option (google.api.http) = {
       get: "/v1/get/user/profile/update",
@@ -120,6 +152,20 @@ service Bff{
   rpc SetUserPassword (SetUserPasswordReq) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/v1/set/user/password"
+      body: "*"
+    };
+  }
+
+  rpc SetUserFollow (SetUserFollowReq) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/set/user/follow"
+      body: "*"
+    };
+  }
+
+  rpc CancelUserFollow (CancelUserFollowReq) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/cancel/user/follow"
       body: "*"
     };
   }
@@ -272,8 +318,7 @@ service Bff{
 
   rpc GetArticleCountVisitor(GetArticleCountVisitorReq) returns (GetArticleCountReply){
     option (google.api.http) = {
-      post: "/v1/get/article/count/visitor"
-      body: "*"
+      get: "/v1/get/article/count/visitor"
     };
   }
 
@@ -433,8 +478,7 @@ service Bff{
 
   rpc GetTalkCountVisitor(GetTalkCountVisitorReq) returns (GetTalkCountReply){
     option (google.api.http) = {
-      post: "/v1/get/talk/count/visitor"
-      body: "*"
+      get: "/v1/get/talk/count/visitor"
     };
   }
 
@@ -582,8 +626,7 @@ service Bff{
 
   rpc GetColumnCountVisitor(GetColumnCountVisitorReq) returns (GetColumnCountReply){
     option (google.api.http) = {
-      post: "/v1/get/column/count/visitor"
-      body: "*"
+      get: "/v1/get/column/count/visitor"
     };
   }
 
@@ -660,6 +703,14 @@ service Bff{
     option (google.api.http) = {
       post: "/v1/delete/column/includes"
       body: "*"
+    };
+  }
+
+  // --------------------achievement service------------------------
+
+  rpc GetAchievementList(GetAchievementListReq) returns (GetAchievementListReply){
+    option (google.api.http) = {
+      get: "/v1/get/achievement/list"
     };
   }
 }
@@ -756,6 +807,54 @@ message GetUserInfoReply{
   string created = 9;
 }
 
+message GetUserFollowReq{
+  string uuid = 1;
+}
+
+message GetUserFollowReply{
+  bool follow = 1;
+}
+
+message GetFollowListReq{
+  int32 page = 1;
+  string uuid = 2;
+}
+
+message GetFollowListReply{
+  message Follow{
+    string uuid = 1;
+  }
+  repeated Follow follow = 1;
+}
+
+message GetFollowListCountReq{
+  string uuid = 1;
+}
+
+message GetFollowListCountReply{
+  int32 count = 1;
+}
+
+message GetFollowedListReq{
+  int32 page = 1;
+  string uuid = 2;
+}
+
+message GetFollowedListReply{
+  message Follow{
+    string uuid = 1;
+  }
+  repeated Follow follow = 1;
+}
+
+message GetFollowedListCountReq{
+  string uuid = 1;
+}
+
+message GetFollowedListCountReply{
+  int32 count = 1;
+}
+
 message GetProfileUpdateReply{
   string username = 1;
   string avatar = 2;
@@ -788,6 +887,14 @@ message SetUserEmailReq{
 
 message SetUserPasswordReq{
   string password = 1;
+}
+
+message SetUserFollowReq{
+  string uuid = 1;
+}
+
+message CancelUserFollowReq{
+  string uuid = 1;
 }
 
 message ChangeUserPasswordReq{
@@ -1305,4 +1412,21 @@ message AddColumnIncludesReq{
 message DeleteColumnIncludesReq{
   int32 id = 1;
   int32 article_id = 2;
+}
+
+// --------------------creation service-------------------------
+
+message GetAchievementListReq{
+  repeated string uuids = 1;
+}
+
+message GetAchievementListReply{
+  message Achievement{
+    string uuid = 1;
+    int32 view = 2;
+    int32 agree = 3;
+    int32 followed = 4;
+    int32 follow = 5;
+  }
+  repeated Achievement achievement = 1;
 }
