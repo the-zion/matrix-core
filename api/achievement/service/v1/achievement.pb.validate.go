@@ -648,3 +648,271 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CancelAchievementCollectReqValidationError{}
+
+// Validate checks the field values on SetAchievementFollowReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SetAchievementFollowReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SetAchievementFollowReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SetAchievementFollowReqMultiError, or nil if none found.
+func (m *SetAchievementFollowReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SetAchievementFollowReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetFollow()); err != nil {
+		err = SetAchievementFollowReqValidationError{
+			field:  "Follow",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if err := m._validateUuid(m.GetFollowed()); err != nil {
+		err = SetAchievementFollowReqValidationError{
+			field:  "Followed",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return SetAchievementFollowReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *SetAchievementFollowReq) _validateUuid(uuid string) error {
+	if matched := _achievement_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// SetAchievementFollowReqMultiError is an error wrapping multiple validation
+// errors returned by SetAchievementFollowReq.ValidateAll() if the designated
+// constraints aren't met.
+type SetAchievementFollowReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SetAchievementFollowReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SetAchievementFollowReqMultiError) AllErrors() []error { return m }
+
+// SetAchievementFollowReqValidationError is the validation error returned by
+// SetAchievementFollowReq.Validate if the designated constraints aren't met.
+type SetAchievementFollowReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SetAchievementFollowReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SetAchievementFollowReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SetAchievementFollowReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SetAchievementFollowReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SetAchievementFollowReqValidationError) ErrorName() string {
+	return "SetAchievementFollowReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SetAchievementFollowReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSetAchievementFollowReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SetAchievementFollowReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SetAchievementFollowReqValidationError{}
+
+// Validate checks the field values on CancelAchievementFollowReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *CancelAchievementFollowReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CancelAchievementFollowReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// CancelAchievementFollowReqMultiError, or nil if none found.
+func (m *CancelAchievementFollowReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CancelAchievementFollowReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetFollow()); err != nil {
+		err = CancelAchievementFollowReqValidationError{
+			field:  "Follow",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if err := m._validateUuid(m.GetFollowed()); err != nil {
+		err = CancelAchievementFollowReqValidationError{
+			field:  "Followed",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return CancelAchievementFollowReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *CancelAchievementFollowReq) _validateUuid(uuid string) error {
+	if matched := _achievement_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// CancelAchievementFollowReqMultiError is an error wrapping multiple
+// validation errors returned by CancelAchievementFollowReq.ValidateAll() if
+// the designated constraints aren't met.
+type CancelAchievementFollowReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CancelAchievementFollowReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CancelAchievementFollowReqMultiError) AllErrors() []error { return m }
+
+// CancelAchievementFollowReqValidationError is the validation error returned
+// by CancelAchievementFollowReq.Validate if the designated constraints aren't met.
+type CancelAchievementFollowReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CancelAchievementFollowReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CancelAchievementFollowReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CancelAchievementFollowReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CancelAchievementFollowReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CancelAchievementFollowReqValidationError) ErrorName() string {
+	return "CancelAchievementFollowReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CancelAchievementFollowReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCancelAchievementFollowReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CancelAchievementFollowReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CancelAchievementFollowReqValidationError{}

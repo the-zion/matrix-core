@@ -28,6 +28,8 @@ type AchievementClient interface {
 	SetAchievementView(ctx context.Context, in *SetAchievementViewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetAchievementCollect(ctx context.Context, in *SetAchievementCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelAchievementCollect(ctx context.Context, in *CancelAchievementCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetAchievementFollow(ctx context.Context, in *SetAchievementFollowReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CancelAchievementFollow(ctx context.Context, in *CancelAchievementFollowReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetHealth(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
@@ -84,6 +86,24 @@ func (c *achievementClient) CancelAchievementCollect(ctx context.Context, in *Ca
 	return out, nil
 }
 
+func (c *achievementClient) SetAchievementFollow(ctx context.Context, in *SetAchievementFollowReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/achievement.v1.Achievement/SetAchievementFollow", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *achievementClient) CancelAchievementFollow(ctx context.Context, in *CancelAchievementFollowReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/achievement.v1.Achievement/CancelAchievementFollow", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *achievementClient) GetHealth(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/achievement.v1.Achievement/GetHealth", in, out, opts...)
@@ -102,6 +122,8 @@ type AchievementServer interface {
 	SetAchievementView(context.Context, *SetAchievementViewReq) (*emptypb.Empty, error)
 	SetAchievementCollect(context.Context, *SetAchievementCollectReq) (*emptypb.Empty, error)
 	CancelAchievementCollect(context.Context, *CancelAchievementCollectReq) (*emptypb.Empty, error)
+	SetAchievementFollow(context.Context, *SetAchievementFollowReq) (*emptypb.Empty, error)
+	CancelAchievementFollow(context.Context, *CancelAchievementFollowReq) (*emptypb.Empty, error)
 	GetHealth(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	mustEmbedUnimplementedAchievementServer()
 }
@@ -124,6 +146,12 @@ func (UnimplementedAchievementServer) SetAchievementCollect(context.Context, *Se
 }
 func (UnimplementedAchievementServer) CancelAchievementCollect(context.Context, *CancelAchievementCollectReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CancelAchievementCollect not implemented")
+}
+func (UnimplementedAchievementServer) SetAchievementFollow(context.Context, *SetAchievementFollowReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetAchievementFollow not implemented")
+}
+func (UnimplementedAchievementServer) CancelAchievementFollow(context.Context, *CancelAchievementFollowReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelAchievementFollow not implemented")
 }
 func (UnimplementedAchievementServer) GetHealth(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetHealth not implemented")
@@ -231,6 +259,42 @@ func _Achievement_CancelAchievementCollect_Handler(srv interface{}, ctx context.
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Achievement_SetAchievementFollow_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetAchievementFollowReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AchievementServer).SetAchievementFollow(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/achievement.v1.Achievement/SetAchievementFollow",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AchievementServer).SetAchievementFollow(ctx, req.(*SetAchievementFollowReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Achievement_CancelAchievementFollow_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelAchievementFollowReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AchievementServer).CancelAchievementFollow(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/achievement.v1.Achievement/CancelAchievementFollow",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AchievementServer).CancelAchievementFollow(ctx, req.(*CancelAchievementFollowReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Achievement_GetHealth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
@@ -275,6 +339,14 @@ var Achievement_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CancelAchievementCollect",
 			Handler:    _Achievement_CancelAchievementCollect_Handler,
+		},
+		{
+			MethodName: "SetAchievementFollow",
+			Handler:    _Achievement_SetAchievementFollow_Handler,
+		},
+		{
+			MethodName: "CancelAchievementFollow",
+			Handler:    _Achievement_CancelAchievementFollow_Handler,
 		},
 		{
 			MethodName: "GetHealth",
