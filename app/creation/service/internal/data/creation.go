@@ -194,7 +194,7 @@ func (r *creationRepo) GetCollectionsByVisitor(ctx context.Context, uuid string,
 	}
 	index := int(page - 1)
 	list := make([]*Collections, 0)
-	handle := r.data.db.WithContext(ctx).Where("uuid = ? and auth = ?", uuid, 1).Offset(index * 10).Limit(10).Find(&list)
+	handle := r.data.db.WithContext(ctx).Where("uuid = ? and auth = ?", uuid, 1).Order("id desc").Offset(index * 10).Limit(10).Find(&list)
 	err := handle.Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get collections visitor from db: uuid(%s)", uuid))
