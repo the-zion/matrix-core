@@ -17,10 +17,17 @@ type UserRepo interface {
 	GetProfile(ctx context.Context, uuid string) (*UserProfile, error)
 	GetUserInfo(ctx context.Context, uuid string) (*UserProfile, error)
 	GetProfileUpdate(ctx context.Context, uuid string) (*UserProfileUpdate, error)
+	GetFollowList(ctx context.Context, page int32, uuid string) ([]*Follow, error)
+	GetFollowListCount(ctx context.Context, uuid string) (int32, error)
+	GetFollowedList(ctx context.Context, page int32, uuid string) ([]*Follow, error)
+	GetFollowedListCount(ctx context.Context, uuid string) (int32, error)
+	GetUserFollow(ctx context.Context, uuid, userUuid string) (bool, error)
 	SetProfileUpdate(ctx context.Context, profile *UserProfileUpdate) error
 	SetUserPhone(ctx context.Context, uuid, phone, code string) error
 	SetUserPassword(ctx context.Context, uuid, password string) error
 	SetUserEmail(ctx context.Context, uuid, email, code string) error
+	SetUserFollow(ctx context.Context, uuid, userUuid string) error
+	CancelUserFollow(ctx context.Context, uuid, userUuid string) error
 	ChangeUserPassword(ctx context.Context, uuid, oldpassword, password string) error
 	UnbindUserPhone(ctx context.Context, uuid, phone, code string) error
 	UnbindUserEmail(ctx context.Context, uuid, email, code string) error
@@ -86,6 +93,27 @@ func (r *UserUseCase) GetProfileUpdate(ctx context.Context) (*UserProfileUpdate,
 	return r.repo.GetProfileUpdate(ctx, uuid)
 }
 
+func (r *UserUseCase) GetUserFollow(ctx context.Context, uuid string) (bool, error) {
+	userUuid := ctx.Value("uuid").(string)
+	return r.repo.GetUserFollow(ctx, uuid, userUuid)
+}
+
+func (r *UserUseCase) GetFollowList(ctx context.Context, page int32, uuid string) ([]*Follow, error) {
+	return r.repo.GetFollowList(ctx, page, uuid)
+}
+
+func (r *UserUseCase) GetFollowListCount(ctx context.Context, uuid string) (int32, error) {
+	return r.repo.GetFollowListCount(ctx, uuid)
+}
+
+func (r *UserUseCase) GetFollowedList(ctx context.Context, page int32, uuid string) ([]*Follow, error) {
+	return r.repo.GetFollowedList(ctx, page, uuid)
+}
+
+func (r *UserUseCase) GetFollowedListCount(ctx context.Context, uuid string) (int32, error) {
+	return r.repo.GetFollowedListCount(ctx, uuid)
+}
+
 func (r *UserUseCase) SetUserProfile(ctx context.Context, profile *UserProfileUpdate) error {
 	uuid := ctx.Value("uuid").(string)
 	profile.Uuid = uuid
@@ -105,6 +133,16 @@ func (r *UserUseCase) SetUserEmail(ctx context.Context, email, code string) erro
 func (r *UserUseCase) SetUserPassword(ctx context.Context, password string) error {
 	uuid := ctx.Value("uuid").(string)
 	return r.repo.SetUserPassword(ctx, uuid, password)
+}
+
+func (r *UserUseCase) SetUserFollow(ctx context.Context, uuid string) error {
+	userUuid := ctx.Value("uuid").(string)
+	return r.repo.SetUserFollow(ctx, uuid, userUuid)
+}
+
+func (r *UserUseCase) CancelUserFollow(ctx context.Context, uuid string) error {
+	userUuid := ctx.Value("uuid").(string)
+	return r.repo.CancelUserFollow(ctx, uuid, userUuid)
 }
 
 func (r *UserUseCase) ChangeUserPassword(ctx context.Context, oldpassword, password string) error {
