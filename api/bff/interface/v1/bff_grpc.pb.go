@@ -35,11 +35,18 @@ type BffClient interface {
 	GetAccount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetAccountReply, error)
 	GetProfile(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetProfileReply, error)
 	GetUserInfo(ctx context.Context, in *GetUserInfoReq, opts ...grpc.CallOption) (*GetUserInfoReply, error)
+	GetUserFollow(ctx context.Context, in *GetUserFollowReq, opts ...grpc.CallOption) (*GetUserFollowReply, error)
+	GetFollowList(ctx context.Context, in *GetFollowListReq, opts ...grpc.CallOption) (*GetFollowListReply, error)
+	GetFollowListCount(ctx context.Context, in *GetFollowListCountReq, opts ...grpc.CallOption) (*GetFollowListCountReply, error)
+	GetFollowedList(ctx context.Context, in *GetFollowedListReq, opts ...grpc.CallOption) (*GetFollowedListReply, error)
+	GetFollowedListCount(ctx context.Context, in *GetFollowedListCountReq, opts ...grpc.CallOption) (*GetFollowedListCountReply, error)
 	GetProfileUpdate(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetProfileUpdateReply, error)
 	SetProfileUpdate(ctx context.Context, in *SetProfileUpdateReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetUserPhone(ctx context.Context, in *SetUserPhoneReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetUserEmail(ctx context.Context, in *SetUserEmailReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetUserPassword(ctx context.Context, in *SetUserPasswordReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetUserFollow(ctx context.Context, in *SetUserFollowReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CancelUserFollow(ctx context.Context, in *CancelUserFollowReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ChangeUserPassword(ctx context.Context, in *ChangeUserPasswordReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	UnbindUserPhone(ctx context.Context, in *UnbindUserPhoneReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	UnbindUserEmail(ctx context.Context, in *UnbindUserEmailReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -121,6 +128,7 @@ type BffClient interface {
 	SetColumnView(ctx context.Context, in *SetColumnViewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	AddColumnIncludes(ctx context.Context, in *AddColumnIncludesReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteColumnIncludes(ctx context.Context, in *DeleteColumnIncludesReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetAchievementList(ctx context.Context, in *GetAchievementListReq, opts ...grpc.CallOption) (*GetAchievementListReply, error)
 }
 
 type bffClient struct {
@@ -239,6 +247,51 @@ func (c *bffClient) GetUserInfo(ctx context.Context, in *GetUserInfoReq, opts ..
 	return out, nil
 }
 
+func (c *bffClient) GetUserFollow(ctx context.Context, in *GetUserFollowReq, opts ...grpc.CallOption) (*GetUserFollowReply, error) {
+	out := new(GetUserFollowReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserFollow", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetFollowList(ctx context.Context, in *GetFollowListReq, opts ...grpc.CallOption) (*GetFollowListReply, error) {
+	out := new(GetFollowListReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetFollowList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetFollowListCount(ctx context.Context, in *GetFollowListCountReq, opts ...grpc.CallOption) (*GetFollowListCountReply, error) {
+	out := new(GetFollowListCountReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetFollowListCount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetFollowedList(ctx context.Context, in *GetFollowedListReq, opts ...grpc.CallOption) (*GetFollowedListReply, error) {
+	out := new(GetFollowedListReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetFollowedList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetFollowedListCount(ctx context.Context, in *GetFollowedListCountReq, opts ...grpc.CallOption) (*GetFollowedListCountReply, error) {
+	out := new(GetFollowedListCountReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetFollowedListCount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) GetProfileUpdate(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetProfileUpdateReply, error) {
 	out := new(GetProfileUpdateReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetProfileUpdate", in, out, opts...)
@@ -278,6 +331,24 @@ func (c *bffClient) SetUserEmail(ctx context.Context, in *SetUserEmailReq, opts 
 func (c *bffClient) SetUserPassword(ctx context.Context, in *SetUserPasswordReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SetUserPassword", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) SetUserFollow(ctx context.Context, in *SetUserFollowReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SetUserFollow", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) CancelUserFollow(ctx context.Context, in *CancelUserFollowReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/CancelUserFollow", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1004,6 +1075,15 @@ func (c *bffClient) DeleteColumnIncludes(ctx context.Context, in *DeleteColumnIn
 	return out, nil
 }
 
+func (c *bffClient) GetAchievementList(ctx context.Context, in *GetAchievementListReq, opts ...grpc.CallOption) (*GetAchievementListReply, error) {
+	out := new(GetAchievementListReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetAchievementList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BffServer is the server API for Bff service.
 // All implementations must embed UnimplementedBffServer
 // for forward compatibility
@@ -1020,11 +1100,18 @@ type BffServer interface {
 	GetAccount(context.Context, *emptypb.Empty) (*GetAccountReply, error)
 	GetProfile(context.Context, *emptypb.Empty) (*GetProfileReply, error)
 	GetUserInfo(context.Context, *GetUserInfoReq) (*GetUserInfoReply, error)
+	GetUserFollow(context.Context, *GetUserFollowReq) (*GetUserFollowReply, error)
+	GetFollowList(context.Context, *GetFollowListReq) (*GetFollowListReply, error)
+	GetFollowListCount(context.Context, *GetFollowListCountReq) (*GetFollowListCountReply, error)
+	GetFollowedList(context.Context, *GetFollowedListReq) (*GetFollowedListReply, error)
+	GetFollowedListCount(context.Context, *GetFollowedListCountReq) (*GetFollowedListCountReply, error)
 	GetProfileUpdate(context.Context, *emptypb.Empty) (*GetProfileUpdateReply, error)
 	SetProfileUpdate(context.Context, *SetProfileUpdateReq) (*emptypb.Empty, error)
 	SetUserPhone(context.Context, *SetUserPhoneReq) (*emptypb.Empty, error)
 	SetUserEmail(context.Context, *SetUserEmailReq) (*emptypb.Empty, error)
 	SetUserPassword(context.Context, *SetUserPasswordReq) (*emptypb.Empty, error)
+	SetUserFollow(context.Context, *SetUserFollowReq) (*emptypb.Empty, error)
+	CancelUserFollow(context.Context, *CancelUserFollowReq) (*emptypb.Empty, error)
 	ChangeUserPassword(context.Context, *ChangeUserPasswordReq) (*emptypb.Empty, error)
 	UnbindUserPhone(context.Context, *UnbindUserPhoneReq) (*emptypb.Empty, error)
 	UnbindUserEmail(context.Context, *UnbindUserEmailReq) (*emptypb.Empty, error)
@@ -1106,6 +1193,7 @@ type BffServer interface {
 	SetColumnView(context.Context, *SetColumnViewReq) (*emptypb.Empty, error)
 	AddColumnIncludes(context.Context, *AddColumnIncludesReq) (*emptypb.Empty, error)
 	DeleteColumnIncludes(context.Context, *DeleteColumnIncludesReq) (*emptypb.Empty, error)
+	GetAchievementList(context.Context, *GetAchievementListReq) (*GetAchievementListReply, error)
 	mustEmbedUnimplementedBffServer()
 }
 
@@ -1149,6 +1237,21 @@ func (UnimplementedBffServer) GetProfile(context.Context, *emptypb.Empty) (*GetP
 func (UnimplementedBffServer) GetUserInfo(context.Context, *GetUserInfoReq) (*GetUserInfoReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserInfo not implemented")
 }
+func (UnimplementedBffServer) GetUserFollow(context.Context, *GetUserFollowReq) (*GetUserFollowReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserFollow not implemented")
+}
+func (UnimplementedBffServer) GetFollowList(context.Context, *GetFollowListReq) (*GetFollowListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFollowList not implemented")
+}
+func (UnimplementedBffServer) GetFollowListCount(context.Context, *GetFollowListCountReq) (*GetFollowListCountReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFollowListCount not implemented")
+}
+func (UnimplementedBffServer) GetFollowedList(context.Context, *GetFollowedListReq) (*GetFollowedListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFollowedList not implemented")
+}
+func (UnimplementedBffServer) GetFollowedListCount(context.Context, *GetFollowedListCountReq) (*GetFollowedListCountReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFollowedListCount not implemented")
+}
 func (UnimplementedBffServer) GetProfileUpdate(context.Context, *emptypb.Empty) (*GetProfileUpdateReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProfileUpdate not implemented")
 }
@@ -1163,6 +1266,12 @@ func (UnimplementedBffServer) SetUserEmail(context.Context, *SetUserEmailReq) (*
 }
 func (UnimplementedBffServer) SetUserPassword(context.Context, *SetUserPasswordReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetUserPassword not implemented")
+}
+func (UnimplementedBffServer) SetUserFollow(context.Context, *SetUserFollowReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetUserFollow not implemented")
+}
+func (UnimplementedBffServer) CancelUserFollow(context.Context, *CancelUserFollowReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelUserFollow not implemented")
 }
 func (UnimplementedBffServer) ChangeUserPassword(context.Context, *ChangeUserPasswordReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeUserPassword not implemented")
@@ -1404,6 +1513,9 @@ func (UnimplementedBffServer) AddColumnIncludes(context.Context, *AddColumnInclu
 func (UnimplementedBffServer) DeleteColumnIncludes(context.Context, *DeleteColumnIncludesReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteColumnIncludes not implemented")
 }
+func (UnimplementedBffServer) GetAchievementList(context.Context, *GetAchievementListReq) (*GetAchievementListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAchievementList not implemented")
+}
 func (UnimplementedBffServer) mustEmbedUnimplementedBffServer() {}
 
 // UnsafeBffServer may be embedded to opt out of forward compatibility for this service.
@@ -1633,6 +1745,96 @@ func _Bff_GetUserInfo_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_GetUserFollow_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserFollowReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetUserFollow(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetUserFollow",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetUserFollow(ctx, req.(*GetUserFollowReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetFollowList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFollowListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetFollowList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetFollowList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetFollowList(ctx, req.(*GetFollowListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetFollowListCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFollowListCountReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetFollowListCount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetFollowListCount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetFollowListCount(ctx, req.(*GetFollowListCountReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetFollowedList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFollowedListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetFollowedList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetFollowedList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetFollowedList(ctx, req.(*GetFollowedListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetFollowedListCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFollowedListCountReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetFollowedListCount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetFollowedListCount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetFollowedListCount(ctx, req.(*GetFollowedListCountReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_GetProfileUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
@@ -1719,6 +1921,42 @@ func _Bff_SetUserPassword_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BffServer).SetUserPassword(ctx, req.(*SetUserPasswordReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_SetUserFollow_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetUserFollowReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).SetUserFollow(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/SetUserFollow",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).SetUserFollow(ctx, req.(*SetUserFollowReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_CancelUserFollow_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelUserFollowReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).CancelUserFollow(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/CancelUserFollow",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).CancelUserFollow(ctx, req.(*CancelUserFollowReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -3163,6 +3401,24 @@ func _Bff_DeleteColumnIncludes_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_GetAchievementList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAchievementListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetAchievementList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetAchievementList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetAchievementList(ctx, req.(*GetAchievementListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Bff_ServiceDesc is the grpc.ServiceDesc for Bff service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -3219,6 +3475,26 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Bff_GetUserInfo_Handler,
 		},
 		{
+			MethodName: "GetUserFollow",
+			Handler:    _Bff_GetUserFollow_Handler,
+		},
+		{
+			MethodName: "GetFollowList",
+			Handler:    _Bff_GetFollowList_Handler,
+		},
+		{
+			MethodName: "GetFollowListCount",
+			Handler:    _Bff_GetFollowListCount_Handler,
+		},
+		{
+			MethodName: "GetFollowedList",
+			Handler:    _Bff_GetFollowedList_Handler,
+		},
+		{
+			MethodName: "GetFollowedListCount",
+			Handler:    _Bff_GetFollowedListCount_Handler,
+		},
+		{
 			MethodName: "GetProfileUpdate",
 			Handler:    _Bff_GetProfileUpdate_Handler,
 		},
@@ -3237,6 +3513,14 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetUserPassword",
 			Handler:    _Bff_SetUserPassword_Handler,
+		},
+		{
+			MethodName: "SetUserFollow",
+			Handler:    _Bff_SetUserFollow_Handler,
+		},
+		{
+			MethodName: "CancelUserFollow",
+			Handler:    _Bff_CancelUserFollow_Handler,
 		},
 		{
 			MethodName: "ChangeUserPassword",
@@ -3557,6 +3841,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteColumnIncludes",
 			Handler:    _Bff_DeleteColumnIncludes_Handler,
+		},
+		{
+			MethodName: "GetAchievementList",
+			Handler:    _Bff_GetAchievementList_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
