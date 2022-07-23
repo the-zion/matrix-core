@@ -143,6 +143,42 @@ func ErrorGetAchievementFailed(format string, args ...interface{}) *errors.Error
 	return errors.New(404, UserErrorReason_GET_ACHIEVEMENT_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsGetUserFollowFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_GET_USER_FOLLOW_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetUserFollowFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, UserErrorReason_GET_USER_FOLLOW_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsGetFollowListFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_GET_FOLLOW_LIST_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetFollowListFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, UserErrorReason_GET_FOLLOW_LIST_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsGetFollowListCountFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_GET_FOLLOW_LIST_COUNT_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetFollowListCountFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, UserErrorReason_GET_FOLLOW_LIST_COUNT_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsSendCodeFailed(err error) bool {
 	if err == nil {
 		return false
@@ -227,6 +263,18 @@ func ErrorSetPasswordFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, UserErrorReason_SET_PASSWORD_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsSetFollowFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_SET_FOLLOW_FAILED.String() && e.Code == 500
+}
+
+func ErrorSetFollowFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, UserErrorReason_SET_FOLLOW_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsSetImageFailed(err error) bool {
 	if err == nil {
 		return false
@@ -237,6 +285,18 @@ func IsSetImageFailed(err error) bool {
 
 func ErrorSetImageFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, UserErrorReason_SET_IMAGE_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsCancelFollowFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_CANCEL_FOLLOW_FAILED.String() && e.Code == 500
+}
+
+func ErrorCancelFollowFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, UserErrorReason_CANCEL_FOLLOW_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
 func IsLoginFailed(err error) bool {
