@@ -35,9 +35,17 @@ type UserClient interface {
 	SetUserPhone(ctx context.Context, in *SetUserPhoneReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetUserEmail(ctx context.Context, in *SetUserEmailReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetUserPassword(ctx context.Context, in *SetUserPasswordReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetUserFollow(ctx context.Context, in *SetUserFollowReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CancelUserFollow(ctx context.Context, in *CancelUserFollowReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetAccount(ctx context.Context, in *GetAccountReq, opts ...grpc.CallOption) (*GetAccountReply, error)
 	GetProfile(ctx context.Context, in *GetProfileReq, opts ...grpc.CallOption) (*GetProfileReply, error)
 	GetProfileUpdate(ctx context.Context, in *GetProfileUpdateReq, opts ...grpc.CallOption) (*GetProfileUpdateReply, error)
+	GetUserFollow(ctx context.Context, in *GetUserFollowReq, opts ...grpc.CallOption) (*GetUserFollowReply, error)
+	GetFollowList(ctx context.Context, in *GetFollowListReq, opts ...grpc.CallOption) (*GetFollowListReply, error)
+	GetFollowListCount(ctx context.Context, in *GetFollowListCountReq, opts ...grpc.CallOption) (*GetFollowListCountReply, error)
+	GetFollowedList(ctx context.Context, in *GetFollowedListReq, opts ...grpc.CallOption) (*GetFollowedListReply, error)
+	GetFollowedListCount(ctx context.Context, in *GetFollowedListCountReq, opts ...grpc.CallOption) (*GetFollowedListCountReply, error)
+	GetAchievementList(ctx context.Context, in *GetAchievementListReq, opts ...grpc.CallOption) (*GetAchievementListReply, error)
 	SetProfileUpdate(ctx context.Context, in *SetProfileUpdateReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ProfileReviewPass(ctx context.Context, in *ProfileReviewPassReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ProfileReviewNotPass(ctx context.Context, in *ProfileReviewNotPassReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -162,6 +170,24 @@ func (c *userClient) SetUserPassword(ctx context.Context, in *SetUserPasswordReq
 	return out, nil
 }
 
+func (c *userClient) SetUserFollow(ctx context.Context, in *SetUserFollowReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/user.v1.User/SetUserFollow", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) CancelUserFollow(ctx context.Context, in *CancelUserFollowReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/user.v1.User/CancelUserFollow", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *userClient) GetAccount(ctx context.Context, in *GetAccountReq, opts ...grpc.CallOption) (*GetAccountReply, error) {
 	out := new(GetAccountReply)
 	err := c.cc.Invoke(ctx, "/user.v1.User/GetAccount", in, out, opts...)
@@ -183,6 +209,60 @@ func (c *userClient) GetProfile(ctx context.Context, in *GetProfileReq, opts ...
 func (c *userClient) GetProfileUpdate(ctx context.Context, in *GetProfileUpdateReq, opts ...grpc.CallOption) (*GetProfileUpdateReply, error) {
 	out := new(GetProfileUpdateReply)
 	err := c.cc.Invoke(ctx, "/user.v1.User/GetProfileUpdate", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) GetUserFollow(ctx context.Context, in *GetUserFollowReq, opts ...grpc.CallOption) (*GetUserFollowReply, error) {
+	out := new(GetUserFollowReply)
+	err := c.cc.Invoke(ctx, "/user.v1.User/GetUserFollow", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) GetFollowList(ctx context.Context, in *GetFollowListReq, opts ...grpc.CallOption) (*GetFollowListReply, error) {
+	out := new(GetFollowListReply)
+	err := c.cc.Invoke(ctx, "/user.v1.User/GetFollowList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) GetFollowListCount(ctx context.Context, in *GetFollowListCountReq, opts ...grpc.CallOption) (*GetFollowListCountReply, error) {
+	out := new(GetFollowListCountReply)
+	err := c.cc.Invoke(ctx, "/user.v1.User/GetFollowListCount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) GetFollowedList(ctx context.Context, in *GetFollowedListReq, opts ...grpc.CallOption) (*GetFollowedListReply, error) {
+	out := new(GetFollowedListReply)
+	err := c.cc.Invoke(ctx, "/user.v1.User/GetFollowedList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) GetFollowedListCount(ctx context.Context, in *GetFollowedListCountReq, opts ...grpc.CallOption) (*GetFollowedListCountReply, error) {
+	out := new(GetFollowedListCountReply)
+	err := c.cc.Invoke(ctx, "/user.v1.User/GetFollowedListCount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) GetAchievementList(ctx context.Context, in *GetAchievementListReq, opts ...grpc.CallOption) (*GetAchievementListReply, error) {
+	out := new(GetAchievementListReply)
+	err := c.cc.Invoke(ctx, "/user.v1.User/GetAchievementList", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -259,9 +339,17 @@ type UserServer interface {
 	SetUserPhone(context.Context, *SetUserPhoneReq) (*emptypb.Empty, error)
 	SetUserEmail(context.Context, *SetUserEmailReq) (*emptypb.Empty, error)
 	SetUserPassword(context.Context, *SetUserPasswordReq) (*emptypb.Empty, error)
+	SetUserFollow(context.Context, *SetUserFollowReq) (*emptypb.Empty, error)
+	CancelUserFollow(context.Context, *CancelUserFollowReq) (*emptypb.Empty, error)
 	GetAccount(context.Context, *GetAccountReq) (*GetAccountReply, error)
 	GetProfile(context.Context, *GetProfileReq) (*GetProfileReply, error)
 	GetProfileUpdate(context.Context, *GetProfileUpdateReq) (*GetProfileUpdateReply, error)
+	GetUserFollow(context.Context, *GetUserFollowReq) (*GetUserFollowReply, error)
+	GetFollowList(context.Context, *GetFollowListReq) (*GetFollowListReply, error)
+	GetFollowListCount(context.Context, *GetFollowListCountReq) (*GetFollowListCountReply, error)
+	GetFollowedList(context.Context, *GetFollowedListReq) (*GetFollowedListReply, error)
+	GetFollowedListCount(context.Context, *GetFollowedListCountReq) (*GetFollowedListCountReply, error)
+	GetAchievementList(context.Context, *GetAchievementListReq) (*GetAchievementListReply, error)
 	SetProfileUpdate(context.Context, *SetProfileUpdateReq) (*emptypb.Empty, error)
 	ProfileReviewPass(context.Context, *ProfileReviewPassReq) (*emptypb.Empty, error)
 	ProfileReviewNotPass(context.Context, *ProfileReviewNotPassReq) (*emptypb.Empty, error)
@@ -311,6 +399,12 @@ func (UnimplementedUserServer) SetUserEmail(context.Context, *SetUserEmailReq) (
 func (UnimplementedUserServer) SetUserPassword(context.Context, *SetUserPasswordReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetUserPassword not implemented")
 }
+func (UnimplementedUserServer) SetUserFollow(context.Context, *SetUserFollowReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetUserFollow not implemented")
+}
+func (UnimplementedUserServer) CancelUserFollow(context.Context, *CancelUserFollowReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelUserFollow not implemented")
+}
 func (UnimplementedUserServer) GetAccount(context.Context, *GetAccountReq) (*GetAccountReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAccount not implemented")
 }
@@ -319,6 +413,24 @@ func (UnimplementedUserServer) GetProfile(context.Context, *GetProfileReq) (*Get
 }
 func (UnimplementedUserServer) GetProfileUpdate(context.Context, *GetProfileUpdateReq) (*GetProfileUpdateReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProfileUpdate not implemented")
+}
+func (UnimplementedUserServer) GetUserFollow(context.Context, *GetUserFollowReq) (*GetUserFollowReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserFollow not implemented")
+}
+func (UnimplementedUserServer) GetFollowList(context.Context, *GetFollowListReq) (*GetFollowListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFollowList not implemented")
+}
+func (UnimplementedUserServer) GetFollowListCount(context.Context, *GetFollowListCountReq) (*GetFollowListCountReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFollowListCount not implemented")
+}
+func (UnimplementedUserServer) GetFollowedList(context.Context, *GetFollowedListReq) (*GetFollowedListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFollowedList not implemented")
+}
+func (UnimplementedUserServer) GetFollowedListCount(context.Context, *GetFollowedListCountReq) (*GetFollowedListCountReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFollowedListCount not implemented")
+}
+func (UnimplementedUserServer) GetAchievementList(context.Context, *GetAchievementListReq) (*GetAchievementListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAchievementList not implemented")
 }
 func (UnimplementedUserServer) SetProfileUpdate(context.Context, *SetProfileUpdateReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetProfileUpdate not implemented")
@@ -567,6 +679,42 @@ func _User_SetUserPassword_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _User_SetUserFollow_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetUserFollowReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).SetUserFollow(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/SetUserFollow",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).SetUserFollow(ctx, req.(*SetUserFollowReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_CancelUserFollow_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelUserFollowReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).CancelUserFollow(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/CancelUserFollow",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).CancelUserFollow(ctx, req.(*CancelUserFollowReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _User_GetAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetAccountReq)
 	if err := dec(in); err != nil {
@@ -617,6 +765,114 @@ func _User_GetProfileUpdate_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServer).GetProfileUpdate(ctx, req.(*GetProfileUpdateReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_GetUserFollow_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserFollowReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetUserFollow(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/GetUserFollow",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetUserFollow(ctx, req.(*GetUserFollowReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_GetFollowList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFollowListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetFollowList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/GetFollowList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetFollowList(ctx, req.(*GetFollowListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_GetFollowListCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFollowListCountReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetFollowListCount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/GetFollowListCount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetFollowListCount(ctx, req.(*GetFollowListCountReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_GetFollowedList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFollowedListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetFollowedList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/GetFollowedList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetFollowedList(ctx, req.(*GetFollowedListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_GetFollowedListCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFollowedListCountReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetFollowedListCount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/GetFollowedListCount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetFollowedListCount(ctx, req.(*GetFollowedListCountReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_GetAchievementList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAchievementListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetAchievementList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/GetAchievementList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetAchievementList(ctx, req.(*GetAchievementListReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -785,6 +1041,14 @@ var User_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _User_SetUserPassword_Handler,
 		},
 		{
+			MethodName: "SetUserFollow",
+			Handler:    _User_SetUserFollow_Handler,
+		},
+		{
+			MethodName: "CancelUserFollow",
+			Handler:    _User_CancelUserFollow_Handler,
+		},
+		{
 			MethodName: "GetAccount",
 			Handler:    _User_GetAccount_Handler,
 		},
@@ -795,6 +1059,30 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetProfileUpdate",
 			Handler:    _User_GetProfileUpdate_Handler,
+		},
+		{
+			MethodName: "GetUserFollow",
+			Handler:    _User_GetUserFollow_Handler,
+		},
+		{
+			MethodName: "GetFollowList",
+			Handler:    _User_GetFollowList_Handler,
+		},
+		{
+			MethodName: "GetFollowListCount",
+			Handler:    _User_GetFollowListCount_Handler,
+		},
+		{
+			MethodName: "GetFollowedList",
+			Handler:    _User_GetFollowedList_Handler,
+		},
+		{
+			MethodName: "GetFollowedListCount",
+			Handler:    _User_GetFollowedListCount_Handler,
+		},
+		{
+			MethodName: "GetAchievementList",
+			Handler:    _User_GetAchievementList_Handler,
 		},
 		{
 			MethodName: "SetProfileUpdate",
