@@ -33,11 +33,28 @@ service User {
 
   rpc SetUserPassword (SetUserPasswordReq) returns (google.protobuf.Empty) {}
 
+  rpc SetUserFollow (SetUserFollowReq) returns (google.protobuf.Empty) {}
+
+  rpc CancelUserFollow (CancelUserFollowReq) returns (google.protobuf.Empty) {}
+
   rpc GetAccount (GetAccountReq) returns (GetAccountReply) {}
 
   rpc GetProfile (GetProfileReq) returns (GetProfileReply) {}
 
   rpc GetProfileUpdate (GetProfileUpdateReq) returns (GetProfileUpdateReply) {}
+
+  rpc GetUserFollow (GetUserFollowReq) returns (GetUserFollowReply) {}
+
+  rpc GetFollowList (GetFollowListReq) returns (GetFollowListReply) {}
+
+  rpc GetFollowListCount (GetFollowListCountReq) returns (GetFollowListCountReply) {}
+
+  rpc GetFollowedList (GetFollowedListReq) returns (GetFollowedListReply) {}
+
+  rpc GetFollowedListCount (GetFollowedListCountReq) returns (GetFollowedListCountReply) {}
+
+  rpc GetAchievementList(GetAchievementListReq) returns (GetAchievementListReply){}
+
 
   rpc SetProfileUpdate (SetProfileUpdateReq) returns (google.protobuf.Empty) {}
 
@@ -127,6 +144,16 @@ message SetUserPasswordReq{
   string password = 2 [(validate.rules).string = {min_len:1, max_len: 20}];
 }
 
+message SetUserFollowReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+  string user_uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message CancelUserFollowReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+  string user_uuid = 2 [(validate.rules).string.uuid = true];
+}
+
 message ChangeUserPasswordReq{
   string uuid = 1 [(validate.rules).string.uuid = true];
   string oldpassword = 2 [(validate.rules).string = {min_len:1, max_len: 20}];
@@ -188,6 +215,70 @@ message GetProfileUpdateReply{
   string homepage = 6;
   string introduce = 7;
   int32 status = 8;
+}
+
+message GetUserFollowReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+  string user_uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message GetUserFollowReply{
+  bool follow = 1;
+}
+
+message GetFollowListReq{
+  int32 page = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message GetFollowListReply{
+  message Follow{
+    string uuid = 1;
+  }
+  repeated Follow follow = 1;
+}
+
+message GetFollowListCountReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+message GetFollowListCountReply{
+  int32 count = 1;
+}
+
+message GetFollowedListReq{
+  int32 page = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message GetFollowedListReply{
+  message Follow{
+    string uuid = 1;
+  }
+  repeated Follow follow = 1;
+}
+
+message GetFollowedListCountReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+message GetFollowedListCountReply{
+  int32 count = 1;
+}
+
+message GetAchievementListReq{
+  repeated string uuids = 1;
+}
+
+message GetAchievementListReply{
+  message Achievement{
+    string uuid = 1;
+    int32 view = 2;
+    int32 agree = 3;
+    int32 followed = 4;
+    int32 follow = 5;
+  }
+  repeated Achievement achievement = 1;
 }
 
 message SetProfileUpdateReq{
