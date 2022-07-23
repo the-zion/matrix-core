@@ -23,40 +23,52 @@ func ErrorUnknownError(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, AchievementErrorReason_UNKNOWN_ERROR.String(), fmt.Sprintf(format, args...))
 }
 
-func IsSendAchievementAgreeFailed(err error) bool {
+func IsSetAchievementAgreeFailed(err error) bool {
 	if err == nil {
 		return false
 	}
 	e := errors.FromError(err)
-	return e.Reason == AchievementErrorReason_SEND_ACHIEVEMENT_AGREE_FAILED.String() && e.Code == 500
+	return e.Reason == AchievementErrorReason_SET_ACHIEVEMENT_AGREE_FAILED.String() && e.Code == 500
 }
 
-func ErrorSendAchievementAgreeFailed(format string, args ...interface{}) *errors.Error {
-	return errors.New(500, AchievementErrorReason_SEND_ACHIEVEMENT_AGREE_FAILED.String(), fmt.Sprintf(format, args...))
+func ErrorSetAchievementAgreeFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, AchievementErrorReason_SET_ACHIEVEMENT_AGREE_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
-func IsSendAchievementViewFailed(err error) bool {
+func IsSetAchievementViewFailed(err error) bool {
 	if err == nil {
 		return false
 	}
 	e := errors.FromError(err)
-	return e.Reason == AchievementErrorReason_SEND_ACHIEVEMENT_VIEW_FAILED.String() && e.Code == 500
+	return e.Reason == AchievementErrorReason_SET_ACHIEVEMENT_VIEW_FAILED.String() && e.Code == 500
 }
 
-func ErrorSendAchievementViewFailed(format string, args ...interface{}) *errors.Error {
-	return errors.New(500, AchievementErrorReason_SEND_ACHIEVEMENT_VIEW_FAILED.String(), fmt.Sprintf(format, args...))
+func ErrorSetAchievementViewFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, AchievementErrorReason_SET_ACHIEVEMENT_VIEW_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
-func IsSendAchievementCollectFailed(err error) bool {
+func IsSetAchievementCollectFailed(err error) bool {
 	if err == nil {
 		return false
 	}
 	e := errors.FromError(err)
-	return e.Reason == AchievementErrorReason_SEND_ACHIEVEMENT_COLLECT_FAILED.String() && e.Code == 500
+	return e.Reason == AchievementErrorReason_SET_ACHIEVEMENT_COLLECT_FAILED.String() && e.Code == 500
 }
 
-func ErrorSendAchievementCollectFailed(format string, args ...interface{}) *errors.Error {
-	return errors.New(500, AchievementErrorReason_SEND_ACHIEVEMENT_COLLECT_FAILED.String(), fmt.Sprintf(format, args...))
+func ErrorSetAchievementCollectFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, AchievementErrorReason_SET_ACHIEVEMENT_COLLECT_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsSetAchievementFollowFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == AchievementErrorReason_SET_ACHIEVEMENT_FOLLOW_FAILED.String() && e.Code == 500
+}
+
+func ErrorSetAchievementFollowFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, AchievementErrorReason_SET_ACHIEVEMENT_FOLLOW_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
 func IsCancelAchievementAgreeFailed(err error) bool {
@@ -69,4 +81,28 @@ func IsCancelAchievementAgreeFailed(err error) bool {
 
 func ErrorCancelAchievementAgreeFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, AchievementErrorReason_CANCEL_ACHIEVEMENT_AGREE_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsCancelAchievementCollectFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == AchievementErrorReason_CANCEL_ACHIEVEMENT_COLLECT_FAILED.String() && e.Code == 500
+}
+
+func ErrorCancelAchievementCollectFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, AchievementErrorReason_CANCEL_ACHIEVEMENT_COLLECT_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsCancelAchievementFollowFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == AchievementErrorReason_CANCEL_ACHIEVEMENT_FOLLOW_FAILED.String() && e.Code == 500
+}
+
+func ErrorCancelAchievementFollowFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, AchievementErrorReason_CANCEL_ACHIEVEMENT_FOLLOW_FAILED.String(), fmt.Sprintf(format, args...))
 }
