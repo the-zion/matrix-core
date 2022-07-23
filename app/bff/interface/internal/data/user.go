@@ -193,6 +193,97 @@ func (r *userRepo) GetProfileUpdate(ctx context.Context, uuid string) (*biz.User
 	return pu, nil
 }
 
+func (r *userRepo) GetUserFollow(ctx context.Context, uuid, userUuid string) (bool, error) {
+	reply, err := r.data.uc.GetUserFollow(ctx, &userV1.GetUserFollowReq{
+		Uuid:     uuid,
+		UserUuid: userUuid,
+	})
+	if err != nil {
+		return false, err
+	}
+	return reply.Follow, nil
+}
+
+func (r *userRepo) GetFollowList(ctx context.Context, page int32, uuid string) ([]*biz.Follow, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_follow_%s", uuid), func() (interface{}, error) {
+		reply := make([]*biz.Follow, 0)
+		followList, err := r.data.uc.GetFollowList(ctx, &userV1.GetFollowListReq{
+			Page: page,
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		for _, item := range followList.List {
+			reply = append(reply, &biz.Follow{
+				Follow: item,
+			})
+		}
+		return reply, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.([]*biz.Follow), nil
+}
+
+func (r *userRepo) GetFollowListCount(ctx context.Context, uuid string) (int32, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_follow_count_%s", uuid), func() (interface{}, error) {
+		reply, err := r.data.uc.GetFollowListCount(ctx, &userV1.GetFollowListCountReq{
+			Uuid: uuid,
+		})
+		if err != nil {
+			return 0, err
+		}
+		return reply.Count, nil
+	})
+	if err != nil {
+		return 0, err
+	}
+	return result.(int32), nil
+}
+
+func (r *userRepo) GetFollowedList(ctx context.Context, page int32, uuid string) ([]*biz.Follow, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_followed_%s", uuid), func() (interface{}, error) {
+		reply := make([]*biz.Follow, 0)
+		followedList, err := r.data.uc.GetFollowedList(ctx, &userV1.GetFollowedListReq{
+			Page: page,
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		for _, item := range followedList.List {
+			reply = append(reply, &biz.Follow{
+				Followed: item,
+			})
+		}
+		return reply, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.([]*biz.Follow), nil
+}
+
+func (r *userRepo) GetFollowedListCount(ctx context.Context, uuid string) (int32, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_followed_count_%s", uuid), func() (interface{}, error) {
+		reply, err := r.data.uc.GetFollowedListCount(ctx, &userV1.GetFollowedListCountReq{
+			Uuid: uuid,
+		})
+		if err != nil {
+			return 0, err
+		}
+		return reply.Count, nil
+	})
+	if err != nil {
+		return 0, err
+	}
+	return result.(int32), nil
+}
+
 func (r *userRepo) SetProfileUpdate(ctx context.Context, profile *biz.UserProfileUpdate) error {
 	_, err := r.data.uc.SetProfileUpdate(ctx, &userV1.SetProfileUpdateReq{
 		Uuid:      profile.Uuid,
@@ -237,6 +328,28 @@ func (r *userRepo) SetUserPassword(ctx context.Context, uuid, password string) e
 	_, err := r.data.uc.SetUserPassword(ctx, &userV1.SetUserPasswordReq{
 		Uuid:     uuid,
 		Password: password,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *userRepo) SetUserFollow(ctx context.Context, uuid, userUuid string) error {
+	_, err := r.data.uc.SetUserFollow(ctx, &userV1.SetUserFollowReq{
+		Uuid:     uuid,
+		UserUuid: userUuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *userRepo) CancelUserFollow(ctx context.Context, uuid, userUuid string) error {
+	_, err := r.data.uc.CancelUserFollow(ctx, &userV1.CancelUserFollowReq{
+		Uuid:     uuid,
+		UserUuid: userUuid,
 	})
 	if err != nil {
 		return err
