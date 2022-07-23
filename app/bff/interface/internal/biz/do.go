@@ -50,6 +50,12 @@ type AvatarReview struct {
 	EventName  string
 }
 
+type Follow struct {
+	Follow   string
+	Followed string
+	Status   int32
+}
+
 type PornInfo struct {
 	HitFlag int32
 	Count   int32
@@ -205,4 +211,13 @@ type ColumnStatistic struct {
 type ColumnStatisticJudge struct {
 	Agree   bool
 	Collect bool
+}
+
+type Achievement struct {
+	Uuid     string
+	Agree    int32
+	Collect  int32
+	View     int32
+	Follow   int32
+	Followed int32
 }
