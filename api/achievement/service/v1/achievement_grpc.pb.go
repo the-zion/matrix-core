@@ -30,6 +30,7 @@ type AchievementClient interface {
 	CancelAchievementCollect(ctx context.Context, in *CancelAchievementCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetAchievementFollow(ctx context.Context, in *SetAchievementFollowReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelAchievementFollow(ctx context.Context, in *CancelAchievementFollowReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetAchievementList(ctx context.Context, in *GetAchievementListReq, opts ...grpc.CallOption) (*GetAchievementListReply, error)
 	GetHealth(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
@@ -104,6 +105,15 @@ func (c *achievementClient) CancelAchievementFollow(ctx context.Context, in *Can
 	return out, nil
 }
 
+func (c *achievementClient) GetAchievementList(ctx context.Context, in *GetAchievementListReq, opts ...grpc.CallOption) (*GetAchievementListReply, error) {
+	out := new(GetAchievementListReply)
+	err := c.cc.Invoke(ctx, "/achievement.v1.Achievement/GetAchievementList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *achievementClient) GetHealth(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/achievement.v1.Achievement/GetHealth", in, out, opts...)
@@ -124,6 +134,7 @@ type AchievementServer interface {
 	CancelAchievementCollect(context.Context, *CancelAchievementCollectReq) (*emptypb.Empty, error)
 	SetAchievementFollow(context.Context, *SetAchievementFollowReq) (*emptypb.Empty, error)
 	CancelAchievementFollow(context.Context, *CancelAchievementFollowReq) (*emptypb.Empty, error)
+	GetAchievementList(context.Context, *GetAchievementListReq) (*GetAchievementListReply, error)
 	GetHealth(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	mustEmbedUnimplementedAchievementServer()
 }
@@ -152,6 +163,9 @@ func (UnimplementedAchievementServer) SetAchievementFollow(context.Context, *Set
 }
 func (UnimplementedAchievementServer) CancelAchievementFollow(context.Context, *CancelAchievementFollowReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CancelAchievementFollow not implemented")
+}
+func (UnimplementedAchievementServer) GetAchievementList(context.Context, *GetAchievementListReq) (*GetAchievementListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAchievementList not implemented")
 }
 func (UnimplementedAchievementServer) GetHealth(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetHealth not implemented")
@@ -295,6 +309,24 @@ func _Achievement_CancelAchievementFollow_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Achievement_GetAchievementList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAchievementListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AchievementServer).GetAchievementList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/achievement.v1.Achievement/GetAchievementList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AchievementServer).GetAchievementList(ctx, req.(*GetAchievementListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Achievement_GetHealth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
@@ -347,6 +379,10 @@ var Achievement_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CancelAchievementFollow",
 			Handler:    _Achievement_CancelAchievementFollow_Handler,
+		},
+		{
+			MethodName: "GetAchievementList",
+			Handler:    _Achievement_GetAchievementList_Handler,
 		},
 		{
 			MethodName: "GetHealth",
