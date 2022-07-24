@@ -39,13 +39,14 @@ type UserClient interface {
 	CancelUserFollow(ctx context.Context, in *CancelUserFollowReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetAccount(ctx context.Context, in *GetAccountReq, opts ...grpc.CallOption) (*GetAccountReply, error)
 	GetProfile(ctx context.Context, in *GetProfileReq, opts ...grpc.CallOption) (*GetProfileReply, error)
+	GetProfileList(ctx context.Context, in *GetProfileListReq, opts ...grpc.CallOption) (*GetProfileListReply, error)
 	GetProfileUpdate(ctx context.Context, in *GetProfileUpdateReq, opts ...grpc.CallOption) (*GetProfileUpdateReply, error)
 	GetUserFollow(ctx context.Context, in *GetUserFollowReq, opts ...grpc.CallOption) (*GetUserFollowReply, error)
 	GetFollowList(ctx context.Context, in *GetFollowListReq, opts ...grpc.CallOption) (*GetFollowListReply, error)
 	GetFollowListCount(ctx context.Context, in *GetFollowListCountReq, opts ...grpc.CallOption) (*GetFollowListCountReply, error)
 	GetFollowedList(ctx context.Context, in *GetFollowedListReq, opts ...grpc.CallOption) (*GetFollowedListReply, error)
 	GetFollowedListCount(ctx context.Context, in *GetFollowedListCountReq, opts ...grpc.CallOption) (*GetFollowedListCountReply, error)
-	GetAchievementList(ctx context.Context, in *GetAchievementListReq, opts ...grpc.CallOption) (*GetAchievementListReply, error)
+	GetUserFollows(ctx context.Context, in *GetUserFollowsReq, opts ...grpc.CallOption) (*GetUserFollowsReply, error)
 	SetProfileUpdate(ctx context.Context, in *SetProfileUpdateReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ProfileReviewPass(ctx context.Context, in *ProfileReviewPassReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ProfileReviewNotPass(ctx context.Context, in *ProfileReviewNotPassReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -206,6 +207,15 @@ func (c *userClient) GetProfile(ctx context.Context, in *GetProfileReq, opts ...
 	return out, nil
 }
 
+func (c *userClient) GetProfileList(ctx context.Context, in *GetProfileListReq, opts ...grpc.CallOption) (*GetProfileListReply, error) {
+	out := new(GetProfileListReply)
+	err := c.cc.Invoke(ctx, "/user.v1.User/GetProfileList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *userClient) GetProfileUpdate(ctx context.Context, in *GetProfileUpdateReq, opts ...grpc.CallOption) (*GetProfileUpdateReply, error) {
 	out := new(GetProfileUpdateReply)
 	err := c.cc.Invoke(ctx, "/user.v1.User/GetProfileUpdate", in, out, opts...)
@@ -260,9 +270,9 @@ func (c *userClient) GetFollowedListCount(ctx context.Context, in *GetFollowedLi
 	return out, nil
 }
 
-func (c *userClient) GetAchievementList(ctx context.Context, in *GetAchievementListReq, opts ...grpc.CallOption) (*GetAchievementListReply, error) {
-	out := new(GetAchievementListReply)
-	err := c.cc.Invoke(ctx, "/user.v1.User/GetAchievementList", in, out, opts...)
+func (c *userClient) GetUserFollows(ctx context.Context, in *GetUserFollowsReq, opts ...grpc.CallOption) (*GetUserFollowsReply, error) {
+	out := new(GetUserFollowsReply)
+	err := c.cc.Invoke(ctx, "/user.v1.User/GetUserFollows", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -343,13 +353,14 @@ type UserServer interface {
 	CancelUserFollow(context.Context, *CancelUserFollowReq) (*emptypb.Empty, error)
 	GetAccount(context.Context, *GetAccountReq) (*GetAccountReply, error)
 	GetProfile(context.Context, *GetProfileReq) (*GetProfileReply, error)
+	GetProfileList(context.Context, *GetProfileListReq) (*GetProfileListReply, error)
 	GetProfileUpdate(context.Context, *GetProfileUpdateReq) (*GetProfileUpdateReply, error)
 	GetUserFollow(context.Context, *GetUserFollowReq) (*GetUserFollowReply, error)
 	GetFollowList(context.Context, *GetFollowListReq) (*GetFollowListReply, error)
 	GetFollowListCount(context.Context, *GetFollowListCountReq) (*GetFollowListCountReply, error)
 	GetFollowedList(context.Context, *GetFollowedListReq) (*GetFollowedListReply, error)
 	GetFollowedListCount(context.Context, *GetFollowedListCountReq) (*GetFollowedListCountReply, error)
-	GetAchievementList(context.Context, *GetAchievementListReq) (*GetAchievementListReply, error)
+	GetUserFollows(context.Context, *GetUserFollowsReq) (*GetUserFollowsReply, error)
 	SetProfileUpdate(context.Context, *SetProfileUpdateReq) (*emptypb.Empty, error)
 	ProfileReviewPass(context.Context, *ProfileReviewPassReq) (*emptypb.Empty, error)
 	ProfileReviewNotPass(context.Context, *ProfileReviewNotPassReq) (*emptypb.Empty, error)
@@ -411,6 +422,9 @@ func (UnimplementedUserServer) GetAccount(context.Context, *GetAccountReq) (*Get
 func (UnimplementedUserServer) GetProfile(context.Context, *GetProfileReq) (*GetProfileReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProfile not implemented")
 }
+func (UnimplementedUserServer) GetProfileList(context.Context, *GetProfileListReq) (*GetProfileListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetProfileList not implemented")
+}
 func (UnimplementedUserServer) GetProfileUpdate(context.Context, *GetProfileUpdateReq) (*GetProfileUpdateReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProfileUpdate not implemented")
 }
@@ -429,8 +443,8 @@ func (UnimplementedUserServer) GetFollowedList(context.Context, *GetFollowedList
 func (UnimplementedUserServer) GetFollowedListCount(context.Context, *GetFollowedListCountReq) (*GetFollowedListCountReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFollowedListCount not implemented")
 }
-func (UnimplementedUserServer) GetAchievementList(context.Context, *GetAchievementListReq) (*GetAchievementListReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetAchievementList not implemented")
+func (UnimplementedUserServer) GetUserFollows(context.Context, *GetUserFollowsReq) (*GetUserFollowsReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserFollows not implemented")
 }
 func (UnimplementedUserServer) SetProfileUpdate(context.Context, *SetProfileUpdateReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetProfileUpdate not implemented")
@@ -751,6 +765,24 @@ func _User_GetProfile_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _User_GetProfileList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetProfileListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetProfileList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/GetProfileList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetProfileList(ctx, req.(*GetProfileListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _User_GetProfileUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetProfileUpdateReq)
 	if err := dec(in); err != nil {
@@ -859,20 +891,20 @@ func _User_GetFollowedListCount_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
-func _User_GetAchievementList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetAchievementListReq)
+func _User_GetUserFollows_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserFollowsReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServer).GetAchievementList(ctx, in)
+		return srv.(UserServer).GetUserFollows(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.v1.User/GetAchievementList",
+		FullMethod: "/user.v1.User/GetUserFollows",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).GetAchievementList(ctx, req.(*GetAchievementListReq))
+		return srv.(UserServer).GetUserFollows(ctx, req.(*GetUserFollowsReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1057,6 +1089,10 @@ var User_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _User_GetProfile_Handler,
 		},
 		{
+			MethodName: "GetProfileList",
+			Handler:    _User_GetProfileList_Handler,
+		},
+		{
 			MethodName: "GetProfileUpdate",
 			Handler:    _User_GetProfileUpdate_Handler,
 		},
@@ -1081,8 +1117,8 @@ var User_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _User_GetFollowedListCount_Handler,
 		},
 		{
-			MethodName: "GetAchievementList",
-			Handler:    _User_GetAchievementList_Handler,
+			MethodName: "GetUserFollows",
+			Handler:    _User_GetUserFollows_Handler,
 		},
 		{
 			MethodName: "SetProfileUpdate",
