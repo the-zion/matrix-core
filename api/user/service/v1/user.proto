@@ -41,6 +41,8 @@ service User {
 
   rpc GetProfile (GetProfileReq) returns (GetProfileReply) {}
 
+  rpc GetProfileList (GetProfileListReq) returns (GetProfileListReply) {}
+
   rpc GetProfileUpdate (GetProfileUpdateReq) returns (GetProfileUpdateReply) {}
 
   rpc GetUserFollow (GetUserFollowReq) returns (GetUserFollowReply) {}
@@ -53,8 +55,7 @@ service User {
 
   rpc GetFollowedListCount (GetFollowedListCountReq) returns (GetFollowedListCountReply) {}
 
-  rpc GetAchievementList(GetAchievementListReq) returns (GetAchievementListReply){}
-
+  rpc GetUserFollows (GetUserFollowsReq) returns (GetUserFollowsReply) {}
 
   rpc SetProfileUpdate (SetProfileUpdateReq) returns (google.protobuf.Empty) {}
 
@@ -202,6 +203,19 @@ message GetProfileReply{
   string created = 9;
 }
 
+message GetProfileListReq{
+  repeated string uuids = 1;
+}
+
+message GetProfileListReply{
+  message Profile{
+    string uuid = 1;
+    string username = 2;
+    string introduce = 3;
+  }
+  repeated Profile profile = 1;
+}
+
 message GetProfileUpdateReq{
   string uuid = 1 [(validate.rules).string.uuid = true];
 }
@@ -266,19 +280,17 @@ message GetFollowedListCountReply{
   int32 count = 1;
 }
 
-message GetAchievementListReq{
-  repeated string uuids = 1;
+message GetUserFollowsReq{
+  repeated string uuids = 1 [(validate.rules).repeated.items.string.uuid = true];
+  string userId = 2 [(validate.rules).string.uuid = true];
 }
 
-message GetAchievementListReply{
-  message Achievement{
+message GetUserFollowsReply{
+  message Follows{
     string uuid = 1;
-    int32 view = 2;
-    int32 agree = 3;
-    int32 followed = 4;
-    int32 follow = 5;
+    int32 follow_judge = 2;
   }
-  repeated Achievement achievement = 1;
+  repeated Follows follows = 1;
 }
 
 message SetProfileUpdateReq{
