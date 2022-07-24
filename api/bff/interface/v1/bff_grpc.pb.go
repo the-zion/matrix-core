@@ -34,8 +34,10 @@ type BffClient interface {
 	GetCosSessionKey(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCosSessionKeyReply, error)
 	GetAccount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetAccountReply, error)
 	GetProfile(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetProfileReply, error)
+	GetProfileList(ctx context.Context, in *GetProfileListReq, opts ...grpc.CallOption) (*GetProfileListReply, error)
 	GetUserInfo(ctx context.Context, in *GetUserInfoReq, opts ...grpc.CallOption) (*GetUserInfoReply, error)
 	GetUserFollow(ctx context.Context, in *GetUserFollowReq, opts ...grpc.CallOption) (*GetUserFollowReply, error)
+	GetUserFollows(ctx context.Context, in *GetUserFollowsReq, opts ...grpc.CallOption) (*GetUserFollowsReply, error)
 	GetFollowList(ctx context.Context, in *GetFollowListReq, opts ...grpc.CallOption) (*GetFollowListReply, error)
 	GetFollowListCount(ctx context.Context, in *GetFollowListCountReq, opts ...grpc.CallOption) (*GetFollowListCountReply, error)
 	GetFollowedList(ctx context.Context, in *GetFollowedListReq, opts ...grpc.CallOption) (*GetFollowedListReply, error)
@@ -109,7 +111,13 @@ type BffClient interface {
 	CancelTalkCollect(ctx context.Context, in *CancelTalkCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetLastColumnDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLastColumnDraftReply, error)
 	CreateColumnDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateColumnDraftReply, error)
+	SubscribeColumn(ctx context.Context, in *SubscribeColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CancelSubscribeColumn(ctx context.Context, in *CancelSubscribeColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SubscribeJudge(ctx context.Context, in *SubscribeJudgeReq, opts ...grpc.CallOption) (*SubscribeJudgeReply, error)
 	SendColumn(ctx context.Context, in *SendColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetSubscribeList(ctx context.Context, in *GetSubscribeListReq, opts ...grpc.CallOption) (*GetSubscribeListReply, error)
+	GetSubscribeListCount(ctx context.Context, in *GetSubscribeListCountReq, opts ...grpc.CallOption) (*GetSubscribeListCountReply, error)
+	GetColumnSubscribes(ctx context.Context, in *GetColumnSubscribesReq, opts ...grpc.CallOption) (*GetColumnSubscribesReply, error)
 	GetColumnList(ctx context.Context, in *GetColumnListReq, opts ...grpc.CallOption) (*GetColumnListReply, error)
 	GetColumnListHot(ctx context.Context, in *GetColumnListHotReq, opts ...grpc.CallOption) (*GetColumnListHotReply, error)
 	GetColumnListStatistic(ctx context.Context, in *GetColumnListStatisticReq, opts ...grpc.CallOption) (*GetColumnListStatisticReply, error)
@@ -238,6 +246,15 @@ func (c *bffClient) GetProfile(ctx context.Context, in *emptypb.Empty, opts ...g
 	return out, nil
 }
 
+func (c *bffClient) GetProfileList(ctx context.Context, in *GetProfileListReq, opts ...grpc.CallOption) (*GetProfileListReply, error) {
+	out := new(GetProfileListReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetProfileList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) GetUserInfo(ctx context.Context, in *GetUserInfoReq, opts ...grpc.CallOption) (*GetUserInfoReply, error) {
 	out := new(GetUserInfoReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserInfo", in, out, opts...)
@@ -250,6 +267,15 @@ func (c *bffClient) GetUserInfo(ctx context.Context, in *GetUserInfoReq, opts ..
 func (c *bffClient) GetUserFollow(ctx context.Context, in *GetUserFollowReq, opts ...grpc.CallOption) (*GetUserFollowReply, error) {
 	out := new(GetUserFollowReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserFollow", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetUserFollows(ctx context.Context, in *GetUserFollowsReq, opts ...grpc.CallOption) (*GetUserFollowsReply, error) {
+	out := new(GetUserFollowsReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserFollows", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -904,9 +930,63 @@ func (c *bffClient) CreateColumnDraft(ctx context.Context, in *emptypb.Empty, op
 	return out, nil
 }
 
+func (c *bffClient) SubscribeColumn(ctx context.Context, in *SubscribeColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SubscribeColumn", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) CancelSubscribeColumn(ctx context.Context, in *CancelSubscribeColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/CancelSubscribeColumn", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) SubscribeJudge(ctx context.Context, in *SubscribeJudgeReq, opts ...grpc.CallOption) (*SubscribeJudgeReply, error) {
+	out := new(SubscribeJudgeReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SubscribeJudge", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) SendColumn(ctx context.Context, in *SendColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SendColumn", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetSubscribeList(ctx context.Context, in *GetSubscribeListReq, opts ...grpc.CallOption) (*GetSubscribeListReply, error) {
+	out := new(GetSubscribeListReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetSubscribeList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetSubscribeListCount(ctx context.Context, in *GetSubscribeListCountReq, opts ...grpc.CallOption) (*GetSubscribeListCountReply, error) {
+	out := new(GetSubscribeListCountReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetSubscribeListCount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetColumnSubscribes(ctx context.Context, in *GetColumnSubscribesReq, opts ...grpc.CallOption) (*GetColumnSubscribesReply, error) {
+	out := new(GetColumnSubscribesReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetColumnSubscribes", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1099,8 +1179,10 @@ type BffServer interface {
 	GetCosSessionKey(context.Context, *emptypb.Empty) (*GetCosSessionKeyReply, error)
 	GetAccount(context.Context, *emptypb.Empty) (*GetAccountReply, error)
 	GetProfile(context.Context, *emptypb.Empty) (*GetProfileReply, error)
+	GetProfileList(context.Context, *GetProfileListReq) (*GetProfileListReply, error)
 	GetUserInfo(context.Context, *GetUserInfoReq) (*GetUserInfoReply, error)
 	GetUserFollow(context.Context, *GetUserFollowReq) (*GetUserFollowReply, error)
+	GetUserFollows(context.Context, *GetUserFollowsReq) (*GetUserFollowsReply, error)
 	GetFollowList(context.Context, *GetFollowListReq) (*GetFollowListReply, error)
 	GetFollowListCount(context.Context, *GetFollowListCountReq) (*GetFollowListCountReply, error)
 	GetFollowedList(context.Context, *GetFollowedListReq) (*GetFollowedListReply, error)
@@ -1174,7 +1256,13 @@ type BffServer interface {
 	CancelTalkCollect(context.Context, *CancelTalkCollectReq) (*emptypb.Empty, error)
 	GetLastColumnDraft(context.Context, *emptypb.Empty) (*GetLastColumnDraftReply, error)
 	CreateColumnDraft(context.Context, *emptypb.Empty) (*CreateColumnDraftReply, error)
+	SubscribeColumn(context.Context, *SubscribeColumnReq) (*emptypb.Empty, error)
+	CancelSubscribeColumn(context.Context, *CancelSubscribeColumnReq) (*emptypb.Empty, error)
+	SubscribeJudge(context.Context, *SubscribeJudgeReq) (*SubscribeJudgeReply, error)
 	SendColumn(context.Context, *SendColumnReq) (*emptypb.Empty, error)
+	GetSubscribeList(context.Context, *GetSubscribeListReq) (*GetSubscribeListReply, error)
+	GetSubscribeListCount(context.Context, *GetSubscribeListCountReq) (*GetSubscribeListCountReply, error)
+	GetColumnSubscribes(context.Context, *GetColumnSubscribesReq) (*GetColumnSubscribesReply, error)
 	GetColumnList(context.Context, *GetColumnListReq) (*GetColumnListReply, error)
 	GetColumnListHot(context.Context, *GetColumnListHotReq) (*GetColumnListHotReply, error)
 	GetColumnListStatistic(context.Context, *GetColumnListStatisticReq) (*GetColumnListStatisticReply, error)
@@ -1234,11 +1322,17 @@ func (UnimplementedBffServer) GetAccount(context.Context, *emptypb.Empty) (*GetA
 func (UnimplementedBffServer) GetProfile(context.Context, *emptypb.Empty) (*GetProfileReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProfile not implemented")
 }
+func (UnimplementedBffServer) GetProfileList(context.Context, *GetProfileListReq) (*GetProfileListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetProfileList not implemented")
+}
 func (UnimplementedBffServer) GetUserInfo(context.Context, *GetUserInfoReq) (*GetUserInfoReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserInfo not implemented")
 }
 func (UnimplementedBffServer) GetUserFollow(context.Context, *GetUserFollowReq) (*GetUserFollowReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserFollow not implemented")
+}
+func (UnimplementedBffServer) GetUserFollows(context.Context, *GetUserFollowsReq) (*GetUserFollowsReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserFollows not implemented")
 }
 func (UnimplementedBffServer) GetFollowList(context.Context, *GetFollowListReq) (*GetFollowListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFollowList not implemented")
@@ -1456,8 +1550,26 @@ func (UnimplementedBffServer) GetLastColumnDraft(context.Context, *emptypb.Empty
 func (UnimplementedBffServer) CreateColumnDraft(context.Context, *emptypb.Empty) (*CreateColumnDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateColumnDraft not implemented")
 }
+func (UnimplementedBffServer) SubscribeColumn(context.Context, *SubscribeColumnReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SubscribeColumn not implemented")
+}
+func (UnimplementedBffServer) CancelSubscribeColumn(context.Context, *CancelSubscribeColumnReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelSubscribeColumn not implemented")
+}
+func (UnimplementedBffServer) SubscribeJudge(context.Context, *SubscribeJudgeReq) (*SubscribeJudgeReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SubscribeJudge not implemented")
+}
 func (UnimplementedBffServer) SendColumn(context.Context, *SendColumnReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendColumn not implemented")
+}
+func (UnimplementedBffServer) GetSubscribeList(context.Context, *GetSubscribeListReq) (*GetSubscribeListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSubscribeList not implemented")
+}
+func (UnimplementedBffServer) GetSubscribeListCount(context.Context, *GetSubscribeListCountReq) (*GetSubscribeListCountReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSubscribeListCount not implemented")
+}
+func (UnimplementedBffServer) GetColumnSubscribes(context.Context, *GetColumnSubscribesReq) (*GetColumnSubscribesReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetColumnSubscribes not implemented")
 }
 func (UnimplementedBffServer) GetColumnList(context.Context, *GetColumnListReq) (*GetColumnListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetColumnList not implemented")
@@ -1727,6 +1839,24 @@ func _Bff_GetProfile_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_GetProfileList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetProfileListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetProfileList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetProfileList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetProfileList(ctx, req.(*GetProfileListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_GetUserInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetUserInfoReq)
 	if err := dec(in); err != nil {
@@ -1759,6 +1889,24 @@ func _Bff_GetUserFollow_Handler(srv interface{}, ctx context.Context, dec func(i
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BffServer).GetUserFollow(ctx, req.(*GetUserFollowReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetUserFollows_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserFollowsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetUserFollows(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetUserFollows",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetUserFollows(ctx, req.(*GetUserFollowsReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -3059,6 +3207,60 @@ func _Bff_CreateColumnDraft_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_SubscribeColumn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SubscribeColumnReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).SubscribeColumn(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/SubscribeColumn",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).SubscribeColumn(ctx, req.(*SubscribeColumnReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_CancelSubscribeColumn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelSubscribeColumnReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).CancelSubscribeColumn(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/CancelSubscribeColumn",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).CancelSubscribeColumn(ctx, req.(*CancelSubscribeColumnReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_SubscribeJudge_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SubscribeJudgeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).SubscribeJudge(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/SubscribeJudge",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).SubscribeJudge(ctx, req.(*SubscribeJudgeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_SendColumn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SendColumnReq)
 	if err := dec(in); err != nil {
@@ -3073,6 +3275,60 @@ func _Bff_SendColumn_Handler(srv interface{}, ctx context.Context, dec func(inte
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BffServer).SendColumn(ctx, req.(*SendColumnReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetSubscribeList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSubscribeListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetSubscribeList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetSubscribeList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetSubscribeList(ctx, req.(*GetSubscribeListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetSubscribeListCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSubscribeListCountReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetSubscribeListCount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetSubscribeListCount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetSubscribeListCount(ctx, req.(*GetSubscribeListCountReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetColumnSubscribes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetColumnSubscribesReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetColumnSubscribes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetColumnSubscribes",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetColumnSubscribes(ctx, req.(*GetColumnSubscribesReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -3471,12 +3727,20 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Bff_GetProfile_Handler,
 		},
 		{
+			MethodName: "GetProfileList",
+			Handler:    _Bff_GetProfileList_Handler,
+		},
+		{
 			MethodName: "GetUserInfo",
 			Handler:    _Bff_GetUserInfo_Handler,
 		},
 		{
 			MethodName: "GetUserFollow",
 			Handler:    _Bff_GetUserFollow_Handler,
+		},
+		{
+			MethodName: "GetUserFollows",
+			Handler:    _Bff_GetUserFollows_Handler,
 		},
 		{
 			MethodName: "GetFollowList",
@@ -3767,8 +4031,32 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Bff_CreateColumnDraft_Handler,
 		},
 		{
+			MethodName: "SubscribeColumn",
+			Handler:    _Bff_SubscribeColumn_Handler,
+		},
+		{
+			MethodName: "CancelSubscribeColumn",
+			Handler:    _Bff_CancelSubscribeColumn_Handler,
+		},
+		{
+			MethodName: "SubscribeJudge",
+			Handler:    _Bff_SubscribeJudge_Handler,
+		},
+		{
 			MethodName: "SendColumn",
 			Handler:    _Bff_SendColumn_Handler,
+		},
+		{
+			MethodName: "GetSubscribeList",
+			Handler:    _Bff_GetSubscribeList_Handler,
+		},
+		{
+			MethodName: "GetSubscribeListCount",
+			Handler:    _Bff_GetSubscribeListCount_Handler,
+		},
+		{
+			MethodName: "GetColumnSubscribes",
+			Handler:    _Bff_GetColumnSubscribes_Handler,
 		},
 		{
 			MethodName: "GetColumnList",
