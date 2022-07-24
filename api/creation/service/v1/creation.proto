@@ -152,6 +152,12 @@ service Creation {
 
   rpc CreateColumnCacheAndSearch(CreateColumnCacheAndSearchReq) returns (google.protobuf.Empty){}
 
+  rpc SubscribeColumn(SubscribeColumnReq) returns (google.protobuf.Empty){}
+
+  rpc CancelSubscribeColumn(CancelSubscribeColumnReq) returns (google.protobuf.Empty){}
+
+  rpc SubscribeJudge(SubscribeJudgeReq) returns (SubscribeJudgeReply){}
+
   rpc EditColumnCosAndSearch(EditColumnCosAndSearchReq) returns (google.protobuf.Empty){}
 
   rpc GetColumnList(GetColumnListReq) returns (GetColumnListReply){}
@@ -169,6 +175,12 @@ service Creation {
   rpc GetColumnCount(GetColumnCountReq) returns (GetColumnCountReply){}
 
   rpc GetColumnCountVisitor(GetColumnCountVisitorReq) returns (GetColumnCountReply){}
+
+  rpc GetSubscribeList(GetSubscribeListReq) returns (GetSubscribeListReply){}
+
+  rpc GetSubscribeListCount(GetSubscribeListCountReq) returns (GetSubscribeListCountReply){}
+
+  rpc GetColumnSubscribes(GetColumnSubscribesReq) returns (GetColumnSubscribesReply){}
 
   rpc SendColumnEdit(SendColumnEditReq) returns (google.protobuf.Empty){}
 
@@ -695,6 +707,25 @@ message CreateColumnCacheAndSearchReq{
   string uuid = 3 [(validate.rules).string.uuid = true];
 }
 
+message SubscribeColumnReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message CancelSubscribeColumnReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message SubscribeJudgeReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message SubscribeJudgeReply{
+  bool subscribe = 1;
+}
+
 message EditColumnCosAndSearchReq{
   int32 id = 1;
   int32 auth = 2;
@@ -774,6 +805,40 @@ message GetColumnCountVisitorReq{
 
 message GetColumnCountReply{
   int32 count = 1;
+}
+
+message GetSubscribeListReq{
+  int32 page = 1;
+  string uuid = 2;
+}
+
+message GetSubscribeListReply{
+  message Subscribe{
+    int32 id = 1;
+    string uuid = 2;
+  }
+  repeated Subscribe subscribe = 1;
+}
+
+message GetSubscribeListCountReq{
+  string uuid = 1;
+}
+
+message GetSubscribeListCountReply{
+  int32 count = 1;
+}
+
+message GetColumnSubscribesReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+  repeated string ids = 2;
+}
+
+message GetColumnSubscribesReply{
+  message Subscribes{
+    int32 id = 1;
+    int32 follow_judge = 2;
+  }
+  repeated Subscribes subscribes = 1;
 }
 
 message SendColumnEditReq{
