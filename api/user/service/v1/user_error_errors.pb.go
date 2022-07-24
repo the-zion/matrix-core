@@ -179,6 +179,18 @@ func ErrorGetFollowListCountFailed(format string, args ...interface{}) *errors.E
 	return errors.New(500, UserErrorReason_GET_FOLLOW_LIST_COUNT_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsGetProfileListFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_GET_PROFILE_LIST_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetProfileListFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, UserErrorReason_GET_PROFILE_LIST_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsSendCodeFailed(err error) bool {
 	if err == nil {
 		return false
