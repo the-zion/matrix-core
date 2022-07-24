@@ -45,3 +45,33 @@ func (s *AchievementService) CancelAchievementCollect(ctx context.Context, req *
 	}
 	return &emptypb.Empty{}, nil
 }
+
+func (s *AchievementService) SetAchievementFollow(ctx context.Context, req *v1.SetAchievementFollowReq) (*emptypb.Empty, error) {
+	err := s.ac.SetAchievementFollow(ctx, req.Follow, req.Followed)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *AchievementService) CancelAchievementFollow(ctx context.Context, req *v1.CancelAchievementFollowReq) (*emptypb.Empty, error) {
+	err := s.ac.CancelAchievementFollow(ctx, req.Follow, req.Followed)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *AchievementService) GetAchievementList(ctx context.Context, req *v1.GetAchievementListReq) (*v1.GetAchievementListReply, error) {
+	reply := &v1.GetAchievementListReply{Achievement: make([]*v1.GetAchievementListReply_Achievement, 0)}
+	achievementList, err := s.ac.GetAchievementList(ctx, req.Uuids)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range achievementList {
+		reply.Achievement = append(reply.Achievement, &v1.GetAchievementListReply_Achievement{
+			Uuid: item.Uuid,
+		})
+	}
+	return reply, nil
+}
