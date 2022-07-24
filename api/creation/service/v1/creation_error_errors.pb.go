@@ -371,6 +371,18 @@ func ErrorGetColumnListFailed(format string, args ...interface{}) *errors.Error 
 	return errors.New(500, CreationErrorReason_GET_COLUMN_LIST_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsGetSubscribeColumnListFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_GET_SUBSCRIBE_COLUMN_LIST_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetSubscribeColumnListFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_GET_SUBSCRIBE_COLUMN_LIST_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsAddColumnIncludesFailed(err error) bool {
 	if err == nil {
 		return false
@@ -393,6 +405,42 @@ func IsDeleteColumnIncludesFailed(err error) bool {
 
 func ErrorDeleteColumnIncludesFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, CreationErrorReason_DELETE_COLUMN_INCLUDES_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsSubscribeColumnFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_SUBSCRIBE_COLUMN_FAILED.String() && e.Code == 500
+}
+
+func ErrorSubscribeColumnFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_SUBSCRIBE_COLUMN_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsSubscribeColumnJudgeFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_SUBSCRIBE_COLUMN_JUDGE_FAILED.String() && e.Code == 500
+}
+
+func ErrorSubscribeColumnJudgeFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_SUBSCRIBE_COLUMN_JUDGE_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsCancelSubscribeColumnFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_CANCEL_SUBSCRIBE_COLUMN_FAILED.String() && e.Code == 500
+}
+
+func ErrorCancelSubscribeColumnFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_CANCEL_SUBSCRIBE_COLUMN_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
 func IsSetAgreeFailed(err error) bool {
@@ -491,18 +539,6 @@ func ErrorGetStatisticJudgeFailed(format string, args ...interface{}) *errors.Er
 	return errors.New(500, CreationErrorReason_GET_STATISTIC_JUDGE_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
-func IsNotEmpty(err error) bool {
-	if err == nil {
-		return false
-	}
-	e := errors.FromError(err)
-	return e.Reason == CreationErrorReason_NOT_EMPTY.String() && e.Code == 500
-}
-
-func ErrorNotEmpty(format string, args ...interface{}) *errors.Error {
-	return errors.New(500, CreationErrorReason_NOT_EMPTY.String(), fmt.Sprintf(format, args...))
-}
-
 func IsGetCountFailed(err error) bool {
 	if err == nil {
 		return false
@@ -513,4 +549,16 @@ func IsGetCountFailed(err error) bool {
 
 func ErrorGetCountFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, CreationErrorReason_GET_COUNT_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsNotEmpty(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_NOT_EMPTY.String() && e.Code == 500
+}
+
+func ErrorNotEmpty(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_NOT_EMPTY.String(), fmt.Sprintf(format, args...))
 }
