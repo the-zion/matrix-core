@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-redis/redis/v8"
 	"github.com/pkg/errors"
 	"github.com/the-zion/matrix-core/app/achievement/service/internal/biz"
 	"gorm.io/gorm"
@@ -125,4 +126,96 @@ func (r *achievementRepo) CancelAchievementCollectFromCache(ctx context.Context,
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel achievement collect from cache: uuid(%s)", uuid))
 	}
 	return nil
+}
+
+func (r *achievementRepo) SetAchievementFollow(ctx context.Context, uuid string) error {
+	ach := &Achievement{
+		Uuid:   uuid,
+		Follow: 1,
+	}
+	err := r.data.DB(ctx).Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "uuid"}},
+		DoUpdates: clause.Assignments(map[string]interface{}{"follow": gorm.Expr("follow + ?", 1)}),
+	}).Create(ach).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add achievement follow: uuid(%v)", uuid))
+	}
+	return nil
+}
+
+func (r *achievementRepo) SetAchievementFollowed(ctx context.Context, uuid string) error {
+	ach := &Achievement{
+		Uuid:     uuid,
+		Followed: 1,
+	}
+	err := r.data.DB(ctx).Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "uuid"}},
+		DoUpdates: clause.Assignments(map[string]interface{}{"followed": gorm.Expr("followed + ?", 1)}),
+	}).Create(ach).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add achievement followed: uuid(%v)", uuid))
+	}
+	return nil
+}
+
+func (r *achievementRepo) SetAchievementFollowToCache(ctx context.Context, follow, followed string) error {
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.HIncrBy(ctx, follow, "followed", 1)
+		pipe.HIncrBy(ctx, followed, "follow", 1)
+		return nil
+	})
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to set achievement follow to cache: follow(%s), followed(%s)", follow, followed))
+	}
+	return nil
+}
+
+func (r *achievementRepo) CancelAchievementFollow(ctx context.Context, uuid string) error {
+	ach := &Achievement{}
+	err := r.data.DB(ctx).Model(ach).Where("uuid = ?", uuid).Update("follow", gorm.Expr("follow - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to subtract achievement follow: uuid(%v)", uuid))
+	}
+	return nil
+}
+
+func (r *achievementRepo) CancelAchievementFollowed(ctx context.Context, uuid string) error {
+	ach := &Achievement{}
+	err := r.data.DB(ctx).Model(ach).Where("uuid = ?", uuid).Update("followed", gorm.Expr("followed - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to subtract achievement followed: uuid(%v)", uuid))
+	}
+	return nil
+}
+
+func (r *achievementRepo) CancelAchievementFollowFromCache(ctx context.Context, follow, followed string) error {
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.HIncrBy(ctx, follow, "followed", -1)
+		pipe.HIncrBy(ctx, followed, "follow", -1)
+		return nil
+	})
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to cancel achievement follow to cache: follow(%s), followed(%s)", follow, followed))
+	}
+	return nil
+}
+
+func (r *achievementRepo) GetAchievementList(ctx context.Context, uuids []string) ([]*biz.Achievement, error) {
+	list := make([]*Achievement, 0)
+	err := r.data.db.WithContext(ctx).Where("uuid IN ?", uuids).Find(&list).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get achievement list from db: uuids(%v)", uuids))
+	}
+
+	achievement := make([]*biz.Achievement, 0)
+	for _, item := range list {
+		achievement = append(achievement, &biz.Achievement{
+			Uuid:     item.Uuid,
+			View:     item.View,
+			Agree:    item.Agree,
+			Follow:   item.Follow,
+			Followed: item.Followed,
+		})
+	}
+	return achievement, nil
 }
