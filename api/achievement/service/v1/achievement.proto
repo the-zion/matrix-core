@@ -16,6 +16,7 @@ service Achievement {
   rpc CancelAchievementCollect(CancelAchievementCollectReq) returns (google.protobuf.Empty){}
   rpc SetAchievementFollow(SetAchievementFollowReq) returns (google.protobuf.Empty){}
   rpc CancelAchievementFollow(CancelAchievementFollowReq) returns (google.protobuf.Empty){}
+  rpc GetAchievementList(GetAchievementListReq) returns (GetAchievementListReply){}
   rpc GetHealth(google.protobuf.Empty) returns (google.protobuf.Empty){
     option (google.api.http) = {
       get: "/v1/get/achievement/health"
@@ -51,4 +52,19 @@ message SetAchievementFollowReq{
 message CancelAchievementFollowReq{
   string follow = 1 [(validate.rules).string.uuid = true];
   string followed = 2 [(validate.rules).string.uuid = true];
+}
+
+message GetAchievementListReq{
+  repeated string uuids = 1 [(validate.rules).repeated.items.string.uuid = true];
+}
+
+message GetAchievementListReply{
+  message Achievement{
+    string uuid = 1;
+    int32 view = 2;
+    int32 agree = 3;
+    int32 followed = 4;
+    int32 follow = 5;
+  }
+  repeated Achievement achievement = 1;
 }
