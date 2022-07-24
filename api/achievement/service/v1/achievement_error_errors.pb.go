@@ -106,3 +106,15 @@ func IsCancelAchievementFollowFailed(err error) bool {
 func ErrorCancelAchievementFollowFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, AchievementErrorReason_CANCEL_ACHIEVEMENT_FOLLOW_FAILED.String(), fmt.Sprintf(format, args...))
 }
+
+func IsGetAchievementListFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == AchievementErrorReason_GET_ACHIEVEMENT_LIST_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetAchievementListFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, AchievementErrorReason_GET_ACHIEVEMENT_LIST_FAILED.String(), fmt.Sprintf(format, args...))
+}
