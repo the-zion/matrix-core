@@ -84,6 +84,12 @@ service Bff{
     };
   }
 
+  rpc GetProfileList (GetProfileListReq) returns (GetProfileListReply) {
+    option (google.api.http) = {
+      get: "/v1/get/profile/list",
+    };
+  }
+
   rpc GetUserInfo (GetUserInfoReq) returns (GetUserInfoReply) {
     option (google.api.http) = {
       get: "/v1/get/user/info",
@@ -93,6 +99,13 @@ service Bff{
   rpc GetUserFollow (GetUserFollowReq) returns (GetUserFollowReply) {
     option (google.api.http) = {
       post: "/v1/get/user/follow",
+      body: "*"
+    };
+  }
+
+  rpc GetUserFollows (GetUserFollowsReq) returns (GetUserFollowsReply) {
+    option (google.api.http) = {
+      post: "/v1/get/user/follows",
       body: "*"
     };
   }
@@ -120,7 +133,6 @@ service Bff{
       get: "/v1/get/followed/list/count",
     };
   }
-
 
   rpc GetProfileUpdate (google.protobuf.Empty) returns (GetProfileUpdateReply) {
     option (google.api.http) = {
@@ -579,10 +591,49 @@ service Bff{
     };
   }
 
+  rpc SubscribeColumn(SubscribeColumnReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/subscribe/column"
+      body: "*"
+    };
+  }
+
+  rpc CancelSubscribeColumn(CancelSubscribeColumnReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/cancel/subscribe/column"
+      body: "*"
+    };
+  }
+
+  rpc SubscribeJudge(SubscribeJudgeReq) returns (SubscribeJudgeReply){
+    option (google.api.http) = {
+      post: "/v1/subscribe/column/judge"
+      body: "*"
+    };
+  }
+
   rpc SendColumn(SendColumnReq) returns (google.protobuf.Empty){
     option (google.api.http) = {
       post: "/v1/send/column"
       body: "*"
+    };
+  }
+
+  rpc GetSubscribeList(GetSubscribeListReq) returns (GetSubscribeListReply){
+    option (google.api.http) = {
+      get: "/v1/get/subscribe/list"
+    };
+  }
+
+  rpc GetSubscribeListCount(GetSubscribeListCountReq) returns (GetSubscribeListCountReply){
+    option (google.api.http) = {
+      get: "/v1/get/subscribe/list/count"
+    };
+  }
+
+  rpc GetColumnSubscribes(GetColumnSubscribesReq) returns (GetColumnSubscribesReply){
+    option (google.api.http) = {
+      get: "/v1/get/column/subscribes"
     };
   }
 
@@ -792,6 +843,19 @@ message GetProfileReply{
   string introduce = 8;
 }
 
+message GetProfileListReq{
+  repeated string uuids = 1;
+}
+
+message GetProfileListReply{
+  message Profile{
+    string uuid = 1;
+    string username = 2;
+    string introduce = 3;
+  }
+  repeated Profile profile = 1;
+}
+
 message GetUserInfoReq{
   string uuid = 1;
 }
@@ -813,6 +877,18 @@ message GetUserFollowReq{
 
 message GetUserFollowReply{
   bool follow = 1;
+}
+
+message GetColumnSubscribesReq{
+  repeated string ids = 1;
+}
+
+message GetColumnSubscribesReply{
+  message Subscribes{
+    int32 id = 1;
+    int32 follow_judge = 2;
+  }
+  repeated Subscribes subscribes = 1;
 }
 
 message GetFollowListReq{
@@ -1287,8 +1363,57 @@ message CreateColumnDraftReply{
   int32 id = 1;
 }
 
+message SubscribeColumnReq{
+  int32 id = 1;
+}
+
+message CancelSubscribeColumnReq{
+  int32 id = 1;
+}
+
+message SubscribeJudgeReq{
+  int32 id = 1;
+}
+
+message SubscribeJudgeReply{
+  bool subscribe = 1;
+}
+
 message SendColumnReq{
   int32 id = 1;
+}
+
+message GetSubscribeListReq{
+  int32 page = 1;
+  string uuid = 2;
+}
+
+message GetSubscribeListReply{
+  message Subscribe{
+    int32 id = 1;
+    string uuid = 2;
+  }
+  repeated Subscribe subscribe = 1;
+}
+
+message GetSubscribeListCountReq{
+  string uuid = 1;
+}
+
+message GetSubscribeListCountReply{
+  int32 count = 1;
+}
+
+message GetUserFollowsReq{
+  repeated string uuids = 1;
+}
+
+message GetUserFollowsReply{
+  message Follows{
+    string uuid = 1;
+    int32 follow_judge = 2;
+  }
+  repeated Follows follows = 1;
 }
 
 message GetColumnListReq{
