@@ -94,6 +94,9 @@ type CreationClient interface {
 	SendColumn(ctx context.Context, in *SendColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateColumn(ctx context.Context, in *CreateColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateColumnCacheAndSearch(ctx context.Context, in *CreateColumnCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SubscribeColumn(ctx context.Context, in *SubscribeColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CancelSubscribeColumn(ctx context.Context, in *CancelSubscribeColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SubscribeJudge(ctx context.Context, in *SubscribeJudgeReq, opts ...grpc.CallOption) (*SubscribeJudgeReply, error)
 	EditColumnCosAndSearch(ctx context.Context, in *EditColumnCosAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetColumnList(ctx context.Context, in *GetColumnListReq, opts ...grpc.CallOption) (*GetColumnListReply, error)
 	GetColumnListHot(ctx context.Context, in *GetColumnListHotReq, opts ...grpc.CallOption) (*GetColumnListHotReply, error)
@@ -103,6 +106,9 @@ type CreationClient interface {
 	GetUserColumnListVisitor(ctx context.Context, in *GetUserColumnListVisitorReq, opts ...grpc.CallOption) (*GetColumnListReply, error)
 	GetColumnCount(ctx context.Context, in *GetColumnCountReq, opts ...grpc.CallOption) (*GetColumnCountReply, error)
 	GetColumnCountVisitor(ctx context.Context, in *GetColumnCountVisitorReq, opts ...grpc.CallOption) (*GetColumnCountReply, error)
+	GetSubscribeList(ctx context.Context, in *GetSubscribeListReq, opts ...grpc.CallOption) (*GetSubscribeListReply, error)
+	GetSubscribeListCount(ctx context.Context, in *GetSubscribeListCountReq, opts ...grpc.CallOption) (*GetSubscribeListCountReply, error)
+	GetColumnSubscribes(ctx context.Context, in *GetColumnSubscribesReq, opts ...grpc.CallOption) (*GetColumnSubscribesReply, error)
 	SendColumnEdit(ctx context.Context, in *SendColumnEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	EditColumn(ctx context.Context, in *EditColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteColumn(ctx context.Context, in *DeleteColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -764,6 +770,33 @@ func (c *creationClient) CreateColumnCacheAndSearch(ctx context.Context, in *Cre
 	return out, nil
 }
 
+func (c *creationClient) SubscribeColumn(ctx context.Context, in *SubscribeColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/SubscribeColumn", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) CancelSubscribeColumn(ctx context.Context, in *CancelSubscribeColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/CancelSubscribeColumn", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) SubscribeJudge(ctx context.Context, in *SubscribeJudgeReq, opts ...grpc.CallOption) (*SubscribeJudgeReply, error) {
+	out := new(SubscribeJudgeReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/SubscribeJudge", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *creationClient) EditColumnCosAndSearch(ctx context.Context, in *EditColumnCosAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/EditColumnCosAndSearch", in, out, opts...)
@@ -839,6 +872,33 @@ func (c *creationClient) GetColumnCount(ctx context.Context, in *GetColumnCountR
 func (c *creationClient) GetColumnCountVisitor(ctx context.Context, in *GetColumnCountVisitorReq, opts ...grpc.CallOption) (*GetColumnCountReply, error) {
 	out := new(GetColumnCountReply)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetColumnCountVisitor", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) GetSubscribeList(ctx context.Context, in *GetSubscribeListReq, opts ...grpc.CallOption) (*GetSubscribeListReply, error) {
+	out := new(GetSubscribeListReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetSubscribeList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) GetSubscribeListCount(ctx context.Context, in *GetSubscribeListCountReq, opts ...grpc.CallOption) (*GetSubscribeListCountReply, error) {
+	out := new(GetSubscribeListCountReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetSubscribeListCount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) GetColumnSubscribes(ctx context.Context, in *GetColumnSubscribesReq, opts ...grpc.CallOption) (*GetColumnSubscribesReply, error) {
+	out := new(GetColumnSubscribesReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetColumnSubscribes", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1028,6 +1088,9 @@ type CreationServer interface {
 	SendColumn(context.Context, *SendColumnReq) (*emptypb.Empty, error)
 	CreateColumn(context.Context, *CreateColumnReq) (*emptypb.Empty, error)
 	CreateColumnCacheAndSearch(context.Context, *CreateColumnCacheAndSearchReq) (*emptypb.Empty, error)
+	SubscribeColumn(context.Context, *SubscribeColumnReq) (*emptypb.Empty, error)
+	CancelSubscribeColumn(context.Context, *CancelSubscribeColumnReq) (*emptypb.Empty, error)
+	SubscribeJudge(context.Context, *SubscribeJudgeReq) (*SubscribeJudgeReply, error)
 	EditColumnCosAndSearch(context.Context, *EditColumnCosAndSearchReq) (*emptypb.Empty, error)
 	GetColumnList(context.Context, *GetColumnListReq) (*GetColumnListReply, error)
 	GetColumnListHot(context.Context, *GetColumnListHotReq) (*GetColumnListHotReply, error)
@@ -1037,6 +1100,9 @@ type CreationServer interface {
 	GetUserColumnListVisitor(context.Context, *GetUserColumnListVisitorReq) (*GetColumnListReply, error)
 	GetColumnCount(context.Context, *GetColumnCountReq) (*GetColumnCountReply, error)
 	GetColumnCountVisitor(context.Context, *GetColumnCountVisitorReq) (*GetColumnCountReply, error)
+	GetSubscribeList(context.Context, *GetSubscribeListReq) (*GetSubscribeListReply, error)
+	GetSubscribeListCount(context.Context, *GetSubscribeListCountReq) (*GetSubscribeListCountReply, error)
+	GetColumnSubscribes(context.Context, *GetColumnSubscribesReq) (*GetColumnSubscribesReply, error)
 	SendColumnEdit(context.Context, *SendColumnEditReq) (*emptypb.Empty, error)
 	EditColumn(context.Context, *EditColumnReq) (*emptypb.Empty, error)
 	DeleteColumn(context.Context, *DeleteColumnReq) (*emptypb.Empty, error)
@@ -1269,6 +1335,15 @@ func (UnimplementedCreationServer) CreateColumn(context.Context, *CreateColumnRe
 func (UnimplementedCreationServer) CreateColumnCacheAndSearch(context.Context, *CreateColumnCacheAndSearchReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateColumnCacheAndSearch not implemented")
 }
+func (UnimplementedCreationServer) SubscribeColumn(context.Context, *SubscribeColumnReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SubscribeColumn not implemented")
+}
+func (UnimplementedCreationServer) CancelSubscribeColumn(context.Context, *CancelSubscribeColumnReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelSubscribeColumn not implemented")
+}
+func (UnimplementedCreationServer) SubscribeJudge(context.Context, *SubscribeJudgeReq) (*SubscribeJudgeReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SubscribeJudge not implemented")
+}
 func (UnimplementedCreationServer) EditColumnCosAndSearch(context.Context, *EditColumnCosAndSearchReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EditColumnCosAndSearch not implemented")
 }
@@ -1295,6 +1370,15 @@ func (UnimplementedCreationServer) GetColumnCount(context.Context, *GetColumnCou
 }
 func (UnimplementedCreationServer) GetColumnCountVisitor(context.Context, *GetColumnCountVisitorReq) (*GetColumnCountReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetColumnCountVisitor not implemented")
+}
+func (UnimplementedCreationServer) GetSubscribeList(context.Context, *GetSubscribeListReq) (*GetSubscribeListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSubscribeList not implemented")
+}
+func (UnimplementedCreationServer) GetSubscribeListCount(context.Context, *GetSubscribeListCountReq) (*GetSubscribeListCountReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSubscribeListCount not implemented")
+}
+func (UnimplementedCreationServer) GetColumnSubscribes(context.Context, *GetColumnSubscribesReq) (*GetColumnSubscribesReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetColumnSubscribes not implemented")
 }
 func (UnimplementedCreationServer) SendColumnEdit(context.Context, *SendColumnEditReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendColumnEdit not implemented")
@@ -2623,6 +2707,60 @@ func _Creation_CreateColumnCacheAndSearch_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Creation_SubscribeColumn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SubscribeColumnReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).SubscribeColumn(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/SubscribeColumn",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).SubscribeColumn(ctx, req.(*SubscribeColumnReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_CancelSubscribeColumn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelSubscribeColumnReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).CancelSubscribeColumn(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/CancelSubscribeColumn",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).CancelSubscribeColumn(ctx, req.(*CancelSubscribeColumnReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_SubscribeJudge_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SubscribeJudgeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).SubscribeJudge(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/SubscribeJudge",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).SubscribeJudge(ctx, req.(*SubscribeJudgeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Creation_EditColumnCosAndSearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(EditColumnCosAndSearchReq)
 	if err := dec(in); err != nil {
@@ -2781,6 +2919,60 @@ func _Creation_GetColumnCountVisitor_Handler(srv interface{}, ctx context.Contex
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CreationServer).GetColumnCountVisitor(ctx, req.(*GetColumnCountVisitorReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_GetSubscribeList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSubscribeListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetSubscribeList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetSubscribeList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetSubscribeList(ctx, req.(*GetSubscribeListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_GetSubscribeListCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSubscribeListCountReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetSubscribeListCount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetSubscribeListCount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetSubscribeListCount(ctx, req.(*GetSubscribeListCountReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_GetColumnSubscribes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetColumnSubscribesReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetColumnSubscribes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetColumnSubscribes",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetColumnSubscribes(ctx, req.(*GetColumnSubscribesReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -3293,6 +3485,18 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Creation_CreateColumnCacheAndSearch_Handler,
 		},
 		{
+			MethodName: "SubscribeColumn",
+			Handler:    _Creation_SubscribeColumn_Handler,
+		},
+		{
+			MethodName: "CancelSubscribeColumn",
+			Handler:    _Creation_CancelSubscribeColumn_Handler,
+		},
+		{
+			MethodName: "SubscribeJudge",
+			Handler:    _Creation_SubscribeJudge_Handler,
+		},
+		{
 			MethodName: "EditColumnCosAndSearch",
 			Handler:    _Creation_EditColumnCosAndSearch_Handler,
 		},
@@ -3327,6 +3531,18 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetColumnCountVisitor",
 			Handler:    _Creation_GetColumnCountVisitor_Handler,
+		},
+		{
+			MethodName: "GetSubscribeList",
+			Handler:    _Creation_GetSubscribeList_Handler,
+		},
+		{
+			MethodName: "GetSubscribeListCount",
+			Handler:    _Creation_GetSubscribeListCount_Handler,
+		},
+		{
+			MethodName: "GetColumnSubscribes",
+			Handler:    _Creation_GetColumnSubscribes_Handler,
 		},
 		{
 			MethodName: "SendColumnEdit",
