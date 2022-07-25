@@ -989,6 +989,40 @@ func (r *columnRepo) CreateColumnDraft(ctx context.Context, uuid string) (int32,
 	return reply.Id, nil
 }
 
+func (r *columnRepo) SubscribeColumn(ctx context.Context, id int32, author, uuid string) error {
+	_, err := r.data.cc.SubscribeColumn(ctx, &creationV1.SubscribeColumnReq{
+		Id:     id,
+		Author: author,
+		Uuid:   uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *columnRepo) CancelSubscribeColumn(ctx context.Context, id int32, uuid string) error {
+	_, err := r.data.cc.CancelSubscribeColumn(ctx, &creationV1.CancelSubscribeColumnReq{
+		Id:   id,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *columnRepo) SubscribeJudge(ctx context.Context, id int32, uuid string) (bool, error) {
+	reply, err := r.data.cc.SubscribeJudge(ctx, &creationV1.SubscribeJudgeReq{
+		Id:   id,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return false, err
+	}
+	return reply.Subscribe, nil
+}
+
 func (r *columnRepo) GetColumnList(ctx context.Context, page int32) ([]*biz.Column, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("column_page_%v", page), func() (interface{}, error) {
 		reply := make([]*biz.Column, 0)
@@ -1141,6 +1175,52 @@ func (r *columnRepo) GetColumnStatistic(ctx context.Context, id int32) (*biz.Col
 		return nil, err
 	}
 	return result.(*biz.ColumnStatistic), nil
+}
+
+func (r *columnRepo) GetSubscribeList(ctx context.Context, page int32, uuid string) ([]*biz.Subscribe, error) {
+	reply := make([]*biz.Subscribe, 0)
+	subscribeList, err := r.data.cc.GetSubscribeList(ctx, &creationV1.GetSubscribeListReq{
+		Page: page,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range subscribeList.Subscribe {
+		reply = append(reply, &biz.Subscribe{
+			ColumnId: item.Id,
+			AuthorId: item.Uuid,
+		})
+	}
+	return reply, nil
+}
+
+func (r *columnRepo) GetSubscribeListCount(ctx context.Context, uuid string) (int32, error) {
+	reply, err := r.data.cc.GetSubscribeListCount(ctx, &creationV1.GetSubscribeListCountReq{
+		Uuid: uuid,
+	})
+	if err != nil {
+		return 0, err
+	}
+	return reply.Count, nil
+}
+
+func (r *columnRepo) GetColumnSubscribes(ctx context.Context, uuid string, ids []int32) ([]*biz.Subscribe, error) {
+	reply := make([]*biz.Subscribe, 0)
+	subscribeList, err := r.data.cc.GetColumnSubscribes(ctx, &creationV1.GetColumnSubscribesReq{
+		Ids:  ids,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range subscribeList.Subscribes {
+		reply = append(reply, &biz.Subscribe{
+			ColumnId: item.Id,
+			Status:   item.SubscribeJudge,
+		})
+	}
+	return reply, nil
 }
 
 func (r *columnRepo) SendColumn(ctx context.Context, id int32, uuid string) error {
