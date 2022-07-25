@@ -668,6 +668,32 @@ func (s *BffService) CreateColumnDraft(ctx context.Context, _ *emptypb.Empty) (*
 	}, nil
 }
 
+func (s *BffService) SubscribeColumn(ctx context.Context, req *v1.SubscribeColumnReq) (*emptypb.Empty, error) {
+	err := s.coc.SubscribeColumn(ctx, req.Id, req.Author)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) CancelSubscribeColumn(ctx context.Context, req *v1.CancelSubscribeColumnReq) (*emptypb.Empty, error) {
+	err := s.coc.CancelSubscribeColumn(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) SubscribeJudge(ctx context.Context, req *v1.SubscribeJudgeReq) (*v1.SubscribeJudgeReply, error) {
+	subscribe, err := s.coc.SubscribeJudge(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.SubscribeJudgeReply{
+		Subscribe: subscribe,
+	}, nil
+}
+
 func (s *BffService) GetColumnList(ctx context.Context, req *v1.GetColumnListReq) (*v1.GetColumnListReply, error) {
 	reply := &v1.GetColumnListReply{Column: make([]*v1.GetColumnListReply_Column, 0)}
 	columnList, err := s.coc.GetColumnList(ctx, req.Page)
@@ -776,6 +802,46 @@ func (s *BffService) GetColumnStatistic(ctx context.Context, req *v1.GetColumnSt
 		Collect: columnStatistic.Collect,
 		View:    columnStatistic.View,
 	}, nil
+}
+
+func (s *BffService) GetSubscribeList(ctx context.Context, req *v1.GetSubscribeListReq) (*v1.GetSubscribeListReply, error) {
+	reply := &v1.GetSubscribeListReply{Subscribe: make([]*v1.GetSubscribeListReply_Subscribe, 0)}
+	statisticList, err := s.coc.GetSubscribeList(ctx, req.Page, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range statisticList {
+		reply.Subscribe = append(reply.Subscribe, &v1.GetSubscribeListReply_Subscribe{
+			Id:   item.ColumnId,
+			Uuid: item.AuthorId,
+		})
+	}
+	return reply, nil
+}
+
+func (s *BffService) GetSubscribeListCount(ctx context.Context, req *v1.GetSubscribeListCountReq) (*v1.GetSubscribeListCountReply, error) {
+	count, err := s.coc.GetSubscribeListCount(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetSubscribeListCountReply{
+		Count: count,
+	}, nil
+}
+
+func (s *BffService) GetColumnSubscribes(ctx context.Context, req *v1.GetColumnSubscribesReq) (*v1.GetColumnSubscribesReply, error) {
+	reply := &v1.GetColumnSubscribesReply{Subscribes: make([]*v1.GetColumnSubscribesReply_Subscribes, 0)}
+	subscribesList, err := s.coc.GetColumnSubscribes(ctx, req.Ids)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range subscribesList {
+		reply.Subscribes = append(reply.Subscribes, &v1.GetColumnSubscribesReply_Subscribes{
+			Id:             item.ColumnId,
+			SubscribeJudge: item.Status,
+		})
+	}
+	return reply, nil
 }
 
 func (s *BffService) ColumnStatisticJudge(ctx context.Context, req *v1.ColumnStatisticJudgeReq) (*v1.ColumnStatisticJudgeReply, error) {
