@@ -7,6 +7,7 @@ import (
 
 type AchievementRepo interface {
 	GetAchievementList(ctx context.Context, uuids []string) ([]*Achievement, error)
+	GetUserAchievement(ctx context.Context, uuid string) (*Achievement, error)
 }
 
 type AchievementUseCase struct {
@@ -23,4 +24,8 @@ func NewAchievementUseCase(repo AchievementRepo, logger log.Logger) *Achievement
 
 func (r *AchievementUseCase) GetAchievementList(ctx context.Context, uuids []string) ([]*Achievement, error) {
 	return r.repo.GetAchievementList(ctx, uuids)
+}
+
+func (r *AchievementUseCase) GetUserAchievement(ctx context.Context, uuid string) (*Achievement, error) {
+	return r.repo.GetUserAchievement(ctx, uuid)
 }
