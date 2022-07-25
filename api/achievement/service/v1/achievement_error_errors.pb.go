@@ -118,3 +118,15 @@ func IsGetAchievementListFailed(err error) bool {
 func ErrorGetAchievementListFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, AchievementErrorReason_GET_ACHIEVEMENT_LIST_FAILED.String(), fmt.Sprintf(format, args...))
 }
+
+func IsGetAchievementFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == AchievementErrorReason_GET_ACHIEVEMENT_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetAchievementFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, AchievementErrorReason_GET_ACHIEVEMENT_FAILED.String(), fmt.Sprintf(format, args...))
+}
