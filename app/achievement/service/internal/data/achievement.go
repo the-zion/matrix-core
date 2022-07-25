@@ -9,6 +9,7 @@ import (
 	"github.com/the-zion/matrix-core/app/achievement/service/internal/biz"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"strconv"
 )
 
 var _ biz.AchievementRepo = (*achievementRepo)(nil)
@@ -218,4 +219,78 @@ func (r *achievementRepo) GetAchievementList(ctx context.Context, uuids []string
 		})
 	}
 	return achievement, nil
+}
+
+func (r *achievementRepo) GetUserAchievement(ctx context.Context, uuid string) (*biz.Achievement, error) {
+	var achievement *biz.Achievement
+	key := uuid
+	exist, err := r.data.redisCli.Exists(ctx, key).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to judge if key exist or not from cache: key(%s)", key))
+	}
+
+	if exist == 1 {
+		achievement, err = r.getAchievementFromCache(ctx, key)
+		if err != nil {
+			return nil, err
+		}
+		return achievement, nil
+	}
+
+	achievement, err = r.getAchievementFromDB(ctx, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	go r.setAchievementToCache(key, achievement)
+
+	return achievement, nil
+}
+
+func (r *achievementRepo) getAchievementFromCache(ctx context.Context, key string) (*biz.Achievement, error) {
+	achievement, err := r.data.redisCli.HMGet(ctx, key, "agree", "collect", "view", "follow", "followed").Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get achievement form cache: key(%s)", key))
+	}
+	val := []int32{0, 0, 0, 0, 0}
+	for _index, count := range achievement {
+		if count == nil {
+			break
+		}
+		num, err := strconv.ParseInt(count.(string), 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: count(%v)", count))
+		}
+		val[_index] = int32(num)
+	}
+	return &biz.Achievement{
+		Agree:    val[0],
+		Collect:  val[1],
+		View:     val[2],
+		Follow:   val[3],
+		Followed: val[4],
+	}, nil
+}
+
+func (r *achievementRepo) getAchievementFromDB(ctx context.Context, uuid string) (*biz.Achievement, error) {
+	ach := &Achievement{}
+	err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).First(ach).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("faile to get achievement from db: uuid(%s)", uuid))
+	}
+	return &biz.Achievement{
+		Uuid:     ach.Uuid,
+		Agree:    ach.Agree,
+		Collect:  ach.Collect,
+		View:     ach.View,
+		Follow:   ach.Follow,
+		Followed: ach.Followed,
+	}, nil
+}
+
+func (r *achievementRepo) setAchievementToCache(key string, achievement *biz.Achievement) {
+	err := r.data.redisCli.HMSet(context.Background(), key, "agree", achievement.Agree, "collect", achievement.Collect, "view", achievement.View, "follow", achievement.Follow, "followed", achievement.Followed).Err()
+	if err != nil {
+		r.log.Errorf("fail to set achievement to cache, err(%s)", err.Error())
+	}
 }
