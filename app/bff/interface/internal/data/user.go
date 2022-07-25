@@ -148,6 +148,25 @@ func (r *userRepo) GetProfile(ctx context.Context, uuid string) (*biz.UserProfil
 	}, nil
 }
 
+func (r *userRepo) GetProfileList(ctx context.Context, uuids []string) ([]*biz.UserProfile, error) {
+	reply := make([]*biz.UserProfile, 0)
+	profileList, err := r.data.uc.GetProfileList(ctx, &userV1.GetProfileListReq{
+		Uuids: uuids,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	for _, item := range profileList.Profile {
+		reply = append(reply, &biz.UserProfile{
+			Uuid:      item.Uuid,
+			Username:  item.Username,
+			Introduce: item.Introduce,
+		})
+	}
+	return reply, nil
+}
+
 func (r *userRepo) GetUserInfo(ctx context.Context, uuid string) (*biz.UserProfile, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_user_profile_%s", uuid), func() (interface{}, error) {
 		reply, err := r.data.uc.GetProfile(ctx, &userV1.GetProfileReq{
@@ -204,6 +223,25 @@ func (r *userRepo) GetUserFollow(ctx context.Context, uuid, userUuid string) (bo
 	return reply.Follow, nil
 }
 
+func (r *userRepo) GetUserFollows(ctx context.Context, userId string, uuids []string) ([]*biz.Follows, error) {
+	reply := make([]*biz.Follows, 0)
+	followsList, err := r.data.uc.GetUserFollows(ctx, &userV1.GetUserFollowsReq{
+		Uuids:  uuids,
+		UserId: userId,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	for _, item := range followsList.Follows {
+		reply = append(reply, &biz.Follows{
+			Uuid:   item.Uuid,
+			Follow: item.FollowJudge,
+		})
+	}
+	return reply, nil
+}
+
 func (r *userRepo) GetFollowList(ctx context.Context, page int32, uuid string) ([]*biz.Follow, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_follow_%s", uuid), func() (interface{}, error) {
 		reply := make([]*biz.Follow, 0)
@@ -215,9 +253,9 @@ func (r *userRepo) GetFollowList(ctx context.Context, page int32, uuid string) (
 			return nil, err
 		}
 
-		for _, item := range followList.List {
+		for _, item := range followList.Follow {
 			reply = append(reply, &biz.Follow{
-				Follow: item,
+				Follow: item.Uuid,
 			})
 		}
 		return reply, nil
@@ -255,9 +293,9 @@ func (r *userRepo) GetFollowedList(ctx context.Context, page int32, uuid string)
 			return nil, err
 		}
 
-		for _, item := range followedList.List {
+		for _, item := range followedList.Follow {
 			reply = append(reply, &biz.Follow{
-				Followed: item,
+				Followed: item.Uuid,
 			})
 		}
 		return reply, nil
