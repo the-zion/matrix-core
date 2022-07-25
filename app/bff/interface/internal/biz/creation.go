@@ -80,9 +80,14 @@ type ColumnRepo interface {
 	GetColumnCountVisitor(ctx context.Context, uuid string) (int32, error)
 	GetColumnListStatistic(ctx context.Context, ids []int32) ([]*ColumnStatistic, error)
 	GetColumnStatistic(ctx context.Context, id int32) (*ColumnStatistic, error)
+	GetSubscribeList(ctx context.Context, page int32, uuid string) ([]*Subscribe, error)
+	GetSubscribeListCount(ctx context.Context, uuid string) (int32, error)
+	GetColumnSubscribes(ctx context.Context, uuid string, ids []int32) ([]*Subscribe, error)
 	SendColumn(ctx context.Context, id int32, uuid string) error
 	SendColumnEdit(ctx context.Context, id int32, uuid string) error
 	CreateColumnDraft(ctx context.Context, uuid string) (int32, error)
+	SubscribeColumn(ctx context.Context, id int32, author, uuid string) error
+	SubscribeJudge(ctx context.Context, id int32, uuid string) (bool, error)
 	DeleteColumn(ctx context.Context, id int32, uuid string) error
 	ColumnStatisticJudge(ctx context.Context, id int32, uuid string) (*ColumnStatisticJudge, error)
 	SetColumnView(ctx context.Context, id int32, uuid string) error
@@ -90,6 +95,7 @@ type ColumnRepo interface {
 	SetColumnCollect(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error
 	CancelColumnAgree(ctx context.Context, id int32, uuid, userUuid string) error
 	CancelColumnCollect(ctx context.Context, id int32, uuid, userUuid string) error
+	CancelSubscribeColumn(ctx context.Context, id int32, uuid string) error
 	AddColumnIncludes(ctx context.Context, id, articleId int32, uuid string) error
 	DeleteColumnIncludes(ctx context.Context, id, articleId int32, uuid string) error
 }
@@ -407,6 +413,21 @@ func (r *ColumnUseCase) CreateColumnDraft(ctx context.Context) (int32, error) {
 	return r.repo.CreateColumnDraft(ctx, uuid)
 }
 
+func (r *ColumnUseCase) SubscribeColumn(ctx context.Context, id int32, author string) error {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.SubscribeColumn(ctx, id, author, uuid)
+}
+
+func (r *ColumnUseCase) CancelSubscribeColumn(ctx context.Context, id int32) error {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.CancelSubscribeColumn(ctx, id, uuid)
+}
+
+func (r *ColumnUseCase) SubscribeJudge(ctx context.Context, id int32) (bool, error) {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.SubscribeJudge(ctx, id, uuid)
+}
+
 func (r *ColumnUseCase) GetColumnList(ctx context.Context, page int32) ([]*Column, error) {
 	return r.repo.GetColumnList(ctx, page)
 }
@@ -459,6 +480,19 @@ func (r *ColumnUseCase) DeleteColumn(ctx context.Context, id int32) error {
 
 func (r *ColumnUseCase) GetColumnStatistic(ctx context.Context, id int32) (*ColumnStatistic, error) {
 	return r.repo.GetColumnStatistic(ctx, id)
+}
+
+func (r *ColumnUseCase) GetSubscribeList(ctx context.Context, page int32, uuid string) ([]*Subscribe, error) {
+	return r.repo.GetSubscribeList(ctx, page, uuid)
+}
+
+func (r *ColumnUseCase) GetSubscribeListCount(ctx context.Context, uuid string) (int32, error) {
+	return r.repo.GetSubscribeListCount(ctx, uuid)
+}
+
+func (r *ColumnUseCase) GetColumnSubscribes(ctx context.Context, ids []int32) ([]*Subscribe, error) {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.GetColumnSubscribes(ctx, uuid, ids)
 }
 
 func (r *ColumnUseCase) SetColumnAgree(ctx context.Context, id int32, uuid string) error {
