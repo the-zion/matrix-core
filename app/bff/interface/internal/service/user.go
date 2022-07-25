@@ -106,6 +106,22 @@ func (s *BffService) GetProfile(ctx context.Context, _ *emptypb.Empty) (*v1.GetP
 	}, nil
 }
 
+func (s *BffService) GetProfileList(ctx context.Context, req *v1.GetProfileListReq) (*v1.GetProfileListReply, error) {
+	reply := &v1.GetProfileListReply{Profile: make([]*v1.GetProfileListReply_Profile, 0)}
+	profileList, err := s.uc.GetProfileList(ctx, req.Uuids)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range profileList {
+		reply.Profile = append(reply.Profile, &v1.GetProfileListReply_Profile{
+			Uuid:      item.Uuid,
+			Username:  item.Username,
+			Introduce: item.Introduce,
+		})
+	}
+	return reply, nil
+}
+
 func (s *BffService) GetUserInfo(ctx context.Context, req *v1.GetUserInfoReq) (*v1.GetUserInfoReply, error) {
 	userProfile, err := s.uc.GetUserInfo(ctx, req.Uuid)
 	if err != nil {
@@ -176,7 +192,7 @@ func (s *BffService) GetFollowListCount(ctx context.Context, req *v1.GetFollowLi
 
 func (s *BffService) GetFollowedList(ctx context.Context, req *v1.GetFollowedListReq) (*v1.GetFollowedListReply, error) {
 	reply := &v1.GetFollowedListReply{Follow: make([]*v1.GetFollowedListReply_Follow, 0)}
-	followedList, err := s.uc.GetFollowList(ctx, req.Page, req.Uuid)
+	followedList, err := s.uc.GetFollowedList(ctx, req.Page, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -196,6 +212,21 @@ func (s *BffService) GetFollowedListCount(ctx context.Context, req *v1.GetFollow
 	return &v1.GetFollowedListCountReply{
 		Count: count,
 	}, nil
+}
+
+func (s *BffService) GetUserFollows(ctx context.Context, req *v1.GetUserFollowsReq) (*v1.GetUserFollowsReply, error) {
+	reply := &v1.GetUserFollowsReply{Follows: make([]*v1.GetUserFollowsReply_Follows, 0)}
+	followsList, err := s.uc.GetUserFollows(ctx, req.Uuids)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range followsList {
+		reply.Follows = append(reply.Follows, &v1.GetUserFollowsReply_Follows{
+			Uuid:        item.Uuid,
+			FollowJudge: item.Follow,
+		})
+	}
+	return reply, nil
 }
 
 func (s *BffService) SetProfileUpdate(ctx context.Context, req *v1.SetProfileUpdateReq) (*emptypb.Empty, error) {
