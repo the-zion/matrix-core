@@ -633,7 +633,8 @@ service Bff{
 
   rpc GetColumnSubscribes(GetColumnSubscribesReq) returns (GetColumnSubscribesReply){
     option (google.api.http) = {
-      get: "/v1/get/column/subscribes"
+      post: "/v1/get/column/subscribes"
+      body: "*"
     };
   }
 
@@ -764,6 +765,12 @@ service Bff{
       get: "/v1/get/achievement/list"
     };
   }
+
+  rpc GetUserAchievement(GetUserAchievementReq) returns (GetUserAchievementReply){
+    option (google.api.http) = {
+      get: "/v1/get/user/achievement"
+    };
+  }
 }
 
 // --------------------user service-------------------------
@@ -880,13 +887,13 @@ message GetUserFollowReply{
 }
 
 message GetColumnSubscribesReq{
-  repeated string ids = 1;
+  repeated int32 ids = 1;
 }
 
 message GetColumnSubscribesReply{
   message Subscribes{
     int32 id = 1;
-    int32 follow_judge = 2;
+    int32 subscribe_judge = 2;
   }
   repeated Subscribes subscribes = 1;
 }
@@ -1365,6 +1372,7 @@ message CreateColumnDraftReply{
 
 message SubscribeColumnReq{
   int32 id = 1;
+  string author = 2;
 }
 
 message CancelSubscribeColumnReq{
@@ -1539,7 +1547,7 @@ message DeleteColumnIncludesReq{
   int32 article_id = 2;
 }
 
-// --------------------creation service-------------------------
+// --------------------achievement service-------------------------
 
 message GetAchievementListReq{
   repeated string uuids = 1;
@@ -1554,4 +1562,16 @@ message GetAchievementListReply{
     int32 follow = 5;
   }
   repeated Achievement achievement = 1;
+}
+
+message GetUserAchievementReq{
+  string uuid = 1;
+}
+
+message GetUserAchievementReply{
+  int32 agree = 1;
+  int32 view = 2;
+  int32 collect = 3;
+  int32 follow = 4;
+  int32 followed = 5;
 }
