@@ -91,6 +91,7 @@ const OperationBffGetTalkList = "/bff.v1.Bff/GetTalkList"
 const OperationBffGetTalkListHot = "/bff.v1.Bff/GetTalkListHot"
 const OperationBffGetTalkListStatistic = "/bff.v1.Bff/GetTalkListStatistic"
 const OperationBffGetTalkStatistic = "/bff.v1.Bff/GetTalkStatistic"
+const OperationBffGetUserAchievement = "/bff.v1.Bff/GetUserAchievement"
 const OperationBffGetUserArticleList = "/bff.v1.Bff/GetUserArticleList"
 const OperationBffGetUserArticleListVisitor = "/bff.v1.Bff/GetUserArticleListVisitor"
 const OperationBffGetUserColumnList = "/bff.v1.Bff/GetUserColumnList"
@@ -206,6 +207,7 @@ type BffHTTPServer interface {
 	GetTalkListHot(context.Context, *GetTalkListHotReq) (*GetTalkListHotReply, error)
 	GetTalkListStatistic(context.Context, *GetTalkListStatisticReq) (*GetTalkListStatisticReply, error)
 	GetTalkStatistic(context.Context, *GetTalkStatisticReq) (*GetTalkStatisticReply, error)
+	GetUserAchievement(context.Context, *GetUserAchievementReq) (*GetUserAchievementReply, error)
 	GetUserArticleList(context.Context, *GetUserArticleListReq) (*GetArticleListReply, error)
 	GetUserArticleListVisitor(context.Context, *GetUserArticleListVisitorReq) (*GetArticleListReply, error)
 	GetUserColumnList(context.Context, *GetUserColumnListReq) (*GetColumnListReply, error)
@@ -345,7 +347,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.POST("/v1/send/column", _Bff_SendColumn0_HTTP_Handler(srv))
 	r.GET("/v1/get/subscribe/list", _Bff_GetSubscribeList0_HTTP_Handler(srv))
 	r.GET("/v1/get/subscribe/list/count", _Bff_GetSubscribeListCount0_HTTP_Handler(srv))
-	r.GET("/v1/get/column/subscribes", _Bff_GetColumnSubscribes0_HTTP_Handler(srv))
+	r.POST("/v1/get/column/subscribes", _Bff_GetColumnSubscribes0_HTTP_Handler(srv))
 	r.GET("/v1/get/column/list", _Bff_GetColumnList0_HTTP_Handler(srv))
 	r.GET("/v1/get/column/list/hot", _Bff_GetColumnListHot0_HTTP_Handler(srv))
 	r.GET("/v1/get/column/list/statistic", _Bff_GetColumnListStatistic0_HTTP_Handler(srv))
@@ -365,6 +367,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.POST("/v1/add/column/includes", _Bff_AddColumnIncludes0_HTTP_Handler(srv))
 	r.POST("/v1/delete/column/includes", _Bff_DeleteColumnIncludes0_HTTP_Handler(srv))
 	r.GET("/v1/get/achievement/list", _Bff_GetAchievementList0_HTTP_Handler(srv))
+	r.GET("/v1/get/user/achievement", _Bff_GetUserAchievement0_HTTP_Handler(srv))
 }
 
 func _Bff_UserRegister0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
@@ -2137,7 +2140,7 @@ func _Bff_GetSubscribeListCount0_HTTP_Handler(srv BffHTTPServer) func(ctx http.C
 func _Bff_GetColumnSubscribes0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in GetColumnSubscribesReq
-		if err := ctx.BindQuery(&in); err != nil {
+		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, OperationBffGetColumnSubscribes)
@@ -2514,6 +2517,25 @@ func _Bff_GetAchievementList0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Cont
 	}
 }
 
+func _Bff_GetUserAchievement0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetUserAchievementReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetUserAchievement)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetUserAchievement(ctx, req.(*GetUserAchievementReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetUserAchievementReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 type BffHTTPClient interface {
 	AddColumnIncludes(ctx context.Context, req *AddColumnIncludesReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	ArticleDraftMark(ctx context.Context, req *ArticleDraftMarkReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -2586,6 +2608,7 @@ type BffHTTPClient interface {
 	GetTalkListHot(ctx context.Context, req *GetTalkListHotReq, opts ...http.CallOption) (rsp *GetTalkListHotReply, err error)
 	GetTalkListStatistic(ctx context.Context, req *GetTalkListStatisticReq, opts ...http.CallOption) (rsp *GetTalkListStatisticReply, err error)
 	GetTalkStatistic(ctx context.Context, req *GetTalkStatisticReq, opts ...http.CallOption) (rsp *GetTalkStatisticReply, err error)
+	GetUserAchievement(ctx context.Context, req *GetUserAchievementReq, opts ...http.CallOption) (rsp *GetUserAchievementReply, err error)
 	GetUserArticleList(ctx context.Context, req *GetUserArticleListReq, opts ...http.CallOption) (rsp *GetArticleListReply, err error)
 	GetUserArticleListVisitor(ctx context.Context, req *GetUserArticleListVisitorReq, opts ...http.CallOption) (rsp *GetArticleListReply, err error)
 	GetUserColumnList(ctx context.Context, req *GetUserColumnListReq, opts ...http.CallOption) (rsp *GetColumnListReply, err error)
@@ -3291,10 +3314,10 @@ func (c *BffHTTPClientImpl) GetColumnStatistic(ctx context.Context, in *GetColum
 func (c *BffHTTPClientImpl) GetColumnSubscribes(ctx context.Context, in *GetColumnSubscribesReq, opts ...http.CallOption) (*GetColumnSubscribesReply, error) {
 	var out GetColumnSubscribesReply
 	pattern := "/v1/get/column/subscribes"
-	path := binding.EncodeURL(pattern, in, true)
+	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationBffGetColumnSubscribes))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -3553,6 +3576,19 @@ func (c *BffHTTPClientImpl) GetTalkStatistic(ctx context.Context, in *GetTalkSta
 	pattern := "/v1/get/talk/statistic"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationBffGetTalkStatistic))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetUserAchievement(ctx context.Context, in *GetUserAchievementReq, opts ...http.CallOption) (*GetUserAchievementReply, error) {
+	var out GetUserAchievementReply
+	pattern := "/v1/get/user/achievement"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationBffGetUserAchievement))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

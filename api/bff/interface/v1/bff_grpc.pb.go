@@ -137,6 +137,7 @@ type BffClient interface {
 	AddColumnIncludes(ctx context.Context, in *AddColumnIncludesReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteColumnIncludes(ctx context.Context, in *DeleteColumnIncludesReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetAchievementList(ctx context.Context, in *GetAchievementListReq, opts ...grpc.CallOption) (*GetAchievementListReply, error)
+	GetUserAchievement(ctx context.Context, in *GetUserAchievementReq, opts ...grpc.CallOption) (*GetUserAchievementReply, error)
 }
 
 type bffClient struct {
@@ -1164,6 +1165,15 @@ func (c *bffClient) GetAchievementList(ctx context.Context, in *GetAchievementLi
 	return out, nil
 }
 
+func (c *bffClient) GetUserAchievement(ctx context.Context, in *GetUserAchievementReq, opts ...grpc.CallOption) (*GetUserAchievementReply, error) {
+	out := new(GetUserAchievementReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserAchievement", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BffServer is the server API for Bff service.
 // All implementations must embed UnimplementedBffServer
 // for forward compatibility
@@ -1282,6 +1292,7 @@ type BffServer interface {
 	AddColumnIncludes(context.Context, *AddColumnIncludesReq) (*emptypb.Empty, error)
 	DeleteColumnIncludes(context.Context, *DeleteColumnIncludesReq) (*emptypb.Empty, error)
 	GetAchievementList(context.Context, *GetAchievementListReq) (*GetAchievementListReply, error)
+	GetUserAchievement(context.Context, *GetUserAchievementReq) (*GetUserAchievementReply, error)
 	mustEmbedUnimplementedBffServer()
 }
 
@@ -1627,6 +1638,9 @@ func (UnimplementedBffServer) DeleteColumnIncludes(context.Context, *DeleteColum
 }
 func (UnimplementedBffServer) GetAchievementList(context.Context, *GetAchievementListReq) (*GetAchievementListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAchievementList not implemented")
+}
+func (UnimplementedBffServer) GetUserAchievement(context.Context, *GetUserAchievementReq) (*GetUserAchievementReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserAchievement not implemented")
 }
 func (UnimplementedBffServer) mustEmbedUnimplementedBffServer() {}
 
@@ -3675,6 +3689,24 @@ func _Bff_GetAchievementList_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_GetUserAchievement_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserAchievementReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetUserAchievement(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetUserAchievement",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetUserAchievement(ctx, req.(*GetUserAchievementReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Bff_ServiceDesc is the grpc.ServiceDesc for Bff service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -4133,6 +4165,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAchievementList",
 			Handler:    _Bff_GetAchievementList_Handler,
+		},
+		{
+			MethodName: "GetUserAchievement",
+			Handler:    _Bff_GetUserAchievement_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

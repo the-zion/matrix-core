@@ -12043,6 +12043,8 @@ func (m *SubscribeColumnReq) validate(all bool) error {
 
 	// no validation rules for Id
 
+	// no validation rules for Author
+
 	if len(errors) > 0 {
 		return SubscribeColumnReqMultiError(errors)
 	}
@@ -16075,6 +16077,222 @@ var _ interface {
 	ErrorName() string
 } = GetAchievementListReplyValidationError{}
 
+// Validate checks the field values on GetUserAchievementReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetUserAchievementReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserAchievementReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetUserAchievementReqMultiError, or nil if none found.
+func (m *GetUserAchievementReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserAchievementReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Uuid
+
+	if len(errors) > 0 {
+		return GetUserAchievementReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetUserAchievementReqMultiError is an error wrapping multiple validation
+// errors returned by GetUserAchievementReq.ValidateAll() if the designated
+// constraints aren't met.
+type GetUserAchievementReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserAchievementReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserAchievementReqMultiError) AllErrors() []error { return m }
+
+// GetUserAchievementReqValidationError is the validation error returned by
+// GetUserAchievementReq.Validate if the designated constraints aren't met.
+type GetUserAchievementReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserAchievementReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserAchievementReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserAchievementReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserAchievementReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserAchievementReqValidationError) ErrorName() string {
+	return "GetUserAchievementReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetUserAchievementReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserAchievementReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserAchievementReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserAchievementReqValidationError{}
+
+// Validate checks the field values on GetUserAchievementReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetUserAchievementReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserAchievementReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetUserAchievementReplyMultiError, or nil if none found.
+func (m *GetUserAchievementReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserAchievementReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Agree
+
+	// no validation rules for View
+
+	// no validation rules for Collect
+
+	// no validation rules for Follow
+
+	// no validation rules for Followed
+
+	if len(errors) > 0 {
+		return GetUserAchievementReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetUserAchievementReplyMultiError is an error wrapping multiple validation
+// errors returned by GetUserAchievementReply.ValidateAll() if the designated
+// constraints aren't met.
+type GetUserAchievementReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserAchievementReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserAchievementReplyMultiError) AllErrors() []error { return m }
+
+// GetUserAchievementReplyValidationError is the validation error returned by
+// GetUserAchievementReply.Validate if the designated constraints aren't met.
+type GetUserAchievementReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserAchievementReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserAchievementReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserAchievementReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserAchievementReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserAchievementReplyValidationError) ErrorName() string {
+	return "GetUserAchievementReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetUserAchievementReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserAchievementReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserAchievementReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserAchievementReplyValidationError{}
+
 // Validate checks the field values on GetProfileListReply_Profile with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -16209,7 +16427,7 @@ func (m *GetColumnSubscribesReply_Subscribes) validate(all bool) error {
 
 	// no validation rules for Id
 
-	// no validation rules for FollowJudge
+	// no validation rules for SubscribeJudge
 
 	if len(errors) > 0 {
 		return GetColumnSubscribesReply_SubscribesMultiError(errors)
