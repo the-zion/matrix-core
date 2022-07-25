@@ -8,6 +8,7 @@ import (
 
 type AchievementRepo interface {
 	GetAchievementList(ctx context.Context, uuids []string) ([]*Achievement, error)
+	GetUserAchievement(ctx context.Context, uuid string) (*Achievement, error)
 	SetAchievementAgree(ctx context.Context, uuid string) error
 	SetAchievementView(ctx context.Context, uuid string) error
 	SetAchievementCollect(ctx context.Context, uuid string) error
@@ -156,4 +157,12 @@ func (r *AchievementUseCase) GetAchievementList(ctx context.Context, uuids []str
 		return nil, v1.ErrorGetAchievementListFailed("get achievement list failed: %s", err.Error())
 	}
 	return achievementList, nil
+}
+
+func (r *AchievementUseCase) GetUserAchievement(ctx context.Context, uuid string) (*Achievement, error) {
+	achievement, err := r.repo.GetUserAchievement(ctx, uuid)
+	if err != nil {
+		return nil, v1.ErrorGetAchievementFailed("get achievement failed: %s", err.Error())
+	}
+	return achievement, nil
 }
