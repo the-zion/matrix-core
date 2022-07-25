@@ -56,6 +56,11 @@ type Follow struct {
 	Status   int32
 }
 
+type Follows struct {
+	Uuid   string
+	Follow int32
+}
+
 type PornInfo struct {
 	HitFlag int32
 	Count   int32
@@ -220,4 +225,11 @@ type Achievement struct {
 	View     int32
 	Follow   int32
 	Followed int32
+}
+
+type Subscribe struct {
+	ColumnId int32
+	AuthorId string
+	Uuid     string
+	Status   int32
 }
