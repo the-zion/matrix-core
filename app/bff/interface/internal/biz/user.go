@@ -15,6 +15,7 @@ type UserRepo interface {
 	GetCosSessionKey(ctx context.Context, uuid string) (*Credentials, error)
 	GetAccount(ctx context.Context, uuid string) (*UserAccount, error)
 	GetProfile(ctx context.Context, uuid string) (*UserProfile, error)
+	GetProfileList(ctx context.Context, uuids []string) ([]*UserProfile, error)
 	GetUserInfo(ctx context.Context, uuid string) (*UserProfile, error)
 	GetProfileUpdate(ctx context.Context, uuid string) (*UserProfileUpdate, error)
 	GetFollowList(ctx context.Context, page int32, uuid string) ([]*Follow, error)
@@ -22,6 +23,7 @@ type UserRepo interface {
 	GetFollowedList(ctx context.Context, page int32, uuid string) ([]*Follow, error)
 	GetFollowedListCount(ctx context.Context, uuid string) (int32, error)
 	GetUserFollow(ctx context.Context, uuid, userUuid string) (bool, error)
+	GetUserFollows(ctx context.Context, userId string, uuids []string) ([]*Follows, error)
 	SetProfileUpdate(ctx context.Context, profile *UserProfileUpdate) error
 	SetUserPhone(ctx context.Context, uuid, phone, code string) error
 	SetUserPassword(ctx context.Context, uuid, password string) error
@@ -84,6 +86,10 @@ func (r *UserUseCase) GetProfile(ctx context.Context) (*UserProfile, error) {
 	return r.repo.GetProfile(ctx, uuid)
 }
 
+func (r *UserUseCase) GetProfileList(ctx context.Context, uuids []string) ([]*UserProfile, error) {
+	return r.repo.GetProfileList(ctx, uuids)
+}
+
 func (r *UserUseCase) GetUserInfo(ctx context.Context, uuid string) (*UserProfile, error) {
 	return r.repo.GetUserInfo(ctx, uuid)
 }
@@ -112,6 +118,11 @@ func (r *UserUseCase) GetFollowedList(ctx context.Context, page int32, uuid stri
 
 func (r *UserUseCase) GetFollowedListCount(ctx context.Context, uuid string) (int32, error) {
 	return r.repo.GetFollowedListCount(ctx, uuid)
+}
+
+func (r *UserUseCase) GetUserFollows(ctx context.Context, uuids []string) ([]*Follows, error) {
+	userId := ctx.Value("uuid").(string)
+	return r.repo.GetUserFollows(ctx, userId, uuids)
 }
 
 func (r *UserUseCase) SetUserProfile(ctx context.Context, profile *UserProfileUpdate) error {
