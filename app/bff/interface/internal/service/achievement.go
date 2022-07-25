@@ -18,3 +18,17 @@ func (s *BffService) GetAchievementList(ctx context.Context, req *v1.GetAchievem
 	}
 	return reply, nil
 }
+
+func (s *BffService) GetUserAchievement(ctx context.Context, req *v1.GetUserAchievementReq) (*v1.GetUserAchievementReply, error) {
+	achievement, err := s.achc.GetUserAchievement(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetUserAchievementReply{
+		Agree:    achievement.Agree,
+		View:     achievement.View,
+		Collect:  achievement.Collect,
+		Follow:   achievement.Follow,
+		Followed: achievement.Followed,
+	}, nil
+}
