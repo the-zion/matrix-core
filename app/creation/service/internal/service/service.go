@@ -15,15 +15,17 @@ type CreationService struct {
 	tc  *biz.TalkUseCase
 	cc  *biz.CreationUseCase
 	coc *biz.ColumnUseCase
+	nc  *biz.NewsUseCase
 	log *log.Helper
 }
 
-func NewCreationService(ac *biz.ArticleUseCase, tc *biz.TalkUseCase, cc *biz.CreationUseCase, coc *biz.ColumnUseCase, logger log.Logger) *CreationService {
+func NewCreationService(ac *biz.ArticleUseCase, tc *biz.TalkUseCase, cc *biz.CreationUseCase, coc *biz.ColumnUseCase, nc *biz.NewsUseCase, logger log.Logger) *CreationService {
 	return &CreationService{
 		log: log.NewHelper(log.With(logger, "module", "creation/service")),
 		ac:  ac,
 		tc:  tc,
 		cc:  cc,
 		coc: coc,
+		nc:  nc,
 	}
 }
