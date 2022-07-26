@@ -205,6 +205,8 @@ service Creation {
   rpc AddColumnIncludes(AddColumnIncludesReq) returns (google.protobuf.Empty){}
 
   rpc DeleteColumnIncludes(DeleteColumnIncludesReq) returns (google.protobuf.Empty){}
+
+  rpc GetNewsFromTianXing(GetNewsReq) returns (GetNewsReply){}
 }
 
 message GetLeaderBoardReply{
@@ -709,7 +711,8 @@ message CreateColumnCacheAndSearchReq{
 
 message SubscribeColumnReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string author = 2 [(validate.rules).string.uuid = true];
+  string uuid = 3 [(validate.rules).string.uuid = true];
 }
 
 message CancelSubscribeColumnReq{
@@ -830,13 +833,13 @@ message GetSubscribeListCountReply{
 
 message GetColumnSubscribesReq{
   string uuid = 1 [(validate.rules).string.uuid = true];
-  repeated string ids = 2;
+  repeated int32 ids = 2;
 }
 
 message GetColumnSubscribesReply{
   message Subscribes{
     int32 id = 1;
-    int32 follow_judge = 2;
+    int32 subscribe_judge = 2;
   }
   repeated Subscribes subscribes = 1;
 }
@@ -912,4 +915,22 @@ message DeleteColumnIncludesReq{
   int32 id = 1;
   int32 article_id = 2;
   string uuid = 3 [(validate.rules).string.uuid = true];
+}
+
+message GetNewsReq{
+  int32 page = 1;
+  string kind = 2;
+}
+
+message GetNewsReply{
+  message News{
+    string id = 1;
+    string update = 2;
+    string title = 3;
+    string text = 4;
+    string tags = 5;
+    string cover = 6;
+    string url = 7;
+  }
+  repeated News news = 1;
 }
