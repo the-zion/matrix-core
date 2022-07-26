@@ -14,6 +14,7 @@ var _ biz.ArticleRepo = (*articleRepo)(nil)
 var _ biz.TalkRepo = (*talkRepo)(nil)
 var _ biz.CreationRepo = (*creationRepo)(nil)
 var _ biz.ColumnRepo = (*columnRepo)(nil)
+var _ biz.NewsRepo = (*newsRepo)(nil)
 
 type articleRepo struct {
 	data *Data
@@ -34,6 +35,12 @@ type creationRepo struct {
 }
 
 type columnRepo struct {
+	data *Data
+	log  *log.Helper
+	sg   *singleflight.Group
+}
+
+type newsRepo struct {
 	data *Data
 	log  *log.Helper
 	sg   *singleflight.Group
@@ -67,6 +74,14 @@ func NewColumnRepo(data *Data, logger log.Logger) biz.ColumnRepo {
 	return &columnRepo{
 		data: data,
 		log:  log.NewHelper(log.With(logger, "module", "bff/data/column")),
+		sg:   &singleflight.Group{},
+	}
+}
+
+func NewNewsRepo(data *Data, logger log.Logger) biz.NewsRepo {
+	return &newsRepo{
+		data: data,
+		log:  log.NewHelper(log.With(logger, "module", "bff/data/news")),
 		sg:   &singleflight.Group{},
 	}
 }
@@ -1352,4 +1367,27 @@ func (r *columnRepo) DeleteColumnIncludes(ctx context.Context, id, articleId int
 		return err
 	}
 	return nil
+}
+
+func (r *newsRepo) GetNewsFromTianXing(ctx context.Context, page int32, kind string) ([]*biz.News, error) {
+	reply := make([]*biz.News, 0)
+	newsList, err := r.data.cc.GetNewsFromTianXing(ctx, &creationV1.GetNewsReq{
+		Page: page,
+		Kind: kind,
+	})
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range newsList.News {
+		reply = append(reply, &biz.News{
+			Id:     item.Id,
+			Update: item.Update,
+			Title:  item.Title,
+			Text:   item.Text,
+			Tags:   item.Tags,
+			Cover:  item.Cover,
+			Url:    item.Url,
+		})
+	}
+	return reply, nil
 }
