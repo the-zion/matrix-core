@@ -100,6 +100,10 @@ type ColumnRepo interface {
 	DeleteColumnIncludes(ctx context.Context, id, articleId int32, uuid string) error
 }
 
+type NewsRepo interface {
+	GetNewsFromTianXing(ctx context.Context, page int32, kind string) ([]*News, error)
+}
+
 type CreationUseCase struct {
 	repo CreationRepo
 	log  *log.Helper
@@ -117,6 +121,11 @@ type TalkUseCase struct {
 
 type ColumnUseCase struct {
 	repo ColumnRepo
+	log  *log.Helper
+}
+
+type NewsUseCase struct {
+	repo NewsRepo
 	log  *log.Helper
 }
 
@@ -145,6 +154,13 @@ func NewColumnUseCase(repo ColumnRepo, logger log.Logger) *ColumnUseCase {
 	return &ColumnUseCase{
 		repo: repo,
 		log:  log.NewHelper(log.With(logger, "module", "bff/biz/ColumnUseCase")),
+	}
+}
+
+func NewNewsUseCase(repo NewsRepo, logger log.Logger) *NewsUseCase {
+	return &NewsUseCase{
+		repo: repo,
+		log:  log.NewHelper(log.With(logger, "module", "bff/biz/NewsUseCase")),
 	}
 }
 
@@ -527,4 +543,8 @@ func (r *ColumnUseCase) AddColumnIncludes(ctx context.Context, id, articleId int
 func (r *ColumnUseCase) DeleteColumnIncludes(ctx context.Context, id, articleId int32) error {
 	uuid := ctx.Value("uuid").(string)
 	return r.repo.DeleteColumnIncludes(ctx, id, articleId, uuid)
+}
+
+func (r *NewsUseCase) GetNewsFromTianXing(ctx context.Context, page int32, kind string) ([]*News, error) {
+	return r.repo.GetNewsFromTianXing(ctx, page, kind)
 }
