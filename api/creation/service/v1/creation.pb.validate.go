@@ -11194,6 +11194,18 @@ func (m *SubscribeColumnReq) validate(all bool) error {
 
 	// no validation rules for Id
 
+	if err := m._validateUuid(m.GetAuthor()); err != nil {
+		err = SubscribeColumnReqValidationError{
+			field:  "Author",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
 	if err := m._validateUuid(m.GetUuid()); err != nil {
 		err = SubscribeColumnReqValidationError{
 			field:  "Uuid",
@@ -15757,6 +15769,242 @@ var _ interface {
 	ErrorName() string
 } = DeleteColumnIncludesReqValidationError{}
 
+// Validate checks the field values on GetNewsReq with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *GetNewsReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetNewsReq with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in GetNewsReqMultiError, or
+// nil if none found.
+func (m *GetNewsReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetNewsReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Page
+
+	// no validation rules for Kind
+
+	if len(errors) > 0 {
+		return GetNewsReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetNewsReqMultiError is an error wrapping multiple validation errors
+// returned by GetNewsReq.ValidateAll() if the designated constraints aren't met.
+type GetNewsReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetNewsReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetNewsReqMultiError) AllErrors() []error { return m }
+
+// GetNewsReqValidationError is the validation error returned by
+// GetNewsReq.Validate if the designated constraints aren't met.
+type GetNewsReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetNewsReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetNewsReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetNewsReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetNewsReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetNewsReqValidationError) ErrorName() string { return "GetNewsReqValidationError" }
+
+// Error satisfies the builtin error interface
+func (e GetNewsReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetNewsReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetNewsReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetNewsReqValidationError{}
+
+// Validate checks the field values on GetNewsReply with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *GetNewsReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetNewsReply with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in GetNewsReplyMultiError, or
+// nil if none found.
+func (m *GetNewsReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetNewsReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetNews() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetNewsReplyValidationError{
+						field:  fmt.Sprintf("News[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetNewsReplyValidationError{
+						field:  fmt.Sprintf("News[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetNewsReplyValidationError{
+					field:  fmt.Sprintf("News[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return GetNewsReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetNewsReplyMultiError is an error wrapping multiple validation errors
+// returned by GetNewsReply.ValidateAll() if the designated constraints aren't met.
+type GetNewsReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetNewsReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetNewsReplyMultiError) AllErrors() []error { return m }
+
+// GetNewsReplyValidationError is the validation error returned by
+// GetNewsReply.Validate if the designated constraints aren't met.
+type GetNewsReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetNewsReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetNewsReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetNewsReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetNewsReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetNewsReplyValidationError) ErrorName() string { return "GetNewsReplyValidationError" }
+
+// Error satisfies the builtin error interface
+func (e GetNewsReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetNewsReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetNewsReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetNewsReplyValidationError{}
+
 // Validate checks the field values on GetLeaderBoardReply_Board with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -17191,7 +17439,7 @@ func (m *GetColumnSubscribesReply_Subscribes) validate(all bool) error {
 
 	// no validation rules for Id
 
-	// no validation rules for FollowJudge
+	// no validation rules for SubscribeJudge
 
 	if len(errors) > 0 {
 		return GetColumnSubscribesReply_SubscribesMultiError(errors)
@@ -17274,3 +17522,119 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetColumnSubscribesReply_SubscribesValidationError{}
+
+// Validate checks the field values on GetNewsReply_News with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *GetNewsReply_News) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetNewsReply_News with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetNewsReply_NewsMultiError, or nil if none found.
+func (m *GetNewsReply_News) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetNewsReply_News) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Update
+
+	// no validation rules for Title
+
+	// no validation rules for Text
+
+	// no validation rules for Tags
+
+	// no validation rules for Cover
+
+	// no validation rules for Url
+
+	if len(errors) > 0 {
+		return GetNewsReply_NewsMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetNewsReply_NewsMultiError is an error wrapping multiple validation errors
+// returned by GetNewsReply_News.ValidateAll() if the designated constraints
+// aren't met.
+type GetNewsReply_NewsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetNewsReply_NewsMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetNewsReply_NewsMultiError) AllErrors() []error { return m }
+
+// GetNewsReply_NewsValidationError is the validation error returned by
+// GetNewsReply_News.Validate if the designated constraints aren't met.
+type GetNewsReply_NewsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetNewsReply_NewsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetNewsReply_NewsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetNewsReply_NewsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetNewsReply_NewsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetNewsReply_NewsValidationError) ErrorName() string {
+	return "GetNewsReply_NewsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetNewsReply_NewsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetNewsReply_News.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetNewsReply_NewsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetNewsReply_NewsValidationError{}
