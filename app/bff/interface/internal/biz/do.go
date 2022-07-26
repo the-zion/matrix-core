@@ -233,3 +233,13 @@ type Subscribe struct {
 	Uuid     string
 	Status   int32
 }
+
+type News struct {
+	Id     string
+	Update string
+	Title  string
+	Text   string
+	Tags   string
+	Cover  string
+	Url    string
+}
