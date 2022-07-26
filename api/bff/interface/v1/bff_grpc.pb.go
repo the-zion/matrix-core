@@ -136,6 +136,7 @@ type BffClient interface {
 	SetColumnView(ctx context.Context, in *SetColumnViewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	AddColumnIncludes(ctx context.Context, in *AddColumnIncludesReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteColumnIncludes(ctx context.Context, in *DeleteColumnIncludesReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetNewsFromTianXing(ctx context.Context, in *GetNewsReq, opts ...grpc.CallOption) (*GetNewsReply, error)
 	GetAchievementList(ctx context.Context, in *GetAchievementListReq, opts ...grpc.CallOption) (*GetAchievementListReply, error)
 	GetUserAchievement(ctx context.Context, in *GetUserAchievementReq, opts ...grpc.CallOption) (*GetUserAchievementReply, error)
 }
@@ -1156,6 +1157,15 @@ func (c *bffClient) DeleteColumnIncludes(ctx context.Context, in *DeleteColumnIn
 	return out, nil
 }
 
+func (c *bffClient) GetNewsFromTianXing(ctx context.Context, in *GetNewsReq, opts ...grpc.CallOption) (*GetNewsReply, error) {
+	out := new(GetNewsReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetNewsFromTianXing", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) GetAchievementList(ctx context.Context, in *GetAchievementListReq, opts ...grpc.CallOption) (*GetAchievementListReply, error) {
 	out := new(GetAchievementListReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetAchievementList", in, out, opts...)
@@ -1291,6 +1301,7 @@ type BffServer interface {
 	SetColumnView(context.Context, *SetColumnViewReq) (*emptypb.Empty, error)
 	AddColumnIncludes(context.Context, *AddColumnIncludesReq) (*emptypb.Empty, error)
 	DeleteColumnIncludes(context.Context, *DeleteColumnIncludesReq) (*emptypb.Empty, error)
+	GetNewsFromTianXing(context.Context, *GetNewsReq) (*GetNewsReply, error)
 	GetAchievementList(context.Context, *GetAchievementListReq) (*GetAchievementListReply, error)
 	GetUserAchievement(context.Context, *GetUserAchievementReq) (*GetUserAchievementReply, error)
 	mustEmbedUnimplementedBffServer()
@@ -1635,6 +1646,9 @@ func (UnimplementedBffServer) AddColumnIncludes(context.Context, *AddColumnInclu
 }
 func (UnimplementedBffServer) DeleteColumnIncludes(context.Context, *DeleteColumnIncludesReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteColumnIncludes not implemented")
+}
+func (UnimplementedBffServer) GetNewsFromTianXing(context.Context, *GetNewsReq) (*GetNewsReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetNewsFromTianXing not implemented")
 }
 func (UnimplementedBffServer) GetAchievementList(context.Context, *GetAchievementListReq) (*GetAchievementListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAchievementList not implemented")
@@ -3671,6 +3685,24 @@ func _Bff_DeleteColumnIncludes_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_GetNewsFromTianXing_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetNewsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetNewsFromTianXing(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetNewsFromTianXing",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetNewsFromTianXing(ctx, req.(*GetNewsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_GetAchievementList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetAchievementListReq)
 	if err := dec(in); err != nil {
@@ -4161,6 +4193,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteColumnIncludes",
 			Handler:    _Bff_DeleteColumnIncludes_Handler,
+		},
+		{
+			MethodName: "GetNewsFromTianXing",
+			Handler:    _Bff_GetNewsFromTianXing_Handler,
 		},
 		{
 			MethodName: "GetAchievementList",

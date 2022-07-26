@@ -80,6 +80,7 @@ const OperationBffGetLastArticleDraft = "/bff.v1.Bff/GetLastArticleDraft"
 const OperationBffGetLastColumnDraft = "/bff.v1.Bff/GetLastColumnDraft"
 const OperationBffGetLastTalkDraft = "/bff.v1.Bff/GetLastTalkDraft"
 const OperationBffGetLeaderBoard = "/bff.v1.Bff/GetLeaderBoard"
+const OperationBffGetNewsFromTianXing = "/bff.v1.Bff/GetNewsFromTianXing"
 const OperationBffGetProfile = "/bff.v1.Bff/GetProfile"
 const OperationBffGetProfileList = "/bff.v1.Bff/GetProfileList"
 const OperationBffGetProfileUpdate = "/bff.v1.Bff/GetProfileUpdate"
@@ -196,6 +197,7 @@ type BffHTTPServer interface {
 	GetLastColumnDraft(context.Context, *emptypb.Empty) (*GetLastColumnDraftReply, error)
 	GetLastTalkDraft(context.Context, *emptypb.Empty) (*GetLastTalkDraftReply, error)
 	GetLeaderBoard(context.Context, *emptypb.Empty) (*GetLeaderBoardReply, error)
+	GetNewsFromTianXing(context.Context, *GetNewsReq) (*GetNewsReply, error)
 	GetProfile(context.Context, *emptypb.Empty) (*GetProfileReply, error)
 	GetProfileList(context.Context, *GetProfileListReq) (*GetProfileListReply, error)
 	GetProfileUpdate(context.Context, *emptypb.Empty) (*GetProfileUpdateReply, error)
@@ -366,6 +368,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.POST("/v1/set/column/view", _Bff_SetColumnView0_HTTP_Handler(srv))
 	r.POST("/v1/add/column/includes", _Bff_AddColumnIncludes0_HTTP_Handler(srv))
 	r.POST("/v1/delete/column/includes", _Bff_DeleteColumnIncludes0_HTTP_Handler(srv))
+	r.GET("/v1/get/news/from/tianxing", _Bff_GetNewsFromTianXing0_HTTP_Handler(srv))
 	r.GET("/v1/get/achievement/list", _Bff_GetAchievementList0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/achievement", _Bff_GetUserAchievement0_HTTP_Handler(srv))
 }
@@ -2498,6 +2501,25 @@ func _Bff_DeleteColumnIncludes0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Co
 	}
 }
 
+func _Bff_GetNewsFromTianXing0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetNewsReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetNewsFromTianXing)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetNewsFromTianXing(ctx, req.(*GetNewsReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetNewsReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _Bff_GetAchievementList0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in GetAchievementListReq
@@ -2597,6 +2619,7 @@ type BffHTTPClient interface {
 	GetLastColumnDraft(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetLastColumnDraftReply, err error)
 	GetLastTalkDraft(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetLastTalkDraftReply, err error)
 	GetLeaderBoard(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetLeaderBoardReply, err error)
+	GetNewsFromTianXing(ctx context.Context, req *GetNewsReq, opts ...http.CallOption) (rsp *GetNewsReply, err error)
 	GetProfile(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetProfileReply, err error)
 	GetProfileList(ctx context.Context, req *GetProfileListReq, opts ...http.CallOption) (rsp *GetProfileListReply, err error)
 	GetProfileUpdate(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetProfileUpdateReply, err error)
@@ -3433,6 +3456,19 @@ func (c *BffHTTPClientImpl) GetLeaderBoard(ctx context.Context, in *emptypb.Empt
 	pattern := "/v1/get/leaderboard"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationBffGetLeaderBoard))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetNewsFromTianXing(ctx context.Context, in *GetNewsReq, opts ...http.CallOption) (*GetNewsReply, error) {
+	var out GetNewsReply
+	pattern := "/v1/get/news/from/tianxing"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationBffGetNewsFromTianXing))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
