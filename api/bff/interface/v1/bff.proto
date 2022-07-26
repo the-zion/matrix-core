@@ -758,6 +758,14 @@ service Bff{
     };
   }
 
+  // -------------------------news----------------------------
+
+  rpc GetNewsFromTianXing(GetNewsReq) returns (GetNewsReply){
+    option (google.api.http) = {
+      get: "/v1/get/news/from/tianxing"
+    };
+  }
+
   // --------------------achievement service------------------------
 
   rpc GetAchievementList(GetAchievementListReq) returns (GetAchievementListReply){
@@ -1545,6 +1553,24 @@ message AddColumnIncludesReq{
 message DeleteColumnIncludesReq{
   int32 id = 1;
   int32 article_id = 2;
+}
+
+message GetNewsReq{
+  int32 page = 1;
+  string kind = 2;
+}
+
+message GetNewsReply{
+  message News{
+    string id = 1;
+    string update = 2;
+    string title = 3;
+    string text = 4;
+    string tags = 5;
+    string cover = 6;
+    string url = 7;
+  }
+  repeated News news = 1;
 }
 
 // --------------------achievement service-------------------------
