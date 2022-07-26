@@ -31,7 +31,8 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, re
 	columnMqPro := data.NewRocketmqColumnProducer(confData, logger)
 	columnReviewMqPro := data.NewRocketmqColumnReviewProducer(confData, logger)
 	achievementMqPro := data.NewRocketmqAchievementProducer(confData, logger)
-	dataData, cleanup, err := data.NewData(db, cmdable, client, articleMqPro, articleReviewMqPro, talkMqPro, talkReviewMqPro, columnMqPro, columnReviewMqPro, achievementMqPro, logger)
+	news := data.NewNewsClient(confData)
+	dataData, cleanup, err := data.NewData(db, cmdable, client, articleMqPro, articleReviewMqPro, talkMqPro, talkReviewMqPro, columnMqPro, columnReviewMqPro, achievementMqPro, news, logger)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -44,7 +45,9 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, re
 	creationUseCase := biz.NewCreationUseCase(creationRepo, logger)
 	columnRepo := data.NewColumnRepo(dataData, logger)
 	columnUseCase := biz.NewColumnUseCase(columnRepo, transaction, logger)
-	creationService := service.NewCreationService(articleUseCase, talkUseCase, creationUseCase, columnUseCase, logger)
+	newsRepo := data.NewNewsRepo(dataData, logger)
+	newsUseCase := biz.NewNewsUseCase(newsRepo, transaction, logger)
+	creationService := service.NewCreationService(articleUseCase, talkUseCase, creationUseCase, columnUseCase, newsUseCase, logger)
 	httpServer := server.NewHTTPServer(confServer, creationService, logger)
 	grpcServer := server.NewGRPCServer(confServer, creationService, logger)
 	app := newApp(logger, registry, httpServer, grpcServer)
