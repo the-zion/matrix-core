@@ -111,3 +111,21 @@ type ColumnStatisticJudge struct {
 	Agree   bool
 	Collect bool
 }
+
+type Subscribe struct {
+	ColumnId int32
+	AuthorId string
+	Uuid     string
+	Status   int32
+}
+
+type News struct {
+	Id     string
+	Update string
+	Title  string
+	Author string
+	Text   string
+	Tags   string
+	Cover  string
+	Url    string
+}
