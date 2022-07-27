@@ -760,9 +760,9 @@ service Bff{
 
   // -------------------------news----------------------------
 
-  rpc GetNewsFromTianXing(GetNewsReq) returns (GetNewsReply){
+  rpc GetNews(GetNewsReq) returns (GetNewsReply){
     option (google.api.http) = {
-      get: "/v1/get/news/from/tianxing"
+      get: "/v1/get/news"
     };
   }
 
@@ -1557,18 +1557,18 @@ message DeleteColumnIncludesReq{
 
 message GetNewsReq{
   int32 page = 1;
-  string kind = 2;
 }
 
 message GetNewsReply{
   message News{
     string id = 1;
     string update = 2;
-    string title = 3;
-    string text = 4;
-    string tags = 5;
-    string cover = 6;
-    string url = 7;
+    string author = 3;
+    string title = 4;
+    string text = 5;
+    string tags = 6;
+    string cover = 7;
+    string url = 8;
   }
   repeated News news = 1;
 }
