@@ -238,6 +238,7 @@ type News struct {
 	Id     string
 	Update string
 	Title  string
+	Author string
 	Text   string
 	Tags   string
 	Cover  string
