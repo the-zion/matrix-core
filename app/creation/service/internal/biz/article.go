@@ -63,16 +63,18 @@ type ArticleRepo interface {
 	CancelArticleCollectFromCache(ctx context.Context, id int32, uuid, userUuid string) error
 }
 type ArticleUseCase struct {
-	repo ArticleRepo
-	tm   Transaction
-	log  *log.Helper
+	repo         ArticleRepo
+	creationRepo CreationRepo
+	tm           Transaction
+	log          *log.Helper
 }
 
-func NewArticleUseCase(repo ArticleRepo, tm Transaction, logger log.Logger) *ArticleUseCase {
+func NewArticleUseCase(repo ArticleRepo, creationRepo CreationRepo, tm Transaction, logger log.Logger) *ArticleUseCase {
 	return &ArticleUseCase{
-		repo: repo,
-		tm:   tm,
-		log:  log.NewHelper(log.With(logger, "module", "creation/biz/articleUseCase")),
+		repo:         repo,
+		creationRepo: creationRepo,
+		tm:           tm,
+		log:          log.NewHelper(log.With(logger, "module", "creation/biz/articleUseCase")),
 	}
 }
 
@@ -316,12 +318,18 @@ func (r *ArticleUseCase) GetArticleDraftList(ctx context.Context, uuid string) (
 	return draftList, nil
 }
 
-func (r *ArticleUseCase) SendArticle(ctx context.Context, id int32, uuid string) error {
+func (r *ArticleUseCase) SendArticle(ctx context.Context, id int32, uuid, ip string) error {
 	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		draft, err := r.repo.SendArticle(ctx, id, uuid)
 		if err != nil {
 			return v1.ErrorCreateArticleFailed("send article failed: %s", err.Error())
 		}
+
+		err = r.creationRepo.SetRecord(ctx, id, 1, uuid, "create", ip)
+		if err != nil {
+			return v1.ErrorSetRecordFailed("set record failed: %s", err.Error())
+		}
+
 		err = r.repo.SendReviewToMq(ctx, &ArticleReview{
 			Uuid: draft.Uuid,
 			Id:   draft.Id,
@@ -334,7 +342,7 @@ func (r *ArticleUseCase) SendArticle(ctx context.Context, id int32, uuid string)
 	})
 }
 
-func (r *ArticleUseCase) SendArticleEdit(ctx context.Context, id int32, uuid string) error {
+func (r *ArticleUseCase) SendArticleEdit(ctx context.Context, id int32, uuid, ip string) error {
 	article, err := r.repo.GetArticle(ctx, id)
 	if err != nil {
 		return v1.ErrorGetArticleFailed("get article failed: %s", err.Error())
@@ -342,6 +350,11 @@ func (r *ArticleUseCase) SendArticleEdit(ctx context.Context, id int32, uuid str
 
 	if article.Uuid != uuid {
 		return v1.ErrorEditArticleFailed("send article edit failed: no auth")
+	}
+
+	err = r.creationRepo.SetRecord(ctx, id, 1, uuid, "edit", ip)
+	if err != nil {
+		return v1.ErrorSetRecordFailed("set record failed: %s", err.Error())
 	}
 
 	err = r.repo.SendReviewToMq(ctx, &ArticleReview{
