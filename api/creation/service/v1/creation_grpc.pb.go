@@ -121,7 +121,7 @@ type CreationClient interface {
 	SetColumnView(ctx context.Context, in *SetColumnViewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	AddColumnIncludes(ctx context.Context, in *AddColumnIncludesReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteColumnIncludes(ctx context.Context, in *DeleteColumnIncludesReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	GetNewsFromTianXing(ctx context.Context, in *GetNewsReq, opts ...grpc.CallOption) (*GetNewsReply, error)
+	GetNews(ctx context.Context, in *GetNewsReq, opts ...grpc.CallOption) (*GetNewsReply, error)
 }
 
 type creationClient struct {
@@ -1014,9 +1014,9 @@ func (c *creationClient) DeleteColumnIncludes(ctx context.Context, in *DeleteCol
 	return out, nil
 }
 
-func (c *creationClient) GetNewsFromTianXing(ctx context.Context, in *GetNewsReq, opts ...grpc.CallOption) (*GetNewsReply, error) {
+func (c *creationClient) GetNews(ctx context.Context, in *GetNewsReq, opts ...grpc.CallOption) (*GetNewsReply, error) {
 	out := new(GetNewsReply)
-	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetNewsFromTianXing", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetNews", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1125,7 +1125,7 @@ type CreationServer interface {
 	SetColumnView(context.Context, *SetColumnViewReq) (*emptypb.Empty, error)
 	AddColumnIncludes(context.Context, *AddColumnIncludesReq) (*emptypb.Empty, error)
 	DeleteColumnIncludes(context.Context, *DeleteColumnIncludesReq) (*emptypb.Empty, error)
-	GetNewsFromTianXing(context.Context, *GetNewsReq) (*GetNewsReply, error)
+	GetNews(context.Context, *GetNewsReq) (*GetNewsReply, error)
 	mustEmbedUnimplementedCreationServer()
 }
 
@@ -1427,8 +1427,8 @@ func (UnimplementedCreationServer) AddColumnIncludes(context.Context, *AddColumn
 func (UnimplementedCreationServer) DeleteColumnIncludes(context.Context, *DeleteColumnIncludesReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteColumnIncludes not implemented")
 }
-func (UnimplementedCreationServer) GetNewsFromTianXing(context.Context, *GetNewsReq) (*GetNewsReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetNewsFromTianXing not implemented")
+func (UnimplementedCreationServer) GetNews(context.Context, *GetNewsReq) (*GetNewsReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetNews not implemented")
 }
 func (UnimplementedCreationServer) mustEmbedUnimplementedCreationServer() {}
 
@@ -3207,20 +3207,20 @@ func _Creation_DeleteColumnIncludes_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Creation_GetNewsFromTianXing_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Creation_GetNews_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetNewsReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CreationServer).GetNewsFromTianXing(ctx, in)
+		return srv.(CreationServer).GetNews(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/creation.v1.Creation/GetNewsFromTianXing",
+		FullMethod: "/creation.v1.Creation/GetNews",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CreationServer).GetNewsFromTianXing(ctx, req.(*GetNewsReq))
+		return srv.(CreationServer).GetNews(ctx, req.(*GetNewsReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -3625,8 +3625,8 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Creation_DeleteColumnIncludes_Handler,
 		},
 		{
-			MethodName: "GetNewsFromTianXing",
-			Handler:    _Creation_GetNewsFromTianXing_Handler,
+			MethodName: "GetNews",
+			Handler:    _Creation_GetNews_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
