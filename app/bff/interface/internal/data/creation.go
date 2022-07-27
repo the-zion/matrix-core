@@ -588,10 +588,11 @@ func (r *articleRepo) ArticleDraftMark(ctx context.Context, id int32, uuid strin
 	return nil
 }
 
-func (r *articleRepo) SendArticle(ctx context.Context, id int32, uuid string) error {
+func (r *articleRepo) SendArticle(ctx context.Context, id int32, uuid, ip string) error {
 	_, err := r.data.cc.SendArticle(ctx, &creationV1.SendArticleReq{
 		Id:   id,
 		Uuid: uuid,
+		Ip:   ip,
 	})
 	if err != nil {
 		return err
@@ -599,10 +600,11 @@ func (r *articleRepo) SendArticle(ctx context.Context, id int32, uuid string) er
 	return nil
 }
 
-func (r *articleRepo) SendArticleEdit(ctx context.Context, id int32, uuid string) error {
+func (r *articleRepo) SendArticleEdit(ctx context.Context, id int32, uuid, ip string) error {
 	_, err := r.data.cc.SendArticleEdit(ctx, &creationV1.SendArticleEditReq{
 		Id:   id,
 		Uuid: uuid,
+		Ip:   ip,
 	})
 	if err != nil {
 		return err
@@ -874,10 +876,11 @@ func (r *talkRepo) CreateTalkDraft(ctx context.Context, uuid string) (int32, err
 	return reply.Id, nil
 }
 
-func (r *talkRepo) SendTalk(ctx context.Context, id int32, uuid string) error {
+func (r *talkRepo) SendTalk(ctx context.Context, id int32, uuid, ip string) error {
 	_, err := r.data.cc.SendTalk(ctx, &creationV1.SendTalkReq{
 		Id:   id,
 		Uuid: uuid,
+		Ip:   ip,
 	})
 	if err != nil {
 		return err
@@ -885,10 +888,11 @@ func (r *talkRepo) SendTalk(ctx context.Context, id int32, uuid string) error {
 	return nil
 }
 
-func (r *talkRepo) SendTalkEdit(ctx context.Context, id int32, uuid string) error {
+func (r *talkRepo) SendTalkEdit(ctx context.Context, id int32, uuid, ip string) error {
 	_, err := r.data.cc.SendTalkEdit(ctx, &creationV1.SendTalkEditReq{
 		Id:   id,
 		Uuid: uuid,
+		Ip:   ip,
 	})
 	if err != nil {
 		return err
@@ -1238,10 +1242,11 @@ func (r *columnRepo) GetColumnSubscribes(ctx context.Context, uuid string, ids [
 	return reply, nil
 }
 
-func (r *columnRepo) SendColumn(ctx context.Context, id int32, uuid string) error {
+func (r *columnRepo) SendColumn(ctx context.Context, id int32, uuid, ip string) error {
 	_, err := r.data.cc.SendColumn(ctx, &creationV1.SendColumnReq{
 		Id:   id,
 		Uuid: uuid,
+		Ip:   ip,
 	})
 	if err != nil {
 		return err
@@ -1249,10 +1254,11 @@ func (r *columnRepo) SendColumn(ctx context.Context, id int32, uuid string) erro
 	return nil
 }
 
-func (r *columnRepo) SendColumnEdit(ctx context.Context, id int32, uuid string) error {
+func (r *columnRepo) SendColumnEdit(ctx context.Context, id int32, uuid, ip string) error {
 	_, err := r.data.cc.SendColumnEdit(ctx, &creationV1.SendColumnEditReq{
 		Id:   id,
 		Uuid: uuid,
+		Ip:   ip,
 	})
 	if err != nil {
 		return err
@@ -1369,11 +1375,10 @@ func (r *columnRepo) DeleteColumnIncludes(ctx context.Context, id, articleId int
 	return nil
 }
 
-func (r *newsRepo) GetNewsFromTianXing(ctx context.Context, page int32, kind string) ([]*biz.News, error) {
+func (r *newsRepo) GetNews(ctx context.Context, page int32) ([]*biz.News, error) {
 	reply := make([]*biz.News, 0)
-	newsList, err := r.data.cc.GetNewsFromTianXing(ctx, &creationV1.GetNewsReq{
+	newsList, err := r.data.cc.GetNews(ctx, &creationV1.GetNewsReq{
 		Page: page,
-		Kind: kind,
 	})
 	if err != nil {
 		return nil, err
@@ -1383,6 +1388,7 @@ func (r *newsRepo) GetNewsFromTianXing(ctx context.Context, page int32, kind str
 			Id:     item.Id,
 			Update: item.Update,
 			Title:  item.Title,
+			Author: item.Author,
 			Text:   item.Text,
 			Tags:   item.Tags,
 			Cover:  item.Cover,
