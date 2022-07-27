@@ -5247,6 +5247,17 @@ func (m *SendArticleReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
+	if ip := net.ParseIP(m.GetIp()); ip == nil {
+		err := SendArticleReqValidationError{
+			field:  "Ip",
+			reason: "value must be a valid IP address",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
 	if len(errors) > 0 {
 		return SendArticleReqMultiError(errors)
 	}
@@ -5362,6 +5373,17 @@ func (m *SendArticleEditReq) validate(all bool) error {
 			field:  "Uuid",
 			reason: "value must be a valid UUID",
 			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if ip := net.ParseIP(m.GetIp()); ip == nil {
+		err := SendArticleEditReqValidationError{
+			field:  "Ip",
+			reason: "value must be a valid IP address",
 		}
 		if !all {
 			return err
@@ -8493,6 +8515,17 @@ func (m *SendTalkReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
+	if ip := net.ParseIP(m.GetIp()); ip == nil {
+		err := SendTalkReqValidationError{
+			field:  "Ip",
+			reason: "value must be a valid IP address",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
 	if len(errors) > 0 {
 		return SendTalkReqMultiError(errors)
 	}
@@ -8607,6 +8640,17 @@ func (m *SendTalkEditReq) validate(all bool) error {
 			field:  "Uuid",
 			reason: "value must be a valid UUID",
 			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if ip := net.ParseIP(m.GetIp()); ip == nil {
+		err := SendTalkEditReqValidationError{
+			field:  "Ip",
+			reason: "value must be a valid IP address",
 		}
 		if !all {
 			return err
@@ -10826,6 +10870,17 @@ func (m *SendColumnReq) validate(all bool) error {
 			field:  "Uuid",
 			reason: "value must be a valid UUID",
 			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if ip := net.ParseIP(m.GetIp()); ip == nil {
+		err := SendColumnReqValidationError{
+			field:  "Ip",
+			reason: "value must be a valid IP address",
 		}
 		if !all {
 			return err
@@ -14160,6 +14215,17 @@ func (m *SendColumnEditReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
+	if ip := net.ParseIP(m.GetIp()); ip == nil {
+		err := SendColumnEditReqValidationError{
+			field:  "Ip",
+			reason: "value must be a valid IP address",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
 	if len(errors) > 0 {
 		return SendColumnEditReqMultiError(errors)
 	}
@@ -15792,8 +15858,6 @@ func (m *GetNewsReq) validate(all bool) error {
 	var errors []error
 
 	// no validation rules for Page
-
-	// no validation rules for Kind
 
 	if len(errors) > 0 {
 		return GetNewsReqMultiError(errors)
@@ -17548,6 +17612,8 @@ func (m *GetNewsReply_News) validate(all bool) error {
 	// no validation rules for Id
 
 	// no validation rules for Update
+
+	// no validation rules for Author
 
 	// no validation rules for Title
 
