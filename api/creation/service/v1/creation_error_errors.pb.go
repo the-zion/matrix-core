@@ -575,6 +575,18 @@ func ErrorGetCountFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, CreationErrorReason_GET_COUNT_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsSetRecordFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_SET_RECORD_FAILED.String() && e.Code == 500
+}
+
+func ErrorSetRecordFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_SET_RECORD_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsNotEmpty(err error) bool {
 	if err == nil {
 		return false
