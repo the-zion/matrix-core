@@ -15863,8 +15863,6 @@ func (m *GetNewsReq) validate(all bool) error {
 
 	// no validation rules for Page
 
-	// no validation rules for Kind
-
 	if len(errors) > 0 {
 		return GetNewsReqMultiError(errors)
 	}
@@ -18497,6 +18495,8 @@ func (m *GetNewsReply_News) validate(all bool) error {
 	// no validation rules for Id
 
 	// no validation rules for Update
+
+	// no validation rules for Author
 
 	// no validation rules for Title
 
