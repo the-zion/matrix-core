@@ -23,6 +23,7 @@ type CreationRepo interface {
 	CreateCollections(ctx context.Context, uuid, name, introduce string, auth int32) error
 	EditCollections(ctx context.Context, id int32, uuid, name, introduce string, auth int32) error
 	DeleteCollections(ctx context.Context, id int32, uuid string) error
+	SetRecord(ctx context.Context, id, mode int32, uuid, operation, ip string) error
 }
 
 type CreationUseCase struct {
