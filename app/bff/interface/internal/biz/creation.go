@@ -37,8 +37,8 @@ type ArticleRepo interface {
 	GetArticleListStatistic(ctx context.Context, ids []int32) ([]*ArticleStatistic, error)
 	GetArticleDraftList(ctx context.Context, uuid string) ([]*ArticleDraft, error)
 	ArticleDraftMark(ctx context.Context, id int32, uuid string) error
-	SendArticle(ctx context.Context, id int32, uuid string) error
-	SendArticleEdit(ctx context.Context, id int32, uuid string) error
+	SendArticle(ctx context.Context, id int32, uuid, ip string) error
+	SendArticleEdit(ctx context.Context, id int32, uuid, ip string) error
 	DeleteArticle(ctx context.Context, id int32, uuid string) error
 	SetArticleAgree(ctx context.Context, id int32, uuid, userUuid string) error
 	SetArticleView(ctx context.Context, id int32, uuid string) error
@@ -59,8 +59,8 @@ type TalkRepo interface {
 	GetTalkStatistic(ctx context.Context, id int32) (*TalkStatistic, error)
 	GetLastTalkDraft(ctx context.Context, uuid string) (*TalkDraft, error)
 	CreateTalkDraft(ctx context.Context, uuid string) (int32, error)
-	SendTalk(ctx context.Context, id int32, uuid string) error
-	SendTalkEdit(ctx context.Context, id int32, uuid string) error
+	SendTalk(ctx context.Context, id int32, uuid, ip string) error
+	SendTalkEdit(ctx context.Context, id int32, uuid, ip string) error
 	DeleteTalk(ctx context.Context, id int32, uuid string) error
 	SetTalkAgree(ctx context.Context, id int32, uuid, userUuid string) error
 	CancelTalkAgree(ctx context.Context, id int32, uuid, userUuid string) error
@@ -83,8 +83,8 @@ type ColumnRepo interface {
 	GetSubscribeList(ctx context.Context, page int32, uuid string) ([]*Subscribe, error)
 	GetSubscribeListCount(ctx context.Context, uuid string) (int32, error)
 	GetColumnSubscribes(ctx context.Context, uuid string, ids []int32) ([]*Subscribe, error)
-	SendColumn(ctx context.Context, id int32, uuid string) error
-	SendColumnEdit(ctx context.Context, id int32, uuid string) error
+	SendColumn(ctx context.Context, id int32, uuid, ip string) error
+	SendColumnEdit(ctx context.Context, id int32, uuid, ip string) error
 	CreateColumnDraft(ctx context.Context, uuid string) (int32, error)
 	SubscribeColumn(ctx context.Context, id int32, author, uuid string) error
 	SubscribeJudge(ctx context.Context, id int32, uuid string) (bool, error)
@@ -101,7 +101,7 @@ type ColumnRepo interface {
 }
 
 type NewsRepo interface {
-	GetNewsFromTianXing(ctx context.Context, page int32, kind string) ([]*News, error)
+	GetNews(ctx context.Context, page int32) ([]*News, error)
 }
 
 type CreationUseCase struct {
@@ -289,12 +289,14 @@ func (r *ArticleUseCase) GetArticleDraftList(ctx context.Context) ([]*ArticleDra
 
 func (r *ArticleUseCase) SendArticle(ctx context.Context, id int32) error {
 	uuid := ctx.Value("uuid").(string)
-	return r.repo.SendArticle(ctx, id, uuid)
+	ip := ctx.Value("realIp").(string)
+	return r.repo.SendArticle(ctx, id, uuid, ip)
 }
 
 func (r *ArticleUseCase) SendArticleEdit(ctx context.Context, id int32) error {
 	uuid := ctx.Value("uuid").(string)
-	return r.repo.SendArticleEdit(ctx, id, uuid)
+	ip := ctx.Value("realIp").(string)
+	return r.repo.SendArticleEdit(ctx, id, uuid, ip)
 }
 
 func (r *ArticleUseCase) DeleteArticle(ctx context.Context, id int32) error {
@@ -377,12 +379,14 @@ func (r *TalkUseCase) CreateTalkDraft(ctx context.Context) (int32, error) {
 
 func (r *TalkUseCase) SendTalk(ctx context.Context, id int32) error {
 	uuid := ctx.Value("uuid").(string)
-	return r.repo.SendTalk(ctx, id, uuid)
+	ip := ctx.Value("realIp").(string)
+	return r.repo.SendTalk(ctx, id, uuid, ip)
 }
 
 func (r *TalkUseCase) SendTalkEdit(ctx context.Context, id int32) error {
 	uuid := ctx.Value("uuid").(string)
-	return r.repo.SendTalkEdit(ctx, id, uuid)
+	ip := ctx.Value("realIp").(string)
+	return r.repo.SendTalkEdit(ctx, id, uuid, ip)
 }
 
 func (r *TalkUseCase) DeleteTalk(ctx context.Context, id int32) error {
@@ -481,12 +485,14 @@ func (r *ColumnUseCase) ColumnStatisticJudge(ctx context.Context, id int32) (*Co
 
 func (r *ColumnUseCase) SendColumn(ctx context.Context, id int32) error {
 	uuid := ctx.Value("uuid").(string)
-	return r.repo.SendColumn(ctx, id, uuid)
+	ip := ctx.Value("realIp").(string)
+	return r.repo.SendColumn(ctx, id, uuid, ip)
 }
 
 func (r *ColumnUseCase) SendColumnEdit(ctx context.Context, id int32) error {
 	uuid := ctx.Value("uuid").(string)
-	return r.repo.SendColumnEdit(ctx, id, uuid)
+	ip := ctx.Value("realIp").(string)
+	return r.repo.SendColumnEdit(ctx, id, uuid, ip)
 }
 
 func (r *ColumnUseCase) DeleteColumn(ctx context.Context, id int32) error {
@@ -545,6 +551,6 @@ func (r *ColumnUseCase) DeleteColumnIncludes(ctx context.Context, id, articleId 
 	return r.repo.DeleteColumnIncludes(ctx, id, articleId, uuid)
 }
 
-func (r *NewsUseCase) GetNewsFromTianXing(ctx context.Context, page int32, kind string) ([]*News, error) {
-	return r.repo.GetNewsFromTianXing(ctx, page, kind)
+func (r *NewsUseCase) GetNews(ctx context.Context, page int32) ([]*News, error) {
+	return r.repo.GetNews(ctx, page)
 }
