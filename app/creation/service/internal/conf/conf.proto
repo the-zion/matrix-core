@@ -82,10 +82,14 @@ message Data {
     string accessKey = 9;
     string nameSpace = 10;
   }
+  message News{
+    string url = 1;
+  }
   Database database = 1;
   Redis redis = 2;
   Cos cos = 3;
   AchievementMq achievementMq = 4;
   CreationMq creationMq = 5;
+  News news = 6;
 }
 
