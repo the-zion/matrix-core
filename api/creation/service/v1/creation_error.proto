@@ -63,5 +63,6 @@ enum CreationErrorReason {
   GET_STATISTIC_JUDGE_FAILED = 45;
   GET_COUNT_FAILED = 46;
 
-  NOT_EMPTY = 47;
+  SET_RECORD_FAILED = 47;
+  NOT_EMPTY = 48;
 }
