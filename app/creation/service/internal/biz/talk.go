@@ -60,16 +60,18 @@ type TalkRepo interface {
 }
 
 type TalkUseCase struct {
-	repo TalkRepo
-	tm   Transaction
-	log  *log.Helper
+	repo         TalkRepo
+	creationRepo CreationRepo
+	tm           Transaction
+	log          *log.Helper
 }
 
-func NewTalkUseCase(repo TalkRepo, tm Transaction, logger log.Logger) *TalkUseCase {
+func NewTalkUseCase(repo TalkRepo, creationRepo CreationRepo, tm Transaction, logger log.Logger) *TalkUseCase {
 	return &TalkUseCase{
-		repo: repo,
-		tm:   tm,
-		log:  log.NewHelper(log.With(logger, "module", "creation/biz/talkUseCase")),
+		repo:         repo,
+		creationRepo: creationRepo,
+		tm:           tm,
+		log:          log.NewHelper(log.With(logger, "module", "creation/biz/talkUseCase")),
 	}
 }
 
@@ -169,12 +171,18 @@ func (r *TalkUseCase) CreateTalkDraft(ctx context.Context, uuid string) (int32, 
 	return id, nil
 }
 
-func (r *TalkUseCase) SendTalk(ctx context.Context, id int32, uuid string) error {
+func (r *TalkUseCase) SendTalk(ctx context.Context, id int32, uuid, ip string) error {
 	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		draft, err := r.repo.SendTalk(ctx, id, uuid)
 		if err != nil {
 			return v1.ErrorCreateTalkFailed("send talk failed: %s", err.Error())
 		}
+
+		err = r.creationRepo.SetRecord(ctx, id, 3, uuid, "create", ip)
+		if err != nil {
+			return v1.ErrorSetRecordFailed("set record failed: %s", err.Error())
+		}
+
 		err = r.repo.SendReviewToMq(ctx, &TalkReview{
 			Uuid: draft.Uuid,
 			Id:   draft.Id,
@@ -187,7 +195,7 @@ func (r *TalkUseCase) SendTalk(ctx context.Context, id int32, uuid string) error
 	})
 }
 
-func (r *TalkUseCase) SendTalkEdit(ctx context.Context, id int32, uuid string) error {
+func (r *TalkUseCase) SendTalkEdit(ctx context.Context, id int32, uuid, ip string) error {
 	talk, err := r.repo.GetTalk(ctx, id)
 	if err != nil {
 		return v1.ErrorGetTalkFailed("get talk failed: %s", err.Error())
@@ -195,6 +203,11 @@ func (r *TalkUseCase) SendTalkEdit(ctx context.Context, id int32, uuid string) e
 
 	if talk.Uuid != uuid {
 		return v1.ErrorGetTalkFailed("send talk edit failed: no auth")
+	}
+
+	err = r.creationRepo.SetRecord(ctx, id, 3, uuid, "edit", ip)
+	if err != nil {
+		return v1.ErrorSetRecordFailed("set record failed: %s", err.Error())
 	}
 
 	err = r.repo.SendReviewToMq(ctx, &TalkReview{
