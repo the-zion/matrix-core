@@ -935,9 +935,9 @@ func (s *BffService) DeleteColumnIncludes(ctx context.Context, req *v1.DeleteCol
 	return &emptypb.Empty{}, nil
 }
 
-func (s *BffService) GetNewsFromTianXing(ctx context.Context, req *v1.GetNewsReq) (*v1.GetNewsReply, error) {
+func (s *BffService) GetNews(ctx context.Context, req *v1.GetNewsReq) (*v1.GetNewsReply, error) {
 	reply := &v1.GetNewsReply{News: make([]*v1.GetNewsReply_News, 0)}
-	newsList, err := s.nc.GetNewsFromTianXing(ctx, req.Page, req.Kind)
+	newsList, err := s.nc.GetNews(ctx, req.Page)
 	if err != nil {
 		return nil, err
 	}
@@ -945,6 +945,7 @@ func (s *BffService) GetNewsFromTianXing(ctx context.Context, req *v1.GetNewsReq
 		reply.News = append(reply.News, &v1.GetNewsReply_News{
 			Id:     item.Id,
 			Update: item.Update,
+			Author: item.Author,
 			Title:  item.Title,
 			Text:   item.Text,
 			Tags:   item.Tags,
