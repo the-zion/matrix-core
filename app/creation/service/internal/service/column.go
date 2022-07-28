@@ -27,8 +27,34 @@ func (s *CreationService) CreateColumnDraft(ctx context.Context, req *v1.CreateC
 	}, nil
 }
 
+func (s *CreationService) SubscribeColumn(ctx context.Context, req *v1.SubscribeColumnReq) (*emptypb.Empty, error) {
+	err := s.coc.SubscribeColumn(ctx, req.Id, req.Author, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) CancelSubscribeColumn(ctx context.Context, req *v1.CancelSubscribeColumnReq) (*emptypb.Empty, error) {
+	err := s.coc.CancelSubscribeColumn(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) SubscribeJudge(ctx context.Context, req *v1.SubscribeJudgeReq) (*v1.SubscribeJudgeReply, error) {
+	subscribe, err := s.coc.SubscribeJudge(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.SubscribeJudgeReply{
+		Subscribe: subscribe,
+	}, nil
+}
+
 func (s *CreationService) SendColumn(ctx context.Context, req *v1.SendColumnReq) (*emptypb.Empty, error) {
-	err := s.coc.SendColumn(ctx, req.Id, req.Uuid)
+	err := s.coc.SendColumn(ctx, req.Id, req.Uuid, req.Ip)
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +62,7 @@ func (s *CreationService) SendColumn(ctx context.Context, req *v1.SendColumnReq)
 }
 
 func (s *CreationService) SendColumnEdit(ctx context.Context, req *v1.SendColumnEditReq) (*emptypb.Empty, error) {
-	err := s.coc.SendColumnEdit(ctx, req.Id, req.Uuid)
+	err := s.coc.SendColumnEdit(ctx, req.Id, req.Uuid, req.Ip)
 	if err != nil {
 		return nil, err
 	}
@@ -210,6 +236,46 @@ func (s *CreationService) ColumnStatisticJudge(ctx context.Context, req *v1.Colu
 		Agree:   judge.Agree,
 		Collect: judge.Collect,
 	}, nil
+}
+
+func (s *CreationService) GetSubscribeList(ctx context.Context, req *v1.GetSubscribeListReq) (*v1.GetSubscribeListReply, error) {
+	reply := &v1.GetSubscribeListReply{Subscribe: make([]*v1.GetSubscribeListReply_Subscribe, 0)}
+	statisticList, err := s.coc.GetSubscribeList(ctx, req.Page, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range statisticList {
+		reply.Subscribe = append(reply.Subscribe, &v1.GetSubscribeListReply_Subscribe{
+			Id:   item.ColumnId,
+			Uuid: item.AuthorId,
+		})
+	}
+	return reply, nil
+}
+
+func (s *CreationService) GetSubscribeListCount(ctx context.Context, req *v1.GetSubscribeListCountReq) (*v1.GetSubscribeListCountReply, error) {
+	count, err := s.coc.GetSubscribeListCount(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetSubscribeListCountReply{
+		Count: count,
+	}, nil
+}
+
+func (s *CreationService) GetColumnSubscribes(ctx context.Context, req *v1.GetColumnSubscribesReq) (*v1.GetColumnSubscribesReply, error) {
+	reply := &v1.GetColumnSubscribesReply{Subscribes: make([]*v1.GetColumnSubscribesReply_Subscribes, 0)}
+	subscribesList, err := s.coc.GetColumnSubscribes(ctx, req.Uuid, req.Ids)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range subscribesList {
+		reply.Subscribes = append(reply.Subscribes, &v1.GetColumnSubscribesReply_Subscribes{
+			Id:             item.ColumnId,
+			SubscribeJudge: item.Status,
+		})
+	}
+	return reply, nil
 }
 
 func (s *CreationService) SetColumnAgree(ctx context.Context, req *v1.SetColumnAgreeReq) (*emptypb.Empty, error) {
