@@ -702,6 +702,53 @@ func (r *columnRepo) GetColumnCollectJudge(ctx context.Context, id int32, uuid s
 	return judge, nil
 }
 
+func (r *columnRepo) GetSubscribeList(ctx context.Context, page int32, uuid string) ([]*biz.Subscribe, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int(page - 1)
+	list := make([]*Subscribe, 0)
+	err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).Order("column_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get subscribe column from db: page(%v)", page))
+	}
+
+	subscribe := make([]*biz.Subscribe, 0)
+	for _, item := range list {
+		subscribe = append(subscribe, &biz.Subscribe{
+			ColumnId: item.ColumnId,
+			AuthorId: item.AuthorId,
+		})
+	}
+	return subscribe, nil
+}
+
+func (r *columnRepo) GetSubscribeListCount(ctx context.Context, uuid string) (int32, error) {
+	var count int64
+	err := r.data.db.WithContext(ctx).Model(&Subscribe{}).Where("uuid = ?", uuid).Count(&count).Error
+	if err != nil {
+		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get subscribe column list count from db: uuid(%s)", uuid))
+	}
+	return int32(count), nil
+}
+
+func (r *columnRepo) GetColumnSubscribes(ctx context.Context, uuid string, ids []int32) ([]*biz.Subscribe, error) {
+	list := make([]*Subscribe, 0)
+	err := r.data.db.WithContext(ctx).Where("uuid = ? and column_id IN ?", uuid, ids).Find(&list).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get column subscribe from db: uuid(%s), ids(%v)", uuid, ids))
+	}
+
+	subscribes := make([]*biz.Subscribe, 0)
+	for _, item := range list {
+		subscribes = append(subscribes, &biz.Subscribe{
+			ColumnId: item.ColumnId,
+			Status:   item.Status,
+		})
+	}
+	return subscribes, nil
+}
+
 func (r *columnRepo) DeleteColumnSearch(ctx context.Context, id int32, uuid string) error {
 	return nil
 }
@@ -868,4 +915,41 @@ func (r *columnRepo) CancelColumnUserCollect(ctx context.Context, id int32, user
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel column collect: column_id(%v), userUuid(%s)", id, userUuid))
 	}
 	return nil
+}
+
+func (r *columnRepo) SubscribeColumn(ctx context.Context, id int32, author, uuid string) error {
+	sub := &Subscribe{
+		ColumnId: id,
+		AuthorId: author,
+		Uuid:     uuid,
+		Status:   1,
+	}
+	err := r.data.DB(ctx).Clauses(clause.OnConflict{
+		DoUpdates: clause.Assignments(map[string]interface{}{"status": 1}),
+	}).Create(sub).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to subscribe column: id(%v), uuid(%s)", id, uuid))
+	}
+	return nil
+}
+
+func (r *columnRepo) CancelSubscribeColumn(ctx context.Context, id int32, uuid string) error {
+	sub := &Subscribe{}
+	err := r.data.DB(ctx).Model(sub).Where("column_id = ? and uuid = ?", id, uuid).Update("status", 2).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to cancel subscribe column: id(%v), uuid(%s)", id, uuid))
+	}
+	return nil
+}
+
+func (r *columnRepo) SubscribeJudge(ctx context.Context, id int32, uuid string) (bool, error) {
+	f := &Subscribe{}
+	err := r.data.db.WithContext(ctx).Where("column_id = ? and uuid = ? and status = ?", id, uuid, 1).First(f).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return false, nil
+	}
+	if err != nil {
+		return false, errors.Wrapf(err, fmt.Sprintf("fail to get column subscribe judge rom db: id(%v), uuid(%s)", id, uuid))
+	}
+	return true, nil
 }
