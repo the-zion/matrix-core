@@ -263,3 +263,18 @@ func (r *creationRepo) DeleteCollections(ctx context.Context, id int32, uuid str
 	}
 	return nil
 }
+
+func (r *creationRepo) SetRecord(ctx context.Context, id, mode int32, uuid, operation, ip string) error {
+	record := &Record{
+		CreationId: id,
+		Mode:       mode,
+		Uuid:       uuid,
+		Operation:  operation,
+		Ip:         ip,
+	}
+	err := r.data.DB(ctx).Create(record).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add an record to db: id(%v), uuid(%s), ip(%s)", id, uuid, ip))
+	}
+	return nil
+}
