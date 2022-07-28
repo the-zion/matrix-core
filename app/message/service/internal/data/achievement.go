@@ -68,3 +68,25 @@ func (r *achievementRepo) CancelAchievementCollect(ctx context.Context, uuid str
 	}
 	return nil
 }
+
+func (r *achievementRepo) SetAchievementFollow(ctx context.Context, follow, followed string) error {
+	_, err := r.data.ac.SetAchievementFollow(ctx, &achievementv1.SetAchievementFollowReq{
+		Follow:   follow,
+		Followed: followed,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *achievementRepo) CancelAchievementFollow(ctx context.Context, follow, followed string) error {
+	_, err := r.data.ac.CancelAchievementFollow(ctx, &achievementv1.CancelAchievementFollowReq{
+		Follow:   follow,
+		Followed: followed,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
