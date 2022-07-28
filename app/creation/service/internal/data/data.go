@@ -19,7 +19,7 @@ import (
 	"time"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewTransaction, NewRocketmqArticleProducer, NewRocketmqArticleReviewProducer, NewRocketmqAchievementProducer, NewRocketmqTalkReviewProducer, NewRocketmqTalkProducer, NewRocketmqColumnReviewProducer, NewRocketmqColumnProducer, NewCosServiceClient, NewArticleRepo, NewTalkRepo, NewCreationRepo, NewColumnRepo)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewTransaction, NewRocketmqArticleProducer, NewRocketmqArticleReviewProducer, NewRocketmqAchievementProducer, NewRocketmqTalkReviewProducer, NewRocketmqTalkProducer, NewRocketmqColumnReviewProducer, NewRocketmqColumnProducer, NewCosServiceClient, NewNewsClient, NewArticleRepo, NewTalkRepo, NewCreationRepo, NewColumnRepo, NewNewsRepo)
 
 type ArticleReviewMqPro struct {
 	producer rocketmq.Producer
@@ -49,6 +49,10 @@ type AchievementMqPro struct {
 	producer rocketmq.Producer
 }
 
+type News struct {
+	url string
+}
+
 type Data struct {
 	db                 *gorm.DB
 	log                *log.Helper
@@ -61,6 +65,7 @@ type Data struct {
 	columnMqPro        *ColumnMqPro
 	achievementMqPro   *AchievementMqPro
 	cosCli             *cos.Client
+	newsCli            *News
 }
 
 type contextTxKey struct{}
@@ -314,7 +319,13 @@ func NewRocketmqAchievementProducer(conf *conf.Data, logger log.Logger) *Achieve
 	}
 }
 
-func NewData(db *gorm.DB, redisCmd redis.Cmdable, cos *cos.Client, amp *ArticleMqPro, arp *ArticleReviewMqPro, tmp *TalkMqPro, trp *TalkReviewMqPro, cmp *ColumnMqPro, crq *ColumnReviewMqPro, ap *AchievementMqPro, logger log.Logger) (*Data, func(), error) {
+func NewNewsClient(conf *conf.Data) *News {
+	return &News{
+		url: conf.News.Url,
+	}
+}
+
+func NewData(db *gorm.DB, redisCmd redis.Cmdable, cos *cos.Client, amp *ArticleMqPro, arp *ArticleReviewMqPro, tmp *TalkMqPro, trp *TalkReviewMqPro, cmp *ColumnMqPro, crq *ColumnReviewMqPro, ap *AchievementMqPro, news *News, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(logger, "module", "creation/data/new-data"))
 
 	d := &Data{
@@ -328,6 +339,7 @@ func NewData(db *gorm.DB, redisCmd redis.Cmdable, cos *cos.Client, amp *ArticleM
 		columnMqPro:        cmp,
 		columnReviewMqPro:  crq,
 		achievementMqPro:   ap,
+		newsCli:            news,
 	}
 	return d, func() {
 		l.Info("closing the data resources")
