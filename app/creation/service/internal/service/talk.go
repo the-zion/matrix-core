@@ -140,7 +140,7 @@ func (s *CreationService) CreateTalkDraft(ctx context.Context, req *v1.CreateTal
 }
 
 func (s *CreationService) SendTalk(ctx context.Context, req *v1.SendTalkReq) (*emptypb.Empty, error) {
-	err := s.tc.SendTalk(ctx, req.Id, req.Uuid)
+	err := s.tc.SendTalk(ctx, req.Id, req.Uuid, req.Ip)
 	if err != nil {
 		return nil, err
 	}
@@ -148,7 +148,7 @@ func (s *CreationService) SendTalk(ctx context.Context, req *v1.SendTalkReq) (*e
 }
 
 func (s *CreationService) SendTalkEdit(ctx context.Context, req *v1.SendTalkEditReq) (*emptypb.Empty, error) {
-	err := s.tc.SendTalkEdit(ctx, req.Id, req.Uuid)
+	err := s.tc.SendTalkEdit(ctx, req.Id, req.Uuid, req.Ip)
 	if err != nil {
 		return nil, err
 	}
