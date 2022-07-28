@@ -67,9 +67,10 @@ func (r *creationRepo) ArticleCreateReviewPass(ctx context.Context, id, auth int
 	return nil
 }
 
-func (r *creationRepo) ArticleEditReviewPass(ctx context.Context, id int32, uuid string) error {
+func (r *creationRepo) ArticleEditReviewPass(ctx context.Context, id, auth int32, uuid string) error {
 	_, err := r.data.cc.EditArticle(ctx, &creationV1.EditArticleReq{
 		Id:   id,
+		Auth: auth,
 		Uuid: uuid,
 	})
 	if err != nil {
@@ -90,9 +91,10 @@ func (r *creationRepo) CreateArticleCacheAndSearch(ctx context.Context, id, auth
 	return nil
 }
 
-func (r *creationRepo) EditArticleCosAndSearch(ctx context.Context, id int32, uuid string) error {
+func (r *creationRepo) EditArticleCosAndSearch(ctx context.Context, id, auth int32, uuid string) error {
 	_, err := r.data.cc.EditArticleCosAndSearch(ctx, &creationV1.EditArticleCosAndSearchReq{
 		Id:   id,
+		Auth: auth,
 		Uuid: uuid,
 	})
 	if err != nil {
@@ -156,9 +158,10 @@ func (r *creationRepo) TalkCreateReviewPass(ctx context.Context, id, auth int32,
 	return nil
 }
 
-func (r *creationRepo) TalkEditReviewPass(ctx context.Context, id int32, uuid string) error {
+func (r *creationRepo) TalkEditReviewPass(ctx context.Context, id, auth int32, uuid string) error {
 	_, err := r.data.cc.EditTalk(ctx, &creationV1.EditTalkReq{
 		Id:   id,
+		Auth: auth,
 		Uuid: uuid,
 	})
 	if err != nil {
@@ -179,8 +182,111 @@ func (r *creationRepo) CreateTalkCacheAndSearch(ctx context.Context, id, auth in
 	return nil
 }
 
-func (r *creationRepo) EditTalkCosAndSearch(ctx context.Context, id int32, uuid string) error {
+func (r *creationRepo) EditTalkCosAndSearch(ctx context.Context, id, auth int32, uuid string) error {
 	_, err := r.data.cc.EditTalkCosAndSearch(ctx, &creationV1.EditTalkCosAndSearchReq{
+		Id:   id,
+		Auth: auth,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) DeleteTalkCacheAndSearch(ctx context.Context, id int32, uuid string) error {
+	_, err := r.data.cc.DeleteTalkCacheAndSearch(ctx, &creationV1.DeleteTalkCacheAndSearchReq{
+		Id:   id,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) ToReviewCreateColumn(id int32, uuid string) error {
+	opt := &cos.PutTextAuditingJobOptions{
+		InputObject: "column/" + uuid + "/" + strconv.Itoa(int(id)) + "/content",
+		Conf: &cos.TextAuditingJobConf{
+			CallbackVersion: "Detail",
+			Callback:        r.data.cosCreationCli.callback["column_create"],
+		},
+	}
+
+	_, _, err := r.data.cosCreationCli.cos.CI.PutTextAuditingJob(context.Background(), opt)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to send column create review request to cos: id(%v) uuid(%s)", id, uuid))
+	}
+	return nil
+}
+
+func (r *creationRepo) ToReviewEditColumn(id int32, uuid string) error {
+	opt := &cos.PutTextAuditingJobOptions{
+		InputObject: "column/" + uuid + "/" + strconv.Itoa(int(id)) + "/content-edit",
+		Conf: &cos.TextAuditingJobConf{
+			CallbackVersion: "Detail",
+			Callback:        r.data.cosCreationCli.callback["column_edit"],
+		},
+	}
+
+	_, _, err := r.data.cosCreationCli.cos.CI.PutTextAuditingJob(context.Background(), opt)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to send column edit review request to cos: id(%v) uuid(%s)", id, uuid))
+	}
+	return nil
+}
+
+func (r *creationRepo) ColumnCreateReviewPass(ctx context.Context, id, auth int32, uuid string) error {
+	_, err := r.data.cc.CreateColumn(ctx, &creationV1.CreateColumnReq{
+		Id:   id,
+		Auth: auth,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) ColumnEditReviewPass(ctx context.Context, id, auth int32, uuid string) error {
+	_, err := r.data.cc.EditColumn(ctx, &creationV1.EditColumnReq{
+		Id:   id,
+		Auth: auth,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) CreateColumnCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error {
+	_, err := r.data.cc.CreateColumnCacheAndSearch(ctx, &creationV1.CreateColumnCacheAndSearchReq{
+		Id:   id,
+		Auth: auth,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) EditColumnCosAndSearch(ctx context.Context, id, auth int32, uuid string) error {
+	_, err := r.data.cc.EditColumnCosAndSearch(ctx, &creationV1.EditColumnCosAndSearchReq{
+		Id:   id,
+		Auth: auth,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) DeleteColumnCacheAndSearch(ctx context.Context, id int32, uuid string) error {
+	_, err := r.data.cc.DeleteColumnCacheAndSearch(ctx, &creationV1.DeleteColumnCacheAndSearchReq{
 		Id:   id,
 		Uuid: uuid,
 	})
