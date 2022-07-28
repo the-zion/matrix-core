@@ -117,3 +117,21 @@ type ColumnInclusion struct {
 	Uuid      string `gorm:"size:36"`
 	Status    int32  `gorm:"default:1"`
 }
+
+type Subscribe struct {
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	ColumnId  int32  `gorm:"primarykey"`
+	Uuid      string `gorm:"primarykey;size:36"`
+	AuthorId  string `gorm:"size:36"`
+	Status    int32  `gorm:"default:1"`
+}
+
+type Record struct {
+	gorm.Model
+	Uuid       string `gorm:"size:36"`
+	CreationId int32
+	Mode       int32 `gorm:"default:1"`
+	Operation  string
+	Ip         string
+}
