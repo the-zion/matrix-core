@@ -7,7 +7,7 @@ import (
 )
 
 type NewsRepo interface {
-	GetNewsFromTianXing(ctx context.Context, page int32, key string) ([]*News, error)
+	GetNews(ctx context.Context, page int32) ([]*News, error)
 }
 
 type NewsUseCase struct {
@@ -24,8 +24,8 @@ func NewNewsUseCase(repo NewsRepo, tm Transaction, logger log.Logger) *NewsUseCa
 	}
 }
 
-func (r *NewsUseCase) GetNewsFromTianXing(ctx context.Context, page int32, kind string) ([]*News, error) {
-	news, err := r.repo.GetNewsFromTianXing(ctx, page, kind)
+func (r *NewsUseCase) GetNews(ctx context.Context, page int32) ([]*News, error) {
+	news, err := r.repo.GetNews(ctx, page)
 	if err != nil {
 		return nil, v1.ErrorGetNewsFailed("get news failed: %s", err.Error())
 	}
