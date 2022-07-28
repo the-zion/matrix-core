@@ -225,7 +225,7 @@ func (s *CreationService) GetArticleDraftList(ctx context.Context, req *v1.GetAr
 }
 
 func (s *CreationService) SendArticle(ctx context.Context, req *v1.SendArticleReq) (*emptypb.Empty, error) {
-	err := s.ac.SendArticle(ctx, req.Id, req.Uuid)
+	err := s.ac.SendArticle(ctx, req.Id, req.Uuid, req.Ip)
 	if err != nil {
 		return nil, err
 	}
@@ -233,7 +233,7 @@ func (s *CreationService) SendArticle(ctx context.Context, req *v1.SendArticleRe
 }
 
 func (s *CreationService) SendArticleEdit(ctx context.Context, req *v1.SendArticleEditReq) (*emptypb.Empty, error) {
-	err := s.ac.SendArticleEdit(ctx, req.Id, req.Uuid)
+	err := s.ac.SendArticleEdit(ctx, req.Id, req.Uuid, req.Ip)
 	if err != nil {
 		return nil, err
 	}
