@@ -36,8 +36,8 @@ func (s *MessageService) CreateArticleCacheAndSearch(ctx context.Context, id, au
 	return s.cc.CreateArticleCacheAndSearch(ctx, id, auth, uuid)
 }
 
-func (s *MessageService) EditArticleCosAndSearch(ctx context.Context, id int32, uuid string) error {
-	return s.cc.EditArticleCosAndSearch(ctx, id, uuid)
+func (s *MessageService) EditArticleCosAndSearch(ctx context.Context, id, auth int32, uuid string) error {
+	return s.cc.EditArticleCosAndSearch(ctx, id, auth, uuid)
 }
 
 func (s *MessageService) DeleteArticleCacheAndSearch(ctx context.Context, id int32, uuid string) error {
@@ -74,6 +74,48 @@ func (s *MessageService) CreateTalkCacheAndSearch(ctx context.Context, id, auth 
 	return s.cc.CreateTalkCacheAndSearch(ctx, id, auth, uuid)
 }
 
-func (s *MessageService) EditTalkCosAndSearch(ctx context.Context, id int32, uuid string) error {
-	return s.cc.EditTalkCosAndSearch(ctx, id, uuid)
+func (s *MessageService) EditTalkCosAndSearch(ctx context.Context, id, auth int32, uuid string) error {
+	return s.cc.EditTalkCosAndSearch(ctx, id, auth, uuid)
+}
+
+func (s *MessageService) DeleteTalkCacheAndSearch(ctx context.Context, id int32, uuid string) error {
+	return s.cc.DeleteTalkCacheAndSearch(ctx, id, uuid)
+}
+
+func (s *MessageService) ToReviewCreateColumn(id int32, uuid string) error {
+	return s.cc.ToReviewCreateColumn(id, uuid)
+}
+
+func (s *MessageService) ToReviewEditColumn(id int32, uuid string) error {
+	return s.cc.ToReviewEditColumn(id, uuid)
+}
+
+func (s *MessageService) ColumnCreateReview(ctx context.Context, req *v1.TextReviewReq) (*emptypb.Empty, error) {
+	tr := s.TextReview(req)
+	err := s.cc.ColumnCreateReview(ctx, tr)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *MessageService) ColumnEditReview(ctx context.Context, req *v1.TextReviewReq) (*emptypb.Empty, error) {
+	tr := s.TextReview(req)
+	err := s.cc.ColumnEditReview(ctx, tr)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *MessageService) CreateColumnCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error {
+	return s.cc.CreateColumnCacheAndSearch(ctx, id, auth, uuid)
+}
+
+func (s *MessageService) EditColumnCosAndSearch(ctx context.Context, id, auth int32, uuid string) error {
+	return s.cc.EditColumnCosAndSearch(ctx, id, auth, uuid)
+}
+
+func (s *MessageService) DeleteColumnCacheAndSearch(ctx context.Context, id int32, uuid string) error {
+	return s.cc.DeleteColumnCacheAndSearch(ctx, id, uuid)
 }
