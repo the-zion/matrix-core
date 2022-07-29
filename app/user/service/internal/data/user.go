@@ -11,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/the-zion/matrix-core/app/user/service/internal/biz"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"strconv"
 	"strings"
 	"time"
@@ -82,6 +83,24 @@ func (r *userRepo) GetProfile(ctx context.Context, uuid string) (*biz.Profile, e
 	}, nil
 }
 
+func (r *userRepo) GetProfileList(ctx context.Context, uuids []string) ([]*biz.Profile, error) {
+	list := make([]*Profile, 0)
+	err := r.data.db.WithContext(ctx).Where("uuid IN ?", uuids).Find(&list).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get profile list from db: uuids(%v)", uuids))
+	}
+
+	profiles := make([]*biz.Profile, 0)
+	for _, item := range list {
+		profiles = append(profiles, &biz.Profile{
+			Uuid:      item.Uuid,
+			Username:  item.Username,
+			Introduce: item.Introduce,
+		})
+	}
+	return profiles, nil
+}
+
 func (r *userRepo) GetProfileUpdate(ctx context.Context, uuid string) (*biz.ProfileUpdate, error) {
 	profile := &ProfileUpdate{}
 	pu := &biz.ProfileUpdate{}
@@ -103,6 +122,64 @@ func (r *userRepo) GetProfileUpdate(ctx context.Context, uuid string) (*biz.Prof
 	pu.Introduce = profile.Introduce
 	pu.Status = profile.Status
 	return pu, nil
+}
+
+func (r *userRepo) GetFollowList(ctx context.Context, page int32, uuid string) ([]*biz.Follow, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int(page - 1)
+	list := make([]*Follow, 0)
+	handle := r.data.db.WithContext(ctx).Where("followed = ? and status = ?", uuid, 1).Order("updated_at desc").Offset(index * 10).Limit(10).Find(&list)
+	err := handle.Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get follow list from db: uuid(%s)", uuid))
+	}
+	follows := make([]*biz.Follow, 0)
+	for _, item := range list {
+		follows = append(follows, &biz.Follow{
+			Follow: item.Follow,
+		})
+	}
+	return follows, nil
+}
+
+func (r *userRepo) GetFollowListCount(ctx context.Context, uuid string) (int32, error) {
+	var count int64
+	err := r.data.db.WithContext(ctx).Model(&Follow{}).Where("followed = ? and status = ?", uuid, 1).Count(&count).Error
+	if err != nil {
+		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get follow list count from db: followed(%v)", uuid))
+	}
+	return int32(count), nil
+}
+
+func (r *userRepo) GetFollowedList(ctx context.Context, page int32, uuid string) ([]*biz.Follow, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int(page - 1)
+	list := make([]*Follow, 0)
+	handle := r.data.db.WithContext(ctx).Where("follow = ? and status = ?", uuid, 1).Order("updated_at desc").Offset(index * 10).Limit(10).Find(&list)
+	err := handle.Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get followed list from db: uuid(%s)", uuid))
+	}
+	follows := make([]*biz.Follow, 0)
+	for _, item := range list {
+		follows = append(follows, &biz.Follow{
+			Followed: item.Followed,
+		})
+	}
+	return follows, nil
+}
+
+func (r *userRepo) GetFollowedListCount(ctx context.Context, uuid string) (int32, error) {
+	var count int64
+	err := r.data.db.WithContext(ctx).Model(&Follow{}).Where("follow = ? and status = ?", uuid, 1).Count(&count).Error
+	if err != nil {
+		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get followed list count from db: followed(%v)", uuid))
+	}
+	return int32(count), nil
 }
 
 func (r *userRepo) SetProfile(ctx context.Context, profile *biz.ProfileUpdate) error {
@@ -167,6 +244,28 @@ func (r *userRepo) SendProfileToMq(ctx context.Context, profile *biz.ProfileUpda
 	return nil
 }
 
+func (r *userRepo) SendUserStatisticToMq(ctx context.Context, uuid, userUuid, mode string) error {
+	achievement := map[string]string{}
+	achievement["follow"] = uuid
+	achievement["followed"] = userUuid
+	achievement["mode"] = mode
+
+	data, err := json.Marshal(achievement)
+	if err != nil {
+		return err
+	}
+	msg := &primitive.Message{
+		Topic: "achievement",
+		Body:  data,
+	}
+	msg.WithKeys([]string{uuid})
+	_, err = r.data.achievementMqPro.producer.SendSync(ctx, msg)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to send user statistic to mq: uuid(%s)", uuid))
+	}
+	return nil
+}
+
 func (r *userRepo) ModifyProfileUpdateStatus(ctx context.Context, uuid, update string) error {
 	updateTime, err := strconv.ParseInt(update, 10, 64)
 	if err != nil {
@@ -195,6 +294,35 @@ func (r *userRepo) getProfileFromCache(ctx context.Context, key string) (*Profil
 	return cacheProfile, nil
 }
 
+func (r *userRepo) GetUserFollow(ctx context.Context, uuid, userUuid string) (bool, error) {
+	f := &Follow{}
+	err := r.data.db.WithContext(ctx).Where("follow = ? and followed = ? and status = ?", uuid, userUuid, 1).First(f).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return false, nil
+	}
+	if err != nil {
+		return false, errors.Wrapf(err, fmt.Sprintf("fail to get user follow from db: follow(%s), followed(%s)", uuid, userUuid))
+	}
+	return true, nil
+}
+
+func (r *userRepo) GetUserFollows(ctx context.Context, userId string, uuids []string) ([]*biz.Follows, error) {
+	list := make([]*Follow, 0)
+	err := r.data.db.WithContext(ctx).Where("followed = ? and follow IN ?", userId, uuids).Find(&list).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get follows list from db: uuids(%v)", uuids))
+	}
+
+	follows := make([]*biz.Follows, 0)
+	for _, item := range list {
+		follows = append(follows, &biz.Follows{
+			Uuid:   item.Follow,
+			Follow: item.Status,
+		})
+	}
+	return follows, nil
+}
+
 func (r *userRepo) setProfileToCache(ctx context.Context, profile *Profile, key string) {
 	marshal, err := json.Marshal(profile)
 	if err != nil {
@@ -206,11 +334,38 @@ func (r *userRepo) setProfileToCache(ctx context.Context, profile *Profile, key 
 	}
 }
 
-// SetUserEmail set redis ?
 func (r *userRepo) SetUserEmail(ctx context.Context, id int64, email string) error {
 	err := r.data.db.WithContext(ctx).Model(&User{}).Where("id = ?", id).Update("email", email).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("db query system error: user_id(%v), email(%s)", id, email))
+	}
+	return nil
+}
+
+func (r *userRepo) SetUserFollow(ctx context.Context, uuid, userUuid string) error {
+	follow := &Follow{
+		Follow:   uuid,
+		Followed: userUuid,
+		Status:   1,
+	}
+	err := r.data.DB(ctx).Clauses(clause.OnConflict{
+		//Columns:   []clause.Column{{Name: "follow"}, {Name: "followed"}},
+		//Where:     clause.Where{Exprs: []clause.Expression{gorm.Expr("follow = ? and followed = ?", uuid, userUuid)}},
+		DoUpdates: clause.Assignments(map[string]interface{}{"status": 1}),
+	}).Create(follow).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add a follow: follow(%s), followed(%s)", uuid, userUuid))
+	}
+	return nil
+}
+
+func (r *userRepo) CancelUserFollow(ctx context.Context, uuid, userUuid string) error {
+	f := &Follow{
+		Status: 2,
+	}
+	err := r.data.DB(ctx).Model(&Follow{}).Where("follow = ? and followed = ?", uuid, userUuid).Updates(f).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to cancel a follow: follow(%s), followed(%s)", uuid, userUuid))
 	}
 	return nil
 }
