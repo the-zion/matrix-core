@@ -5,6 +5,7 @@ import (
 	"github.com/apache/rocketmq-client-go/v2"
 	"github.com/apache/rocketmq-client-go/v2/primitive"
 	"github.com/apache/rocketmq-client-go/v2/producer"
+	"github.com/elastic/go-elasticsearch/v7"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-redis/redis/v8"
 	"github.com/google/wire"
@@ -19,7 +20,7 @@ import (
 	"time"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewTransaction, NewRocketmqArticleProducer, NewRocketmqArticleReviewProducer, NewRocketmqAchievementProducer, NewRocketmqTalkReviewProducer, NewRocketmqTalkProducer, NewRocketmqColumnReviewProducer, NewRocketmqColumnProducer, NewCosServiceClient, NewNewsClient, NewArticleRepo, NewTalkRepo, NewCreationRepo, NewColumnRepo, NewNewsRepo)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewTransaction, NewRocketmqArticleProducer, NewRocketmqArticleReviewProducer, NewRocketmqAchievementProducer, NewRocketmqTalkReviewProducer, NewRocketmqTalkProducer, NewRocketmqColumnReviewProducer, NewRocketmqColumnProducer, NewCosServiceClient, NewElasticsearch, NewNewsClient, NewArticleRepo, NewTalkRepo, NewCreationRepo, NewColumnRepo, NewNewsRepo)
 
 type ArticleReviewMqPro struct {
 	producer rocketmq.Producer
@@ -49,6 +50,10 @@ type AchievementMqPro struct {
 	producer rocketmq.Producer
 }
 
+type ElasticSearch struct {
+	es *elasticsearch.Client
+}
+
 type News struct {
 	url string
 }
@@ -65,6 +70,7 @@ type Data struct {
 	columnMqPro        *ColumnMqPro
 	achievementMqPro   *AchievementMqPro
 	cosCli             *cos.Client
+	elasticSearch      *ElasticSearch
 	newsCli            *News
 }
 
@@ -319,13 +325,42 @@ func NewRocketmqAchievementProducer(conf *conf.Data, logger log.Logger) *Achieve
 	}
 }
 
+func NewElasticsearch(conf *conf.Data, logger log.Logger) *ElasticSearch {
+	l := log.NewHelper(log.With(logger, "module", "creation/data/elastic-search"))
+	cfg := elasticsearch.Config{
+		Username: conf.ElasticSearch.User,
+		Password: conf.ElasticSearch.Password,
+		Addresses: []string{
+			conf.ElasticSearch.Endpoint,
+		},
+	}
+	es, err := elasticsearch.NewClient(cfg)
+	if err != nil {
+		l.Fatalf("Error creating the es client: %s", err)
+	}
+
+	res, err := es.Info()
+	if err != nil {
+		l.Fatalf("Error getting response: %s", err)
+	}
+	defer res.Body.Close()
+
+	if res.IsError() {
+		l.Fatalf("Error: %s", res.String())
+	}
+
+	return &ElasticSearch{
+		es: es,
+	}
+}
+
 func NewNewsClient(conf *conf.Data) *News {
 	return &News{
 		url: conf.News.Url,
 	}
 }
 
-func NewData(db *gorm.DB, redisCmd redis.Cmdable, cos *cos.Client, amp *ArticleMqPro, arp *ArticleReviewMqPro, tmp *TalkMqPro, trp *TalkReviewMqPro, cmp *ColumnMqPro, crq *ColumnReviewMqPro, ap *AchievementMqPro, news *News, logger log.Logger) (*Data, func(), error) {
+func NewData(db *gorm.DB, redisCmd redis.Cmdable, cos *cos.Client, es *ElasticSearch, amp *ArticleMqPro, arp *ArticleReviewMqPro, tmp *TalkMqPro, trp *TalkReviewMqPro, cmp *ColumnMqPro, crq *ColumnReviewMqPro, ap *AchievementMqPro, news *News, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(logger, "module", "creation/data/new-data"))
 
 	d := &Data{
@@ -339,6 +374,7 @@ func NewData(db *gorm.DB, redisCmd redis.Cmdable, cos *cos.Client, amp *ArticleM
 		columnMqPro:        cmp,
 		columnReviewMqPro:  crq,
 		achievementMqPro:   ap,
+		elasticSearch:      es,
 		newsCli:            news,
 	}
 	return d, func() {
