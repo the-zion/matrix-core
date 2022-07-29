@@ -5,7 +5,6 @@ import (
 	"github.com/apache/rocketmq-client-go/v2"
 	"github.com/apache/rocketmq-client-go/v2/consumer"
 	"github.com/apache/rocketmq-client-go/v2/primitive"
-	"github.com/apache/rocketmq-client-go/v2/rlog"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/the-zion/matrix-core/app/message/service/internal/conf"
 	"github.com/the-zion/matrix-core/app/message/service/internal/service"
@@ -18,7 +17,6 @@ type CodeMqConsumerServer struct {
 
 func NewCodeMqConsumerServer(conf *conf.Server, messageService *service.MessageService, logger log.Logger) *CodeMqConsumerServer {
 	l := log.NewHelper(log.With(logger, "server", "message/server/rocketmq-code-consumer"))
-	rlog.SetLogLevel("warn")
 	c, err := rocketmq.NewPushConsumer(
 		consumer.WithGroupName(conf.UserMq.Code.GroupName),
 		consumer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.UserMq.ServerAddress})),
@@ -69,7 +67,6 @@ type ProfileMqConsumerServer struct {
 
 func NewProfileMqConsumerServer(conf *conf.Server, messageService *service.MessageService, logger log.Logger) *ProfileMqConsumerServer {
 	l := log.NewHelper(log.With(logger, "server", "message/server/rocketmq-profile-consumer"))
-	rlog.SetLogLevel("warn")
 	c, err := rocketmq.NewPushConsumer(
 		consumer.WithGroupName(conf.UserMq.Profile.GroupName),
 		consumer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.UserMq.ServerAddress})),
