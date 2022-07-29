@@ -10,10 +10,20 @@ import (
 type UserRepo interface {
 	GetAccount(ctx context.Context, uuid string) (*User, error)
 	GetProfile(ctx context.Context, uuid string) (*Profile, error)
+	GetProfileList(ctx context.Context, uuids []string) ([]*Profile, error)
+	GetUserFollow(ctx context.Context, uuid, userUuid string) (bool, error)
+	GetUserFollows(ctx context.Context, userId string, uuids []string) ([]*Follows, error)
 	GetProfileUpdate(ctx context.Context, uuid string) (*ProfileUpdate, error)
+	GetFollowList(ctx context.Context, page int32, uuid string) ([]*Follow, error)
+	GetFollowListCount(ctx context.Context, uuid string) (int32, error)
+	GetFollowedList(ctx context.Context, page int32, uuid string) ([]*Follow, error)
+	GetFollowedListCount(ctx context.Context, uuid string) (int32, error)
 	SetProfile(ctx context.Context, profile *ProfileUpdate) error
 	SetProfileUpdate(ctx context.Context, profile *ProfileUpdate, status int32) (*ProfileUpdate, error)
+	SetUserFollow(ctx context.Context, uuid, userId string) error
+	CancelUserFollow(ctx context.Context, uuid, userId string) error
 	SendProfileToMq(ctx context.Context, profile *ProfileUpdate) error
+	SendUserStatisticToMq(ctx context.Context, uuid, userUuid, mode string) error
 	ModifyProfileUpdateStatus(ctx context.Context, uuid, update string) error
 }
 
@@ -50,12 +60,68 @@ func (r *UserUseCase) GetProfile(ctx context.Context, uuid string) (*Profile, er
 	return profile, nil
 }
 
+func (r *UserUseCase) GetProfileList(ctx context.Context, uuids []string) ([]*Profile, error) {
+	profileList, err := r.repo.GetProfileList(ctx, uuids)
+	if err != nil {
+		return nil, v1.ErrorGetProfileFailed("get user profile list failed: %s", err.Error())
+	}
+	return profileList, nil
+}
+
 func (r *UserUseCase) GetProfileUpdate(ctx context.Context, uuid string) (*ProfileUpdate, error) {
 	profile, err := r.repo.GetProfileUpdate(ctx, uuid)
 	if err != nil {
 		return nil, v1.ErrorGetProfileUpdateFailed("get user profile update failed: %s", err.Error())
 	}
 	return profile, nil
+}
+
+func (r *UserUseCase) GetUserFollow(ctx context.Context, uuid, userUuid string) (bool, error) {
+	follow, err := r.repo.GetUserFollow(ctx, uuid, userUuid)
+	if err != nil {
+		return false, v1.ErrorGetUserFollowFailed("get user follow failed: %s", err.Error())
+	}
+	return follow, nil
+}
+
+func (r *UserUseCase) GetUserFollows(ctx context.Context, userId string, uuids []string) ([]*Follows, error) {
+	follows, err := r.repo.GetUserFollows(ctx, userId, uuids)
+	if err != nil {
+		return nil, v1.ErrorGetUserFollowFailed("get user follows failed: %s", err.Error())
+	}
+	return follows, nil
+}
+
+func (r *UserUseCase) GetFollowList(ctx context.Context, page int32, uuid string) ([]*Follow, error) {
+	follow, err := r.repo.GetFollowList(ctx, page, uuid)
+	if err != nil {
+		return nil, v1.ErrorGetFollowListFailed("get follow list failed: %s", err.Error())
+	}
+	return follow, nil
+}
+
+func (r *UserUseCase) GetFollowListCount(ctx context.Context, uuid string) (int32, error) {
+	count, err := r.repo.GetFollowListCount(ctx, uuid)
+	if err != nil {
+		return 0, v1.ErrorGetFollowListCountFailed("get follow list count failed: %s", err.Error())
+	}
+	return count, nil
+}
+
+func (r *UserUseCase) GetFollowedList(ctx context.Context, page int32, uuid string) ([]*Follow, error) {
+	follow, err := r.repo.GetFollowedList(ctx, page, uuid)
+	if err != nil {
+		return nil, v1.ErrorGetFollowListFailed("get followed list failed: %s", err.Error())
+	}
+	return follow, nil
+}
+
+func (r *UserUseCase) GetFollowedListCount(ctx context.Context, uuid string) (int32, error) {
+	count, err := r.repo.GetFollowedListCount(ctx, uuid)
+	if err != nil {
+		return 0, v1.ErrorGetFollowListCountFailed("get followed list count failed: %s", err.Error())
+	}
+	return count, nil
 }
 
 func (r *UserUseCase) SetProfileUpdate(ctx context.Context, profile *ProfileUpdate) error {
@@ -77,6 +143,42 @@ func (r *UserUseCase) SetProfileUpdate(ctx context.Context, profile *ProfileUpda
 		return v1.ErrorSetProfileUpdateFailed("user profile update failed: %s", err.Error())
 	}
 	return nil
+}
+
+func (r *UserUseCase) SetUserFollow(ctx context.Context, uuid, userId string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		if uuid == userId {
+			return v1.ErrorSetFollowFailed("uuid and userId are the same: %s")
+		}
+
+		err := r.repo.SetUserFollow(ctx, uuid, userId)
+		if err != nil {
+			return v1.ErrorSetFollowFailed("set follow failed: %s", err.Error())
+		}
+
+		err = r.repo.SendUserStatisticToMq(ctx, uuid, userId, "follow")
+		if err != nil {
+			return v1.ErrorSetFollowFailed("set follow failed: %s", err.Error())
+		}
+
+		return nil
+	})
+}
+
+func (r *UserUseCase) CancelUserFollow(ctx context.Context, uuid, userId string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		err := r.repo.CancelUserFollow(ctx, uuid, userId)
+		if err != nil {
+			return v1.ErrorCancelFollowFailed("cancel follow failed: %s", err.Error())
+		}
+
+		err = r.repo.SendUserStatisticToMq(ctx, uuid, userId, "follow_cancel")
+		if err != nil {
+			return v1.ErrorSetFollowFailed("cancel follow failed: %s", err.Error())
+		}
+
+		return nil
+	})
 }
 
 func (r *UserUseCase) ProfileReviewPass(ctx context.Context, uuid, update string) error {
