@@ -38,6 +38,16 @@ message Data {
     google.protobuf.Duration read_timeout = 4;
     google.protobuf.Duration write_timeout = 5;
   }
+  message AchievementMq{
+    message Achievement{
+      string groupName = 1;
+    }
+    Achievement achievement = 1;
+    string serverAddress = 2;
+    string secretKey = 3;
+    string accessKey = 4;
+    string nameSpace = 5;
+  }
   message Rocketmq{
     message Code{
       string groupName = 1;
@@ -69,7 +79,8 @@ message Data {
   Database database = 1;
   Redis redis = 2;
   Rocketmq rocketmq = 5;
-  Cos cos = 6;
+  AchievementMq achievementMq = 6;
+  Cos cos = 7;
 }
 
 message Auth {
