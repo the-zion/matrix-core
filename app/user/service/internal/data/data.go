@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewDB, NewTransaction, NewRedis, NewRocketmqCodeProducer, NewRocketmqProfileProducer, NewCosClient, NewUserRepo, NewAuthRepo)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewTransaction, NewRedis, NewRocketmqCodeProducer, NewRocketmqProfileProducer, NewRocketmqAchievementProducer, NewCosClient, NewUserRepo, NewAuthRepo)
 
 type Cos struct {
 	client *sts.Client
@@ -31,12 +31,17 @@ type ProfileMqPro struct {
 	producer rocketmq.Producer
 }
 
+type AchievementMqPro struct {
+	producer rocketmq.Producer
+}
+
 type Data struct {
-	db           *gorm.DB
-	redisCli     redis.Cmdable
-	codeMqPro    *CodeMqPro
-	profileMqPro *ProfileMqPro
-	cos          *Cos
+	db               *gorm.DB
+	redisCli         redis.Cmdable
+	codeMqPro        *CodeMqPro
+	profileMqPro     *ProfileMqPro
+	achievementMqPro *AchievementMqPro
+	cos              *Cos
 }
 
 type contextTxKey struct{}
@@ -99,6 +104,7 @@ func NewRocketmqCodeProducer(conf *conf.Data, logger log.Logger) *CodeMqPro {
 			SecretKey: conf.Rocketmq.SecretKey,
 			AccessKey: conf.Rocketmq.AccessKey,
 		}),
+		producer.WithInstanceName("user"),
 		producer.WithGroupName(conf.Rocketmq.Code.GroupName),
 		producer.WithNamespace(conf.Rocketmq.NameSpace),
 	)
@@ -123,6 +129,7 @@ func NewRocketmqProfileProducer(conf *conf.Data, logger log.Logger) *ProfileMqPr
 			SecretKey: conf.Rocketmq.SecretKey,
 			AccessKey: conf.Rocketmq.AccessKey,
 		}),
+		producer.WithInstanceName("user"),
 		producer.WithGroupName(conf.Rocketmq.Profile.GroupName),
 		producer.WithNamespace(conf.Rocketmq.NameSpace),
 	)
@@ -136,6 +143,33 @@ func NewRocketmqProfileProducer(conf *conf.Data, logger log.Logger) *ProfileMqPr
 		l.Fatalf("start producer error: %v", err)
 	}
 	return &ProfileMqPro{
+		producer: p,
+	}
+}
+
+func NewRocketmqAchievementProducer(conf *conf.Data, logger log.Logger) *AchievementMqPro {
+	l := log.NewHelper(log.With(logger, "module", "creation/data/rocketmq-achievement-producer"))
+	p, err := rocketmq.NewProducer(
+		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.AchievementMq.ServerAddress})),
+		producer.WithCredentials(primitive.Credentials{
+			SecretKey: conf.AchievementMq.SecretKey,
+			AccessKey: conf.AchievementMq.AccessKey,
+		}),
+		producer.WithInstanceName("achievement"),
+		producer.WithGroupName(conf.AchievementMq.Achievement.GroupName),
+		producer.WithNamespace(conf.AchievementMq.NameSpace),
+	)
+
+	if err != nil {
+		l.Fatalf("init producer error: %v", err)
+	}
+
+	err = p.Start()
+	if err != nil {
+		l.Fatalf("start producer error: %v", err)
+	}
+
+	return &AchievementMqPro{
 		producer: p,
 	}
 }
@@ -166,15 +200,16 @@ func NewCosClient(conf *conf.Data) *Cos {
 	}
 }
 
-func NewData(db *gorm.DB, redisCmd redis.Cmdable, cp *CodeMqPro, pp *ProfileMqPro, cos *Cos, logger log.Logger) (*Data, func(), error) {
+func NewData(db *gorm.DB, redisCmd redis.Cmdable, cp *CodeMqPro, pp *ProfileMqPro, aq *AchievementMqPro, cos *Cos, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(logger, "module", "user/data/new-data"))
 
 	d := &Data{
-		db:           db,
-		codeMqPro:    cp,
-		profileMqPro: pp,
-		redisCli:     redisCmd,
-		cos:          cos,
+		db:               db,
+		codeMqPro:        cp,
+		profileMqPro:     pp,
+		achievementMqPro: aq,
+		redisCli:         redisCmd,
+		cos:              cos,
 	}
 	return d, func() {
 		var err error
@@ -188,6 +223,11 @@ func NewData(db *gorm.DB, redisCmd redis.Cmdable, cp *CodeMqPro, pp *ProfileMqPr
 		err = d.profileMqPro.producer.Shutdown()
 		if err != nil {
 			l.Errorf("shutdown profile producer error: %v", err.Error())
+		}
+
+		err = d.achievementMqPro.producer.Shutdown()
+		if err != nil {
+			l.Errorf("shutdown achievement producer error: %v", err.Error())
 		}
 	}, nil
 }
