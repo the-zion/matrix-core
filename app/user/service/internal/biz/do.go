@@ -36,3 +36,14 @@ type Credentials struct {
 	StartTime    int64
 	ExpiredTime  int64
 }
+
+type Follow struct {
+	Follow   string
+	Followed string
+	Status   int32
+}
+
+type Follows struct {
+	Uuid   string
+	Follow int32
+}
