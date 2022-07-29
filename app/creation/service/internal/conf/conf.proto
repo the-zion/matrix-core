@@ -82,6 +82,11 @@ message Data {
     string accessKey = 9;
     string nameSpace = 10;
   }
+  message ElasticSearch{
+    string endpoint = 1;
+    string user = 2;
+    string password = 3;
+  }
   message News{
     string url = 1;
   }
@@ -90,6 +95,7 @@ message Data {
   Cos cos = 3;
   AchievementMq achievementMq = 4;
   CreationMq creationMq = 5;
-  News news = 6;
+  ElasticSearch elasticSearch = 6;
+  News news = 7;
 }
 
