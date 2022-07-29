@@ -34,3 +34,11 @@ type ProfileUpdate struct {
 	Profile
 	Status int32 `gorm:"default:1"`
 }
+
+type Follow struct {
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Follow    string `gorm:"primaryKey;size:36"`
+	Followed  string `gorm:"primaryKey;size:36"`
+	Status    int32
+}
