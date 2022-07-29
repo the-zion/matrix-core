@@ -6,7 +6,6 @@ import (
 	"github.com/apache/rocketmq-client-go/v2"
 	"github.com/apache/rocketmq-client-go/v2/consumer"
 	"github.com/apache/rocketmq-client-go/v2/primitive"
-	"github.com/apache/rocketmq-client-go/v2/rlog"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/the-zion/matrix-core/app/message/service/internal/conf"
 	"github.com/the-zion/matrix-core/app/message/service/internal/service"
@@ -19,7 +18,6 @@ type AchievementMqConsumerServer struct {
 
 func NewAchievementMqConsumerServer(conf *conf.Server, messageService *service.MessageService, logger log.Logger) *AchievementMqConsumerServer {
 	l := log.NewHelper(log.With(logger, "server", "message/server/rocketmq-achievement-consumer"))
-	rlog.SetLogLevel("warn")
 	c, err := rocketmq.NewPushConsumer(
 		consumer.WithGroupName(conf.AchievementMq.Achievement.GroupName),
 		consumer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.AchievementMq.ServerAddress})),
@@ -64,6 +62,10 @@ func NewAchievementMqConsumerServer(conf *conf.Server, messageService *service.M
 			err = messageService.SetAchievementCollect(ctx, m["uuid"].(string))
 		case "collect_cancel":
 			err = messageService.CancelAchievementCollect(ctx, m["uuid"].(string))
+		case "follow":
+			err = messageService.SetAchievementFollow(ctx, m["follow"].(string), m["followed"].(string))
+		case "follow_cancel":
+			err = messageService.CancelAchievementFollow(ctx, m["follow"].(string), m["followed"].(string))
 		}
 
 		if err != nil {
