@@ -23,3 +23,11 @@ func (s *MessageService) SetAchievementCollect(ctx context.Context, uuid string)
 func (s *MessageService) CancelAchievementCollect(ctx context.Context, uuid string) error {
 	return s.ac.CancelAchievementCollect(ctx, uuid)
 }
+
+func (s *MessageService) SetAchievementFollow(ctx context.Context, follow, followed string) error {
+	return s.ac.SetAchievementFollow(ctx, follow, followed)
+}
+
+func (s *MessageService) CancelAchievementFollow(ctx context.Context, follow, followed string) error {
+	return s.ac.CancelAchievementFollow(ctx, follow, followed)
+}
