@@ -6937,6 +6937,252 @@ var _ interface {
 	ErrorName() string
 } = GetLastArticleDraftReplyValidationError{}
 
+// Validate checks the field values on GetArticleSearchReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetArticleSearchReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetArticleSearchReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetArticleSearchReqMultiError, or nil if none found.
+func (m *GetArticleSearchReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetArticleSearchReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Page
+
+	// no validation rules for Search
+
+	// no validation rules for Time
+
+	if len(errors) > 0 {
+		return GetArticleSearchReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetArticleSearchReqMultiError is an error wrapping multiple validation
+// errors returned by GetArticleSearchReq.ValidateAll() if the designated
+// constraints aren't met.
+type GetArticleSearchReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetArticleSearchReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetArticleSearchReqMultiError) AllErrors() []error { return m }
+
+// GetArticleSearchReqValidationError is the validation error returned by
+// GetArticleSearchReq.Validate if the designated constraints aren't met.
+type GetArticleSearchReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetArticleSearchReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetArticleSearchReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetArticleSearchReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetArticleSearchReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetArticleSearchReqValidationError) ErrorName() string {
+	return "GetArticleSearchReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetArticleSearchReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetArticleSearchReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetArticleSearchReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetArticleSearchReqValidationError{}
+
+// Validate checks the field values on GetArticleSearchReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetArticleSearchReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetArticleSearchReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetArticleSearchReplyMultiError, or nil if none found.
+func (m *GetArticleSearchReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetArticleSearchReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetList() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetArticleSearchReplyValidationError{
+						field:  fmt.Sprintf("List[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetArticleSearchReplyValidationError{
+						field:  fmt.Sprintf("List[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetArticleSearchReplyValidationError{
+					field:  fmt.Sprintf("List[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	// no validation rules for Total
+
+	if len(errors) > 0 {
+		return GetArticleSearchReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetArticleSearchReplyMultiError is an error wrapping multiple validation
+// errors returned by GetArticleSearchReply.ValidateAll() if the designated
+// constraints aren't met.
+type GetArticleSearchReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetArticleSearchReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetArticleSearchReplyMultiError) AllErrors() []error { return m }
+
+// GetArticleSearchReplyValidationError is the validation error returned by
+// GetArticleSearchReply.Validate if the designated constraints aren't met.
+type GetArticleSearchReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetArticleSearchReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetArticleSearchReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetArticleSearchReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetArticleSearchReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetArticleSearchReplyValidationError) ErrorName() string {
+	return "GetArticleSearchReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetArticleSearchReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetArticleSearchReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetArticleSearchReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetArticleSearchReplyValidationError{}
+
 // Validate checks the field values on CreateArticleDraftReply with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -10661,6 +10907,250 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetLastTalkDraftReplyValidationError{}
+
+// Validate checks the field values on GetTalkSearchReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *GetTalkSearchReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetTalkSearchReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetTalkSearchReqMultiError, or nil if none found.
+func (m *GetTalkSearchReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetTalkSearchReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Page
+
+	// no validation rules for Search
+
+	// no validation rules for Time
+
+	if len(errors) > 0 {
+		return GetTalkSearchReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetTalkSearchReqMultiError is an error wrapping multiple validation errors
+// returned by GetTalkSearchReq.ValidateAll() if the designated constraints
+// aren't met.
+type GetTalkSearchReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetTalkSearchReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetTalkSearchReqMultiError) AllErrors() []error { return m }
+
+// GetTalkSearchReqValidationError is the validation error returned by
+// GetTalkSearchReq.Validate if the designated constraints aren't met.
+type GetTalkSearchReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetTalkSearchReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetTalkSearchReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetTalkSearchReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetTalkSearchReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetTalkSearchReqValidationError) ErrorName() string { return "GetTalkSearchReqValidationError" }
+
+// Error satisfies the builtin error interface
+func (e GetTalkSearchReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetTalkSearchReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetTalkSearchReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetTalkSearchReqValidationError{}
+
+// Validate checks the field values on GetTalkSearchReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetTalkSearchReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetTalkSearchReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetTalkSearchReplyMultiError, or nil if none found.
+func (m *GetTalkSearchReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetTalkSearchReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetList() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetTalkSearchReplyValidationError{
+						field:  fmt.Sprintf("List[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetTalkSearchReplyValidationError{
+						field:  fmt.Sprintf("List[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetTalkSearchReplyValidationError{
+					field:  fmt.Sprintf("List[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	// no validation rules for Total
+
+	if len(errors) > 0 {
+		return GetTalkSearchReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetTalkSearchReplyMultiError is an error wrapping multiple validation errors
+// returned by GetTalkSearchReply.ValidateAll() if the designated constraints
+// aren't met.
+type GetTalkSearchReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetTalkSearchReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetTalkSearchReplyMultiError) AllErrors() []error { return m }
+
+// GetTalkSearchReplyValidationError is the validation error returned by
+// GetTalkSearchReply.Validate if the designated constraints aren't met.
+type GetTalkSearchReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetTalkSearchReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetTalkSearchReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetTalkSearchReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetTalkSearchReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetTalkSearchReplyValidationError) ErrorName() string {
+	return "GetTalkSearchReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetTalkSearchReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetTalkSearchReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetTalkSearchReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetTalkSearchReplyValidationError{}
 
 // Validate checks the field values on CreateTalkDraftReply with the rules
 // defined in the proto definition for this message. If any rules are
@@ -17391,6 +17881,122 @@ var _ interface {
 	ErrorName() string
 } = GetArticleListStatisticReply_CountValidationError{}
 
+// Validate checks the field values on GetArticleSearchReply_List with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetArticleSearchReply_List) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetArticleSearchReply_List with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetArticleSearchReply_ListMultiError, or nil if none found.
+func (m *GetArticleSearchReply_List) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetArticleSearchReply_List) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Title
+
+	// no validation rules for Tags
+
+	// no validation rules for Text
+
+	// no validation rules for Cover
+
+	// no validation rules for Update
+
+	// no validation rules for Uuid
+
+	if len(errors) > 0 {
+		return GetArticleSearchReply_ListMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetArticleSearchReply_ListMultiError is an error wrapping multiple
+// validation errors returned by GetArticleSearchReply_List.ValidateAll() if
+// the designated constraints aren't met.
+type GetArticleSearchReply_ListMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetArticleSearchReply_ListMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetArticleSearchReply_ListMultiError) AllErrors() []error { return m }
+
+// GetArticleSearchReply_ListValidationError is the validation error returned
+// by GetArticleSearchReply_List.Validate if the designated constraints aren't met.
+type GetArticleSearchReply_ListValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetArticleSearchReply_ListValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetArticleSearchReply_ListValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetArticleSearchReply_ListValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetArticleSearchReply_ListValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetArticleSearchReply_ListValidationError) ErrorName() string {
+	return "GetArticleSearchReply_ListValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetArticleSearchReply_ListValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetArticleSearchReply_List.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetArticleSearchReply_ListValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetArticleSearchReply_ListValidationError{}
+
 // Validate checks the field values on GetCollectionsReply_Collections with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -17929,6 +18535,122 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetTalkListStatisticReply_CountValidationError{}
+
+// Validate checks the field values on GetTalkSearchReply_List with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetTalkSearchReply_List) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetTalkSearchReply_List with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetTalkSearchReply_ListMultiError, or nil if none found.
+func (m *GetTalkSearchReply_List) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetTalkSearchReply_List) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Title
+
+	// no validation rules for Tags
+
+	// no validation rules for Text
+
+	// no validation rules for Cover
+
+	// no validation rules for Update
+
+	// no validation rules for Uuid
+
+	if len(errors) > 0 {
+		return GetTalkSearchReply_ListMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetTalkSearchReply_ListMultiError is an error wrapping multiple validation
+// errors returned by GetTalkSearchReply_List.ValidateAll() if the designated
+// constraints aren't met.
+type GetTalkSearchReply_ListMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetTalkSearchReply_ListMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetTalkSearchReply_ListMultiError) AllErrors() []error { return m }
+
+// GetTalkSearchReply_ListValidationError is the validation error returned by
+// GetTalkSearchReply_List.Validate if the designated constraints aren't met.
+type GetTalkSearchReply_ListValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetTalkSearchReply_ListValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetTalkSearchReply_ListValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetTalkSearchReply_ListValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetTalkSearchReply_ListValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetTalkSearchReply_ListValidationError) ErrorName() string {
+	return "GetTalkSearchReply_ListValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetTalkSearchReply_ListValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetTalkSearchReply_List.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetTalkSearchReply_ListValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetTalkSearchReply_ListValidationError{}
 
 // Validate checks the field values on GetSubscribeListReply_Subscribe with the
 // rules defined in the proto definition for this message. If any rules are
