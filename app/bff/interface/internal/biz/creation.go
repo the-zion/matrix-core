@@ -36,6 +36,7 @@ type ArticleRepo interface {
 	GetArticleStatistic(ctx context.Context, id int32) (*ArticleStatistic, error)
 	GetArticleListStatistic(ctx context.Context, ids []int32) ([]*ArticleStatistic, error)
 	GetArticleDraftList(ctx context.Context, uuid string) ([]*ArticleDraft, error)
+	GetArticleSearch(ctx context.Context, page int32, search, time string) ([]*ArticleSearch, int32, error)
 	ArticleDraftMark(ctx context.Context, id int32, uuid string) error
 	SendArticle(ctx context.Context, id int32, uuid, ip string) error
 	SendArticleEdit(ctx context.Context, id int32, uuid, ip string) error
@@ -58,6 +59,7 @@ type TalkRepo interface {
 	GetTalkListStatistic(ctx context.Context, ids []int32) ([]*TalkStatistic, error)
 	GetTalkStatistic(ctx context.Context, id int32) (*TalkStatistic, error)
 	GetLastTalkDraft(ctx context.Context, uuid string) (*TalkDraft, error)
+	GetTalkSearch(ctx context.Context, page int32, search, time string) ([]*TalkSearch, int32, error)
 	CreateTalkDraft(ctx context.Context, uuid string) (int32, error)
 	SendTalk(ctx context.Context, id int32, uuid, ip string) error
 	SendTalkEdit(ctx context.Context, id int32, uuid, ip string) error
@@ -287,6 +289,10 @@ func (r *ArticleUseCase) GetArticleDraftList(ctx context.Context) ([]*ArticleDra
 	return r.repo.GetArticleDraftList(ctx, uuid)
 }
 
+func (r *ArticleUseCase) GetArticleSearch(ctx context.Context, page int32, search, time string) ([]*ArticleSearch, int32, error) {
+	return r.repo.GetArticleSearch(ctx, page, search, time)
+}
+
 func (r *ArticleUseCase) SendArticle(ctx context.Context, id int32) error {
 	uuid := ctx.Value("uuid").(string)
 	ip := ctx.Value("realIp").(string)
@@ -370,6 +376,10 @@ func (r *TalkUseCase) GetTalkStatistic(ctx context.Context, id int32) (*TalkStat
 func (r *TalkUseCase) GetLastTalkDraft(ctx context.Context) (*TalkDraft, error) {
 	uuid := ctx.Value("uuid").(string)
 	return r.repo.GetLastTalkDraft(ctx, uuid)
+}
+
+func (r *TalkUseCase) GetTalkSearch(ctx context.Context, page int32, search, time string) ([]*TalkSearch, int32, error) {
+	return r.repo.GetTalkSearch(ctx, page, search, time)
 }
 
 func (r *TalkUseCase) CreateTalkDraft(ctx context.Context) (int32, error) {
