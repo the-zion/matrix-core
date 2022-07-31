@@ -360,6 +360,27 @@ func (s *BffService) GetArticleDraftList(ctx context.Context, _ *emptypb.Empty) 
 	return reply, nil
 }
 
+func (s *BffService) GetArticleSearch(ctx context.Context, req *v1.GetArticleSearchReq) (*v1.GetArticleSearchReply, error) {
+	reply := &v1.GetArticleSearchReply{List: make([]*v1.GetArticleSearchReply_List, 0)}
+	articleList, total, err := s.ac.GetArticleSearch(ctx, req.Page, req.Search, req.Time)
+	if err != nil {
+		return reply, err
+	}
+	for _, item := range articleList {
+		reply.List = append(reply.List, &v1.GetArticleSearchReply_List{
+			Id:     item.Id,
+			Tags:   item.Tags,
+			Title:  item.Title,
+			Uuid:   item.Uuid,
+			Text:   item.Text,
+			Cover:  item.Cover,
+			Update: item.Update,
+		})
+	}
+	reply.Total = total
+	return reply, nil
+}
+
 func (s *BffService) SendArticle(ctx context.Context, req *v1.SendArticleReq) (*emptypb.Empty, error) {
 	err := s.ac.SendArticle(ctx, req.Id)
 	if err != nil {
@@ -558,6 +579,27 @@ func (s *BffService) GetLastTalkDraft(ctx context.Context, _ *emptypb.Empty) (*v
 		Id:     draft.Id,
 		Status: draft.Status,
 	}, nil
+}
+
+func (s *BffService) GetTalkSearch(ctx context.Context, req *v1.GetTalkSearchReq) (*v1.GetTalkSearchReply, error) {
+	reply := &v1.GetTalkSearchReply{List: make([]*v1.GetTalkSearchReply_List, 0)}
+	talkList, total, err := s.tc.GetTalkSearch(ctx, req.Page, req.Search, req.Time)
+	if err != nil {
+		return reply, err
+	}
+	for _, item := range talkList {
+		reply.List = append(reply.List, &v1.GetTalkSearchReply_List{
+			Id:     item.Id,
+			Tags:   item.Tags,
+			Title:  item.Title,
+			Uuid:   item.Uuid,
+			Text:   item.Text,
+			Cover:  item.Cover,
+			Update: item.Update,
+		})
+	}
+	reply.Total = total
+	return reply, nil
 }
 
 func (s *BffService) CreateTalkDraft(ctx context.Context, _ *emptypb.Empty) (*v1.CreateTalkDraftReply, error) {
