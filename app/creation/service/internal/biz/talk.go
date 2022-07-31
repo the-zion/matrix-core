@@ -20,6 +20,7 @@ type TalkRepo interface {
 	GetLastTalkDraft(ctx context.Context, uuid string) (*TalkDraft, error)
 	GetTalkAgreeJudge(ctx context.Context, id int32, uuid string) (bool, error)
 	GetTalkCollectJudge(ctx context.Context, id int32, uuid string) (bool, error)
+	GetTalkSearch(ctx context.Context, page int32, search, time string) ([]*TalkSearch, int32, error)
 
 	CreateTalkDraft(ctx context.Context, uuid string) (int32, error)
 	CreateTalkFolder(ctx context.Context, id int32, uuid string) error
@@ -148,6 +149,14 @@ func (r *TalkUseCase) GetTalkStatistic(ctx context.Context, id int32) (*TalkStat
 		return nil, v1.ErrorGetStatisticFailed("get talk statistic failed: %s", err.Error())
 	}
 	return statistic, nil
+}
+
+func (r *TalkUseCase) GetTalkSearch(ctx context.Context, page int32, search, time string) ([]*TalkSearch, int32, error) {
+	talkList, total, err := r.repo.GetTalkSearch(ctx, page, search, time)
+	if err != nil {
+		return nil, 0, v1.ErrorGetTalkSearchFailed("get talk search failed: %s", err.Error())
+	}
+	return talkList, total, nil
 }
 
 func (r *TalkUseCase) CreateTalkDraft(ctx context.Context, uuid string) (int32, error) {
