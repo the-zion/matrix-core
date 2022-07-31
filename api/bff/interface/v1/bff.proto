@@ -365,6 +365,13 @@ service Bff{
     };
   }
 
+
+  rpc GetArticleSearch(GetArticleSearchReq)returns (GetArticleSearchReply){
+    option (google.api.http) = {
+      get: "/v1/get/article/search"
+    };
+  }
+
   rpc CreateArticleDraft(google.protobuf.Empty) returns (CreateArticleDraftReply){
     option (google.api.http) = {
       post: "/v1/create/article/draft"
@@ -503,6 +510,12 @@ service Bff{
   rpc GetLastTalkDraft(google.protobuf.Empty) returns (GetLastTalkDraftReply){
     option (google.api.http) = {
       get: "/v1/get/last/talk/draft"
+    };
+  }
+
+  rpc GetTalkSearch(GetTalkSearchReq)returns (GetTalkSearchReply){
+    option (google.api.http) = {
+      get: "/v1/get/talk/search"
     };
   }
 
@@ -1140,6 +1153,26 @@ message GetLastArticleDraftReply{
   int32 status = 2;
 }
 
+message GetArticleSearchReq{
+  int32 page = 1;
+  string search = 2;
+  string time = 3;
+}
+
+message GetArticleSearchReply{
+  message List{
+    int32 id = 1;
+    string title = 2;
+    string tags = 3;
+    string text = 4;
+    string cover = 5;
+    string update = 6;
+    string uuid = 7;
+  }
+  repeated List list = 1;
+  int32 total = 2;
+}
+
 message CreateArticleDraftReply{
   int32 id = 1;
 }
@@ -1316,6 +1349,26 @@ message GetTalkStatisticReply{
 message GetLastTalkDraftReply{
   int32 id = 1;
   int32 status = 2;
+}
+
+message GetTalkSearchReq{
+  int32 page = 1;
+  string search = 2;
+  string time = 3;
+}
+
+message GetTalkSearchReply{
+  message List{
+    int32 id = 1;
+    string title = 2;
+    string tags = 3;
+    string text = 4;
+    string cover = 5;
+    string update = 6;
+    string uuid = 7;
+  }
+  repeated List list = 1;
+  int32 total = 2;
 }
 
 message CreateTalkDraftReply{
