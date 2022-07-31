@@ -51,6 +51,7 @@ const OperationBffGetArticleDraftList = "/bff.v1.Bff/GetArticleDraftList"
 const OperationBffGetArticleList = "/bff.v1.Bff/GetArticleList"
 const OperationBffGetArticleListHot = "/bff.v1.Bff/GetArticleListHot"
 const OperationBffGetArticleListStatistic = "/bff.v1.Bff/GetArticleListStatistic"
+const OperationBffGetArticleSearch = "/bff.v1.Bff/GetArticleSearch"
 const OperationBffGetArticleStatistic = "/bff.v1.Bff/GetArticleStatistic"
 const OperationBffGetCollectArticle = "/bff.v1.Bff/GetCollectArticle"
 const OperationBffGetCollectArticleCount = "/bff.v1.Bff/GetCollectArticleCount"
@@ -91,6 +92,7 @@ const OperationBffGetTalkCountVisitor = "/bff.v1.Bff/GetTalkCountVisitor"
 const OperationBffGetTalkList = "/bff.v1.Bff/GetTalkList"
 const OperationBffGetTalkListHot = "/bff.v1.Bff/GetTalkListHot"
 const OperationBffGetTalkListStatistic = "/bff.v1.Bff/GetTalkListStatistic"
+const OperationBffGetTalkSearch = "/bff.v1.Bff/GetTalkSearch"
 const OperationBffGetTalkStatistic = "/bff.v1.Bff/GetTalkStatistic"
 const OperationBffGetUserAchievement = "/bff.v1.Bff/GetUserAchievement"
 const OperationBffGetUserArticleList = "/bff.v1.Bff/GetUserArticleList"
@@ -168,6 +170,7 @@ type BffHTTPServer interface {
 	GetArticleList(context.Context, *GetArticleListReq) (*GetArticleListReply, error)
 	GetArticleListHot(context.Context, *GetArticleListHotReq) (*GetArticleListHotReply, error)
 	GetArticleListStatistic(context.Context, *GetArticleListStatisticReq) (*GetArticleListStatisticReply, error)
+	GetArticleSearch(context.Context, *GetArticleSearchReq) (*GetArticleSearchReply, error)
 	GetArticleStatistic(context.Context, *GetArticleStatisticReq) (*GetArticleStatisticReply, error)
 	GetCollectArticle(context.Context, *GetCollectArticleReq) (*GetArticleListReply, error)
 	GetCollectArticleCount(context.Context, *GetCollectArticleCountReq) (*GetCollectArticleCountReply, error)
@@ -208,6 +211,7 @@ type BffHTTPServer interface {
 	GetTalkList(context.Context, *GetTalkListReq) (*GetTalkListReply, error)
 	GetTalkListHot(context.Context, *GetTalkListHotReq) (*GetTalkListHotReply, error)
 	GetTalkListStatistic(context.Context, *GetTalkListStatisticReq) (*GetTalkListStatisticReply, error)
+	GetTalkSearch(context.Context, *GetTalkSearchReq) (*GetTalkSearchReply, error)
 	GetTalkStatistic(context.Context, *GetTalkStatisticReq) (*GetTalkStatisticReply, error)
 	GetUserAchievement(context.Context, *GetUserAchievementReq) (*GetUserAchievementReply, error)
 	GetUserArticleList(context.Context, *GetUserArticleListReq) (*GetArticleListReply, error)
@@ -310,6 +314,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.GET("/v1/get/article/statistic", _Bff_GetArticleStatistic0_HTTP_Handler(srv))
 	r.GET("/v1/get/article/list/statistic", _Bff_GetArticleListStatistic0_HTTP_Handler(srv))
 	r.GET("/v1/get/last/article/draft", _Bff_GetLastArticleDraft0_HTTP_Handler(srv))
+	r.GET("/v1/get/article/search", _Bff_GetArticleSearch0_HTTP_Handler(srv))
 	r.POST("/v1/create/article/draft", _Bff_CreateArticleDraft0_HTTP_Handler(srv))
 	r.POST("/v1/article/draft/mark", _Bff_ArticleDraftMark0_HTTP_Handler(srv))
 	r.GET("/v1/get/article/draft/list", _Bff_GetArticleDraftList0_HTTP_Handler(srv))
@@ -331,6 +336,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.GET("/v1/get/talk/count/visitor", _Bff_GetTalkCountVisitor0_HTTP_Handler(srv))
 	r.GET("/v1/get/talk/statistic", _Bff_GetTalkStatistic0_HTTP_Handler(srv))
 	r.GET("/v1/get/last/talk/draft", _Bff_GetLastTalkDraft0_HTTP_Handler(srv))
+	r.GET("/v1/get/talk/search", _Bff_GetTalkSearch0_HTTP_Handler(srv))
 	r.POST("/v1/create/talk/draft", _Bff_CreateTalkDraft0_HTTP_Handler(srv))
 	r.POST("/v1/send/talk", _Bff_SendTalk0_HTTP_Handler(srv))
 	r.POST("/v1/send/talk/edit", _Bff_SendTalkEdit0_HTTP_Handler(srv))
@@ -1399,6 +1405,25 @@ func _Bff_GetLastArticleDraft0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Con
 	}
 }
 
+func _Bff_GetArticleSearch0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetArticleSearchReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetArticleSearch)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetArticleSearch(ctx, req.(*GetArticleSearchReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetArticleSearchReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _Bff_CreateArticleDraft0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in emptypb.Empty
@@ -1794,6 +1819,25 @@ func _Bff_GetLastTalkDraft0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Contex
 			return err
 		}
 		reply := out.(*GetLastTalkDraftReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_GetTalkSearch0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetTalkSearchReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetTalkSearch)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetTalkSearch(ctx, req.(*GetTalkSearchReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetTalkSearchReply)
 		return ctx.Result(200, reply)
 	}
 }
@@ -2590,6 +2634,7 @@ type BffHTTPClient interface {
 	GetArticleList(ctx context.Context, req *GetArticleListReq, opts ...http.CallOption) (rsp *GetArticleListReply, err error)
 	GetArticleListHot(ctx context.Context, req *GetArticleListHotReq, opts ...http.CallOption) (rsp *GetArticleListHotReply, err error)
 	GetArticleListStatistic(ctx context.Context, req *GetArticleListStatisticReq, opts ...http.CallOption) (rsp *GetArticleListStatisticReply, err error)
+	GetArticleSearch(ctx context.Context, req *GetArticleSearchReq, opts ...http.CallOption) (rsp *GetArticleSearchReply, err error)
 	GetArticleStatistic(ctx context.Context, req *GetArticleStatisticReq, opts ...http.CallOption) (rsp *GetArticleStatisticReply, err error)
 	GetCollectArticle(ctx context.Context, req *GetCollectArticleReq, opts ...http.CallOption) (rsp *GetArticleListReply, err error)
 	GetCollectArticleCount(ctx context.Context, req *GetCollectArticleCountReq, opts ...http.CallOption) (rsp *GetCollectArticleCountReply, err error)
@@ -2630,6 +2675,7 @@ type BffHTTPClient interface {
 	GetTalkList(ctx context.Context, req *GetTalkListReq, opts ...http.CallOption) (rsp *GetTalkListReply, err error)
 	GetTalkListHot(ctx context.Context, req *GetTalkListHotReq, opts ...http.CallOption) (rsp *GetTalkListHotReply, err error)
 	GetTalkListStatistic(ctx context.Context, req *GetTalkListStatisticReq, opts ...http.CallOption) (rsp *GetTalkListStatisticReply, err error)
+	GetTalkSearch(ctx context.Context, req *GetTalkSearchReq, opts ...http.CallOption) (rsp *GetTalkSearchReply, err error)
 	GetTalkStatistic(ctx context.Context, req *GetTalkStatisticReq, opts ...http.CallOption) (rsp *GetTalkStatisticReply, err error)
 	GetUserAchievement(ctx context.Context, req *GetUserAchievementReq, opts ...http.CallOption) (rsp *GetUserAchievementReply, err error)
 	GetUserArticleList(ctx context.Context, req *GetUserArticleListReq, opts ...http.CallOption) (rsp *GetArticleListReply, err error)
@@ -3079,6 +3125,19 @@ func (c *BffHTTPClientImpl) GetArticleListStatistic(ctx context.Context, in *Get
 	pattern := "/v1/get/article/list/statistic"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationBffGetArticleListStatistic))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetArticleSearch(ctx context.Context, in *GetArticleSearchReq, opts ...http.CallOption) (*GetArticleSearchReply, error) {
+	var out GetArticleSearchReply
+	pattern := "/v1/get/article/search"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationBffGetArticleSearch))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
@@ -3599,6 +3658,19 @@ func (c *BffHTTPClientImpl) GetTalkListStatistic(ctx context.Context, in *GetTal
 	pattern := "/v1/get/talk/list/statistic"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationBffGetTalkListStatistic))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetTalkSearch(ctx context.Context, in *GetTalkSearchReq, opts ...http.CallOption) (*GetTalkSearchReply, error) {
+	var out GetTalkSearchReply
+	pattern := "/v1/get/talk/search"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationBffGetTalkSearch))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
