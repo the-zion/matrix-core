@@ -78,6 +78,7 @@ type BffClient interface {
 	GetArticleStatistic(ctx context.Context, in *GetArticleStatisticReq, opts ...grpc.CallOption) (*GetArticleStatisticReply, error)
 	GetArticleListStatistic(ctx context.Context, in *GetArticleListStatisticReq, opts ...grpc.CallOption) (*GetArticleListStatisticReply, error)
 	GetLastArticleDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLastArticleDraftReply, error)
+	GetArticleSearch(ctx context.Context, in *GetArticleSearchReq, opts ...grpc.CallOption) (*GetArticleSearchReply, error)
 	CreateArticleDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateArticleDraftReply, error)
 	ArticleDraftMark(ctx context.Context, in *ArticleDraftMarkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetArticleDraftList(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetArticleDraftListReply, error)
@@ -99,6 +100,7 @@ type BffClient interface {
 	GetTalkCountVisitor(ctx context.Context, in *GetTalkCountVisitorReq, opts ...grpc.CallOption) (*GetTalkCountReply, error)
 	GetTalkStatistic(ctx context.Context, in *GetTalkStatisticReq, opts ...grpc.CallOption) (*GetTalkStatisticReply, error)
 	GetLastTalkDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLastTalkDraftReply, error)
+	GetTalkSearch(ctx context.Context, in *GetTalkSearchReq, opts ...grpc.CallOption) (*GetTalkSearchReply, error)
 	CreateTalkDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateTalkDraftReply, error)
 	SendTalk(ctx context.Context, in *SendTalkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SendTalkEdit(ctx context.Context, in *SendTalkEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -635,6 +637,15 @@ func (c *bffClient) GetLastArticleDraft(ctx context.Context, in *emptypb.Empty, 
 	return out, nil
 }
 
+func (c *bffClient) GetArticleSearch(ctx context.Context, in *GetArticleSearchReq, opts ...grpc.CallOption) (*GetArticleSearchReply, error) {
+	out := new(GetArticleSearchReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetArticleSearch", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) CreateArticleDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateArticleDraftReply, error) {
 	out := new(CreateArticleDraftReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/CreateArticleDraft", in, out, opts...)
@@ -818,6 +829,15 @@ func (c *bffClient) GetTalkStatistic(ctx context.Context, in *GetTalkStatisticRe
 func (c *bffClient) GetLastTalkDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLastTalkDraftReply, error) {
 	out := new(GetLastTalkDraftReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetLastTalkDraft", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetTalkSearch(ctx context.Context, in *GetTalkSearchReq, opts ...grpc.CallOption) (*GetTalkSearchReply, error) {
+	out := new(GetTalkSearchReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetTalkSearch", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1243,6 +1263,7 @@ type BffServer interface {
 	GetArticleStatistic(context.Context, *GetArticleStatisticReq) (*GetArticleStatisticReply, error)
 	GetArticleListStatistic(context.Context, *GetArticleListStatisticReq) (*GetArticleListStatisticReply, error)
 	GetLastArticleDraft(context.Context, *emptypb.Empty) (*GetLastArticleDraftReply, error)
+	GetArticleSearch(context.Context, *GetArticleSearchReq) (*GetArticleSearchReply, error)
 	CreateArticleDraft(context.Context, *emptypb.Empty) (*CreateArticleDraftReply, error)
 	ArticleDraftMark(context.Context, *ArticleDraftMarkReq) (*emptypb.Empty, error)
 	GetArticleDraftList(context.Context, *emptypb.Empty) (*GetArticleDraftListReply, error)
@@ -1264,6 +1285,7 @@ type BffServer interface {
 	GetTalkCountVisitor(context.Context, *GetTalkCountVisitorReq) (*GetTalkCountReply, error)
 	GetTalkStatistic(context.Context, *GetTalkStatisticReq) (*GetTalkStatisticReply, error)
 	GetLastTalkDraft(context.Context, *emptypb.Empty) (*GetLastTalkDraftReply, error)
+	GetTalkSearch(context.Context, *GetTalkSearchReq) (*GetTalkSearchReply, error)
 	CreateTalkDraft(context.Context, *emptypb.Empty) (*CreateTalkDraftReply, error)
 	SendTalk(context.Context, *SendTalkReq) (*emptypb.Empty, error)
 	SendTalkEdit(context.Context, *SendTalkEditReq) (*emptypb.Empty, error)
@@ -1473,6 +1495,9 @@ func (UnimplementedBffServer) GetArticleListStatistic(context.Context, *GetArtic
 func (UnimplementedBffServer) GetLastArticleDraft(context.Context, *emptypb.Empty) (*GetLastArticleDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLastArticleDraft not implemented")
 }
+func (UnimplementedBffServer) GetArticleSearch(context.Context, *GetArticleSearchReq) (*GetArticleSearchReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetArticleSearch not implemented")
+}
 func (UnimplementedBffServer) CreateArticleDraft(context.Context, *emptypb.Empty) (*CreateArticleDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateArticleDraft not implemented")
 }
@@ -1535,6 +1560,9 @@ func (UnimplementedBffServer) GetTalkStatistic(context.Context, *GetTalkStatisti
 }
 func (UnimplementedBffServer) GetLastTalkDraft(context.Context, *emptypb.Empty) (*GetLastTalkDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLastTalkDraft not implemented")
+}
+func (UnimplementedBffServer) GetTalkSearch(context.Context, *GetTalkSearchReq) (*GetTalkSearchReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTalkSearch not implemented")
 }
 func (UnimplementedBffServer) CreateTalkDraft(context.Context, *emptypb.Empty) (*CreateTalkDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTalkDraft not implemented")
@@ -2641,6 +2669,24 @@ func _Bff_GetLastArticleDraft_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_GetArticleSearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetArticleSearchReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetArticleSearch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetArticleSearch",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetArticleSearch(ctx, req.(*GetArticleSearchReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_CreateArticleDraft_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
@@ -3015,6 +3061,24 @@ func _Bff_GetLastTalkDraft_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BffServer).GetLastTalkDraft(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetTalkSearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTalkSearchReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetTalkSearch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetTalkSearch",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetTalkSearch(ctx, req.(*GetTalkSearchReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -3963,6 +4027,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Bff_GetLastArticleDraft_Handler,
 		},
 		{
+			MethodName: "GetArticleSearch",
+			Handler:    _Bff_GetArticleSearch_Handler,
+		},
+		{
 			MethodName: "CreateArticleDraft",
 			Handler:    _Bff_CreateArticleDraft_Handler,
 		},
@@ -4045,6 +4113,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetLastTalkDraft",
 			Handler:    _Bff_GetLastTalkDraft_Handler,
+		},
+		{
+			MethodName: "GetTalkSearch",
+			Handler:    _Bff_GetTalkSearch_Handler,
 		},
 		{
 			MethodName: "CreateTalkDraft",
