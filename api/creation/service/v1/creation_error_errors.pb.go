@@ -155,6 +155,18 @@ func ErrorGetArticleListFailed(format string, args ...interface{}) *errors.Error
 	return errors.New(500, CreationErrorReason_GET_ARTICLE_LIST_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsGetArticleSearchFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_GET_ARTICLE_SEARCH_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetArticleSearchFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_GET_ARTICLE_SEARCH_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsCreateArticleFailed(err error) bool {
 	if err == nil {
 		return false
@@ -225,6 +237,18 @@ func IsGetTalkListFailed(err error) bool {
 
 func ErrorGetTalkListFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, CreationErrorReason_GET_TALK_LIST_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsGetTalkSearchFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_GET_TALK_SEARCH_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetTalkSearchFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_GET_TALK_SEARCH_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
 func IsCreateTalkFailed(err error) bool {
@@ -321,6 +345,18 @@ func IsGetColumnDraftFailed(err error) bool {
 
 func ErrorGetColumnDraftFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, CreationErrorReason_GET_COLUMN_DRAFT_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsGetColumnSearchFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_GET_COLUMN_SEARCH_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetColumnSearchFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_GET_COLUMN_SEARCH_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
 func IsCreateColumnFailed(err error) bool {
