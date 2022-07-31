@@ -22,6 +22,7 @@ type ArticleRepo interface {
 	GetUserArticleListVisitor(ctx context.Context, page int32, uuid string) ([]*Article, error)
 	GetArticleStatistic(ctx context.Context, id int32) (*ArticleStatistic, error)
 	GetArticleListStatistic(ctx context.Context, ids []int32) ([]*ArticleStatistic, error)
+	GetArticleSearch(ctx context.Context, page int32, search, time string) ([]*ArticleSearch, int32, error)
 
 	CreateArticle(ctx context.Context, id, auth int32, uuid string) error
 	CreateArticleStatistic(ctx context.Context, id, auth int32, uuid string) error
@@ -87,6 +88,14 @@ func (r *ArticleUseCase) GetLastArticleDraft(ctx context.Context, uuid string) (
 		return nil, v1.ErrorGetArticleDraftFailed("get last draft failed: %s", err.Error())
 	}
 	return draft, nil
+}
+
+func (r *ArticleUseCase) GetArticleSearch(ctx context.Context, page int32, search, time string) ([]*ArticleSearch, int32, error) {
+	articleList, total, err := r.repo.GetArticleSearch(ctx, page, search, time)
+	if err != nil {
+		return nil, 0, v1.ErrorGetArticleSearchFailed("get article search failed: %s", err.Error())
+	}
+	return articleList, total, nil
 }
 
 func (r *ArticleUseCase) CreateArticle(ctx context.Context, id, auth int32, uuid string) error {
