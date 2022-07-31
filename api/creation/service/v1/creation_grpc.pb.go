@@ -48,6 +48,7 @@ type CreationClient interface {
 	GetArticleStatistic(ctx context.Context, in *GetArticleStatisticReq, opts ...grpc.CallOption) (*GetArticleStatisticReply, error)
 	GetArticleListStatistic(ctx context.Context, in *GetArticleListStatisticReq, opts ...grpc.CallOption) (*GetArticleListStatisticReply, error)
 	GetLastArticleDraft(ctx context.Context, in *GetLastArticleDraftReq, opts ...grpc.CallOption) (*GetLastArticleDraftReply, error)
+	GetArticleSearch(ctx context.Context, in *GetArticleSearchReq, opts ...grpc.CallOption) (*GetArticleSearchReply, error)
 	CreateArticle(ctx context.Context, in *CreateArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	EditArticle(ctx context.Context, in *EditArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateArticleCacheAndSearch(ctx context.Context, in *CreateArticleCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -74,6 +75,7 @@ type CreationClient interface {
 	GetTalkListStatistic(ctx context.Context, in *GetTalkListStatisticReq, opts ...grpc.CallOption) (*GetTalkListStatisticReply, error)
 	GetTalkStatistic(ctx context.Context, in *GetTalkStatisticReq, opts ...grpc.CallOption) (*GetTalkStatisticReply, error)
 	GetLastTalkDraft(ctx context.Context, in *GetLastTalkDraftReq, opts ...grpc.CallOption) (*GetLastTalkDraftReply, error)
+	GetTalkSearch(ctx context.Context, in *GetTalkSearchReq, opts ...grpc.CallOption) (*GetTalkSearchReply, error)
 	CreateTalkDraft(ctx context.Context, in *CreateTalkDraftReq, opts ...grpc.CallOption) (*CreateTalkDraftReply, error)
 	SendTalk(ctx context.Context, in *SendTalkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SendTalkEdit(ctx context.Context, in *SendTalkEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -357,6 +359,15 @@ func (c *creationClient) GetLastArticleDraft(ctx context.Context, in *GetLastArt
 	return out, nil
 }
 
+func (c *creationClient) GetArticleSearch(ctx context.Context, in *GetArticleSearchReq, opts ...grpc.CallOption) (*GetArticleSearchReply, error) {
+	out := new(GetArticleSearchReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetArticleSearch", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *creationClient) CreateArticle(ctx context.Context, in *CreateArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/CreateArticle", in, out, opts...)
@@ -585,6 +596,15 @@ func (c *creationClient) GetTalkStatistic(ctx context.Context, in *GetTalkStatis
 func (c *creationClient) GetLastTalkDraft(ctx context.Context, in *GetLastTalkDraftReq, opts ...grpc.CallOption) (*GetLastTalkDraftReply, error) {
 	out := new(GetLastTalkDraftReply)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetLastTalkDraft", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) GetTalkSearch(ctx context.Context, in *GetTalkSearchReq, opts ...grpc.CallOption) (*GetTalkSearchReply, error) {
+	out := new(GetTalkSearchReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetTalkSearch", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1052,6 +1072,7 @@ type CreationServer interface {
 	GetArticleStatistic(context.Context, *GetArticleStatisticReq) (*GetArticleStatisticReply, error)
 	GetArticleListStatistic(context.Context, *GetArticleListStatisticReq) (*GetArticleListStatisticReply, error)
 	GetLastArticleDraft(context.Context, *GetLastArticleDraftReq) (*GetLastArticleDraftReply, error)
+	GetArticleSearch(context.Context, *GetArticleSearchReq) (*GetArticleSearchReply, error)
 	CreateArticle(context.Context, *CreateArticleReq) (*emptypb.Empty, error)
 	EditArticle(context.Context, *EditArticleReq) (*emptypb.Empty, error)
 	CreateArticleCacheAndSearch(context.Context, *CreateArticleCacheAndSearchReq) (*emptypb.Empty, error)
@@ -1078,6 +1099,7 @@ type CreationServer interface {
 	GetTalkListStatistic(context.Context, *GetTalkListStatisticReq) (*GetTalkListStatisticReply, error)
 	GetTalkStatistic(context.Context, *GetTalkStatisticReq) (*GetTalkStatisticReply, error)
 	GetLastTalkDraft(context.Context, *GetLastTalkDraftReq) (*GetLastTalkDraftReply, error)
+	GetTalkSearch(context.Context, *GetTalkSearchReq) (*GetTalkSearchReply, error)
 	CreateTalkDraft(context.Context, *CreateTalkDraftReq) (*CreateTalkDraftReply, error)
 	SendTalk(context.Context, *SendTalkReq) (*emptypb.Empty, error)
 	SendTalkEdit(context.Context, *SendTalkEditReq) (*emptypb.Empty, error)
@@ -1208,6 +1230,9 @@ func (UnimplementedCreationServer) GetArticleListStatistic(context.Context, *Get
 func (UnimplementedCreationServer) GetLastArticleDraft(context.Context, *GetLastArticleDraftReq) (*GetLastArticleDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLastArticleDraft not implemented")
 }
+func (UnimplementedCreationServer) GetArticleSearch(context.Context, *GetArticleSearchReq) (*GetArticleSearchReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetArticleSearch not implemented")
+}
 func (UnimplementedCreationServer) CreateArticle(context.Context, *CreateArticleReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateArticle not implemented")
 }
@@ -1285,6 +1310,9 @@ func (UnimplementedCreationServer) GetTalkStatistic(context.Context, *GetTalkSta
 }
 func (UnimplementedCreationServer) GetLastTalkDraft(context.Context, *GetLastTalkDraftReq) (*GetLastTalkDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLastTalkDraft not implemented")
+}
+func (UnimplementedCreationServer) GetTalkSearch(context.Context, *GetTalkSearchReq) (*GetTalkSearchReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTalkSearch not implemented")
 }
 func (UnimplementedCreationServer) CreateTalkDraft(context.Context, *CreateTalkDraftReq) (*CreateTalkDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTalkDraft not implemented")
@@ -1893,6 +1921,24 @@ func _Creation_GetLastArticleDraft_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Creation_GetArticleSearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetArticleSearchReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetArticleSearch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetArticleSearch",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetArticleSearch(ctx, req.(*GetArticleSearchReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Creation_CreateArticle_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateArticleReq)
 	if err := dec(in); err != nil {
@@ -2357,6 +2403,24 @@ func _Creation_GetLastTalkDraft_Handler(srv interface{}, ctx context.Context, de
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CreationServer).GetLastTalkDraft(ctx, req.(*GetLastTalkDraftReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_GetTalkSearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTalkSearchReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetTalkSearch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetTalkSearch",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetTalkSearch(ctx, req.(*GetTalkSearchReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -3333,6 +3397,10 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Creation_GetLastArticleDraft_Handler,
 		},
 		{
+			MethodName: "GetArticleSearch",
+			Handler:    _Creation_GetArticleSearch_Handler,
+		},
+		{
 			MethodName: "CreateArticle",
 			Handler:    _Creation_CreateArticle_Handler,
 		},
@@ -3435,6 +3503,10 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetLastTalkDraft",
 			Handler:    _Creation_GetLastTalkDraft_Handler,
+		},
+		{
+			MethodName: "GetTalkSearch",
+			Handler:    _Creation_GetTalkSearch_Handler,
 		},
 		{
 			MethodName: "CreateTalkDraft",
