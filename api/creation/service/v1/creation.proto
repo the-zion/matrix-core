@@ -60,6 +60,8 @@ service Creation {
 
   rpc GetLastArticleDraft(GetLastArticleDraftReq) returns (GetLastArticleDraftReply){}
 
+  rpc GetArticleSearch(GetArticleSearchReq)returns (GetArticleSearchReply){}
+
   rpc CreateArticle(CreateArticleReq) returns (google.protobuf.Empty){}
 
   rpc EditArticle(EditArticleReq) returns (google.protobuf.Empty){}
@@ -111,6 +113,8 @@ service Creation {
   rpc GetTalkStatistic(GetTalkStatisticReq)returns (GetTalkStatisticReply){}
 
   rpc GetLastTalkDraft(GetLastTalkDraftReq) returns (GetLastTalkDraftReply){}
+
+  rpc GetTalkSearch(GetTalkSearchReq)returns (GetTalkSearchReply){}
 
   rpc CreateTalkDraft(CreateTalkDraftReq) returns (CreateTalkDraftReply){}
 
@@ -393,6 +397,26 @@ message GetLastArticleDraftReply{
   int32 status = 2;
 }
 
+message GetArticleSearchReq{
+  int32 page = 1;
+  string search = 2 [(validate.rules).string = {min_len:0, max_len: 200}];
+  string time = 3 [(validate.rules).string = {min_len:0, max_len: 10}];
+}
+
+message GetArticleSearchReply{
+  message List{
+    int32 id = 1;
+    string title = 2;
+    string tags = 3;
+    string text = 4;
+    string cover = 5;
+    string update = 6;
+    string uuid = 7;
+  }
+  repeated List list = 1;
+  int32 total = 2;
+}
+
 message CreateArticleReq{
   int32 id = 1;
   int32 auth = 2;
@@ -583,6 +607,26 @@ message GetLastTalkDraftReq{
 message GetLastTalkDraftReply{
   int32 id = 1;
   int32 status = 2;
+}
+
+message GetTalkSearchReq{
+  int32 page = 1;
+  string search = 2;
+  string time = 3;
+}
+
+message GetTalkSearchReply{
+  message List{
+    int32 id = 1;
+    string title = 2;
+    string tags = 3;
+    string text = 4;
+    string cover = 5;
+    string update = 6;
+    string uuid = 7;
+  }
+  repeated List list = 1;
+  int32 total = 2;
 }
 
 message CreateTalkDraftReq{
