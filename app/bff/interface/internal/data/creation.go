@@ -567,6 +567,30 @@ func (r *articleRepo) GetArticleDraftList(ctx context.Context, uuid string) ([]*
 	return reply, nil
 }
 
+func (r *articleRepo) GetArticleSearch(ctx context.Context, page int32, search, time string) ([]*biz.ArticleSearch, int32, error) {
+	reply := make([]*biz.ArticleSearch, 0)
+	searchReply, err := r.data.cc.GetArticleSearch(ctx, &creationV1.GetArticleSearchReq{
+		Page:   page,
+		Search: search,
+		Time:   time,
+	})
+	if err != nil {
+		return nil, 0, err
+	}
+	for _, item := range searchReply.List {
+		reply = append(reply, &biz.ArticleSearch{
+			Id:     item.Id,
+			Tags:   item.Tags,
+			Title:  item.Title,
+			Text:   item.Text,
+			Uuid:   item.Uuid,
+			Cover:  item.Cover,
+			Update: item.Update,
+		})
+	}
+	return reply, searchReply.Total, nil
+}
+
 func (r *articleRepo) CreateArticleDraft(ctx context.Context, uuid string) (int32, error) {
 	reply, err := r.data.cc.CreateArticleDraft(ctx, &creationV1.CreateArticleDraftReq{
 		Uuid: uuid,
@@ -864,6 +888,30 @@ func (r *talkRepo) GetLastTalkDraft(ctx context.Context, uuid string) (*biz.Talk
 		Id:     reply.Id,
 		Status: reply.Status,
 	}, nil
+}
+
+func (r *talkRepo) GetTalkSearch(ctx context.Context, page int32, search, time string) ([]*biz.TalkSearch, int32, error) {
+	reply := make([]*biz.TalkSearch, 0)
+	searchReply, err := r.data.cc.GetTalkSearch(ctx, &creationV1.GetTalkSearchReq{
+		Page:   page,
+		Search: search,
+		Time:   time,
+	})
+	if err != nil {
+		return nil, 0, err
+	}
+	for _, item := range searchReply.List {
+		reply = append(reply, &biz.TalkSearch{
+			Id:     item.Id,
+			Tags:   item.Tags,
+			Title:  item.Title,
+			Text:   item.Text,
+			Uuid:   item.Uuid,
+			Cover:  item.Cover,
+			Update: item.Update,
+		})
+	}
+	return reply, searchReply.Total, nil
 }
 
 func (r *talkRepo) CreateTalkDraft(ctx context.Context, uuid string) (int32, error) {
