@@ -1290,6 +1290,30 @@ func (r *columnRepo) GetColumnSubscribes(ctx context.Context, uuid string, ids [
 	return reply, nil
 }
 
+func (r *columnRepo) GetColumnSearch(ctx context.Context, page int32, search, time string) ([]*biz.ColumnSearch, int32, error) {
+	reply := make([]*biz.ColumnSearch, 0)
+	searchReply, err := r.data.cc.GetColumnSearch(ctx, &creationV1.GetColumnSearchReq{
+		Page:   page,
+		Search: search,
+		Time:   time,
+	})
+	if err != nil {
+		return nil, 0, err
+	}
+	for _, item := range searchReply.List {
+		reply = append(reply, &biz.ColumnSearch{
+			Id:        item.Id,
+			Tags:      item.Tags,
+			Name:      item.Name,
+			Introduce: item.Introduce,
+			Uuid:      item.Uuid,
+			Cover:     item.Cover,
+			Update:    item.Update,
+		})
+	}
+	return reply, searchReply.Total, nil
+}
+
 func (r *columnRepo) SendColumn(ctx context.Context, id int32, uuid, ip string) error {
 	_, err := r.data.cc.SendColumn(ctx, &creationV1.SendColumnReq{
 		Id:   id,
