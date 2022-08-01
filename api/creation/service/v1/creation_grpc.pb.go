@@ -92,6 +92,7 @@ type CreationClient interface {
 	CancelTalkAgree(ctx context.Context, in *CancelTalkAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelTalkCollect(ctx context.Context, in *CancelTalkCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetLastColumnDraft(ctx context.Context, in *GetLastColumnDraftReq, opts ...grpc.CallOption) (*GetLastColumnDraftReply, error)
+	GetColumnSearch(ctx context.Context, in *GetColumnSearchReq, opts ...grpc.CallOption) (*GetColumnSearchReply, error)
 	CreateColumnDraft(ctx context.Context, in *CreateColumnDraftReq, opts ...grpc.CallOption) (*CreateColumnDraftReply, error)
 	SendColumn(ctx context.Context, in *SendColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateColumn(ctx context.Context, in *CreateColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -755,6 +756,15 @@ func (c *creationClient) GetLastColumnDraft(ctx context.Context, in *GetLastColu
 	return out, nil
 }
 
+func (c *creationClient) GetColumnSearch(ctx context.Context, in *GetColumnSearchReq, opts ...grpc.CallOption) (*GetColumnSearchReply, error) {
+	out := new(GetColumnSearchReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetColumnSearch", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *creationClient) CreateColumnDraft(ctx context.Context, in *CreateColumnDraftReq, opts ...grpc.CallOption) (*CreateColumnDraftReply, error) {
 	out := new(CreateColumnDraftReply)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/CreateColumnDraft", in, out, opts...)
@@ -1116,6 +1126,7 @@ type CreationServer interface {
 	CancelTalkAgree(context.Context, *CancelTalkAgreeReq) (*emptypb.Empty, error)
 	CancelTalkCollect(context.Context, *CancelTalkCollectReq) (*emptypb.Empty, error)
 	GetLastColumnDraft(context.Context, *GetLastColumnDraftReq) (*GetLastColumnDraftReply, error)
+	GetColumnSearch(context.Context, *GetColumnSearchReq) (*GetColumnSearchReply, error)
 	CreateColumnDraft(context.Context, *CreateColumnDraftReq) (*CreateColumnDraftReply, error)
 	SendColumn(context.Context, *SendColumnReq) (*emptypb.Empty, error)
 	CreateColumn(context.Context, *CreateColumnReq) (*emptypb.Empty, error)
@@ -1361,6 +1372,9 @@ func (UnimplementedCreationServer) CancelTalkCollect(context.Context, *CancelTal
 }
 func (UnimplementedCreationServer) GetLastColumnDraft(context.Context, *GetLastColumnDraftReq) (*GetLastColumnDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLastColumnDraft not implemented")
+}
+func (UnimplementedCreationServer) GetColumnSearch(context.Context, *GetColumnSearchReq) (*GetColumnSearchReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetColumnSearch not implemented")
 }
 func (UnimplementedCreationServer) CreateColumnDraft(context.Context, *CreateColumnDraftReq) (*CreateColumnDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateColumnDraft not implemented")
@@ -2713,6 +2727,24 @@ func _Creation_GetLastColumnDraft_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Creation_GetColumnSearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetColumnSearchReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetColumnSearch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetColumnSearch",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetColumnSearch(ctx, req.(*GetColumnSearchReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Creation_CreateColumnDraft_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateColumnDraftReq)
 	if err := dec(in); err != nil {
@@ -3571,6 +3603,10 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetLastColumnDraft",
 			Handler:    _Creation_GetLastColumnDraft_Handler,
+		},
+		{
+			MethodName: "GetColumnSearch",
+			Handler:    _Creation_GetColumnSearch_Handler,
 		},
 		{
 			MethodName: "CreateColumnDraft",
