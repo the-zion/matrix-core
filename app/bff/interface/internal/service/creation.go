@@ -886,6 +886,27 @@ func (s *BffService) GetColumnSubscribes(ctx context.Context, req *v1.GetColumnS
 	return reply, nil
 }
 
+func (s *BffService) GetColumnSearch(ctx context.Context, req *v1.GetColumnSearchReq) (*v1.GetColumnSearchReply, error) {
+	reply := &v1.GetColumnSearchReply{List: make([]*v1.GetColumnSearchReply_List, 0)}
+	columnList, total, err := s.coc.GetColumnSearch(ctx, req.Page, req.Search, req.Time)
+	if err != nil {
+		return reply, err
+	}
+	for _, item := range columnList {
+		reply.List = append(reply.List, &v1.GetColumnSearchReply_List{
+			Id:        item.Id,
+			Tags:      item.Tags,
+			Name:      item.Name,
+			Uuid:      item.Uuid,
+			Introduce: item.Introduce,
+			Cover:     item.Cover,
+			Update:    item.Update,
+		})
+	}
+	reply.Total = total
+	return reply, nil
+}
+
 func (s *BffService) ColumnStatisticJudge(ctx context.Context, req *v1.ColumnStatisticJudgeReq) (*v1.ColumnStatisticJudgeReply, error) {
 	judge, err := s.coc.ColumnStatisticJudge(ctx, req.Id)
 	if err != nil {
