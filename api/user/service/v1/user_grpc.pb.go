@@ -47,6 +47,7 @@ type UserClient interface {
 	GetFollowedList(ctx context.Context, in *GetFollowedListReq, opts ...grpc.CallOption) (*GetFollowedListReply, error)
 	GetFollowedListCount(ctx context.Context, in *GetFollowedListCountReq, opts ...grpc.CallOption) (*GetFollowedListCountReply, error)
 	GetUserFollows(ctx context.Context, in *GetUserFollowsReq, opts ...grpc.CallOption) (*GetUserFollowsReply, error)
+	GetUserSearch(ctx context.Context, in *GetUserSearchReq, opts ...grpc.CallOption) (*GetUserSearchReply, error)
 	SetProfileUpdate(ctx context.Context, in *SetProfileUpdateReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ProfileReviewPass(ctx context.Context, in *ProfileReviewPassReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ProfileReviewNotPass(ctx context.Context, in *ProfileReviewNotPassReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -279,6 +280,15 @@ func (c *userClient) GetUserFollows(ctx context.Context, in *GetUserFollowsReq, 
 	return out, nil
 }
 
+func (c *userClient) GetUserSearch(ctx context.Context, in *GetUserSearchReq, opts ...grpc.CallOption) (*GetUserSearchReply, error) {
+	out := new(GetUserSearchReply)
+	err := c.cc.Invoke(ctx, "/user.v1.User/GetUserSearch", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *userClient) SetProfileUpdate(ctx context.Context, in *SetProfileUpdateReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/user.v1.User/SetProfileUpdate", in, out, opts...)
@@ -361,6 +371,7 @@ type UserServer interface {
 	GetFollowedList(context.Context, *GetFollowedListReq) (*GetFollowedListReply, error)
 	GetFollowedListCount(context.Context, *GetFollowedListCountReq) (*GetFollowedListCountReply, error)
 	GetUserFollows(context.Context, *GetUserFollowsReq) (*GetUserFollowsReply, error)
+	GetUserSearch(context.Context, *GetUserSearchReq) (*GetUserSearchReply, error)
 	SetProfileUpdate(context.Context, *SetProfileUpdateReq) (*emptypb.Empty, error)
 	ProfileReviewPass(context.Context, *ProfileReviewPassReq) (*emptypb.Empty, error)
 	ProfileReviewNotPass(context.Context, *ProfileReviewNotPassReq) (*emptypb.Empty, error)
@@ -445,6 +456,9 @@ func (UnimplementedUserServer) GetFollowedListCount(context.Context, *GetFollowe
 }
 func (UnimplementedUserServer) GetUserFollows(context.Context, *GetUserFollowsReq) (*GetUserFollowsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserFollows not implemented")
+}
+func (UnimplementedUserServer) GetUserSearch(context.Context, *GetUserSearchReq) (*GetUserSearchReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserSearch not implemented")
 }
 func (UnimplementedUserServer) SetProfileUpdate(context.Context, *SetProfileUpdateReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetProfileUpdate not implemented")
@@ -909,6 +923,24 @@ func _User_GetUserFollows_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _User_GetUserSearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserSearchReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetUserSearch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/GetUserSearch",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetUserSearch(ctx, req.(*GetUserSearchReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _User_SetProfileUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SetProfileUpdateReq)
 	if err := dec(in); err != nil {
@@ -1119,6 +1151,10 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserFollows",
 			Handler:    _User_GetUserFollows_Handler,
+		},
+		{
+			MethodName: "GetUserSearch",
+			Handler:    _User_GetUserSearch_Handler,
 		},
 		{
 			MethodName: "SetProfileUpdate",
