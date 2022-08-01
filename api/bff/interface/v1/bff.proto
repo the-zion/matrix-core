@@ -140,6 +140,12 @@ service Bff{
     };
   }
 
+  rpc GetUserSearch(GetUserSearchReq)returns (GetUserSearchReply){
+    option (google.api.http) = {
+      get: "/v1/get/user/search"
+    };
+  }
+
   rpc SetProfileUpdate (SetProfileUpdateReq) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/v1/set/user/profile/update"
@@ -695,6 +701,12 @@ service Bff{
     };
   }
 
+  rpc GetColumnSearch(GetColumnSearchReq)returns (GetColumnSearchReply){
+    option (google.api.http) = {
+      get: "/v1/get/column/search"
+    };
+  }
+
   rpc SendColumnEdit(SendColumnEditReq) returns (google.protobuf.Empty){
     option (google.api.http) = {
       post: "/v1/send/column/edit"
@@ -968,6 +980,21 @@ message GetProfileUpdateReply{
   string homepage = 6;
   string introduce = 7;
   int32 status = 8;
+}
+
+message GetUserSearchReq{
+  int32 page = 1;
+  string search = 2;
+}
+
+message GetUserSearchReply{
+  message List{
+    string uuid = 1;
+    string username = 2;
+    string introduce = 3;
+  }
+  repeated List list = 1;
+  int32 total = 2;
 }
 
 message SetProfileUpdateReq{
@@ -1542,6 +1569,26 @@ message GetColumnCountVisitorReq{
 
 message GetColumnCountReply{
   int32 count = 1;
+}
+
+message GetColumnSearchReq{
+  int32 page = 1;
+  string search = 2;
+  string time = 3;
+}
+
+message GetColumnSearchReply{
+  message List{
+    int32 id = 1;
+    string name = 2;
+    string tags = 3;
+    string introduce = 4;
+    string cover = 5;
+    string update = 6;
+    string uuid = 7;
+  }
+  repeated List list = 1;
+  int32 total = 2;
 }
 
 message SendColumnEditReq{
