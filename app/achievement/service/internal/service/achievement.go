@@ -70,7 +70,11 @@ func (s *AchievementService) GetAchievementList(ctx context.Context, req *v1.Get
 	}
 	for _, item := range achievementList {
 		reply.Achievement = append(reply.Achievement, &v1.GetAchievementListReply_Achievement{
-			Uuid: item.Uuid,
+			Uuid:     item.Uuid,
+			View:     item.View,
+			Agree:    item.Agree,
+			Follow:   item.Follow,
+			Followed: item.Followed,
 		})
 	}
 	return reply, nil
