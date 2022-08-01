@@ -70,6 +70,7 @@ const OperationBffGetColumnCountVisitor = "/bff.v1.Bff/GetColumnCountVisitor"
 const OperationBffGetColumnList = "/bff.v1.Bff/GetColumnList"
 const OperationBffGetColumnListHot = "/bff.v1.Bff/GetColumnListHot"
 const OperationBffGetColumnListStatistic = "/bff.v1.Bff/GetColumnListStatistic"
+const OperationBffGetColumnSearch = "/bff.v1.Bff/GetColumnSearch"
 const OperationBffGetColumnStatistic = "/bff.v1.Bff/GetColumnStatistic"
 const OperationBffGetColumnSubscribes = "/bff.v1.Bff/GetColumnSubscribes"
 const OperationBffGetCosSessionKey = "/bff.v1.Bff/GetCosSessionKey"
@@ -102,6 +103,7 @@ const OperationBffGetUserColumnListVisitor = "/bff.v1.Bff/GetUserColumnListVisit
 const OperationBffGetUserFollow = "/bff.v1.Bff/GetUserFollow"
 const OperationBffGetUserFollows = "/bff.v1.Bff/GetUserFollows"
 const OperationBffGetUserInfo = "/bff.v1.Bff/GetUserInfo"
+const OperationBffGetUserSearch = "/bff.v1.Bff/GetUserSearch"
 const OperationBffGetUserTalkList = "/bff.v1.Bff/GetUserTalkList"
 const OperationBffGetUserTalkListVisitor = "/bff.v1.Bff/GetUserTalkListVisitor"
 const OperationBffLoginByCode = "/bff.v1.Bff/LoginByCode"
@@ -189,6 +191,7 @@ type BffHTTPServer interface {
 	GetColumnList(context.Context, *GetColumnListReq) (*GetColumnListReply, error)
 	GetColumnListHot(context.Context, *GetColumnListHotReq) (*GetColumnListHotReply, error)
 	GetColumnListStatistic(context.Context, *GetColumnListStatisticReq) (*GetColumnListStatisticReply, error)
+	GetColumnSearch(context.Context, *GetColumnSearchReq) (*GetColumnSearchReply, error)
 	GetColumnStatistic(context.Context, *GetColumnStatisticReq) (*GetColumnStatisticReply, error)
 	GetColumnSubscribes(context.Context, *GetColumnSubscribesReq) (*GetColumnSubscribesReply, error)
 	GetCosSessionKey(context.Context, *emptypb.Empty) (*GetCosSessionKeyReply, error)
@@ -221,6 +224,7 @@ type BffHTTPServer interface {
 	GetUserFollow(context.Context, *GetUserFollowReq) (*GetUserFollowReply, error)
 	GetUserFollows(context.Context, *GetUserFollowsReq) (*GetUserFollowsReply, error)
 	GetUserInfo(context.Context, *GetUserInfoReq) (*GetUserInfoReply, error)
+	GetUserSearch(context.Context, *GetUserSearchReq) (*GetUserSearchReply, error)
 	GetUserTalkList(context.Context, *GetUserTalkListReq) (*GetTalkListReply, error)
 	GetUserTalkListVisitor(context.Context, *GetUserTalkListVisitorReq) (*GetTalkListReply, error)
 	LoginByCode(context.Context, *LoginByCodeReq) (*LoginReply, error)
@@ -280,6 +284,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.GET("/v1/get/followed/list", _Bff_GetFollowedList0_HTTP_Handler(srv))
 	r.GET("/v1/get/followed/list/count", _Bff_GetFollowedListCount0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/profile/update", _Bff_GetProfileUpdate0_HTTP_Handler(srv))
+	r.GET("/v1/get/user/search", _Bff_GetUserSearch0_HTTP_Handler(srv))
 	r.POST("/v1/set/user/profile/update", _Bff_SetProfileUpdate0_HTTP_Handler(srv))
 	r.POST("/v1/set/user/phone", _Bff_SetUserPhone0_HTTP_Handler(srv))
 	r.POST("/v1/set/user/email", _Bff_SetUserEmail0_HTTP_Handler(srv))
@@ -363,6 +368,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.GET("/v1/get/user/column/list/visitor", _Bff_GetUserColumnListVisitor0_HTTP_Handler(srv))
 	r.POST("/v1/get/column/count", _Bff_GetColumnCount0_HTTP_Handler(srv))
 	r.GET("/v1/get/column/count/visitor", _Bff_GetColumnCountVisitor0_HTTP_Handler(srv))
+	r.GET("/v1/get/column/search", _Bff_GetColumnSearch0_HTTP_Handler(srv))
 	r.POST("/v1/send/column/edit", _Bff_SendColumnEdit0_HTTP_Handler(srv))
 	r.POST("/v1/delete/column", _Bff_DeleteColumn0_HTTP_Handler(srv))
 	r.GET("/v1/get/column/statistic", _Bff_GetColumnStatistic0_HTTP_Handler(srv))
@@ -755,6 +761,25 @@ func _Bff_GetProfileUpdate0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Contex
 			return err
 		}
 		reply := out.(*GetProfileUpdateReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_GetUserSearch0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetUserSearchReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetUserSearch)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetUserSearch(ctx, req.(*GetUserSearchReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetUserSearchReply)
 		return ctx.Result(200, reply)
 	}
 }
@@ -2336,6 +2361,25 @@ func _Bff_GetColumnCountVisitor0_HTTP_Handler(srv BffHTTPServer) func(ctx http.C
 	}
 }
 
+func _Bff_GetColumnSearch0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetColumnSearchReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetColumnSearch)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetColumnSearch(ctx, req.(*GetColumnSearchReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetColumnSearchReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _Bff_SendColumnEdit0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in SendColumnEditReq
@@ -2653,6 +2697,7 @@ type BffHTTPClient interface {
 	GetColumnList(ctx context.Context, req *GetColumnListReq, opts ...http.CallOption) (rsp *GetColumnListReply, err error)
 	GetColumnListHot(ctx context.Context, req *GetColumnListHotReq, opts ...http.CallOption) (rsp *GetColumnListHotReply, err error)
 	GetColumnListStatistic(ctx context.Context, req *GetColumnListStatisticReq, opts ...http.CallOption) (rsp *GetColumnListStatisticReply, err error)
+	GetColumnSearch(ctx context.Context, req *GetColumnSearchReq, opts ...http.CallOption) (rsp *GetColumnSearchReply, err error)
 	GetColumnStatistic(ctx context.Context, req *GetColumnStatisticReq, opts ...http.CallOption) (rsp *GetColumnStatisticReply, err error)
 	GetColumnSubscribes(ctx context.Context, req *GetColumnSubscribesReq, opts ...http.CallOption) (rsp *GetColumnSubscribesReply, err error)
 	GetCosSessionKey(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetCosSessionKeyReply, err error)
@@ -2685,6 +2730,7 @@ type BffHTTPClient interface {
 	GetUserFollow(ctx context.Context, req *GetUserFollowReq, opts ...http.CallOption) (rsp *GetUserFollowReply, err error)
 	GetUserFollows(ctx context.Context, req *GetUserFollowsReq, opts ...http.CallOption) (rsp *GetUserFollowsReply, err error)
 	GetUserInfo(ctx context.Context, req *GetUserInfoReq, opts ...http.CallOption) (rsp *GetUserInfoReply, err error)
+	GetUserSearch(ctx context.Context, req *GetUserSearchReq, opts ...http.CallOption) (rsp *GetUserSearchReply, err error)
 	GetUserTalkList(ctx context.Context, req *GetUserTalkListReq, opts ...http.CallOption) (rsp *GetTalkListReply, err error)
 	GetUserTalkListVisitor(ctx context.Context, req *GetUserTalkListVisitorReq, opts ...http.CallOption) (rsp *GetTalkListReply, err error)
 	LoginByCode(ctx context.Context, req *LoginByCodeReq, opts ...http.CallOption) (rsp *LoginReply, err error)
@@ -3380,6 +3426,19 @@ func (c *BffHTTPClientImpl) GetColumnListStatistic(ctx context.Context, in *GetC
 	return &out, err
 }
 
+func (c *BffHTTPClientImpl) GetColumnSearch(ctx context.Context, in *GetColumnSearchReq, opts ...http.CallOption) (*GetColumnSearchReply, error) {
+	var out GetColumnSearchReply
+	pattern := "/v1/get/column/search"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationBffGetColumnSearch))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
 func (c *BffHTTPClientImpl) GetColumnStatistic(ctx context.Context, in *GetColumnStatisticReq, opts ...http.CallOption) (*GetColumnStatisticReply, error) {
 	var out GetColumnStatisticReply
 	pattern := "/v1/get/column/statistic"
@@ -3788,6 +3847,19 @@ func (c *BffHTTPClientImpl) GetUserInfo(ctx context.Context, in *GetUserInfoReq,
 	pattern := "/v1/get/user/info"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationBffGetUserInfo))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetUserSearch(ctx context.Context, in *GetUserSearchReq, opts ...http.CallOption) (*GetUserSearchReply, error) {
+	var out GetUserSearchReply
+	pattern := "/v1/get/user/search"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationBffGetUserSearch))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

@@ -43,6 +43,7 @@ type BffClient interface {
 	GetFollowedList(ctx context.Context, in *GetFollowedListReq, opts ...grpc.CallOption) (*GetFollowedListReply, error)
 	GetFollowedListCount(ctx context.Context, in *GetFollowedListCountReq, opts ...grpc.CallOption) (*GetFollowedListCountReply, error)
 	GetProfileUpdate(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetProfileUpdateReply, error)
+	GetUserSearch(ctx context.Context, in *GetUserSearchReq, opts ...grpc.CallOption) (*GetUserSearchReply, error)
 	SetProfileUpdate(ctx context.Context, in *SetProfileUpdateReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetUserPhone(ctx context.Context, in *SetUserPhoneReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetUserEmail(ctx context.Context, in *SetUserEmailReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -127,6 +128,7 @@ type BffClient interface {
 	GetUserColumnListVisitor(ctx context.Context, in *GetUserColumnListVisitorReq, opts ...grpc.CallOption) (*GetColumnListReply, error)
 	GetColumnCount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetColumnCountReply, error)
 	GetColumnCountVisitor(ctx context.Context, in *GetColumnCountVisitorReq, opts ...grpc.CallOption) (*GetColumnCountReply, error)
+	GetColumnSearch(ctx context.Context, in *GetColumnSearchReq, opts ...grpc.CallOption) (*GetColumnSearchReply, error)
 	SendColumnEdit(ctx context.Context, in *SendColumnEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteColumn(ctx context.Context, in *DeleteColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetColumnStatistic(ctx context.Context, in *GetColumnStatisticReq, opts ...grpc.CallOption) (*GetColumnStatisticReply, error)
@@ -325,6 +327,15 @@ func (c *bffClient) GetFollowedListCount(ctx context.Context, in *GetFollowedLis
 func (c *bffClient) GetProfileUpdate(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetProfileUpdateReply, error) {
 	out := new(GetProfileUpdateReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetProfileUpdate", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetUserSearch(ctx context.Context, in *GetUserSearchReq, opts ...grpc.CallOption) (*GetUserSearchReply, error) {
+	out := new(GetUserSearchReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserSearch", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1078,6 +1089,15 @@ func (c *bffClient) GetColumnCountVisitor(ctx context.Context, in *GetColumnCoun
 	return out, nil
 }
 
+func (c *bffClient) GetColumnSearch(ctx context.Context, in *GetColumnSearchReq, opts ...grpc.CallOption) (*GetColumnSearchReply, error) {
+	out := new(GetColumnSearchReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetColumnSearch", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) SendColumnEdit(ctx context.Context, in *SendColumnEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SendColumnEdit", in, out, opts...)
@@ -1228,6 +1248,7 @@ type BffServer interface {
 	GetFollowedList(context.Context, *GetFollowedListReq) (*GetFollowedListReply, error)
 	GetFollowedListCount(context.Context, *GetFollowedListCountReq) (*GetFollowedListCountReply, error)
 	GetProfileUpdate(context.Context, *emptypb.Empty) (*GetProfileUpdateReply, error)
+	GetUserSearch(context.Context, *GetUserSearchReq) (*GetUserSearchReply, error)
 	SetProfileUpdate(context.Context, *SetProfileUpdateReq) (*emptypb.Empty, error)
 	SetUserPhone(context.Context, *SetUserPhoneReq) (*emptypb.Empty, error)
 	SetUserEmail(context.Context, *SetUserEmailReq) (*emptypb.Empty, error)
@@ -1312,6 +1333,7 @@ type BffServer interface {
 	GetUserColumnListVisitor(context.Context, *GetUserColumnListVisitorReq) (*GetColumnListReply, error)
 	GetColumnCount(context.Context, *emptypb.Empty) (*GetColumnCountReply, error)
 	GetColumnCountVisitor(context.Context, *GetColumnCountVisitorReq) (*GetColumnCountReply, error)
+	GetColumnSearch(context.Context, *GetColumnSearchReq) (*GetColumnSearchReply, error)
 	SendColumnEdit(context.Context, *SendColumnEditReq) (*emptypb.Empty, error)
 	DeleteColumn(context.Context, *DeleteColumnReq) (*emptypb.Empty, error)
 	GetColumnStatistic(context.Context, *GetColumnStatisticReq) (*GetColumnStatisticReply, error)
@@ -1392,6 +1414,9 @@ func (UnimplementedBffServer) GetFollowedListCount(context.Context, *GetFollowed
 }
 func (UnimplementedBffServer) GetProfileUpdate(context.Context, *emptypb.Empty) (*GetProfileUpdateReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProfileUpdate not implemented")
+}
+func (UnimplementedBffServer) GetUserSearch(context.Context, *GetUserSearchReq) (*GetUserSearchReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserSearch not implemented")
 }
 func (UnimplementedBffServer) SetProfileUpdate(context.Context, *SetProfileUpdateReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetProfileUpdate not implemented")
@@ -1641,6 +1666,9 @@ func (UnimplementedBffServer) GetColumnCount(context.Context, *emptypb.Empty) (*
 }
 func (UnimplementedBffServer) GetColumnCountVisitor(context.Context, *GetColumnCountVisitorReq) (*GetColumnCountReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetColumnCountVisitor not implemented")
+}
+func (UnimplementedBffServer) GetColumnSearch(context.Context, *GetColumnSearchReq) (*GetColumnSearchReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetColumnSearch not implemented")
 }
 func (UnimplementedBffServer) SendColumnEdit(context.Context, *SendColumnEditReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendColumnEdit not implemented")
@@ -2053,6 +2081,24 @@ func _Bff_GetProfileUpdate_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BffServer).GetProfileUpdate(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetUserSearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserSearchReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetUserSearch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetUserSearch",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetUserSearch(ctx, req.(*GetUserSearchReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -3551,6 +3597,24 @@ func _Bff_GetColumnCountVisitor_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_GetColumnSearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetColumnSearchReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetColumnSearch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetColumnSearch",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetColumnSearch(ctx, req.(*GetColumnSearchReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_SendColumnEdit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SendColumnEditReq)
 	if err := dec(in); err != nil {
@@ -3891,6 +3955,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Bff_GetProfileUpdate_Handler,
 		},
 		{
+			MethodName: "GetUserSearch",
+			Handler:    _Bff_GetUserSearch_Handler,
+		},
+		{
 			MethodName: "SetProfileUpdate",
 			Handler:    _Bff_SetProfileUpdate_Handler,
 		},
@@ -4221,6 +4289,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetColumnCountVisitor",
 			Handler:    _Bff_GetColumnCountVisitor_Handler,
+		},
+		{
+			MethodName: "GetColumnSearch",
+			Handler:    _Bff_GetColumnSearch_Handler,
 		},
 		{
 			MethodName: "SendColumnEdit",

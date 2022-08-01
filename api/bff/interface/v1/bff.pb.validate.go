@@ -3234,6 +3234,248 @@ var _ interface {
 	ErrorName() string
 } = GetProfileUpdateReplyValidationError{}
 
+// Validate checks the field values on GetUserSearchReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *GetUserSearchReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserSearchReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetUserSearchReqMultiError, or nil if none found.
+func (m *GetUserSearchReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserSearchReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Page
+
+	// no validation rules for Search
+
+	if len(errors) > 0 {
+		return GetUserSearchReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetUserSearchReqMultiError is an error wrapping multiple validation errors
+// returned by GetUserSearchReq.ValidateAll() if the designated constraints
+// aren't met.
+type GetUserSearchReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserSearchReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserSearchReqMultiError) AllErrors() []error { return m }
+
+// GetUserSearchReqValidationError is the validation error returned by
+// GetUserSearchReq.Validate if the designated constraints aren't met.
+type GetUserSearchReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserSearchReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserSearchReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserSearchReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserSearchReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserSearchReqValidationError) ErrorName() string { return "GetUserSearchReqValidationError" }
+
+// Error satisfies the builtin error interface
+func (e GetUserSearchReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserSearchReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserSearchReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserSearchReqValidationError{}
+
+// Validate checks the field values on GetUserSearchReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetUserSearchReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserSearchReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetUserSearchReplyMultiError, or nil if none found.
+func (m *GetUserSearchReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserSearchReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetList() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetUserSearchReplyValidationError{
+						field:  fmt.Sprintf("List[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetUserSearchReplyValidationError{
+						field:  fmt.Sprintf("List[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetUserSearchReplyValidationError{
+					field:  fmt.Sprintf("List[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	// no validation rules for Total
+
+	if len(errors) > 0 {
+		return GetUserSearchReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetUserSearchReplyMultiError is an error wrapping multiple validation errors
+// returned by GetUserSearchReply.ValidateAll() if the designated constraints
+// aren't met.
+type GetUserSearchReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserSearchReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserSearchReplyMultiError) AllErrors() []error { return m }
+
+// GetUserSearchReplyValidationError is the validation error returned by
+// GetUserSearchReply.Validate if the designated constraints aren't met.
+type GetUserSearchReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserSearchReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserSearchReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserSearchReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserSearchReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserSearchReplyValidationError) ErrorName() string {
+	return "GetUserSearchReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetUserSearchReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserSearchReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserSearchReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserSearchReplyValidationError{}
+
 // Validate checks the field values on SetProfileUpdateReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -14957,6 +15199,252 @@ var _ interface {
 	ErrorName() string
 } = GetColumnCountReplyValidationError{}
 
+// Validate checks the field values on GetColumnSearchReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetColumnSearchReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetColumnSearchReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetColumnSearchReqMultiError, or nil if none found.
+func (m *GetColumnSearchReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetColumnSearchReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Page
+
+	// no validation rules for Search
+
+	// no validation rules for Time
+
+	if len(errors) > 0 {
+		return GetColumnSearchReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetColumnSearchReqMultiError is an error wrapping multiple validation errors
+// returned by GetColumnSearchReq.ValidateAll() if the designated constraints
+// aren't met.
+type GetColumnSearchReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetColumnSearchReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetColumnSearchReqMultiError) AllErrors() []error { return m }
+
+// GetColumnSearchReqValidationError is the validation error returned by
+// GetColumnSearchReq.Validate if the designated constraints aren't met.
+type GetColumnSearchReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetColumnSearchReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetColumnSearchReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetColumnSearchReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetColumnSearchReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetColumnSearchReqValidationError) ErrorName() string {
+	return "GetColumnSearchReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetColumnSearchReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetColumnSearchReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetColumnSearchReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetColumnSearchReqValidationError{}
+
+// Validate checks the field values on GetColumnSearchReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetColumnSearchReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetColumnSearchReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetColumnSearchReplyMultiError, or nil if none found.
+func (m *GetColumnSearchReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetColumnSearchReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetList() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetColumnSearchReplyValidationError{
+						field:  fmt.Sprintf("List[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetColumnSearchReplyValidationError{
+						field:  fmt.Sprintf("List[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetColumnSearchReplyValidationError{
+					field:  fmt.Sprintf("List[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	// no validation rules for Total
+
+	if len(errors) > 0 {
+		return GetColumnSearchReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetColumnSearchReplyMultiError is an error wrapping multiple validation
+// errors returned by GetColumnSearchReply.ValidateAll() if the designated
+// constraints aren't met.
+type GetColumnSearchReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetColumnSearchReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetColumnSearchReplyMultiError) AllErrors() []error { return m }
+
+// GetColumnSearchReplyValidationError is the validation error returned by
+// GetColumnSearchReply.Validate if the designated constraints aren't met.
+type GetColumnSearchReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetColumnSearchReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetColumnSearchReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetColumnSearchReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetColumnSearchReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetColumnSearchReplyValidationError) ErrorName() string {
+	return "GetColumnSearchReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetColumnSearchReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetColumnSearchReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetColumnSearchReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetColumnSearchReplyValidationError{}
+
 // Validate checks the field values on SendColumnEditReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -17444,6 +17932,114 @@ var _ interface {
 	ErrorName() string
 } = GetFollowedListReply_FollowValidationError{}
 
+// Validate checks the field values on GetUserSearchReply_List with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetUserSearchReply_List) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserSearchReply_List with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetUserSearchReply_ListMultiError, or nil if none found.
+func (m *GetUserSearchReply_List) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserSearchReply_List) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Uuid
+
+	// no validation rules for Username
+
+	// no validation rules for Introduce
+
+	if len(errors) > 0 {
+		return GetUserSearchReply_ListMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetUserSearchReply_ListMultiError is an error wrapping multiple validation
+// errors returned by GetUserSearchReply_List.ValidateAll() if the designated
+// constraints aren't met.
+type GetUserSearchReply_ListMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserSearchReply_ListMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserSearchReply_ListMultiError) AllErrors() []error { return m }
+
+// GetUserSearchReply_ListValidationError is the validation error returned by
+// GetUserSearchReply_List.Validate if the designated constraints aren't met.
+type GetUserSearchReply_ListValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserSearchReply_ListValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserSearchReply_ListValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserSearchReply_ListValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserSearchReply_ListValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserSearchReply_ListValidationError) ErrorName() string {
+	return "GetUserSearchReply_ListValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetUserSearchReply_ListValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserSearchReply_List.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserSearchReply_ListValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserSearchReply_ListValidationError{}
+
 // Validate checks the field values on GetLeaderBoardReply_Board with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -19191,6 +19787,122 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetColumnListStatisticReply_CountValidationError{}
+
+// Validate checks the field values on GetColumnSearchReply_List with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetColumnSearchReply_List) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetColumnSearchReply_List with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetColumnSearchReply_ListMultiError, or nil if none found.
+func (m *GetColumnSearchReply_List) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetColumnSearchReply_List) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Name
+
+	// no validation rules for Tags
+
+	// no validation rules for Introduce
+
+	// no validation rules for Cover
+
+	// no validation rules for Update
+
+	// no validation rules for Uuid
+
+	if len(errors) > 0 {
+		return GetColumnSearchReply_ListMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetColumnSearchReply_ListMultiError is an error wrapping multiple validation
+// errors returned by GetColumnSearchReply_List.ValidateAll() if the
+// designated constraints aren't met.
+type GetColumnSearchReply_ListMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetColumnSearchReply_ListMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetColumnSearchReply_ListMultiError) AllErrors() []error { return m }
+
+// GetColumnSearchReply_ListValidationError is the validation error returned by
+// GetColumnSearchReply_List.Validate if the designated constraints aren't met.
+type GetColumnSearchReply_ListValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetColumnSearchReply_ListValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetColumnSearchReply_ListValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetColumnSearchReply_ListValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetColumnSearchReply_ListValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetColumnSearchReply_ListValidationError) ErrorName() string {
+	return "GetColumnSearchReply_ListValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetColumnSearchReply_ListValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetColumnSearchReply_List.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetColumnSearchReply_ListValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetColumnSearchReply_ListValidationError{}
 
 // Validate checks the field values on GetNewsReply_News with the rules defined
 // in the proto definition for this message. If any rules are violated, the
