@@ -85,6 +85,7 @@ type ColumnRepo interface {
 	GetSubscribeList(ctx context.Context, page int32, uuid string) ([]*Subscribe, error)
 	GetSubscribeListCount(ctx context.Context, uuid string) (int32, error)
 	GetColumnSubscribes(ctx context.Context, uuid string, ids []int32) ([]*Subscribe, error)
+	GetColumnSearch(ctx context.Context, page int32, search, time string) ([]*ColumnSearch, int32, error)
 	SendColumn(ctx context.Context, id int32, uuid, ip string) error
 	SendColumnEdit(ctx context.Context, id int32, uuid, ip string) error
 	CreateColumnDraft(ctx context.Context, uuid string) (int32, error)
@@ -525,6 +526,10 @@ func (r *ColumnUseCase) GetSubscribeListCount(ctx context.Context, uuid string) 
 func (r *ColumnUseCase) GetColumnSubscribes(ctx context.Context, ids []int32) ([]*Subscribe, error) {
 	uuid := ctx.Value("uuid").(string)
 	return r.repo.GetColumnSubscribes(ctx, uuid, ids)
+}
+
+func (r *ColumnUseCase) GetColumnSearch(ctx context.Context, page int32, search, time string) ([]*ColumnSearch, int32, error) {
+	return r.repo.GetColumnSearch(ctx, page, search, time)
 }
 
 func (r *ColumnUseCase) SetColumnAgree(ctx context.Context, id int32, uuid string) error {
