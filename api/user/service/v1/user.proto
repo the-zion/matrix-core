@@ -57,6 +57,8 @@ service User {
 
   rpc GetUserFollows (GetUserFollowsReq) returns (GetUserFollowsReply) {}
 
+  rpc GetUserSearch(GetUserSearchReq)returns (GetUserSearchReply){}
+
   rpc SetProfileUpdate (SetProfileUpdateReq) returns (google.protobuf.Empty) {}
 
   rpc ProfileReviewPass (ProfileReviewPassReq) returns (google.protobuf.Empty) {}
@@ -291,6 +293,21 @@ message GetUserFollowsReply{
     int32 follow_judge = 2;
   }
   repeated Follows follows = 1;
+}
+
+message GetUserSearchReq{
+  int32 page = 1;
+  string search = 2;
+}
+
+message GetUserSearchReply{
+  message List{
+    string uuid = 1;
+    string username = 2;
+    string introduce = 3;
+  }
+  repeated List list = 1;
+  int32 total = 2;
 }
 
 message SetProfileUpdateReq{
