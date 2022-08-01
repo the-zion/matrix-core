@@ -322,6 +322,25 @@ func (r *userRepo) GetFollowedListCount(ctx context.Context, uuid string) (int32
 	return result.(int32), nil
 }
 
+func (r *userRepo) GetUserSearch(ctx context.Context, page int32, search string) ([]*biz.UserSearch, int32, error) {
+	reply := make([]*biz.UserSearch, 0)
+	searchReply, err := r.data.uc.GetUserSearch(ctx, &userV1.GetUserSearchReq{
+		Page:   page,
+		Search: search,
+	})
+	if err != nil {
+		return nil, 0, err
+	}
+	for _, item := range searchReply.List {
+		reply = append(reply, &biz.UserSearch{
+			Uuid:      item.Uuid,
+			Username:  item.Username,
+			Introduce: item.Introduce,
+		})
+	}
+	return reply, searchReply.Total, nil
+}
+
 func (r *userRepo) SetProfileUpdate(ctx context.Context, profile *biz.UserProfileUpdate) error {
 	_, err := r.data.uc.SetProfileUpdate(ctx, &userV1.SetProfileUpdateReq{
 		Uuid:      profile.Uuid,
