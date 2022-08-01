@@ -229,6 +229,23 @@ func (s *BffService) GetUserFollows(ctx context.Context, req *v1.GetUserFollowsR
 	return reply, nil
 }
 
+func (s *BffService) GetUserSearch(ctx context.Context, req *v1.GetUserSearchReq) (*v1.GetUserSearchReply, error) {
+	reply := &v1.GetUserSearchReply{List: make([]*v1.GetUserSearchReply_List, 0)}
+	userList, total, err := s.uc.GetUserSearch(ctx, req.Page, req.Search)
+	if err != nil {
+		return reply, err
+	}
+	for _, item := range userList {
+		reply.List = append(reply.List, &v1.GetUserSearchReply_List{
+			Uuid:      item.Uuid,
+			Username:  item.Username,
+			Introduce: item.Introduce,
+		})
+	}
+	reply.Total = total
+	return reply, nil
+}
+
 func (s *BffService) SetProfileUpdate(ctx context.Context, req *v1.SetProfileUpdateReq) (*emptypb.Empty, error) {
 	profile := &biz.UserProfileUpdate{}
 	profile.Username = req.Username
