@@ -22,6 +22,12 @@ type UserProfile struct {
 	Created   string
 }
 
+type UserSearch struct {
+	Uuid      string
+	Username  string
+	Introduce string
+}
+
 type UserProfileUpdate struct {
 	UserProfile
 	Status int32
@@ -163,6 +169,17 @@ type ArticleDraft struct {
 	Status int32
 }
 
+type ArticleSearch struct {
+	Id     int32
+	Total  int32
+	Title  string
+	Tags   string
+	Uuid   string
+	Text   string
+	Cover  string
+	Update string
+}
+
 type Talk struct {
 	Id   int32
 	Uuid string
@@ -185,6 +202,17 @@ type TalkStatistic struct {
 type TalkStatisticJudge struct {
 	Agree   bool
 	Collect bool
+}
+
+type TalkSearch struct {
+	Id     int32
+	Total  int32
+	Title  string
+	Tags   string
+	Uuid   string
+	Text   string
+	Cover  string
+	Update string
 }
 
 type Collections struct {
@@ -216,6 +244,17 @@ type ColumnStatistic struct {
 type ColumnStatisticJudge struct {
 	Agree   bool
 	Collect bool
+}
+
+type ColumnSearch struct {
+	Id        int32
+	Total     int32
+	Name      string
+	Tags      string
+	Uuid      string
+	Introduce string
+	Cover     string
+	Update    string
 }
 
 type Achievement struct {
