@@ -24,6 +24,7 @@ type UserRepo interface {
 	GetFollowedListCount(ctx context.Context, uuid string) (int32, error)
 	GetUserFollow(ctx context.Context, uuid, userUuid string) (bool, error)
 	GetUserFollows(ctx context.Context, userId string, uuids []string) ([]*Follows, error)
+	GetUserSearch(ctx context.Context, page int32, search string) ([]*UserSearch, int32, error)
 	SetProfileUpdate(ctx context.Context, profile *UserProfileUpdate) error
 	SetUserPhone(ctx context.Context, uuid, phone, code string) error
 	SetUserPassword(ctx context.Context, uuid, password string) error
@@ -123,6 +124,10 @@ func (r *UserUseCase) GetFollowedListCount(ctx context.Context, uuid string) (in
 func (r *UserUseCase) GetUserFollows(ctx context.Context, uuids []string) ([]*Follows, error) {
 	userId := ctx.Value("uuid").(string)
 	return r.repo.GetUserFollows(ctx, userId, uuids)
+}
+
+func (r *UserUseCase) GetUserSearch(ctx context.Context, page int32, search string) ([]*UserSearch, int32, error) {
+	return r.repo.GetUserSearch(ctx, page, search)
 }
 
 func (r *UserUseCase) SetUserProfile(ctx context.Context, profile *UserProfileUpdate) error {
