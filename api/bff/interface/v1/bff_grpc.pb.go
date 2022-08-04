@@ -143,6 +143,9 @@ type BffClient interface {
 	GetNews(ctx context.Context, in *GetNewsReq, opts ...grpc.CallOption) (*GetNewsReply, error)
 	GetAchievementList(ctx context.Context, in *GetAchievementListReq, opts ...grpc.CallOption) (*GetAchievementListReply, error)
 	GetUserAchievement(ctx context.Context, in *GetUserAchievementReq, opts ...grpc.CallOption) (*GetUserAchievementReply, error)
+	GetLastCommentDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLastCommentDraftReply, error)
+	CreateCommentDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateCommentDraftReply, error)
+	SendComment(ctx context.Context, in *SendCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type bffClient struct {
@@ -1224,6 +1227,33 @@ func (c *bffClient) GetUserAchievement(ctx context.Context, in *GetUserAchieveme
 	return out, nil
 }
 
+func (c *bffClient) GetLastCommentDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLastCommentDraftReply, error) {
+	out := new(GetLastCommentDraftReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetLastCommentDraft", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) CreateCommentDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateCommentDraftReply, error) {
+	out := new(CreateCommentDraftReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/CreateCommentDraft", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) SendComment(ctx context.Context, in *SendCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SendComment", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BffServer is the server API for Bff service.
 // All implementations must embed UnimplementedBffServer
 // for forward compatibility
@@ -1348,6 +1378,9 @@ type BffServer interface {
 	GetNews(context.Context, *GetNewsReq) (*GetNewsReply, error)
 	GetAchievementList(context.Context, *GetAchievementListReq) (*GetAchievementListReply, error)
 	GetUserAchievement(context.Context, *GetUserAchievementReq) (*GetUserAchievementReply, error)
+	GetLastCommentDraft(context.Context, *emptypb.Empty) (*GetLastCommentDraftReply, error)
+	CreateCommentDraft(context.Context, *emptypb.Empty) (*CreateCommentDraftReply, error)
+	SendComment(context.Context, *SendCommentReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedBffServer()
 }
 
@@ -1711,6 +1744,15 @@ func (UnimplementedBffServer) GetAchievementList(context.Context, *GetAchievemen
 }
 func (UnimplementedBffServer) GetUserAchievement(context.Context, *GetUserAchievementReq) (*GetUserAchievementReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserAchievement not implemented")
+}
+func (UnimplementedBffServer) GetLastCommentDraft(context.Context, *emptypb.Empty) (*GetLastCommentDraftReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetLastCommentDraft not implemented")
+}
+func (UnimplementedBffServer) CreateCommentDraft(context.Context, *emptypb.Empty) (*CreateCommentDraftReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateCommentDraft not implemented")
+}
+func (UnimplementedBffServer) SendComment(context.Context, *SendCommentReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendComment not implemented")
 }
 func (UnimplementedBffServer) mustEmbedUnimplementedBffServer() {}
 
@@ -3867,6 +3909,60 @@ func _Bff_GetUserAchievement_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_GetLastCommentDraft_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetLastCommentDraft(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetLastCommentDraft",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetLastCommentDraft(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_CreateCommentDraft_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).CreateCommentDraft(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/CreateCommentDraft",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).CreateCommentDraft(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_SendComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendCommentReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).SendComment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/SendComment",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).SendComment(ctx, req.(*SendCommentReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Bff_ServiceDesc is the grpc.ServiceDesc for Bff service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -4349,6 +4445,18 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserAchievement",
 			Handler:    _Bff_GetUserAchievement_Handler,
+		},
+		{
+			MethodName: "GetLastCommentDraft",
+			Handler:    _Bff_GetLastCommentDraft_Handler,
+		},
+		{
+			MethodName: "CreateCommentDraft",
+			Handler:    _Bff_CreateCommentDraft_Handler,
+		},
+		{
+			MethodName: "SendComment",
+			Handler:    _Bff_SendComment_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

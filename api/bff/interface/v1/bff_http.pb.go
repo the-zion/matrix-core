@@ -36,6 +36,7 @@ const OperationBffColumnStatisticJudge = "/bff.v1.Bff/ColumnStatisticJudge"
 const OperationBffCreateArticleDraft = "/bff.v1.Bff/CreateArticleDraft"
 const OperationBffCreateCollections = "/bff.v1.Bff/CreateCollections"
 const OperationBffCreateColumnDraft = "/bff.v1.Bff/CreateColumnDraft"
+const OperationBffCreateCommentDraft = "/bff.v1.Bff/CreateCommentDraft"
 const OperationBffCreateTalkDraft = "/bff.v1.Bff/CreateTalkDraft"
 const OperationBffDeleteArticle = "/bff.v1.Bff/DeleteArticle"
 const OperationBffDeleteCollections = "/bff.v1.Bff/DeleteCollections"
@@ -80,6 +81,7 @@ const OperationBffGetFollowedList = "/bff.v1.Bff/GetFollowedList"
 const OperationBffGetFollowedListCount = "/bff.v1.Bff/GetFollowedListCount"
 const OperationBffGetLastArticleDraft = "/bff.v1.Bff/GetLastArticleDraft"
 const OperationBffGetLastColumnDraft = "/bff.v1.Bff/GetLastColumnDraft"
+const OperationBffGetLastCommentDraft = "/bff.v1.Bff/GetLastCommentDraft"
 const OperationBffGetLastTalkDraft = "/bff.v1.Bff/GetLastTalkDraft"
 const OperationBffGetLeaderBoard = "/bff.v1.Bff/GetLeaderBoard"
 const OperationBffGetNews = "/bff.v1.Bff/GetNews"
@@ -115,6 +117,7 @@ const OperationBffSendArticle = "/bff.v1.Bff/SendArticle"
 const OperationBffSendArticleEdit = "/bff.v1.Bff/SendArticleEdit"
 const OperationBffSendColumn = "/bff.v1.Bff/SendColumn"
 const OperationBffSendColumnEdit = "/bff.v1.Bff/SendColumnEdit"
+const OperationBffSendComment = "/bff.v1.Bff/SendComment"
 const OperationBffSendEmailCode = "/bff.v1.Bff/SendEmailCode"
 const OperationBffSendPhoneCode = "/bff.v1.Bff/SendPhoneCode"
 const OperationBffSendTalk = "/bff.v1.Bff/SendTalk"
@@ -157,6 +160,7 @@ type BffHTTPServer interface {
 	CreateArticleDraft(context.Context, *emptypb.Empty) (*CreateArticleDraftReply, error)
 	CreateCollections(context.Context, *CreateCollectionsReq) (*emptypb.Empty, error)
 	CreateColumnDraft(context.Context, *emptypb.Empty) (*CreateColumnDraftReply, error)
+	CreateCommentDraft(context.Context, *emptypb.Empty) (*CreateCommentDraftReply, error)
 	CreateTalkDraft(context.Context, *emptypb.Empty) (*CreateTalkDraftReply, error)
 	DeleteArticle(context.Context, *DeleteArticleReq) (*emptypb.Empty, error)
 	DeleteCollections(context.Context, *DeleteCollectionsReq) (*emptypb.Empty, error)
@@ -201,6 +205,7 @@ type BffHTTPServer interface {
 	GetFollowedListCount(context.Context, *GetFollowedListCountReq) (*GetFollowedListCountReply, error)
 	GetLastArticleDraft(context.Context, *emptypb.Empty) (*GetLastArticleDraftReply, error)
 	GetLastColumnDraft(context.Context, *emptypb.Empty) (*GetLastColumnDraftReply, error)
+	GetLastCommentDraft(context.Context, *emptypb.Empty) (*GetLastCommentDraftReply, error)
 	GetLastTalkDraft(context.Context, *emptypb.Empty) (*GetLastTalkDraftReply, error)
 	GetLeaderBoard(context.Context, *emptypb.Empty) (*GetLeaderBoardReply, error)
 	GetNews(context.Context, *GetNewsReq) (*GetNewsReply, error)
@@ -236,6 +241,7 @@ type BffHTTPServer interface {
 	SendArticleEdit(context.Context, *SendArticleEditReq) (*emptypb.Empty, error)
 	SendColumn(context.Context, *SendColumnReq) (*emptypb.Empty, error)
 	SendColumnEdit(context.Context, *SendColumnEditReq) (*emptypb.Empty, error)
+	SendComment(context.Context, *SendCommentReq) (*emptypb.Empty, error)
 	SendEmailCode(context.Context, *SendEmailCodeReq) (*emptypb.Empty, error)
 	SendPhoneCode(context.Context, *SendPhoneCodeReq) (*emptypb.Empty, error)
 	SendTalk(context.Context, *SendTalkReq) (*emptypb.Empty, error)
@@ -383,6 +389,9 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.GET("/v1/get/news", _Bff_GetNews0_HTTP_Handler(srv))
 	r.GET("/v1/get/achievement/list", _Bff_GetAchievementList0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/achievement", _Bff_GetUserAchievement0_HTTP_Handler(srv))
+	r.GET("/v1/get/last/comment/draft", _Bff_GetLastCommentDraft0_HTTP_Handler(srv))
+	r.POST("/v1/create/comment/draft", _Bff_CreateCommentDraft0_HTTP_Handler(srv))
+	r.POST("/v1/send/comment", _Bff_SendComment0_HTTP_Handler(srv))
 }
 
 func _Bff_UserRegister0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
@@ -2646,6 +2655,63 @@ func _Bff_GetUserAchievement0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Cont
 	}
 }
 
+func _Bff_GetLastCommentDraft0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in emptypb.Empty
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetLastCommentDraft)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetLastCommentDraft(ctx, req.(*emptypb.Empty))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetLastCommentDraftReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_CreateCommentDraft0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in emptypb.Empty
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffCreateCommentDraft)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.CreateCommentDraft(ctx, req.(*emptypb.Empty))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*CreateCommentDraftReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_SendComment0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SendCommentReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffSendComment)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SendComment(ctx, req.(*SendCommentReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
 type BffHTTPClient interface {
 	AddColumnIncludes(ctx context.Context, req *AddColumnIncludesReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	ArticleDraftMark(ctx context.Context, req *ArticleDraftMarkReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -2663,6 +2729,7 @@ type BffHTTPClient interface {
 	CreateArticleDraft(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *CreateArticleDraftReply, err error)
 	CreateCollections(ctx context.Context, req *CreateCollectionsReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	CreateColumnDraft(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *CreateColumnDraftReply, err error)
+	CreateCommentDraft(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *CreateCommentDraftReply, err error)
 	CreateTalkDraft(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *CreateTalkDraftReply, err error)
 	DeleteArticle(ctx context.Context, req *DeleteArticleReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	DeleteCollections(ctx context.Context, req *DeleteCollectionsReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -2707,6 +2774,7 @@ type BffHTTPClient interface {
 	GetFollowedListCount(ctx context.Context, req *GetFollowedListCountReq, opts ...http.CallOption) (rsp *GetFollowedListCountReply, err error)
 	GetLastArticleDraft(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetLastArticleDraftReply, err error)
 	GetLastColumnDraft(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetLastColumnDraftReply, err error)
+	GetLastCommentDraft(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetLastCommentDraftReply, err error)
 	GetLastTalkDraft(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetLastTalkDraftReply, err error)
 	GetLeaderBoard(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetLeaderBoardReply, err error)
 	GetNews(ctx context.Context, req *GetNewsReq, opts ...http.CallOption) (rsp *GetNewsReply, err error)
@@ -2742,6 +2810,7 @@ type BffHTTPClient interface {
 	SendArticleEdit(ctx context.Context, req *SendArticleEditReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SendColumn(ctx context.Context, req *SendColumnReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SendColumnEdit(ctx context.Context, req *SendColumnEditReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	SendComment(ctx context.Context, req *SendCommentReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SendEmailCode(ctx context.Context, req *SendEmailCodeReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SendPhoneCode(ctx context.Context, req *SendPhoneCodeReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SendTalk(ctx context.Context, req *SendTalkReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -2976,6 +3045,19 @@ func (c *BffHTTPClientImpl) CreateColumnDraft(ctx context.Context, in *emptypb.E
 	pattern := "/v1/create/column/draft"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationBffCreateColumnDraft))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) CreateCommentDraft(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*CreateCommentDraftReply, error) {
+	var out CreateCommentDraftReply
+	pattern := "/v1/create/comment/draft"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffCreateCommentDraft))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
@@ -3556,6 +3638,19 @@ func (c *BffHTTPClientImpl) GetLastColumnDraft(ctx context.Context, in *emptypb.
 	return &out, err
 }
 
+func (c *BffHTTPClientImpl) GetLastCommentDraft(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*GetLastCommentDraftReply, error) {
+	var out GetLastCommentDraftReply
+	pattern := "/v1/get/last/comment/draft"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationBffGetLastCommentDraft))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
 func (c *BffHTTPClientImpl) GetLastTalkDraft(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*GetLastTalkDraftReply, error) {
 	var out GetLastTalkDraftReply
 	pattern := "/v1/get/last/talk/draft"
@@ -4003,6 +4098,19 @@ func (c *BffHTTPClientImpl) SendColumnEdit(ctx context.Context, in *SendColumnEd
 	pattern := "/v1/send/column/edit"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationBffSendColumnEdit))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) SendComment(ctx context.Context, in *SendCommentReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/send/comment"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffSendComment))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

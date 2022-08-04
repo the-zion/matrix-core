@@ -17505,6 +17505,316 @@ var _ interface {
 	ErrorName() string
 } = GetUserAchievementReplyValidationError{}
 
+// Validate checks the field values on CreateCommentDraftReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *CreateCommentDraftReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CreateCommentDraftReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// CreateCommentDraftReplyMultiError, or nil if none found.
+func (m *CreateCommentDraftReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CreateCommentDraftReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	if len(errors) > 0 {
+		return CreateCommentDraftReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// CreateCommentDraftReplyMultiError is an error wrapping multiple validation
+// errors returned by CreateCommentDraftReply.ValidateAll() if the designated
+// constraints aren't met.
+type CreateCommentDraftReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CreateCommentDraftReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CreateCommentDraftReplyMultiError) AllErrors() []error { return m }
+
+// CreateCommentDraftReplyValidationError is the validation error returned by
+// CreateCommentDraftReply.Validate if the designated constraints aren't met.
+type CreateCommentDraftReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CreateCommentDraftReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CreateCommentDraftReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CreateCommentDraftReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CreateCommentDraftReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CreateCommentDraftReplyValidationError) ErrorName() string {
+	return "CreateCommentDraftReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CreateCommentDraftReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCreateCommentDraftReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CreateCommentDraftReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CreateCommentDraftReplyValidationError{}
+
+// Validate checks the field values on GetLastCommentDraftReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetLastCommentDraftReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetLastCommentDraftReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetLastCommentDraftReplyMultiError, or nil if none found.
+func (m *GetLastCommentDraftReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetLastCommentDraftReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	if len(errors) > 0 {
+		return GetLastCommentDraftReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetLastCommentDraftReplyMultiError is an error wrapping multiple validation
+// errors returned by GetLastCommentDraftReply.ValidateAll() if the designated
+// constraints aren't met.
+type GetLastCommentDraftReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetLastCommentDraftReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetLastCommentDraftReplyMultiError) AllErrors() []error { return m }
+
+// GetLastCommentDraftReplyValidationError is the validation error returned by
+// GetLastCommentDraftReply.Validate if the designated constraints aren't met.
+type GetLastCommentDraftReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetLastCommentDraftReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetLastCommentDraftReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetLastCommentDraftReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetLastCommentDraftReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetLastCommentDraftReplyValidationError) ErrorName() string {
+	return "GetLastCommentDraftReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetLastCommentDraftReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetLastCommentDraftReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetLastCommentDraftReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetLastCommentDraftReplyValidationError{}
+
+// Validate checks the field values on SendCommentReq with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *SendCommentReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SendCommentReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in SendCommentReqMultiError,
+// or nil if none found.
+func (m *SendCommentReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SendCommentReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	if len(errors) > 0 {
+		return SendCommentReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// SendCommentReqMultiError is an error wrapping multiple validation errors
+// returned by SendCommentReq.ValidateAll() if the designated constraints
+// aren't met.
+type SendCommentReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SendCommentReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SendCommentReqMultiError) AllErrors() []error { return m }
+
+// SendCommentReqValidationError is the validation error returned by
+// SendCommentReq.Validate if the designated constraints aren't met.
+type SendCommentReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SendCommentReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SendCommentReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SendCommentReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SendCommentReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SendCommentReqValidationError) ErrorName() string { return "SendCommentReqValidationError" }
+
+// Error satisfies the builtin error interface
+func (e SendCommentReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSendCommentReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SendCommentReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SendCommentReqValidationError{}
+
 // Validate checks the field values on GetProfileListReply_Profile with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
