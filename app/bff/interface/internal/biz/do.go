@@ -283,3 +283,7 @@ type News struct {
 	Cover  string
 	Url    string
 }
+
+type CommentDraft struct {
+	Id int32
+}
