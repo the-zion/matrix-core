@@ -1,0 +1,35 @@
+package service
+
+import (
+	"context"
+	"github.com/the-zion/matrix-core/api/bff/interface/v1"
+	"google.golang.org/protobuf/types/known/emptypb"
+)
+
+func (s *BffService) CreateCommentDraft(ctx context.Context, _ *emptypb.Empty) (*v1.CreateCommentDraftReply, error) {
+	id, err := s.commc.CreateCommentDraft(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.CreateCommentDraftReply{
+		Id: id,
+	}, nil
+}
+
+func (s *BffService) GetLastCommentDraft(ctx context.Context, _ *emptypb.Empty) (*v1.GetLastCommentDraftReply, error) {
+	draft, err := s.commc.GetLastCommentDraft(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetLastCommentDraftReply{
+		Id: draft.Id,
+	}, nil
+}
+
+func (s *BffService) SendComment(ctx context.Context, req *v1.SendCommentReq) (*emptypb.Empty, error) {
+	err := s.commc.SendComment(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
