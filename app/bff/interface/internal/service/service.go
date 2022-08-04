@@ -11,25 +11,27 @@ var ProviderSet = wire.NewSet(NewBffService)
 
 type BffService struct {
 	v1.UnimplementedBffServer
-	ac   *biz.ArticleUseCase
-	tc   *biz.TalkUseCase
-	cc   *biz.CreationUseCase
-	coc  *biz.ColumnUseCase
-	uc   *biz.UserUseCase
-	achc *biz.AchievementUseCase
-	nc   *biz.NewsUseCase
-	log  *log.Helper
+	ac    *biz.ArticleUseCase
+	tc    *biz.TalkUseCase
+	cc    *biz.CreationUseCase
+	coc   *biz.ColumnUseCase
+	uc    *biz.UserUseCase
+	achc  *biz.AchievementUseCase
+	nc    *biz.NewsUseCase
+	commc *biz.CommentUseCase
+	log   *log.Helper
 }
 
-func NewBffService(uc *biz.UserUseCase, cc *biz.CreationUseCase, tc *biz.TalkUseCase, ac *biz.ArticleUseCase, coc *biz.ColumnUseCase, achc *biz.AchievementUseCase, nc *biz.NewsUseCase, logger log.Logger) *BffService {
+func NewBffService(uc *biz.UserUseCase, cc *biz.CreationUseCase, tc *biz.TalkUseCase, ac *biz.ArticleUseCase, coc *biz.ColumnUseCase, achc *biz.AchievementUseCase, nc *biz.NewsUseCase, commc *biz.CommentUseCase, logger log.Logger) *BffService {
 	return &BffService{
-		log:  log.NewHelper(log.With(logger, "module", "bff/interface")),
-		uc:   uc,
-		ac:   ac,
-		tc:   tc,
-		cc:   cc,
-		coc:  coc,
-		achc: achc,
-		nc:   nc,
+		log:   log.NewHelper(log.With(logger, "module", "bff/interface")),
+		uc:    uc,
+		ac:    ac,
+		tc:    tc,
+		cc:    cc,
+		coc:   coc,
+		achc:  achc,
+		nc:    nc,
+		commc: commc,
 	}
 }
