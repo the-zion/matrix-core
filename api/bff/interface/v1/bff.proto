@@ -804,6 +804,28 @@ service Bff{
       get: "/v1/get/user/achievement"
     };
   }
+
+  // --------------------comment service------------------------
+
+  rpc GetLastCommentDraft(google.protobuf.Empty) returns (GetLastCommentDraftReply){
+    option (google.api.http) = {
+      get: "/v1/get/last/comment/draft"
+    };
+  }
+
+  rpc CreateCommentDraft(google.protobuf.Empty) returns (CreateCommentDraftReply){
+    option (google.api.http) = {
+      post: "/v1/create/comment/draft"
+      body: "*"
+    };
+  }
+
+  rpc SendComment(SendCommentReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/send/comment"
+      body: "*"
+    };
+  }
 }
 
 // --------------------user service-------------------------
@@ -1700,4 +1722,18 @@ message GetUserAchievementReply{
   int32 collect = 3;
   int32 follow = 4;
   int32 followed = 5;
+}
+
+// --------------------comment service------------------------
+
+message CreateCommentDraftReply{
+  int32 id = 1;
+}
+
+message GetLastCommentDraftReply{
+  int32 id = 1;
+}
+
+message SendCommentReq{
+  int32 id = 1;
 }
