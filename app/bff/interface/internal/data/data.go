@@ -8,29 +8,32 @@ import (
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/google/wire"
 	achievementv1 "github.com/the-zion/matrix-core/api/achievement/service/v1"
+	commentv1 "github.com/the-zion/matrix-core/api/comment/service/v1"
 	creationv1 "github.com/the-zion/matrix-core/api/creation/service/v1"
 	messagev1 "github.com/the-zion/matrix-core/api/message/service/v1"
 	userv1 "github.com/the-zion/matrix-core/api/user/service/v1"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewCreationRepo, NewArticleRepo, NewTalkRepo, NewColumnRepo, NewNewsRepo, NewAchievementRepo, NewUserServiceClient, NewCreationServiceClient, NewMessageServiceClient, NewAchievementServiceClient)
+var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewCreationRepo, NewArticleRepo, NewTalkRepo, NewColumnRepo, NewNewsRepo, NewAchievementRepo, NewCommentRepo, NewUserServiceClient, NewCreationServiceClient, NewMessageServiceClient, NewAchievementServiceClient, NewCommentServiceClient)
 
 type Data struct {
-	log *log.Helper
-	uc  userv1.UserClient
-	cc  creationv1.CreationClient
-	mc  messagev1.MessageClient
-	ac  achievementv1.AchievementClient
+	log   *log.Helper
+	uc    userv1.UserClient
+	cc    creationv1.CreationClient
+	mc    messagev1.MessageClient
+	ac    achievementv1.AchievementClient
+	commc commentv1.CommentClient
 }
 
-func NewData(logger log.Logger, uc userv1.UserClient, cc creationv1.CreationClient, mc messagev1.MessageClient, ac achievementv1.AchievementClient) (*Data, error) {
+func NewData(logger log.Logger, uc userv1.UserClient, cc creationv1.CreationClient, mc messagev1.MessageClient, ac achievementv1.AchievementClient, commc commentv1.CommentClient) (*Data, error) {
 	l := log.NewHelper(log.With(logger, "module", "bff/data"))
 	d := &Data{
-		log: l,
-		uc:  uc,
-		cc:  cc,
-		mc:  mc,
-		ac:  ac,
+		log:   l,
+		uc:    uc,
+		cc:    cc,
+		mc:    mc,
+		ac:    ac,
+		commc: commc,
 	}
 	return d, nil
 }
@@ -104,5 +107,23 @@ func NewAchievementServiceClient(r *nacos.Registry, logger log.Logger) achieveme
 		l.Fatalf(err.Error())
 	}
 	c := achievementv1.NewAchievementClient(conn)
+	return c
+}
+
+func NewCommentServiceClient(r *nacos.Registry, logger log.Logger) commentv1.CommentClient {
+	l := log.NewHelper(log.With(logger, "module", "bff/data/new-comment-client"))
+	conn, err := grpc.DialInsecure(
+		context.Background(),
+		grpc.WithEndpoint("discovery:///matrix.comment.service.grpc"),
+		grpc.WithDiscovery(r),
+		grpc.WithMiddleware(
+			//tracing.Client(tracing.WithTracerProvider(tp)),
+			recovery.Recovery(),
+		),
+	)
+	if err != nil {
+		l.Fatalf(err.Error())
+	}
+	c := commentv1.NewCommentClient(conn)
 	return c
 }
