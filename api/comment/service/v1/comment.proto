@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package comment.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "validate/validate.proto";
+
+option go_package = "api/comment/service/v1;v1";
+
+service Comment {
+  rpc GetHealth(google.protobuf.Empty) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      get: "/v1/get/comment/health"
+    };
+  }
+
+  rpc GetLastCommentDraft(GetLastCommentDraftReq) returns (GetLastCommentDraftReply){}
+
+  rpc CreateCommentDraft(CreateCommentDraftReq) returns (CreateCommentDraftReply){}
+
+  rpc SendComment(SendCommentReq) returns (google.protobuf.Empty){}
+
+}
+
+message CreateCommentDraftReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+message CreateCommentDraftReply{
+  int32 id = 1;
+}
+
+message GetLastCommentDraftReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+message GetLastCommentDraftReply{
+  int32 id = 1;
+}
+
+message SendCommentReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+  string ip = 3 [(validate.rules).string.ip = true];
+}
