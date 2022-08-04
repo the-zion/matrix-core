@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package comment.v1;
+import "errors/errors.proto";
+
+option go_package = "api/comment/service/v1/pb;v1";
+
+enum CommentErrorReason {
+  option (errors.default_code) = 500;
+  UNKNOWN_ERROR = 0;
+  GET_COMMENT_DRAFT_FAILED = 1;
+  CREATE_DRAFT_FAILED = 2;
+  CREATE_COMMENT_FAILED = 3;
+  SET_RECORD_FAILED = 4;
+  RECORD_NOT_FOUND = 5;
+}
