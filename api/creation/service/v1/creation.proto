@@ -213,6 +213,8 @@ service Creation {
   rpc DeleteColumnIncludes(DeleteColumnIncludesReq) returns (google.protobuf.Empty){}
 
   rpc GetNews(GetNewsReq) returns (GetNewsReply){}
+
+  rpc AddCreationComment(AddCreationCommentReq) returns (google.protobuf.Empty){}
 }
 
 message GetLeaderBoardReply{
@@ -1005,4 +1007,10 @@ message GetNewsReply{
     string url = 8;
   }
   repeated News news = 1;
+}
+
+message AddCreationCommentReq{
+  int32 creationId = 1;
+  int32 creationType = 2;
+  string uuid = 3 [(validate.rules).string.uuid = true];
 }
