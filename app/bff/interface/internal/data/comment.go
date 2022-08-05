@@ -2,6 +2,7 @@ package data
 
 import (
 	"context"
+	"fmt"
 	"github.com/go-kratos/kratos/v2/log"
 	commentV1 "github.com/the-zion/matrix-core/api/comment/service/v1"
 	"github.com/the-zion/matrix-core/app/bff/interface/internal/biz"
@@ -34,6 +35,31 @@ func (r *commentRepo) GetLastCommentDraft(ctx context.Context, uuid string) (*bi
 	return &biz.CommentDraft{
 		Id: reply.Id,
 	}, nil
+}
+
+func (r *commentRepo) GetCommentList(ctx context.Context, page, creationId, creationType int32) ([]*biz.Comment, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("comment_page_%v_%v_%v", creationId, creationType, page), func() (interface{}, error) {
+		reply := make([]*biz.Comment, 0)
+		commentList, err := r.data.commc.GetCommentList(ctx, &commentV1.GetCommentListReq{
+			Page:         page,
+			CreationId:   creationId,
+			CreationType: creationType,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range commentList.Comment {
+			reply = append(reply, &biz.Comment{
+				Id:   item.Id,
+				Uuid: item.Uuid,
+			})
+		}
+		return reply, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.([]*biz.Comment), nil
 }
 
 func (r *commentRepo) CreateCommentDraft(ctx context.Context, uuid string) (int32, error) {
