@@ -287,3 +287,8 @@ type News struct {
 type CommentDraft struct {
 	Id int32
 }
+
+type Comment struct {
+	Id   int32
+	Uuid string
+}
