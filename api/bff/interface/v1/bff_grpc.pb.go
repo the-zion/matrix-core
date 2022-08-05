@@ -144,6 +144,7 @@ type BffClient interface {
 	GetAchievementList(ctx context.Context, in *GetAchievementListReq, opts ...grpc.CallOption) (*GetAchievementListReply, error)
 	GetUserAchievement(ctx context.Context, in *GetUserAchievementReq, opts ...grpc.CallOption) (*GetUserAchievementReply, error)
 	GetLastCommentDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLastCommentDraftReply, error)
+	GetCommentList(ctx context.Context, in *GetCommentListReq, opts ...grpc.CallOption) (*GetCommentListReply, error)
 	CreateCommentDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateCommentDraftReply, error)
 	SendComment(ctx context.Context, in *SendCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
@@ -1236,6 +1237,15 @@ func (c *bffClient) GetLastCommentDraft(ctx context.Context, in *emptypb.Empty, 
 	return out, nil
 }
 
+func (c *bffClient) GetCommentList(ctx context.Context, in *GetCommentListReq, opts ...grpc.CallOption) (*GetCommentListReply, error) {
+	out := new(GetCommentListReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCommentList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) CreateCommentDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateCommentDraftReply, error) {
 	out := new(CreateCommentDraftReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/CreateCommentDraft", in, out, opts...)
@@ -1379,6 +1389,7 @@ type BffServer interface {
 	GetAchievementList(context.Context, *GetAchievementListReq) (*GetAchievementListReply, error)
 	GetUserAchievement(context.Context, *GetUserAchievementReq) (*GetUserAchievementReply, error)
 	GetLastCommentDraft(context.Context, *emptypb.Empty) (*GetLastCommentDraftReply, error)
+	GetCommentList(context.Context, *GetCommentListReq) (*GetCommentListReply, error)
 	CreateCommentDraft(context.Context, *emptypb.Empty) (*CreateCommentDraftReply, error)
 	SendComment(context.Context, *SendCommentReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedBffServer()
@@ -1747,6 +1758,9 @@ func (UnimplementedBffServer) GetUserAchievement(context.Context, *GetUserAchiev
 }
 func (UnimplementedBffServer) GetLastCommentDraft(context.Context, *emptypb.Empty) (*GetLastCommentDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLastCommentDraft not implemented")
+}
+func (UnimplementedBffServer) GetCommentList(context.Context, *GetCommentListReq) (*GetCommentListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCommentList not implemented")
 }
 func (UnimplementedBffServer) CreateCommentDraft(context.Context, *emptypb.Empty) (*CreateCommentDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateCommentDraft not implemented")
@@ -3927,6 +3941,24 @@ func _Bff_GetLastCommentDraft_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_GetCommentList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCommentListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetCommentList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetCommentList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetCommentList(ctx, req.(*GetCommentListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_CreateCommentDraft_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
@@ -4449,6 +4481,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetLastCommentDraft",
 			Handler:    _Bff_GetLastCommentDraft_Handler,
+		},
+		{
+			MethodName: "GetCommentList",
+			Handler:    _Bff_GetCommentList_Handler,
 		},
 		{
 			MethodName: "CreateCommentDraft",
