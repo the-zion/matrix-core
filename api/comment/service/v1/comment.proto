@@ -17,9 +17,16 @@ service Comment {
 
   rpc GetLastCommentDraft(GetLastCommentDraftReq) returns (GetLastCommentDraftReply){}
 
+  rpc GetCommentList(GetCommentListReq) returns (GetCommentListReply){}
+
   rpc CreateCommentDraft(CreateCommentDraftReq) returns (CreateCommentDraftReply){}
 
+  rpc CreateComment(CreateCommentReq) returns (google.protobuf.Empty){}
+
+  rpc CreateCommentDbCacheAndSearch(CreateCommentDbCacheAndSearchReq) returns (google.protobuf.Empty){}
+
   rpc SendComment(SendCommentReq) returns (google.protobuf.Empty){}
+
 
 }
 
@@ -43,4 +50,32 @@ message SendCommentReq{
   int32 id = 1;
   string uuid = 2 [(validate.rules).string.uuid = true];
   string ip = 3 [(validate.rules).string.ip = true];
+}
+
+message CreateCommentReq{
+  int32 id = 1;
+  int32 creationId = 2;
+  int32 creationType = 3;
+  string uuid = 4 [(validate.rules).string.uuid = true];
+}
+
+message CreateCommentDbCacheAndSearchReq{
+  int32 id = 1;
+  int32 creationId = 2;
+  int32 creationType = 3;
+  string uuid = 4 [(validate.rules).string.uuid = true];
+}
+
+message GetCommentListReq{
+  int32 page = 1;
+  int32 creationId = 2;
+  int32 creationType = 3;
+}
+
+message GetCommentListReply{
+  message Comment{
+    int32 id = 1;
+    string uuid = 2;
+  }
+  repeated Comment comment = 1;
 }
