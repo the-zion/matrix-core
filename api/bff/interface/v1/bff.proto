@@ -813,6 +813,18 @@ service Bff{
     };
   }
 
+  rpc GetCommentList(GetCommentListReq) returns (GetCommentListReply){
+    option (google.api.http) = {
+      get: "/v1/get/comment/list"
+    };
+  }
+
+  //  rpc GetTalkListHot(GetTalkListHotReq) returns (GetTalkListHotReply){
+  //    option (google.api.http) = {
+  //      get: "/v1/get/talk/list/hot"
+  //    };
+  //  }
+
   rpc CreateCommentDraft(google.protobuf.Empty) returns (CreateCommentDraftReply){
     option (google.api.http) = {
       post: "/v1/create/comment/draft"
@@ -1736,4 +1748,18 @@ message GetLastCommentDraftReply{
 
 message SendCommentReq{
   int32 id = 1;
+}
+
+message GetCommentListReq{
+  int32 page = 1;
+  int32 creationId = 2;
+  int32 creationType = 3;
+}
+
+message GetCommentListReply{
+  message Comment{
+    int32 id = 1;
+    string uuid = 2;
+  }
+  repeated Comment comment = 1;
 }
