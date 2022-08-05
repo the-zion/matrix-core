@@ -31,6 +31,7 @@ type MessageClient interface {
 	TalkEditReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ColumnCreateReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ColumnEditReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CommentCreateReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type messageClient struct {
@@ -113,6 +114,15 @@ func (c *messageClient) ColumnEditReview(ctx context.Context, in *TextReviewReq,
 	return out, nil
 }
 
+func (c *messageClient) CommentCreateReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/message.v1.Message/CommentCreateReview", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MessageServer is the server API for Message service.
 // All implementations must embed UnimplementedMessageServer
 // for forward compatibility
@@ -125,6 +135,7 @@ type MessageServer interface {
 	TalkEditReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	ColumnCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	ColumnEditReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
+	CommentCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedMessageServer()
 }
 
@@ -155,6 +166,9 @@ func (UnimplementedMessageServer) ColumnCreateReview(context.Context, *TextRevie
 }
 func (UnimplementedMessageServer) ColumnEditReview(context.Context, *TextReviewReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ColumnEditReview not implemented")
+}
+func (UnimplementedMessageServer) CommentCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CommentCreateReview not implemented")
 }
 func (UnimplementedMessageServer) mustEmbedUnimplementedMessageServer() {}
 
@@ -313,6 +327,24 @@ func _Message_ColumnEditReview_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Message_CommentCreateReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TextReviewReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MessageServer).CommentCreateReview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/message.v1.Message/CommentCreateReview",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MessageServer).CommentCreateReview(ctx, req.(*TextReviewReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Message_ServiceDesc is the grpc.ServiceDesc for Message service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -351,6 +383,10 @@ var Message_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ColumnEditReview",
 			Handler:    _Message_ColumnEditReview_Handler,
+		},
+		{
+			MethodName: "CommentCreateReview",
+			Handler:    _Message_CommentCreateReview_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
