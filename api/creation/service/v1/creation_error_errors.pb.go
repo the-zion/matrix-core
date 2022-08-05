@@ -634,3 +634,15 @@ func IsNotEmpty(err error) bool {
 func ErrorNotEmpty(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, CreationErrorReason_NOT_EMPTY.String(), fmt.Sprintf(format, args...))
 }
+
+func IsAddCommentFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_ADD_COMMENT_FAILED.String() && e.Code == 500
+}
+
+func ErrorAddCommentFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_ADD_COMMENT_FAILED.String(), fmt.Sprintf(format, args...))
+}
