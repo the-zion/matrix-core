@@ -26,6 +26,21 @@ func (s *BffService) GetLastCommentDraft(ctx context.Context, _ *emptypb.Empty) 
 	}, nil
 }
 
+func (s *BffService) GetCommentList(ctx context.Context, req *v1.GetCommentListReq) (*v1.GetCommentListReply, error) {
+	reply := &v1.GetCommentListReply{Comment: make([]*v1.GetCommentListReply_Comment, 0)}
+	commentList, err := s.commc.GetCommentList(ctx, req.Page, req.CreationId, req.CreationType)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range commentList {
+		reply.Comment = append(reply.Comment, &v1.GetCommentListReply_Comment{
+			Id:   item.Id,
+			Uuid: item.Uuid,
+		})
+	}
+	return reply, nil
+}
+
 func (s *BffService) SendComment(ctx context.Context, req *v1.SendCommentReq) (*emptypb.Empty, error) {
 	err := s.commc.SendComment(ctx, req.Id)
 	if err != nil {
