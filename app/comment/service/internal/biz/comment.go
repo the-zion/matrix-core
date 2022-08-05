@@ -9,11 +9,16 @@ import (
 
 type CommentRepo interface {
 	GetLastCommentDraft(ctx context.Context, uuid string) (*CommentDraft, error)
+	GetCommentList(ctx context.Context, page, creationId, creationType int32) ([]*Comment, error)
 	CreateCommentDraft(ctx context.Context, uuid string) (int32, error)
 	CreateCommentFolder(ctx context.Context, id int32, uuid string) error
+	CreateComment(ctx context.Context, id, createId, createType int32, uuid string) error
+	CreateCommentCache(ctx context.Context, id, createId, createType int32, uuid string) error
 	SendComment(ctx context.Context, id int32, uuid string) (*CommentDraft, error)
+	SendCommentToMq(ctx context.Context, comment *Comment, mode string) error
 	SetRecord(ctx context.Context, id int32, uuid, ip string) error
 	SendReviewToMq(ctx context.Context, review *CommentReview) error
+	DeleteCommentDraft(ctx context.Context, id int32, uuid string) error
 }
 
 type CommentUseCase struct {
@@ -41,6 +46,14 @@ func (r *CommentUseCase) GetLastCommentDraft(ctx context.Context, uuid string) (
 	return draft, nil
 }
 
+func (r *CommentUseCase) GetCommentList(ctx context.Context, page, creationId, creationType int32) ([]*Comment, error) {
+	commentList, err := r.repo.GetCommentList(ctx, page, creationId, creationType)
+	if err != nil {
+		return nil, v1.ErrorGetCommentListFailed("get comment list failed: %s", err.Error())
+	}
+	return commentList, nil
+}
+
 func (r *CommentUseCase) CreateCommentDraft(ctx context.Context, uuid string) (int32, error) {
 	var id int32
 	err := r.tm.ExecTx(ctx, func(ctx context.Context) error {
@@ -62,6 +75,19 @@ func (r *CommentUseCase) CreateCommentDraft(ctx context.Context, uuid string) (i
 	return id, nil
 }
 
+func (r *CommentUseCase) CreateComment(ctx context.Context, id, creationTd, creationType int32, uuid string) error {
+	err := r.repo.SendCommentToMq(ctx, &Comment{
+		CommentId:    id,
+		Uuid:         uuid,
+		CreationId:   creationTd,
+		CreationType: creationType,
+	}, "create_comment_db_cache_and_search")
+	if err != nil {
+		return v1.ErrorCreateCommentFailed("create comment to mq failed: %s", err.Error())
+	}
+	return nil
+}
+
 func (r *CommentUseCase) SendComment(ctx context.Context, id int32, uuid, ip string) error {
 	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		draft, err := r.repo.SendComment(ctx, id, uuid)
@@ -80,6 +106,27 @@ func (r *CommentUseCase) SendComment(ctx context.Context, id int32, uuid, ip str
 		})
 		if err != nil {
 			return v1.ErrorCreateDraftFailed("send create review to mq failed: %s", err.Error())
+		}
+		return nil
+	})
+}
+
+func (r *CommentUseCase) CreateCommentDbCacheAndSearch(ctx context.Context, id, createId, createType int32, uuid string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		var err error
+		err = r.repo.DeleteCommentDraft(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorCreateCommentFailed("delete comment draft failed: %s", err.Error())
+		}
+
+		err = r.repo.CreateComment(ctx, id, createId, createType, uuid)
+		if err != nil {
+			return v1.ErrorCreateCommentFailed("create comment failed: %s", err.Error())
+		}
+
+		err = r.repo.CreateCommentCache(ctx, id, createId, createType, uuid)
+		if err != nil {
+			return v1.ErrorCreateCommentFailed("create comment cache failed: %s", err.Error())
 		}
 		return nil
 	})
