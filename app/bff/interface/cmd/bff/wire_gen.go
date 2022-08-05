@@ -25,7 +25,8 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, re
 	creationClient := data.NewCreationServiceClient(registry, logger)
 	messageClient := data.NewMessageServiceClient(registry, logger)
 	achievementClient := data.NewAchievementServiceClient(registry, logger)
-	dataData, err := data.NewData(logger, userClient, creationClient, messageClient, achievementClient)
+	commentClient := data.NewCommentServiceClient(registry, logger)
+	dataData, err := data.NewData(logger, userClient, creationClient, messageClient, achievementClient, commentClient)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -43,7 +44,9 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, re
 	achievementUseCase := biz.NewAchievementUseCase(achievementRepo, logger)
 	newsRepo := data.NewNewsRepo(dataData, logger)
 	newsUseCase := biz.NewNewsUseCase(newsRepo, logger)
-	bffService := service.NewBffService(userUseCase, creationUseCase, talkUseCase, articleUseCase, columnUseCase, achievementUseCase, newsUseCase, logger)
+	commentRepo := data.NewCommentRepo(dataData, logger)
+	commentUseCase := biz.NewCommentUseCase(commentRepo, logger)
+	bffService := service.NewBffService(userUseCase, creationUseCase, talkUseCase, articleUseCase, columnUseCase, achievementUseCase, newsUseCase, commentUseCase, logger)
 	httpServer := server.NewHTTPServer(confServer, bffService, logger)
 	grpcServer := server.NewGRPCServer(confServer, bffService, logger)
 	app := newApp(logger, registry, httpServer, grpcServer)
