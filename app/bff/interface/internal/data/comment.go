@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/go-kratos/kratos/v2/log"
 	commentV1 "github.com/the-zion/matrix-core/api/comment/service/v1"
+	userV1 "github.com/the-zion/matrix-core/api/user/service/v1"
 	"github.com/the-zion/matrix-core/app/bff/interface/internal/biz"
 	"golang.org/x/sync/singleflight"
 )
@@ -33,12 +34,13 @@ func (r *commentRepo) GetLastCommentDraft(ctx context.Context, uuid string) (*bi
 		return nil, err
 	}
 	return &biz.CommentDraft{
-		Id: reply.Id,
+		Id:     reply.Id,
+		Status: reply.Status,
 	}, nil
 }
 
 func (r *commentRepo) GetCommentList(ctx context.Context, page, creationId, creationType int32) ([]*biz.Comment, error) {
-	result, err, _ := r.sg.Do(fmt.Sprintf("comment_page_%v_%v_%v", creationId, creationType, page), func() (interface{}, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("comment_%v_%v_%v", creationId, creationType, page), func() (interface{}, error) {
 		reply := make([]*biz.Comment, 0)
 		commentList, err := r.data.commc.GetCommentList(ctx, &commentV1.GetCommentListReq{
 			Page:         page,
@@ -60,6 +62,86 @@ func (r *commentRepo) GetCommentList(ctx context.Context, page, creationId, crea
 		return nil, err
 	}
 	return result.([]*biz.Comment), nil
+}
+
+func (r *commentRepo) GetCommentListHot(ctx context.Context, page, creationId, creationType int32) ([]*biz.Comment, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("comment_hot_%v_%v_%v", creationId, creationType, page), func() (interface{}, error) {
+		reply := make([]*biz.Comment, 0)
+		commentList, err := r.data.commc.GetCommentListHot(ctx, &commentV1.GetCommentListReq{
+			Page:         page,
+			CreationId:   creationId,
+			CreationType: creationType,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range commentList.Comment {
+			reply = append(reply, &biz.Comment{
+				Id:   item.Id,
+				Uuid: item.Uuid,
+			})
+		}
+		return reply, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.([]*biz.Comment), nil
+}
+
+func (r *commentRepo) GetCommentListStatistic(ctx context.Context, page, creationId, creationType int32, key string, commentList []*biz.Comment) ([]*biz.CommentStatistic, error) {
+	ids := make([]int32, 0)
+	for _, item := range commentList {
+		ids = append(ids, item.Id)
+	}
+	result, err, _ := r.sg.Do(fmt.Sprintf("%s_%v_%v_%v", key, creationId, creationType, page), func() (interface{}, error) {
+		reply := make([]*biz.CommentStatistic, 0)
+		commentListStatistic, err := r.data.commc.GetCommentListStatistic(ctx, &commentV1.GetCommentListStatisticReq{
+			Ids: ids,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range commentListStatistic.Count {
+			reply = append(reply, &biz.CommentStatistic{
+				Id:      item.Id,
+				Agree:   item.Agree,
+				Comment: item.Comment,
+			})
+		}
+		return reply, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.([]*biz.CommentStatistic), nil
+}
+
+func (r *commentRepo) GetUserProfileList(ctx context.Context, page, creationId, creationType int32, key string, commentList []*biz.Comment) ([]*biz.UserProfile, error) {
+	uuids := make([]string, 0)
+	for _, item := range commentList {
+		uuids = append(uuids, item.Uuid)
+	}
+	result, err, _ := r.sg.Do(fmt.Sprintf("%s_%v_%v_%v", key, creationId, creationType, page), func() (interface{}, error) {
+		reply := make([]*biz.UserProfile, 0)
+		userProfileList, err := r.data.uc.GetProfileList(ctx, &userV1.GetProfileListReq{
+			Uuids: uuids,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range userProfileList.Profile {
+			reply = append(reply, &biz.UserProfile{
+				Uuid:     item.Uuid,
+				Username: item.Username,
+			})
+		}
+		return reply, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.([]*biz.UserProfile), nil
 }
 
 func (r *commentRepo) CreateCommentDraft(ctx context.Context, uuid string) (int32, error) {
