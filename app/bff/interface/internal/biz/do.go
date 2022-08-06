@@ -285,10 +285,20 @@ type News struct {
 }
 
 type CommentDraft struct {
-	Id int32
+	Id     int32
+	Status int32
 }
 
 type Comment struct {
-	Id   int32
-	Uuid string
+	Id       int32
+	Uuid     string
+	UserName string
+	Agree    int32
+	Comment  int32
+}
+
+type CommentStatistic struct {
+	Id      int32
+	Agree   int32
+	Comment int32
 }
