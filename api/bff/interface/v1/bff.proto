@@ -819,11 +819,11 @@ service Bff{
     };
   }
 
-  //  rpc GetTalkListHot(GetTalkListHotReq) returns (GetTalkListHotReply){
-  //    option (google.api.http) = {
-  //      get: "/v1/get/talk/list/hot"
-  //    };
-  //  }
+  rpc GetCommentListHot(GetCommentListReq) returns (GetCommentListReply){
+    option (google.api.http) = {
+      get: "/v1/get/comment/list/hot"
+    };
+  }
 
   rpc CreateCommentDraft(google.protobuf.Empty) returns (CreateCommentDraftReply){
     option (google.api.http) = {
@@ -1744,6 +1744,7 @@ message CreateCommentDraftReply{
 
 message GetLastCommentDraftReply{
   int32 id = 1;
+  int32 status = 2;
 }
 
 message SendCommentReq{
@@ -1760,6 +1761,9 @@ message GetCommentListReply{
   message Comment{
     int32 id = 1;
     string uuid = 2;
+    int32 agree = 3;
+    int32 comment = 4;
+    string username = 5;
   }
   repeated Comment comment = 1;
 }
