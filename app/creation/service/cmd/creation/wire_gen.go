@@ -24,6 +24,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, re
 	db := data.NewDB(confData, logger)
 	cmdable := data.NewRedis(confData, logger)
 	client := data.NewCosServiceClient(confData, logger)
+	elasticSearch := data.NewElasticsearch(confData, logger)
 	articleMqPro := data.NewRocketmqArticleProducer(confData, logger)
 	articleReviewMqPro := data.NewRocketmqArticleReviewProducer(confData, logger)
 	talkMqPro := data.NewRocketmqTalkProducer(confData, logger)
@@ -32,7 +33,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, re
 	columnReviewMqPro := data.NewRocketmqColumnReviewProducer(confData, logger)
 	achievementMqPro := data.NewRocketmqAchievementProducer(confData, logger)
 	news := data.NewNewsClient(confData)
-	dataData, cleanup, err := data.NewData(db, cmdable, client, articleMqPro, articleReviewMqPro, talkMqPro, talkReviewMqPro, columnMqPro, columnReviewMqPro, achievementMqPro, news, logger)
+	dataData, cleanup, err := data.NewData(db, cmdable, client, elasticSearch, articleMqPro, articleReviewMqPro, talkMqPro, talkReviewMqPro, columnMqPro, columnReviewMqPro, achievementMqPro, news, logger)
 	if err != nil {
 		return nil, nil, err
 	}
