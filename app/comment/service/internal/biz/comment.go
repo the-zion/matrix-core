@@ -10,6 +10,8 @@ import (
 type CommentRepo interface {
 	GetLastCommentDraft(ctx context.Context, uuid string) (*CommentDraft, error)
 	GetCommentList(ctx context.Context, page, creationId, creationType int32) ([]*Comment, error)
+	GetCommentListHot(ctx context.Context, page, creationId, creationType int32) ([]*Comment, error)
+	GetCommentListStatistic(ctx context.Context, ids []int32) ([]*CommentStatistic, error)
 	CreateCommentDraft(ctx context.Context, uuid string) (int32, error)
 	CreateCommentFolder(ctx context.Context, id int32, uuid string) error
 	CreateComment(ctx context.Context, id, createId, createType int32, uuid string) error
@@ -52,6 +54,22 @@ func (r *CommentUseCase) GetCommentList(ctx context.Context, page, creationId, c
 		return nil, v1.ErrorGetCommentListFailed("get comment list failed: %s", err.Error())
 	}
 	return commentList, nil
+}
+
+func (r *CommentUseCase) GetCommentListHot(ctx context.Context, page, creationId, creationType int32) ([]*Comment, error) {
+	commentList, err := r.repo.GetCommentListHot(ctx, page, creationId, creationType)
+	if err != nil {
+		return nil, v1.ErrorGetCommentListFailed("get comment hot list failed: %s", err.Error())
+	}
+	return commentList, nil
+}
+
+func (r *CommentUseCase) GetCommentListStatistic(ctx context.Context, ids []int32) ([]*CommentStatistic, error) {
+	commentListStatistic, err := r.repo.GetCommentListStatistic(ctx, ids)
+	if err != nil {
+		return nil, v1.ErrorGetCommentStatisticFailed("get comment statistic list failed: %s", err.Error())
+	}
+	return commentListStatistic, nil
 }
 
 func (r *CommentUseCase) CreateCommentDraft(ctx context.Context, uuid string) (int32, error) {
