@@ -22,7 +22,8 @@ func (s *BffService) GetLastCommentDraft(ctx context.Context, _ *emptypb.Empty) 
 		return nil, err
 	}
 	return &v1.GetLastCommentDraftReply{
-		Id: draft.Id,
+		Id:     draft.Id,
+		Status: draft.Status,
 	}, nil
 }
 
@@ -34,8 +35,29 @@ func (s *BffService) GetCommentList(ctx context.Context, req *v1.GetCommentListR
 	}
 	for _, item := range commentList {
 		reply.Comment = append(reply.Comment, &v1.GetCommentListReply_Comment{
-			Id:   item.Id,
-			Uuid: item.Uuid,
+			Id:       item.Id,
+			Uuid:     item.Uuid,
+			Agree:    item.Agree,
+			Comment:  item.Comment,
+			Username: item.UserName,
+		})
+	}
+	return reply, nil
+}
+
+func (s *BffService) GetCommentListHot(ctx context.Context, req *v1.GetCommentListReq) (*v1.GetCommentListReply, error) {
+	reply := &v1.GetCommentListReply{Comment: make([]*v1.GetCommentListReply_Comment, 0)}
+	commentList, err := s.commc.GetCommentListHot(ctx, req.Page, req.CreationId, req.CreationType)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range commentList {
+		reply.Comment = append(reply.Comment, &v1.GetCommentListReply_Comment{
+			Id:       item.Id,
+			Uuid:     item.Uuid,
+			Agree:    item.Agree,
+			Comment:  item.Comment,
+			Username: item.UserName,
 		})
 	}
 	return reply, nil
