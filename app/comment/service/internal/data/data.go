@@ -14,12 +14,18 @@ import (
 	"github.com/the-zion/matrix-core/app/comment/service/internal/conf"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"net/http"
+	"net/url"
 	"time"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewTransaction, NewCommentRepo, NewRocketmqReviewProducer)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewTransaction, NewCommentRepo, NewRocketmqCommentProducer, NewRocketmqReviewProducer, NewCosServiceClient)
 
 type ReviewMqPro struct {
+	producer rocketmq.Producer
+}
+
+type CommentMqPro struct {
 	producer rocketmq.Producer
 }
 
@@ -29,6 +35,7 @@ type Data struct {
 	cosCli      *cos.Client
 	redisCli    redis.Cmdable
 	reviewMqPro *ReviewMqPro
+	commonMqPro *CommentMqPro
 }
 
 type contextTxKey struct{}
@@ -68,7 +75,7 @@ func NewRedis(conf *conf.Data, logger log.Logger) redis.Cmdable {
 	l := log.NewHelper(log.With(logger, "module", "comment/data/redis"))
 	client := redis.NewClient(&redis.Options{
 		Addr:         conf.Redis.Addr,
-		DB:           2,
+		DB:           3,
 		ReadTimeout:  conf.Redis.ReadTimeout.AsDuration(),
 		WriteTimeout: conf.Redis.WriteTimeout.AsDuration(),
 		DialTimeout:  time.Second * 2,
@@ -110,15 +117,68 @@ func NewRocketmqReviewProducer(conf *conf.Data, logger log.Logger) *ReviewMqPro 
 	}
 }
 
-func NewData(db *gorm.DB, cos *cos.Client, redisCmd redis.Cmdable, logger log.Logger) (*Data, func(), error) {
+func NewCosServiceClient(conf *conf.Data, logger log.Logger) *cos.Client {
+	l := log.NewHelper(log.With(logger, "module", "creation/data/new-cos-client"))
+	u, err := url.Parse(conf.Cos.Url)
+	if err != nil {
+		l.Errorf("fail to init cos server, error: %v", err)
+	}
+	b := &cos.BaseURL{BucketURL: u}
+	return cos.NewClient(b, &http.Client{
+		Transport: &cos.AuthorizationTransport{
+			SecretID:  conf.Cos.SecretId,
+			SecretKey: conf.Cos.SecretKey,
+		},
+	})
+}
+
+func NewRocketmqCommentProducer(conf *conf.Data, logger log.Logger) *CommentMqPro {
+	l := log.NewHelper(log.With(logger, "module", "creation/data/rocketmq-comment-producer"))
+	p, err := rocketmq.NewProducer(
+		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.CommentMq.ServerAddress})),
+		producer.WithCredentials(primitive.Credentials{
+			SecretKey: conf.CommentMq.SecretKey,
+			AccessKey: conf.CommentMq.AccessKey,
+		}),
+		producer.WithInstanceName("comment"),
+		producer.WithGroupName(conf.CommentMq.Comment.GroupName),
+		producer.WithNamespace(conf.CommentMq.NameSpace),
+	)
+
+	if err != nil {
+		l.Fatalf("init producer error: %v", err)
+	}
+
+	err = p.Start()
+	if err != nil {
+		l.Fatalf("start producer error: %v", err)
+	}
+	return &CommentMqPro{
+		producer: p,
+	}
+}
+
+func NewData(db *gorm.DB, cos *cos.Client, redisCmd redis.Cmdable, rm *ReviewMqPro, cm *CommentMqPro, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(logger, "module", "comment/data/new-data"))
 
 	d := &Data{
-		db:       db,
-		redisCli: redisCmd,
-		cosCli:   cos,
+		db:          db,
+		redisCli:    redisCmd,
+		cosCli:      cos,
+		reviewMqPro: rm,
+		commonMqPro: cm,
 	}
 	return d, func() {
+		err := d.commonMqPro.producer.Shutdown()
+		if err != nil {
+			l.Errorf("shutdown comment producer error: %v", err.Error())
+		}
+
+		err = d.reviewMqPro.producer.Shutdown()
+		if err != nil {
+			l.Errorf("shutdown comment review producer error: %v", err.Error())
+		}
+
 		l.Info("closing the data resources")
 	}, nil
 }
