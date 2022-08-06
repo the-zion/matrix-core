@@ -47,6 +47,18 @@ func ErrorGetCommentListFailed(format string, args ...interface{}) *errors.Error
 	return errors.New(500, CommentErrorReason_GET_COMMENT_LIST_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsGetCommentStatisticFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CommentErrorReason_GET_COMMENT_STATISTIC_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetCommentStatisticFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CommentErrorReason_GET_COMMENT_STATISTIC_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsCreateDraftFailed(err error) bool {
 	if err == nil {
 		return false
