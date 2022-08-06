@@ -410,6 +410,8 @@ func (m *GetLastCommentDraftReply) validate(all bool) error {
 
 	// no validation rules for Id
 
+	// no validation rules for Status
+
 	if len(errors) > 0 {
 		return GetLastCommentDraftReplyMultiError(errors)
 	}
@@ -1124,6 +1126,245 @@ var _ interface {
 	ErrorName() string
 } = GetCommentListReplyValidationError{}
 
+// Validate checks the field values on GetCommentListStatisticReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetCommentListStatisticReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetCommentListStatisticReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetCommentListStatisticReqMultiError, or nil if none found.
+func (m *GetCommentListStatisticReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetCommentListStatisticReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return GetCommentListStatisticReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetCommentListStatisticReqMultiError is an error wrapping multiple
+// validation errors returned by GetCommentListStatisticReq.ValidateAll() if
+// the designated constraints aren't met.
+type GetCommentListStatisticReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetCommentListStatisticReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetCommentListStatisticReqMultiError) AllErrors() []error { return m }
+
+// GetCommentListStatisticReqValidationError is the validation error returned
+// by GetCommentListStatisticReq.Validate if the designated constraints aren't met.
+type GetCommentListStatisticReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetCommentListStatisticReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetCommentListStatisticReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetCommentListStatisticReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetCommentListStatisticReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetCommentListStatisticReqValidationError) ErrorName() string {
+	return "GetCommentListStatisticReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetCommentListStatisticReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetCommentListStatisticReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetCommentListStatisticReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetCommentListStatisticReqValidationError{}
+
+// Validate checks the field values on GetCommentListStatisticReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetCommentListStatisticReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetCommentListStatisticReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetCommentListStatisticReplyMultiError, or nil if none found.
+func (m *GetCommentListStatisticReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetCommentListStatisticReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetCount() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetCommentListStatisticReplyValidationError{
+						field:  fmt.Sprintf("Count[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetCommentListStatisticReplyValidationError{
+						field:  fmt.Sprintf("Count[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetCommentListStatisticReplyValidationError{
+					field:  fmt.Sprintf("Count[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return GetCommentListStatisticReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetCommentListStatisticReplyMultiError is an error wrapping multiple
+// validation errors returned by GetCommentListStatisticReply.ValidateAll() if
+// the designated constraints aren't met.
+type GetCommentListStatisticReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetCommentListStatisticReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetCommentListStatisticReplyMultiError) AllErrors() []error { return m }
+
+// GetCommentListStatisticReplyValidationError is the validation error returned
+// by GetCommentListStatisticReply.Validate if the designated constraints
+// aren't met.
+type GetCommentListStatisticReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetCommentListStatisticReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetCommentListStatisticReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetCommentListStatisticReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetCommentListStatisticReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetCommentListStatisticReplyValidationError) ErrorName() string {
+	return "GetCommentListStatisticReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetCommentListStatisticReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetCommentListStatisticReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetCommentListStatisticReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetCommentListStatisticReplyValidationError{}
+
 // Validate checks the field values on GetCommentListReply_Comment with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -1230,3 +1471,114 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetCommentListReply_CommentValidationError{}
+
+// Validate checks the field values on GetCommentListStatisticReply_Count with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *GetCommentListStatisticReply_Count) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetCommentListStatisticReply_Count
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the result is a list of violation errors wrapped in
+// GetCommentListStatisticReply_CountMultiError, or nil if none found.
+func (m *GetCommentListStatisticReply_Count) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetCommentListStatisticReply_Count) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Agree
+
+	// no validation rules for Comment
+
+	if len(errors) > 0 {
+		return GetCommentListStatisticReply_CountMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetCommentListStatisticReply_CountMultiError is an error wrapping multiple
+// validation errors returned by
+// GetCommentListStatisticReply_Count.ValidateAll() if the designated
+// constraints aren't met.
+type GetCommentListStatisticReply_CountMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetCommentListStatisticReply_CountMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetCommentListStatisticReply_CountMultiError) AllErrors() []error { return m }
+
+// GetCommentListStatisticReply_CountValidationError is the validation error
+// returned by GetCommentListStatisticReply_Count.Validate if the designated
+// constraints aren't met.
+type GetCommentListStatisticReply_CountValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetCommentListStatisticReply_CountValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetCommentListStatisticReply_CountValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetCommentListStatisticReply_CountValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetCommentListStatisticReply_CountValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetCommentListStatisticReply_CountValidationError) ErrorName() string {
+	return "GetCommentListStatisticReply_CountValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetCommentListStatisticReply_CountValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetCommentListStatisticReply_Count.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetCommentListStatisticReply_CountValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetCommentListStatisticReply_CountValidationError{}
