@@ -19,6 +19,10 @@ service Comment {
 
   rpc GetCommentList(GetCommentListReq) returns (GetCommentListReply){}
 
+  rpc GetCommentListHot(GetCommentListReq) returns (GetCommentListReply){}
+
+  rpc GetCommentListStatistic(GetCommentListStatisticReq)returns (GetCommentListStatisticReply){}
+
   rpc CreateCommentDraft(CreateCommentDraftReq) returns (CreateCommentDraftReply){}
 
   rpc CreateComment(CreateCommentReq) returns (google.protobuf.Empty){}
@@ -26,8 +30,6 @@ service Comment {
   rpc CreateCommentDbCacheAndSearch(CreateCommentDbCacheAndSearchReq) returns (google.protobuf.Empty){}
 
   rpc SendComment(SendCommentReq) returns (google.protobuf.Empty){}
-
-
 }
 
 message CreateCommentDraftReq{
@@ -44,6 +46,7 @@ message GetLastCommentDraftReq{
 
 message GetLastCommentDraftReply{
   int32 id = 1;
+  int32 status = 2;
 }
 
 message SendCommentReq{
@@ -78,4 +81,17 @@ message GetCommentListReply{
     string uuid = 2;
   }
   repeated Comment comment = 1;
+}
+
+message GetCommentListStatisticReq{
+  repeated int32 ids = 1;
+}
+
+message GetCommentListStatisticReply{
+  message Count{
+    int32 id = 1;
+    int32 agree = 2;
+    int32 comment = 5;
+  }
+  repeated Count count = 1;
 }
