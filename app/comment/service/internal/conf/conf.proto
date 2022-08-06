@@ -41,14 +41,24 @@ message Data {
     message CommentReview{
       string groupName = 1;
     }
+    message Comment{
+      string groupName = 1;
+    }
     CommentReview commentReview = 1;
-    string serverAddress = 2;
-    string secretKey = 3;
-    string accessKey = 4;
-    string nameSpace = 5;
+    Comment comment = 2;
+    string serverAddress = 3;
+    string secretKey = 4;
+    string accessKey = 5;
+    string nameSpace = 6;
+  }
+  message Cos{
+    string url = 1;
+    string secret_id = 2;
+    string secret_key = 3;
   }
   Database database = 1;
   Redis redis = 2;
   CommentMq commentMq = 3;
+  Cos cos = 4;
 }
 
