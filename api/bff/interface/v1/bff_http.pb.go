@@ -75,6 +75,7 @@ const OperationBffGetColumnSearch = "/bff.v1.Bff/GetColumnSearch"
 const OperationBffGetColumnStatistic = "/bff.v1.Bff/GetColumnStatistic"
 const OperationBffGetColumnSubscribes = "/bff.v1.Bff/GetColumnSubscribes"
 const OperationBffGetCommentList = "/bff.v1.Bff/GetCommentList"
+const OperationBffGetCommentListHot = "/bff.v1.Bff/GetCommentListHot"
 const OperationBffGetCosSessionKey = "/bff.v1.Bff/GetCosSessionKey"
 const OperationBffGetFollowList = "/bff.v1.Bff/GetFollowList"
 const OperationBffGetFollowListCount = "/bff.v1.Bff/GetFollowListCount"
@@ -200,6 +201,7 @@ type BffHTTPServer interface {
 	GetColumnStatistic(context.Context, *GetColumnStatisticReq) (*GetColumnStatisticReply, error)
 	GetColumnSubscribes(context.Context, *GetColumnSubscribesReq) (*GetColumnSubscribesReply, error)
 	GetCommentList(context.Context, *GetCommentListReq) (*GetCommentListReply, error)
+	GetCommentListHot(context.Context, *GetCommentListReq) (*GetCommentListReply, error)
 	GetCosSessionKey(context.Context, *emptypb.Empty) (*GetCosSessionKeyReply, error)
 	GetFollowList(context.Context, *GetFollowListReq) (*GetFollowListReply, error)
 	GetFollowListCount(context.Context, *GetFollowListCountReq) (*GetFollowListCountReply, error)
@@ -393,6 +395,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.GET("/v1/get/user/achievement", _Bff_GetUserAchievement0_HTTP_Handler(srv))
 	r.GET("/v1/get/last/comment/draft", _Bff_GetLastCommentDraft0_HTTP_Handler(srv))
 	r.GET("/v1/get/comment/list", _Bff_GetCommentList0_HTTP_Handler(srv))
+	r.GET("/v1/get/comment/list/hot", _Bff_GetCommentListHot0_HTTP_Handler(srv))
 	r.POST("/v1/create/comment/draft", _Bff_CreateCommentDraft0_HTTP_Handler(srv))
 	r.POST("/v1/send/comment", _Bff_SendComment0_HTTP_Handler(srv))
 }
@@ -2696,6 +2699,25 @@ func _Bff_GetCommentList0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context)
 	}
 }
 
+func _Bff_GetCommentListHot0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetCommentListReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetCommentListHot)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetCommentListHot(ctx, req.(*GetCommentListReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetCommentListReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _Bff_CreateCommentDraft0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in emptypb.Empty
@@ -2790,6 +2812,7 @@ type BffHTTPClient interface {
 	GetColumnStatistic(ctx context.Context, req *GetColumnStatisticReq, opts ...http.CallOption) (rsp *GetColumnStatisticReply, err error)
 	GetColumnSubscribes(ctx context.Context, req *GetColumnSubscribesReq, opts ...http.CallOption) (rsp *GetColumnSubscribesReply, err error)
 	GetCommentList(ctx context.Context, req *GetCommentListReq, opts ...http.CallOption) (rsp *GetCommentListReply, err error)
+	GetCommentListHot(ctx context.Context, req *GetCommentListReq, opts ...http.CallOption) (rsp *GetCommentListReply, err error)
 	GetCosSessionKey(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetCosSessionKeyReply, err error)
 	GetFollowList(ctx context.Context, req *GetFollowListReq, opts ...http.CallOption) (rsp *GetFollowListReply, err error)
 	GetFollowListCount(ctx context.Context, req *GetFollowListCountReq, opts ...http.CallOption) (rsp *GetFollowListCountReply, err error)
@@ -3575,6 +3598,19 @@ func (c *BffHTTPClientImpl) GetCommentList(ctx context.Context, in *GetCommentLi
 	pattern := "/v1/get/comment/list"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationBffGetCommentList))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetCommentListHot(ctx context.Context, in *GetCommentListReq, opts ...http.CallOption) (*GetCommentListReply, error) {
+	var out GetCommentListReply
+	pattern := "/v1/get/comment/list/hot"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationBffGetCommentListHot))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

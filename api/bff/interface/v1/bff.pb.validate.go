@@ -17633,6 +17633,8 @@ func (m *GetLastCommentDraftReply) validate(all bool) error {
 
 	// no validation rules for Id
 
+	// no validation rules for Status
+
 	if len(errors) > 0 {
 		return GetLastCommentDraftReplyMultiError(errors)
 	}
@@ -20716,6 +20718,12 @@ func (m *GetCommentListReply_Comment) validate(all bool) error {
 	// no validation rules for Id
 
 	// no validation rules for Uuid
+
+	// no validation rules for Agree
+
+	// no validation rules for Comment
+
+	// no validation rules for Username
 
 	if len(errors) > 0 {
 		return GetCommentListReply_CommentMultiError(errors)
