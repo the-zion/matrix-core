@@ -2,6 +2,7 @@ package data
 
 import (
 	"gorm.io/gorm"
+	"time"
 )
 
 type CommentDraft struct {
@@ -11,11 +12,15 @@ type CommentDraft struct {
 }
 
 type Comment struct {
-	gorm.Model
-	CreationId   int32
-	CreationType int32
-	Uuid         string `gorm:"index;size:36"`
-	Agree        int32  `gorm:"index;default:0"`
+	CommentId    int32 `gorm:"primarykey"`
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	DeletedAt    gorm.DeletedAt `gorm:"index"`
+	CreationId   int32          `gorm:"index:creation"`
+	CreationType int32          `gorm:"index:creation"`
+	Uuid         string         `gorm:"index;size:36"`
+	Agree        int32          `gorm:"index;default:0"`
+	Comment      int32          `gorm:"default:0"`
 }
 
 type SubComment struct {
