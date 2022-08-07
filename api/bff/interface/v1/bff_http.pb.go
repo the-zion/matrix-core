@@ -27,6 +27,7 @@ const OperationBffCancelArticleAgree = "/bff.v1.Bff/CancelArticleAgree"
 const OperationBffCancelArticleCollect = "/bff.v1.Bff/CancelArticleCollect"
 const OperationBffCancelColumnAgree = "/bff.v1.Bff/CancelColumnAgree"
 const OperationBffCancelColumnCollect = "/bff.v1.Bff/CancelColumnCollect"
+const OperationBffCancelCommentAgree = "/bff.v1.Bff/CancelCommentAgree"
 const OperationBffCancelSubscribeColumn = "/bff.v1.Bff/CancelSubscribeColumn"
 const OperationBffCancelTalkAgree = "/bff.v1.Bff/CancelTalkAgree"
 const OperationBffCancelTalkCollect = "/bff.v1.Bff/CancelTalkCollect"
@@ -104,6 +105,7 @@ const OperationBffGetUserArticleList = "/bff.v1.Bff/GetUserArticleList"
 const OperationBffGetUserArticleListVisitor = "/bff.v1.Bff/GetUserArticleListVisitor"
 const OperationBffGetUserColumnList = "/bff.v1.Bff/GetUserColumnList"
 const OperationBffGetUserColumnListVisitor = "/bff.v1.Bff/GetUserColumnListVisitor"
+const OperationBffGetUserCommentAgree = "/bff.v1.Bff/GetUserCommentAgree"
 const OperationBffGetUserFollow = "/bff.v1.Bff/GetUserFollow"
 const OperationBffGetUserFollows = "/bff.v1.Bff/GetUserFollows"
 const OperationBffGetUserInfo = "/bff.v1.Bff/GetUserInfo"
@@ -115,6 +117,7 @@ const OperationBffLoginByGithub = "/bff.v1.Bff/LoginByGithub"
 const OperationBffLoginByPassword = "/bff.v1.Bff/LoginByPassword"
 const OperationBffLoginByWeChat = "/bff.v1.Bff/LoginByWeChat"
 const OperationBffLoginPasswordReset = "/bff.v1.Bff/LoginPasswordReset"
+const OperationBffRemoveComment = "/bff.v1.Bff/RemoveComment"
 const OperationBffSendArticle = "/bff.v1.Bff/SendArticle"
 const OperationBffSendArticleEdit = "/bff.v1.Bff/SendArticleEdit"
 const OperationBffSendColumn = "/bff.v1.Bff/SendColumn"
@@ -130,6 +133,7 @@ const OperationBffSetArticleView = "/bff.v1.Bff/SetArticleView"
 const OperationBffSetColumnAgree = "/bff.v1.Bff/SetColumnAgree"
 const OperationBffSetColumnCollect = "/bff.v1.Bff/SetColumnCollect"
 const OperationBffSetColumnView = "/bff.v1.Bff/SetColumnView"
+const OperationBffSetCommentAgree = "/bff.v1.Bff/SetCommentAgree"
 const OperationBffSetProfileUpdate = "/bff.v1.Bff/SetProfileUpdate"
 const OperationBffSetTalkAgree = "/bff.v1.Bff/SetTalkAgree"
 const OperationBffSetTalkCollect = "/bff.v1.Bff/SetTalkCollect"
@@ -153,6 +157,7 @@ type BffHTTPServer interface {
 	CancelArticleCollect(context.Context, *CancelArticleCollectReq) (*emptypb.Empty, error)
 	CancelColumnAgree(context.Context, *CancelColumnAgreeReq) (*emptypb.Empty, error)
 	CancelColumnCollect(context.Context, *CancelColumnCollectReq) (*emptypb.Empty, error)
+	CancelCommentAgree(context.Context, *CancelCommentAgreeReq) (*emptypb.Empty, error)
 	CancelSubscribeColumn(context.Context, *CancelSubscribeColumnReq) (*emptypb.Empty, error)
 	CancelTalkAgree(context.Context, *CancelTalkAgreeReq) (*emptypb.Empty, error)
 	CancelTalkCollect(context.Context, *CancelTalkCollectReq) (*emptypb.Empty, error)
@@ -230,6 +235,7 @@ type BffHTTPServer interface {
 	GetUserArticleListVisitor(context.Context, *GetUserArticleListVisitorReq) (*GetArticleListReply, error)
 	GetUserColumnList(context.Context, *GetUserColumnListReq) (*GetColumnListReply, error)
 	GetUserColumnListVisitor(context.Context, *GetUserColumnListVisitorReq) (*GetColumnListReply, error)
+	GetUserCommentAgree(context.Context, *emptypb.Empty) (*GetUserCommentAgreeReply, error)
 	GetUserFollow(context.Context, *GetUserFollowReq) (*GetUserFollowReply, error)
 	GetUserFollows(context.Context, *GetUserFollowsReq) (*GetUserFollowsReply, error)
 	GetUserInfo(context.Context, *GetUserInfoReq) (*GetUserInfoReply, error)
@@ -241,6 +247,7 @@ type BffHTTPServer interface {
 	LoginByPassword(context.Context, *LoginByPasswordReq) (*LoginReply, error)
 	LoginByWeChat(context.Context, *LoginByWeChatReq) (*LoginReply, error)
 	LoginPasswordReset(context.Context, *LoginPasswordResetReq) (*emptypb.Empty, error)
+	RemoveComment(context.Context, *RemoveCommentReq) (*emptypb.Empty, error)
 	SendArticle(context.Context, *SendArticleReq) (*emptypb.Empty, error)
 	SendArticleEdit(context.Context, *SendArticleEditReq) (*emptypb.Empty, error)
 	SendColumn(context.Context, *SendColumnReq) (*emptypb.Empty, error)
@@ -256,6 +263,7 @@ type BffHTTPServer interface {
 	SetColumnAgree(context.Context, *SetColumnAgreeReq) (*emptypb.Empty, error)
 	SetColumnCollect(context.Context, *SetColumnCollectReq) (*emptypb.Empty, error)
 	SetColumnView(context.Context, *SetColumnViewReq) (*emptypb.Empty, error)
+	SetCommentAgree(context.Context, *SetCommentAgreeReq) (*emptypb.Empty, error)
 	SetProfileUpdate(context.Context, *SetProfileUpdateReq) (*emptypb.Empty, error)
 	SetTalkAgree(context.Context, *SetTalkAgreeReq) (*emptypb.Empty, error)
 	SetTalkCollect(context.Context, *SetTalkCollectReq) (*emptypb.Empty, error)
@@ -394,10 +402,14 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.GET("/v1/get/achievement/list", _Bff_GetAchievementList0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/achievement", _Bff_GetUserAchievement0_HTTP_Handler(srv))
 	r.GET("/v1/get/last/comment/draft", _Bff_GetLastCommentDraft0_HTTP_Handler(srv))
+	r.GET("/v1/get/user/comment/agree", _Bff_GetUserCommentAgree0_HTTP_Handler(srv))
 	r.GET("/v1/get/comment/list", _Bff_GetCommentList0_HTTP_Handler(srv))
 	r.GET("/v1/get/comment/list/hot", _Bff_GetCommentListHot0_HTTP_Handler(srv))
 	r.POST("/v1/create/comment/draft", _Bff_CreateCommentDraft0_HTTP_Handler(srv))
 	r.POST("/v1/send/comment", _Bff_SendComment0_HTTP_Handler(srv))
+	r.POST("/v1/remove/comment", _Bff_RemoveComment0_HTTP_Handler(srv))
+	r.POST("/v1/set/comment/agree", _Bff_SetCommentAgree0_HTTP_Handler(srv))
+	r.POST("/v1/cancel/comment/agree", _Bff_CancelCommentAgree0_HTTP_Handler(srv))
 }
 
 func _Bff_UserRegister0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
@@ -2680,6 +2692,25 @@ func _Bff_GetLastCommentDraft0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Con
 	}
 }
 
+func _Bff_GetUserCommentAgree0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in emptypb.Empty
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetUserCommentAgree)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetUserCommentAgree(ctx, req.(*emptypb.Empty))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetUserCommentAgreeReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _Bff_GetCommentList0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in GetCommentListReq
@@ -2756,6 +2787,63 @@ func _Bff_SendComment0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) er
 	}
 }
 
+func _Bff_RemoveComment0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in RemoveCommentReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffRemoveComment)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.RemoveComment(ctx, req.(*RemoveCommentReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_SetCommentAgree0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SetCommentAgreeReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffSetCommentAgree)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SetCommentAgree(ctx, req.(*SetCommentAgreeReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_CancelCommentAgree0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in CancelCommentAgreeReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffCancelCommentAgree)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.CancelCommentAgree(ctx, req.(*CancelCommentAgreeReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
 type BffHTTPClient interface {
 	AddColumnIncludes(ctx context.Context, req *AddColumnIncludesReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	ArticleDraftMark(ctx context.Context, req *ArticleDraftMarkReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -2764,6 +2852,7 @@ type BffHTTPClient interface {
 	CancelArticleCollect(ctx context.Context, req *CancelArticleCollectReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	CancelColumnAgree(ctx context.Context, req *CancelColumnAgreeReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	CancelColumnCollect(ctx context.Context, req *CancelColumnCollectReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	CancelCommentAgree(ctx context.Context, req *CancelCommentAgreeReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	CancelSubscribeColumn(ctx context.Context, req *CancelSubscribeColumnReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	CancelTalkAgree(ctx context.Context, req *CancelTalkAgreeReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	CancelTalkCollect(ctx context.Context, req *CancelTalkCollectReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -2841,6 +2930,7 @@ type BffHTTPClient interface {
 	GetUserArticleListVisitor(ctx context.Context, req *GetUserArticleListVisitorReq, opts ...http.CallOption) (rsp *GetArticleListReply, err error)
 	GetUserColumnList(ctx context.Context, req *GetUserColumnListReq, opts ...http.CallOption) (rsp *GetColumnListReply, err error)
 	GetUserColumnListVisitor(ctx context.Context, req *GetUserColumnListVisitorReq, opts ...http.CallOption) (rsp *GetColumnListReply, err error)
+	GetUserCommentAgree(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetUserCommentAgreeReply, err error)
 	GetUserFollow(ctx context.Context, req *GetUserFollowReq, opts ...http.CallOption) (rsp *GetUserFollowReply, err error)
 	GetUserFollows(ctx context.Context, req *GetUserFollowsReq, opts ...http.CallOption) (rsp *GetUserFollowsReply, err error)
 	GetUserInfo(ctx context.Context, req *GetUserInfoReq, opts ...http.CallOption) (rsp *GetUserInfoReply, err error)
@@ -2852,6 +2942,7 @@ type BffHTTPClient interface {
 	LoginByPassword(ctx context.Context, req *LoginByPasswordReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginByWeChat(ctx context.Context, req *LoginByWeChatReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginPasswordReset(ctx context.Context, req *LoginPasswordResetReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	RemoveComment(ctx context.Context, req *RemoveCommentReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SendArticle(ctx context.Context, req *SendArticleReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SendArticleEdit(ctx context.Context, req *SendArticleEditReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SendColumn(ctx context.Context, req *SendColumnReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -2867,6 +2958,7 @@ type BffHTTPClient interface {
 	SetColumnAgree(ctx context.Context, req *SetColumnAgreeReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SetColumnCollect(ctx context.Context, req *SetColumnCollectReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SetColumnView(ctx context.Context, req *SetColumnViewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	SetCommentAgree(ctx context.Context, req *SetCommentAgreeReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SetProfileUpdate(ctx context.Context, req *SetProfileUpdateReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SetTalkAgree(ctx context.Context, req *SetTalkAgreeReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SetTalkCollect(ctx context.Context, req *SetTalkCollectReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -2974,6 +3066,19 @@ func (c *BffHTTPClientImpl) CancelColumnCollect(ctx context.Context, in *CancelC
 	pattern := "/v1/cancel/column/collect"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationBffCancelColumnCollect))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) CancelCommentAgree(ctx context.Context, in *CancelCommentAgreeReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/cancel/comment/agree"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffCancelCommentAgree))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
@@ -3983,6 +4088,19 @@ func (c *BffHTTPClientImpl) GetUserColumnListVisitor(ctx context.Context, in *Ge
 	return &out, err
 }
 
+func (c *BffHTTPClientImpl) GetUserCommentAgree(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*GetUserCommentAgreeReply, error) {
+	var out GetUserCommentAgreeReply
+	pattern := "/v1/get/user/comment/agree"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationBffGetUserCommentAgree))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
 func (c *BffHTTPClientImpl) GetUserFollow(ctx context.Context, in *GetUserFollowReq, opts ...http.CallOption) (*GetUserFollowReply, error) {
 	var out GetUserFollowReply
 	pattern := "/v1/get/user/follow"
@@ -4118,6 +4236,19 @@ func (c *BffHTTPClientImpl) LoginPasswordReset(ctx context.Context, in *LoginPas
 	pattern := "/v1/user/login/password/reset"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationBffLoginPasswordReset))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) RemoveComment(ctx context.Context, in *RemoveCommentReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/remove/comment"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffRemoveComment))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
@@ -4313,6 +4444,19 @@ func (c *BffHTTPClientImpl) SetColumnView(ctx context.Context, in *SetColumnView
 	pattern := "/v1/set/column/view"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationBffSetColumnView))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) SetCommentAgree(ctx context.Context, in *SetCommentAgreeReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/set/comment/agree"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffSetCommentAgree))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

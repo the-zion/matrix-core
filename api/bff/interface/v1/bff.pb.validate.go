@@ -17715,6 +17715,110 @@ var _ interface {
 	ErrorName() string
 } = GetLastCommentDraftReplyValidationError{}
 
+// Validate checks the field values on GetUserCommentAgreeReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetUserCommentAgreeReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserCommentAgreeReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetUserCommentAgreeReplyMultiError, or nil if none found.
+func (m *GetUserCommentAgreeReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserCommentAgreeReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Agree
+
+	if len(errors) > 0 {
+		return GetUserCommentAgreeReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetUserCommentAgreeReplyMultiError is an error wrapping multiple validation
+// errors returned by GetUserCommentAgreeReply.ValidateAll() if the designated
+// constraints aren't met.
+type GetUserCommentAgreeReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserCommentAgreeReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserCommentAgreeReplyMultiError) AllErrors() []error { return m }
+
+// GetUserCommentAgreeReplyValidationError is the validation error returned by
+// GetUserCommentAgreeReply.Validate if the designated constraints aren't met.
+type GetUserCommentAgreeReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserCommentAgreeReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserCommentAgreeReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserCommentAgreeReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserCommentAgreeReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserCommentAgreeReplyValidationError) ErrorName() string {
+	return "GetUserCommentAgreeReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetUserCommentAgreeReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserCommentAgreeReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserCommentAgreeReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserCommentAgreeReplyValidationError{}
+
 // Validate checks the field values on SendCommentReq with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
@@ -17816,6 +17920,114 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = SendCommentReqValidationError{}
+
+// Validate checks the field values on RemoveCommentReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *RemoveCommentReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on RemoveCommentReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// RemoveCommentReqMultiError, or nil if none found.
+func (m *RemoveCommentReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *RemoveCommentReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Uuid
+
+	// no validation rules for CreationId
+
+	// no validation rules for CreationType
+
+	if len(errors) > 0 {
+		return RemoveCommentReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// RemoveCommentReqMultiError is an error wrapping multiple validation errors
+// returned by RemoveCommentReq.ValidateAll() if the designated constraints
+// aren't met.
+type RemoveCommentReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m RemoveCommentReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m RemoveCommentReqMultiError) AllErrors() []error { return m }
+
+// RemoveCommentReqValidationError is the validation error returned by
+// RemoveCommentReq.Validate if the designated constraints aren't met.
+type RemoveCommentReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RemoveCommentReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RemoveCommentReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RemoveCommentReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RemoveCommentReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RemoveCommentReqValidationError) ErrorName() string { return "RemoveCommentReqValidationError" }
+
+// Error satisfies the builtin error interface
+func (e RemoveCommentReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRemoveCommentReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RemoveCommentReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RemoveCommentReqValidationError{}
 
 // Validate checks the field values on GetCommentListReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the
@@ -18060,6 +18272,226 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetCommentListReplyValidationError{}
+
+// Validate checks the field values on SetCommentAgreeReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SetCommentAgreeReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SetCommentAgreeReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SetCommentAgreeReqMultiError, or nil if none found.
+func (m *SetCommentAgreeReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SetCommentAgreeReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Uuid
+
+	// no validation rules for CreationId
+
+	// no validation rules for CreationType
+
+	if len(errors) > 0 {
+		return SetCommentAgreeReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// SetCommentAgreeReqMultiError is an error wrapping multiple validation errors
+// returned by SetCommentAgreeReq.ValidateAll() if the designated constraints
+// aren't met.
+type SetCommentAgreeReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SetCommentAgreeReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SetCommentAgreeReqMultiError) AllErrors() []error { return m }
+
+// SetCommentAgreeReqValidationError is the validation error returned by
+// SetCommentAgreeReq.Validate if the designated constraints aren't met.
+type SetCommentAgreeReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SetCommentAgreeReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SetCommentAgreeReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SetCommentAgreeReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SetCommentAgreeReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SetCommentAgreeReqValidationError) ErrorName() string {
+	return "SetCommentAgreeReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SetCommentAgreeReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSetCommentAgreeReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SetCommentAgreeReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SetCommentAgreeReqValidationError{}
+
+// Validate checks the field values on CancelCommentAgreeReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *CancelCommentAgreeReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CancelCommentAgreeReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// CancelCommentAgreeReqMultiError, or nil if none found.
+func (m *CancelCommentAgreeReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CancelCommentAgreeReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Uuid
+
+	// no validation rules for CreationId
+
+	// no validation rules for CreationType
+
+	if len(errors) > 0 {
+		return CancelCommentAgreeReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// CancelCommentAgreeReqMultiError is an error wrapping multiple validation
+// errors returned by CancelCommentAgreeReq.ValidateAll() if the designated
+// constraints aren't met.
+type CancelCommentAgreeReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CancelCommentAgreeReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CancelCommentAgreeReqMultiError) AllErrors() []error { return m }
+
+// CancelCommentAgreeReqValidationError is the validation error returned by
+// CancelCommentAgreeReq.Validate if the designated constraints aren't met.
+type CancelCommentAgreeReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CancelCommentAgreeReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CancelCommentAgreeReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CancelCommentAgreeReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CancelCommentAgreeReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CancelCommentAgreeReqValidationError) ErrorName() string {
+	return "CancelCommentAgreeReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CancelCommentAgreeReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCancelCommentAgreeReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CancelCommentAgreeReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CancelCommentAgreeReqValidationError{}
 
 // Validate checks the field values on GetProfileListReply_Profile with the
 // rules defined in the proto definition for this message. If any rules are
