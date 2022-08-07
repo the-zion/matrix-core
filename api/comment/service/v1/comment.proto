@@ -17,6 +17,8 @@ service Comment {
 
   rpc GetLastCommentDraft(GetLastCommentDraftReq) returns (GetLastCommentDraftReply){}
 
+  rpc GetUserCommentAgree(GetUserCommentAgreeReq) returns (GetUserCommentAgreeReply){}
+
   rpc GetCommentList(GetCommentListReq) returns (GetCommentListReply){}
 
   rpc GetCommentListHot(GetCommentListReq) returns (GetCommentListReply){}
@@ -27,9 +29,22 @@ service Comment {
 
   rpc CreateComment(CreateCommentReq) returns (google.protobuf.Empty){}
 
-  rpc CreateCommentDbCacheAndSearch(CreateCommentDbCacheAndSearchReq) returns (google.protobuf.Empty){}
+  rpc CreateCommentDbAndCache(CreateCommentDbAndCacheReq) returns (google.protobuf.Empty){}
 
   rpc SendComment(SendCommentReq) returns (google.protobuf.Empty){}
+
+  rpc SetCommentAgree(SetCommentAgreeReq) returns (google.protobuf.Empty){}
+
+  rpc SetCommentAgreeDbAndCache(SetCommentAgreeReq) returns (google.protobuf.Empty){}
+
+  rpc CancelCommentAgree(CancelCommentAgreeReq) returns (google.protobuf.Empty){}
+
+  rpc CancelCommentAgreeDbAndCache(CancelCommentAgreeReq) returns (google.protobuf.Empty){}
+
+  rpc RemoveComment(RemoveCommentReq) returns (google.protobuf.Empty){}
+
+  rpc RemoveCommentDbAndCache(RemoveCommentDbAndCacheReq) returns (google.protobuf.Empty){}
+
 }
 
 message CreateCommentDraftReq{
@@ -49,6 +64,14 @@ message GetLastCommentDraftReply{
   int32 status = 2;
 }
 
+message GetUserCommentAgreeReq{
+  string uuid = 1;
+}
+
+message GetUserCommentAgreeReply{
+  map<int32, bool> agree = 1;
+}
+
 message SendCommentReq{
   int32 id = 1;
   string uuid = 2 [(validate.rules).string.uuid = true];
@@ -62,7 +85,7 @@ message CreateCommentReq{
   string uuid = 4 [(validate.rules).string.uuid = true];
 }
 
-message CreateCommentDbCacheAndSearchReq{
+message CreateCommentDbAndCacheReq{
   int32 id = 1;
   int32 creationId = 2;
   int32 creationType = 3;
@@ -83,6 +106,13 @@ message GetCommentListReply{
   repeated Comment comment = 1;
 }
 
+message RemoveCommentDbAndCacheReq{
+  int32 id = 1;
+  int32 creationId = 2;
+  int32 creationType = 3;
+  string uuid = 4 [(validate.rules).string.uuid = true];
+}
+
 message GetCommentListStatisticReq{
   repeated int32 ids = 1;
 }
@@ -94,4 +124,28 @@ message GetCommentListStatisticReply{
     int32 comment = 5;
   }
   repeated Count count = 1;
+}
+
+message SetCommentAgreeReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+  string user_uuid = 3 [(validate.rules).string.uuid = true];
+  int32 creationId = 4;
+  int32 creationType = 5;
+}
+
+message CancelCommentAgreeReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+  string user_uuid = 3 [(validate.rules).string.uuid = true];
+  int32 creationId = 4;
+  int32 creationType = 5;
+}
+
+message RemoveCommentReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+  string user_uuid = 3 [(validate.rules).string.uuid = true];
+  int32 creationId = 4;
+  int32 creationType = 5;
 }
