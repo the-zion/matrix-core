@@ -25,13 +25,20 @@ const _ = grpc.SupportPackageIsVersion7
 type CommentClient interface {
 	GetHealth(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetLastCommentDraft(ctx context.Context, in *GetLastCommentDraftReq, opts ...grpc.CallOption) (*GetLastCommentDraftReply, error)
+	GetUserCommentAgree(ctx context.Context, in *GetUserCommentAgreeReq, opts ...grpc.CallOption) (*GetUserCommentAgreeReply, error)
 	GetCommentList(ctx context.Context, in *GetCommentListReq, opts ...grpc.CallOption) (*GetCommentListReply, error)
 	GetCommentListHot(ctx context.Context, in *GetCommentListReq, opts ...grpc.CallOption) (*GetCommentListReply, error)
 	GetCommentListStatistic(ctx context.Context, in *GetCommentListStatisticReq, opts ...grpc.CallOption) (*GetCommentListStatisticReply, error)
 	CreateCommentDraft(ctx context.Context, in *CreateCommentDraftReq, opts ...grpc.CallOption) (*CreateCommentDraftReply, error)
 	CreateComment(ctx context.Context, in *CreateCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	CreateCommentDbCacheAndSearch(ctx context.Context, in *CreateCommentDbCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CreateCommentDbAndCache(ctx context.Context, in *CreateCommentDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SendComment(ctx context.Context, in *SendCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetCommentAgree(ctx context.Context, in *SetCommentAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetCommentAgreeDbAndCache(ctx context.Context, in *SetCommentAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CancelCommentAgree(ctx context.Context, in *CancelCommentAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CancelCommentAgreeDbAndCache(ctx context.Context, in *CancelCommentAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	RemoveComment(ctx context.Context, in *RemoveCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	RemoveCommentDbAndCache(ctx context.Context, in *RemoveCommentDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type commentClient struct {
@@ -54,6 +61,15 @@ func (c *commentClient) GetHealth(ctx context.Context, in *emptypb.Empty, opts .
 func (c *commentClient) GetLastCommentDraft(ctx context.Context, in *GetLastCommentDraftReq, opts ...grpc.CallOption) (*GetLastCommentDraftReply, error) {
 	out := new(GetLastCommentDraftReply)
 	err := c.cc.Invoke(ctx, "/comment.v1.Comment/GetLastCommentDraft", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *commentClient) GetUserCommentAgree(ctx context.Context, in *GetUserCommentAgreeReq, opts ...grpc.CallOption) (*GetUserCommentAgreeReply, error) {
+	out := new(GetUserCommentAgreeReply)
+	err := c.cc.Invoke(ctx, "/comment.v1.Comment/GetUserCommentAgree", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -105,9 +121,9 @@ func (c *commentClient) CreateComment(ctx context.Context, in *CreateCommentReq,
 	return out, nil
 }
 
-func (c *commentClient) CreateCommentDbCacheAndSearch(ctx context.Context, in *CreateCommentDbCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *commentClient) CreateCommentDbAndCache(ctx context.Context, in *CreateCommentDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/comment.v1.Comment/CreateCommentDbCacheAndSearch", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/comment.v1.Comment/CreateCommentDbAndCache", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -123,19 +139,80 @@ func (c *commentClient) SendComment(ctx context.Context, in *SendCommentReq, opt
 	return out, nil
 }
 
+func (c *commentClient) SetCommentAgree(ctx context.Context, in *SetCommentAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/comment.v1.Comment/SetCommentAgree", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *commentClient) SetCommentAgreeDbAndCache(ctx context.Context, in *SetCommentAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/comment.v1.Comment/SetCommentAgreeDbAndCache", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *commentClient) CancelCommentAgree(ctx context.Context, in *CancelCommentAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/comment.v1.Comment/CancelCommentAgree", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *commentClient) CancelCommentAgreeDbAndCache(ctx context.Context, in *CancelCommentAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/comment.v1.Comment/CancelCommentAgreeDbAndCache", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *commentClient) RemoveComment(ctx context.Context, in *RemoveCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/comment.v1.Comment/RemoveComment", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *commentClient) RemoveCommentDbAndCache(ctx context.Context, in *RemoveCommentDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/comment.v1.Comment/RemoveCommentDbAndCache", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CommentServer is the server API for Comment service.
 // All implementations must embed UnimplementedCommentServer
 // for forward compatibility
 type CommentServer interface {
 	GetHealth(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	GetLastCommentDraft(context.Context, *GetLastCommentDraftReq) (*GetLastCommentDraftReply, error)
+	GetUserCommentAgree(context.Context, *GetUserCommentAgreeReq) (*GetUserCommentAgreeReply, error)
 	GetCommentList(context.Context, *GetCommentListReq) (*GetCommentListReply, error)
 	GetCommentListHot(context.Context, *GetCommentListReq) (*GetCommentListReply, error)
 	GetCommentListStatistic(context.Context, *GetCommentListStatisticReq) (*GetCommentListStatisticReply, error)
 	CreateCommentDraft(context.Context, *CreateCommentDraftReq) (*CreateCommentDraftReply, error)
 	CreateComment(context.Context, *CreateCommentReq) (*emptypb.Empty, error)
-	CreateCommentDbCacheAndSearch(context.Context, *CreateCommentDbCacheAndSearchReq) (*emptypb.Empty, error)
+	CreateCommentDbAndCache(context.Context, *CreateCommentDbAndCacheReq) (*emptypb.Empty, error)
 	SendComment(context.Context, *SendCommentReq) (*emptypb.Empty, error)
+	SetCommentAgree(context.Context, *SetCommentAgreeReq) (*emptypb.Empty, error)
+	SetCommentAgreeDbAndCache(context.Context, *SetCommentAgreeReq) (*emptypb.Empty, error)
+	CancelCommentAgree(context.Context, *CancelCommentAgreeReq) (*emptypb.Empty, error)
+	CancelCommentAgreeDbAndCache(context.Context, *CancelCommentAgreeReq) (*emptypb.Empty, error)
+	RemoveComment(context.Context, *RemoveCommentReq) (*emptypb.Empty, error)
+	RemoveCommentDbAndCache(context.Context, *RemoveCommentDbAndCacheReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedCommentServer()
 }
 
@@ -148,6 +225,9 @@ func (UnimplementedCommentServer) GetHealth(context.Context, *emptypb.Empty) (*e
 }
 func (UnimplementedCommentServer) GetLastCommentDraft(context.Context, *GetLastCommentDraftReq) (*GetLastCommentDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLastCommentDraft not implemented")
+}
+func (UnimplementedCommentServer) GetUserCommentAgree(context.Context, *GetUserCommentAgreeReq) (*GetUserCommentAgreeReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserCommentAgree not implemented")
 }
 func (UnimplementedCommentServer) GetCommentList(context.Context, *GetCommentListReq) (*GetCommentListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCommentList not implemented")
@@ -164,11 +244,29 @@ func (UnimplementedCommentServer) CreateCommentDraft(context.Context, *CreateCom
 func (UnimplementedCommentServer) CreateComment(context.Context, *CreateCommentReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateComment not implemented")
 }
-func (UnimplementedCommentServer) CreateCommentDbCacheAndSearch(context.Context, *CreateCommentDbCacheAndSearchReq) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateCommentDbCacheAndSearch not implemented")
+func (UnimplementedCommentServer) CreateCommentDbAndCache(context.Context, *CreateCommentDbAndCacheReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateCommentDbAndCache not implemented")
 }
 func (UnimplementedCommentServer) SendComment(context.Context, *SendCommentReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendComment not implemented")
+}
+func (UnimplementedCommentServer) SetCommentAgree(context.Context, *SetCommentAgreeReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetCommentAgree not implemented")
+}
+func (UnimplementedCommentServer) SetCommentAgreeDbAndCache(context.Context, *SetCommentAgreeReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetCommentAgreeDbAndCache not implemented")
+}
+func (UnimplementedCommentServer) CancelCommentAgree(context.Context, *CancelCommentAgreeReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelCommentAgree not implemented")
+}
+func (UnimplementedCommentServer) CancelCommentAgreeDbAndCache(context.Context, *CancelCommentAgreeReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelCommentAgreeDbAndCache not implemented")
+}
+func (UnimplementedCommentServer) RemoveComment(context.Context, *RemoveCommentReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveComment not implemented")
+}
+func (UnimplementedCommentServer) RemoveCommentDbAndCache(context.Context, *RemoveCommentDbAndCacheReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveCommentDbAndCache not implemented")
 }
 func (UnimplementedCommentServer) mustEmbedUnimplementedCommentServer() {}
 
@@ -215,6 +313,24 @@ func _Comment_GetLastCommentDraft_Handler(srv interface{}, ctx context.Context, 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CommentServer).GetLastCommentDraft(ctx, req.(*GetLastCommentDraftReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Comment_GetUserCommentAgree_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserCommentAgreeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommentServer).GetUserCommentAgree(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/comment.v1.Comment/GetUserCommentAgree",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommentServer).GetUserCommentAgree(ctx, req.(*GetUserCommentAgreeReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -309,20 +425,20 @@ func _Comment_CreateComment_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Comment_CreateCommentDbCacheAndSearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateCommentDbCacheAndSearchReq)
+func _Comment_CreateCommentDbAndCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateCommentDbAndCacheReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CommentServer).CreateCommentDbCacheAndSearch(ctx, in)
+		return srv.(CommentServer).CreateCommentDbAndCache(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/comment.v1.Comment/CreateCommentDbCacheAndSearch",
+		FullMethod: "/comment.v1.Comment/CreateCommentDbAndCache",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CommentServer).CreateCommentDbCacheAndSearch(ctx, req.(*CreateCommentDbCacheAndSearchReq))
+		return srv.(CommentServer).CreateCommentDbAndCache(ctx, req.(*CreateCommentDbAndCacheReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -345,6 +461,114 @@ func _Comment_SendComment_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Comment_SetCommentAgree_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetCommentAgreeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommentServer).SetCommentAgree(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/comment.v1.Comment/SetCommentAgree",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommentServer).SetCommentAgree(ctx, req.(*SetCommentAgreeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Comment_SetCommentAgreeDbAndCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetCommentAgreeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommentServer).SetCommentAgreeDbAndCache(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/comment.v1.Comment/SetCommentAgreeDbAndCache",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommentServer).SetCommentAgreeDbAndCache(ctx, req.(*SetCommentAgreeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Comment_CancelCommentAgree_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelCommentAgreeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommentServer).CancelCommentAgree(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/comment.v1.Comment/CancelCommentAgree",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommentServer).CancelCommentAgree(ctx, req.(*CancelCommentAgreeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Comment_CancelCommentAgreeDbAndCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelCommentAgreeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommentServer).CancelCommentAgreeDbAndCache(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/comment.v1.Comment/CancelCommentAgreeDbAndCache",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommentServer).CancelCommentAgreeDbAndCache(ctx, req.(*CancelCommentAgreeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Comment_RemoveComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveCommentReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommentServer).RemoveComment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/comment.v1.Comment/RemoveComment",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommentServer).RemoveComment(ctx, req.(*RemoveCommentReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Comment_RemoveCommentDbAndCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveCommentDbAndCacheReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommentServer).RemoveCommentDbAndCache(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/comment.v1.Comment/RemoveCommentDbAndCache",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommentServer).RemoveCommentDbAndCache(ctx, req.(*RemoveCommentDbAndCacheReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Comment_ServiceDesc is the grpc.ServiceDesc for Comment service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -359,6 +583,10 @@ var Comment_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetLastCommentDraft",
 			Handler:    _Comment_GetLastCommentDraft_Handler,
+		},
+		{
+			MethodName: "GetUserCommentAgree",
+			Handler:    _Comment_GetUserCommentAgree_Handler,
 		},
 		{
 			MethodName: "GetCommentList",
@@ -381,12 +609,36 @@ var Comment_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Comment_CreateComment_Handler,
 		},
 		{
-			MethodName: "CreateCommentDbCacheAndSearch",
-			Handler:    _Comment_CreateCommentDbCacheAndSearch_Handler,
+			MethodName: "CreateCommentDbAndCache",
+			Handler:    _Comment_CreateCommentDbAndCache_Handler,
 		},
 		{
 			MethodName: "SendComment",
 			Handler:    _Comment_SendComment_Handler,
+		},
+		{
+			MethodName: "SetCommentAgree",
+			Handler:    _Comment_SetCommentAgree_Handler,
+		},
+		{
+			MethodName: "SetCommentAgreeDbAndCache",
+			Handler:    _Comment_SetCommentAgreeDbAndCache_Handler,
+		},
+		{
+			MethodName: "CancelCommentAgree",
+			Handler:    _Comment_CancelCommentAgree_Handler,
+		},
+		{
+			MethodName: "CancelCommentAgreeDbAndCache",
+			Handler:    _Comment_CancelCommentAgreeDbAndCache_Handler,
+		},
+		{
+			MethodName: "RemoveComment",
+			Handler:    _Comment_RemoveComment_Handler,
+		},
+		{
+			MethodName: "RemoveCommentDbAndCache",
+			Handler:    _Comment_RemoveCommentDbAndCache_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
