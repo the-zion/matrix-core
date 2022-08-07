@@ -8,12 +8,16 @@ import (
 
 type CommentRepo interface {
 	GetLastCommentDraft(ctx context.Context, uuid string) (*CommentDraft, error)
+	GetUserCommentAgree(ctx context.Context, uuid string) (map[int32]bool, error)
 	GetCommentList(ctx context.Context, page, creationId, creationType int32) ([]*Comment, error)
 	GetCommentListHot(ctx context.Context, page, creationId, creationType int32) ([]*Comment, error)
 	GetCommentListStatistic(ctx context.Context, page, creationId, creationType int32, key string, commentList []*Comment) ([]*CommentStatistic, error)
 	GetUserProfileList(ctx context.Context, page, creationId, creationType int32, key string, commentList []*Comment) ([]*UserProfile, error)
 	CreateCommentDraft(ctx context.Context, uuid string) (int32, error)
 	SendComment(ctx context.Context, id int32, uuid, ip string) error
+	RemoveComment(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error
+	SetCommentAgree(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error
+	CancelCommentAgree(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error
 }
 
 type CommentUseCase struct {
@@ -31,6 +35,11 @@ func NewCommentUseCase(repo CommentRepo, logger log.Logger) *CommentUseCase {
 func (r *CommentUseCase) CreateCommentDraft(ctx context.Context) (int32, error) {
 	uuid := ctx.Value("uuid").(string)
 	return r.repo.CreateCommentDraft(ctx, uuid)
+}
+
+func (r *CommentUseCase) GetUserCommentAgree(ctx context.Context) (map[int32]bool, error) {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.GetUserCommentAgree(ctx, uuid)
 }
 
 func (r *CommentUseCase) GetLastCommentDraft(ctx context.Context) (*CommentDraft, error) {
@@ -126,4 +135,19 @@ func (r *CommentUseCase) SendComment(ctx context.Context, id int32) error {
 	uuid := ctx.Value("uuid").(string)
 	ip := ctx.Value("realIp").(string)
 	return r.repo.SendComment(ctx, id, uuid, ip)
+}
+
+func (r *CommentUseCase) RemoveComment(ctx context.Context, id, creationId, creationType int32, uuid string) error {
+	userUuid := ctx.Value("uuid").(string)
+	return r.repo.RemoveComment(ctx, id, creationId, creationType, uuid, userUuid)
+}
+
+func (r *CommentUseCase) SetCommentAgree(ctx context.Context, id, creationId, creationType int32, uuid string) error {
+	userUuid := ctx.Value("uuid").(string)
+	return r.repo.SetCommentAgree(ctx, id, creationId, creationType, uuid, userUuid)
+}
+
+func (r *CommentUseCase) CancelCommentAgree(ctx context.Context, id, creationId, creationType int32, uuid string) error {
+	userUuid := ctx.Value("uuid").(string)
+	return r.repo.CancelCommentAgree(ctx, id, creationId, creationType, uuid, userUuid)
 }
