@@ -16,6 +16,16 @@ func (s *BffService) CreateCommentDraft(ctx context.Context, _ *emptypb.Empty) (
 	}, nil
 }
 
+func (s *BffService) GetUserCommentAgree(ctx context.Context, _ *emptypb.Empty) (*v1.GetUserCommentAgreeReply, error) {
+	agreeMap, err := s.commc.GetUserCommentAgree(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetUserCommentAgreeReply{
+		Agree: agreeMap,
+	}, nil
+}
+
 func (s *BffService) GetLastCommentDraft(ctx context.Context, _ *emptypb.Empty) (*v1.GetLastCommentDraftReply, error) {
 	draft, err := s.commc.GetLastCommentDraft(ctx)
 	if err != nil {
@@ -65,6 +75,30 @@ func (s *BffService) GetCommentListHot(ctx context.Context, req *v1.GetCommentLi
 
 func (s *BffService) SendComment(ctx context.Context, req *v1.SendCommentReq) (*emptypb.Empty, error) {
 	err := s.commc.SendComment(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) RemoveComment(ctx context.Context, req *v1.RemoveCommentReq) (*emptypb.Empty, error) {
+	err := s.commc.RemoveComment(ctx, req.Id, req.CreationId, req.CreationType, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) SetCommentAgree(ctx context.Context, req *v1.SetCommentAgreeReq) (*emptypb.Empty, error) {
+	err := s.commc.SetCommentAgree(ctx, req.Id, req.CreationId, req.CreationType, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) CancelCommentAgree(ctx context.Context, req *v1.CancelCommentAgreeReq) (*emptypb.Empty, error) {
+	err := s.commc.CancelCommentAgree(ctx, req.Id, req.CreationId, req.CreationType, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
