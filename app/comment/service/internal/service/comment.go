@@ -21,6 +21,16 @@ func (s *CommentService) GetLastCommentDraft(ctx context.Context, req *v1.GetLas
 	}, nil
 }
 
+func (s *CommentService) GetUserCommentAgree(ctx context.Context, req *v1.GetUserCommentAgreeReq) (*v1.GetUserCommentAgreeReply, error) {
+	agreeMap, err := s.cc.GetUserCommentAgree(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetUserCommentAgreeReply{
+		Agree: agreeMap,
+	}, nil
+}
+
 func (s *CommentService) GetCommentList(ctx context.Context, req *v1.GetCommentListReq) (*v1.GetCommentListReply, error) {
 	reply := &v1.GetCommentListReply{Comment: make([]*v1.GetCommentListReply_Comment, 0)}
 	commentList, err := s.cc.GetCommentList(ctx, req.Page, req.CreationId, req.CreationType)
@@ -85,8 +95,8 @@ func (s *CommentService) CreateComment(ctx context.Context, req *v1.CreateCommen
 	return &emptypb.Empty{}, nil
 }
 
-func (s *CommentService) CreateCommentDbCacheAndSearch(ctx context.Context, req *v1.CreateCommentDbCacheAndSearchReq) (*emptypb.Empty, error) {
-	err := s.cc.CreateCommentDbCacheAndSearch(ctx, req.Id, req.CreationId, req.CreationType, req.Uuid)
+func (s *CommentService) CreateCommentDbAndCache(ctx context.Context, req *v1.CreateCommentDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.cc.CreateCommentDbAndCache(ctx, req.Id, req.CreationId, req.CreationType, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -95,6 +105,54 @@ func (s *CommentService) CreateCommentDbCacheAndSearch(ctx context.Context, req 
 
 func (s *CommentService) SendComment(ctx context.Context, req *v1.SendCommentReq) (*emptypb.Empty, error) {
 	err := s.cc.SendComment(ctx, req.Id, req.Uuid, req.Ip)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CommentService) RemoveComment(ctx context.Context, req *v1.RemoveCommentReq) (*emptypb.Empty, error) {
+	err := s.cc.RemoveComment(ctx, req.Id, req.CreationId, req.CreationType, req.Uuid, req.UserUuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CommentService) RemoveCommentDbAndCache(ctx context.Context, req *v1.RemoveCommentDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.cc.RemoveCommentDbAndCache(ctx, req.Id, req.CreationId, req.CreationType, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CommentService) SetCommentAgree(ctx context.Context, req *v1.SetCommentAgreeReq) (*emptypb.Empty, error) {
+	err := s.cc.SetCommentAgree(ctx, req.Id, req.CreationId, req.CreationType, req.Uuid, req.UserUuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CommentService) SetCommentAgreeDbAndCache(ctx context.Context, req *v1.SetCommentAgreeReq) (*emptypb.Empty, error) {
+	err := s.cc.SetCommentAgreeDbAndCache(ctx, req.Id, req.CreationId, req.CreationType, req.Uuid, req.UserUuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CommentService) CancelCommentAgree(ctx context.Context, req *v1.CancelCommentAgreeReq) (*emptypb.Empty, error) {
+	err := s.cc.CancelCommentAgree(ctx, req.Id, req.CreationId, req.CreationType, req.Uuid, req.UserUuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CommentService) CancelCommentAgreeDbAndCache(ctx context.Context, req *v1.CancelCommentAgreeReq) (*emptypb.Empty, error) {
+	err := s.cc.CancelCommentAgreeDbAndCache(ctx, req.Id, req.CreationId, req.CreationType, req.Uuid, req.UserUuid)
 	if err != nil {
 		return nil, err
 	}
