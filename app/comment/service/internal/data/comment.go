@@ -12,6 +12,7 @@ import (
 	"github.com/the-zion/matrix-core/app/comment/service/internal/biz"
 	"golang.org/x/sync/errgroup"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"strconv"
 	"strings"
 	"time"
@@ -44,6 +45,76 @@ func (r *commentRepo) GetLastCommentDraft(ctx context.Context, uuid string) (*bi
 		Id:     int32(draft.ID),
 		Status: draft.Status,
 	}, nil
+}
+
+func (r *commentRepo) GetUserCommentAgree(ctx context.Context, uuid string) (map[int32]bool, error) {
+	exist, err := r.userCommentAgreeExist(ctx, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	if exist == 1 {
+		return r.getUserCommentAgreeFromCache(ctx, uuid)
+	} else {
+		return r.getUserCommentAgreeFromDb(ctx, uuid)
+	}
+}
+
+func (r *commentRepo) userCommentAgreeExist(ctx context.Context, uuid string) (int32, error) {
+	exist, err := r.data.redisCli.Exists(ctx, "user_comment_agree_"+uuid).Result()
+	if err != nil {
+		return 0, errors.Wrapf(err, fmt.Sprintf("fail to check if user comment agree exist from cache: uuid(%s)", uuid))
+	}
+	return int32(exist), nil
+}
+
+func (r *commentRepo) getUserCommentAgreeFromCache(ctx context.Context, uuid string) (map[int32]bool, error) {
+	key := "user_comment_agree_" + uuid
+	agreeSet, err := r.data.redisCli.SMembers(ctx, key).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user comment agree from cache: uuid(%s)", uuid))
+	}
+
+	agreeMap := make(map[int32]bool, 0)
+	for _, item := range agreeSet {
+		id, err := strconv.ParseInt(item, 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s), uuid(%s), key(%s)", id, uuid, key))
+		}
+		agreeMap[int32(id)] = true
+	}
+	return agreeMap, nil
+}
+
+func (r *commentRepo) getUserCommentAgreeFromDb(ctx context.Context, uuid string) (map[int32]bool, error) {
+	list := make([]*CommentAgree, 0)
+	err := r.data.db.WithContext(ctx).Where("uuid = ? and status = ?", uuid, 1).Find(&list).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user comment agree from db: uuid(%s)", uuid))
+	}
+
+	agreeMap := make(map[int32]bool, 0)
+	for _, item := range list {
+		agreeMap[item.CommentId] = true
+	}
+	go r.settUserCommentAgreeToCache(uuid, list)
+	return agreeMap, nil
+}
+
+func (r *commentRepo) settUserCommentAgreeToCache(uuid string, agreeList []*CommentAgree) {
+	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
+		set := make([]interface{}, 0)
+		key := "user_comment_agree_" + uuid
+		for _, item := range agreeList {
+			set = append(set, item.CommentId)
+		}
+		pipe.SAdd(context.Background(), key, set...)
+		pipe.Expire(context.Background(), key, time.Hour*8)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to set user comment agree to cache: uuid(%s), agreeList(%v)", uuid, agreeList)
+	}
 }
 
 func (r *commentRepo) GetCommentList(ctx context.Context, page, creationId, creationType int32) ([]*biz.Comment, error) {
@@ -395,6 +466,149 @@ func (r *commentRepo) SetRecord(ctx context.Context, id int32, uuid, ip string) 
 	return nil
 }
 
+func (r *commentRepo) SetUserCommentAgreeToCache(ctx context.Context, id int32, userUuid string) error {
+	var incrBy = redis.NewScript(`
+					local key = KEYS[1]
+                    local change = ARGV[1]
+					local value = redis.call("EXISTS", key)
+					if value == 1 then
+  						local result = redis.call("SADD", key, change)
+						return result
+					end
+	`)
+	keys := []string{"user_comment_agree_" + userUuid}
+	values := []interface{}{strconv.Itoa(int(id))}
+	_, err := incrBy.Run(ctx, r.data.redisCli, keys, values...).Result()
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to set user comment agree to cache: id(%v), userUuid(%s)", id, userUuid))
+	}
+	return nil
+}
+
+func (r *commentRepo) CancelUserCommentAgreeFromCache(ctx context.Context, id int32, userUuid string) error {
+	_, err := r.data.redisCli.SRem(ctx, "user_comment_agree_"+userUuid, id).Result()
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to cancel user comment agree from cache: id(%v), userUuid(%s)", id, userUuid))
+	}
+	return nil
+}
+
+func (r *commentRepo) SetCommentAgree(ctx context.Context, id int32, uuid string) error {
+	c := Comment{}
+	err := r.data.DB(ctx).Model(&c).Where("comment_id = ? and uuid = ?", id, uuid).Update("agree", gorm.Expr("agree + ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add comment agree: id(%v)", id))
+	}
+	return nil
+}
+
+func (r *commentRepo) SetUserCommentAgree(ctx context.Context, id int32, userUuid string) error {
+	ca := &CommentAgree{
+		CommentId: id,
+		Uuid:      userUuid,
+		Status:    1,
+	}
+	err := r.data.DB(ctx).Clauses(clause.OnConflict{
+		DoUpdates: clause.Assignments(map[string]interface{}{"status": 1}),
+	}).Create(ca).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to set a comment agree to db: comment_id(%v), userUuid(%s)", id, userUuid))
+	}
+	return nil
+}
+
+func (r *commentRepo) SetCommentAgreeToCache(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error {
+	hotKey := fmt.Sprintf("comment_%v_%v_hot", creationId, creationType)
+	statisticKey := fmt.Sprintf("comment_%v", id)
+	userKey := fmt.Sprintf("user_comment_agree_%s", userUuid)
+	exists := make([]int64, 0)
+	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.Exists(ctx, hotKey)
+		pipe.Exists(ctx, statisticKey)
+		pipe.Exists(ctx, userKey)
+		return nil
+	})
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to check if cache about comment exist: id(%v), creationId(%v), creationType(%v), uuid(%s), userUuid(%s) ", id, creationId, creationType, uuid, userUuid))
+	}
+
+	for _, item := range cmd {
+		exist := item.(*redis.IntCmd).Val()
+		exists = append(exists, exist)
+	}
+
+	_, err = r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		if exists[0] == 1 {
+			pipe.ZIncrBy(ctx, hotKey, 1, fmt.Sprintf("%v%s%s", id, "%", uuid))
+		}
+		if exists[1] == 1 {
+			pipe.HIncrBy(ctx, statisticKey, "agree", 1)
+		}
+		if exists[2] == 1 {
+			pipe.SAdd(ctx, userKey, id)
+		}
+		return nil
+	})
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to update(add) comment cache: id(%v), creationId(%v), creationType(%v), uuid(%s), userUuid(%s) ", id, creationId, creationType, uuid, userUuid))
+	}
+	return nil
+}
+
+func (r *commentRepo) CancelCommentAgree(ctx context.Context, id int32, uuid string) error {
+	c := Comment{}
+	err := r.data.DB(ctx).Model(&c).Where("comment_id = ? and uuid = ?", id, uuid).Update("agree", gorm.Expr("agree - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to cancel comment agree: id(%v)", id))
+	}
+	return nil
+}
+
+func (r *commentRepo) CancelUserCommentAgree(ctx context.Context, id int32, userUuid string) error {
+	ca := &CommentAgree{}
+	err := r.data.DB(ctx).Model(&ca).Where("comment_id = ? and uuid = ?", id, userUuid).Update("status", 2).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to cancel a comment agree to db: comment_id(%v), userUuid(%s)", id, userUuid))
+	}
+	return nil
+}
+
+func (r *commentRepo) CancelCommentAgreeFromCache(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error {
+	hotKey := fmt.Sprintf("comment_%v_%v_hot", creationId, creationType)
+	statisticKey := fmt.Sprintf("comment_%v", id)
+	userKey := fmt.Sprintf("user_comment_agree_%s", userUuid)
+	exists := make([]int64, 0)
+	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.Exists(ctx, hotKey)
+		pipe.Exists(ctx, statisticKey)
+		pipe.Exists(ctx, userKey)
+		return nil
+	})
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to check if cache about comment exist: id(%v), creationId(%v), creationType(%v), uuid(%s), userUuid(%s) ", id, creationId, creationType, uuid, userUuid))
+	}
+
+	for _, item := range cmd {
+		exist := item.(*redis.IntCmd).Val()
+		exists = append(exists, exist)
+	}
+
+	_, err = r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		if exists[0] == 1 {
+			pipe.ZIncrBy(ctx, hotKey, -1, fmt.Sprintf("%v%s%s", id, "%", uuid))
+		}
+		if exists[1] == 1 {
+			pipe.HIncrBy(ctx, statisticKey, "agree", -1)
+		}
+		pipe.SRem(ctx, userKey, id)
+		return nil
+	})
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to update(cancel) comment cache: id(%v), creationId(%v), creationType(%v), uuid(%s), userUuid(%s) ", id, creationId, creationType, uuid, userUuid))
+	}
+	return nil
+}
+
 func (r *commentRepo) SendReviewToMq(ctx context.Context, review *biz.CommentReview) error {
 	data, err := json.Marshal(review)
 	if err != nil {
@@ -436,26 +650,72 @@ func (r *commentRepo) SendCommentToMq(ctx context.Context, comment *biz.Comment,
 	return nil
 }
 
-func (r *commentRepo) CreateComment(ctx context.Context, id, createId, createType int32, uuid string) error {
-	comment := &Comment{
-		CommentId:    id,
-		Uuid:         uuid,
-		CreationId:   createId,
-		CreationType: createType,
-	}
-	err := r.data.DB(ctx).Select("CommentId", "Uuid", "CreationId", "CreationType").Create(comment).Error
+func (r *commentRepo) SendCommentAgreeToMq(ctx context.Context, id, creationId, creationType int32, uuid, userUuid, mode string) error {
+	commentMap := map[string]interface{}{}
+	commentMap["uuid"] = uuid
+	commentMap["id"] = id
+	commentMap["creationId"] = creationId
+	commentMap["creationType"] = creationType
+	commentMap["userUuid"] = userUuid
+	commentMap["mode"] = mode
+
+	data, err := json.Marshal(commentMap)
 	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to create a comment: id(%v), uuid(%s), creationId(%v), creationType(%v)", id, uuid, createId, createType))
+		return err
+	}
+	msg := &primitive.Message{
+		Topic: "comment",
+		Body:  data,
+	}
+	msg.WithKeys([]string{userUuid})
+	_, err = r.data.commonMqPro.producer.SendSync(ctx, msg)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to set comment agree to mq: id(%v), uuid(%s), userUuid(%s), mode(%s)", id, uuid, userUuid, mode))
 	}
 	return nil
 }
 
-func (r *commentRepo) CreateCommentCache(ctx context.Context, id, createId, createType int32, uuid string) error {
-	ids := strconv.Itoa(int(id))
-	createIds := strconv.Itoa(int(createId))
-	createTypes := strconv.Itoa(int(createType))
+func (r *commentRepo) SendCommentStatisticToMq(ctx context.Context, uuid, mode string) error {
+	achievement := map[string]interface{}{}
+	achievement["uuid"] = uuid
+	achievement["mode"] = mode
 
-	newExist, hotExist, err := r.commentCacheExist(ctx, createIds, createTypes)
+	data, err := json.Marshal(achievement)
+	if err != nil {
+		return err
+	}
+	msg := &primitive.Message{
+		Topic: "achievement",
+		Body:  data,
+	}
+	msg.WithKeys([]string{uuid})
+	_, err = r.data.achievementMqPro.producer.SendSync(ctx, msg)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to send talk statistic to mq: uuid(%s)", uuid))
+	}
+	return nil
+}
+
+func (r *commentRepo) CreateComment(ctx context.Context, id, creationId, creationType int32, uuid string) error {
+	comment := &Comment{
+		CommentId:    id,
+		Uuid:         uuid,
+		CreationId:   creationId,
+		CreationType: creationType,
+	}
+	err := r.data.DB(ctx).Select("CommentId", "Uuid", "CreationId", "CreationType").Create(comment).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to create a comment: id(%v), uuid(%s), creationId(%v), creationType(%v)", id, uuid, creationId, creationType))
+	}
+	return nil
+}
+
+func (r *commentRepo) CreateCommentCache(ctx context.Context, id, creationId, creationType int32, uuid string) error {
+	ids := strconv.Itoa(int(id))
+	creationIds := strconv.Itoa(int(creationId))
+	creationTypes := strconv.Itoa(int(creationType))
+
+	newExist, hotExist, err := r.commentCacheExist(ctx, creationIds, creationTypes)
 	if err != nil {
 		return err
 	}
@@ -466,37 +726,37 @@ func (r *commentRepo) CreateCommentCache(ctx context.Context, id, createId, crea
 		pipe.Expire(ctx, "comment_"+ids, time.Hour*8)
 
 		if newExist == 1 {
-			pipe.ZAddNX(ctx, "comment_"+createIds+"_"+createTypes, &redis.Z{
+			pipe.ZAddNX(ctx, "comment_"+creationIds+"_"+creationTypes, &redis.Z{
 				Score:  float64(id),
 				Member: ids + "%" + uuid,
 			})
-			pipe.Expire(ctx, "comment_"+createIds+"_"+createTypes, time.Hour*8)
+			pipe.Expire(ctx, "comment_"+creationIds+"_"+creationTypes, time.Hour*8)
 		}
 
 		if hotExist == 1 {
-			pipe.ZAddNX(ctx, "comment_"+createIds+"_"+createTypes+"_hot", &redis.Z{
+			pipe.ZAddNX(ctx, "comment_"+creationIds+"_"+creationTypes+"_hot", &redis.Z{
 				Score:  0,
 				Member: ids + "%" + uuid,
 			})
-			pipe.Expire(ctx, "comment_"+createIds+"_"+createTypes+"_hot", time.Hour*8)
+			pipe.Expire(ctx, "comment_"+creationIds+"_"+creationTypes+"_hot", time.Hour*8)
 		}
 		return nil
 	})
 	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to create comment cache: id(%v), uuid(%s), creationId(%v), creationType(%v)", id, uuid, createId, createType))
+		return errors.Wrapf(err, fmt.Sprintf("fail to create comment cache: id(%v), uuid(%s), creationId(%v), creationType(%v)", id, uuid, creationId, creationType))
 	}
 	return nil
 }
 
-func (r *commentRepo) commentCacheExist(ctx context.Context, createIds, createTypes string) (int32, int32, error) {
+func (r *commentRepo) commentCacheExist(ctx context.Context, creationIds, creationTypes string) (int32, int32, error) {
 	exists := make([]int32, 0)
 	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.Exists(ctx, "comment_"+createIds+"_"+createTypes)
-		pipe.Exists(ctx, "comment_"+createIds+"_"+createTypes+"_hot")
+		pipe.Exists(ctx, "comment_"+creationIds+"_"+creationTypes)
+		pipe.Exists(ctx, "comment_"+creationIds+"_"+creationTypes+"_hot")
 		return nil
 	})
 	if err != nil {
-		return 0, 0, errors.Wrapf(err, fmt.Sprintf("fail to check if comment exist from cache: createIds(%s),createTypes(%s)", createIds, createTypes))
+		return 0, 0, errors.Wrapf(err, fmt.Sprintf("fail to check if comment exist from cache: creationIds(%s),creationTypes(%s)", creationIds, creationTypes))
 	}
 
 	for _, item := range cmd {
@@ -512,6 +772,47 @@ func (r *commentRepo) DeleteCommentDraft(ctx context.Context, id int32, uuid str
 	err := r.data.DB(ctx).Where("uuid = ?", uuid).Delete(cd).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to delete comment draft: uuid(%s), id(%v)", uuid, id))
+	}
+	return nil
+}
+
+func (r *commentRepo) RemoveComment(ctx context.Context, id int32, uuid string) error {
+	c := &Comment{}
+	err := r.data.DB(ctx).Where("comment_id = ? and uuid = ?", id, uuid).Delete(c).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to delete a comment: id(%v), uuid(%s)", id, uuid))
+	}
+
+	sc := &SubComment{}
+	err = r.data.DB(ctx).Where("root_id = ?", id).Delete(sc).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to delete subcomment: id(%v), uuid(%s)", id, uuid))
+	}
+	return nil
+}
+
+func (r *commentRepo) RemoveCommentAgree(ctx context.Context, id int32, uuid string) error {
+	ca := &CommentAgree{}
+	err := r.data.DB(ctx).Where("comment_id = ? and uuid = ?", id, uuid).Delete(ca).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to delete a comment agree record: id(%v), uuid(%s)", id, uuid))
+	}
+	return nil
+}
+
+func (r *commentRepo) RemoveCommentCache(ctx context.Context, id, creationId, creationType int32, uuid string) error {
+	ids := strconv.Itoa(int(id))
+	creationIds := strconv.Itoa(int(creationId))
+	creationTypes := strconv.Itoa(int(creationType))
+
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.Del(ctx, "comment_"+ids)
+		pipe.ZRem(ctx, "comment_"+creationIds+"_"+creationTypes, ids+"%"+uuid)
+		pipe.ZRem(ctx, "comment_"+creationIds+"_"+creationTypes+"_hot", ids+"%"+uuid)
+		return nil
+	})
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to remove comment cache: id(%v), uuid(%s), creationId(%v), creationType(%v)", id, uuid, creationId, creationType))
 	}
 	return nil
 }
