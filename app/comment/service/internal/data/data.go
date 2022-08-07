@@ -19,7 +19,7 @@ import (
 	"time"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewTransaction, NewCommentRepo, NewRocketmqCommentProducer, NewRocketmqReviewProducer, NewCosServiceClient)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewTransaction, NewCommentRepo, NewRocketmqCommentProducer, NewRocketmqReviewProducer, NewRocketmqAchievementProducer, NewCosServiceClient)
 
 type ReviewMqPro struct {
 	producer rocketmq.Producer
@@ -29,13 +29,18 @@ type CommentMqPro struct {
 	producer rocketmq.Producer
 }
 
+type AchievementMqPro struct {
+	producer rocketmq.Producer
+}
+
 type Data struct {
-	db          *gorm.DB
-	log         *log.Helper
-	cosCli      *cos.Client
-	redisCli    redis.Cmdable
-	reviewMqPro *ReviewMqPro
-	commonMqPro *CommentMqPro
+	db               *gorm.DB
+	log              *log.Helper
+	cosCli           *cos.Client
+	redisCli         redis.Cmdable
+	reviewMqPro      *ReviewMqPro
+	commonMqPro      *CommentMqPro
+	achievementMqPro *AchievementMqPro
 }
 
 type contextTxKey struct{}
@@ -158,15 +163,43 @@ func NewRocketmqCommentProducer(conf *conf.Data, logger log.Logger) *CommentMqPr
 	}
 }
 
-func NewData(db *gorm.DB, cos *cos.Client, redisCmd redis.Cmdable, rm *ReviewMqPro, cm *CommentMqPro, logger log.Logger) (*Data, func(), error) {
+func NewRocketmqAchievementProducer(conf *conf.Data, logger log.Logger) *AchievementMqPro {
+	l := log.NewHelper(log.With(logger, "module", "creation/data/rocketmq-achievement-producer"))
+	p, err := rocketmq.NewProducer(
+		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.AchievementMq.ServerAddress})),
+		producer.WithCredentials(primitive.Credentials{
+			SecretKey: conf.AchievementMq.SecretKey,
+			AccessKey: conf.AchievementMq.AccessKey,
+		}),
+		producer.WithInstanceName("achievement"),
+		producer.WithGroupName(conf.AchievementMq.Achievement.GroupName),
+		producer.WithNamespace(conf.AchievementMq.NameSpace),
+	)
+
+	if err != nil {
+		l.Fatalf("init producer error: %v", err)
+	}
+
+	err = p.Start()
+	if err != nil {
+		l.Fatalf("start producer error: %v", err)
+	}
+
+	return &AchievementMqPro{
+		producer: p,
+	}
+}
+
+func NewData(db *gorm.DB, cos *cos.Client, redisCmd redis.Cmdable, rm *ReviewMqPro, cm *CommentMqPro, ap *AchievementMqPro, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(logger, "module", "comment/data/new-data"))
 
 	d := &Data{
-		db:          db,
-		redisCli:    redisCmd,
-		cosCli:      cos,
-		reviewMqPro: rm,
-		commonMqPro: cm,
+		db:               db,
+		redisCli:         redisCmd,
+		cosCli:           cos,
+		reviewMqPro:      rm,
+		achievementMqPro: ap,
+		commonMqPro:      cm,
 	}
 	return d, func() {
 		err := d.commonMqPro.producer.Shutdown()
@@ -177,6 +210,11 @@ func NewData(db *gorm.DB, cos *cos.Client, redisCmd redis.Cmdable, rm *ReviewMqP
 		err = d.reviewMqPro.producer.Shutdown()
 		if err != nil {
 			l.Errorf("shutdown comment review producer error: %v", err.Error())
+		}
+
+		err = d.achievementMqPro.producer.Shutdown()
+		if err != nil {
+			l.Errorf("shutdown achievement producer error: %v", err.Error())
 		}
 
 		l.Info("closing the data resources")
