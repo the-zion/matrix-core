@@ -39,6 +39,16 @@ func (r *commentRepo) GetLastCommentDraft(ctx context.Context, uuid string) (*bi
 	}, nil
 }
 
+func (r *commentRepo) GetUserCommentAgree(ctx context.Context, uuid string) (map[int32]bool, error) {
+	reply, err := r.data.commc.GetUserCommentAgree(ctx, &commentV1.GetUserCommentAgreeReq{
+		Uuid: uuid,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return reply.Agree, nil
+}
+
 func (r *commentRepo) GetCommentList(ctx context.Context, page, creationId, creationType int32) ([]*biz.Comment, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("comment_%v_%v_%v", creationId, creationType, page), func() (interface{}, error) {
 		reply := make([]*biz.Comment, 0)
@@ -159,6 +169,48 @@ func (r *commentRepo) SendComment(ctx context.Context, id int32, uuid, ip string
 		Id:   id,
 		Uuid: uuid,
 		Ip:   ip,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *commentRepo) RemoveComment(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error {
+	_, err := r.data.commc.RemoveComment(ctx, &commentV1.RemoveCommentReq{
+		Id:           id,
+		CreationId:   creationId,
+		CreationType: creationType,
+		Uuid:         uuid,
+		UserUuid:     userUuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *commentRepo) SetCommentAgree(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error {
+	_, err := r.data.commc.SetCommentAgree(ctx, &commentV1.SetCommentAgreeReq{
+		Uuid:         uuid,
+		Id:           id,
+		UserUuid:     userUuid,
+		CreationId:   creationId,
+		CreationType: creationType,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *commentRepo) CancelCommentAgree(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error {
+	_, err := r.data.commc.CancelCommentAgree(ctx, &commentV1.CancelCommentAgreeReq{
+		Uuid:         uuid,
+		Id:           id,
+		UserUuid:     userUuid,
+		CreationId:   creationId,
+		CreationType: creationType,
 	})
 	if err != nil {
 		return err
