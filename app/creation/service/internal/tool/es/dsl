@@ -1,0 +1,95 @@
+PUT article
+{
+  "mappings": {
+    "properties": {
+      "title": {
+        "type": "text",
+        "analyzer": "thulac"
+      },
+      "tags": {
+        "type": "text",
+        "analyzer": "thulac"
+      },
+      "text": {
+        "type": "text",
+        "analyzer": "thulac"
+      },
+      "cover": {
+        "type": "text",
+        "index": false
+      },
+      "uuid": {
+        "type": "text",
+        "index": false
+      },
+      "update": {
+        "type": "date",
+        "format": "yyyy/M/d"
+      }
+    }
+  }
+}
+
+PUT talk
+{
+  "mappings": {
+    "properties": {
+      "title": {
+        "type": "text",
+        "analyzer": "thulac"
+      },
+      "tags": {
+        "type": "text",
+        "analyzer": "thulac"
+      },
+      "text": {
+        "type": "text",
+        "analyzer": "thulac"
+      },
+      "cover": {
+        "type": "text",
+        "index": false
+      },
+      "uuid": {
+        "type": "text",
+        "index": false
+      },
+      "update": {
+        "type": "date",
+        "format": "yyyy/M/d"
+      }
+    }
+  }
+}
+
+PUT column
+{
+  "mappings": {
+    "properties": {
+      "name": {
+        "type": "text",
+        "analyzer": "thulac"
+      },
+      "tags": {
+        "type": "text",
+        "analyzer": "thulac"
+      },
+      "introduce": {
+        "type": "text",
+        "analyzer": "thulac"
+      },
+      "cover": {
+        "type": "text",
+        "index": false
+      },
+      "uuid": {
+        "type": "text",
+        "index": false
+      },
+      "update": {
+        "type": "date",
+        "format": "yyyy/M/d"
+      }
+    }
+  }
+}
