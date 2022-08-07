@@ -23,10 +23,21 @@ type Comment struct {
 	Comment      int32          `gorm:"default:0"`
 }
 
-type SubComment struct {
+type CommentAgree struct {
 	gorm.Model
-	CommentId int32 `gorm:"index"`
+	CommentId int32  `gorm:"uniqueIndex:idx_unique"`
+	Uuid      string `gorm:"uniqueIndex:idx_unique;size:36"`
+	Status    int32  `gorm:"default:1"`
+}
+
+type SubComment struct {
+	CommentId int32 `gorm:"primarykey"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+	RootId    int32          `gorm:"index"`
 	ParentId  int32
+	Uuid      string `gorm:"index;size:36"`
 	Agree     int32
 }
 
