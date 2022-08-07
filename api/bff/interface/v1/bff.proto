@@ -813,6 +813,12 @@ service Bff{
     };
   }
 
+  rpc GetUserCommentAgree(google.protobuf.Empty) returns (GetUserCommentAgreeReply){
+    option (google.api.http) = {
+      get: "/v1/get/user/comment/agree"
+    };
+  }
+
   rpc GetCommentList(GetCommentListReq) returns (GetCommentListReply){
     option (google.api.http) = {
       get: "/v1/get/comment/list"
@@ -835,6 +841,27 @@ service Bff{
   rpc SendComment(SendCommentReq) returns (google.protobuf.Empty){
     option (google.api.http) = {
       post: "/v1/send/comment"
+      body: "*"
+    };
+  }
+
+  rpc RemoveComment(RemoveCommentReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/remove/comment"
+      body: "*"
+    };
+  }
+
+  rpc SetCommentAgree(SetCommentAgreeReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/set/comment/agree"
+      body: "*"
+    };
+  }
+
+  rpc CancelCommentAgree(CancelCommentAgreeReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/cancel/comment/agree"
       body: "*"
     };
   }
@@ -1747,8 +1774,19 @@ message GetLastCommentDraftReply{
   int32 status = 2;
 }
 
+message GetUserCommentAgreeReply{
+  map<int32, bool> agree = 1;
+}
+
 message SendCommentReq{
   int32 id = 1;
+}
+
+message RemoveCommentReq{
+  int32 id = 1;
+  string uuid = 2;
+  int32 creationId = 3;
+  int32 creationType = 4;
 }
 
 message GetCommentListReq{
@@ -1766,4 +1804,18 @@ message GetCommentListReply{
     string username = 5;
   }
   repeated Comment comment = 1;
+}
+
+message SetCommentAgreeReq{
+  int32 id = 1;
+  string uuid = 2;
+  int32 creationId = 3;
+  int32 creationType = 4;
+}
+
+message CancelCommentAgreeReq{
+  int32 id = 1;
+  string uuid = 2;
+  int32 creationId = 3;
+  int32 creationType = 4;
 }
