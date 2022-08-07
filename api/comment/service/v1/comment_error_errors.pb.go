@@ -59,6 +59,18 @@ func ErrorGetCommentStatisticFailed(format string, args ...interface{}) *errors.
 	return errors.New(500, CommentErrorReason_GET_COMMENT_STATISTIC_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsGetUserCommentAgreeFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CommentErrorReason_GET_USER_COMMENT_AGREE_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetUserCommentAgreeFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CommentErrorReason_GET_USER_COMMENT_AGREE_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsCreateDraftFailed(err error) bool {
 	if err == nil {
 		return false
@@ -93,6 +105,42 @@ func IsSetRecordFailed(err error) bool {
 
 func ErrorSetRecordFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, CommentErrorReason_SET_RECORD_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsSetAgreeFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CommentErrorReason_SET_AGREE_FAILED.String() && e.Code == 500
+}
+
+func ErrorSetAgreeFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CommentErrorReason_SET_AGREE_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsCancelAgreeFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CommentErrorReason_CANCEL_AGREE_FAILED.String() && e.Code == 500
+}
+
+func ErrorCancelAgreeFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CommentErrorReason_CANCEL_AGREE_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsRemoveCommentFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CommentErrorReason_REMOVE_COMMENT_FAILED.String() && e.Code == 500
+}
+
+func ErrorRemoveCommentFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CommentErrorReason_REMOVE_COMMENT_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
 func IsRecordNotFound(err error) bool {
