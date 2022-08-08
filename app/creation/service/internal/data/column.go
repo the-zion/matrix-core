@@ -1,17 +1,21 @@
 package data
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/apache/rocketmq-client-go/v2/primitive"
+	"github.com/elastic/go-elasticsearch/v7/esapi"
 	kerrors "github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-redis/redis/v8"
 	"github.com/pkg/errors"
+	"github.com/tencentyun/cos-go-sdk-v5"
 	"github.com/the-zion/matrix-core/app/creation/service/internal/biz"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"io/ioutil"
 	"strconv"
 	"strings"
 	"time"
@@ -299,6 +303,40 @@ func (r *columnRepo) EditColumnCosIntroduce(ctx context.Context, id int32, uuid 
 }
 
 func (r *columnRepo) CreateColumnSearch(ctx context.Context, id int32, uuid string) error {
+	ids := strconv.Itoa(int(id))
+	key := "column/" + uuid + "/" + ids + "/search"
+	resp, err := r.data.cosCli.Object.Get(ctx, key, &cos.ObjectGetOptions{})
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to get column from cos: id(%v), uuid(%s)", id, uuid))
+	}
+
+	column, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to read request body: id(%v), uuid(%s)", id, uuid))
+	}
+
+	resp.Body.Close()
+
+	req := esapi.IndexRequest{
+		Index:      "column",
+		DocumentID: strconv.Itoa(int(id)),
+		Body:       bytes.NewReader(column),
+		Refresh:    "true",
+	}
+	res, err := req.Do(ctx, r.data.elasticSearch.es)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("error getting column search create response: id(%v), uuid(%s)", id, uuid))
+	}
+	defer res.Body.Close()
+
+	if res.IsError() {
+		var e map[string]interface{}
+		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
+			return errors.Wrapf(err, fmt.Sprintf("error parsing the response body: id(%v), uuid(%s)", id, uuid))
+		} else {
+			return errors.Errorf(fmt.Sprintf("error indexing document to es: reason(%v), id(%v), uuid(%s)", e, id, uuid))
+		}
+	}
 	return nil
 }
 
@@ -330,7 +368,7 @@ func (r *columnRepo) getColumnFromCache(ctx context.Context, page int32) ([]*biz
 		page = 1
 	}
 	index := int64(page - 1)
-	list, err := r.data.redisCli.ZRevRange(ctx, "column", index*10, index+9).Result()
+	list, err := r.data.redisCli.ZRevRange(ctx, "column", index*10, index*10+9).Result()
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get column from cache: key(%s), page(%v)", "column", page))
 	}
@@ -476,7 +514,7 @@ func (r *columnRepo) getColumnHotFromCache(ctx context.Context, page int32) ([]*
 		page = 1
 	}
 	index := int64(page - 1)
-	list, err := r.data.redisCli.ZRevRange(ctx, "column_hot", index*10, index+9).Result()
+	list, err := r.data.redisCli.ZRevRange(ctx, "column_hot", index*10, index*10+9).Result()
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get column hot from cache: key(%s), page(%v)", "column_hot", page))
 	}
@@ -502,7 +540,7 @@ func (r *columnRepo) getColumnHotFromDB(ctx context.Context, page int32) ([]*biz
 	}
 	index := int(page - 1)
 	list := make([]*ColumnStatistic, 0)
-	err := r.data.db.WithContext(ctx).Where("auth", 1).Order("agree desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Where("auth", 1).Order("agree desc, column_id desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get column statistic from db: page(%v)", page))
 	}
@@ -749,11 +787,212 @@ func (r *columnRepo) GetColumnSubscribes(ctx context.Context, uuid string, ids [
 	return subscribes, nil
 }
 
+func (r *columnRepo) GetColumnSearch(ctx context.Context, page int32, search, time string) ([]*biz.ColumnSearch, int32, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int64(page - 1)
+	reply := make([]*biz.ColumnSearch, 0)
+
+	var buf bytes.Buffer
+	var body map[string]interface{}
+	if search != "" {
+		body = map[string]interface{}{
+			"from":    index * 10,
+			"size":    10,
+			"_source": []string{"update", "tags", "cover", "uuid"},
+			"query": map[string]interface{}{
+				"bool": map[string]interface{}{
+					"must": []map[string]interface{}{
+						{"multi_match": map[string]interface{}{
+							"query":  search,
+							"fields": []string{"introduce", "tags", "name"},
+						}},
+					},
+					"filter": map[string]interface{}{
+						"range": map[string]interface{}{
+							"update": map[string]interface{}{},
+						},
+					},
+				},
+			},
+			"highlight": map[string]interface{}{
+				"fields": map[string]interface{}{
+					"introduce": map[string]interface{}{
+						"fragment_size":       300,
+						"number_of_fragments": 1,
+						"no_match_size":       300,
+						"pre_tags":            "<span style='color:red'>",
+						"post_tags":           "</span>",
+					},
+					"name": map[string]interface{}{
+						"pre_tags":      "<span style='color:red'>",
+						"post_tags":     "</span>",
+						"no_match_size": 100,
+					},
+				},
+			},
+		}
+	} else {
+		body = map[string]interface{}{
+			"from":    index * 10,
+			"size":    10,
+			"_source": []string{"update", "tags", "cover", "uuid"},
+			"query": map[string]interface{}{
+				"bool": map[string]interface{}{
+					"must": []map[string]interface{}{
+						{"match_all": map[string]interface{}{}},
+					},
+					"filter": map[string]interface{}{
+						"range": map[string]interface{}{
+							"update": map[string]interface{}{},
+						},
+					},
+				},
+			},
+			"highlight": map[string]interface{}{
+				"fields": map[string]interface{}{
+					"introduce": map[string]interface{}{
+						"fragment_size":       300,
+						"number_of_fragments": 1,
+						"no_match_size":       300,
+						"pre_tags":            "<span style='color:red'>",
+						"post_tags":           "</span>",
+					},
+					"name": map[string]interface{}{
+						"pre_tags":      "<span style='color:red'>",
+						"post_tags":     "</span>",
+						"no_match_size": 100,
+					},
+				},
+			},
+			"sort": []map[string]interface{}{
+				{"_id": "desc"},
+			},
+		}
+	}
+
+	switch time {
+	case "1day":
+		body["query"].(map[string]interface{})["bool"].(map[string]interface{})["filter"].(map[string]interface{})["range"].(map[string]interface{})["update"].(map[string]interface{})["gte"] = "now-1d"
+		break
+	case "1week":
+		body["query"].(map[string]interface{})["bool"].(map[string]interface{})["filter"].(map[string]interface{})["range"].(map[string]interface{})["update"].(map[string]interface{})["gte"] = "now-1w"
+		break
+	case "1month":
+		body["query"].(map[string]interface{})["bool"].(map[string]interface{})["filter"].(map[string]interface{})["range"].(map[string]interface{})["update"].(map[string]interface{})["gte"] = "now-1M"
+		break
+	case "1year":
+		body["query"].(map[string]interface{})["bool"].(map[string]interface{})["filter"].(map[string]interface{})["range"].(map[string]interface{})["update"].(map[string]interface{})["gte"] = "now-1y"
+		break
+	}
+	if err := json.NewEncoder(&buf).Encode(body); err != nil {
+		return nil, 0, errors.Wrapf(err, fmt.Sprintf("error encoding query: page(%v), search(%s), time(%s)", page, search, time))
+	}
+
+	res, err := r.data.elasticSearch.es.Search(
+		r.data.elasticSearch.es.Search.WithContext(ctx),
+		r.data.elasticSearch.es.Search.WithIndex("column"),
+		r.data.elasticSearch.es.Search.WithBody(&buf),
+		r.data.elasticSearch.es.Search.WithTrackTotalHits(true),
+		r.data.elasticSearch.es.Search.WithPretty(),
+	)
+	if err != nil {
+		return nil, 0, errors.Wrapf(err, fmt.Sprintf("error getting response from es: page(%v), search(%s), time(%s)", page, search, time))
+	}
+
+	if res.IsError() {
+		var e map[string]interface{}
+		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
+			return nil, 0, errors.Wrapf(err, fmt.Sprintf("error parsing the response body: page(%v), search(%s), time(%s)", page, search, time))
+		} else {
+			return nil, 0, errors.Errorf(fmt.Sprintf("error search column from es: reason(%v), page(%v), search(%s), time(%s)", e, page, search, time))
+		}
+	}
+
+	result := map[string]interface{}{}
+	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
+		return nil, 0, errors.Wrapf(err, fmt.Sprintf("error parsing the response body: page(%v), search(%s), time(%s)", page, search, time))
+	}
+
+	for _, hit := range result["hits"].(map[string]interface{})["hits"].([]interface{}) {
+		id, err := strconv.ParseInt(hit.(map[string]interface{})["_id"].(string), 10, 32)
+		if err != nil {
+			return nil, 0, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: page(%v), search(%s), time(%s)", page, search, time))
+		}
+
+		reply = append(reply, &biz.ColumnSearch{
+			Id:        int32(id),
+			Tags:      hit.(map[string]interface{})["_source"].(map[string]interface{})["tags"].(string),
+			Update:    hit.(map[string]interface{})["_source"].(map[string]interface{})["update"].(string),
+			Cover:     hit.(map[string]interface{})["_source"].(map[string]interface{})["cover"].(string),
+			Uuid:      hit.(map[string]interface{})["_source"].(map[string]interface{})["uuid"].(string),
+			Introduce: hit.(map[string]interface{})["highlight"].(map[string]interface{})["introduce"].([]interface{})[0].(string),
+			Name:      hit.(map[string]interface{})["highlight"].(map[string]interface{})["name"].([]interface{})[0].(string),
+		})
+	}
+	res.Body.Close()
+	return reply, int32(result["hits"].(map[string]interface{})["total"].(map[string]interface{})["value"].(float64)), nil
+}
+
 func (r *columnRepo) DeleteColumnSearch(ctx context.Context, id int32, uuid string) error {
+	req := esapi.DeleteRequest{
+		Index:      "column",
+		DocumentID: strconv.Itoa(int(id)),
+		Refresh:    "true",
+	}
+	res, err := req.Do(ctx, r.data.elasticSearch.es)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("Error getting column search delete response: id(%v), uuid(%s)", id, uuid))
+	}
+	defer res.Body.Close()
+
+	if res.IsError() {
+		var e map[string]interface{}
+		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
+			return errors.Wrapf(err, fmt.Sprintf("error parsing the response body: id(%v), uuid(%s)", id, uuid))
+		} else {
+			return errors.Errorf(fmt.Sprintf("error delete document to es: reason(%v), id(%v), uuid(%s)", e, id, uuid))
+		}
+	}
 	return nil
 }
 
 func (r *columnRepo) EditColumnSearch(ctx context.Context, id int32, uuid string) error {
+	ids := strconv.Itoa(int(id))
+	key := "column/" + uuid + "/" + ids + "/search"
+	resp, err := r.data.cosCli.Object.Get(ctx, key, &cos.ObjectGetOptions{})
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to get column from cos: id(%v), uuid(%s)", id, uuid))
+	}
+
+	column, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to read request body: id(%v), uuid(%s)", id, uuid))
+	}
+
+	resp.Body.Close()
+
+	req := esapi.IndexRequest{
+		Index:      "column",
+		DocumentID: strconv.Itoa(int(id)),
+		Body:       bytes.NewReader(column),
+		Refresh:    "true",
+	}
+	res, err := req.Do(ctx, r.data.elasticSearch.es)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("Error getting column search edit response: id(%v), uuid(%s)", id, uuid))
+	}
+	defer res.Body.Close()
+
+	if res.IsError() {
+		var e map[string]interface{}
+		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
+			return errors.Wrapf(err, fmt.Sprintf("error parsing the response body: id(%v), uuid(%s)", id, uuid))
+		} else {
+			return errors.Errorf(fmt.Sprintf("error indexing document to es: reason(%v), id(%v), uuid(%s)", e, id, uuid))
+		}
+	}
 	return nil
 }
 
