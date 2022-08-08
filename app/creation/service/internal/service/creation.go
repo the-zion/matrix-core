@@ -185,3 +185,31 @@ func (s *CreationService) DeleteCollections(ctx context.Context, req *v1.DeleteC
 	}
 	return &emptypb.Empty{}, nil
 }
+
+func (s *CreationService) AddCreationComment(ctx context.Context, req *v1.AddCreationCommentReq) (*emptypb.Empty, error) {
+	var err error
+	if req.CreationType == 1 {
+		err = s.ac.AddArticleComment(ctx, req.CreationId, req.Uuid)
+	}
+	if req.CreationType == 3 {
+		err = s.tc.AddTalkComment(ctx, req.CreationId, req.Uuid)
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) ReduceCreationComment(ctx context.Context, req *v1.ReduceCreationCommentReq) (*emptypb.Empty, error) {
+	var err error
+	if req.CreationType == 1 {
+		err = s.ac.ReduceArticleComment(ctx, req.CreationId, req.Uuid)
+	}
+	if req.CreationType == 3 {
+		err = s.tc.ReduceTalkComment(ctx, req.CreationId, req.Uuid)
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
