@@ -19,8 +19,8 @@ type Comment struct {
 	CreationId   int32          `gorm:"index:creation"`
 	CreationType int32          `gorm:"index:creation"`
 	Uuid         string         `gorm:"index;size:36"`
-	Agree        int32          `gorm:"index;default:0"`
-	Comment      int32          `gorm:"default:0"`
+	Agree        int32          `gorm:"index;type:int unsigned;default:0"`
+	Comment      int32          `gorm:"type:int unsigned;default:0"`
 }
 
 type CommentAgree struct {
@@ -38,7 +38,7 @@ type SubComment struct {
 	RootId    int32          `gorm:"index"`
 	ParentId  int32
 	Uuid      string `gorm:"index;size:36"`
-	Agree     int32
+	Agree     int32  `gorm:"type:int unsigned;default:0"`
 }
 
 type Record struct {
