@@ -129,3 +129,36 @@ type News struct {
 	Cover  string
 	Url    string
 }
+
+type ArticleSearch struct {
+	Id     int32
+	Total  int32
+	Title  string
+	Tags   string
+	Uuid   string
+	Text   string
+	Cover  string
+	Update string
+}
+
+type TalkSearch struct {
+	Id     int32
+	Total  int32
+	Title  string
+	Tags   string
+	Uuid   string
+	Text   string
+	Cover  string
+	Update string
+}
+
+type ColumnSearch struct {
+	Id        int32
+	Total     int32
+	Name      string
+	Tags      string
+	Uuid      string
+	Introduce string
+	Cover     string
+	Update    string
+}
