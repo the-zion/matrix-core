@@ -646,3 +646,15 @@ func IsAddCommentFailed(err error) bool {
 func ErrorAddCommentFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, CreationErrorReason_ADD_COMMENT_FAILED.String(), fmt.Sprintf(format, args...))
 }
+
+func IsReduceCommentFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_REDUCE_COMMENT_FAILED.String() && e.Code == 500
+}
+
+func ErrorReduceCommentFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_REDUCE_COMMENT_FAILED.String(), fmt.Sprintf(format, args...))
+}
