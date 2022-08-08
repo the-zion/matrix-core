@@ -30,6 +30,10 @@ type ArticleRepo interface {
 	CreateArticleFolder(ctx context.Context, id int32, uuid string) error
 	CreateArticleCache(ctx context.Context, id, auth int32, uuid string) error
 	CreateArticleSearch(ctx context.Context, id int32, uuid string) error
+	AddArticleComment(ctx context.Context, id int32) error
+	AddArticleCommentToCache(ctx context.Context, id int32, uuid string) error
+	ReduceArticleComment(ctx context.Context, id int32) error
+	ReduceArticleCommentToCache(ctx context.Context, id int32, uuid string) error
 
 	EditArticleCos(ctx context.Context, id int32, uuid string) error
 	EditArticleSearch(ctx context.Context, id int32, uuid string) error
@@ -488,4 +492,34 @@ func (r *ArticleUseCase) ArticleStatisticJudge(ctx context.Context, id int32, uu
 		Agree:   agree,
 		Collect: collect,
 	}, nil
+}
+
+func (r *ArticleUseCase) AddArticleComment(ctx context.Context, id int32, uuid string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		err := r.repo.AddArticleComment(ctx, id)
+		if err != nil {
+			return v1.ErrorAddCommentFailed("add article comment failed: %s", err.Error())
+		}
+
+		err = r.repo.AddArticleCommentToCache(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorAddCommentFailed("add article comment failed: %s", err.Error())
+		}
+		return nil
+	})
+}
+
+func (r *ArticleUseCase) ReduceArticleComment(ctx context.Context, id int32, uuid string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		err := r.repo.ReduceArticleComment(ctx, id)
+		if err != nil {
+			return v1.ErrorReduceCommentFailed("reduce article comment failed: %s", err.Error())
+		}
+
+		err = r.repo.ReduceArticleCommentToCache(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorReduceCommentFailed("reduce article comment failed: %s", err.Error())
+		}
+		return nil
+	})
 }
