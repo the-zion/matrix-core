@@ -45,6 +45,7 @@ type ColumnRepo interface {
 	GetSubscribeList(ctx context.Context, page int32, uuid string) ([]*Subscribe, error)
 	GetSubscribeListCount(ctx context.Context, uuid string) (int32, error)
 	GetColumnSubscribes(ctx context.Context, uuid string, ids []int32) ([]*Subscribe, error)
+	GetColumnSearch(ctx context.Context, page int32, search, time string) ([]*ColumnSearch, int32, error)
 
 	SendColumn(ctx context.Context, id int32, uuid string) (*ColumnDraft, error)
 	SendColumnToMq(ctx context.Context, column *Column, mode string) error
@@ -97,6 +98,14 @@ func (r *ColumnUseCase) GetLastColumnDraft(ctx context.Context, uuid string) (*C
 		return nil, v1.ErrorGetColumnDraftFailed("get last draft failed: %s", err.Error())
 	}
 	return draft, nil
+}
+
+func (r *ColumnUseCase) GetColumnSearch(ctx context.Context, page int32, search, time string) ([]*ColumnSearch, int32, error) {
+	columnList, total, err := r.repo.GetColumnSearch(ctx, page, search, time)
+	if err != nil {
+		return nil, 0, v1.ErrorGetColumnSearchFailed("get column search failed: %s", err.Error())
+	}
+	return columnList, total, nil
 }
 
 func (r *ColumnUseCase) CreateColumnDraft(ctx context.Context, uuid string) (int32, error) {
