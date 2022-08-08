@@ -144,6 +144,27 @@ func (s *CreationService) GetLastArticleDraft(ctx context.Context, req *v1.GetLa
 	}, nil
 }
 
+func (s *CreationService) GetArticleSearch(ctx context.Context, req *v1.GetArticleSearchReq) (*v1.GetArticleSearchReply, error) {
+	reply := &v1.GetArticleSearchReply{List: make([]*v1.GetArticleSearchReply_List, 0)}
+	articleList, total, err := s.ac.GetArticleSearch(ctx, req.Page, req.Search, req.Time)
+	if err != nil {
+		return reply, err
+	}
+	for _, item := range articleList {
+		reply.List = append(reply.List, &v1.GetArticleSearchReply_List{
+			Id:     item.Id,
+			Tags:   item.Tags,
+			Title:  item.Title,
+			Uuid:   item.Uuid,
+			Text:   item.Text,
+			Cover:  item.Cover,
+			Update: item.Update,
+		})
+	}
+	reply.Total = total
+	return reply, nil
+}
+
 func (s *CreationService) CreateArticle(ctx context.Context, req *v1.CreateArticleReq) (*emptypb.Empty, error) {
 	err := s.ac.CreateArticle(ctx, req.Id, req.Auth, req.Uuid)
 	if err != nil {
