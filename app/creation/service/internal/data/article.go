@@ -1,17 +1,21 @@
 package data
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/apache/rocketmq-client-go/v2/primitive"
+	"github.com/elastic/go-elasticsearch/v7/esapi"
 	kerrors "github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-redis/redis/v8"
 	"github.com/pkg/errors"
+	"github.com/tencentyun/cos-go-sdk-v5"
 	"github.com/the-zion/matrix-core/app/creation/service/internal/biz"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"io/ioutil"
 	"strconv"
 	"strings"
 )
@@ -231,7 +235,7 @@ func (r *articleRepo) getArticleHotFromDB(ctx context.Context, page int32) ([]*b
 	}
 	index := int(page - 1)
 	list := make([]*ArticleStatistic, 0)
-	err := r.data.db.WithContext(ctx).Where("auth", 1).Order("agree desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Where("auth", 1).Order("agree desc, article_id desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get article statistic from db: page(%v)", page))
 	}
@@ -327,7 +331,6 @@ func (r *articleRepo) GetArticleDraftList(ctx context.Context, uuid string) ([]*
 	reply := make([]*biz.ArticleDraft, 0)
 	draftList := make([]*ArticleDraft, 0)
 	err := r.data.db.WithContext(ctx).Where("uuid = ? and status = ?", uuid, 3).Order("id desc").Find(&draftList).Error
-	//err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).Order("id desc").Find(&draftList).Error
 	if err != nil {
 		return reply, errors.Wrapf(err, fmt.Sprintf("fail to get draft list : uuid(%s)", uuid))
 	}
@@ -337,6 +340,154 @@ func (r *articleRepo) GetArticleDraftList(ctx context.Context, uuid string) ([]*
 		})
 	}
 	return reply, nil
+}
+
+func (r *articleRepo) GetArticleSearch(ctx context.Context, page int32, search, time string) ([]*biz.ArticleSearch, int32, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int64(page - 1)
+	reply := make([]*biz.ArticleSearch, 0)
+
+	var buf bytes.Buffer
+	var body map[string]interface{}
+	if search != "" {
+		body = map[string]interface{}{
+			"from":    index * 10,
+			"size":    10,
+			"_source": []string{"update", "tags", "cover", "uuid"},
+			"query": map[string]interface{}{
+				"bool": map[string]interface{}{
+					"must": []map[string]interface{}{
+						{"multi_match": map[string]interface{}{
+							"query":  search,
+							"fields": []string{"text", "tags", "title"},
+						}},
+					},
+					"filter": map[string]interface{}{
+						"range": map[string]interface{}{
+							"update": map[string]interface{}{},
+						},
+					},
+				},
+			},
+			"highlight": map[string]interface{}{
+				"fields": map[string]interface{}{
+					"text": map[string]interface{}{
+						"fragment_size":       300,
+						"number_of_fragments": 1,
+						"no_match_size":       300,
+						"pre_tags":            "<span style='color:red'>",
+						"post_tags":           "</span>",
+					},
+					"title": map[string]interface{}{
+						"pre_tags":      "<span style='color:red'>",
+						"post_tags":     "</span>",
+						"no_match_size": 100,
+					},
+				},
+			},
+		}
+	} else {
+		body = map[string]interface{}{
+			"from":    index * 10,
+			"size":    10,
+			"_source": []string{"update", "tags", "cover", "uuid"},
+			"query": map[string]interface{}{
+				"bool": map[string]interface{}{
+					"must": []map[string]interface{}{
+						{"match_all": map[string]interface{}{}},
+					},
+					"filter": map[string]interface{}{
+						"range": map[string]interface{}{
+							"update": map[string]interface{}{},
+						},
+					},
+				},
+			},
+			"highlight": map[string]interface{}{
+				"fields": map[string]interface{}{
+					"text": map[string]interface{}{
+						"fragment_size":       300,
+						"number_of_fragments": 1,
+						"no_match_size":       300,
+						"pre_tags":            "<span style='color:red'>",
+						"post_tags":           "</span>",
+					},
+					"title": map[string]interface{}{
+						"pre_tags":      "<span style='color:red'>",
+						"post_tags":     "</span>",
+						"no_match_size": 100,
+					},
+				},
+			},
+			"sort": []map[string]interface{}{
+				{"_id": "desc"},
+			},
+		}
+	}
+
+	switch time {
+	case "1day":
+		body["query"].(map[string]interface{})["bool"].(map[string]interface{})["filter"].(map[string]interface{})["range"].(map[string]interface{})["update"].(map[string]interface{})["gte"] = "now-1d"
+		break
+	case "1week":
+		body["query"].(map[string]interface{})["bool"].(map[string]interface{})["filter"].(map[string]interface{})["range"].(map[string]interface{})["update"].(map[string]interface{})["gte"] = "now-1w"
+		break
+	case "1month":
+		body["query"].(map[string]interface{})["bool"].(map[string]interface{})["filter"].(map[string]interface{})["range"].(map[string]interface{})["update"].(map[string]interface{})["gte"] = "now-1M"
+		break
+	case "1year":
+		body["query"].(map[string]interface{})["bool"].(map[string]interface{})["filter"].(map[string]interface{})["range"].(map[string]interface{})["update"].(map[string]interface{})["gte"] = "now-1y"
+		break
+	}
+	if err := json.NewEncoder(&buf).Encode(body); err != nil {
+		return nil, 0, errors.Wrapf(err, fmt.Sprintf("error encoding query: page(%v), search(%s), time(%s)", page, search, time))
+	}
+
+	res, err := r.data.elasticSearch.es.Search(
+		r.data.elasticSearch.es.Search.WithContext(ctx),
+		r.data.elasticSearch.es.Search.WithIndex("article"),
+		r.data.elasticSearch.es.Search.WithBody(&buf),
+		r.data.elasticSearch.es.Search.WithTrackTotalHits(true),
+		r.data.elasticSearch.es.Search.WithPretty(),
+	)
+	if err != nil {
+		return nil, 0, errors.Wrapf(err, fmt.Sprintf("error getting response from es: page(%v), search(%s), time(%s)", page, search, time))
+	}
+
+	if res.IsError() {
+		var e map[string]interface{}
+		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
+			return nil, 0, errors.Wrapf(err, fmt.Sprintf("error parsing the response body: page(%v), search(%s), time(%s)", page, search, time))
+		} else {
+			return nil, 0, errors.Errorf(fmt.Sprintf("error search article from  es: reason(%v), page(%v), search(%s), time(%s)", e, page, search, time))
+		}
+	}
+
+	result := map[string]interface{}{}
+	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
+		return nil, 0, errors.Wrapf(err, fmt.Sprintf("error parsing the response body: page(%v), search(%s), time(%s)", page, search, time))
+	}
+
+	for _, hit := range result["hits"].(map[string]interface{})["hits"].([]interface{}) {
+		id, err := strconv.ParseInt(hit.(map[string]interface{})["_id"].(string), 10, 32)
+		if err != nil {
+			return nil, 0, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: page(%v), search(%s), time(%s)", page, search, time))
+		}
+
+		reply = append(reply, &biz.ArticleSearch{
+			Id:     int32(id),
+			Tags:   hit.(map[string]interface{})["_source"].(map[string]interface{})["tags"].(string),
+			Update: hit.(map[string]interface{})["_source"].(map[string]interface{})["update"].(string),
+			Cover:  hit.(map[string]interface{})["_source"].(map[string]interface{})["cover"].(string),
+			Uuid:   hit.(map[string]interface{})["_source"].(map[string]interface{})["uuid"].(string),
+			Text:   hit.(map[string]interface{})["highlight"].(map[string]interface{})["text"].([]interface{})[0].(string),
+			Title:  hit.(map[string]interface{})["highlight"].(map[string]interface{})["title"].([]interface{})[0].(string),
+		})
+	}
+	res.Body.Close()
+	return reply, int32(result["hits"].(map[string]interface{})["total"].(map[string]interface{})["value"].(float64)), nil
 }
 
 func (r *articleRepo) CreateArticle(ctx context.Context, id, auth int32, uuid string) error {
@@ -467,10 +618,120 @@ func (r *articleRepo) FreezeArticleCos(ctx context.Context, id int32, uuid strin
 }
 
 func (r *articleRepo) CreateArticleSearch(ctx context.Context, id int32, uuid string) error {
+	ids := strconv.Itoa(int(id))
+	key := "article/" + uuid + "/" + ids + "/search"
+	resp, err := r.data.cosCli.Object.Get(ctx, key, &cos.ObjectGetOptions{})
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to get article from cos: id(%v), uuid(%s)", id, uuid))
+	}
+
+	article, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to read request body: id(%v), uuid(%s)", id, uuid))
+	}
+
+	resp.Body.Close()
+
+	req := esapi.IndexRequest{
+		Index:      "article",
+		DocumentID: strconv.Itoa(int(id)),
+		Body:       bytes.NewReader(article),
+		Refresh:    "true",
+	}
+	res, err := req.Do(ctx, r.data.elasticSearch.es)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("error getting article search create response: id(%v), uuid(%s)", id, uuid))
+	}
+	defer res.Body.Close()
+
+	if res.IsError() {
+		var e map[string]interface{}
+		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
+			return errors.Wrapf(err, fmt.Sprintf("error parsing the response body: id(%v), uuid(%s)", id, uuid))
+		} else {
+			return errors.Errorf(fmt.Sprintf("error indexing document to es: reason(%v), id(%v), uuid(%s)", e, id, uuid))
+		}
+	}
+	return nil
+}
+
+func (r *articleRepo) AddArticleComment(ctx context.Context, id int32) error {
+	as := ArticleStatistic{}
+	err := r.data.DB(ctx).Model(&as).Where("article_id = ?", id).Update("comment", gorm.Expr("comment + ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add article comment: id(%v)", id))
+	}
+	return nil
+}
+
+func (r *articleRepo) AddArticleCommentToCache(ctx context.Context, id int32, uuid string) error {
+	key := "article_" + strconv.Itoa(int(id))
+	exist, err := r.data.redisCli.Exists(ctx, key).Result()
+	if err != nil {
+		r.log.Errorf("fail to check if article statistic exist from cache: id(%v), uuid(%s)", id, uuid)
+	}
+
+	if exist == 0 {
+		return nil
+	}
+
+	_, err = r.data.redisCli.HIncrBy(ctx, key, "comment", 1).Result()
+	if err != nil {
+		r.log.Errorf("fail to add article comment to cache: id(%v), uuid(%s)", id, uuid)
+	}
+	return nil
+}
+
+func (r *articleRepo) ReduceArticleComment(ctx context.Context, id int32) error {
+	as := ArticleStatistic{}
+	err := r.data.DB(ctx).Model(&as).Where("article_id = ? and comment > 0", id).Update("comment", gorm.Expr("comment - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to reduce article comment: id(%v)", id))
+	}
+	return nil
+}
+
+func (r *articleRepo) ReduceArticleCommentToCache(ctx context.Context, id int32, uuid string) error {
+	key := "article_" + strconv.Itoa(int(id))
+	var incrBy = redis.NewScript(`
+					local key = KEYS[1]
+					local value = redis.call("EXISTS", key)
+					if value == 1 then
+						local number = tonumber(redis.call("HGET", key, "comment"))
+						if number > 0 then
+  							redis.call("HINCRBY", key, "comment", -1)
+						end
+					end
+					return 0
+	`)
+	keys := []string{key}
+	_, err := incrBy.Run(ctx, r.data.redisCli, keys).Result()
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to reduce article comment to cache: id(%v), uuid(%s)", id, uuid))
+	}
 	return nil
 }
 
 func (r *articleRepo) DeleteArticleSearch(ctx context.Context, id int32, uuid string) error {
+	req := esapi.DeleteRequest{
+		Index:      "article",
+		DocumentID: strconv.Itoa(int(id)),
+		Refresh:    "true",
+	}
+	res, err := req.Do(ctx, r.data.elasticSearch.es)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("Error getting article search delete response: id(%v), uuid(%s)", id, uuid))
+	}
+	defer res.Body.Close()
+
+	if res.IsError() {
+		var e map[string]interface{}
+		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
+			return errors.Wrapf(err, fmt.Sprintf("error parsing the response body: id(%v), uuid(%s)", id, uuid))
+		} else {
+			return errors.Errorf(fmt.Sprintf("error delete document to es: reason(%v), id(%v), uuid(%s)", e, id, uuid))
+		}
+	}
 	return nil
 }
 
@@ -512,6 +773,40 @@ func (r *articleRepo) EditArticleCosIntroduce(ctx context.Context, id int32, uui
 }
 
 func (r *articleRepo) EditArticleSearch(ctx context.Context, id int32, uuid string) error {
+	ids := strconv.Itoa(int(id))
+	key := "article/" + uuid + "/" + ids + "/search"
+	resp, err := r.data.cosCli.Object.Get(ctx, key, &cos.ObjectGetOptions{})
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to get article from cos: id(%v), uuid(%s)", id, uuid))
+	}
+
+	article, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to read request body: id(%v), uuid(%s)", id, uuid))
+	}
+
+	resp.Body.Close()
+
+	req := esapi.IndexRequest{
+		Index:      "article",
+		DocumentID: strconv.Itoa(int(id)),
+		Body:       bytes.NewReader(article),
+		Refresh:    "true",
+	}
+	res, err := req.Do(ctx, r.data.elasticSearch.es)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("Error getting article search edit response: id(%v), uuid(%s)", id, uuid))
+	}
+	defer res.Body.Close()
+
+	if res.IsError() {
+		var e map[string]interface{}
+		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
+			return errors.Wrapf(err, fmt.Sprintf("error parsing the response body: id(%v), uuid(%s)", id, uuid))
+		} else {
+			return errors.Errorf(fmt.Sprintf("error indexing document to es: reason(%v), id(%v), uuid(%s)", e, id, uuid))
+		}
+	}
 	return nil
 }
 
@@ -754,7 +1049,7 @@ func (r *articleRepo) getArticleFromCache(ctx context.Context, page int32) ([]*b
 		page = 1
 	}
 	index := int64(page - 1)
-	list, err := r.data.redisCli.ZRevRange(ctx, "article", index*10, index+9).Result()
+	list, err := r.data.redisCli.ZRevRange(ctx, "article", index*10, index*10+9).Result()
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get article from cache: key(%s), page(%v)", "article", page))
 	}
@@ -779,7 +1074,7 @@ func (r *articleRepo) getArticleHotFromCache(ctx context.Context, page int32) ([
 		page = 1
 	}
 	index := int64(page - 1)
-	list, err := r.data.redisCli.ZRevRange(ctx, "article_hot", index*10, index+9).Result()
+	list, err := r.data.redisCli.ZRevRange(ctx, "article_hot", index*10, index*10+9).Result()
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get article hot from cache: key(%s), page(%v)", "article_hot", page))
 	}
