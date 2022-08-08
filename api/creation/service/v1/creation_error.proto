@@ -69,4 +69,5 @@ enum CreationErrorReason {
   SET_RECORD_FAILED = 50;
   NOT_EMPTY = 51;
   ADD_COMMENT_FAILED = 52;
+  REDUCE_COMMENT_FAILED = 53;
 }
