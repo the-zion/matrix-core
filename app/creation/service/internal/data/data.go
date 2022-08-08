@@ -10,7 +10,6 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/google/wire"
 	"github.com/tencentyun/cos-go-sdk-v5"
-	_ "github.com/tencentyun/cos-go-sdk-v5"
 	"github.com/the-zion/matrix-core/app/creation/service/internal/biz"
 	"github.com/the-zion/matrix-core/app/creation/service/internal/conf"
 	"gorm.io/driver/mysql"
