@@ -28,6 +28,10 @@ type TalkRepo interface {
 	CreateTalkStatistic(ctx context.Context, id, auth int32, uuid string) error
 	CreateTalkCache(ctx context.Context, id, auth int32, uuid string) error
 	CreateTalkSearch(ctx context.Context, id int32, uuid string) error
+	AddTalkComment(ctx context.Context, id int32) error
+	AddTalkCommentToCache(ctx context.Context, id int32, uuid string) error
+	ReduceTalkComment(ctx context.Context, id int32) error
+	ReduceTalkCommentToCache(ctx context.Context, id int32, uuid string) error
 
 	SetTalkAgree(ctx context.Context, id int32, uuid string) error
 	SetTalkView(ctx context.Context, id int32, uuid string) error
@@ -461,4 +465,34 @@ func (r *TalkUseCase) TalkStatisticJudge(ctx context.Context, id int32, uuid str
 		Agree:   agree,
 		Collect: collect,
 	}, nil
+}
+
+func (r *TalkUseCase) AddTalkComment(ctx context.Context, id int32, uuid string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		err := r.repo.AddTalkComment(ctx, id)
+		if err != nil {
+			return v1.ErrorAddCommentFailed("add talk comment failed: %s", err.Error())
+		}
+
+		err = r.repo.AddTalkCommentToCache(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorAddCommentFailed("add talk comment failed: %s", err.Error())
+		}
+		return nil
+	})
+}
+
+func (r *TalkUseCase) ReduceTalkComment(ctx context.Context, id int32, uuid string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		err := r.repo.ReduceTalkComment(ctx, id)
+		if err != nil {
+			return v1.ErrorReduceCommentFailed("reduce talk comment failed: %s", err.Error())
+		}
+
+		err = r.repo.ReduceTalkCommentToCache(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorReduceCommentFailed("reduce talk comment failed: %s", err.Error())
+		}
+		return nil
+	})
 }
