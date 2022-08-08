@@ -126,6 +126,7 @@ type CreationClient interface {
 	DeleteColumnIncludes(ctx context.Context, in *DeleteColumnIncludesReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetNews(ctx context.Context, in *GetNewsReq, opts ...grpc.CallOption) (*GetNewsReply, error)
 	AddCreationComment(ctx context.Context, in *AddCreationCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	ReduceCreationComment(ctx context.Context, in *ReduceCreationCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type creationClient struct {
@@ -1063,6 +1064,15 @@ func (c *creationClient) AddCreationComment(ctx context.Context, in *AddCreation
 	return out, nil
 }
 
+func (c *creationClient) ReduceCreationComment(ctx context.Context, in *ReduceCreationCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/ReduceCreationComment", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CreationServer is the server API for Creation service.
 // All implementations must embed UnimplementedCreationServer
 // for forward compatibility
@@ -1170,6 +1180,7 @@ type CreationServer interface {
 	DeleteColumnIncludes(context.Context, *DeleteColumnIncludesReq) (*emptypb.Empty, error)
 	GetNews(context.Context, *GetNewsReq) (*GetNewsReply, error)
 	AddCreationComment(context.Context, *AddCreationCommentReq) (*emptypb.Empty, error)
+	ReduceCreationComment(context.Context, *ReduceCreationCommentReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedCreationServer()
 }
 
@@ -1485,6 +1496,9 @@ func (UnimplementedCreationServer) GetNews(context.Context, *GetNewsReq) (*GetNe
 }
 func (UnimplementedCreationServer) AddCreationComment(context.Context, *AddCreationCommentReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddCreationComment not implemented")
+}
+func (UnimplementedCreationServer) ReduceCreationComment(context.Context, *ReduceCreationCommentReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReduceCreationComment not implemented")
 }
 func (UnimplementedCreationServer) mustEmbedUnimplementedCreationServer() {}
 
@@ -3353,6 +3367,24 @@ func _Creation_AddCreationComment_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Creation_ReduceCreationComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReduceCreationCommentReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).ReduceCreationComment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/ReduceCreationComment",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).ReduceCreationComment(ctx, req.(*ReduceCreationCommentReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Creation_ServiceDesc is the grpc.ServiceDesc for Creation service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -3771,6 +3803,10 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AddCreationComment",
 			Handler:    _Creation_AddCreationComment_Handler,
+		},
+		{
+			MethodName: "ReduceCreationComment",
+			Handler:    _Creation_ReduceCreationComment_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

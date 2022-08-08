@@ -16949,6 +16949,132 @@ var _ interface {
 	ErrorName() string
 } = AddCreationCommentReqValidationError{}
 
+// Validate checks the field values on ReduceCreationCommentReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ReduceCreationCommentReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ReduceCreationCommentReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ReduceCreationCommentReqMultiError, or nil if none found.
+func (m *ReduceCreationCommentReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ReduceCreationCommentReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for CreationId
+
+	// no validation rules for CreationType
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = ReduceCreationCommentReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return ReduceCreationCommentReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *ReduceCreationCommentReq) _validateUuid(uuid string) error {
+	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// ReduceCreationCommentReqMultiError is an error wrapping multiple validation
+// errors returned by ReduceCreationCommentReq.ValidateAll() if the designated
+// constraints aren't met.
+type ReduceCreationCommentReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ReduceCreationCommentReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ReduceCreationCommentReqMultiError) AllErrors() []error { return m }
+
+// ReduceCreationCommentReqValidationError is the validation error returned by
+// ReduceCreationCommentReq.Validate if the designated constraints aren't met.
+type ReduceCreationCommentReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ReduceCreationCommentReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ReduceCreationCommentReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ReduceCreationCommentReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ReduceCreationCommentReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ReduceCreationCommentReqValidationError) ErrorName() string {
+	return "ReduceCreationCommentReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ReduceCreationCommentReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sReduceCreationCommentReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ReduceCreationCommentReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ReduceCreationCommentReqValidationError{}
+
 // Validate checks the field values on GetLeaderBoardReply_Board with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
