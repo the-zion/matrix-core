@@ -278,6 +278,27 @@ func (s *CreationService) GetColumnSubscribes(ctx context.Context, req *v1.GetCo
 	return reply, nil
 }
 
+func (s *CreationService) GetColumnSearch(ctx context.Context, req *v1.GetColumnSearchReq) (*v1.GetColumnSearchReply, error) {
+	reply := &v1.GetColumnSearchReply{List: make([]*v1.GetColumnSearchReply_List, 0)}
+	columnList, total, err := s.coc.GetColumnSearch(ctx, req.Page, req.Search, req.Time)
+	if err != nil {
+		return reply, err
+	}
+	for _, item := range columnList {
+		reply.List = append(reply.List, &v1.GetColumnSearchReply_List{
+			Id:        item.Id,
+			Tags:      item.Tags,
+			Name:      item.Name,
+			Uuid:      item.Uuid,
+			Introduce: item.Introduce,
+			Cover:     item.Cover,
+			Update:    item.Update,
+		})
+	}
+	reply.Total = total
+	return reply, nil
+}
+
 func (s *CreationService) SetColumnAgree(ctx context.Context, req *v1.SetColumnAgreeReq) (*emptypb.Empty, error) {
 	err := s.coc.SetColumnAgree(ctx, req.Id, req.Uuid, req.UserUuid)
 	if err != nil {
