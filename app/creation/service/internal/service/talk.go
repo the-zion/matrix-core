@@ -129,6 +129,27 @@ func (s *CreationService) GetTalkStatistic(ctx context.Context, req *v1.GetTalkS
 	}, nil
 }
 
+func (s *CreationService) GetTalkSearch(ctx context.Context, req *v1.GetTalkSearchReq) (*v1.GetTalkSearchReply, error) {
+	reply := &v1.GetTalkSearchReply{List: make([]*v1.GetTalkSearchReply_List, 0)}
+	talkList, total, err := s.tc.GetTalkSearch(ctx, req.Page, req.Search, req.Time)
+	if err != nil {
+		return reply, err
+	}
+	for _, item := range talkList {
+		reply.List = append(reply.List, &v1.GetTalkSearchReply_List{
+			Id:     item.Id,
+			Tags:   item.Tags,
+			Title:  item.Title,
+			Uuid:   item.Uuid,
+			Text:   item.Text,
+			Cover:  item.Cover,
+			Update: item.Update,
+		})
+	}
+	reply.Total = total
+	return reply, nil
+}
+
 func (s *CreationService) CreateTalkDraft(ctx context.Context, req *v1.CreateTalkDraftReq) (*v1.CreateTalkDraftReply, error) {
 	id, err := s.tc.CreateTalkDraft(ctx, req.Uuid)
 	if err != nil {
