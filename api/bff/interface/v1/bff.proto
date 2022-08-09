@@ -825,6 +825,12 @@ service Bff{
     };
   }
 
+  rpc GetSubCommentList(GetSubCommentListReq) returns (GetSubCommentListReply){
+    option (google.api.http) = {
+      get: "/v1/get/subcomment/list"
+    };
+  }
+
   rpc GetCommentListHot(GetCommentListReq) returns (GetCommentListReply){
     option (google.api.http) = {
       get: "/v1/get/comment/list/hot"
@@ -845,9 +851,23 @@ service Bff{
     };
   }
 
+  rpc SendSubComment(SendSubCommentReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/send/subcomment"
+      body: "*"
+    };
+  }
+
   rpc RemoveComment(RemoveCommentReq) returns (google.protobuf.Empty){
     option (google.api.http) = {
       post: "/v1/remove/comment"
+      body: "*"
+    };
+  }
+
+  rpc RemoveSubComment(RemoveSubCommentReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/remove/subcomment"
       body: "*"
     };
   }
@@ -1782,11 +1802,22 @@ message SendCommentReq{
   int32 id = 1;
 }
 
+message SendSubCommentReq{
+  int32 id = 1;
+}
+
 message RemoveCommentReq{
   int32 id = 1;
   string uuid = 2;
   int32 creationId = 3;
   int32 creationType = 4;
+}
+
+message RemoveSubCommentReq{
+  int32 id = 1;
+  int32 rootId = 2;
+  string uuid = 3;
+  string reply = 4;
 }
 
 message GetCommentListReq{
@@ -1802,6 +1833,24 @@ message GetCommentListReply{
     int32 agree = 3;
     int32 comment = 4;
     string username = 5;
+  }
+  repeated Comment comment = 1;
+}
+
+message GetSubCommentListReq{
+  int32 page = 1;
+  int32 id = 2;
+}
+
+message GetSubCommentListReply{
+  message Comment{
+    int32 id = 1;
+    string uuid = 2;
+    string reply = 3;
+    int32 agree = 4;
+    int32 comment = 5;
+    string username = 6;
+    string replyName = 7;
   }
   repeated Comment comment = 1;
 }
