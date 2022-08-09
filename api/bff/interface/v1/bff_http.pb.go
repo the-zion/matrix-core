@@ -91,6 +91,7 @@ const OperationBffGetNews = "/bff.v1.Bff/GetNews"
 const OperationBffGetProfile = "/bff.v1.Bff/GetProfile"
 const OperationBffGetProfileList = "/bff.v1.Bff/GetProfileList"
 const OperationBffGetProfileUpdate = "/bff.v1.Bff/GetProfileUpdate"
+const OperationBffGetSubCommentList = "/bff.v1.Bff/GetSubCommentList"
 const OperationBffGetSubscribeList = "/bff.v1.Bff/GetSubscribeList"
 const OperationBffGetSubscribeListCount = "/bff.v1.Bff/GetSubscribeListCount"
 const OperationBffGetTalkCount = "/bff.v1.Bff/GetTalkCount"
@@ -118,6 +119,7 @@ const OperationBffLoginByPassword = "/bff.v1.Bff/LoginByPassword"
 const OperationBffLoginByWeChat = "/bff.v1.Bff/LoginByWeChat"
 const OperationBffLoginPasswordReset = "/bff.v1.Bff/LoginPasswordReset"
 const OperationBffRemoveComment = "/bff.v1.Bff/RemoveComment"
+const OperationBffRemoveSubComment = "/bff.v1.Bff/RemoveSubComment"
 const OperationBffSendArticle = "/bff.v1.Bff/SendArticle"
 const OperationBffSendArticleEdit = "/bff.v1.Bff/SendArticleEdit"
 const OperationBffSendColumn = "/bff.v1.Bff/SendColumn"
@@ -125,6 +127,7 @@ const OperationBffSendColumnEdit = "/bff.v1.Bff/SendColumnEdit"
 const OperationBffSendComment = "/bff.v1.Bff/SendComment"
 const OperationBffSendEmailCode = "/bff.v1.Bff/SendEmailCode"
 const OperationBffSendPhoneCode = "/bff.v1.Bff/SendPhoneCode"
+const OperationBffSendSubComment = "/bff.v1.Bff/SendSubComment"
 const OperationBffSendTalk = "/bff.v1.Bff/SendTalk"
 const OperationBffSendTalkEdit = "/bff.v1.Bff/SendTalkEdit"
 const OperationBffSetArticleAgree = "/bff.v1.Bff/SetArticleAgree"
@@ -221,6 +224,7 @@ type BffHTTPServer interface {
 	GetProfile(context.Context, *emptypb.Empty) (*GetProfileReply, error)
 	GetProfileList(context.Context, *GetProfileListReq) (*GetProfileListReply, error)
 	GetProfileUpdate(context.Context, *emptypb.Empty) (*GetProfileUpdateReply, error)
+	GetSubCommentList(context.Context, *GetSubCommentListReq) (*GetSubCommentListReply, error)
 	GetSubscribeList(context.Context, *GetSubscribeListReq) (*GetSubscribeListReply, error)
 	GetSubscribeListCount(context.Context, *GetSubscribeListCountReq) (*GetSubscribeListCountReply, error)
 	GetTalkCount(context.Context, *emptypb.Empty) (*GetTalkCountReply, error)
@@ -248,6 +252,7 @@ type BffHTTPServer interface {
 	LoginByWeChat(context.Context, *LoginByWeChatReq) (*LoginReply, error)
 	LoginPasswordReset(context.Context, *LoginPasswordResetReq) (*emptypb.Empty, error)
 	RemoveComment(context.Context, *RemoveCommentReq) (*emptypb.Empty, error)
+	RemoveSubComment(context.Context, *RemoveSubCommentReq) (*emptypb.Empty, error)
 	SendArticle(context.Context, *SendArticleReq) (*emptypb.Empty, error)
 	SendArticleEdit(context.Context, *SendArticleEditReq) (*emptypb.Empty, error)
 	SendColumn(context.Context, *SendColumnReq) (*emptypb.Empty, error)
@@ -255,6 +260,7 @@ type BffHTTPServer interface {
 	SendComment(context.Context, *SendCommentReq) (*emptypb.Empty, error)
 	SendEmailCode(context.Context, *SendEmailCodeReq) (*emptypb.Empty, error)
 	SendPhoneCode(context.Context, *SendPhoneCodeReq) (*emptypb.Empty, error)
+	SendSubComment(context.Context, *SendSubCommentReq) (*emptypb.Empty, error)
 	SendTalk(context.Context, *SendTalkReq) (*emptypb.Empty, error)
 	SendTalkEdit(context.Context, *SendTalkEditReq) (*emptypb.Empty, error)
 	SetArticleAgree(context.Context, *SetArticleAgreeReq) (*emptypb.Empty, error)
@@ -404,10 +410,13 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.GET("/v1/get/last/comment/draft", _Bff_GetLastCommentDraft0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/comment/agree", _Bff_GetUserCommentAgree0_HTTP_Handler(srv))
 	r.GET("/v1/get/comment/list", _Bff_GetCommentList0_HTTP_Handler(srv))
+	r.GET("/v1/get/subcomment/list", _Bff_GetSubCommentList0_HTTP_Handler(srv))
 	r.GET("/v1/get/comment/list/hot", _Bff_GetCommentListHot0_HTTP_Handler(srv))
 	r.POST("/v1/create/comment/draft", _Bff_CreateCommentDraft0_HTTP_Handler(srv))
 	r.POST("/v1/send/comment", _Bff_SendComment0_HTTP_Handler(srv))
+	r.POST("/v1/send/subcomment", _Bff_SendSubComment0_HTTP_Handler(srv))
 	r.POST("/v1/remove/comment", _Bff_RemoveComment0_HTTP_Handler(srv))
+	r.POST("/v1/remove/subcomment", _Bff_RemoveSubComment0_HTTP_Handler(srv))
 	r.POST("/v1/set/comment/agree", _Bff_SetCommentAgree0_HTTP_Handler(srv))
 	r.POST("/v1/cancel/comment/agree", _Bff_CancelCommentAgree0_HTTP_Handler(srv))
 }
@@ -2730,6 +2739,25 @@ func _Bff_GetCommentList0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context)
 	}
 }
 
+func _Bff_GetSubCommentList0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetSubCommentListReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetSubCommentList)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetSubCommentList(ctx, req.(*GetSubCommentListReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetSubCommentListReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _Bff_GetCommentListHot0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in GetCommentListReq
@@ -2787,6 +2815,25 @@ func _Bff_SendComment0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) er
 	}
 }
 
+func _Bff_SendSubComment0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SendSubCommentReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffSendSubComment)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SendSubComment(ctx, req.(*SendSubCommentReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _Bff_RemoveComment0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in RemoveCommentReq
@@ -2796,6 +2843,25 @@ func _Bff_RemoveComment0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) 
 		http.SetOperation(ctx, OperationBffRemoveComment)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.RemoveComment(ctx, req.(*RemoveCommentReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_RemoveSubComment0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in RemoveSubCommentReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffRemoveSubComment)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.RemoveSubComment(ctx, req.(*RemoveSubCommentReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -2916,6 +2982,7 @@ type BffHTTPClient interface {
 	GetProfile(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetProfileReply, err error)
 	GetProfileList(ctx context.Context, req *GetProfileListReq, opts ...http.CallOption) (rsp *GetProfileListReply, err error)
 	GetProfileUpdate(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetProfileUpdateReply, err error)
+	GetSubCommentList(ctx context.Context, req *GetSubCommentListReq, opts ...http.CallOption) (rsp *GetSubCommentListReply, err error)
 	GetSubscribeList(ctx context.Context, req *GetSubscribeListReq, opts ...http.CallOption) (rsp *GetSubscribeListReply, err error)
 	GetSubscribeListCount(ctx context.Context, req *GetSubscribeListCountReq, opts ...http.CallOption) (rsp *GetSubscribeListCountReply, err error)
 	GetTalkCount(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetTalkCountReply, err error)
@@ -2943,6 +3010,7 @@ type BffHTTPClient interface {
 	LoginByWeChat(ctx context.Context, req *LoginByWeChatReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginPasswordReset(ctx context.Context, req *LoginPasswordResetReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	RemoveComment(ctx context.Context, req *RemoveCommentReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	RemoveSubComment(ctx context.Context, req *RemoveSubCommentReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SendArticle(ctx context.Context, req *SendArticleReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SendArticleEdit(ctx context.Context, req *SendArticleEditReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SendColumn(ctx context.Context, req *SendColumnReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -2950,6 +3018,7 @@ type BffHTTPClient interface {
 	SendComment(ctx context.Context, req *SendCommentReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SendEmailCode(ctx context.Context, req *SendEmailCodeReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SendPhoneCode(ctx context.Context, req *SendPhoneCodeReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	SendSubComment(ctx context.Context, req *SendSubCommentReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SendTalk(ctx context.Context, req *SendTalkReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SendTalkEdit(ctx context.Context, req *SendTalkEditReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SetArticleAgree(ctx context.Context, req *SetArticleAgreeReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -3906,6 +3975,19 @@ func (c *BffHTTPClientImpl) GetProfileUpdate(ctx context.Context, in *emptypb.Em
 	return &out, err
 }
 
+func (c *BffHTTPClientImpl) GetSubCommentList(ctx context.Context, in *GetSubCommentListReq, opts ...http.CallOption) (*GetSubCommentListReply, error) {
+	var out GetSubCommentListReply
+	pattern := "/v1/get/subcomment/list"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationBffGetSubCommentList))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
 func (c *BffHTTPClientImpl) GetSubscribeList(ctx context.Context, in *GetSubscribeListReq, opts ...http.CallOption) (*GetSubscribeListReply, error) {
 	var out GetSubscribeListReply
 	pattern := "/v1/get/subscribe/list"
@@ -4257,6 +4339,19 @@ func (c *BffHTTPClientImpl) RemoveComment(ctx context.Context, in *RemoveComment
 	return &out, err
 }
 
+func (c *BffHTTPClientImpl) RemoveSubComment(ctx context.Context, in *RemoveSubCommentReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/remove/subcomment"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffRemoveSubComment))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
 func (c *BffHTTPClientImpl) SendArticle(ctx context.Context, in *SendArticleReq, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
 	pattern := "/v1/send/article"
@@ -4340,6 +4435,19 @@ func (c *BffHTTPClientImpl) SendPhoneCode(ctx context.Context, in *SendPhoneCode
 	pattern := "/v1/user/code/phone"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationBffSendPhoneCode))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) SendSubComment(ctx context.Context, in *SendSubCommentReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/send/subcomment"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffSendSubComment))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

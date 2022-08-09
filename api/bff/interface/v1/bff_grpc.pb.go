@@ -146,10 +146,13 @@ type BffClient interface {
 	GetLastCommentDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLastCommentDraftReply, error)
 	GetUserCommentAgree(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserCommentAgreeReply, error)
 	GetCommentList(ctx context.Context, in *GetCommentListReq, opts ...grpc.CallOption) (*GetCommentListReply, error)
+	GetSubCommentList(ctx context.Context, in *GetSubCommentListReq, opts ...grpc.CallOption) (*GetSubCommentListReply, error)
 	GetCommentListHot(ctx context.Context, in *GetCommentListReq, opts ...grpc.CallOption) (*GetCommentListReply, error)
 	CreateCommentDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateCommentDraftReply, error)
 	SendComment(ctx context.Context, in *SendCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SendSubComment(ctx context.Context, in *SendSubCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	RemoveComment(ctx context.Context, in *RemoveCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	RemoveSubComment(ctx context.Context, in *RemoveSubCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetCommentAgree(ctx context.Context, in *SetCommentAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelCommentAgree(ctx context.Context, in *CancelCommentAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
@@ -1260,6 +1263,15 @@ func (c *bffClient) GetCommentList(ctx context.Context, in *GetCommentListReq, o
 	return out, nil
 }
 
+func (c *bffClient) GetSubCommentList(ctx context.Context, in *GetSubCommentListReq, opts ...grpc.CallOption) (*GetSubCommentListReply, error) {
+	out := new(GetSubCommentListReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetSubCommentList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) GetCommentListHot(ctx context.Context, in *GetCommentListReq, opts ...grpc.CallOption) (*GetCommentListReply, error) {
 	out := new(GetCommentListReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCommentListHot", in, out, opts...)
@@ -1287,9 +1299,27 @@ func (c *bffClient) SendComment(ctx context.Context, in *SendCommentReq, opts ..
 	return out, nil
 }
 
+func (c *bffClient) SendSubComment(ctx context.Context, in *SendSubCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SendSubComment", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) RemoveComment(ctx context.Context, in *RemoveCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/RemoveComment", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) RemoveSubComment(ctx context.Context, in *RemoveSubCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/RemoveSubComment", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1441,10 +1471,13 @@ type BffServer interface {
 	GetLastCommentDraft(context.Context, *emptypb.Empty) (*GetLastCommentDraftReply, error)
 	GetUserCommentAgree(context.Context, *emptypb.Empty) (*GetUserCommentAgreeReply, error)
 	GetCommentList(context.Context, *GetCommentListReq) (*GetCommentListReply, error)
+	GetSubCommentList(context.Context, *GetSubCommentListReq) (*GetSubCommentListReply, error)
 	GetCommentListHot(context.Context, *GetCommentListReq) (*GetCommentListReply, error)
 	CreateCommentDraft(context.Context, *emptypb.Empty) (*CreateCommentDraftReply, error)
 	SendComment(context.Context, *SendCommentReq) (*emptypb.Empty, error)
+	SendSubComment(context.Context, *SendSubCommentReq) (*emptypb.Empty, error)
 	RemoveComment(context.Context, *RemoveCommentReq) (*emptypb.Empty, error)
+	RemoveSubComment(context.Context, *RemoveSubCommentReq) (*emptypb.Empty, error)
 	SetCommentAgree(context.Context, *SetCommentAgreeReq) (*emptypb.Empty, error)
 	CancelCommentAgree(context.Context, *CancelCommentAgreeReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedBffServer()
@@ -1820,6 +1853,9 @@ func (UnimplementedBffServer) GetUserCommentAgree(context.Context, *emptypb.Empt
 func (UnimplementedBffServer) GetCommentList(context.Context, *GetCommentListReq) (*GetCommentListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCommentList not implemented")
 }
+func (UnimplementedBffServer) GetSubCommentList(context.Context, *GetSubCommentListReq) (*GetSubCommentListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSubCommentList not implemented")
+}
 func (UnimplementedBffServer) GetCommentListHot(context.Context, *GetCommentListReq) (*GetCommentListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCommentListHot not implemented")
 }
@@ -1829,8 +1865,14 @@ func (UnimplementedBffServer) CreateCommentDraft(context.Context, *emptypb.Empty
 func (UnimplementedBffServer) SendComment(context.Context, *SendCommentReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendComment not implemented")
 }
+func (UnimplementedBffServer) SendSubComment(context.Context, *SendSubCommentReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendSubComment not implemented")
+}
 func (UnimplementedBffServer) RemoveComment(context.Context, *RemoveCommentReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveComment not implemented")
+}
+func (UnimplementedBffServer) RemoveSubComment(context.Context, *RemoveSubCommentReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveSubComment not implemented")
 }
 func (UnimplementedBffServer) SetCommentAgree(context.Context, *SetCommentAgreeReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetCommentAgree not implemented")
@@ -4047,6 +4089,24 @@ func _Bff_GetCommentList_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_GetSubCommentList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSubCommentListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetSubCommentList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetSubCommentList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetSubCommentList(ctx, req.(*GetSubCommentListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_GetCommentListHot_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetCommentListReq)
 	if err := dec(in); err != nil {
@@ -4101,6 +4161,24 @@ func _Bff_SendComment_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_SendSubComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendSubCommentReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).SendSubComment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/SendSubComment",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).SendSubComment(ctx, req.(*SendSubCommentReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_RemoveComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RemoveCommentReq)
 	if err := dec(in); err != nil {
@@ -4115,6 +4193,24 @@ func _Bff_RemoveComment_Handler(srv interface{}, ctx context.Context, dec func(i
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BffServer).RemoveComment(ctx, req.(*RemoveCommentReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_RemoveSubComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveSubCommentReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).RemoveSubComment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/RemoveSubComment",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).RemoveSubComment(ctx, req.(*RemoveSubCommentReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -4651,6 +4747,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Bff_GetCommentList_Handler,
 		},
 		{
+			MethodName: "GetSubCommentList",
+			Handler:    _Bff_GetSubCommentList_Handler,
+		},
+		{
 			MethodName: "GetCommentListHot",
 			Handler:    _Bff_GetCommentListHot_Handler,
 		},
@@ -4663,8 +4763,16 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Bff_SendComment_Handler,
 		},
 		{
+			MethodName: "SendSubComment",
+			Handler:    _Bff_SendSubComment_Handler,
+		},
+		{
 			MethodName: "RemoveComment",
 			Handler:    _Bff_RemoveComment_Handler,
+		},
+		{
+			MethodName: "RemoveSubComment",
+			Handler:    _Bff_RemoveSubComment_Handler,
 		},
 		{
 			MethodName: "SetCommentAgree",
