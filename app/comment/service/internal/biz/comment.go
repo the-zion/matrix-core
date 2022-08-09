@@ -12,19 +12,28 @@ type CommentRepo interface {
 	GetLastCommentDraft(ctx context.Context, uuid string) (*CommentDraft, error)
 	GetUserCommentAgree(ctx context.Context, uuid string) (map[int32]bool, error)
 	GetCommentList(ctx context.Context, page, creationId, creationType int32) ([]*Comment, error)
+	GetSubCommentList(ctx context.Context, page, id int32) ([]*SubComment, error)
 	GetCommentListHot(ctx context.Context, page, creationId, creationType int32) ([]*Comment, error)
 	GetCommentListStatistic(ctx context.Context, ids []int32) ([]*CommentStatistic, error)
+	GetSubCommentListStatistic(ctx context.Context, ids []int32) ([]*CommentStatistic, error)
+	GetRootCommentUserId(ctx context.Context, id int32) (string, error)
+	GetParentCommentUserId(ctx context.Context, id int32) (string, error)
+	GetSubCommentReply(ctx context.Context, id int32, uuid string) (string, error)
 	CreateCommentDraft(ctx context.Context, uuid string) (int32, error)
 	CreateCommentFolder(ctx context.Context, id int32, uuid string) error
 	CreateComment(ctx context.Context, id, creationId, creationType int32, uuid string) error
+	CreateSubComment(ctx context.Context, id, rootId, parentId int32, uuid, reply string) error
 	CreateCommentCache(ctx context.Context, id, creationId, creationType int32, uuid string) error
+	CreateSubCommentCache(ctx context.Context, id, rootId int32, uuid, reply string) error
 	SendComment(ctx context.Context, id int32, uuid string) (*CommentDraft, error)
 	SendCommentAgreeToMq(ctx context.Context, id, creationId, creationType int32, uuid, userUuid, mode string) error
 	SendCommentToMq(ctx context.Context, comment *Comment, mode string) error
+	SendSubCommentToMq(ctx context.Context, comment *SubComment, mode string) error
 	SendReviewToMq(ctx context.Context, review *CommentReview) error
 	SendCommentStatisticToMq(ctx context.Context, uuid, mode string) error
 	SetRecord(ctx context.Context, id int32, uuid, ip string) error
 	SetCommentAgree(ctx context.Context, id int32, uuid string) error
+	SetCommentComment(ctx context.Context, id int32) error
 	SetUserCommentAgree(ctx context.Context, id int32, userUuid string) error
 	SetUserCommentAgreeToCache(ctx context.Context, id int32, userUuid string) error
 	SetCommentAgreeToCache(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error
@@ -34,9 +43,10 @@ type CommentRepo interface {
 	CancelCommentAgreeFromCache(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error
 	DeleteCommentDraft(ctx context.Context, id int32, uuid string) error
 	RemoveComment(ctx context.Context, id int32, uuid string) error
+	RemoveSubComment(ctx context.Context, id, rootId int32, uuid string) error
 	RemoveCommentAgree(ctx context.Context, id int32, uuid string) error
-	//RemoveSubComment(ctx context.Context, id int32, uuid string) error
 	RemoveCommentCache(ctx context.Context, id, creationId, creationType int32, uuid string) error
+	RemoveSubCommentCache(ctx context.Context, id, rootId int32, uuid, reply string) error
 }
 
 type CommentUseCase struct {
@@ -80,6 +90,14 @@ func (r *CommentUseCase) GetCommentList(ctx context.Context, page, creationId, c
 	return commentList, nil
 }
 
+func (r *CommentUseCase) GetSubCommentList(ctx context.Context, page, id int32) ([]*SubComment, error) {
+	subCommentList, err := r.repo.GetSubCommentList(ctx, page, id)
+	if err != nil {
+		return nil, v1.ErrorGetCommentListFailed("get sub comment list failed: %s", err.Error())
+	}
+	return subCommentList, nil
+}
+
 func (r *CommentUseCase) GetCommentListHot(ctx context.Context, page, creationId, creationType int32) ([]*Comment, error) {
 	commentList, err := r.repo.GetCommentListHot(ctx, page, creationId, creationType)
 	if err != nil {
@@ -92,6 +110,14 @@ func (r *CommentUseCase) GetCommentListStatistic(ctx context.Context, ids []int3
 	commentListStatistic, err := r.repo.GetCommentListStatistic(ctx, ids)
 	if err != nil {
 		return nil, v1.ErrorGetCommentStatisticFailed("get comment statistic list failed: %s", err.Error())
+	}
+	return commentListStatistic, nil
+}
+
+func (r *CommentUseCase) GetSubCommentListStatistic(ctx context.Context, ids []int32) ([]*CommentStatistic, error) {
+	commentListStatistic, err := r.repo.GetSubCommentListStatistic(ctx, ids)
+	if err != nil {
+		return nil, v1.ErrorGetCommentStatisticFailed("get sub comment statistic list failed: %s", err.Error())
 	}
 	return commentListStatistic, nil
 }
@@ -123,9 +149,22 @@ func (r *CommentUseCase) CreateComment(ctx context.Context, id, creationTd, crea
 		Uuid:         uuid,
 		CreationId:   creationTd,
 		CreationType: creationType,
-	}, "create_comment_db_cache_and_search")
+	}, "create_comment_db_and_cache")
 	if err != nil {
 		return v1.ErrorCreateCommentFailed("create comment to mq failed: %s", err.Error())
+	}
+	return nil
+}
+
+func (r *CommentUseCase) CreateSubComment(ctx context.Context, id, rootId, parentId int32, uuid string) error {
+	err := r.repo.SendSubCommentToMq(ctx, &SubComment{
+		CommentId: id,
+		Uuid:      uuid,
+		RootId:    rootId,
+		ParentId:  parentId,
+	}, "create_sub_comment_db_and_cache")
+	if err != nil {
+		return v1.ErrorCreateCommentFailed("create sub comment to mq failed: %s", err.Error())
 	}
 	return nil
 }
@@ -145,6 +184,31 @@ func (r *CommentUseCase) SendComment(ctx context.Context, id int32, uuid, ip str
 		err = r.repo.SendReviewToMq(ctx, &CommentReview{
 			Uuid: draft.Uuid,
 			Id:   draft.Id,
+			Mode: "comment_review",
+		})
+		if err != nil {
+			return v1.ErrorCreateDraftFailed("send create review to mq failed: %s", err.Error())
+		}
+		return nil
+	})
+}
+
+func (r *CommentUseCase) SendSubComment(ctx context.Context, id int32, uuid, ip string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		draft, err := r.repo.SendComment(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorCreateDraftFailed("send comment failed: %s", err.Error())
+		}
+
+		err = r.repo.SetRecord(ctx, id, uuid, ip)
+		if err != nil {
+			return v1.ErrorSetRecordFailed("set record failed: %s", err.Error())
+		}
+
+		err = r.repo.SendReviewToMq(ctx, &CommentReview{
+			Uuid: draft.Uuid,
+			Id:   draft.Id,
+			Mode: "sub_comment_review",
 		})
 		if err != nil {
 			return v1.ErrorCreateDraftFailed("send create review to mq failed: %s", err.Error())
@@ -168,6 +232,27 @@ func (r *CommentUseCase) RemoveComment(ctx context.Context, id, creationId, crea
 		CreationType: creationType,
 		Uuid:         uuid,
 	}, "remove_comment_db_and_cache")
+	if err != nil {
+		return v1.ErrorCancelAgreeFailed("remove comment failed failed: %s", err.Error())
+	}
+	return nil
+}
+
+func (r *CommentUseCase) RemoveSubComment(ctx context.Context, id, rootId int32, uuid, userUuid, reply string) error {
+	if uuid != userUuid {
+		return v1.ErrorRemoveCommentFailed("remove comment failed: no auth")
+	}
+	err := r.repo.RemoveSubCommentCache(ctx, id, rootId, uuid, reply)
+	if err != nil {
+		return v1.ErrorRemoveCommentFailed("remove comment failed: %s", err.Error())
+	}
+
+	err = r.repo.SendSubCommentToMq(ctx, &SubComment{
+		CommentId: id,
+		Uuid:      uuid,
+		RootId:    rootId,
+		ParentId:  0,
+	}, "remove_sub_comment_db_and_cache")
 	if err != nil {
 		return v1.ErrorCancelAgreeFailed("remove comment failed failed: %s", err.Error())
 	}
@@ -277,6 +362,45 @@ func (r *CommentUseCase) CreateCommentDbAndCache(ctx context.Context, id, creati
 	})
 }
 
+func (r *CommentUseCase) CreateSubCommentDbAndCache(ctx context.Context, id, rootId, parentId int32, uuid string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		var err error
+		var parentUserId string
+		err = r.repo.DeleteCommentDraft(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorCreateCommentFailed("delete sub comment draft failed: %s", err.Error())
+		}
+
+		//rootUserId, err = r.repo.GetRootCommentUserId(ctx, rootId)
+		//if err != nil {
+		//	return v1.ErrorCreateCommentFailed("get sub comment parent id failed: %s", err.Error())
+		//}
+
+		if parentId != 0 {
+			parentUserId, err = r.repo.GetParentCommentUserId(ctx, parentId)
+			if err != nil {
+				return v1.ErrorCreateCommentFailed("get sub comment parent id failed: %s", err.Error())
+			}
+		}
+
+		err = r.repo.CreateSubComment(ctx, id, rootId, parentId, uuid, parentUserId)
+		if err != nil {
+			return v1.ErrorCreateCommentFailed("create sub comment failed: %s", err.Error())
+		}
+
+		err = r.repo.SetCommentComment(ctx, rootId)
+		if err != nil {
+			return v1.ErrorCreateCommentFailed("create sub comment failed: %s", err.Error())
+		}
+
+		err = r.repo.CreateSubCommentCache(ctx, id, rootId, uuid, parentUserId)
+		if err != nil {
+			return v1.ErrorCreateCommentFailed("create sub comment cache failed: %s", err.Error())
+		}
+		return nil
+	})
+}
+
 func (r *CommentUseCase) RemoveCommentDbAndCache(ctx context.Context, id, creationId, creationType int32, uuid string) error {
 	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		var err error
@@ -293,6 +417,32 @@ func (r *CommentUseCase) RemoveCommentDbAndCache(ctx context.Context, id, creati
 		err = r.repo.RemoveCommentCache(ctx, id, creationId, creationType, uuid)
 		if err != nil {
 			return v1.ErrorRemoveCommentFailed("remove comment cache failed: %s", err.Error())
+		}
+		return nil
+	})
+}
+
+func (r *CommentUseCase) RemoveSubCommentDbAndCache(ctx context.Context, id, rootId int32, uuid string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		var err error
+		err = r.repo.RemoveSubComment(ctx, id, rootId, uuid)
+		if err != nil {
+			return v1.ErrorRemoveCommentFailed("remove sub comment failed: %s", err.Error())
+		}
+
+		err = r.repo.RemoveCommentAgree(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorRemoveCommentFailed("remove sub comment agree record failed: %s", err.Error())
+		}
+
+		reply, err := r.repo.GetSubCommentReply(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorRemoveCommentFailed("get sub comment reply failed: %s", err.Error())
+		}
+
+		err = r.repo.RemoveSubCommentCache(ctx, id, rootId, uuid, reply)
+		if err != nil {
+			return v1.ErrorRemoveCommentFailed("remove sub comment cache failed: %s", err.Error())
 		}
 		return nil
 	})
