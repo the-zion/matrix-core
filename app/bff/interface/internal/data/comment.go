@@ -74,6 +74,31 @@ func (r *commentRepo) GetCommentList(ctx context.Context, page, creationId, crea
 	return result.([]*biz.Comment), nil
 }
 
+func (r *commentRepo) GetSubCommentList(ctx context.Context, page, id int32) ([]*biz.SubComment, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("sub_comment_%v_%v", id, page), func() (interface{}, error) {
+		reply := make([]*biz.SubComment, 0)
+		subCommentList, err := r.data.commc.GetSubCommentList(ctx, &commentV1.GetSubCommentListReq{
+			Page: page,
+			Id:   id,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range subCommentList.Comment {
+			reply = append(reply, &biz.SubComment{
+				Id:    item.Id,
+				Uuid:  item.Uuid,
+				Reply: item.Reply,
+			})
+		}
+		return reply, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.([]*biz.SubComment), nil
+}
+
 func (r *commentRepo) GetCommentListHot(ctx context.Context, page, creationId, creationType int32) ([]*biz.Comment, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("comment_hot_%v_%v_%v", creationId, creationType, page), func() (interface{}, error) {
 		reply := make([]*biz.Comment, 0)
@@ -127,12 +152,77 @@ func (r *commentRepo) GetCommentListStatistic(ctx context.Context, page, creatio
 	return result.([]*biz.CommentStatistic), nil
 }
 
+func (r *commentRepo) GetSubCommentListStatistic(ctx context.Context, page, id int32, commentList []*biz.SubComment) ([]*biz.CommentStatistic, error) {
+	ids := make([]int32, 0)
+	for _, item := range commentList {
+		ids = append(ids, item.Id)
+	}
+	result, err, _ := r.sg.Do(fmt.Sprintf("sub_comment_%v_%v", id, page), func() (interface{}, error) {
+		reply := make([]*biz.CommentStatistic, 0)
+		commentListStatistic, err := r.data.commc.GetSubCommentListStatistic(ctx, &commentV1.GetCommentListStatisticReq{
+			Ids: ids,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range commentListStatistic.Count {
+			reply = append(reply, &biz.CommentStatistic{
+				Id:    item.Id,
+				Agree: item.Agree,
+			})
+		}
+		return reply, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.([]*biz.CommentStatistic), nil
+}
+
 func (r *commentRepo) GetUserProfileList(ctx context.Context, page, creationId, creationType int32, key string, commentList []*biz.Comment) ([]*biz.UserProfile, error) {
 	uuids := make([]string, 0)
+	set := make(map[string]bool, 0)
 	for _, item := range commentList {
-		uuids = append(uuids, item.Uuid)
+		if _, ok := set[item.Uuid]; !ok {
+			uuids = append(uuids, item.Uuid)
+			set[item.Uuid] = true
+		}
 	}
 	result, err, _ := r.sg.Do(fmt.Sprintf("%s_%v_%v_%v", key, creationId, creationType, page), func() (interface{}, error) {
+		reply := make([]*biz.UserProfile, 0)
+		userProfileList, err := r.data.uc.GetProfileList(ctx, &userV1.GetProfileListReq{
+			Uuids: uuids,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range userProfileList.Profile {
+			reply = append(reply, &biz.UserProfile{
+				Uuid:     item.Uuid,
+				Username: item.Username,
+			})
+		}
+		return reply, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.([]*biz.UserProfile), nil
+}
+
+func (r *commentRepo) GetSubUserProfileList(ctx context.Context, page, id int32, subCommentList []*biz.SubComment) ([]*biz.UserProfile, error) {
+	uuids := make([]string, 0)
+	set := make(map[string]bool, 0)
+	for _, item := range subCommentList {
+		if _, ok := set[item.Uuid]; !ok {
+			uuids = append(uuids, item.Uuid)
+		}
+
+		if _, ok := set[item.Reply]; item.Reply != "" && !ok {
+			uuids = append(uuids, item.Reply)
+		}
+	}
+	result, err, _ := r.sg.Do(fmt.Sprintf("sub_comment_user_profile_list_%v_%v", id, page), func() (interface{}, error) {
 		reply := make([]*biz.UserProfile, 0)
 		userProfileList, err := r.data.uc.GetProfileList(ctx, &userV1.GetProfileListReq{
 			Uuids: uuids,
@@ -176,6 +266,18 @@ func (r *commentRepo) SendComment(ctx context.Context, id int32, uuid, ip string
 	return nil
 }
 
+func (r *commentRepo) SendSubComment(ctx context.Context, id int32, uuid, ip string) error {
+	_, err := r.data.commc.SendSubComment(ctx, &commentV1.SendSubCommentReq{
+		Id:   id,
+		Uuid: uuid,
+		Ip:   ip,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *commentRepo) RemoveComment(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error {
 	_, err := r.data.commc.RemoveComment(ctx, &commentV1.RemoveCommentReq{
 		Id:           id,
@@ -183,6 +285,20 @@ func (r *commentRepo) RemoveComment(ctx context.Context, id, creationId, creatio
 		CreationType: creationType,
 		Uuid:         uuid,
 		UserUuid:     userUuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *commentRepo) RemoveSubComment(ctx context.Context, id, rootId int32, uuid, userUuid, reply string) error {
+	_, err := r.data.commc.RemoveSubComment(ctx, &commentV1.RemoveSubCommentReq{
+		Id:       id,
+		RootId:   rootId,
+		Uuid:     uuid,
+		UserUuid: userUuid,
+		Reply:    reply,
 	})
 	if err != nil {
 		return err
