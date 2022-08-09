@@ -140,6 +140,29 @@ func (r *commentRepo) GetCommentList(ctx context.Context, page, creationId, crea
 	return comment, nil
 }
 
+func (r *commentRepo) GetSubCommentList(ctx context.Context, page, id int32) ([]*biz.SubComment, error) {
+	subComment, err := r.getSubCommentFromCache(ctx, page, id)
+	if err != nil {
+		return nil, err
+	}
+
+	size := len(subComment)
+	if size != 0 {
+		return subComment, nil
+	}
+
+	subComment, err = r.getSubCommentFromDB(ctx, page, id)
+	if err != nil {
+		return nil, err
+	}
+
+	size = len(subComment)
+	if size != 0 {
+		go r.setSubCommentToCache(id, subComment)
+	}
+	return subComment, nil
+}
+
 func (r *commentRepo) getCommentFromCache(ctx context.Context, page, creationId, creationType int32) ([]*biz.Comment, error) {
 	if page < 1 {
 		page = 1
@@ -166,6 +189,33 @@ func (r *commentRepo) getCommentFromCache(ctx context.Context, page, creationId,
 	return comment, nil
 }
 
+func (r *commentRepo) getSubCommentFromCache(ctx context.Context, page, id int32) ([]*biz.SubComment, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int64(page - 1)
+	key := fmt.Sprintf("sub_comment_%v", id)
+	list, err := r.data.redisCli.ZRevRange(ctx, key, index*10, index*10+9).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get sub comment from cache: key(%s), page(%v)", key, page))
+	}
+
+	subComment := make([]*biz.SubComment, 0)
+	for _, item := range list {
+		member := strings.Split(item, "%")
+		id, err := strconv.ParseInt(member[0], 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s)", member[0]))
+		}
+		subComment = append(subComment, &biz.SubComment{
+			CommentId: int32(id),
+			Uuid:      member[1],
+			Reply:     member[2],
+		})
+	}
+	return subComment, nil
+}
+
 func (r *commentRepo) getCommentFromDB(ctx context.Context, page, creationId, creationType int32) ([]*biz.Comment, error) {
 	if page < 1 {
 		page = 1
@@ -187,6 +237,28 @@ func (r *commentRepo) getCommentFromDB(ctx context.Context, page, creationId, cr
 	return comment, nil
 }
 
+func (r *commentRepo) getSubCommentFromDB(ctx context.Context, page, id int32) ([]*biz.SubComment, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int(page - 1)
+	list := make([]*SubComment, 0)
+	err := r.data.db.WithContext(ctx).Where("root_id = ?", id).Order("comment_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get sub comment from db: page(%v)", page))
+	}
+
+	subComment := make([]*biz.SubComment, 0)
+	for _, item := range list {
+		subComment = append(subComment, &biz.SubComment{
+			CommentId: item.CommentId,
+			Uuid:      item.Uuid,
+			Reply:     item.Reply,
+		})
+	}
+	return subComment, nil
+}
+
 func (r *commentRepo) setCommentToCache(creationId, creationType int32, comment []*biz.Comment) {
 	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
 		z := make([]*redis.Z, 0)
@@ -203,6 +275,25 @@ func (r *commentRepo) setCommentToCache(creationId, creationType int32, comment 
 	})
 	if err != nil {
 		r.log.Errorf("fail to set comment to cache: comment(%v)", comment)
+	}
+}
+
+func (r *commentRepo) setSubCommentToCache(id int32, subComment []*biz.SubComment) {
+	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
+		z := make([]*redis.Z, 0)
+		key := fmt.Sprintf("sub_comment_%v", id)
+		for _, item := range subComment {
+			z = append(z, &redis.Z{
+				Score:  float64(item.CommentId),
+				Member: strconv.Itoa(int(item.CommentId)) + "%" + item.Uuid + "%" + item.Reply,
+			})
+		}
+		pipe.ZAddNX(context.Background(), key, z...)
+		pipe.Expire(context.Background(), key, time.Hour*8)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to set sub comment to cache: comment(%v)", subComment)
 	}
 }
 
@@ -325,6 +416,62 @@ func (r *commentRepo) GetCommentListStatistic(ctx context.Context, ids []int32) 
 	return commentListStatistic, nil
 }
 
+func (r *commentRepo) GetSubCommentListStatistic(ctx context.Context, ids []int32) ([]*biz.CommentStatistic, error) {
+	commentListStatistic := make([]*biz.CommentStatistic, 0)
+	exists, unExists, err := r.commentStatisticExist(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(func() error {
+		if len(exists) == 0 {
+			return nil
+		}
+		return r.getSubCommentStatisticFromCache(ctx, exists, &commentListStatistic)
+	})
+	g.Go(func() error {
+		if len(unExists) == 0 {
+			return nil
+		}
+		return r.getCommentStatisticFromDb(ctx, unExists, &commentListStatistic)
+	})
+
+	err = g.Wait()
+	if err != nil {
+		return nil, err
+	}
+
+	return commentListStatistic, nil
+}
+
+func (r *commentRepo) GetRootCommentUserId(ctx context.Context, id int32) (string, error) {
+	sc := &Comment{}
+	err := r.data.DB(ctx).Where("comment_id = ?", id).First(sc).Error
+	if err != nil {
+		return "", errors.Wrapf(err, fmt.Sprintf("db query system error: rootId(%v)", id))
+	}
+	return sc.Uuid, nil
+}
+
+func (r *commentRepo) GetParentCommentUserId(ctx context.Context, id int32) (string, error) {
+	sc := &SubComment{}
+	err := r.data.DB(ctx).Where("parent_id = ?", id).First(sc).Error
+	if err != nil {
+		return "", errors.Wrapf(err, fmt.Sprintf("db query system error: parentId(%v)", id))
+	}
+	return sc.Reply, nil
+}
+
+func (r *commentRepo) GetSubCommentReply(ctx context.Context, id int32, uuid string) (string, error) {
+	sc := &SubComment{}
+	err := r.data.DB(ctx).Where("comment_id = ? and uuid = ?", id, uuid).First(sc).Error
+	if err != nil {
+		return "", errors.Wrapf(err, fmt.Sprintf("db query system error: parentId(%v)", id))
+	}
+	return sc.Reply, nil
+}
+
 func (r *commentRepo) commentStatisticExist(ctx context.Context, ids []int32) ([]int32, []int32, error) {
 	exists := make([]int32, 0)
 	unExists := make([]int32, 0)
@@ -381,6 +528,35 @@ func (r *commentRepo) getCommentStatisticFromCache(ctx context.Context, exists [
 	return nil
 }
 
+func (r *commentRepo) getSubCommentStatisticFromCache(ctx context.Context, exists []int32, commentListStatistic *[]*biz.CommentStatistic) error {
+	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		for _, id := range exists {
+			pipe.HMGet(ctx, "comment_"+strconv.Itoa(int(id)), "agree")
+		}
+		return nil
+	})
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to get sub comment list statistic from cache: ids(%v)", exists))
+	}
+
+	for index, item := range cmd {
+		count := item.(*redis.SliceCmd).Val()[0]
+		if count == nil {
+			break
+		}
+		num, err := strconv.ParseInt(count.(string), 10, 32)
+		if err != nil {
+			return errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: count(%v)", count))
+		}
+		val := int32(num)
+		*commentListStatistic = append(*commentListStatistic, &biz.CommentStatistic{
+			CommentId: exists[index],
+			Agree:     val,
+		})
+	}
+	return nil
+}
+
 func (r *commentRepo) getCommentStatisticFromDb(ctx context.Context, unExists []int32, commentListStatistic *[]*biz.CommentStatistic) error {
 	list := make([]*Comment, 0)
 	err := r.data.db.WithContext(ctx).Where("comment_id IN ?", unExists).Find(&list).Error
@@ -403,6 +579,27 @@ func (r *commentRepo) getCommentStatisticFromDb(ctx context.Context, unExists []
 	return nil
 }
 
+func (r *commentRepo) getSubCommentStatisticFromDb(ctx context.Context, unExists []int32, commentListStatistic *[]*biz.CommentStatistic) error {
+	list := make([]*SubComment, 0)
+	err := r.data.db.WithContext(ctx).Where("comment_id IN ?", unExists).Find(&list).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to get sub comment statistic list from db: ids(%v)", unExists))
+	}
+
+	for _, item := range list {
+		*commentListStatistic = append(*commentListStatistic, &biz.CommentStatistic{
+			CommentId: item.CommentId,
+			Agree:     item.Agree,
+		})
+	}
+
+	if len(list) != 0 {
+		go r.setSubCommentStatisticToCache(list)
+	}
+
+	return nil
+}
+
 func (r *commentRepo) setCommentStatisticToCache(commentList []*Comment) {
 	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
 		for _, item := range commentList {
@@ -416,6 +613,21 @@ func (r *commentRepo) setCommentStatisticToCache(commentList []*Comment) {
 
 	if err != nil {
 		r.log.Errorf("fail to set comment statistic to cache, err(%s)", err.Error())
+	}
+}
+
+func (r *commentRepo) setSubCommentStatisticToCache(commentList []*SubComment) {
+	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
+		for _, item := range commentList {
+			key := "comment_" + strconv.Itoa(int(item.CommentId))
+			pipe.HSetNX(context.Background(), key, "agree", item.Agree)
+			pipe.Expire(context.Background(), key, time.Hour*8)
+		}
+		return nil
+	})
+
+	if err != nil {
+		r.log.Errorf("fail to set sub comment statistic to cache, err(%s)", err.Error())
 	}
 }
 
@@ -499,6 +711,15 @@ func (r *commentRepo) SetCommentAgree(ctx context.Context, id int32, uuid string
 	err := r.data.DB(ctx).Model(&c).Where("comment_id = ? and uuid = ?", id, uuid).Update("agree", gorm.Expr("agree + ?", 1)).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to add comment agree: id(%v)", id))
+	}
+	return nil
+}
+
+func (r *commentRepo) SetCommentComment(ctx context.Context, id int32) error {
+	c := Comment{}
+	err := r.data.DB(ctx).Model(&c).Where("comment_id = ?", id).Update("comment", gorm.Expr("comment + ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add comment comment: id(%v)", id))
 	}
 	return nil
 }
@@ -654,6 +875,30 @@ func (r *commentRepo) SendCommentToMq(ctx context.Context, comment *biz.Comment,
 	return nil
 }
 
+func (r *commentRepo) SendSubCommentToMq(ctx context.Context, comment *biz.SubComment, mode string) error {
+	commentMap := map[string]interface{}{}
+	commentMap["uuid"] = comment.Uuid
+	commentMap["id"] = comment.CommentId
+	commentMap["rootId"] = comment.RootId
+	commentMap["parentId"] = comment.ParentId
+	commentMap["mode"] = mode
+
+	data, err := json.Marshal(commentMap)
+	if err != nil {
+		return err
+	}
+	msg := &primitive.Message{
+		Topic: "comment",
+		Body:  data,
+	}
+	msg.WithKeys([]string{comment.Uuid})
+	_, err = r.data.commonMqPro.producer.SendSync(ctx, msg)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to send comment to mq: %v", comment))
+	}
+	return nil
+}
+
 func (r *commentRepo) SendCommentAgreeToMq(ctx context.Context, id, creationId, creationType int32, uuid, userUuid, mode string) error {
 	commentMap := map[string]interface{}{}
 	commentMap["uuid"] = uuid
@@ -714,6 +959,20 @@ func (r *commentRepo) CreateComment(ctx context.Context, id, creationId, creatio
 	return nil
 }
 
+func (r *commentRepo) CreateSubComment(ctx context.Context, id, rootId, parentId int32, uuid, reply string) error {
+	sc := &SubComment{}
+	sc.CommentId = id
+	sc.RootId = rootId
+	sc.ParentId = parentId
+	sc.Uuid = uuid
+	sc.Reply = reply
+	err := r.data.DB(ctx).Model(&SubComment{}).Updates(sc).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to create a sub comment: id(%v), rootId(%v), parentId(%v),uuid(%s), reply(%s)", id, rootId, parentId, uuid, reply))
+	}
+	return nil
+}
+
 func (r *commentRepo) CreateCommentCache(ctx context.Context, id, creationId, creationType int32, uuid string) error {
 	ids := strconv.Itoa(int(id))
 	creationIds := strconv.Itoa(int(creationId))
@@ -770,6 +1029,57 @@ func (r *commentRepo) commentCacheExist(ctx context.Context, creationIds, creati
 	return exists[0], exists[1], nil
 }
 
+func (r *commentRepo) CreateSubCommentCache(ctx context.Context, id, rootId int32, uuid, reply string) error {
+	ids := strconv.Itoa(int(id))
+	rootIds := strconv.Itoa(int(rootId))
+
+	subCommentExist, commentExist, err := r.subCommentCacheExist(ctx, ids, rootIds)
+	if err != nil {
+		return err
+	}
+
+	_, err = r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.HSetNX(ctx, "comment_"+ids, "agree", 0)
+		pipe.Expire(ctx, "comment_"+ids, time.Hour*8)
+
+		if subCommentExist == 1 {
+			pipe.ZAddNX(ctx, "sub_comment_"+rootIds, &redis.Z{
+				Score:  float64(id),
+				Member: ids + "%" + uuid + "%" + reply,
+			})
+			pipe.Expire(ctx, "sub_comment_"+rootIds, time.Hour*8)
+		}
+
+		if commentExist == 1 {
+			pipe.HIncrBy(ctx, "comment_"+rootIds, "agree", 1)
+			pipe.Expire(ctx, "sub_comment_"+rootIds, time.Hour*8)
+		}
+		return nil
+	})
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to create sub comment cache: id(%v), rootId(%v), uuid(%s), reply(%s)", id, rootId, uuid, reply))
+	}
+	return nil
+}
+
+func (r *commentRepo) subCommentCacheExist(ctx context.Context, ids, rootIds string) (int32, int32, error) {
+	exists := make([]int32, 0)
+	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.Exists(ctx, "sub_comment_"+rootIds)
+		pipe.Exists(ctx, "comment_"+rootIds)
+		return nil
+	})
+	if err != nil {
+		return 0, 0, errors.Wrapf(err, fmt.Sprintf("fail to check if sub comment exist from cache: commentId(%s),rootId(%s)", ids, rootIds))
+	}
+
+	for _, item := range cmd {
+		exist := item.(*redis.IntCmd).Val()
+		exists = append(exists, int32(exist))
+	}
+	return exists[0], exists[1], nil
+}
+
 func (r *commentRepo) DeleteCommentDraft(ctx context.Context, id int32, uuid string) error {
 	cd := &CommentDraft{}
 	cd.ID = uint(id)
@@ -795,6 +1105,22 @@ func (r *commentRepo) RemoveComment(ctx context.Context, id int32, uuid string) 
 	return nil
 }
 
+func (r *commentRepo) RemoveSubComment(ctx context.Context, id, rootId int32, uuid string) error {
+	c := &Comment{}
+	err := r.data.DB(ctx).Model(&c).Where("comment_id = ? and comment > 0", rootId).Update("comment", gorm.Expr("comment - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to cancel comment comment: id(%v)", rootId))
+	}
+
+	sc := &SubComment{}
+	err = r.data.DB(ctx).Where("comment_id = ? and uuid = ?", id, uuid).Delete(sc).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to delete a comment: id(%v), uuid(%s)", id, uuid))
+	}
+
+	return nil
+}
+
 func (r *commentRepo) RemoveCommentAgree(ctx context.Context, id int32, uuid string) error {
 	ca := &CommentAgree{}
 	err := r.data.DB(ctx).Where("comment_id = ? and uuid = ?", id, uuid).Delete(ca).Error
@@ -817,6 +1143,21 @@ func (r *commentRepo) RemoveCommentCache(ctx context.Context, id, creationId, cr
 	})
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to remove comment cache: id(%v), uuid(%s), creationId(%v), creationType(%v)", id, uuid, creationId, creationType))
+	}
+	return nil
+}
+
+func (r *commentRepo) RemoveSubCommentCache(ctx context.Context, id, rootId int32, uuid, reply string) error {
+	ids := strconv.Itoa(int(id))
+	rootIds := strconv.Itoa(int(rootId))
+
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.Del(ctx, "comment_"+ids)
+		pipe.ZRem(ctx, "sub_comment_"+rootIds, ids+"%"+uuid+"%"+reply)
+		return nil
+	})
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to remove comment cache: id(%v), uuid(%s), rootId(%v), reply(%s)", id, uuid, rootId, reply))
 	}
 	return nil
 }
