@@ -297,6 +297,15 @@ type Comment struct {
 	Comment  int32
 }
 
+type SubComment struct {
+	Id        int32
+	Uuid      string
+	Reply     string
+	UserName  string
+	ReplyName string
+	Agree     int32
+}
+
 type CommentStatistic struct {
 	Id      int32
 	Agree   int32
