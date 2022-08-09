@@ -46,6 +46,22 @@ func (s *CommentService) GetCommentList(ctx context.Context, req *v1.GetCommentL
 	return reply, nil
 }
 
+func (s *CommentService) GetSubCommentList(ctx context.Context, req *v1.GetSubCommentListReq) (*v1.GetSubCommentListReply, error) {
+	reply := &v1.GetSubCommentListReply{Comment: make([]*v1.GetSubCommentListReply_Comment, 0)}
+	subCommentList, err := s.cc.GetSubCommentList(ctx, req.Page, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range subCommentList {
+		reply.Comment = append(reply.Comment, &v1.GetSubCommentListReply_Comment{
+			Id:    item.CommentId,
+			Uuid:  item.Uuid,
+			Reply: item.Reply,
+		})
+	}
+	return reply, nil
+}
+
 func (s *CommentService) GetCommentListHot(ctx context.Context, req *v1.GetCommentListReq) (*v1.GetCommentListReply, error) {
 	reply := &v1.GetCommentListReply{Comment: make([]*v1.GetCommentListReply_Comment, 0)}
 	commentList, err := s.cc.GetCommentListHot(ctx, req.Page, req.CreationId, req.CreationType)
@@ -77,6 +93,21 @@ func (s *CommentService) GetCommentListStatistic(ctx context.Context, req *v1.Ge
 	return reply, nil
 }
 
+func (s *CommentService) GetSubCommentListStatistic(ctx context.Context, req *v1.GetCommentListStatisticReq) (*v1.GetCommentListStatisticReply, error) {
+	reply := &v1.GetCommentListStatisticReply{Count: make([]*v1.GetCommentListStatisticReply_Count, 0)}
+	commentListStatistic, err := s.cc.GetSubCommentListStatistic(ctx, req.Ids)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range commentListStatistic {
+		reply.Count = append(reply.Count, &v1.GetCommentListStatisticReply_Count{
+			Id:    item.CommentId,
+			Agree: item.Agree,
+		})
+	}
+	return reply, nil
+}
+
 func (s *CommentService) CreateCommentDraft(ctx context.Context, req *v1.CreateCommentDraftReq) (*v1.CreateCommentDraftReply, error) {
 	id, err := s.cc.CreateCommentDraft(ctx, req.Uuid)
 	if err != nil {
@@ -95,8 +126,24 @@ func (s *CommentService) CreateComment(ctx context.Context, req *v1.CreateCommen
 	return &emptypb.Empty{}, nil
 }
 
+func (s *CommentService) CreateSubComment(ctx context.Context, req *v1.CreateSubCommentReq) (*emptypb.Empty, error) {
+	err := s.cc.CreateSubComment(ctx, req.Id, req.RootId, req.ParentId, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *CommentService) CreateCommentDbAndCache(ctx context.Context, req *v1.CreateCommentDbAndCacheReq) (*emptypb.Empty, error) {
 	err := s.cc.CreateCommentDbAndCache(ctx, req.Id, req.CreationId, req.CreationType, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CommentService) CreateSubCommentDbAndCache(ctx context.Context, req *v1.CreateSubCommentDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.cc.CreateSubCommentDbAndCache(ctx, req.Id, req.RootId, req.ParentId, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -111,6 +158,14 @@ func (s *CommentService) SendComment(ctx context.Context, req *v1.SendCommentReq
 	return &emptypb.Empty{}, nil
 }
 
+func (s *CommentService) SendSubComment(ctx context.Context, req *v1.SendSubCommentReq) (*emptypb.Empty, error) {
+	err := s.cc.SendSubComment(ctx, req.Id, req.Uuid, req.Ip)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *CommentService) RemoveComment(ctx context.Context, req *v1.RemoveCommentReq) (*emptypb.Empty, error) {
 	err := s.cc.RemoveComment(ctx, req.Id, req.CreationId, req.CreationType, req.Uuid, req.UserUuid)
 	if err != nil {
@@ -119,8 +174,24 @@ func (s *CommentService) RemoveComment(ctx context.Context, req *v1.RemoveCommen
 	return &emptypb.Empty{}, nil
 }
 
+func (s *CommentService) RemoveSubComment(ctx context.Context, req *v1.RemoveSubCommentReq) (*emptypb.Empty, error) {
+	err := s.cc.RemoveSubComment(ctx, req.Id, req.RootId, req.Uuid, req.UserUuid, req.Reply)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *CommentService) RemoveCommentDbAndCache(ctx context.Context, req *v1.RemoveCommentDbAndCacheReq) (*emptypb.Empty, error) {
 	err := s.cc.RemoveCommentDbAndCache(ctx, req.Id, req.CreationId, req.CreationType, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CommentService) RemoveSubCommentDbAndCache(ctx context.Context, req *v1.RemoveSubCommentDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.cc.RemoveSubCommentDbAndCache(ctx, req.Id, req.RootId, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
