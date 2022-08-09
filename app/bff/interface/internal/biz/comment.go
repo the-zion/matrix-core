@@ -10,12 +10,17 @@ type CommentRepo interface {
 	GetLastCommentDraft(ctx context.Context, uuid string) (*CommentDraft, error)
 	GetUserCommentAgree(ctx context.Context, uuid string) (map[int32]bool, error)
 	GetCommentList(ctx context.Context, page, creationId, creationType int32) ([]*Comment, error)
+	GetSubCommentList(ctx context.Context, page, id int32) ([]*SubComment, error)
 	GetCommentListHot(ctx context.Context, page, creationId, creationType int32) ([]*Comment, error)
 	GetCommentListStatistic(ctx context.Context, page, creationId, creationType int32, key string, commentList []*Comment) ([]*CommentStatistic, error)
+	GetSubCommentListStatistic(ctx context.Context, page, id int32, commentList []*SubComment) ([]*CommentStatistic, error)
 	GetUserProfileList(ctx context.Context, page, creationId, creationType int32, key string, commentList []*Comment) ([]*UserProfile, error)
+	GetSubUserProfileList(ctx context.Context, page, id int32, commentList []*SubComment) ([]*UserProfile, error)
 	CreateCommentDraft(ctx context.Context, uuid string) (int32, error)
 	SendComment(ctx context.Context, id int32, uuid, ip string) error
+	SendSubComment(ctx context.Context, id int32, uuid, ip string) error
 	RemoveComment(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error
+	RemoveSubComment(ctx context.Context, id, rootId int32, uuid, userUuid, reply string) error
 	SetCommentAgree(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error
 	CancelCommentAgree(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error
 }
@@ -89,6 +94,51 @@ func (r *CommentUseCase) GetCommentList(ctx context.Context, page, creationId, c
 	return commentList, nil
 }
 
+func (r *CommentUseCase) GetSubCommentList(ctx context.Context, page, id int32) ([]*SubComment, error) {
+	subCommentList, err := r.repo.GetSubCommentList(ctx, page, id)
+	if err != nil {
+		return nil, err
+	}
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(func() error {
+		commentListStatistic, err := r.repo.GetSubCommentListStatistic(ctx, page, id, subCommentList)
+		if err != nil {
+			return err
+		}
+		for _, item := range commentListStatistic {
+			for index, listItem := range subCommentList {
+				if listItem.Id == item.Id {
+					subCommentList[index].Agree = item.Agree
+				}
+			}
+		}
+		return nil
+	})
+	g.Go(func() error {
+		userProfileList, err := r.repo.GetSubUserProfileList(ctx, page, id, subCommentList)
+		if err != nil {
+			return err
+		}
+		for _, item := range userProfileList {
+			for index, listItem := range subCommentList {
+				if listItem.Uuid == item.Uuid {
+					subCommentList[index].UserName = item.Username
+				}
+
+				if listItem.Reply == item.Uuid {
+					subCommentList[index].ReplyName = item.Username
+				}
+			}
+		}
+		return nil
+	})
+	err = g.Wait()
+	if err != nil {
+		return nil, err
+	}
+	return subCommentList, nil
+}
+
 func (r *CommentUseCase) GetCommentListHot(ctx context.Context, page, creationId, creationType int32) ([]*Comment, error) {
 	commentList, err := r.repo.GetCommentListHot(ctx, page, creationId, creationType)
 	if err != nil {
@@ -137,9 +187,20 @@ func (r *CommentUseCase) SendComment(ctx context.Context, id int32) error {
 	return r.repo.SendComment(ctx, id, uuid, ip)
 }
 
+func (r *CommentUseCase) SendSubComment(ctx context.Context, id int32) error {
+	uuid := ctx.Value("uuid").(string)
+	ip := ctx.Value("realIp").(string)
+	return r.repo.SendSubComment(ctx, id, uuid, ip)
+}
+
 func (r *CommentUseCase) RemoveComment(ctx context.Context, id, creationId, creationType int32, uuid string) error {
 	userUuid := ctx.Value("uuid").(string)
 	return r.repo.RemoveComment(ctx, id, creationId, creationType, uuid, userUuid)
+}
+
+func (r *CommentUseCase) RemoveSubComment(ctx context.Context, id, rootId int32, uuid, reply string) error {
+	userUuid := ctx.Value("uuid").(string)
+	return r.repo.RemoveSubComment(ctx, id, rootId, uuid, userUuid, reply)
 }
 
 func (r *CommentUseCase) SetCommentAgree(ctx context.Context, id, creationId, creationType int32, uuid string) error {
