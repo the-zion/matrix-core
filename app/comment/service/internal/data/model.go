@@ -36,9 +36,10 @@ type SubComment struct {
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 	RootId    int32          `gorm:"index"`
-	ParentId  int32
-	Uuid      string `gorm:"index;size:36"`
-	Agree     int32  `gorm:"type:int unsigned;default:0"`
+	ParentId  int32          `gorm:"index"`
+	Uuid      string         `gorm:"index;size:36"`
+	Reply     string         `gorm:"index;size:36"`
+	Agree     int32          `gorm:"type:int unsigned;default:0"`
 }
 
 type Record struct {
