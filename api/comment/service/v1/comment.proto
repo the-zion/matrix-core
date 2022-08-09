@@ -21,17 +21,27 @@ service Comment {
 
   rpc GetCommentList(GetCommentListReq) returns (GetCommentListReply){}
 
+  rpc GetSubCommentList(GetSubCommentListReq) returns (GetSubCommentListReply){}
+
   rpc GetCommentListHot(GetCommentListReq) returns (GetCommentListReply){}
 
   rpc GetCommentListStatistic(GetCommentListStatisticReq)returns (GetCommentListStatisticReply){}
+
+  rpc GetSubCommentListStatistic(GetCommentListStatisticReq)returns (GetCommentListStatisticReply){}
 
   rpc CreateCommentDraft(CreateCommentDraftReq) returns (CreateCommentDraftReply){}
 
   rpc CreateComment(CreateCommentReq) returns (google.protobuf.Empty){}
 
+  rpc CreateSubComment(CreateSubCommentReq) returns (google.protobuf.Empty){}
+
   rpc CreateCommentDbAndCache(CreateCommentDbAndCacheReq) returns (google.protobuf.Empty){}
 
+  rpc CreateSubCommentDbAndCache(CreateSubCommentDbAndCacheReq) returns (google.protobuf.Empty){}
+
   rpc SendComment(SendCommentReq) returns (google.protobuf.Empty){}
+
+  rpc SendSubComment(SendSubCommentReq) returns (google.protobuf.Empty){}
 
   rpc SetCommentAgree(SetCommentAgreeReq) returns (google.protobuf.Empty){}
 
@@ -43,7 +53,11 @@ service Comment {
 
   rpc RemoveComment(RemoveCommentReq) returns (google.protobuf.Empty){}
 
+  rpc RemoveSubComment(RemoveSubCommentReq) returns (google.protobuf.Empty){}
+
   rpc RemoveCommentDbAndCache(RemoveCommentDbAndCacheReq) returns (google.protobuf.Empty){}
+
+  rpc RemoveSubCommentDbAndCache(RemoveSubCommentDbAndCacheReq) returns (google.protobuf.Empty){}
 
 }
 
@@ -78,10 +92,23 @@ message SendCommentReq{
   string ip = 3 [(validate.rules).string.ip = true];
 }
 
+message SendSubCommentReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+  string ip = 3 [(validate.rules).string.ip = true];
+}
+
 message CreateCommentReq{
   int32 id = 1;
   int32 creationId = 2;
   int32 creationType = 3;
+  string uuid = 4 [(validate.rules).string.uuid = true];
+}
+
+message CreateSubCommentReq{
+  int32 id = 1;
+  int32 rootId = 2;
+  int32 parentId = 3;
   string uuid = 4 [(validate.rules).string.uuid = true];
 }
 
@@ -92,10 +119,22 @@ message CreateCommentDbAndCacheReq{
   string uuid = 4 [(validate.rules).string.uuid = true];
 }
 
+message CreateSubCommentDbAndCacheReq{
+  int32 id = 1;
+  int32 rootId = 2;
+  int32 parentId = 3;
+  string uuid = 4 [(validate.rules).string.uuid = true];
+}
+
 message GetCommentListReq{
   int32 page = 1;
   int32 creationId = 2;
   int32 creationType = 3;
+}
+
+message GetSubCommentListReq{
+  int32 page = 1;
+  int32 id = 2;
 }
 
 message GetCommentListReply{
@@ -106,10 +145,25 @@ message GetCommentListReply{
   repeated Comment comment = 1;
 }
 
+message GetSubCommentListReply{
+  message Comment{
+    int32 id = 1;
+    string uuid = 2;
+    string reply = 3;
+  }
+  repeated Comment comment = 1;
+}
+
 message RemoveCommentDbAndCacheReq{
   int32 id = 1;
   int32 creationId = 2;
   int32 creationType = 3;
+  string uuid = 4 [(validate.rules).string.uuid = true];
+}
+
+message RemoveSubCommentDbAndCacheReq{
+  int32 id = 1;
+  int32 rootId = 2;
   string uuid = 4 [(validate.rules).string.uuid = true];
 }
 
@@ -148,4 +202,12 @@ message RemoveCommentReq{
   string user_uuid = 3 [(validate.rules).string.uuid = true];
   int32 creationId = 4;
   int32 creationType = 5;
+}
+
+message RemoveSubCommentReq{
+  int32 id = 1;
+  int32 rootId = 2;
+  string uuid = 3 [(validate.rules).string.uuid = true];
+  string user_uuid = 4 [(validate.rules).string.uuid = true];
+  string reply = 5 [(validate.rules).string = {ignore_empty:true, uuid:true}];
 }
