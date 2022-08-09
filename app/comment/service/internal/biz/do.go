@@ -9,6 +9,7 @@ type CommentDraft struct {
 type CommentReview struct {
 	Uuid string
 	Id   int32
+	Mode string
 }
 
 type Comment struct {
@@ -18,6 +19,17 @@ type Comment struct {
 	Uuid         string
 	Agree        int32
 	Comment      int32
+}
+
+type SubComment struct {
+	CommentId int32
+	RootId    int32
+	ParentId  int32
+	Uuid      string
+	Reply     string
+	UserName  string
+	ReplyName string
+	Agree     int32
 }
 
 type CommentStatistic struct {
