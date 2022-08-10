@@ -40,14 +40,15 @@ func (r *UserUseCase) AvatarReview(ctx context.Context, ar *AvatarReview) error 
 }
 
 func (r *UserUseCase) ProfileReview(ctx context.Context, tr *TextReview) error {
-	uuid := tr.CosHeaders["x-cos-meta-uuid"]
-	if uuid == "" {
+	var uuid, updated string
+	var ok bool
+
+	if uuid, ok = tr.CosHeaders["x-cos-meta-uuid"]; !ok || uuid == "" {
 		r.log.Info("uuid not exist，%v", tr)
 		return nil
 	}
 
-	updated := tr.CosHeaders["x-cos-meta-update"]
-	if updated == "" {
+	if updated, ok = tr.CosHeaders["x-cos-meta-update"]; !ok || updated == "" {
 		r.log.Info("updated not exist，%v", tr)
 		return nil
 	}
@@ -56,6 +57,7 @@ func (r *UserUseCase) ProfileReview(ctx context.Context, tr *TextReview) error {
 		r.log.Info("profile review failed，%v", tr)
 		return nil
 	}
+
 	var err error
 	if tr.Result == 0 {
 		err = r.repo.ProfileReviewPass(ctx, uuid, updated)
