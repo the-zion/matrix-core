@@ -65,6 +65,20 @@ message Server {
     string accessKey = 9;
     string nameSpace = 10;
   }
+  message CommentMq{
+    message CommentReview{
+      string groupName = 1;
+    }
+    message Comment{
+      string groupName = 1;
+    }
+    CommentReview commentReview = 1;
+    Comment comment = 2;
+    string serverAddress = 3;
+    string secretKey = 4;
+    string accessKey = 5;
+    string nameSpace = 6;
+  }
   message AchievementMq{
     message Achievement{
       string groupName = 1;
@@ -75,11 +89,13 @@ message Server {
     string accessKey = 5;
     string nameSpace = 6;
   }
+
   HTTP http = 1;
   GRPC grpc = 2;
   UserMq userMq = 3;
   CreationMq creationMq = 4;
-  AchievementMq achievementMq = 5;
+  CommentMq commentMq = 5;
+  AchievementMq achievementMq = 6;
 }
 
 message Data {
@@ -103,8 +119,16 @@ message Data {
       string secret_key = 4;
       map<string, string> callback = 5;
     }
+    message BucketComment{
+      string bucketUrl = 1;
+      string ciUrl = 2;
+      string secret_id = 3;
+      string secret_key = 4;
+      map<string, string> callback = 5;
+    }
     BucketUser bucketUser = 1;
     BucketCreation bucketCreation = 2;
+    BucketComment bucketComment = 3;
   }
   Code code = 1;
   Mail mail = 2;
