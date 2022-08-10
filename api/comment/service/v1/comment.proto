@@ -45,11 +45,19 @@ service Comment {
 
   rpc SetCommentAgree(SetCommentAgreeReq) returns (google.protobuf.Empty){}
 
+  rpc SetSubCommentAgree(SetSubCommentAgreeReq) returns (google.protobuf.Empty){}
+
   rpc SetCommentAgreeDbAndCache(SetCommentAgreeReq) returns (google.protobuf.Empty){}
+
+  rpc SetSubCommentAgreeDbAndCache(SetSubCommentAgreeReq) returns (google.protobuf.Empty){}
 
   rpc CancelCommentAgree(CancelCommentAgreeReq) returns (google.protobuf.Empty){}
 
+  rpc CancelSubCommentAgree(CancelSubCommentAgreeReq) returns (google.protobuf.Empty){}
+
   rpc CancelCommentAgreeDbAndCache(CancelCommentAgreeReq) returns (google.protobuf.Empty){}
+
+  rpc CancelSubCommentAgreeDbAndCache(CancelSubCommentAgreeReq) returns (google.protobuf.Empty){}
 
   rpc RemoveComment(RemoveCommentReq) returns (google.protobuf.Empty){}
 
@@ -57,7 +65,12 @@ service Comment {
 
   rpc RemoveCommentDbAndCache(RemoveCommentDbAndCacheReq) returns (google.protobuf.Empty){}
 
-  rpc RemoveSubCommentDbAndCache(RemoveSubCommentDbAndCacheReq) returns (google.protobuf.Empty){}
+  rpc RemoveSubCommentDbAndCache(RemoveSubCommentDbAndCacheReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/text"
+      body: "*"
+    };
+  }
 
 }
 
@@ -188,12 +201,24 @@ message SetCommentAgreeReq{
   int32 creationType = 5;
 }
 
+message SetSubCommentAgreeReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+  string user_uuid = 3 [(validate.rules).string.uuid = true];
+}
+
 message CancelCommentAgreeReq{
   int32 id = 1;
   string uuid = 2 [(validate.rules).string.uuid = true];
   string user_uuid = 3 [(validate.rules).string.uuid = true];
   int32 creationId = 4;
   int32 creationType = 5;
+}
+
+message CancelSubCommentAgreeReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+  string user_uuid = 3 [(validate.rules).string.uuid = true];
 }
 
 message RemoveCommentReq{
