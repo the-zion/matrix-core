@@ -295,3 +295,19 @@ func (r *creationRepo) DeleteColumnCacheAndSearch(ctx context.Context, id int32,
 	}
 	return nil
 }
+
+func (r *creationRepo) AddCreationComment(ctx context.Context, createId, createType int32, uuid string) {
+	_, _ = r.data.cc.AddCreationComment(ctx, &creationV1.AddCreationCommentReq{
+		Uuid:         uuid,
+		CreationId:   createId,
+		CreationType: createType,
+	})
+}
+
+func (r *creationRepo) ReduceCreationComment(ctx context.Context, createId, createType int32, uuid string) {
+	_, _ = r.data.cc.ReduceCreationComment(ctx, &creationV1.ReduceCreationCommentReq{
+		Uuid:         uuid,
+		CreationId:   createId,
+		CreationType: createType,
+	})
+}
