@@ -18,7 +18,9 @@ type CommentRepo interface {
 	RemoveCommentDbAndCache(ctx context.Context, id, createId, createType int32, uuid string) error
 	RemoveSubCommentDbAndCache(ctx context.Context, id, rootId int32, uuid string) error
 	SetCommentAgreeDbAndCache(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error
+	SetSubCommentAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error
 	CancelCommentAgreeDbAndCache(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error
+	CancelSubCommentAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error
 }
 
 type CommentUseCase struct {
@@ -177,6 +179,14 @@ func (r *CommentUseCase) SetCommentAgreeDbAndCache(ctx context.Context, id, crea
 	return r.repo.SetCommentAgreeDbAndCache(ctx, id, creationId, creationType, uuid, userUuid)
 }
 
+func (r *CommentUseCase) SetSubCommentAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	return r.repo.SetSubCommentAgreeDbAndCache(ctx, id, uuid, userUuid)
+}
+
 func (r *CommentUseCase) CancelCommentAgreeDbAndCache(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error {
 	return r.repo.CancelCommentAgreeDbAndCache(ctx, id, creationId, creationType, uuid, userUuid)
+}
+
+func (r *CommentUseCase) CancelSubCommentAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	return r.repo.CancelSubCommentAgreeDbAndCache(ctx, id, uuid, userUuid)
 }
