@@ -68,7 +68,7 @@ func (s *BffService) GetSubCommentList(ctx context.Context, req *v1.GetSubCommen
 			Reply:     item.Reply,
 			Agree:     item.Agree,
 			Username:  item.UserName,
-			ReplyName: item.UserName,
+			ReplyName: item.ReplyName,
 		})
 	}
 	return reply, nil
@@ -100,7 +100,7 @@ func (s *BffService) SendComment(ctx context.Context, req *v1.SendCommentReq) (*
 	return &emptypb.Empty{}, nil
 }
 
-func (s *BffService) SendSubComment(ctx context.Context, req *v1.SendCommentReq) (*emptypb.Empty, error) {
+func (s *BffService) SendSubComment(ctx context.Context, req *v1.SendSubCommentReq) (*emptypb.Empty, error) {
 	err := s.commc.SendSubComment(ctx, req.Id)
 	if err != nil {
 		return nil, err
@@ -132,8 +132,24 @@ func (s *BffService) SetCommentAgree(ctx context.Context, req *v1.SetCommentAgre
 	return &emptypb.Empty{}, nil
 }
 
+func (s *BffService) SetSubCommentAgree(ctx context.Context, req *v1.SetSubCommentAgreeReq) (*emptypb.Empty, error) {
+	err := s.commc.SetSubCommentAgree(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *BffService) CancelCommentAgree(ctx context.Context, req *v1.CancelCommentAgreeReq) (*emptypb.Empty, error) {
 	err := s.commc.CancelCommentAgree(ctx, req.Id, req.CreationId, req.CreationType, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) CancelSubCommentAgree(ctx context.Context, req *v1.CancelSubCommentAgreeReq) (*emptypb.Empty, error) {
+	err := s.commc.CancelSubCommentAgree(ctx, req.Id, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
