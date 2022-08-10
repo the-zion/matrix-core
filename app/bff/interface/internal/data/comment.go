@@ -216,10 +216,12 @@ func (r *commentRepo) GetSubUserProfileList(ctx context.Context, page, id int32,
 	for _, item := range subCommentList {
 		if _, ok := set[item.Uuid]; !ok {
 			uuids = append(uuids, item.Uuid)
+			set[item.Uuid] = true
 		}
 
 		if _, ok := set[item.Reply]; item.Reply != "" && !ok {
 			uuids = append(uuids, item.Reply)
+			set[item.Reply] = true
 		}
 	}
 	result, err, _ := r.sg.Do(fmt.Sprintf("sub_comment_user_profile_list_%v_%v", id, page), func() (interface{}, error) {
@@ -320,6 +322,18 @@ func (r *commentRepo) SetCommentAgree(ctx context.Context, id, creationId, creat
 	return nil
 }
 
+func (r *commentRepo) SetSubCommentAgree(ctx context.Context, id int32, uuid, userUuid string) error {
+	_, err := r.data.commc.SetSubCommentAgree(ctx, &commentV1.SetSubCommentAgreeReq{
+		Uuid:     uuid,
+		Id:       id,
+		UserUuid: userUuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *commentRepo) CancelCommentAgree(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error {
 	_, err := r.data.commc.CancelCommentAgree(ctx, &commentV1.CancelCommentAgreeReq{
 		Uuid:         uuid,
@@ -327,6 +341,18 @@ func (r *commentRepo) CancelCommentAgree(ctx context.Context, id, creationId, cr
 		UserUuid:     userUuid,
 		CreationId:   creationId,
 		CreationType: creationType,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *commentRepo) CancelSubCommentAgree(ctx context.Context, id int32, uuid, userUuid string) error {
+	_, err := r.data.commc.CancelSubCommentAgree(ctx, &commentV1.CancelSubCommentAgreeReq{
+		Uuid:     uuid,
+		Id:       id,
+		UserUuid: userUuid,
 	})
 	if err != nil {
 		return err
