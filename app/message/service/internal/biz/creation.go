@@ -32,6 +32,9 @@ type CreationRepo interface {
 	CreateColumnCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error
 	EditColumnCosAndSearch(ctx context.Context, id, auth int32, uuid string) error
 	DeleteColumnCacheAndSearch(ctx context.Context, id int32, uuid string) error
+
+	AddCreationComment(ctx context.Context, createId, createType int32, uuid string)
+	ReduceCreationComment(ctx context.Context, createId, createType int32, uuid string)
 }
 
 type CreationUseCase struct {
@@ -56,20 +59,20 @@ func (r *CreationUseCase) ToReviewEditArticle(id int32, uuid string) error {
 
 func (r *CreationUseCase) ArticleCreateReview(ctx context.Context, tr *TextReview) error {
 	var err error
-	uuid := tr.CosHeaders["X-Cos-Meta-Uuid"]
-	if uuid == "" {
+	var uuid, id, auths string
+	var ok bool
+
+	if uuid, ok = tr.CosHeaders["X-Cos-Meta-Uuid"]; !ok || uuid == "" {
 		r.log.Info("uuid not exist，%v", tr)
 		return nil
 	}
 
-	id := tr.CosHeaders["X-Cos-Meta-Id"]
-	if id == "" {
+	if id, ok = tr.CosHeaders["X-Cos-Meta-Id"]; !ok || id == "" {
 		r.log.Info("id not exist，%v", tr)
 		return nil
 	}
 
-	auths := tr.CosHeaders["X-Cos-Meta-Auth"]
-	if auths == "" {
+	if auths, ok = tr.CosHeaders["X-Cos-Meta-Auth"]; !ok || auths == "" {
 		r.log.Info("auth not exist，%v", tr)
 		return nil
 	}
@@ -102,20 +105,20 @@ func (r *CreationUseCase) ArticleCreateReview(ctx context.Context, tr *TextRevie
 
 func (r *CreationUseCase) ArticleEditReview(ctx context.Context, tr *TextReview) error {
 	var err error
-	uuid := tr.CosHeaders["X-Cos-Meta-Uuid"]
-	if uuid == "" {
+	var uuid, id, auths string
+	var ok bool
+
+	if uuid, ok = tr.CosHeaders["X-Cos-Meta-Uuid"]; !ok || uuid == "" {
 		r.log.Info("uuid not exist，%v", tr)
 		return nil
 	}
 
-	id := tr.CosHeaders["X-Cos-Meta-Id"]
-	if id == "" {
+	if id, ok = tr.CosHeaders["X-Cos-Meta-Id"]; !ok || id == "" {
 		r.log.Info("id not exist，%v", tr)
 		return nil
 	}
 
-	auths := tr.CosHeaders["X-Cos-Meta-Auth"]
-	if auths == "" {
+	if auths, ok = tr.CosHeaders["X-Cos-Meta-Auth"]; !ok || auths == "" {
 		r.log.Info("auth not exist，%v", tr)
 		return nil
 	}
@@ -168,20 +171,20 @@ func (r *CreationUseCase) ToReviewEditTalk(id int32, uuid string) error {
 
 func (r *CreationUseCase) TalkCreateReview(ctx context.Context, tr *TextReview) error {
 	var err error
-	uuid := tr.CosHeaders["X-Cos-Meta-Uuid"]
-	if uuid == "" {
+	var uuid, id, auths string
+	var ok bool
+
+	if uuid, ok = tr.CosHeaders["X-Cos-Meta-Uuid"]; !ok || uuid == "" {
 		r.log.Info("uuid not exist，%v", tr)
 		return nil
 	}
 
-	id := tr.CosHeaders["X-Cos-Meta-Id"]
-	if id == "" {
+	if id, ok = tr.CosHeaders["X-Cos-Meta-Id"]; !ok || id == "" {
 		r.log.Info("id not exist，%v", tr)
 		return nil
 	}
 
-	auths := tr.CosHeaders["X-Cos-Meta-Auth"]
-	if auths == "" {
+	if auths, ok = tr.CosHeaders["X-Cos-Meta-Auth"]; !ok || auths == "" {
 		r.log.Info("auth not exist，%v", tr)
 		return nil
 	}
@@ -214,20 +217,20 @@ func (r *CreationUseCase) TalkCreateReview(ctx context.Context, tr *TextReview) 
 
 func (r *CreationUseCase) TalkEditReview(ctx context.Context, tr *TextReview) error {
 	var err error
-	uuid := tr.CosHeaders["X-Cos-Meta-Uuid"]
-	if uuid == "" {
+	var uuid, id, auths string
+	var ok bool
+
+	if uuid, ok = tr.CosHeaders["X-Cos-Meta-Uuid"]; !ok || uuid == "" {
 		r.log.Info("uuid not exist，%v", tr)
 		return nil
 	}
 
-	id := tr.CosHeaders["X-Cos-Meta-Id"]
-	if id == "" {
+	if id, ok = tr.CosHeaders["X-Cos-Meta-Id"]; !ok || id == "" {
 		r.log.Info("id not exist，%v", tr)
 		return nil
 	}
 
-	auths := tr.CosHeaders["X-Cos-Meta-Auth"]
-	if auths == "" {
+	if auths, ok = tr.CosHeaders["X-Cos-Meta-Auth"]; !ok || auths == "" {
 		r.log.Info("auth not exist，%v", tr)
 		return nil
 	}
@@ -280,20 +283,20 @@ func (r *CreationUseCase) ToReviewEditColumn(id int32, uuid string) error {
 
 func (r *CreationUseCase) ColumnCreateReview(ctx context.Context, tr *TextReview) error {
 	var err error
-	uuid := tr.CosHeaders["X-Cos-Meta-Uuid"]
-	if uuid == "" {
+	var uuid, id, auths string
+	var ok bool
+
+	if uuid, ok = tr.CosHeaders["X-Cos-Meta-Uuid"]; !ok || uuid == "" {
 		r.log.Info("uuid not exist，%v", tr)
 		return nil
 	}
 
-	id := tr.CosHeaders["X-Cos-Meta-Id"]
-	if id == "" {
+	if id, ok = tr.CosHeaders["X-Cos-Meta-Id"]; !ok || id == "" {
 		r.log.Info("id not exist，%v", tr)
 		return nil
 	}
 
-	auths := tr.CosHeaders["X-Cos-Meta-Auth"]
-	if auths == "" {
+	if auths, ok = tr.CosHeaders["X-Cos-Meta-Auth"]; !ok || auths == "" {
 		r.log.Info("auth not exist，%v", tr)
 		return nil
 	}
@@ -326,20 +329,20 @@ func (r *CreationUseCase) ColumnCreateReview(ctx context.Context, tr *TextReview
 
 func (r *CreationUseCase) ColumnEditReview(ctx context.Context, tr *TextReview) error {
 	var err error
-	uuid := tr.CosHeaders["X-Cos-Meta-Uuid"]
-	if uuid == "" {
+	var uuid, id, auths string
+	var ok bool
+
+	if uuid, ok = tr.CosHeaders["X-Cos-Meta-Uuid"]; !ok || uuid == "" {
 		r.log.Info("uuid not exist，%v", tr)
 		return nil
 	}
 
-	id := tr.CosHeaders["X-Cos-Meta-Id"]
-	if id == "" {
+	if id, ok = tr.CosHeaders["X-Cos-Meta-Id"]; !ok || id == "" {
 		r.log.Info("id not exist，%v", tr)
 		return nil
 	}
 
-	auths := tr.CosHeaders["X-Cos-Meta-Auth"]
-	if auths == "" {
+	if auths, ok = tr.CosHeaders["X-Cos-Meta-Auth"]; !ok || auths == "" {
 		r.log.Info("auth not exist，%v", tr)
 		return nil
 	}
@@ -380,4 +383,12 @@ func (r *CreationUseCase) EditColumnCosAndSearch(ctx context.Context, id, auth i
 
 func (r *CreationUseCase) DeleteColumnCacheAndSearch(ctx context.Context, id int32, uuid string) error {
 	return r.repo.DeleteColumnCacheAndSearch(ctx, id, uuid)
+}
+
+func (r *CreationUseCase) AddCreationComment(ctx context.Context, createId, createType int32, uuid string) {
+	r.repo.AddCreationComment(ctx, createId, createType, uuid)
+}
+
+func (r *CreationUseCase) ReduceCreationComment(ctx context.Context, createId, createType int32, uuid string) {
+	r.repo.ReduceCreationComment(ctx, createId, createType, uuid)
 }
