@@ -879,9 +879,23 @@ service Bff{
     };
   }
 
+  rpc SetSubCommentAgree(SetSubCommentAgreeReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/set/subcomment/agree"
+      body: "*"
+    };
+  }
+
   rpc CancelCommentAgree(CancelCommentAgreeReq) returns (google.protobuf.Empty){
     option (google.api.http) = {
       post: "/v1/cancel/comment/agree"
+      body: "*"
+    };
+  }
+
+  rpc CancelSubCommentAgree(CancelSubCommentAgreeReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/cancel/subcomment/agree"
       body: "*"
     };
   }
@@ -1862,9 +1876,19 @@ message SetCommentAgreeReq{
   int32 creationType = 4;
 }
 
+message SetSubCommentAgreeReq{
+  int32 id = 1;
+  string uuid = 2;
+}
+
 message CancelCommentAgreeReq{
   int32 id = 1;
   string uuid = 2;
   int32 creationId = 3;
   int32 creationType = 4;
+}
+
+message CancelSubCommentAgreeReq{
+  int32 id = 1;
+  string uuid = 2;
 }
