@@ -206,8 +206,24 @@ func (s *CommentService) SetCommentAgree(ctx context.Context, req *v1.SetComment
 	return &emptypb.Empty{}, nil
 }
 
+func (s *CommentService) SetSubCommentAgree(ctx context.Context, req *v1.SetSubCommentAgreeReq) (*emptypb.Empty, error) {
+	err := s.cc.SetSubCommentAgree(ctx, req.Id, req.Uuid, req.UserUuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *CommentService) SetCommentAgreeDbAndCache(ctx context.Context, req *v1.SetCommentAgreeReq) (*emptypb.Empty, error) {
 	err := s.cc.SetCommentAgreeDbAndCache(ctx, req.Id, req.CreationId, req.CreationType, req.Uuid, req.UserUuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CommentService) SetSubCommentAgreeDbAndCache(ctx context.Context, req *v1.SetSubCommentAgreeReq) (*emptypb.Empty, error) {
+	err := s.cc.SetSubCommentAgreeDbAndCache(ctx, req.Id, req.Uuid, req.UserUuid)
 	if err != nil {
 		return nil, err
 	}
@@ -222,8 +238,24 @@ func (s *CommentService) CancelCommentAgree(ctx context.Context, req *v1.CancelC
 	return &emptypb.Empty{}, nil
 }
 
+func (s *CommentService) CancelSubCommentAgree(ctx context.Context, req *v1.CancelSubCommentAgreeReq) (*emptypb.Empty, error) {
+	err := s.cc.CancelSubCommentAgree(ctx, req.Id, req.Uuid, req.UserUuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *CommentService) CancelCommentAgreeDbAndCache(ctx context.Context, req *v1.CancelCommentAgreeReq) (*emptypb.Empty, error) {
 	err := s.cc.CancelCommentAgreeDbAndCache(ctx, req.Id, req.CreationId, req.CreationType, req.Uuid, req.UserUuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CommentService) CancelSubCommentAgreeDbAndCache(ctx context.Context, req *v1.CancelSubCommentAgreeReq) (*emptypb.Empty, error) {
+	err := s.cc.CancelSubCommentAgreeDbAndCache(ctx, req.Id, req.Uuid, req.UserUuid)
 	if err != nil {
 		return nil, err
 	}
