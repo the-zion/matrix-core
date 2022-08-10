@@ -27,20 +27,25 @@ type CommentRepo interface {
 	CreateSubCommentCache(ctx context.Context, id, rootId int32, uuid, reply string) error
 	SendComment(ctx context.Context, id int32, uuid string) (*CommentDraft, error)
 	SendCommentAgreeToMq(ctx context.Context, id, creationId, creationType int32, uuid, userUuid, mode string) error
+	SendSubCommentAgreeToMq(ctx context.Context, id int32, uuid, userUuid, mode string) error
 	SendCommentToMq(ctx context.Context, comment *Comment, mode string) error
 	SendSubCommentToMq(ctx context.Context, comment *SubComment, mode string) error
 	SendReviewToMq(ctx context.Context, review *CommentReview) error
 	SendCommentStatisticToMq(ctx context.Context, uuid, mode string) error
 	SetRecord(ctx context.Context, id int32, uuid, ip string) error
 	SetCommentAgree(ctx context.Context, id int32, uuid string) error
+	SetSubCommentAgree(ctx context.Context, id int32, uuid string) error
 	SetCommentComment(ctx context.Context, id int32) error
 	SetUserCommentAgree(ctx context.Context, id int32, userUuid string) error
 	SetUserCommentAgreeToCache(ctx context.Context, id int32, userUuid string) error
 	SetCommentAgreeToCache(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error
+	SetSubCommentAgreeToCache(ctx context.Context, id int32, uuid, userUuid string) error
 	CancelUserCommentAgreeFromCache(ctx context.Context, id int32, userUuid string) error
 	CancelCommentAgree(ctx context.Context, id int32, uuid string) error
+	CancelSubCommentAgree(ctx context.Context, id int32, uuid string) error
 	CancelUserCommentAgree(ctx context.Context, id int32, userUuid string) error
 	CancelCommentAgreeFromCache(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error
+	CancelSubCommentAgreeFromCache(ctx context.Context, id int32, uuid, userUuid string) error
 	DeleteCommentDraft(ctx context.Context, id int32, uuid string) error
 	RemoveComment(ctx context.Context, id int32, uuid string) error
 	RemoveSubComment(ctx context.Context, id, rootId int32, uuid string) error
@@ -278,6 +283,25 @@ func (r *CommentUseCase) SetCommentAgree(ctx context.Context, id, creationId, cr
 	return g.Wait()
 }
 
+func (r *CommentUseCase) SetSubCommentAgree(ctx context.Context, id int32, uuid, userUuid string) error {
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(func() error {
+		err := r.repo.SetUserCommentAgreeToCache(ctx, id, userUuid)
+		if err != nil {
+			return v1.ErrorSetAgreeFailed("set comment agree to cache failed: %s", err.Error())
+		}
+		return nil
+	})
+	g.Go(func() error {
+		err := r.repo.SendSubCommentAgreeToMq(ctx, id, uuid, userUuid, "set_sub_comment_agree_db_and_cache")
+		if err != nil {
+			return v1.ErrorSetAgreeFailed("set comment agree to mq failed: %s", err.Error())
+		}
+		return nil
+	})
+	return g.Wait()
+}
+
 func (r *CommentUseCase) SetCommentAgreeDbAndCache(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error {
 	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		err := r.repo.SetCommentAgree(ctx, id, uuid)
@@ -291,6 +315,28 @@ func (r *CommentUseCase) SetCommentAgreeDbAndCache(ctx context.Context, id, crea
 		err = r.repo.SetCommentAgreeToCache(ctx, id, creationId, creationType, uuid, userUuid)
 		if err != nil {
 			return v1.ErrorSetAgreeFailed("set comment agree to cache failed: %s", err.Error())
+		}
+		err = r.repo.SendCommentStatisticToMq(ctx, uuid, "agree")
+		if err != nil {
+			return v1.ErrorSetAgreeFailed("set comment agree to mq failed: %s", err.Error())
+		}
+		return nil
+	})
+}
+
+func (r *CommentUseCase) SetSubCommentAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		err := r.repo.SetSubCommentAgree(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorSetAgreeFailed("set comment agree failed: %s", err.Error())
+		}
+		err = r.repo.SetUserCommentAgree(ctx, id, userUuid)
+		if err != nil {
+			return v1.ErrorSetAgreeFailed("set comment agree failed: %s", err.Error())
+		}
+		err = r.repo.SetSubCommentAgreeToCache(ctx, id, uuid, userUuid)
+		if err != nil {
+			return v1.ErrorSetAgreeFailed("set sub comment agree to cache failed: %s", err.Error())
 		}
 		err = r.repo.SendCommentStatisticToMq(ctx, uuid, "agree")
 		if err != nil {
@@ -319,6 +365,25 @@ func (r *CommentUseCase) CancelCommentAgree(ctx context.Context, id, creationId,
 	return g.Wait()
 }
 
+func (r *CommentUseCase) CancelSubCommentAgree(ctx context.Context, id int32, uuid, userUuid string) error {
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(func() error {
+		err := r.repo.CancelUserCommentAgreeFromCache(ctx, id, userUuid)
+		if err != nil {
+			return v1.ErrorCancelAgreeFailed("cancel sub comment agree from cache failed: %s", err.Error())
+		}
+		return nil
+	})
+	g.Go(func() error {
+		err := r.repo.SendSubCommentAgreeToMq(ctx, id, uuid, userUuid, "cancel_sub_comment_agree_db_and_cache")
+		if err != nil {
+			return v1.ErrorCancelAgreeFailed("cancel sub comment agree from mq failed: %s", err.Error())
+		}
+		return nil
+	})
+	return g.Wait()
+}
+
 func (r *CommentUseCase) CancelCommentAgreeDbAndCache(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error {
 	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		err := r.repo.CancelCommentAgree(ctx, id, uuid)
@@ -330,6 +395,28 @@ func (r *CommentUseCase) CancelCommentAgreeDbAndCache(ctx context.Context, id, c
 			return v1.ErrorCancelAgreeFailed("cancel comment agree failed: %s", err.Error())
 		}
 		err = r.repo.CancelCommentAgreeFromCache(ctx, id, creationId, creationType, uuid, userUuid)
+		if err != nil {
+			return v1.ErrorCancelAgreeFailed("cancel comment agree from cache failed: %s", err.Error())
+		}
+		err = r.repo.SendCommentStatisticToMq(ctx, uuid, "agree_cancel")
+		if err != nil {
+			return v1.ErrorCancelAgreeFailed("cancel comment agree from mq failed: %s", err.Error())
+		}
+		return nil
+	})
+}
+
+func (r *CommentUseCase) CancelSubCommentAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		err := r.repo.CancelSubCommentAgree(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorCancelAgreeFailed("cancel comment agree failed: %s", err.Error())
+		}
+		err = r.repo.CancelUserCommentAgree(ctx, id, userUuid)
+		if err != nil {
+			return v1.ErrorCancelAgreeFailed("cancel comment agree failed: %s", err.Error())
+		}
+		err = r.repo.CancelSubCommentAgreeFromCache(ctx, id, uuid, userUuid)
 		if err != nil {
 			return v1.ErrorCancelAgreeFailed("cancel comment agree from cache failed: %s", err.Error())
 		}
@@ -366,6 +453,12 @@ func (r *CommentUseCase) CreateSubCommentDbAndCache(ctx context.Context, id, roo
 	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		var err error
 		var parentUserId string
+		if parentId != 0 {
+			parentUserId, err = r.repo.GetParentCommentUserId(ctx, parentId)
+			if err != nil {
+				return v1.ErrorCreateCommentFailed("get sub comment parent id failed: %s", err.Error())
+			}
+		}
 		err = r.repo.DeleteCommentDraft(ctx, id, uuid)
 		if err != nil {
 			return v1.ErrorCreateCommentFailed("delete sub comment draft failed: %s", err.Error())
@@ -375,13 +468,6 @@ func (r *CommentUseCase) CreateSubCommentDbAndCache(ctx context.Context, id, roo
 		//if err != nil {
 		//	return v1.ErrorCreateCommentFailed("get sub comment parent id failed: %s", err.Error())
 		//}
-
-		if parentId != 0 {
-			parentUserId, err = r.repo.GetParentCommentUserId(ctx, parentId)
-			if err != nil {
-				return v1.ErrorCreateCommentFailed("get sub comment parent id failed: %s", err.Error())
-			}
-		}
 
 		err = r.repo.CreateSubComment(ctx, id, rootId, parentId, uuid, parentUserId)
 		if err != nil {
@@ -425,6 +511,11 @@ func (r *CommentUseCase) RemoveCommentDbAndCache(ctx context.Context, id, creati
 func (r *CommentUseCase) RemoveSubCommentDbAndCache(ctx context.Context, id, rootId int32, uuid string) error {
 	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		var err error
+		reply, err := r.repo.GetSubCommentReply(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorRemoveCommentFailed("get sub comment reply failed: %s", err.Error())
+		}
+
 		err = r.repo.RemoveSubComment(ctx, id, rootId, uuid)
 		if err != nil {
 			return v1.ErrorRemoveCommentFailed("remove sub comment failed: %s", err.Error())
@@ -433,11 +524,6 @@ func (r *CommentUseCase) RemoveSubCommentDbAndCache(ctx context.Context, id, roo
 		err = r.repo.RemoveCommentAgree(ctx, id, uuid)
 		if err != nil {
 			return v1.ErrorRemoveCommentFailed("remove sub comment agree record failed: %s", err.Error())
-		}
-
-		reply, err := r.repo.GetSubCommentReply(ctx, id, uuid)
-		if err != nil {
-			return v1.ErrorRemoveCommentFailed("get sub comment reply failed: %s", err.Error())
 		}
 
 		err = r.repo.RemoveSubCommentCache(ctx, id, rootId, uuid, reply)
