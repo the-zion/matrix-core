@@ -39,9 +39,13 @@ type CommentClient interface {
 	SendComment(ctx context.Context, in *SendCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SendSubComment(ctx context.Context, in *SendSubCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetCommentAgree(ctx context.Context, in *SetCommentAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetSubCommentAgree(ctx context.Context, in *SetSubCommentAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetCommentAgreeDbAndCache(ctx context.Context, in *SetCommentAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetSubCommentAgreeDbAndCache(ctx context.Context, in *SetSubCommentAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelCommentAgree(ctx context.Context, in *CancelCommentAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CancelSubCommentAgree(ctx context.Context, in *CancelSubCommentAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelCommentAgreeDbAndCache(ctx context.Context, in *CancelCommentAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CancelSubCommentAgreeDbAndCache(ctx context.Context, in *CancelSubCommentAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	RemoveComment(ctx context.Context, in *RemoveCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	RemoveSubComment(ctx context.Context, in *RemoveSubCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	RemoveCommentDbAndCache(ctx context.Context, in *RemoveCommentDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -200,9 +204,27 @@ func (c *commentClient) SetCommentAgree(ctx context.Context, in *SetCommentAgree
 	return out, nil
 }
 
+func (c *commentClient) SetSubCommentAgree(ctx context.Context, in *SetSubCommentAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/comment.v1.Comment/SetSubCommentAgree", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *commentClient) SetCommentAgreeDbAndCache(ctx context.Context, in *SetCommentAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/comment.v1.Comment/SetCommentAgreeDbAndCache", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *commentClient) SetSubCommentAgreeDbAndCache(ctx context.Context, in *SetSubCommentAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/comment.v1.Comment/SetSubCommentAgreeDbAndCache", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -218,9 +240,27 @@ func (c *commentClient) CancelCommentAgree(ctx context.Context, in *CancelCommen
 	return out, nil
 }
 
+func (c *commentClient) CancelSubCommentAgree(ctx context.Context, in *CancelSubCommentAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/comment.v1.Comment/CancelSubCommentAgree", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *commentClient) CancelCommentAgreeDbAndCache(ctx context.Context, in *CancelCommentAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/comment.v1.Comment/CancelCommentAgreeDbAndCache", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *commentClient) CancelSubCommentAgreeDbAndCache(ctx context.Context, in *CancelSubCommentAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/comment.v1.Comment/CancelSubCommentAgreeDbAndCache", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -283,9 +323,13 @@ type CommentServer interface {
 	SendComment(context.Context, *SendCommentReq) (*emptypb.Empty, error)
 	SendSubComment(context.Context, *SendSubCommentReq) (*emptypb.Empty, error)
 	SetCommentAgree(context.Context, *SetCommentAgreeReq) (*emptypb.Empty, error)
+	SetSubCommentAgree(context.Context, *SetSubCommentAgreeReq) (*emptypb.Empty, error)
 	SetCommentAgreeDbAndCache(context.Context, *SetCommentAgreeReq) (*emptypb.Empty, error)
+	SetSubCommentAgreeDbAndCache(context.Context, *SetSubCommentAgreeReq) (*emptypb.Empty, error)
 	CancelCommentAgree(context.Context, *CancelCommentAgreeReq) (*emptypb.Empty, error)
+	CancelSubCommentAgree(context.Context, *CancelSubCommentAgreeReq) (*emptypb.Empty, error)
 	CancelCommentAgreeDbAndCache(context.Context, *CancelCommentAgreeReq) (*emptypb.Empty, error)
+	CancelSubCommentAgreeDbAndCache(context.Context, *CancelSubCommentAgreeReq) (*emptypb.Empty, error)
 	RemoveComment(context.Context, *RemoveCommentReq) (*emptypb.Empty, error)
 	RemoveSubComment(context.Context, *RemoveSubCommentReq) (*emptypb.Empty, error)
 	RemoveCommentDbAndCache(context.Context, *RemoveCommentDbAndCacheReq) (*emptypb.Empty, error)
@@ -345,14 +389,26 @@ func (UnimplementedCommentServer) SendSubComment(context.Context, *SendSubCommen
 func (UnimplementedCommentServer) SetCommentAgree(context.Context, *SetCommentAgreeReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetCommentAgree not implemented")
 }
+func (UnimplementedCommentServer) SetSubCommentAgree(context.Context, *SetSubCommentAgreeReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetSubCommentAgree not implemented")
+}
 func (UnimplementedCommentServer) SetCommentAgreeDbAndCache(context.Context, *SetCommentAgreeReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetCommentAgreeDbAndCache not implemented")
+}
+func (UnimplementedCommentServer) SetSubCommentAgreeDbAndCache(context.Context, *SetSubCommentAgreeReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetSubCommentAgreeDbAndCache not implemented")
 }
 func (UnimplementedCommentServer) CancelCommentAgree(context.Context, *CancelCommentAgreeReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CancelCommentAgree not implemented")
 }
+func (UnimplementedCommentServer) CancelSubCommentAgree(context.Context, *CancelSubCommentAgreeReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelSubCommentAgree not implemented")
+}
 func (UnimplementedCommentServer) CancelCommentAgreeDbAndCache(context.Context, *CancelCommentAgreeReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CancelCommentAgreeDbAndCache not implemented")
+}
+func (UnimplementedCommentServer) CancelSubCommentAgreeDbAndCache(context.Context, *CancelSubCommentAgreeReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelSubCommentAgreeDbAndCache not implemented")
 }
 func (UnimplementedCommentServer) RemoveComment(context.Context, *RemoveCommentReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveComment not implemented")
@@ -667,6 +723,24 @@ func _Comment_SetCommentAgree_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Comment_SetSubCommentAgree_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetSubCommentAgreeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommentServer).SetSubCommentAgree(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/comment.v1.Comment/SetSubCommentAgree",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommentServer).SetSubCommentAgree(ctx, req.(*SetSubCommentAgreeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Comment_SetCommentAgreeDbAndCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SetCommentAgreeReq)
 	if err := dec(in); err != nil {
@@ -681,6 +755,24 @@ func _Comment_SetCommentAgreeDbAndCache_Handler(srv interface{}, ctx context.Con
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CommentServer).SetCommentAgreeDbAndCache(ctx, req.(*SetCommentAgreeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Comment_SetSubCommentAgreeDbAndCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetSubCommentAgreeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommentServer).SetSubCommentAgreeDbAndCache(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/comment.v1.Comment/SetSubCommentAgreeDbAndCache",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommentServer).SetSubCommentAgreeDbAndCache(ctx, req.(*SetSubCommentAgreeReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -703,6 +795,24 @@ func _Comment_CancelCommentAgree_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Comment_CancelSubCommentAgree_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelSubCommentAgreeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommentServer).CancelSubCommentAgree(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/comment.v1.Comment/CancelSubCommentAgree",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommentServer).CancelSubCommentAgree(ctx, req.(*CancelSubCommentAgreeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Comment_CancelCommentAgreeDbAndCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CancelCommentAgreeReq)
 	if err := dec(in); err != nil {
@@ -717,6 +827,24 @@ func _Comment_CancelCommentAgreeDbAndCache_Handler(srv interface{}, ctx context.
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CommentServer).CancelCommentAgreeDbAndCache(ctx, req.(*CancelCommentAgreeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Comment_CancelSubCommentAgreeDbAndCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelSubCommentAgreeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommentServer).CancelSubCommentAgreeDbAndCache(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/comment.v1.Comment/CancelSubCommentAgreeDbAndCache",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommentServer).CancelSubCommentAgreeDbAndCache(ctx, req.(*CancelSubCommentAgreeReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -865,16 +993,32 @@ var Comment_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Comment_SetCommentAgree_Handler,
 		},
 		{
+			MethodName: "SetSubCommentAgree",
+			Handler:    _Comment_SetSubCommentAgree_Handler,
+		},
+		{
 			MethodName: "SetCommentAgreeDbAndCache",
 			Handler:    _Comment_SetCommentAgreeDbAndCache_Handler,
+		},
+		{
+			MethodName: "SetSubCommentAgreeDbAndCache",
+			Handler:    _Comment_SetSubCommentAgreeDbAndCache_Handler,
 		},
 		{
 			MethodName: "CancelCommentAgree",
 			Handler:    _Comment_CancelCommentAgree_Handler,
 		},
 		{
+			MethodName: "CancelSubCommentAgree",
+			Handler:    _Comment_CancelSubCommentAgree_Handler,
+		},
+		{
 			MethodName: "CancelCommentAgreeDbAndCache",
 			Handler:    _Comment_CancelCommentAgreeDbAndCache_Handler,
+		},
+		{
+			MethodName: "CancelSubCommentAgreeDbAndCache",
+			Handler:    _Comment_CancelSubCommentAgreeDbAndCache_Handler,
 		},
 		{
 			MethodName: "RemoveComment",
