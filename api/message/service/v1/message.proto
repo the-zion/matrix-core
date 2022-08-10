@@ -72,6 +72,13 @@ service Message {
       body: "*"
     };
   }
+
+  rpc SubCommentCreateReview(TextReviewReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/tx/message/subcomment/create/review"
+      body: "*"
+    };
+  }
 }
 
 message AvatarReviewReq{
