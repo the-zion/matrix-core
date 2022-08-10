@@ -18839,6 +18839,112 @@ var _ interface {
 	ErrorName() string
 } = SetCommentAgreeReqValidationError{}
 
+// Validate checks the field values on SetSubCommentAgreeReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SetSubCommentAgreeReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SetSubCommentAgreeReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SetSubCommentAgreeReqMultiError, or nil if none found.
+func (m *SetSubCommentAgreeReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SetSubCommentAgreeReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Uuid
+
+	if len(errors) > 0 {
+		return SetSubCommentAgreeReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// SetSubCommentAgreeReqMultiError is an error wrapping multiple validation
+// errors returned by SetSubCommentAgreeReq.ValidateAll() if the designated
+// constraints aren't met.
+type SetSubCommentAgreeReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SetSubCommentAgreeReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SetSubCommentAgreeReqMultiError) AllErrors() []error { return m }
+
+// SetSubCommentAgreeReqValidationError is the validation error returned by
+// SetSubCommentAgreeReq.Validate if the designated constraints aren't met.
+type SetSubCommentAgreeReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SetSubCommentAgreeReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SetSubCommentAgreeReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SetSubCommentAgreeReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SetSubCommentAgreeReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SetSubCommentAgreeReqValidationError) ErrorName() string {
+	return "SetSubCommentAgreeReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SetSubCommentAgreeReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSetSubCommentAgreeReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SetSubCommentAgreeReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SetSubCommentAgreeReqValidationError{}
+
 // Validate checks the field values on CancelCommentAgreeReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -18948,6 +19054,112 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CancelCommentAgreeReqValidationError{}
+
+// Validate checks the field values on CancelSubCommentAgreeReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *CancelSubCommentAgreeReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CancelSubCommentAgreeReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// CancelSubCommentAgreeReqMultiError, or nil if none found.
+func (m *CancelSubCommentAgreeReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CancelSubCommentAgreeReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Uuid
+
+	if len(errors) > 0 {
+		return CancelSubCommentAgreeReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// CancelSubCommentAgreeReqMultiError is an error wrapping multiple validation
+// errors returned by CancelSubCommentAgreeReq.ValidateAll() if the designated
+// constraints aren't met.
+type CancelSubCommentAgreeReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CancelSubCommentAgreeReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CancelSubCommentAgreeReqMultiError) AllErrors() []error { return m }
+
+// CancelSubCommentAgreeReqValidationError is the validation error returned by
+// CancelSubCommentAgreeReq.Validate if the designated constraints aren't met.
+type CancelSubCommentAgreeReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CancelSubCommentAgreeReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CancelSubCommentAgreeReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CancelSubCommentAgreeReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CancelSubCommentAgreeReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CancelSubCommentAgreeReqValidationError) ErrorName() string {
+	return "CancelSubCommentAgreeReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CancelSubCommentAgreeReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCancelSubCommentAgreeReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CancelSubCommentAgreeReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CancelSubCommentAgreeReqValidationError{}
 
 // Validate checks the field values on GetProfileListReply_Profile with the
 // rules defined in the proto definition for this message. If any rules are
