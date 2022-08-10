@@ -13,6 +13,7 @@ import (
 	"github.com/tencentyun/cos-go-sdk-v5"
 	_ "github.com/tencentyun/cos-go-sdk-v5"
 	achievementv1 "github.com/the-zion/matrix-core/api/achievement/service/v1"
+	commentv1 "github.com/the-zion/matrix-core/api/comment/service/v1"
 	creationv1 "github.com/the-zion/matrix-core/api/creation/service/v1"
 	userv1 "github.com/the-zion/matrix-core/api/user/service/v1"
 	"github.com/the-zion/matrix-core/app/message/service/internal/conf"
@@ -21,7 +22,7 @@ import (
 	"net/url"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewCreationRepo, NewAchievementRepo, NewPhoneCode, NewGoMail, NewUserServiceClient, NewCreationServiceClient, NewAchievementServiceClient, NewCosUserClient, NewCosCreationClient)
+var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewCreationRepo, NewCommentRepo, NewAchievementRepo, NewPhoneCode, NewGoMail, NewUserServiceClient, NewCreationServiceClient, NewAchievementServiceClient, NewCommentServiceClient, NewCosUserClient, NewCosCreationClient, NewCosCommentClient)
 
 type TxCode struct {
 	client  *sms.Client
@@ -42,15 +43,22 @@ type CosCreation struct {
 	callback map[string]string
 }
 
+type CosComment struct {
+	cos      *cos.Client
+	callback map[string]string
+}
+
 type Data struct {
 	log            *log.Helper
 	uc             userv1.UserClient
 	cc             creationv1.CreationClient
+	commc          commentv1.CommentClient
 	ac             achievementv1.AchievementClient
 	phoneCodeCli   *TxCode
 	goMailCli      *GoMail
 	cosUserCli     *CosUser
 	cosCreationCli *CosCreation
+	cosCommentCli  *CosComment
 }
 
 func NewPhoneCode(conf *conf.Data) *TxCode {
@@ -115,6 +123,24 @@ func NewCreationServiceClient(r *nacos.Registry, logger log.Logger) creationv1.C
 	return c
 }
 
+func NewCommentServiceClient(r *nacos.Registry, logger log.Logger) commentv1.CommentClient {
+	l := log.NewHelper(log.With(logger, "module", "message/data/new-comment-client"))
+	conn, err := grpc.DialInsecure(
+		context.Background(),
+		grpc.WithEndpoint("discovery:///matrix.comment.service.grpc"),
+		grpc.WithDiscovery(r),
+		grpc.WithMiddleware(
+			//tracing.Client(tracing.WithTracerProvider(tp)),
+			recovery.Recovery(),
+		),
+	)
+	if err != nil {
+		l.Fatalf(err.Error())
+	}
+	c := commentv1.NewCommentClient(conn)
+	return c
+}
+
 func NewAchievementServiceClient(r *nacos.Registry, logger log.Logger) achievementv1.AchievementClient {
 	l := log.NewHelper(log.With(logger, "module", "message/data/new-achievement-client"))
 	conn, err := grpc.DialInsecure(
@@ -172,17 +198,41 @@ func NewCosCreationClient(conf *conf.Data, logger log.Logger) *CosCreation {
 	}
 }
 
-func NewData(logger log.Logger, uc userv1.UserClient, cc creationv1.CreationClient, ac achievementv1.AchievementClient, cosUser *CosUser, cosCreation *CosCreation, phoneCodeCli *TxCode, goMailCli *GoMail) (*Data, error) {
+func NewCosCommentClient(conf *conf.Data, logger log.Logger) *CosComment {
+	l := log.NewHelper(log.With(logger, "module", "message/data/new-cos-comment-client"))
+	bu, err := url.Parse(conf.Cos.BucketComment.BucketUrl)
+	if err != nil {
+		l.Errorf("fail to init cos server, error: %v", err)
+	}
+	cu, err := url.Parse(conf.Cos.BucketComment.CiUrl)
+	if err != nil {
+		l.Errorf("fail to init cos server, error: %v", err)
+	}
+	b := &cos.BaseURL{BucketURL: bu, CIURL: cu}
+	return &CosComment{
+		callback: conf.Cos.BucketComment.Callback,
+		cos: cos.NewClient(b, &http.Client{
+			Transport: &cos.AuthorizationTransport{
+				SecretID:  conf.Cos.BucketComment.SecretId,
+				SecretKey: conf.Cos.BucketComment.SecretKey,
+			},
+		}),
+	}
+}
+
+func NewData(logger log.Logger, uc userv1.UserClient, cc creationv1.CreationClient, commc commentv1.CommentClient, ac achievementv1.AchievementClient, cosUser *CosUser, cosCreation *CosCreation, cosComment *CosComment, phoneCodeCli *TxCode, goMailCli *GoMail) (*Data, error) {
 	l := log.NewHelper(log.With(logger, "module", "message/data"))
 	d := &Data{
 		log:            l,
 		uc:             uc,
 		cc:             cc,
+		commc:          commc,
 		ac:             ac,
 		phoneCodeCli:   phoneCodeCli,
 		goMailCli:      goMailCli,
 		cosUserCli:     cosUser,
 		cosCreationCli: cosCreation,
+		cosCommentCli:  cosComment,
 	}
 	return d, nil
 }
