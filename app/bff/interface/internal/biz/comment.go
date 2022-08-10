@@ -22,7 +22,9 @@ type CommentRepo interface {
 	RemoveComment(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error
 	RemoveSubComment(ctx context.Context, id, rootId int32, uuid, userUuid, reply string) error
 	SetCommentAgree(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error
+	SetSubCommentAgree(ctx context.Context, id int32, uuid, userUuid string) error
 	CancelCommentAgree(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error
+	CancelSubCommentAgree(ctx context.Context, id int32, uuid, userUuid string) error
 }
 
 type CommentUseCase struct {
@@ -208,7 +210,17 @@ func (r *CommentUseCase) SetCommentAgree(ctx context.Context, id, creationId, cr
 	return r.repo.SetCommentAgree(ctx, id, creationId, creationType, uuid, userUuid)
 }
 
+func (r *CommentUseCase) SetSubCommentAgree(ctx context.Context, id int32, uuid string) error {
+	userUuid := ctx.Value("uuid").(string)
+	return r.repo.SetSubCommentAgree(ctx, id, uuid, userUuid)
+}
+
 func (r *CommentUseCase) CancelCommentAgree(ctx context.Context, id, creationId, creationType int32, uuid string) error {
 	userUuid := ctx.Value("uuid").(string)
 	return r.repo.CancelCommentAgree(ctx, id, creationId, creationType, uuid, userUuid)
+}
+
+func (r *CommentUseCase) CancelSubCommentAgree(ctx context.Context, id int32, uuid string) error {
+	userUuid := ctx.Value("uuid").(string)
+	return r.repo.CancelSubCommentAgree(ctx, id, uuid, userUuid)
 }
