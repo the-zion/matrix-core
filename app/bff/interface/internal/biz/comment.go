@@ -29,12 +29,14 @@ type CommentRepo interface {
 
 type CommentUseCase struct {
 	repo CommentRepo
+	re   Recovery
 	log  *log.Helper
 }
 
-func NewCommentUseCase(repo CommentRepo, logger log.Logger) *CommentUseCase {
+func NewCommentUseCase(repo CommentRepo, re Recovery, logger log.Logger) *CommentUseCase {
 	return &CommentUseCase{
 		repo: repo,
+		re:   re,
 		log:  log.NewHelper(log.With(logger, "module", "bff/biz/CommentUseCase")),
 	}
 }
@@ -60,7 +62,7 @@ func (r *CommentUseCase) GetCommentList(ctx context.Context, page, creationId, c
 		return nil, err
 	}
 	g, _ := errgroup.WithContext(ctx)
-	g.Go(func() error {
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
 		commentListStatistic, err := r.repo.GetCommentListStatistic(ctx, page, creationId, creationType, "comment_statistic", commentList)
 		if err != nil {
 			return err
@@ -74,8 +76,8 @@ func (r *CommentUseCase) GetCommentList(ctx context.Context, page, creationId, c
 			}
 		}
 		return nil
-	})
-	g.Go(func() error {
+	}))
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
 		userProfileList, err := r.repo.GetUserProfileList(ctx, page, creationId, creationType, "comment_user_profile_list", commentList)
 		if err != nil {
 			return err
@@ -88,7 +90,7 @@ func (r *CommentUseCase) GetCommentList(ctx context.Context, page, creationId, c
 			}
 		}
 		return nil
-	})
+	}))
 	err = g.Wait()
 	if err != nil {
 		return nil, err
@@ -102,7 +104,7 @@ func (r *CommentUseCase) GetSubCommentList(ctx context.Context, page, id int32) 
 		return nil, err
 	}
 	g, _ := errgroup.WithContext(ctx)
-	g.Go(func() error {
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
 		commentListStatistic, err := r.repo.GetSubCommentListStatistic(ctx, page, id, subCommentList)
 		if err != nil {
 			return err
@@ -115,8 +117,8 @@ func (r *CommentUseCase) GetSubCommentList(ctx context.Context, page, id int32) 
 			}
 		}
 		return nil
-	})
-	g.Go(func() error {
+	}))
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
 		userProfileList, err := r.repo.GetSubUserProfileList(ctx, page, id, subCommentList)
 		if err != nil {
 			return err
@@ -133,7 +135,7 @@ func (r *CommentUseCase) GetSubCommentList(ctx context.Context, page, id int32) 
 			}
 		}
 		return nil
-	})
+	}))
 	err = g.Wait()
 	if err != nil {
 		return nil, err
@@ -147,7 +149,7 @@ func (r *CommentUseCase) GetCommentListHot(ctx context.Context, page, creationId
 		return nil, err
 	}
 	g, _ := errgroup.WithContext(ctx)
-	g.Go(func() error {
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
 		commentListStatistic, err := r.repo.GetCommentListStatistic(ctx, page, creationId, creationType, "comment_statistic_hot", commentList)
 		if err != nil {
 			return err
@@ -161,8 +163,8 @@ func (r *CommentUseCase) GetCommentListHot(ctx context.Context, page, creationId
 			}
 		}
 		return nil
-	})
-	g.Go(func() error {
+	}))
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
 		userProfileList, err := r.repo.GetUserProfileList(ctx, page, creationId, creationType, "comment_user_profile_list_hot", commentList)
 		if err != nil {
 			return err
@@ -175,7 +177,7 @@ func (r *CommentUseCase) GetCommentListHot(ctx context.Context, page, creationId
 			}
 		}
 		return nil
-	})
+	}))
 	err = g.Wait()
 	if err != nil {
 		return nil, err
