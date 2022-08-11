@@ -397,18 +397,18 @@ func (r *commentRepo) GetCommentListStatistic(ctx context.Context, ids []int32) 
 	}
 
 	g, _ := errgroup.WithContext(ctx)
-	g.Go(func() error {
+	g.Go(r.data.GroupRecover(ctx, func(ctx context.Context) error {
 		if len(exists) == 0 {
 			return nil
 		}
 		return r.getCommentStatisticFromCache(ctx, exists, &commentListStatistic)
-	})
-	g.Go(func() error {
+	}))
+	g.Go(r.data.GroupRecover(ctx, func(ctx context.Context) error {
 		if len(unExists) == 0 {
 			return nil
 		}
 		return r.getCommentStatisticFromDb(ctx, unExists, &commentListStatistic)
-	})
+	}))
 
 	err = g.Wait()
 	if err != nil {
@@ -426,18 +426,18 @@ func (r *commentRepo) GetSubCommentListStatistic(ctx context.Context, ids []int3
 	}
 
 	g, _ := errgroup.WithContext(ctx)
-	g.Go(func() error {
+	g.Go(r.data.GroupRecover(ctx, func(ctx context.Context) error {
 		if len(exists) == 0 {
 			return nil
 		}
 		return r.getSubCommentStatisticFromCache(ctx, exists, &commentListStatistic)
-	})
-	g.Go(func() error {
+	}))
+	g.Go(r.data.GroupRecover(ctx, func(ctx context.Context) error {
 		if len(unExists) == 0 {
 			return nil
 		}
 		return r.getSubCommentStatisticFromDb(ctx, unExists, &commentListStatistic)
-	})
+	}))
 
 	err = g.Wait()
 	if err != nil {
@@ -1255,7 +1255,7 @@ func (r *commentRepo) RemoveCommentCache(ctx context.Context, id, creationId, cr
 	return nil
 }
 
-func (r *commentRepo) RemoveSubCommentCache(ctx context.Context, id, rootId int32, uuid, reply string) error {
+func (r *commentRepo) RemoveSubCommentCache(ctx context.Context, id, rootId int32, uuid, reply, mode string) error {
 	ids := strconv.Itoa(int(id))
 	rootIds := strconv.Itoa(int(rootId))
 
@@ -1271,8 +1271,9 @@ func (r *commentRepo) RemoveSubCommentCache(ctx context.Context, id, rootId int3
 					redis.call("ZREM", subCommentKey, member)
 
 					local rootKey = KEYS[3]
+					local mode = ARGV[2]
 					local value = redis.call("EXISTS", rootKey)
-					if value == 1 then
+					if (mode == "final" and value == 1) then
 						local number = tonumber(redis.call("HGET", rootKey, "comment"))
 						if number > 0 then
   							redis.call("HINCRBY", rootKey, "comment", -1)
@@ -1280,8 +1281,8 @@ func (r *commentRepo) RemoveSubCommentCache(ctx context.Context, id, rootId int3
 					end
 					return 0
 	`)
-	keys := []string{commetkey, subCommentKey, rootKey}
-	values := []interface{}{ids + "%" + uuid + "%" + reply}
+	keys := []string{commetkey, subCommentKey, rootKey, mode}
+	values := []interface{}{ids + "%" + uuid + "%" + reply, mode}
 	_, err := incrBy.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to remove comment cache: id(%v), uuid(%s), rootId(%v), reply(%s)", id, uuid, rootId, reply))
