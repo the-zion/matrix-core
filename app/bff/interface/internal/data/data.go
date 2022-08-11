@@ -12,9 +12,11 @@ import (
 	creationv1 "github.com/the-zion/matrix-core/api/creation/service/v1"
 	messagev1 "github.com/the-zion/matrix-core/api/message/service/v1"
 	userv1 "github.com/the-zion/matrix-core/api/user/service/v1"
+	"github.com/the-zion/matrix-core/app/bff/interface/internal/biz"
+	"runtime"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewCreationRepo, NewArticleRepo, NewTalkRepo, NewColumnRepo, NewNewsRepo, NewAchievementRepo, NewCommentRepo, NewUserServiceClient, NewCreationServiceClient, NewMessageServiceClient, NewAchievementServiceClient, NewCommentServiceClient)
+var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewCreationRepo, NewArticleRepo, NewTalkRepo, NewColumnRepo, NewNewsRepo, NewAchievementRepo, NewCommentRepo, NewUserServiceClient, NewCreationServiceClient, NewMessageServiceClient, NewAchievementServiceClient, NewCommentServiceClient, NewRecovery)
 
 type Data struct {
 	log   *log.Helper
@@ -23,6 +25,24 @@ type Data struct {
 	mc    messagev1.MessageClient
 	ac    achievementv1.AchievementClient
 	commc commentv1.CommentClient
+}
+
+func (d *Data) GroupRecover(ctx context.Context, fn func(ctx context.Context) error) func() error {
+	return func() error {
+		defer func() {
+			if rerr := recover(); rerr != nil {
+				buf := make([]byte, 64<<10)
+				n := runtime.Stack(buf, false)
+				buf = buf[:n]
+				log.Context(ctx).Errorf("%v: %s\n", rerr, buf)
+			}
+		}()
+		return fn(ctx)
+	}
+}
+
+func NewRecovery(d *Data) biz.Recovery {
+	return d
 }
 
 func NewData(logger log.Logger, uc userv1.UserClient, cc creationv1.CreationClient, mc messagev1.MessageClient, ac achievementv1.AchievementClient, commc commentv1.CommentClient) (*Data, error) {
