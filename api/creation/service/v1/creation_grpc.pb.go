@@ -51,7 +51,7 @@ type CreationClient interface {
 	GetArticleSearch(ctx context.Context, in *GetArticleSearchReq, opts ...grpc.CallOption) (*GetArticleSearchReply, error)
 	CreateArticle(ctx context.Context, in *CreateArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	EditArticle(ctx context.Context, in *EditArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	CreateArticleCacheAndSearch(ctx context.Context, in *CreateArticleCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CreateArticleDbCacheAndSearch(ctx context.Context, in *CreateArticleDbCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	EditArticleCosAndSearch(ctx context.Context, in *EditArticleCosAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteArticleCacheAndSearch(ctx context.Context, in *DeleteArticleCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateArticleDraft(ctx context.Context, in *CreateArticleDraftReq, opts ...grpc.CallOption) (*CreateArticleDraftReply, error)
@@ -82,7 +82,7 @@ type CreationClient interface {
 	CreateTalk(ctx context.Context, in *CreateTalkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	EditTalk(ctx context.Context, in *EditTalkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteTalk(ctx context.Context, in *DeleteTalkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	CreateTalkCacheAndSearch(ctx context.Context, in *CreateTalkCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CreateTalkDbCacheAndSearch(ctx context.Context, in *CreateTalkDbCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	EditTalkCosAndSearch(ctx context.Context, in *EditTalkCosAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteTalkCacheAndSearch(ctx context.Context, in *DeleteTalkCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetTalkView(ctx context.Context, in *SetTalkViewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -96,7 +96,7 @@ type CreationClient interface {
 	CreateColumnDraft(ctx context.Context, in *CreateColumnDraftReq, opts ...grpc.CallOption) (*CreateColumnDraftReply, error)
 	SendColumn(ctx context.Context, in *SendColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateColumn(ctx context.Context, in *CreateColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	CreateColumnCacheAndSearch(ctx context.Context, in *CreateColumnCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CreateColumnDbCacheAndSearch(ctx context.Context, in *CreateColumnDbCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SubscribeColumn(ctx context.Context, in *SubscribeColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelSubscribeColumn(ctx context.Context, in *CancelSubscribeColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SubscribeJudge(ctx context.Context, in *SubscribeJudgeReq, opts ...grpc.CallOption) (*SubscribeJudgeReply, error)
@@ -389,9 +389,9 @@ func (c *creationClient) EditArticle(ctx context.Context, in *EditArticleReq, op
 	return out, nil
 }
 
-func (c *creationClient) CreateArticleCacheAndSearch(ctx context.Context, in *CreateArticleCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *creationClient) CreateArticleDbCacheAndSearch(ctx context.Context, in *CreateArticleDbCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/creation.v1.Creation/CreateArticleCacheAndSearch", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/CreateArticleDbCacheAndSearch", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -668,9 +668,9 @@ func (c *creationClient) DeleteTalk(ctx context.Context, in *DeleteTalkReq, opts
 	return out, nil
 }
 
-func (c *creationClient) CreateTalkCacheAndSearch(ctx context.Context, in *CreateTalkCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *creationClient) CreateTalkDbCacheAndSearch(ctx context.Context, in *CreateTalkDbCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/creation.v1.Creation/CreateTalkCacheAndSearch", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/CreateTalkDbCacheAndSearch", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -794,9 +794,9 @@ func (c *creationClient) CreateColumn(ctx context.Context, in *CreateColumnReq, 
 	return out, nil
 }
 
-func (c *creationClient) CreateColumnCacheAndSearch(ctx context.Context, in *CreateColumnCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *creationClient) CreateColumnDbCacheAndSearch(ctx context.Context, in *CreateColumnDbCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/creation.v1.Creation/CreateColumnCacheAndSearch", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/CreateColumnDbCacheAndSearch", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1105,7 +1105,7 @@ type CreationServer interface {
 	GetArticleSearch(context.Context, *GetArticleSearchReq) (*GetArticleSearchReply, error)
 	CreateArticle(context.Context, *CreateArticleReq) (*emptypb.Empty, error)
 	EditArticle(context.Context, *EditArticleReq) (*emptypb.Empty, error)
-	CreateArticleCacheAndSearch(context.Context, *CreateArticleCacheAndSearchReq) (*emptypb.Empty, error)
+	CreateArticleDbCacheAndSearch(context.Context, *CreateArticleDbCacheAndSearchReq) (*emptypb.Empty, error)
 	EditArticleCosAndSearch(context.Context, *EditArticleCosAndSearchReq) (*emptypb.Empty, error)
 	DeleteArticleCacheAndSearch(context.Context, *DeleteArticleCacheAndSearchReq) (*emptypb.Empty, error)
 	CreateArticleDraft(context.Context, *CreateArticleDraftReq) (*CreateArticleDraftReply, error)
@@ -1136,7 +1136,7 @@ type CreationServer interface {
 	CreateTalk(context.Context, *CreateTalkReq) (*emptypb.Empty, error)
 	EditTalk(context.Context, *EditTalkReq) (*emptypb.Empty, error)
 	DeleteTalk(context.Context, *DeleteTalkReq) (*emptypb.Empty, error)
-	CreateTalkCacheAndSearch(context.Context, *CreateTalkCacheAndSearchReq) (*emptypb.Empty, error)
+	CreateTalkDbCacheAndSearch(context.Context, *CreateTalkDbCacheAndSearchReq) (*emptypb.Empty, error)
 	EditTalkCosAndSearch(context.Context, *EditTalkCosAndSearchReq) (*emptypb.Empty, error)
 	DeleteTalkCacheAndSearch(context.Context, *DeleteTalkCacheAndSearchReq) (*emptypb.Empty, error)
 	SetTalkView(context.Context, *SetTalkViewReq) (*emptypb.Empty, error)
@@ -1150,7 +1150,7 @@ type CreationServer interface {
 	CreateColumnDraft(context.Context, *CreateColumnDraftReq) (*CreateColumnDraftReply, error)
 	SendColumn(context.Context, *SendColumnReq) (*emptypb.Empty, error)
 	CreateColumn(context.Context, *CreateColumnReq) (*emptypb.Empty, error)
-	CreateColumnCacheAndSearch(context.Context, *CreateColumnCacheAndSearchReq) (*emptypb.Empty, error)
+	CreateColumnDbCacheAndSearch(context.Context, *CreateColumnDbCacheAndSearchReq) (*emptypb.Empty, error)
 	SubscribeColumn(context.Context, *SubscribeColumnReq) (*emptypb.Empty, error)
 	CancelSubscribeColumn(context.Context, *CancelSubscribeColumnReq) (*emptypb.Empty, error)
 	SubscribeJudge(context.Context, *SubscribeJudgeReq) (*SubscribeJudgeReply, error)
@@ -1272,8 +1272,8 @@ func (UnimplementedCreationServer) CreateArticle(context.Context, *CreateArticle
 func (UnimplementedCreationServer) EditArticle(context.Context, *EditArticleReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EditArticle not implemented")
 }
-func (UnimplementedCreationServer) CreateArticleCacheAndSearch(context.Context, *CreateArticleCacheAndSearchReq) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateArticleCacheAndSearch not implemented")
+func (UnimplementedCreationServer) CreateArticleDbCacheAndSearch(context.Context, *CreateArticleDbCacheAndSearchReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateArticleDbCacheAndSearch not implemented")
 }
 func (UnimplementedCreationServer) EditArticleCosAndSearch(context.Context, *EditArticleCosAndSearchReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EditArticleCosAndSearch not implemented")
@@ -1365,8 +1365,8 @@ func (UnimplementedCreationServer) EditTalk(context.Context, *EditTalkReq) (*emp
 func (UnimplementedCreationServer) DeleteTalk(context.Context, *DeleteTalkReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteTalk not implemented")
 }
-func (UnimplementedCreationServer) CreateTalkCacheAndSearch(context.Context, *CreateTalkCacheAndSearchReq) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateTalkCacheAndSearch not implemented")
+func (UnimplementedCreationServer) CreateTalkDbCacheAndSearch(context.Context, *CreateTalkDbCacheAndSearchReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateTalkDbCacheAndSearch not implemented")
 }
 func (UnimplementedCreationServer) EditTalkCosAndSearch(context.Context, *EditTalkCosAndSearchReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EditTalkCosAndSearch not implemented")
@@ -1407,8 +1407,8 @@ func (UnimplementedCreationServer) SendColumn(context.Context, *SendColumnReq) (
 func (UnimplementedCreationServer) CreateColumn(context.Context, *CreateColumnReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateColumn not implemented")
 }
-func (UnimplementedCreationServer) CreateColumnCacheAndSearch(context.Context, *CreateColumnCacheAndSearchReq) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateColumnCacheAndSearch not implemented")
+func (UnimplementedCreationServer) CreateColumnDbCacheAndSearch(context.Context, *CreateColumnDbCacheAndSearchReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateColumnDbCacheAndSearch not implemented")
 }
 func (UnimplementedCreationServer) SubscribeColumn(context.Context, *SubscribeColumnReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SubscribeColumn not implemented")
@@ -2017,20 +2017,20 @@ func _Creation_EditArticle_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Creation_CreateArticleCacheAndSearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateArticleCacheAndSearchReq)
+func _Creation_CreateArticleDbCacheAndSearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateArticleDbCacheAndSearchReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CreationServer).CreateArticleCacheAndSearch(ctx, in)
+		return srv.(CreationServer).CreateArticleDbCacheAndSearch(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/creation.v1.Creation/CreateArticleCacheAndSearch",
+		FullMethod: "/creation.v1.Creation/CreateArticleDbCacheAndSearch",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CreationServer).CreateArticleCacheAndSearch(ctx, req.(*CreateArticleCacheAndSearchReq))
+		return srv.(CreationServer).CreateArticleDbCacheAndSearch(ctx, req.(*CreateArticleDbCacheAndSearchReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2575,20 +2575,20 @@ func _Creation_DeleteTalk_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Creation_CreateTalkCacheAndSearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateTalkCacheAndSearchReq)
+func _Creation_CreateTalkDbCacheAndSearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateTalkDbCacheAndSearchReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CreationServer).CreateTalkCacheAndSearch(ctx, in)
+		return srv.(CreationServer).CreateTalkDbCacheAndSearch(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/creation.v1.Creation/CreateTalkCacheAndSearch",
+		FullMethod: "/creation.v1.Creation/CreateTalkDbCacheAndSearch",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CreationServer).CreateTalkCacheAndSearch(ctx, req.(*CreateTalkCacheAndSearchReq))
+		return srv.(CreationServer).CreateTalkDbCacheAndSearch(ctx, req.(*CreateTalkDbCacheAndSearchReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2827,20 +2827,20 @@ func _Creation_CreateColumn_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Creation_CreateColumnCacheAndSearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateColumnCacheAndSearchReq)
+func _Creation_CreateColumnDbCacheAndSearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateColumnDbCacheAndSearchReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CreationServer).CreateColumnCacheAndSearch(ctx, in)
+		return srv.(CreationServer).CreateColumnDbCacheAndSearch(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/creation.v1.Creation/CreateColumnCacheAndSearch",
+		FullMethod: "/creation.v1.Creation/CreateColumnDbCacheAndSearch",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CreationServer).CreateColumnCacheAndSearch(ctx, req.(*CreateColumnCacheAndSearchReq))
+		return srv.(CreationServer).CreateColumnDbCacheAndSearch(ctx, req.(*CreateColumnDbCacheAndSearchReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -3505,8 +3505,8 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Creation_EditArticle_Handler,
 		},
 		{
-			MethodName: "CreateArticleCacheAndSearch",
-			Handler:    _Creation_CreateArticleCacheAndSearch_Handler,
+			MethodName: "CreateArticleDbCacheAndSearch",
+			Handler:    _Creation_CreateArticleDbCacheAndSearch_Handler,
 		},
 		{
 			MethodName: "EditArticleCosAndSearch",
@@ -3629,8 +3629,8 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Creation_DeleteTalk_Handler,
 		},
 		{
-			MethodName: "CreateTalkCacheAndSearch",
-			Handler:    _Creation_CreateTalkCacheAndSearch_Handler,
+			MethodName: "CreateTalkDbCacheAndSearch",
+			Handler:    _Creation_CreateTalkDbCacheAndSearch_Handler,
 		},
 		{
 			MethodName: "EditTalkCosAndSearch",
@@ -3685,8 +3685,8 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Creation_CreateColumn_Handler,
 		},
 		{
-			MethodName: "CreateColumnCacheAndSearch",
-			Handler:    _Creation_CreateColumnCacheAndSearch_Handler,
+			MethodName: "CreateColumnDbCacheAndSearch",
+			Handler:    _Creation_CreateColumnDbCacheAndSearch_Handler,
 		},
 		{
 			MethodName: "SubscribeColumn",

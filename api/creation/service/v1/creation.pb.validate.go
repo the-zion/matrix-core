@@ -4489,22 +4489,23 @@ var _ interface {
 	ErrorName() string
 } = EditArticleReqValidationError{}
 
-// Validate checks the field values on CreateArticleCacheAndSearchReq with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *CreateArticleCacheAndSearchReq) Validate() error {
+// Validate checks the field values on CreateArticleDbCacheAndSearchReq with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *CreateArticleDbCacheAndSearchReq) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on CreateArticleCacheAndSearchReq with
+// ValidateAll checks the field values on CreateArticleDbCacheAndSearchReq with
 // the rules defined in the proto definition for this message. If any rules
 // are violated, the result is a list of violation errors wrapped in
-// CreateArticleCacheAndSearchReqMultiError, or nil if none found.
-func (m *CreateArticleCacheAndSearchReq) ValidateAll() error {
+// CreateArticleDbCacheAndSearchReqMultiError, or nil if none found.
+func (m *CreateArticleDbCacheAndSearchReq) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *CreateArticleCacheAndSearchReq) validate(all bool) error {
+func (m *CreateArticleDbCacheAndSearchReq) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -4516,7 +4517,7 @@ func (m *CreateArticleCacheAndSearchReq) validate(all bool) error {
 	// no validation rules for Auth
 
 	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = CreateArticleCacheAndSearchReqValidationError{
+		err = CreateArticleDbCacheAndSearchReqValidationError{
 			field:  "Uuid",
 			reason: "value must be a valid UUID",
 			cause:  err,
@@ -4528,13 +4529,13 @@ func (m *CreateArticleCacheAndSearchReq) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return CreateArticleCacheAndSearchReqMultiError(errors)
+		return CreateArticleDbCacheAndSearchReqMultiError(errors)
 	}
 
 	return nil
 }
 
-func (m *CreateArticleCacheAndSearchReq) _validateUuid(uuid string) error {
+func (m *CreateArticleDbCacheAndSearchReq) _validateUuid(uuid string) error {
 	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
 		return errors.New("invalid uuid format")
 	}
@@ -4542,13 +4543,14 @@ func (m *CreateArticleCacheAndSearchReq) _validateUuid(uuid string) error {
 	return nil
 }
 
-// CreateArticleCacheAndSearchReqMultiError is an error wrapping multiple
-// validation errors returned by CreateArticleCacheAndSearchReq.ValidateAll()
-// if the designated constraints aren't met.
-type CreateArticleCacheAndSearchReqMultiError []error
+// CreateArticleDbCacheAndSearchReqMultiError is an error wrapping multiple
+// validation errors returned by
+// CreateArticleDbCacheAndSearchReq.ValidateAll() if the designated
+// constraints aren't met.
+type CreateArticleDbCacheAndSearchReqMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m CreateArticleCacheAndSearchReqMultiError) Error() string {
+func (m CreateArticleDbCacheAndSearchReqMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -4557,12 +4559,12 @@ func (m CreateArticleCacheAndSearchReqMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m CreateArticleCacheAndSearchReqMultiError) AllErrors() []error { return m }
+func (m CreateArticleDbCacheAndSearchReqMultiError) AllErrors() []error { return m }
 
-// CreateArticleCacheAndSearchReqValidationError is the validation error
-// returned by CreateArticleCacheAndSearchReq.Validate if the designated
+// CreateArticleDbCacheAndSearchReqValidationError is the validation error
+// returned by CreateArticleDbCacheAndSearchReq.Validate if the designated
 // constraints aren't met.
-type CreateArticleCacheAndSearchReqValidationError struct {
+type CreateArticleDbCacheAndSearchReqValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -4570,24 +4572,24 @@ type CreateArticleCacheAndSearchReqValidationError struct {
 }
 
 // Field function returns field value.
-func (e CreateArticleCacheAndSearchReqValidationError) Field() string { return e.field }
+func (e CreateArticleDbCacheAndSearchReqValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e CreateArticleCacheAndSearchReqValidationError) Reason() string { return e.reason }
+func (e CreateArticleDbCacheAndSearchReqValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e CreateArticleCacheAndSearchReqValidationError) Cause() error { return e.cause }
+func (e CreateArticleDbCacheAndSearchReqValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e CreateArticleCacheAndSearchReqValidationError) Key() bool { return e.key }
+func (e CreateArticleDbCacheAndSearchReqValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e CreateArticleCacheAndSearchReqValidationError) ErrorName() string {
-	return "CreateArticleCacheAndSearchReqValidationError"
+func (e CreateArticleDbCacheAndSearchReqValidationError) ErrorName() string {
+	return "CreateArticleDbCacheAndSearchReqValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e CreateArticleCacheAndSearchReqValidationError) Error() string {
+func (e CreateArticleDbCacheAndSearchReqValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -4599,14 +4601,14 @@ func (e CreateArticleCacheAndSearchReqValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sCreateArticleCacheAndSearchReq.%s: %s%s",
+		"invalid %sCreateArticleDbCacheAndSearchReq.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = CreateArticleCacheAndSearchReqValidationError{}
+var _ error = CreateArticleDbCacheAndSearchReqValidationError{}
 
 var _ interface {
 	Field() string
@@ -4614,7 +4616,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = CreateArticleCacheAndSearchReqValidationError{}
+} = CreateArticleDbCacheAndSearchReqValidationError{}
 
 // Validate checks the field values on EditArticleCosAndSearchReq with the
 // rules defined in the proto definition for this message. If any rules are
@@ -9621,22 +9623,22 @@ var _ interface {
 	ErrorName() string
 } = DeleteTalkReqValidationError{}
 
-// Validate checks the field values on CreateTalkCacheAndSearchReq with the
+// Validate checks the field values on CreateTalkDbCacheAndSearchReq with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *CreateTalkCacheAndSearchReq) Validate() error {
+func (m *CreateTalkDbCacheAndSearchReq) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on CreateTalkCacheAndSearchReq with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// CreateTalkCacheAndSearchReqMultiError, or nil if none found.
-func (m *CreateTalkCacheAndSearchReq) ValidateAll() error {
+// ValidateAll checks the field values on CreateTalkDbCacheAndSearchReq with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// CreateTalkDbCacheAndSearchReqMultiError, or nil if none found.
+func (m *CreateTalkDbCacheAndSearchReq) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *CreateTalkCacheAndSearchReq) validate(all bool) error {
+func (m *CreateTalkDbCacheAndSearchReq) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -9648,7 +9650,7 @@ func (m *CreateTalkCacheAndSearchReq) validate(all bool) error {
 	// no validation rules for Auth
 
 	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = CreateTalkCacheAndSearchReqValidationError{
+		err = CreateTalkDbCacheAndSearchReqValidationError{
 			field:  "Uuid",
 			reason: "value must be a valid UUID",
 			cause:  err,
@@ -9660,13 +9662,13 @@ func (m *CreateTalkCacheAndSearchReq) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return CreateTalkCacheAndSearchReqMultiError(errors)
+		return CreateTalkDbCacheAndSearchReqMultiError(errors)
 	}
 
 	return nil
 }
 
-func (m *CreateTalkCacheAndSearchReq) _validateUuid(uuid string) error {
+func (m *CreateTalkDbCacheAndSearchReq) _validateUuid(uuid string) error {
 	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
 		return errors.New("invalid uuid format")
 	}
@@ -9674,13 +9676,13 @@ func (m *CreateTalkCacheAndSearchReq) _validateUuid(uuid string) error {
 	return nil
 }
 
-// CreateTalkCacheAndSearchReqMultiError is an error wrapping multiple
-// validation errors returned by CreateTalkCacheAndSearchReq.ValidateAll() if
-// the designated constraints aren't met.
-type CreateTalkCacheAndSearchReqMultiError []error
+// CreateTalkDbCacheAndSearchReqMultiError is an error wrapping multiple
+// validation errors returned by CreateTalkDbCacheAndSearchReq.ValidateAll()
+// if the designated constraints aren't met.
+type CreateTalkDbCacheAndSearchReqMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m CreateTalkCacheAndSearchReqMultiError) Error() string {
+func (m CreateTalkDbCacheAndSearchReqMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -9689,12 +9691,12 @@ func (m CreateTalkCacheAndSearchReqMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m CreateTalkCacheAndSearchReqMultiError) AllErrors() []error { return m }
+func (m CreateTalkDbCacheAndSearchReqMultiError) AllErrors() []error { return m }
 
-// CreateTalkCacheAndSearchReqValidationError is the validation error returned
-// by CreateTalkCacheAndSearchReq.Validate if the designated constraints
-// aren't met.
-type CreateTalkCacheAndSearchReqValidationError struct {
+// CreateTalkDbCacheAndSearchReqValidationError is the validation error
+// returned by CreateTalkDbCacheAndSearchReq.Validate if the designated
+// constraints aren't met.
+type CreateTalkDbCacheAndSearchReqValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -9702,24 +9704,24 @@ type CreateTalkCacheAndSearchReqValidationError struct {
 }
 
 // Field function returns field value.
-func (e CreateTalkCacheAndSearchReqValidationError) Field() string { return e.field }
+func (e CreateTalkDbCacheAndSearchReqValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e CreateTalkCacheAndSearchReqValidationError) Reason() string { return e.reason }
+func (e CreateTalkDbCacheAndSearchReqValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e CreateTalkCacheAndSearchReqValidationError) Cause() error { return e.cause }
+func (e CreateTalkDbCacheAndSearchReqValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e CreateTalkCacheAndSearchReqValidationError) Key() bool { return e.key }
+func (e CreateTalkDbCacheAndSearchReqValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e CreateTalkCacheAndSearchReqValidationError) ErrorName() string {
-	return "CreateTalkCacheAndSearchReqValidationError"
+func (e CreateTalkDbCacheAndSearchReqValidationError) ErrorName() string {
+	return "CreateTalkDbCacheAndSearchReqValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e CreateTalkCacheAndSearchReqValidationError) Error() string {
+func (e CreateTalkDbCacheAndSearchReqValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -9731,14 +9733,14 @@ func (e CreateTalkCacheAndSearchReqValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sCreateTalkCacheAndSearchReq.%s: %s%s",
+		"invalid %sCreateTalkDbCacheAndSearchReq.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = CreateTalkCacheAndSearchReqValidationError{}
+var _ error = CreateTalkDbCacheAndSearchReqValidationError{}
 
 var _ interface {
 	Field() string
@@ -9746,7 +9748,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = CreateTalkCacheAndSearchReqValidationError{}
+} = CreateTalkDbCacheAndSearchReqValidationError{}
 
 // Validate checks the field values on EditTalkCosAndSearchReq with the rules
 // defined in the proto definition for this message. If any rules are
@@ -11852,22 +11854,22 @@ var _ interface {
 	ErrorName() string
 } = CreateColumnReqValidationError{}
 
-// Validate checks the field values on CreateColumnCacheAndSearchReq with the
+// Validate checks the field values on CreateColumnDbCacheAndSearchReq with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *CreateColumnCacheAndSearchReq) Validate() error {
+func (m *CreateColumnDbCacheAndSearchReq) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on CreateColumnCacheAndSearchReq with
+// ValidateAll checks the field values on CreateColumnDbCacheAndSearchReq with
 // the rules defined in the proto definition for this message. If any rules
 // are violated, the result is a list of violation errors wrapped in
-// CreateColumnCacheAndSearchReqMultiError, or nil if none found.
-func (m *CreateColumnCacheAndSearchReq) ValidateAll() error {
+// CreateColumnDbCacheAndSearchReqMultiError, or nil if none found.
+func (m *CreateColumnDbCacheAndSearchReq) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *CreateColumnCacheAndSearchReq) validate(all bool) error {
+func (m *CreateColumnDbCacheAndSearchReq) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -11879,7 +11881,7 @@ func (m *CreateColumnCacheAndSearchReq) validate(all bool) error {
 	// no validation rules for Auth
 
 	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = CreateColumnCacheAndSearchReqValidationError{
+		err = CreateColumnDbCacheAndSearchReqValidationError{
 			field:  "Uuid",
 			reason: "value must be a valid UUID",
 			cause:  err,
@@ -11891,13 +11893,13 @@ func (m *CreateColumnCacheAndSearchReq) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return CreateColumnCacheAndSearchReqMultiError(errors)
+		return CreateColumnDbCacheAndSearchReqMultiError(errors)
 	}
 
 	return nil
 }
 
-func (m *CreateColumnCacheAndSearchReq) _validateUuid(uuid string) error {
+func (m *CreateColumnDbCacheAndSearchReq) _validateUuid(uuid string) error {
 	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
 		return errors.New("invalid uuid format")
 	}
@@ -11905,13 +11907,13 @@ func (m *CreateColumnCacheAndSearchReq) _validateUuid(uuid string) error {
 	return nil
 }
 
-// CreateColumnCacheAndSearchReqMultiError is an error wrapping multiple
-// validation errors returned by CreateColumnCacheAndSearchReq.ValidateAll()
+// CreateColumnDbCacheAndSearchReqMultiError is an error wrapping multiple
+// validation errors returned by CreateColumnDbCacheAndSearchReq.ValidateAll()
 // if the designated constraints aren't met.
-type CreateColumnCacheAndSearchReqMultiError []error
+type CreateColumnDbCacheAndSearchReqMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m CreateColumnCacheAndSearchReqMultiError) Error() string {
+func (m CreateColumnDbCacheAndSearchReqMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -11920,12 +11922,12 @@ func (m CreateColumnCacheAndSearchReqMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m CreateColumnCacheAndSearchReqMultiError) AllErrors() []error { return m }
+func (m CreateColumnDbCacheAndSearchReqMultiError) AllErrors() []error { return m }
 
-// CreateColumnCacheAndSearchReqValidationError is the validation error
-// returned by CreateColumnCacheAndSearchReq.Validate if the designated
+// CreateColumnDbCacheAndSearchReqValidationError is the validation error
+// returned by CreateColumnDbCacheAndSearchReq.Validate if the designated
 // constraints aren't met.
-type CreateColumnCacheAndSearchReqValidationError struct {
+type CreateColumnDbCacheAndSearchReqValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -11933,24 +11935,24 @@ type CreateColumnCacheAndSearchReqValidationError struct {
 }
 
 // Field function returns field value.
-func (e CreateColumnCacheAndSearchReqValidationError) Field() string { return e.field }
+func (e CreateColumnDbCacheAndSearchReqValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e CreateColumnCacheAndSearchReqValidationError) Reason() string { return e.reason }
+func (e CreateColumnDbCacheAndSearchReqValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e CreateColumnCacheAndSearchReqValidationError) Cause() error { return e.cause }
+func (e CreateColumnDbCacheAndSearchReqValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e CreateColumnCacheAndSearchReqValidationError) Key() bool { return e.key }
+func (e CreateColumnDbCacheAndSearchReqValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e CreateColumnCacheAndSearchReqValidationError) ErrorName() string {
-	return "CreateColumnCacheAndSearchReqValidationError"
+func (e CreateColumnDbCacheAndSearchReqValidationError) ErrorName() string {
+	return "CreateColumnDbCacheAndSearchReqValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e CreateColumnCacheAndSearchReqValidationError) Error() string {
+func (e CreateColumnDbCacheAndSearchReqValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -11962,14 +11964,14 @@ func (e CreateColumnCacheAndSearchReqValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sCreateColumnCacheAndSearchReq.%s: %s%s",
+		"invalid %sCreateColumnDbCacheAndSearchReq.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = CreateColumnCacheAndSearchReqValidationError{}
+var _ error = CreateColumnDbCacheAndSearchReqValidationError{}
 
 var _ interface {
 	Field() string
@@ -11977,7 +11979,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = CreateColumnCacheAndSearchReqValidationError{}
+} = CreateColumnDbCacheAndSearchReqValidationError{}
 
 // Validate checks the field values on SubscribeColumnReq with the rules
 // defined in the proto definition for this message. If any rules are
