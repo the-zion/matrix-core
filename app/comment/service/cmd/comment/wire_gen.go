@@ -32,8 +32,9 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, re
 		return nil, nil, err
 	}
 	commentRepo := data.NewCommentRepo(dataData, logger)
+	recovery := data.NewRecovery(dataData)
 	transaction := data.NewTransaction(dataData)
-	commentUseCase := biz.NewCommentUseCase(commentRepo, transaction, logger)
+	commentUseCase := biz.NewCommentUseCase(commentRepo, recovery, transaction, logger)
 	commentService := service.NewCommentService(commentUseCase, logger)
 	httpServer := server.NewHTTPServer(confServer, commentService, logger)
 	grpcServer := server.NewGRPCServer(confServer, commentService, logger)
