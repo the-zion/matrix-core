@@ -66,7 +66,7 @@ service Creation {
 
   rpc EditArticle(EditArticleReq) returns (google.protobuf.Empty){}
 
-  rpc CreateArticleCacheAndSearch(CreateArticleCacheAndSearchReq) returns (google.protobuf.Empty){}
+  rpc CreateArticleDbCacheAndSearch(CreateArticleDbCacheAndSearchReq) returns (google.protobuf.Empty){}
 
   rpc EditArticleCosAndSearch(EditArticleCosAndSearchReq) returns (google.protobuf.Empty){}
 
@@ -128,7 +128,7 @@ service Creation {
 
   rpc DeleteTalk(DeleteTalkReq) returns (google.protobuf.Empty){}
 
-  rpc CreateTalkCacheAndSearch(CreateTalkCacheAndSearchReq) returns (google.protobuf.Empty){}
+  rpc CreateTalkDbCacheAndSearch(CreateTalkDbCacheAndSearchReq) returns (google.protobuf.Empty){}
 
   rpc EditTalkCosAndSearch(EditTalkCosAndSearchReq) returns (google.protobuf.Empty){}
 
@@ -156,7 +156,7 @@ service Creation {
 
   rpc CreateColumn(CreateColumnReq) returns (google.protobuf.Empty){}
 
-  rpc CreateColumnCacheAndSearch(CreateColumnCacheAndSearchReq) returns (google.protobuf.Empty){}
+  rpc CreateColumnDbCacheAndSearch(CreateColumnDbCacheAndSearchReq) returns (google.protobuf.Empty){}
 
   rpc SubscribeColumn(SubscribeColumnReq) returns (google.protobuf.Empty){}
 
@@ -434,7 +434,7 @@ message EditArticleReq{
   string uuid = 3 [(validate.rules).string.uuid = true];
 }
 
-message CreateArticleCacheAndSearchReq{
+message CreateArticleDbCacheAndSearchReq{
   int32 id = 1;
   int32 auth = 2;
   string uuid = 3 [(validate.rules).string.uuid = true];
@@ -671,7 +671,7 @@ message DeleteTalkReq{
   string uuid = 2 [(validate.rules).string.uuid = true];
 }
 
-message CreateTalkCacheAndSearchReq{
+message CreateTalkDbCacheAndSearchReq{
   int32 id = 1;
   int32 auth = 2;
   string uuid = 3 [(validate.rules).string.uuid = true];
@@ -777,7 +777,7 @@ message CreateColumnReq{
   string uuid = 3 [(validate.rules).string.uuid = true];
 }
 
-message CreateColumnCacheAndSearchReq{
+message CreateColumnDbCacheAndSearchReq{
   int32 id = 1;
   int32 auth = 2;
   string uuid = 3 [(validate.rules).string.uuid = true];
