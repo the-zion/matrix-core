@@ -12,12 +12,14 @@ type AchievementRepo interface {
 
 type AchievementUseCase struct {
 	repo AchievementRepo
+	re   Recovery
 	log  *log.Helper
 }
 
-func NewAchievementUseCase(repo AchievementRepo, logger log.Logger) *AchievementUseCase {
+func NewAchievementUseCase(repo AchievementRepo, re Recovery, logger log.Logger) *AchievementUseCase {
 	return &AchievementUseCase{
 		repo: repo,
+		re:   re,
 		log:  log.NewHelper(log.With(logger, "module", "bff/biz/AchievementUseCase")),
 	}
 }
