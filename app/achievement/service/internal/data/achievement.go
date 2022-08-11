@@ -43,7 +43,7 @@ func (r *achievementRepo) SetAchievementAgree(ctx context.Context, uuid string) 
 
 func (r *achievementRepo) CancelAchievementAgree(ctx context.Context, uuid string) error {
 	ach := &Achievement{}
-	err := r.data.DB(ctx).Model(ach).Where("uuid = ?", uuid).Update("agree", gorm.Expr("agree - ?", 1)).Error
+	err := r.data.DB(ctx).Model(ach).Where("uuid = ? and agree > 0", uuid).Update("agree", gorm.Expr("agree - ?", 1)).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to subtract achievement agree: uuid(%v)", uuid))
 	}
@@ -82,7 +82,7 @@ func (r *achievementRepo) SetAchievementCollect(ctx context.Context, uuid string
 
 func (r *achievementRepo) CancelAchievementCollect(ctx context.Context, uuid string) error {
 	ach := &Achievement{}
-	err := r.data.DB(ctx).Model(ach).Where("uuid = ?", uuid).Update("collect", gorm.Expr("collect - ?", 1)).Error
+	err := r.data.DB(ctx).Model(ach).Where("uuid = ? and collect > 0", uuid).Update("collect", gorm.Expr("collect - ?", 1)).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to subtract achievement collect: uuid(%v)", uuid))
 	}
@@ -90,7 +90,16 @@ func (r *achievementRepo) CancelAchievementCollect(ctx context.Context, uuid str
 }
 
 func (r *achievementRepo) SetAchievementAgreeToCache(ctx context.Context, uuid string) error {
-	_, err := r.data.redisCli.HIncrBy(ctx, uuid, "agree", 1).Result()
+	var incrBy = redis.NewScript(`
+					local uuid = KEYS[1]
+					local exist = redis.call("EXISTS", uuid)
+					if exist == 1 then
+						redis.call("HINCRBY", uuid, "agree", 1)
+					end
+					return 0
+	`)
+	keys := []string{uuid}
+	_, err := incrBy.Run(ctx, r.data.redisCli, keys).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set achievement agree to cache: uuid(%s)", uuid))
 	}
@@ -98,7 +107,19 @@ func (r *achievementRepo) SetAchievementAgreeToCache(ctx context.Context, uuid s
 }
 
 func (r *achievementRepo) CancelAchievementAgreeFromCache(ctx context.Context, uuid string) error {
-	_, err := r.data.redisCli.HIncrBy(ctx, uuid, "agree", -1).Result()
+	var incrBy = redis.NewScript(`
+					local uuid = KEYS[1]
+					local exist = redis.call("EXISTS", uuid)
+					if exist == 1 then
+						local number = tonumber(redis.call("HGET", uuid, "agree"))
+						if number > 0 then
+  							redis.call("HINCRBY", uuid, "agree", -1)
+						end
+					end
+					return 0
+	`)
+	keys := []string{uuid}
+	_, err := incrBy.Run(ctx, r.data.redisCli, keys).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel achievement agree from cache: uuid(%s)", uuid))
 	}
@@ -106,7 +127,16 @@ func (r *achievementRepo) CancelAchievementAgreeFromCache(ctx context.Context, u
 }
 
 func (r *achievementRepo) SetAchievementViewToCache(ctx context.Context, uuid string) error {
-	_, err := r.data.redisCli.HIncrBy(ctx, uuid, "view", 1).Result()
+	var incrBy = redis.NewScript(`
+					local uuid = KEYS[1]
+					local exist = redis.call("EXISTS", uuid)
+					if exist == 1 then
+						redis.call("HINCRBY", uuid, "view", 1)
+					end
+					return 0
+	`)
+	keys := []string{uuid}
+	_, err := incrBy.Run(ctx, r.data.redisCli, keys).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set achievement view to cache: uuid(%s)", uuid))
 	}
@@ -114,7 +144,16 @@ func (r *achievementRepo) SetAchievementViewToCache(ctx context.Context, uuid st
 }
 
 func (r *achievementRepo) SetAchievementCollectToCache(ctx context.Context, uuid string) error {
-	_, err := r.data.redisCli.HIncrBy(ctx, uuid, "collect", 1).Result()
+	var incrBy = redis.NewScript(`
+					local uuid = KEYS[1]
+					local exist = redis.call("EXISTS", uuid)
+					if exist == 1 then
+						redis.call("HINCRBY", uuid, "collect", 1)
+					end
+					return 0
+	`)
+	keys := []string{uuid}
+	_, err := incrBy.Run(ctx, r.data.redisCli, keys).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set achievement collect to cache: uuid(%s)", uuid))
 	}
@@ -122,7 +161,19 @@ func (r *achievementRepo) SetAchievementCollectToCache(ctx context.Context, uuid
 }
 
 func (r *achievementRepo) CancelAchievementCollectFromCache(ctx context.Context, uuid string) error {
-	_, err := r.data.redisCli.HIncrBy(ctx, uuid, "collect", -1).Result()
+	var incrBy = redis.NewScript(`
+					local uuid = KEYS[1]
+					local exist = redis.call("EXISTS", uuid)
+					if exist == 1 then
+						local number = tonumber(redis.call("HGET", uuid, "collect"))
+						if number > 0 then
+  							redis.call("HINCRBY", uuid, "collect", -1)
+						end
+					end
+					return 0
+	`)
+	keys := []string{uuid}
+	_, err := incrBy.Run(ctx, r.data.redisCli, keys).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel achievement collect from cache: uuid(%s)", uuid))
 	}
@@ -160,11 +211,22 @@ func (r *achievementRepo) SetAchievementFollowed(ctx context.Context, uuid strin
 }
 
 func (r *achievementRepo) SetAchievementFollowToCache(ctx context.Context, follow, followed string) error {
-	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.HIncrBy(ctx, follow, "followed", 1)
-		pipe.HIncrBy(ctx, followed, "follow", 1)
-		return nil
-	})
+	var incrBy = redis.NewScript(`
+					local follow = KEYS[1]
+					local exist = redis.call("EXISTS", follow)
+					if exist == 1 then
+						redis.call("HINCRBY", follow, "followed", 1)
+					end
+
+					local followed = KEYS[1]
+					local exist = redis.call("EXISTS", followed)
+					if exist == 1 then
+						redis.call("HINCRBY", followed, "follow", 1)
+					end
+					return 0
+	`)
+	keys := []string{follow, followed}
+	_, err := incrBy.Run(ctx, r.data.redisCli, keys).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set achievement follow to cache: follow(%s), followed(%s)", follow, followed))
 	}
@@ -173,7 +235,7 @@ func (r *achievementRepo) SetAchievementFollowToCache(ctx context.Context, follo
 
 func (r *achievementRepo) CancelAchievementFollow(ctx context.Context, uuid string) error {
 	ach := &Achievement{}
-	err := r.data.DB(ctx).Model(ach).Where("uuid = ?", uuid).Update("follow", gorm.Expr("follow - ?", 1)).Error
+	err := r.data.DB(ctx).Model(ach).Where("uuid = ? and follow > 0", uuid).Update("follow", gorm.Expr("follow - ?", 1)).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to subtract achievement follow: uuid(%v)", uuid))
 	}
@@ -182,7 +244,7 @@ func (r *achievementRepo) CancelAchievementFollow(ctx context.Context, uuid stri
 
 func (r *achievementRepo) CancelAchievementFollowed(ctx context.Context, uuid string) error {
 	ach := &Achievement{}
-	err := r.data.DB(ctx).Model(ach).Where("uuid = ?", uuid).Update("followed", gorm.Expr("followed - ?", 1)).Error
+	err := r.data.DB(ctx).Model(ach).Where("uuid = ? and followed > 0", uuid).Update("followed", gorm.Expr("followed - ?", 1)).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to subtract achievement followed: uuid(%v)", uuid))
 	}
@@ -190,11 +252,28 @@ func (r *achievementRepo) CancelAchievementFollowed(ctx context.Context, uuid st
 }
 
 func (r *achievementRepo) CancelAchievementFollowFromCache(ctx context.Context, follow, followed string) error {
-	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.HIncrBy(ctx, follow, "followed", -1)
-		pipe.HIncrBy(ctx, followed, "follow", -1)
-		return nil
-	})
+	var incrBy = redis.NewScript(`
+					local follow = KEYS[1]
+					local exist = redis.call("EXISTS", follow)
+					if exist == 1 then
+						local number = tonumber(redis.call("HGET", follow, "followed"))
+						if number > 0 then
+  							redis.call("HINCRBY", follow, "followed", -1)
+						end
+					end
+
+					local followed = KEYS[1]
+					local exist = redis.call("EXISTS", followed)
+					if exist == 1 then
+						local number = tonumber(redis.call("HGET", followed, "follow"))
+						if number > 0 then
+  							redis.call("HINCRBY", followed, "follow", -1)
+						end
+					end
+					return 0
+	`)
+	keys := []string{follow, followed}
+	_, err := incrBy.Run(ctx, r.data.redisCli, keys).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel achievement follow to cache: follow(%s), followed(%s)", follow, followed))
 	}
