@@ -16,10 +16,11 @@ import (
 	"gorm.io/gorm"
 	"net/http"
 	"net/url"
+	"runtime"
 	"time"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewTransaction, NewCommentRepo, NewRocketmqCommentProducer, NewRocketmqReviewProducer, NewRocketmqAchievementProducer, NewCosServiceClient)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewTransaction, NewCommentRepo, NewRocketmqCommentProducer, NewRocketmqReviewProducer, NewRocketmqAchievementProducer, NewCosServiceClient, NewRecovery)
 
 type ReviewMqPro struct {
 	producer rocketmq.Producer
@@ -61,6 +62,24 @@ func (d *Data) DB(ctx context.Context) *gorm.DB {
 }
 
 func NewTransaction(d *Data) biz.Transaction {
+	return d
+}
+
+func (d *Data) GroupRecover(ctx context.Context, fn func(ctx context.Context) error) func() error {
+	return func() error {
+		defer func() {
+			if rerr := recover(); rerr != nil {
+				buf := make([]byte, 64<<10)
+				n := runtime.Stack(buf, false)
+				buf = buf[:n]
+				log.Context(ctx).Errorf("%v: %s\n", rerr, buf)
+			}
+		}()
+		return fn(ctx)
+	}
+}
+
+func NewRecovery(d *Data) biz.Recovery {
 	return d
 }
 
