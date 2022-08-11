@@ -109,60 +109,70 @@ type NewsRepo interface {
 
 type CreationUseCase struct {
 	repo CreationRepo
+	re   Recovery
 	log  *log.Helper
 }
 
 type ArticleUseCase struct {
 	repo ArticleRepo
+	re   Recovery
 	log  *log.Helper
 }
 
 type TalkUseCase struct {
 	repo TalkRepo
+	re   Recovery
 	log  *log.Helper
 }
 
 type ColumnUseCase struct {
 	repo ColumnRepo
+	re   Recovery
 	log  *log.Helper
 }
 
 type NewsUseCase struct {
 	repo NewsRepo
+	re   Recovery
 	log  *log.Helper
 }
 
-func NewCreationUseCase(repo CreationRepo, logger log.Logger) *CreationUseCase {
+func NewCreationUseCase(repo CreationRepo, re Recovery, logger log.Logger) *CreationUseCase {
 	return &CreationUseCase{
 		repo: repo,
+		re:   re,
 		log:  log.NewHelper(log.With(logger, "module", "bff/biz/CreationUseCase")),
 	}
 }
 
-func NewArticleUseCase(repo ArticleRepo, logger log.Logger) *ArticleUseCase {
+func NewArticleUseCase(repo ArticleRepo, re Recovery, logger log.Logger) *ArticleUseCase {
 	return &ArticleUseCase{
 		repo: repo,
+		re:   re,
 		log:  log.NewHelper(log.With(logger, "module", "bff/biz/ArticleUseCase")),
 	}
 }
 
-func NewTalkUseCase(repo TalkRepo, logger log.Logger) *TalkUseCase {
+func NewTalkUseCase(repo TalkRepo, re Recovery, logger log.Logger) *TalkUseCase {
 	return &TalkUseCase{
 		repo: repo,
+		re:   re,
 		log:  log.NewHelper(log.With(logger, "module", "bff/biz/TalkUseCase")),
 	}
 }
 
-func NewColumnUseCase(repo ColumnRepo, logger log.Logger) *ColumnUseCase {
+func NewColumnUseCase(repo ColumnRepo, re Recovery, logger log.Logger) *ColumnUseCase {
 	return &ColumnUseCase{
 		repo: repo,
+		re:   re,
 		log:  log.NewHelper(log.With(logger, "module", "bff/biz/ColumnUseCase")),
 	}
 }
 
-func NewNewsUseCase(repo NewsRepo, logger log.Logger) *NewsUseCase {
+func NewNewsUseCase(repo NewsRepo, re Recovery, logger log.Logger) *NewsUseCase {
 	return &NewsUseCase{
 		repo: repo,
+		re:   re,
 		log:  log.NewHelper(log.With(logger, "module", "bff/biz/NewsUseCase")),
 	}
 }
