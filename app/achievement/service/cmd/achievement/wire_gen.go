@@ -28,8 +28,9 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, re
 		return nil, nil, err
 	}
 	achievementRepo := data.NewAchievementRepo(dataData, logger)
+	recovery := data.NewRecovery(dataData)
 	transaction := data.NewTransaction(dataData)
-	achievementUseCase := biz.NewAchievementUseCase(achievementRepo, transaction, logger)
+	achievementUseCase := biz.NewAchievementUseCase(achievementRepo, recovery, transaction, logger)
 	achievementService := service.NewAchievementService(achievementUseCase, logger)
 	httpServer := server.NewHTTPServer(confServer, achievementService, logger)
 	grpcServer := server.NewGRPCServer(confServer, achievementService, logger)
