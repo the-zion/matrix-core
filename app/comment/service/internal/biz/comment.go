@@ -51,19 +51,21 @@ type CommentRepo interface {
 	RemoveSubComment(ctx context.Context, id, rootId int32, uuid string) error
 	RemoveCommentAgree(ctx context.Context, id int32, uuid string) error
 	RemoveCommentCache(ctx context.Context, id, creationId, creationType int32, uuid string) error
-	RemoveSubCommentCache(ctx context.Context, id, rootId int32, uuid, reply string) error
+	RemoveSubCommentCache(ctx context.Context, id, rootId int32, uuid, reply, mode string) error
 }
 
 type CommentUseCase struct {
 	repo CommentRepo
 	tm   Transaction
+	re   Recovery
 	log  *log.Helper
 }
 
-func NewCommentUseCase(repo CommentRepo, tm Transaction, logger log.Logger) *CommentUseCase {
+func NewCommentUseCase(repo CommentRepo, re Recovery, tm Transaction, logger log.Logger) *CommentUseCase {
 	return &CommentUseCase{
 		repo: repo,
 		tm:   tm,
+		re:   re,
 		log:  log.NewHelper(log.With(logger, "module", "comment/biz/CommentUseCase")),
 	}
 }
@@ -247,7 +249,7 @@ func (r *CommentUseCase) RemoveSubComment(ctx context.Context, id, rootId int32,
 	if uuid != userUuid {
 		return v1.ErrorRemoveCommentFailed("remove comment failed: no auth")
 	}
-	err := r.repo.RemoveSubCommentCache(ctx, id, rootId, uuid, reply)
+	err := r.repo.RemoveSubCommentCache(ctx, id, rootId, uuid, reply, "pre")
 	if err != nil {
 		return v1.ErrorRemoveCommentFailed("remove comment failed: %s", err.Error())
 	}
@@ -266,39 +268,39 @@ func (r *CommentUseCase) RemoveSubComment(ctx context.Context, id, rootId int32,
 
 func (r *CommentUseCase) SetCommentAgree(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error {
 	g, _ := errgroup.WithContext(ctx)
-	g.Go(func() error {
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
 		err := r.repo.SetUserCommentAgreeToCache(ctx, id, userUuid)
 		if err != nil {
 			return v1.ErrorSetAgreeFailed("set comment agree to cache failed: %s", err.Error())
 		}
 		return nil
-	})
-	g.Go(func() error {
+	}))
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
 		err := r.repo.SendCommentAgreeToMq(ctx, id, creationId, creationType, uuid, userUuid, "set_comment_agree_db_and_cache")
 		if err != nil {
 			return v1.ErrorSetAgreeFailed("set comment agree to mq failed: %s", err.Error())
 		}
 		return nil
-	})
+	}))
 	return g.Wait()
 }
 
 func (r *CommentUseCase) SetSubCommentAgree(ctx context.Context, id int32, uuid, userUuid string) error {
 	g, _ := errgroup.WithContext(ctx)
-	g.Go(func() error {
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
 		err := r.repo.SetUserCommentAgreeToCache(ctx, id, userUuid)
 		if err != nil {
 			return v1.ErrorSetAgreeFailed("set comment agree to cache failed: %s", err.Error())
 		}
 		return nil
-	})
-	g.Go(func() error {
+	}))
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
 		err := r.repo.SendSubCommentAgreeToMq(ctx, id, uuid, userUuid, "set_sub_comment_agree_db_and_cache")
 		if err != nil {
 			return v1.ErrorSetAgreeFailed("set comment agree to mq failed: %s", err.Error())
 		}
 		return nil
-	})
+	}))
 	return g.Wait()
 }
 
@@ -348,39 +350,39 @@ func (r *CommentUseCase) SetSubCommentAgreeDbAndCache(ctx context.Context, id in
 
 func (r *CommentUseCase) CancelCommentAgree(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error {
 	g, _ := errgroup.WithContext(ctx)
-	g.Go(func() error {
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
 		err := r.repo.CancelUserCommentAgreeFromCache(ctx, id, userUuid)
 		if err != nil {
 			return v1.ErrorCancelAgreeFailed("cancel comment agree from cache failed: %s", err.Error())
 		}
 		return nil
-	})
-	g.Go(func() error {
+	}))
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
 		err := r.repo.SendCommentAgreeToMq(ctx, id, creationId, creationType, uuid, userUuid, "cancel_comment_agree_db_and_cache")
 		if err != nil {
 			return v1.ErrorCancelAgreeFailed("cancel comment agree from mq failed: %s", err.Error())
 		}
 		return nil
-	})
+	}))
 	return g.Wait()
 }
 
 func (r *CommentUseCase) CancelSubCommentAgree(ctx context.Context, id int32, uuid, userUuid string) error {
 	g, _ := errgroup.WithContext(ctx)
-	g.Go(func() error {
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
 		err := r.repo.CancelUserCommentAgreeFromCache(ctx, id, userUuid)
 		if err != nil {
 			return v1.ErrorCancelAgreeFailed("cancel sub comment agree from cache failed: %s", err.Error())
 		}
 		return nil
-	})
-	g.Go(func() error {
+	}))
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
 		err := r.repo.SendSubCommentAgreeToMq(ctx, id, uuid, userUuid, "cancel_sub_comment_agree_db_and_cache")
 		if err != nil {
 			return v1.ErrorCancelAgreeFailed("cancel sub comment agree from mq failed: %s", err.Error())
 		}
 		return nil
-	})
+	}))
 	return g.Wait()
 }
 
@@ -526,7 +528,7 @@ func (r *CommentUseCase) RemoveSubCommentDbAndCache(ctx context.Context, id, roo
 			return v1.ErrorRemoveCommentFailed("remove sub comment agree record failed: %s", err.Error())
 		}
 
-		err = r.repo.RemoveSubCommentCache(ctx, id, rootId, uuid, reply)
+		err = r.repo.RemoveSubCommentCache(ctx, id, rootId, uuid, reply, "final")
 		if err != nil {
 			return v1.ErrorRemoveCommentFailed("remove sub comment cache failed: %s", err.Error())
 		}
