@@ -10,10 +10,11 @@ import (
 	"github.com/the-zion/matrix-core/app/achievement/service/internal/conf"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"runtime"
 	"time"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewTransaction, NewAchievementRepo)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewTransaction, NewAchievementRepo, NewRecovery)
 
 type Data struct {
 	db       *gorm.DB
@@ -39,6 +40,24 @@ func (d *Data) DB(ctx context.Context) *gorm.DB {
 }
 
 func NewTransaction(d *Data) biz.Transaction {
+	return d
+}
+
+func (d *Data) GroupRecover(ctx context.Context, fn func(ctx context.Context) error) func() error {
+	return func() error {
+		defer func() {
+			if rerr := recover(); rerr != nil {
+				buf := make([]byte, 64<<10)
+				n := runtime.Stack(buf, false)
+				buf = buf[:n]
+				log.Context(ctx).Errorf("%v: %s\n", rerr, buf)
+			}
+		}()
+		return fn(ctx)
+	}
+}
+
+func NewRecovery(d *Data) biz.Recovery {
 	return d
 }
 
