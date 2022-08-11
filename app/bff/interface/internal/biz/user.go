@@ -38,12 +38,14 @@ type UserRepo interface {
 
 type UserUseCase struct {
 	repo UserRepo
+	re   Recovery
 	log  *log.Helper
 }
 
-func NewUserUseCase(repo UserRepo, logger log.Logger) *UserUseCase {
+func NewUserUseCase(repo UserRepo, re Recovery, logger log.Logger) *UserUseCase {
 	return &UserUseCase{
 		repo: repo,
+		re:   re,
 		log:  log.NewHelper(log.With(logger, "module", "bff/biz/UserUseCase")),
 	}
 }
