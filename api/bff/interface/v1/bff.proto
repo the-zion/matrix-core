@@ -1209,7 +1209,11 @@ message GetArticleListReq{
 message GetArticleListReply{
   message Article{
     int32 id = 1;
-    string uuid = 2;
+    int32 agree = 2;
+    int32 collect = 3;
+    int32 comment = 4;
+    int32 view = 5;
+    string uuid = 6;
   }
   repeated Article article = 1;
 }
@@ -1229,7 +1233,11 @@ message GetArticleListHotReq{
 message GetArticleListHotReply{
   message Article{
     int32 id = 1;
-    string uuid = 2;
+    int32 agree = 2;
+    int32 collect = 3;
+    int32 comment = 4;
+    int32 view = 5;
+    string uuid = 6;
   }
   repeated Article article = 1;
 }
@@ -1407,7 +1415,11 @@ message GetTalkListReq{
 message GetTalkListReply{
   message Talk{
     int32 id = 1;
-    string uuid = 2;
+    int32 agree = 2;
+    int32 view = 3;
+    int32 collect = 4;
+    int32 comment = 5;
+    string uuid = 6;
   }
   repeated Talk talk = 1;
 }
@@ -1427,7 +1439,11 @@ message GetTalkListHotReq{
 message GetTalkListHotReply{
   message Talk{
     int32 id = 1;
-    string uuid = 2;
+    int32 agree = 2;
+    int32 view = 3;
+    int32 collect = 4;
+    int32 comment = 5;
+    string uuid = 6;
   }
   repeated Talk talk = 1;
 }
@@ -1614,7 +1630,10 @@ message GetColumnListReq{
 message GetColumnListReply{
   message Column{
     int32 id = 1;
-    string uuid = 2;
+    int32 agree = 2;
+    int32 collect = 3;
+    int32 view = 4;
+    string uuid = 5;
   }
   repeated Column column = 1;
 }
@@ -1626,7 +1645,10 @@ message GetColumnListHotReq{
 message GetColumnListHotReply{
   message Column{
     int32 id = 1;
-    string uuid = 2;
+    int32 agree = 2;
+    int32 collect = 3;
+    int32 view = 4;
+    string uuid = 5;
   }
   repeated Column column = 1;
 }
