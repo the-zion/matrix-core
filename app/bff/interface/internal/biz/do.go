@@ -146,8 +146,12 @@ type LeaderBoard struct {
 }
 
 type Article struct {
-	Id   int32
-	Uuid string
+	Id      int32
+	Uuid    string
+	Agree   int32
+	View    int32
+	Collect int32
+	Comment int32
 }
 
 type ArticleStatistic struct {
@@ -181,8 +185,12 @@ type ArticleSearch struct {
 }
 
 type Talk struct {
-	Id   int32
-	Uuid string
+	Id      int32
+	Agree   int32
+	View    int32
+	Collect int32
+	Comment int32
+	Uuid    string
 }
 
 type TalkDraft struct {
@@ -224,8 +232,11 @@ type Collections struct {
 }
 
 type Column struct {
-	Id   int32
-	Uuid string
+	Id      int32
+	Agree   int32
+	View    int32
+	Collect int32
+	Uuid    string
 }
 
 type ColumnDraft struct {
