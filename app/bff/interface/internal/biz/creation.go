@@ -17,6 +17,7 @@ type CreationRepo interface {
 	EditCollections(ctx context.Context, id int32, uuid, name, introduce string, auth int32) error
 	DeleteCollections(ctx context.Context, id int32, uuid string) error
 	GetCollection(ctx context.Context, id int32, uuid string) (*Collections, error)
+	GetCollectionListInfo(ctx context.Context, collectionsList []*Collections) ([]*Collections, error)
 	GetCollections(ctx context.Context, uuid string, page int32) ([]*Collections, error)
 	GetCollectionsByVisitor(ctx context.Context, uuid string, page int32) ([]*Collections, error)
 	GetCollectionsCount(ctx context.Context, uuid string) (int32, error)
@@ -34,7 +35,7 @@ type ArticleRepo interface {
 	GetUserArticleList(ctx context.Context, page int32, uuid string) ([]*Article, error)
 	GetUserArticleListVisitor(ctx context.Context, page int32, uuid string) ([]*Article, error)
 	GetArticleStatistic(ctx context.Context, id int32) (*ArticleStatistic, error)
-	GetArticleListStatistic(ctx context.Context, ids []int32) ([]*ArticleStatistic, error)
+	GetArticleListStatistic(ctx context.Context, articleList []*Article) ([]*ArticleStatistic, error)
 	GetArticleDraftList(ctx context.Context, uuid string) ([]*ArticleDraft, error)
 	GetArticleSearch(ctx context.Context, page int32, search, time string) ([]*ArticleSearch, int32, error)
 	ArticleDraftMark(ctx context.Context, id int32, uuid string) error
@@ -56,7 +57,7 @@ type TalkRepo interface {
 	GetUserTalkListVisitor(ctx context.Context, page int32, uuid string) ([]*Talk, error)
 	GetTalkCount(ctx context.Context, uuid string) (int32, error)
 	GetTalkCountVisitor(ctx context.Context, uuid string) (int32, error)
-	GetTalkListStatistic(ctx context.Context, ids []int32) ([]*TalkStatistic, error)
+	GetTalkListStatistic(ctx context.Context, talkList []*Talk) ([]*TalkStatistic, error)
 	GetTalkStatistic(ctx context.Context, id int32) (*TalkStatistic, error)
 	GetLastTalkDraft(ctx context.Context, uuid string) (*TalkDraft, error)
 	GetTalkSearch(ctx context.Context, page int32, search, time string) ([]*TalkSearch, int32, error)
@@ -80,7 +81,7 @@ type ColumnRepo interface {
 	GetUserColumnListVisitor(ctx context.Context, page int32, uuid string) ([]*Column, error)
 	GetColumnCount(ctx context.Context, uuid string) (int32, error)
 	GetColumnCountVisitor(ctx context.Context, uuid string) (int32, error)
-	GetColumnListStatistic(ctx context.Context, ids []int32) ([]*ColumnStatistic, error)
+	GetColumnListStatistic(ctx context.Context, columnList []*Column) ([]*ColumnStatistic, error)
 	GetColumnStatistic(ctx context.Context, id int32) (*ColumnStatistic, error)
 	GetSubscribeList(ctx context.Context, page int32, uuid string) ([]*Subscribe, error)
 	GetSubscribeListCount(ctx context.Context, uuid string) (int32, error)
@@ -220,7 +221,11 @@ func (r *CreationUseCase) GetCollectionsCount(ctx context.Context) (int32, error
 }
 
 func (r *CreationUseCase) GetCollectionsByVisitor(ctx context.Context, page int32, uuid string) ([]*Collections, error) {
-	return r.repo.GetCollectionsByVisitor(ctx, uuid, page)
+	collectionsList, err := r.repo.GetCollectionsByVisitor(ctx, uuid, page)
+	if err != nil {
+		return nil, err
+	}
+	return r.repo.GetCollectionListInfo(ctx, collectionsList)
 }
 
 func (r *CreationUseCase) GetCollectionsVisitorCount(ctx context.Context, uuid string) (int32, error) {
@@ -243,11 +248,47 @@ func (r *CreationUseCase) DeleteCollections(ctx context.Context, id int32) error
 }
 
 func (r *ArticleUseCase) GetArticleList(ctx context.Context, page int32) ([]*Article, error) {
-	return r.repo.GetArticleList(ctx, page)
+	articleList, err := r.repo.GetArticleList(ctx, page)
+	if err != nil {
+		return nil, err
+	}
+	articleListStatistic, err := r.repo.GetArticleListStatistic(ctx, articleList)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range articleListStatistic {
+		for index, listItem := range articleList {
+			if listItem.Id == item.Id {
+				articleList[index].Agree = item.Agree
+				articleList[index].View = item.View
+				articleList[index].Collect = item.Collect
+				articleList[index].Comment = item.Comment
+			}
+		}
+	}
+	return articleList, nil
 }
 
 func (r *ArticleUseCase) GetArticleListHot(ctx context.Context, page int32) ([]*Article, error) {
-	return r.repo.GetArticleListHot(ctx, page)
+	articleList, err := r.repo.GetArticleListHot(ctx, page)
+	if err != nil {
+		return nil, err
+	}
+	articleListStatistic, err := r.repo.GetArticleListStatistic(ctx, articleList)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range articleListStatistic {
+		for index, listItem := range articleList {
+			if listItem.Id == item.Id {
+				articleList[index].Agree = item.Agree
+				articleList[index].View = item.View
+				articleList[index].Collect = item.Collect
+				articleList[index].Comment = item.Comment
+			}
+		}
+	}
+	return articleList, nil
 }
 
 func (r *ArticleUseCase) GetColumnArticleList(ctx context.Context, id int32) ([]*Article, error) {
@@ -265,19 +306,56 @@ func (r *ArticleUseCase) GetArticleCountVisitor(ctx context.Context, uuid string
 
 func (r *ArticleUseCase) GetUserArticleList(ctx context.Context, page int32) ([]*Article, error) {
 	uuid := ctx.Value("uuid").(string)
-	return r.repo.GetUserArticleList(ctx, page, uuid)
+	articleList, err := r.repo.GetUserArticleList(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+	articleListStatistic, err := r.repo.GetArticleListStatistic(ctx, articleList)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range articleListStatistic {
+		for index, listItem := range articleList {
+			if listItem.Id == item.Id {
+				articleList[index].Agree = item.Agree
+				articleList[index].View = item.View
+				articleList[index].Collect = item.Collect
+				articleList[index].Comment = item.Comment
+			}
+		}
+	}
+	return articleList, nil
 }
 
 func (r *ArticleUseCase) GetUserArticleListVisitor(ctx context.Context, page int32, uuid string) ([]*Article, error) {
-	return r.repo.GetUserArticleListVisitor(ctx, page, uuid)
+	articleList, err := r.repo.GetUserArticleListVisitor(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+	articleListStatistic, err := r.repo.GetArticleListStatistic(ctx, articleList)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range articleListStatistic {
+		for index, listItem := range articleList {
+			if listItem.Id == item.Id {
+				articleList[index].Agree = item.Agree
+				articleList[index].View = item.View
+				articleList[index].Collect = item.Collect
+				articleList[index].Comment = item.Comment
+			}
+		}
+	}
+	return articleList, nil
 }
 
 func (r *ArticleUseCase) GetArticleStatistic(ctx context.Context, id int32) (*ArticleStatistic, error) {
 	return r.repo.GetArticleStatistic(ctx, id)
 }
 
+// GetArticleListStatistic todo: delete
 func (r *ArticleUseCase) GetArticleListStatistic(ctx context.Context, ids []int32) ([]*ArticleStatistic, error) {
-	return r.repo.GetArticleListStatistic(ctx, ids)
+	return nil, nil
 }
 
 func (r *ArticleUseCase) GetLastArticleDraft(ctx context.Context) (*ArticleDraft, error) {
@@ -351,20 +429,92 @@ func (r *ArticleUseCase) ArticleStatisticJudge(ctx context.Context, id int32) (*
 }
 
 func (r *TalkUseCase) GetTalkList(ctx context.Context, page int32) ([]*Talk, error) {
-	return r.repo.GetTalkList(ctx, page)
+	talkList, err := r.repo.GetTalkList(ctx, page)
+	if err != nil {
+		return nil, err
+	}
+	talkListStatistic, err := r.repo.GetTalkListStatistic(ctx, talkList)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range talkListStatistic {
+		for index, listItem := range talkList {
+			if listItem.Id == item.Id {
+				talkList[index].Agree = item.Agree
+				talkList[index].View = item.View
+				talkList[index].Collect = item.Collect
+				talkList[index].Comment = item.Comment
+			}
+		}
+	}
+	return talkList, nil
 }
 
 func (r *TalkUseCase) GetTalkListHot(ctx context.Context, page int32) ([]*Talk, error) {
-	return r.repo.GetTalkListHot(ctx, page)
+	talkList, err := r.repo.GetTalkListHot(ctx, page)
+	if err != nil {
+		return nil, err
+	}
+	talkListStatistic, err := r.repo.GetTalkListStatistic(ctx, talkList)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range talkListStatistic {
+		for index, listItem := range talkList {
+			if listItem.Id == item.Id {
+				talkList[index].Agree = item.Agree
+				talkList[index].View = item.View
+				talkList[index].Collect = item.Collect
+				talkList[index].Comment = item.Comment
+			}
+		}
+	}
+	return talkList, nil
 }
 
 func (r *TalkUseCase) GetUserTalkList(ctx context.Context, page int32) ([]*Talk, error) {
 	uuid := ctx.Value("uuid").(string)
-	return r.repo.GetUserTalkList(ctx, page, uuid)
+	talkList, err := r.repo.GetUserTalkList(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+	talkListStatistic, err := r.repo.GetTalkListStatistic(ctx, talkList)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range talkListStatistic {
+		for index, listItem := range talkList {
+			if listItem.Id == item.Id {
+				talkList[index].Agree = item.Agree
+				talkList[index].View = item.View
+				talkList[index].Collect = item.Collect
+				talkList[index].Comment = item.Comment
+			}
+		}
+	}
+	return talkList, nil
 }
 
 func (r *TalkUseCase) GetUserTalkListVisitor(ctx context.Context, page int32, uuid string) ([]*Talk, error) {
-	return r.repo.GetUserTalkListVisitor(ctx, page, uuid)
+	talkList, err := r.repo.GetUserTalkListVisitor(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+	talkListStatistic, err := r.repo.GetTalkListStatistic(ctx, talkList)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range talkListStatistic {
+		for index, listItem := range talkList {
+			if listItem.Id == item.Id {
+				talkList[index].Agree = item.Agree
+				talkList[index].View = item.View
+				talkList[index].Collect = item.Collect
+				talkList[index].Comment = item.Comment
+			}
+		}
+	}
+	return talkList, nil
 }
 
 func (r *TalkUseCase) GetTalkCount(ctx context.Context) (int32, error) {
@@ -376,8 +526,10 @@ func (r *TalkUseCase) GetTalkCountVisitor(ctx context.Context, uuid string) (int
 	return r.repo.GetTalkCountVisitor(ctx, uuid)
 }
 
+// GetTalkListStatistic todo: delete
 func (r *TalkUseCase) GetTalkListStatistic(ctx context.Context, ids []int32) ([]*TalkStatistic, error) {
-	return r.repo.GetTalkListStatistic(ctx, ids)
+	//return r.repo.GetTalkListStatistic(ctx, ids)
+	return nil, nil
 }
 
 func (r *TalkUseCase) GetTalkStatistic(ctx context.Context, id int32) (*TalkStatistic, error) {
@@ -470,20 +622,88 @@ func (r *ColumnUseCase) SubscribeJudge(ctx context.Context, id int32) (bool, err
 }
 
 func (r *ColumnUseCase) GetColumnList(ctx context.Context, page int32) ([]*Column, error) {
-	return r.repo.GetColumnList(ctx, page)
+	columnList, err := r.repo.GetColumnList(ctx, page)
+	if err != nil {
+		return nil, err
+	}
+	columnListStatistic, err := r.repo.GetColumnListStatistic(ctx, columnList)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range columnListStatistic {
+		for index, listItem := range columnList {
+			if listItem.Id == item.Id {
+				columnList[index].Agree = item.Agree
+				columnList[index].View = item.View
+				columnList[index].Collect = item.Collect
+			}
+		}
+	}
+	return columnList, nil
 }
 
 func (r *ColumnUseCase) GetColumnListHot(ctx context.Context, page int32) ([]*Column, error) {
-	return r.repo.GetColumnListHot(ctx, page)
+	columnList, err := r.repo.GetColumnListHot(ctx, page)
+	if err != nil {
+		return nil, err
+	}
+	columnListStatistic, err := r.repo.GetColumnListStatistic(ctx, columnList)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range columnListStatistic {
+		for index, listItem := range columnList {
+			if listItem.Id == item.Id {
+				columnList[index].Agree = item.Agree
+				columnList[index].View = item.View
+				columnList[index].Collect = item.Collect
+			}
+		}
+	}
+	return columnList, nil
 }
 
 func (r *ColumnUseCase) GetUserColumnList(ctx context.Context, page int32) ([]*Column, error) {
 	uuid := ctx.Value("uuid").(string)
-	return r.repo.GetUserColumnList(ctx, page, uuid)
+	columnList, err := r.repo.GetUserColumnList(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+	columnListStatistic, err := r.repo.GetColumnListStatistic(ctx, columnList)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range columnListStatistic {
+		for index, listItem := range columnList {
+			if listItem.Id == item.Id {
+				columnList[index].Agree = item.Agree
+				columnList[index].View = item.View
+				columnList[index].Collect = item.Collect
+			}
+		}
+	}
+	return columnList, nil
 }
 
 func (r *ColumnUseCase) GetUserColumnListVisitor(ctx context.Context, page int32, uuid string) ([]*Column, error) {
-	return r.repo.GetUserColumnListVisitor(ctx, page, uuid)
+	columnList, err := r.repo.GetUserColumnListVisitor(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+	columnListStatistic, err := r.repo.GetColumnListStatistic(ctx, columnList)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range columnListStatistic {
+		for index, listItem := range columnList {
+			if listItem.Id == item.Id {
+				columnList[index].Agree = item.Agree
+				columnList[index].View = item.View
+				columnList[index].Collect = item.Collect
+			}
+		}
+	}
+	return columnList, nil
 }
 
 func (r *ColumnUseCase) GetColumnCount(ctx context.Context) (int32, error) {
@@ -495,8 +715,10 @@ func (r *ColumnUseCase) GetColumnCountVisitor(ctx context.Context, uuid string) 
 	return r.repo.GetColumnCountVisitor(ctx, uuid)
 }
 
+// GetColumnListStatistic todo: delete
 func (r *ColumnUseCase) GetColumnListStatistic(ctx context.Context, ids []int32) ([]*ColumnStatistic, error) {
-	return r.repo.GetColumnListStatistic(ctx, ids)
+	//return r.repo.GetColumnListStatistic(ctx, ids)
+	return nil, nil
 }
 
 func (r *ColumnUseCase) ColumnStatisticJudge(ctx context.Context, id int32) (*ColumnStatisticJudge, error) {
