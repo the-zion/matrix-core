@@ -200,8 +200,8 @@ func (s *CreationService) EditTalk(ctx context.Context, req *v1.EditTalkReq) (*e
 	return &emptypb.Empty{}, nil
 }
 
-func (s *CreationService) CreateTalkCacheAndSearch(ctx context.Context, req *v1.CreateTalkCacheAndSearchReq) (*emptypb.Empty, error) {
-	err := s.tc.CreateTalkCacheAndSearch(ctx, req.Id, req.Auth, req.Uuid)
+func (s *CreationService) CreateTalkDbCacheAndSearch(ctx context.Context, req *v1.CreateTalkDbCacheAndSearchReq) (*emptypb.Empty, error) {
+	err := s.tc.CreateTalkDbCacheAndSearch(ctx, req.Id, req.Auth, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
