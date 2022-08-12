@@ -67,9 +67,10 @@ type TalkReview struct {
 }
 
 type LeaderBoard struct {
-	Id   int32
-	Uuid string
-	Mode string
+	Id    int32
+	Agree int32
+	Uuid  string
+	Mode  string
 }
 
 type Collections struct {
