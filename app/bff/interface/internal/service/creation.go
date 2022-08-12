@@ -198,8 +198,12 @@ func (s *BffService) GetArticleList(ctx context.Context, req *v1.GetArticleListR
 	}
 	for _, item := range articleList {
 		reply.Article = append(reply.Article, &v1.GetArticleListReply_Article{
-			Id:   item.Id,
-			Uuid: item.Uuid,
+			Id:      item.Id,
+			Uuid:    item.Uuid,
+			Agree:   item.Agree,
+			Collect: item.Collect,
+			View:    item.View,
+			Comment: item.Comment,
 		})
 	}
 	return reply, nil
@@ -213,8 +217,12 @@ func (s *BffService) GetArticleListHot(ctx context.Context, req *v1.GetArticleLi
 	}
 	for _, item := range articleList {
 		reply.Article = append(reply.Article, &v1.GetArticleListHotReply_Article{
-			Id:   item.Id,
-			Uuid: item.Uuid,
+			Id:      item.Id,
+			Uuid:    item.Uuid,
+			Agree:   item.Agree,
+			Collect: item.Collect,
+			View:    item.View,
+			Comment: item.Comment,
 		})
 	}
 	return reply, nil
@@ -263,8 +271,12 @@ func (s *BffService) GetUserArticleList(ctx context.Context, req *v1.GetUserArti
 	}
 	for _, item := range articleList {
 		reply.Article = append(reply.Article, &v1.GetArticleListReply_Article{
-			Id:   item.Id,
-			Uuid: item.Uuid,
+			Id:      item.Id,
+			Uuid:    item.Uuid,
+			Agree:   item.Agree,
+			Collect: item.Collect,
+			View:    item.View,
+			Comment: item.Comment,
 		})
 	}
 	return reply, nil
@@ -278,8 +290,12 @@ func (s *BffService) GetUserArticleListVisitor(ctx context.Context, req *v1.GetU
 	}
 	for _, item := range articleList {
 		reply.Article = append(reply.Article, &v1.GetArticleListReply_Article{
-			Id:   item.Id,
-			Uuid: item.Uuid,
+			Id:      item.Id,
+			Uuid:    item.Uuid,
+			Agree:   item.Agree,
+			Collect: item.Collect,
+			View:    item.View,
+			Comment: item.Comment,
 		})
 	}
 	return reply, nil
@@ -466,8 +482,12 @@ func (s *BffService) GetTalkList(ctx context.Context, req *v1.GetTalkListReq) (*
 	}
 	for _, item := range talkList {
 		reply.Talk = append(reply.Talk, &v1.GetTalkListReply_Talk{
-			Id:   item.Id,
-			Uuid: item.Uuid,
+			Id:      item.Id,
+			Uuid:    item.Uuid,
+			Agree:   item.Agree,
+			Collect: item.Collect,
+			View:    item.View,
+			Comment: item.Comment,
 		})
 	}
 	return reply, nil
@@ -481,8 +501,12 @@ func (s *BffService) GetTalkListHot(ctx context.Context, req *v1.GetTalkListHotR
 	}
 	for _, item := range talkList {
 		reply.Talk = append(reply.Talk, &v1.GetTalkListHotReply_Talk{
-			Id:   item.Id,
-			Uuid: item.Uuid,
+			Id:      item.Id,
+			Uuid:    item.Uuid,
+			Agree:   item.Agree,
+			Collect: item.Collect,
+			View:    item.View,
+			Comment: item.Comment,
 		})
 	}
 	return reply, nil
@@ -744,8 +768,11 @@ func (s *BffService) GetColumnList(ctx context.Context, req *v1.GetColumnListReq
 	}
 	for _, item := range columnList {
 		reply.Column = append(reply.Column, &v1.GetColumnListReply_Column{
-			Id:   item.Id,
-			Uuid: item.Uuid,
+			Id:      item.Id,
+			Uuid:    item.Uuid,
+			Agree:   item.Agree,
+			Collect: item.Collect,
+			View:    item.View,
 		})
 	}
 	return reply, nil
@@ -759,8 +786,11 @@ func (s *BffService) GetColumnListHot(ctx context.Context, req *v1.GetColumnList
 	}
 	for _, item := range columnList {
 		reply.Column = append(reply.Column, &v1.GetColumnListHotReply_Column{
-			Id:   item.Id,
-			Uuid: item.Uuid,
+			Id:      item.Id,
+			Uuid:    item.Uuid,
+			Agree:   item.Agree,
+			Collect: item.Collect,
+			View:    item.View,
 		})
 	}
 	return reply, nil
