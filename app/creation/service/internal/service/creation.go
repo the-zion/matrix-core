@@ -110,6 +110,22 @@ func (s *CreationService) GetCollection(ctx context.Context, req *v1.GetCollecti
 	}, nil
 }
 
+func (s *CreationService) GetCollectionListInfo(ctx context.Context, req *v1.GetCollectionListInfoReq) (*v1.GetCollectionsReply, error) {
+	reply := &v1.GetCollectionsReply{Collections: make([]*v1.GetCollectionsReply_Collections, 0)}
+	collectionsListInfo, err := s.cc.GetCollectionListInfo(ctx, req.Ids)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range collectionsListInfo {
+		reply.Collections = append(reply.Collections, &v1.GetCollectionsReply_Collections{
+			Id:        item.Id,
+			Name:      item.Name,
+			Introduce: item.Introduce,
+		})
+	}
+	return reply, nil
+}
+
 func (s *CreationService) GetCollections(ctx context.Context, req *v1.GetCollectionsReq) (*v1.GetCollectionsReply, error) {
 	reply := &v1.GetCollectionsReply{Collections: make([]*v1.GetCollectionsReply_Collections, 0)}
 	collections, err := s.cc.GetCollections(ctx, req.Uuid, req.Page)
