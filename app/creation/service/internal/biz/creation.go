@@ -4,6 +4,8 @@ import (
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
 	v1 "github.com/the-zion/matrix-core/api/creation/service/v1"
+	"golang.org/x/sync/errgroup"
+	"sort"
 )
 
 type CreationRepo interface {
@@ -16,6 +18,7 @@ type CreationRepo interface {
 	GetCollectColumnCount(ctx context.Context, id int32) (int32, error)
 	GetCollectCount(ctx context.Context, id int32) (int64, error)
 	GetCollection(ctx context.Context, id int32, uuid string) (*Collections, error)
+	GetCollectionListInfo(ctx context.Context, ids []int32) ([]*Collections, error)
 	GetCollections(ctx context.Context, uuid string, page int32) ([]*Collections, error)
 	GetCollectionsByVisitor(ctx context.Context, uuid string, page int32) ([]*Collections, error)
 	GetCollectionsCount(ctx context.Context, uuid string) (int32, error)
@@ -24,17 +27,26 @@ type CreationRepo interface {
 	EditCollections(ctx context.Context, id int32, uuid, name, introduce string, auth int32) error
 	DeleteCollections(ctx context.Context, id int32, uuid string) error
 	SetRecord(ctx context.Context, id, mode int32, uuid, operation, ip string) error
+	SetLeaderBoardToCache(ctx context.Context, boardList []*LeaderBoard)
 }
 
 type CreationUseCase struct {
-	repo CreationRepo
-	log  *log.Helper
+	repo        CreationRepo
+	articleRepo ArticleRepo
+	talkRepo    TalkRepo
+	columnRepo  ColumnRepo
+	re          Recovery
+	log         *log.Helper
 }
 
-func NewCreationUseCase(repo CreationRepo, logger log.Logger) *CreationUseCase {
+func NewCreationUseCase(repo CreationRepo, articleRepo ArticleRepo, talkRepo TalkRepo, columnRepo ColumnRepo, re Recovery, logger log.Logger) *CreationUseCase {
 	return &CreationUseCase{
-		repo: repo,
-		log:  log.NewHelper(log.With(logger, "module", "creation/biz/creationUseCase")),
+		repo:        repo,
+		articleRepo: articleRepo,
+		talkRepo:    talkRepo,
+		columnRepo:  columnRepo,
+		re:          re,
+		log:         log.NewHelper(log.With(logger, "module", "creation/biz/creationUseCase")),
 	}
 }
 
@@ -43,7 +55,79 @@ func (r *CreationUseCase) GetLeaderBoard(ctx context.Context) ([]*LeaderBoard, e
 	if err != nil {
 		return nil, v1.ErrorGetLeaderBoardFailed("get leader board failed: %s", err.Error())
 	}
+
+	if len(boardList) != 0 {
+		return boardList, nil
+	}
+
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		return r.getLeaderBoardFromArticle(ctx, &boardList)
+	}))
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		return r.getLeaderBoardFromTalk(ctx, &boardList)
+	}))
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		return r.getLeaderBoardFromColumn(ctx, &boardList)
+	}))
+	err = g.Wait()
+	if err != nil {
+		return nil, err
+	}
+
+	go r.repo.SetLeaderBoardToCache(context.Background(), boardList)
+	sort.SliceStable(boardList, func(i, j int) bool {
+		return boardList[i].Agree > boardList[j].Agree
+	})
 	return boardList, nil
+}
+
+func (r *CreationUseCase) getLeaderBoardFromArticle(ctx context.Context, boardList *[]*LeaderBoard) error {
+	articleList, err := r.articleRepo.GetArticleHotFromDB(ctx, 1)
+	if err != nil {
+		return err
+	}
+	for _, item := range articleList {
+		*boardList = append(*boardList, &LeaderBoard{
+			Id:    item.ArticleId,
+			Agree: item.Agree,
+			Uuid:  item.Uuid,
+			Mode:  "article",
+		})
+	}
+	return nil
+}
+
+func (r *CreationUseCase) getLeaderBoardFromTalk(ctx context.Context, boardList *[]*LeaderBoard) error {
+	talkList, err := r.talkRepo.GetTalkHotFromDB(ctx, 1)
+	if err != nil {
+		return err
+	}
+	for _, item := range talkList {
+		*boardList = append(*boardList, &LeaderBoard{
+			Id:    item.TalkId,
+			Agree: item.Agree,
+			Uuid:  item.Uuid,
+			Mode:  "talk",
+		})
+	}
+	return nil
+}
+
+func (r *CreationUseCase) getLeaderBoardFromColumn(ctx context.Context, boardList *[]*LeaderBoard) error {
+	columnList, err := r.columnRepo.GetColumnHotFromDB(ctx, 1)
+	if err != nil {
+		return err
+	}
+	for _, item := range columnList {
+		*boardList = append(*boardList, &LeaderBoard{
+			Id:    item.ColumnId,
+			Agree: item.Agree,
+			Uuid:  item.Uuid,
+			Mode:  "column",
+		})
+	}
+	return nil
 }
 
 func (r *CreationUseCase) GetCollectArticle(ctx context.Context, id, page int32) ([]*Article, error) {
@@ -100,6 +184,14 @@ func (r *CreationUseCase) GetCollection(ctx context.Context, id int32, uuid stri
 		return nil, v1.ErrorGetCollectionFailed("get collection failed: %s", err.Error())
 	}
 	return collection, nil
+}
+
+func (r *CreationUseCase) GetCollectionListInfo(ctx context.Context, ids []int32) ([]*Collections, error) {
+	collectionListInfo, err := r.repo.GetCollectionListInfo(ctx, ids)
+	if err != nil {
+		return nil, v1.ErrorGetCollectionFailed("get collection failed: %s", err.Error())
+	}
+	return collectionListInfo, nil
 }
 
 func (r *CreationUseCase) GetCollections(ctx context.Context, uuid string, page int32) ([]*Collections, error) {
