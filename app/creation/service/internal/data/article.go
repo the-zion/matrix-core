@@ -13,11 +13,13 @@ import (
 	"github.com/pkg/errors"
 	"github.com/tencentyun/cos-go-sdk-v5"
 	"github.com/the-zion/matrix-core/app/creation/service/internal/biz"
+	"golang.org/x/sync/errgroup"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"io/ioutil"
 	"strconv"
 	"strings"
+	"time"
 )
 
 var _ biz.ArticleRepo = (*articleRepo)(nil)
@@ -134,7 +136,7 @@ func (r *articleRepo) GetArticleListHot(ctx context.Context, page int32) ([]*biz
 		return article, nil
 	}
 
-	article, err = r.getArticleHotFromDB(ctx, page)
+	article, err = r.GetArticleHotFromDB(ctx, page)
 	if err != nil {
 		return nil, err
 	}
@@ -188,6 +190,54 @@ func (r *articleRepo) GetArticleCountVisitor(ctx context.Context, uuid string) (
 }
 
 func (r *articleRepo) GetUserArticleList(ctx context.Context, page int32, uuid string) ([]*biz.Article, error) {
+	article, err := r.getUserArticleListFromCache(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	size := len(article)
+	if size != 0 {
+		return article, nil
+	}
+
+	article, err = r.getUserArticleListFromDB(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	size = len(article)
+	if size != 0 {
+		go r.setUserArticleListToCache("user_article_list_"+uuid, article)
+	}
+	return article, nil
+}
+
+func (r *articleRepo) getUserArticleListFromCache(ctx context.Context, page int32, uuid string) ([]*biz.Article, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int64(page - 1)
+	list, err := r.data.redisCli.ZRevRange(ctx, "user_article_list_"+uuid, index*10, index*10+9).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user article list from cache: key(%s), page(%v)", "user_article_list_", page))
+	}
+
+	article := make([]*biz.Article, 0)
+	for _, item := range list {
+		member := strings.Split(item, "%")
+		id, err := strconv.ParseInt(member[0], 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s)", member[0]))
+		}
+		article = append(article, &biz.Article{
+			ArticleId: int32(id),
+			Uuid:      member[1],
+		})
+	}
+	return article, nil
+}
+
+func (r *articleRepo) getUserArticleListFromDB(ctx context.Context, page int32, uuid string) ([]*biz.Article, error) {
 	if page < 1 {
 		page = 1
 	}
@@ -209,6 +259,54 @@ func (r *articleRepo) GetUserArticleList(ctx context.Context, page int32, uuid s
 }
 
 func (r *articleRepo) GetUserArticleListVisitor(ctx context.Context, page int32, uuid string) ([]*biz.Article, error) {
+	article, err := r.getUserArticleListVisitorFromCache(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	size := len(article)
+	if size != 0 {
+		return article, nil
+	}
+
+	article, err = r.getUserArticleListVisitorFromDB(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	size = len(article)
+	if size != 0 {
+		go r.setUserArticleListToCache("user_article_list_visitor_"+uuid, article)
+	}
+	return article, nil
+}
+
+func (r *articleRepo) getUserArticleListVisitorFromCache(ctx context.Context, page int32, uuid string) ([]*biz.Article, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int64(page - 1)
+	list, err := r.data.redisCli.ZRevRange(ctx, "user_article_list_visitor_"+uuid, index*10, index*10+9).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user article list visitor from cache: key(%s), page(%v)", "user_article_list_visitor_", page))
+	}
+
+	article := make([]*biz.Article, 0)
+	for _, item := range list {
+		member := strings.Split(item, "%")
+		id, err := strconv.ParseInt(member[0], 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s)", member[0]))
+		}
+		article = append(article, &biz.Article{
+			ArticleId: int32(id),
+			Uuid:      member[1],
+		})
+	}
+	return article, nil
+}
+
+func (r *articleRepo) getUserArticleListVisitorFromDB(ctx context.Context, page int32, uuid string) ([]*biz.Article, error) {
 	if page < 1 {
 		page = 1
 	}
@@ -229,7 +327,25 @@ func (r *articleRepo) GetUserArticleListVisitor(ctx context.Context, page int32,
 	return article, nil
 }
 
-func (r *articleRepo) getArticleHotFromDB(ctx context.Context, page int32) ([]*biz.ArticleStatistic, error) {
+func (r *articleRepo) setUserArticleListToCache(key string, article []*biz.Article) {
+	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
+		z := make([]*redis.Z, 0)
+		for _, item := range article {
+			z = append(z, &redis.Z{
+				Score:  float64(item.ArticleId),
+				Member: strconv.Itoa(int(item.ArticleId)) + "%" + item.Uuid,
+			})
+		}
+		pipe.ZAddNX(context.Background(), key, z...)
+		pipe.Expire(context.Background(), key, time.Hour*8)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to set article to cache: article(%v)", article)
+	}
+}
+
+func (r *articleRepo) GetArticleHotFromDB(ctx context.Context, page int32) ([]*biz.ArticleStatistic, error) {
 	if page < 1 {
 		page = 1
 	}
@@ -293,17 +409,69 @@ func (r *articleRepo) getArticleStatisticFromDB(ctx context.Context, id int32) (
 }
 
 func (r *articleRepo) GetArticleListStatistic(ctx context.Context, ids []int32) ([]*biz.ArticleStatistic, error) {
+	articleListStatistic := make([]*biz.ArticleStatistic, 0)
+	exists, unExists, err := r.articleListStatisticExist(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(r.data.GroupRecover(ctx, func(ctx context.Context) error {
+		if len(exists) == 0 {
+			return nil
+		}
+		return r.getArticleListStatisticFromCache(ctx, exists, &articleListStatistic)
+	}))
+	g.Go(r.data.GroupRecover(ctx, func(ctx context.Context) error {
+		if len(unExists) == 0 {
+			return nil
+		}
+		return r.getArticleListStatisticFromDb(ctx, unExists, &articleListStatistic)
+	}))
+
+	err = g.Wait()
+	if err != nil {
+		return nil, err
+	}
+
+	return articleListStatistic, nil
+}
+
+func (r *articleRepo) articleListStatisticExist(ctx context.Context, ids []int32) ([]int32, []int32, error) {
+	exists := make([]int32, 0)
+	unExists := make([]int32, 0)
 	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		for _, id := range ids {
+		for _, item := range ids {
+			pipe.Exists(ctx, "article_"+strconv.Itoa(int(item)))
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, nil, errors.Wrapf(err, fmt.Sprintf("fail to check if article statistic exist from cache: ids(%v)", ids))
+	}
+
+	for index, item := range cmd {
+		exist := item.(*redis.IntCmd).Val()
+		if exist == 1 {
+			exists = append(exists, ids[index])
+		} else {
+			unExists = append(unExists, ids[index])
+		}
+	}
+	return exists, unExists, nil
+}
+
+func (r *articleRepo) getArticleListStatisticFromCache(ctx context.Context, exists []int32, articleListStatistic *[]*biz.ArticleStatistic) error {
+	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		for _, id := range exists {
 			pipe.HMGet(ctx, "article_"+strconv.Itoa(int(id)), "agree", "collect", "view", "comment")
 		}
 		return nil
 	})
 	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get article list statistic from cache: ids(%v)", ids))
+		return errors.Wrapf(err, fmt.Sprintf("fail to get article list statistic from cache: ids(%v)", exists))
 	}
 
-	statistic := make([]*biz.ArticleStatistic, 0)
 	for index, item := range cmd {
 		val := []int32{0, 0, 0, 0}
 		for _index, count := range item.(*redis.SliceCmd).Val() {
@@ -312,19 +480,63 @@ func (r *articleRepo) GetArticleListStatistic(ctx context.Context, ids []int32) 
 			}
 			num, err := strconv.ParseInt(count.(string), 10, 32)
 			if err != nil {
-				return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: count(%v)", count))
+				return errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: count(%v)", count))
 			}
 			val[_index] = int32(num)
 		}
-		statistic = append(statistic, &biz.ArticleStatistic{
-			ArticleId: ids[index],
+		*articleListStatistic = append(*articleListStatistic, &biz.ArticleStatistic{
+			ArticleId: exists[index],
 			Agree:     val[0],
 			Collect:   val[1],
 			View:      val[2],
 			Comment:   val[3],
 		})
 	}
-	return statistic, nil
+	return nil
+}
+
+func (r *articleRepo) getArticleListStatisticFromDb(ctx context.Context, unExists []int32, articleListStatistic *[]*biz.ArticleStatistic) error {
+	list := make([]*ArticleStatistic, 0)
+	err := r.data.db.WithContext(ctx).Where("article_id IN ?", unExists).Find(&list).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to get article statistic list from db: ids(%v)", unExists))
+	}
+
+	for _, item := range list {
+		*articleListStatistic = append(*articleListStatistic, &biz.ArticleStatistic{
+			ArticleId: item.ArticleId,
+			Uuid:      item.Uuid,
+			Agree:     item.Agree,
+			Comment:   item.Comment,
+			Collect:   item.Collect,
+			View:      item.View,
+		})
+	}
+
+	if len(list) != 0 {
+		go r.setArticleListStatisticToCache(list)
+	}
+
+	return nil
+}
+
+func (r *articleRepo) setArticleListStatisticToCache(commentList []*ArticleStatistic) {
+	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
+		for _, item := range commentList {
+			key := "article_" + strconv.Itoa(int(item.ArticleId))
+			pipe.HSetNX(context.Background(), key, "uuid", item.Uuid)
+			pipe.HSetNX(context.Background(), key, "agree", item.Agree)
+			pipe.HSetNX(context.Background(), key, "comment", item.Comment)
+			pipe.HSetNX(context.Background(), key, "collect", item.Collect)
+			pipe.HSetNX(context.Background(), key, "view", item.View)
+			pipe.Expire(context.Background(), key, time.Hour*8)
+		}
+		return nil
+	})
+
+	if err != nil {
+		r.log.Errorf("fail to set article statistic to cache, err(%s)", err.Error())
+	}
 }
 
 func (r *articleRepo) GetArticleDraftList(ctx context.Context, uuid string) ([]*biz.ArticleDraft, error) {
@@ -555,8 +767,24 @@ func (r *articleRepo) CreateArticleStatistic(ctx context.Context, id, auth int32
 }
 
 func (r *articleRepo) CreateArticleCache(ctx context.Context, id, auth int32, uuid string) error {
+	exists := make([]int32, 0)
+	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.Exists(ctx, "article")
+		pipe.Exists(ctx, "article_hot")
+		pipe.Exists(ctx, "leaderboard")
+		return nil
+	})
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to check if article exist from cache: id(%v),uuid(%s)", id, uuid))
+	}
+
+	for _, item := range cmd {
+		exist := item.(*redis.IntCmd).Val()
+		exists = append(exists, int32(exist))
+	}
+
 	ids := strconv.Itoa(int(id))
-	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+	_, err = r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		pipe.HSetNX(ctx, "article_"+ids, "uuid", uuid)
 		pipe.HSetNX(ctx, "article_"+ids, "agree", 0)
 		pipe.HSetNX(ctx, "article_"+ids, "collect", 0)
@@ -567,18 +795,27 @@ func (r *articleRepo) CreateArticleCache(ctx context.Context, id, auth int32, uu
 			return nil
 		}
 
-		pipe.ZAddNX(ctx, "article", &redis.Z{
-			Score:  float64(id),
-			Member: ids + "%" + uuid,
-		})
-		pipe.ZAddNX(ctx, "article_hot", &redis.Z{
-			Score:  0,
-			Member: ids + "%" + uuid,
-		})
-		pipe.ZAddNX(ctx, "leaderboard", &redis.Z{
-			Score:  0,
-			Member: ids + "%" + uuid + "%article",
-		})
+		if exists[0] == 1 {
+			pipe.ZAddNX(ctx, "article", &redis.Z{
+				Score:  float64(id),
+				Member: ids + "%" + uuid,
+			})
+		}
+
+		if exists[1] == 1 {
+			pipe.ZAddNX(ctx, "article_hot", &redis.Z{
+				Score:  0,
+				Member: ids + "%" + uuid,
+			})
+		}
+
+		if exists[2] == 1 {
+			pipe.ZAddNX(ctx, "leaderboard", &redis.Z{
+				Score:  0,
+				Member: ids + "%" + uuid + "%article",
+			})
+		}
+
 		return nil
 	})
 	if err != nil {
