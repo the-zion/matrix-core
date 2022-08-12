@@ -93,8 +93,8 @@ func (s *CreationService) EditColumn(ctx context.Context, req *v1.EditColumnReq)
 	return &emptypb.Empty{}, nil
 }
 
-func (s *CreationService) CreateColumnCacheAndSearch(ctx context.Context, req *v1.CreateColumnCacheAndSearchReq) (*emptypb.Empty, error) {
-	err := s.coc.CreateColumnCacheAndSearch(ctx, req.Id, req.Auth, req.Uuid)
+func (s *CreationService) CreateColumnDbCacheAndSearch(ctx context.Context, req *v1.CreateColumnDbCacheAndSearchReq) (*emptypb.Empty, error) {
+	err := s.coc.CreateColumnDbCacheAndSearch(ctx, req.Id, req.Auth, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
