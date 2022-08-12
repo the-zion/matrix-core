@@ -13,6 +13,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/tencentyun/cos-go-sdk-v5"
 	"github.com/the-zion/matrix-core/app/creation/service/internal/biz"
+	"golang.org/x/sync/errgroup"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"io/ioutil"
@@ -230,8 +231,24 @@ func (r *columnRepo) SendReviewToMq(ctx context.Context, review *biz.ColumnRevie
 }
 
 func (r *columnRepo) CreateColumnCache(ctx context.Context, id, auth int32, uuid string) error {
+	exists := make([]int32, 0)
+	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.Exists(ctx, "column")
+		pipe.Exists(ctx, "column_hot")
+		pipe.Exists(ctx, "leaderboard")
+		return nil
+	})
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to check if column exist from cache: id(%v),uuid(%s)", id, uuid))
+	}
+
+	for _, item := range cmd {
+		exist := item.(*redis.IntCmd).Val()
+		exists = append(exists, int32(exist))
+	}
+
 	ids := strconv.Itoa(int(id))
-	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+	_, err = r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		pipe.HSetNX(ctx, "column_"+ids, "uuid", uuid)
 		pipe.HSetNX(ctx, "column_"+ids, "agree", 0)
 		pipe.HSetNX(ctx, "column_"+ids, "collect", 0)
@@ -241,18 +258,26 @@ func (r *columnRepo) CreateColumnCache(ctx context.Context, id, auth int32, uuid
 			return nil
 		}
 
-		pipe.ZAddNX(ctx, "column", &redis.Z{
-			Score:  float64(id),
-			Member: ids + "%" + uuid,
-		})
-		pipe.ZAddNX(ctx, "column_hot", &redis.Z{
-			Score:  0,
-			Member: ids + "%" + uuid,
-		})
-		pipe.ZAddNX(ctx, "leaderboard", &redis.Z{
-			Score:  0,
-			Member: ids + "%" + uuid + "%column",
-		})
+		if exists[0] == 1 {
+			pipe.ZAddNX(ctx, "column", &redis.Z{
+				Score:  float64(id),
+				Member: ids + "%" + uuid,
+			})
+		}
+
+		if exists[1] == 1 {
+			pipe.ZAddNX(ctx, "column_hot", &redis.Z{
+				Score:  0,
+				Member: ids + "%" + uuid,
+			})
+		}
+
+		if exists[2] == 1 {
+			pipe.ZAddNX(ctx, "leaderboard", &redis.Z{
+				Score:  0,
+				Member: ids + "%" + uuid + "%column",
+			})
+		}
 		return nil
 	})
 	if err != nil {
@@ -437,7 +462,7 @@ func (r *columnRepo) GetColumnListHot(ctx context.Context, page int32) ([]*biz.C
 		return column, nil
 	}
 
-	column, err = r.getColumnHotFromDB(ctx, page)
+	column, err = r.GetColumnHotFromDB(ctx, page)
 	if err != nil {
 		return nil, err
 	}
@@ -450,6 +475,54 @@ func (r *columnRepo) GetColumnListHot(ctx context.Context, page int32) ([]*biz.C
 }
 
 func (r *columnRepo) GetUserColumnList(ctx context.Context, page int32, uuid string) ([]*biz.Column, error) {
+	column, err := r.getUserColumnListFromCache(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	size := len(column)
+	if size != 0 {
+		return column, nil
+	}
+
+	column, err = r.getUserColumnListFromDB(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	size = len(column)
+	if size != 0 {
+		go r.setUserColumnListToCache("user_column_list_"+uuid, column)
+	}
+	return column, nil
+}
+
+func (r *columnRepo) getUserColumnListFromCache(ctx context.Context, page int32, uuid string) ([]*biz.Column, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int64(page - 1)
+	list, err := r.data.redisCli.ZRevRange(ctx, "user_column_list_"+uuid, index*10, index*10+9).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user column list visitor from cache: key(%s), page(%v)", "user_column_list_", page))
+	}
+
+	column := make([]*biz.Column, 0)
+	for _, item := range list {
+		member := strings.Split(item, "%")
+		id, err := strconv.ParseInt(member[0], 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s)", member[0]))
+		}
+		column = append(column, &biz.Column{
+			ColumnId: int32(id),
+			Uuid:     member[1],
+		})
+	}
+	return column, nil
+}
+
+func (r *columnRepo) getUserColumnListFromDB(ctx context.Context, page int32, uuid string) ([]*biz.Column, error) {
 	if page < 1 {
 		page = 1
 	}
@@ -471,6 +544,54 @@ func (r *columnRepo) GetUserColumnList(ctx context.Context, page int32, uuid str
 }
 
 func (r *columnRepo) GetUserColumnListVisitor(ctx context.Context, page int32, uuid string) ([]*biz.Column, error) {
+	column, err := r.getUserColumnListVisitorFromCache(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	size := len(column)
+	if size != 0 {
+		return column, nil
+	}
+
+	column, err = r.getUserColumnListVisitorFromDB(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	size = len(column)
+	if size != 0 {
+		go r.setUserColumnListToCache("user_column_list_visitor_"+uuid, column)
+	}
+	return column, nil
+}
+
+func (r *columnRepo) getUserColumnListVisitorFromCache(ctx context.Context, page int32, uuid string) ([]*biz.Column, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int64(page - 1)
+	list, err := r.data.redisCli.ZRevRange(ctx, "user_column_list_visitor_"+uuid, index*10, index*10+9).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user column list visitor from cache: key(%s), page(%v)", "user_column_list_visitor_", page))
+	}
+
+	column := make([]*biz.Column, 0)
+	for _, item := range list {
+		member := strings.Split(item, "%")
+		id, err := strconv.ParseInt(member[0], 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s)", member[0]))
+		}
+		column = append(column, &biz.Column{
+			ColumnId: int32(id),
+			Uuid:     member[1],
+		})
+	}
+	return column, nil
+}
+
+func (r *columnRepo) getUserColumnListVisitorFromDB(ctx context.Context, page int32, uuid string) ([]*biz.Column, error) {
 	if page < 1 {
 		page = 1
 	}
@@ -489,6 +610,24 @@ func (r *columnRepo) GetUserColumnListVisitor(ctx context.Context, page int32, u
 		})
 	}
 	return column, nil
+}
+
+func (r *columnRepo) setUserColumnListToCache(key string, column []*biz.Column) {
+	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
+		z := make([]*redis.Z, 0)
+		for _, item := range column {
+			z = append(z, &redis.Z{
+				Score:  float64(item.ColumnId),
+				Member: strconv.Itoa(int(item.ColumnId)) + "%" + item.Uuid,
+			})
+		}
+		pipe.ZAddNX(context.Background(), key, z...)
+		pipe.Expire(context.Background(), key, time.Hour*8)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to set column to cache: column(%v)", column)
+	}
 }
 
 func (r *columnRepo) GetColumnCount(ctx context.Context, uuid string) (int32, error) {
@@ -534,7 +673,7 @@ func (r *columnRepo) getColumnHotFromCache(ctx context.Context, page int32) ([]*
 	return column, nil
 }
 
-func (r *columnRepo) getColumnHotFromDB(ctx context.Context, page int32) ([]*biz.ColumnStatistic, error) {
+func (r *columnRepo) GetColumnHotFromDB(ctx context.Context, page int32) ([]*biz.ColumnStatistic, error) {
 	if page < 1 {
 		page = 1
 	}
@@ -574,17 +713,69 @@ func (r *columnRepo) setColumnHotToCache(key string, column []*biz.ColumnStatist
 }
 
 func (r *columnRepo) GetColumnListStatistic(ctx context.Context, ids []int32) ([]*biz.ColumnStatistic, error) {
+	columnListStatistic := make([]*biz.ColumnStatistic, 0)
+	exists, unExists, err := r.columnListStatisticExist(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(r.data.GroupRecover(ctx, func(ctx context.Context) error {
+		if len(exists) == 0 {
+			return nil
+		}
+		return r.getColumnListStatisticFromCache(ctx, exists, &columnListStatistic)
+	}))
+	g.Go(r.data.GroupRecover(ctx, func(ctx context.Context) error {
+		if len(unExists) == 0 {
+			return nil
+		}
+		return r.getColumnListStatisticFromDb(ctx, unExists, &columnListStatistic)
+	}))
+
+	err = g.Wait()
+	if err != nil {
+		return nil, err
+	}
+
+	return columnListStatistic, nil
+}
+
+func (r *columnRepo) columnListStatisticExist(ctx context.Context, ids []int32) ([]int32, []int32, error) {
+	exists := make([]int32, 0)
+	unExists := make([]int32, 0)
 	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		for _, id := range ids {
+		for _, item := range ids {
+			pipe.Exists(ctx, "column_"+strconv.Itoa(int(item)))
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, nil, errors.Wrapf(err, fmt.Sprintf("fail to check if column statistic exist from cache: ids(%v)", ids))
+	}
+
+	for index, item := range cmd {
+		exist := item.(*redis.IntCmd).Val()
+		if exist == 1 {
+			exists = append(exists, ids[index])
+		} else {
+			unExists = append(unExists, ids[index])
+		}
+	}
+	return exists, unExists, nil
+}
+
+func (r *columnRepo) getColumnListStatisticFromCache(ctx context.Context, exists []int32, columnListStatistic *[]*biz.ColumnStatistic) error {
+	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		for _, id := range exists {
 			pipe.HMGet(ctx, "column_"+strconv.Itoa(int(id)), "agree", "collect", "view")
 		}
 		return nil
 	})
 	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get column list statistic from cache: ids(%v)", ids))
+		return errors.Wrapf(err, fmt.Sprintf("fail to get column list statistic from cache: ids(%v)", exists))
 	}
 
-	statistic := make([]*biz.ColumnStatistic, 0)
 	for index, item := range cmd {
 		val := []int32{0, 0, 0}
 		for _index, count := range item.(*redis.SliceCmd).Val() {
@@ -593,18 +784,60 @@ func (r *columnRepo) GetColumnListStatistic(ctx context.Context, ids []int32) ([
 			}
 			num, err := strconv.ParseInt(count.(string), 10, 32)
 			if err != nil {
-				return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: count(%v)", count))
+				return errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: count(%v)", count))
 			}
 			val[_index] = int32(num)
 		}
-		statistic = append(statistic, &biz.ColumnStatistic{
-			ColumnId: ids[index],
+		*columnListStatistic = append(*columnListStatistic, &biz.ColumnStatistic{
+			ColumnId: exists[index],
 			Agree:    val[0],
 			Collect:  val[1],
 			View:     val[2],
 		})
 	}
-	return statistic, nil
+	return nil
+}
+
+func (r *columnRepo) getColumnListStatisticFromDb(ctx context.Context, unExists []int32, columnListStatistic *[]*biz.ColumnStatistic) error {
+	list := make([]*ColumnStatistic, 0)
+	err := r.data.db.WithContext(ctx).Where("column_id IN ?", unExists).Find(&list).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to get column statistic list from db: ids(%v)", unExists))
+	}
+
+	for _, item := range list {
+		*columnListStatistic = append(*columnListStatistic, &biz.ColumnStatistic{
+			ColumnId: item.ColumnId,
+			Uuid:     item.Uuid,
+			Agree:    item.Agree,
+			Collect:  item.Collect,
+			View:     item.View,
+		})
+	}
+
+	if len(list) != 0 {
+		go r.setColumnListStatisticToCache(list)
+	}
+
+	return nil
+}
+
+func (r *columnRepo) setColumnListStatisticToCache(commentList []*ColumnStatistic) {
+	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
+		for _, item := range commentList {
+			key := "column_" + strconv.Itoa(int(item.ColumnId))
+			pipe.HSetNX(context.Background(), key, "uuid", item.Uuid)
+			pipe.HSetNX(context.Background(), key, "agree", item.Agree)
+			pipe.HSetNX(context.Background(), key, "collect", item.Collect)
+			pipe.HSetNX(context.Background(), key, "view", item.View)
+			pipe.Expire(context.Background(), key, time.Hour*8)
+		}
+		return nil
+	})
+
+	if err != nil {
+		r.log.Errorf("fail to set column statistic to cache, err(%s)", err.Error())
+	}
 }
 
 func (r *columnRepo) GetColumnStatistic(ctx context.Context, id int32) (*biz.ColumnStatistic, error) {
