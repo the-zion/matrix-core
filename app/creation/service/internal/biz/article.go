@@ -15,6 +15,7 @@ type ArticleRepo interface {
 	GetArticleAgreeJudge(ctx context.Context, id int32, uuid string) (bool, error)
 	GetArticleCollectJudge(ctx context.Context, id int32, uuid string) (bool, error)
 	GetArticleListHot(ctx context.Context, page int32) ([]*ArticleStatistic, error)
+	GetArticleHotFromDB(ctx context.Context, page int32) ([]*ArticleStatistic, error)
 	GetColumnArticleList(ctx context.Context, id int32) ([]*Article, error)
 	GetArticleCount(ctx context.Context, uuid string) (int32, error)
 	GetArticleCountVisitor(ctx context.Context, uuid string) (int32, error)
@@ -71,14 +72,16 @@ type ArticleUseCase struct {
 	repo         ArticleRepo
 	creationRepo CreationRepo
 	tm           Transaction
+	re           Recovery
 	log          *log.Helper
 }
 
-func NewArticleUseCase(repo ArticleRepo, creationRepo CreationRepo, tm Transaction, logger log.Logger) *ArticleUseCase {
+func NewArticleUseCase(repo ArticleRepo, re Recovery, creationRepo CreationRepo, tm Transaction, logger log.Logger) *ArticleUseCase {
 	return &ArticleUseCase{
 		repo:         repo,
 		creationRepo: creationRepo,
 		tm:           tm,
+		re:           re,
 		log:          log.NewHelper(log.With(logger, "module", "creation/biz/articleUseCase")),
 	}
 }
@@ -103,34 +106,15 @@ func (r *ArticleUseCase) GetArticleSearch(ctx context.Context, page int32, searc
 }
 
 func (r *ArticleUseCase) CreateArticle(ctx context.Context, id, auth int32, uuid string) error {
-	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
-		var err error
-		err = r.repo.DeleteArticleDraft(ctx, id, uuid)
-		if err != nil {
-			return v1.ErrorCreateArticleFailed("delete article draft failed: %s", err.Error())
-		}
-
-		err = r.repo.CreateArticle(ctx, id, auth, uuid)
-		if err != nil {
-			return v1.ErrorCreateArticleFailed("create article failed: %s", err.Error())
-		}
-
-		err = r.repo.CreateArticleStatistic(ctx, id, auth, uuid)
-		if err != nil {
-			return v1.ErrorCreateArticleFailed("create article statistic failed: %s", err.Error())
-		}
-
-		err = r.repo.SendArticleToMq(ctx, &Article{
-			ArticleId: id,
-			Uuid:      uuid,
-			Auth:      auth,
-		}, "create_article_cache_and_search")
-		if err != nil {
-			return v1.ErrorCreateArticleFailed("create article to mq failed: %s", err.Error())
-		}
-
-		return nil
-	})
+	err := r.repo.SendArticleToMq(ctx, &Article{
+		ArticleId: id,
+		Uuid:      uuid,
+		Auth:      auth,
+	}, "create_article_db_cache_and_search")
+	if err != nil {
+		return v1.ErrorCreateArticleFailed("create article to mq failed: %s", err.Error())
+	}
+	return nil
 }
 
 func (r *ArticleUseCase) EditArticle(ctx context.Context, id, auth int32, uuid string) error {
@@ -169,21 +153,39 @@ func (r *ArticleUseCase) DeleteArticle(ctx context.Context, id int32, uuid strin
 	})
 }
 
-func (r *ArticleUseCase) CreateArticleCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error {
-	err := r.repo.CreateArticleCache(ctx, id, auth, uuid)
-	if err != nil {
-		return v1.ErrorCreateArticleFailed("create article cache failed: %s", err.Error())
-	}
+func (r *ArticleUseCase) CreateArticleDbCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		var err error
+		err = r.repo.DeleteArticleDraft(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorCreateArticleFailed("delete article draft failed: %s", err.Error())
+		}
 
-	if auth == 2 {
+		err = r.repo.CreateArticle(ctx, id, auth, uuid)
+		if err != nil {
+			return v1.ErrorCreateArticleFailed("create article failed: %s", err.Error())
+		}
+
+		err = r.repo.CreateArticleStatistic(ctx, id, auth, uuid)
+		if err != nil {
+			return v1.ErrorCreateArticleFailed("create article statistic failed: %s", err.Error())
+		}
+
+		err = r.repo.CreateArticleCache(ctx, id, auth, uuid)
+		if err != nil {
+			return v1.ErrorCreateArticleFailed("create article cache failed: %s", err.Error())
+		}
+
+		if auth == 2 {
+			return nil
+		}
+
+		err = r.repo.CreateArticleSearch(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorCreateArticleFailed("create article search failed: %s", err.Error())
+		}
 		return nil
-	}
-
-	err = r.repo.CreateArticleSearch(ctx, id, uuid)
-	if err != nil {
-		return v1.ErrorCreateArticleFailed("create article search failed: %s", err.Error())
-	}
-	return nil
+	})
 }
 
 func (r *ArticleUseCase) EditArticleCosAndSearch(ctx context.Context, id, auth int32, uuid string) error {
@@ -195,6 +197,10 @@ func (r *ArticleUseCase) EditArticleCosAndSearch(ctx context.Context, id, auth i
 	err = r.repo.EditArticleCos(ctx, id, uuid)
 	if err != nil {
 		return v1.ErrorEditArticleFailed("edit article cache failed: %s", err.Error())
+	}
+
+	if auth == 2 {
+		return nil
 	}
 
 	err = r.repo.EditArticleSearch(ctx, id, uuid)
