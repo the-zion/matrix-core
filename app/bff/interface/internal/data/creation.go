@@ -251,6 +251,28 @@ func (r *creationRepo) GetCollection(ctx context.Context, id int32, uuid string)
 	return result.(*biz.Collections), nil
 }
 
+func (r *creationRepo) GetCollectionListInfo(ctx context.Context, collectionsList []*biz.Collections) ([]*biz.Collections, error) {
+	ids := make([]int32, 0)
+	for _, item := range collectionsList {
+		ids = append(ids, item.Id)
+	}
+	reply := make([]*biz.Collections, 0)
+	collectionsListInfo, err := r.data.cc.GetCollectionListInfo(ctx, &creationV1.GetCollectionListInfoReq{
+		Ids: ids,
+	})
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range collectionsListInfo.Collections {
+		reply = append(reply, &biz.Collections{
+			Id:        item.Id,
+			Name:      item.Name,
+			Introduce: item.Introduce,
+		})
+	}
+	return reply, nil
+}
+
 func (r *creationRepo) GetCollections(ctx context.Context, uuid string, page int32) ([]*biz.Collections, error) {
 	collections := make([]*biz.Collections, 0)
 	reply, err := r.data.cc.GetCollections(ctx, &creationV1.GetCollectionsReq{
@@ -531,7 +553,11 @@ func (r *articleRepo) GetArticleStatistic(ctx context.Context, id int32) (*biz.A
 	return result.(*biz.ArticleStatistic), nil
 }
 
-func (r *articleRepo) GetArticleListStatistic(ctx context.Context, ids []int32) ([]*biz.ArticleStatistic, error) {
+func (r *articleRepo) GetArticleListStatistic(ctx context.Context, articleList []*biz.Article) ([]*biz.ArticleStatistic, error) {
+	ids := make([]int32, 0)
+	for _, item := range articleList {
+		ids = append(ids, item.Id)
+	}
 	reply := make([]*biz.ArticleStatistic, 0)
 	statisticList, err := r.data.cc.GetArticleListStatistic(ctx, &creationV1.GetArticleListStatisticReq{
 		Ids: ids,
@@ -835,7 +861,11 @@ func (r *talkRepo) GetTalkCountVisitor(ctx context.Context, uuid string) (int32,
 	return result.(int32), nil
 }
 
-func (r *talkRepo) GetTalkListStatistic(ctx context.Context, ids []int32) ([]*biz.TalkStatistic, error) {
+func (r *talkRepo) GetTalkListStatistic(ctx context.Context, talkList []*biz.Talk) ([]*biz.TalkStatistic, error) {
+	ids := make([]int32, 0)
+	for _, item := range talkList {
+		ids = append(ids, item.Id)
+	}
 	reply := make([]*biz.TalkStatistic, 0)
 	statisticList, err := r.data.cc.GetTalkListStatistic(ctx, &creationV1.GetTalkListStatisticReq{
 		Ids: ids,
@@ -1204,7 +1234,11 @@ func (r *columnRepo) GetColumnCountVisitor(ctx context.Context, uuid string) (in
 	return result.(int32), nil
 }
 
-func (r *columnRepo) GetColumnListStatistic(ctx context.Context, ids []int32) ([]*biz.ColumnStatistic, error) {
+func (r *columnRepo) GetColumnListStatistic(ctx context.Context, columnList []*biz.Column) ([]*biz.ColumnStatistic, error) {
+	ids := make([]int32, 0)
+	for _, item := range columnList {
+		ids = append(ids, item.Id)
+	}
 	reply := make([]*biz.ColumnStatistic, 0)
 	statisticList, err := r.data.cc.GetColumnListStatistic(ctx, &creationV1.GetColumnListStatisticReq{
 		Ids: ids,
