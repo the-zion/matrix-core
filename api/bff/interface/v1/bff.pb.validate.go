@@ -19828,6 +19828,14 @@ func (m *GetArticleListReply_Article) validate(all bool) error {
 
 	// no validation rules for Id
 
+	// no validation rules for Agree
+
+	// no validation rules for Collect
+
+	// no validation rules for Comment
+
+	// no validation rules for View
+
 	// no validation rules for Uuid
 
 	if len(errors) > 0 {
@@ -19934,6 +19942,14 @@ func (m *GetArticleListHotReply_Article) validate(all bool) error {
 	var errors []error
 
 	// no validation rules for Id
+
+	// no validation rules for Agree
+
+	// no validation rules for Collect
+
+	// no validation rules for Comment
+
+	// no validation rules for View
 
 	// no validation rules for Uuid
 
@@ -20487,6 +20503,14 @@ func (m *GetTalkListReply_Talk) validate(all bool) error {
 
 	// no validation rules for Id
 
+	// no validation rules for Agree
+
+	// no validation rules for View
+
+	// no validation rules for Collect
+
+	// no validation rules for Comment
+
 	// no validation rules for Uuid
 
 	if len(errors) > 0 {
@@ -20592,6 +20616,14 @@ func (m *GetTalkListHotReply_Talk) validate(all bool) error {
 	var errors []error
 
 	// no validation rules for Id
+
+	// no validation rules for Agree
+
+	// no validation rules for View
+
+	// no validation rules for Collect
+
+	// no validation rules for Comment
 
 	// no validation rules for Uuid
 
@@ -21142,6 +21174,12 @@ func (m *GetColumnListReply_Column) validate(all bool) error {
 
 	// no validation rules for Id
 
+	// no validation rules for Agree
+
+	// no validation rules for Collect
+
+	// no validation rules for View
+
 	// no validation rules for Uuid
 
 	if len(errors) > 0 {
@@ -21247,6 +21285,12 @@ func (m *GetColumnListHotReply_Column) validate(all bool) error {
 	var errors []error
 
 	// no validation rules for Id
+
+	// no validation rules for Agree
+
+	// no validation rules for Collect
+
+	// no validation rules for View
 
 	// no validation rules for Uuid
 
