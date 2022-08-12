@@ -31,6 +31,7 @@ type CreationClient interface {
 	GetCollectColumn(ctx context.Context, in *GetCollectColumnReq, opts ...grpc.CallOption) (*GetColumnListReply, error)
 	GetCollectColumnCount(ctx context.Context, in *GetCollectColumnCountReq, opts ...grpc.CallOption) (*GetCollectColumnCountReply, error)
 	GetCollection(ctx context.Context, in *GetCollectionReq, opts ...grpc.CallOption) (*GetCollectionReply, error)
+	GetCollectionListInfo(ctx context.Context, in *GetCollectionListInfoReq, opts ...grpc.CallOption) (*GetCollectionsReply, error)
 	GetCollections(ctx context.Context, in *GetCollectionsReq, opts ...grpc.CallOption) (*GetCollectionsReply, error)
 	GetCollectionsCount(ctx context.Context, in *GetCollectionsCountReq, opts ...grpc.CallOption) (*GetCollectionsCountReply, error)
 	GetCollectionsByVisitor(ctx context.Context, in *GetCollectionsReq, opts ...grpc.CallOption) (*GetCollectionsReply, error)
@@ -203,6 +204,15 @@ func (c *creationClient) GetCollectColumnCount(ctx context.Context, in *GetColle
 func (c *creationClient) GetCollection(ctx context.Context, in *GetCollectionReq, opts ...grpc.CallOption) (*GetCollectionReply, error) {
 	out := new(GetCollectionReply)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetCollection", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) GetCollectionListInfo(ctx context.Context, in *GetCollectionListInfoReq, opts ...grpc.CallOption) (*GetCollectionsReply, error) {
+	out := new(GetCollectionsReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetCollectionListInfo", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1085,6 +1095,7 @@ type CreationServer interface {
 	GetCollectColumn(context.Context, *GetCollectColumnReq) (*GetColumnListReply, error)
 	GetCollectColumnCount(context.Context, *GetCollectColumnCountReq) (*GetCollectColumnCountReply, error)
 	GetCollection(context.Context, *GetCollectionReq) (*GetCollectionReply, error)
+	GetCollectionListInfo(context.Context, *GetCollectionListInfoReq) (*GetCollectionsReply, error)
 	GetCollections(context.Context, *GetCollectionsReq) (*GetCollectionsReply, error)
 	GetCollectionsCount(context.Context, *GetCollectionsCountReq) (*GetCollectionsCountReply, error)
 	GetCollectionsByVisitor(context.Context, *GetCollectionsReq) (*GetCollectionsReply, error)
@@ -1211,6 +1222,9 @@ func (UnimplementedCreationServer) GetCollectColumnCount(context.Context, *GetCo
 }
 func (UnimplementedCreationServer) GetCollection(context.Context, *GetCollectionReq) (*GetCollectionReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCollection not implemented")
+}
+func (UnimplementedCreationServer) GetCollectionListInfo(context.Context, *GetCollectionListInfoReq) (*GetCollectionsReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCollectionListInfo not implemented")
 }
 func (UnimplementedCreationServer) GetCollections(context.Context, *GetCollectionsReq) (*GetCollectionsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCollections not implemented")
@@ -1653,6 +1667,24 @@ func _Creation_GetCollection_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CreationServer).GetCollection(ctx, req.(*GetCollectionReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_GetCollectionListInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCollectionListInfoReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetCollectionListInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetCollectionListInfo",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetCollectionListInfo(ctx, req.(*GetCollectionListInfoReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -3423,6 +3455,10 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetCollection",
 			Handler:    _Creation_GetCollection_Handler,
+		},
+		{
+			MethodName: "GetCollectionListInfo",
+			Handler:    _Creation_GetCollectionListInfo_Handler,
 		},
 		{
 			MethodName: "GetCollections",
