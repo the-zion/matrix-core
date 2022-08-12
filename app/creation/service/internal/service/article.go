@@ -189,8 +189,8 @@ func (s *CreationService) DeleteArticle(ctx context.Context, req *v1.DeleteArtic
 	return &emptypb.Empty{}, nil
 }
 
-func (s *CreationService) CreateArticleCacheAndSearch(ctx context.Context, req *v1.CreateArticleCacheAndSearchReq) (*emptypb.Empty, error) {
-	err := s.ac.CreateArticleCacheAndSearch(ctx, req.Id, req.Auth, req.Uuid)
+func (s *CreationService) CreateArticleDbCacheAndSearch(ctx context.Context, req *v1.CreateArticleDbCacheAndSearchReq) (*emptypb.Empty, error) {
+	err := s.ac.CreateArticleDbCacheAndSearch(ctx, req.Id, req.Auth, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
