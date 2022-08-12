@@ -4,10 +4,13 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-redis/redis/v8"
 	"github.com/pkg/errors"
 	"github.com/the-zion/matrix-core/app/creation/service/internal/biz"
+	"golang.org/x/sync/errgroup"
 	"strconv"
 	"strings"
+	"time"
 )
 
 var _ biz.CreationRepo = (*creationRepo)(nil)
@@ -157,6 +160,128 @@ func (r *creationRepo) GetCollection(ctx context.Context, id int32, uuid string)
 	}, nil
 }
 
+func (r *creationRepo) GetCollectionListInfo(ctx context.Context, ids []int32) ([]*biz.Collections, error) {
+	collectionsListInfo := make([]*biz.Collections, 0)
+	exists, unExists, err := r.collectionsListInfoExist(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(r.data.GroupRecover(ctx, func(ctx context.Context) error {
+		if len(exists) == 0 {
+			return nil
+		}
+		return r.getCollectionsListInfoFromCache(ctx, exists, &collectionsListInfo)
+	}))
+	g.Go(r.data.GroupRecover(ctx, func(ctx context.Context) error {
+		if len(unExists) == 0 {
+			return nil
+		}
+		return r.getCollectionsListInfoFromDb(ctx, unExists, &collectionsListInfo)
+	}))
+
+	err = g.Wait()
+	if err != nil {
+		return nil, err
+	}
+
+	return collectionsListInfo, nil
+}
+
+func (r *creationRepo) collectionsListInfoExist(ctx context.Context, ids []int32) ([]int32, []int32, error) {
+	exists := make([]int32, 0)
+	unExists := make([]int32, 0)
+	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		for _, item := range ids {
+			pipe.Exists(ctx, "collection_"+strconv.Itoa(int(item)))
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, nil, errors.Wrapf(err, fmt.Sprintf("fail to check if collection exist from cache: ids(%v)", ids))
+	}
+
+	for index, item := range cmd {
+		exist := item.(*redis.IntCmd).Val()
+		if exist == 1 {
+			exists = append(exists, ids[index])
+		} else {
+			unExists = append(unExists, ids[index])
+		}
+	}
+	return exists, unExists, nil
+}
+
+func (r *creationRepo) getCollectionsListInfoFromCache(ctx context.Context, exists []int32, collectionsListInfo *[]*biz.Collections) error {
+	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		for _, id := range exists {
+			pipe.HMGet(ctx, "collection_"+strconv.Itoa(int(id)), "name", "introduce")
+		}
+		return nil
+	})
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to get collections list info from cache: ids(%v)", exists))
+	}
+
+	for index, item := range cmd {
+		val := []string{"", ""}
+		for _index, info := range item.(*redis.SliceCmd).Val() {
+			if info == nil {
+				break
+			}
+			val[_index] = info.(string)
+		}
+		*collectionsListInfo = append(*collectionsListInfo, &biz.Collections{
+			Id:        exists[index],
+			Name:      val[0],
+			Introduce: val[1],
+		})
+	}
+	return nil
+}
+
+func (r *creationRepo) getCollectionsListInfoFromDb(ctx context.Context, unExists []int32, collectionsListInfo *[]*biz.Collections) error {
+	list := make([]*Collections, 0)
+	err := r.data.db.WithContext(ctx).Where("id IN ?", unExists).Find(&list).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to get collections list info from db: ids(%v)", unExists))
+	}
+
+	for _, item := range list {
+		*collectionsListInfo = append(*collectionsListInfo, &biz.Collections{
+			Id:        int32(item.ID),
+			Uuid:      item.Uuid,
+			Auth:      item.Auth,
+			Name:      item.Name,
+			Introduce: item.Introduce,
+		})
+	}
+
+	if len(list) != 0 {
+		go r.setCollectionsListInfoToCache(list)
+	}
+	return nil
+}
+
+func (r *creationRepo) setCollectionsListInfoToCache(collectionsList []*Collections) {
+	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
+		for _, item := range collectionsList {
+			key := "collection_" + strconv.Itoa(int(item.ID))
+			pipe.HSetNX(context.Background(), key, "uuid", item.Uuid)
+			pipe.HSetNX(context.Background(), key, "auth", item.Auth)
+			pipe.HSetNX(context.Background(), key, "name", item.Name)
+			pipe.HSetNX(context.Background(), key, "introduce", item.Introduce)
+			pipe.Expire(context.Background(), key, time.Hour*8)
+		}
+		return nil
+	})
+
+	if err != nil {
+		r.log.Errorf("fail to set collections info to cache, err(%s)", err.Error())
+	}
+}
+
 func (r *creationRepo) GetCollectCount(ctx context.Context, id int32) (int64, error) {
 	var count int64
 	err := r.data.db.WithContext(ctx).Model(&Collect{}).Where("collections_id = ? and status = ?", id, 1).Limit(1).Count(&count).Error
@@ -189,6 +314,52 @@ func (r *creationRepo) GetCollections(ctx context.Context, uuid string, page int
 }
 
 func (r *creationRepo) GetCollectionsByVisitor(ctx context.Context, uuid string, page int32) ([]*biz.Collections, error) {
+	collections, err := r.getUserCollectionsListVisitorFromCache(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	size := len(collections)
+	if size != 0 {
+		return collections, nil
+	}
+
+	collections, err = r.getUserCollectionsListVisitorFromDB(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	size = len(collections)
+	if size != 0 {
+		go r.setUserCollectionsListVisitorToCache("user_collections_list_visitor_"+uuid, collections)
+	}
+	return collections, nil
+}
+
+func (r *creationRepo) getUserCollectionsListVisitorFromCache(ctx context.Context, page int32, uuid string) ([]*biz.Collections, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int64(page - 1)
+	list, err := r.data.redisCli.ZRevRange(ctx, "user_collections_list_visitor_"+uuid, index*10, index*10+9).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user collections list visitor from cache: key(%s), page(%v)", "user_collections_list_visitor_", page))
+	}
+
+	collections := make([]*biz.Collections, 0)
+	for _, item := range list {
+		id, err := strconv.ParseInt(item, 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s)", item))
+		}
+		collections = append(collections, &biz.Collections{
+			Id: int32(id),
+		})
+	}
+	return collections, nil
+}
+
+func (r *creationRepo) getUserCollectionsListVisitorFromDB(ctx context.Context, page int32, uuid string) ([]*biz.Collections, error) {
 	if page < 1 {
 		page = 1
 	}
@@ -202,12 +373,28 @@ func (r *creationRepo) GetCollectionsByVisitor(ctx context.Context, uuid string,
 	collections := make([]*biz.Collections, 0)
 	for _, item := range list {
 		collections = append(collections, &biz.Collections{
-			Id:        int32(item.ID),
-			Name:      item.Name,
-			Introduce: item.Introduce,
+			Id: int32(item.ID),
 		})
 	}
 	return collections, nil
+}
+
+func (r *creationRepo) setUserCollectionsListVisitorToCache(key string, collections []*biz.Collections) {
+	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
+		z := make([]*redis.Z, 0)
+		for _, item := range collections {
+			z = append(z, &redis.Z{
+				Score:  float64(item.Id),
+				Member: strconv.Itoa(int(item.Id)),
+			})
+		}
+		pipe.ZAddNX(context.Background(), key, z...)
+		pipe.Expire(context.Background(), key, time.Hour*8)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to set talk to cache: collections(%v)", collections)
+	}
 }
 
 func (r *creationRepo) GetCollectionsCount(ctx context.Context, uuid string) (int32, error) {
@@ -277,4 +464,21 @@ func (r *creationRepo) SetRecord(ctx context.Context, id, mode int32, uuid, oper
 		return errors.Wrapf(err, fmt.Sprintf("fail to add an record to db: id(%v), uuid(%s), ip(%s)", id, uuid, ip))
 	}
 	return nil
+}
+
+func (r *creationRepo) SetLeaderBoardToCache(ctx context.Context, boardList []*biz.LeaderBoard) {
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		z := make([]*redis.Z, 0)
+		for _, item := range boardList {
+			z = append(z, &redis.Z{
+				Score:  float64(item.Agree),
+				Member: strconv.Itoa(int(item.Id)) + "%" + item.Uuid + "%" + item.Mode,
+			})
+		}
+		pipe.ZAddNX(context.Background(), "leaderboard", z...)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to set LeaderBoard to cache: LeaderBoard(%v)", boardList)
+	}
 }
