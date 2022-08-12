@@ -34,6 +34,7 @@ type ColumnRepo interface {
 	GetLastColumnDraft(ctx context.Context, uuid string) (*ColumnDraft, error)
 	GetColumnList(ctx context.Context, page int32) ([]*Column, error)
 	GetColumnListHot(ctx context.Context, page int32) ([]*ColumnStatistic, error)
+	GetColumnHotFromDB(ctx context.Context, page int32) ([]*ColumnStatistic, error)
 	GetUserColumnList(ctx context.Context, page int32, uuid string) ([]*Column, error)
 	GetUserColumnListVisitor(ctx context.Context, page int32, uuid string) ([]*Column, error)
 	GetColumnCount(ctx context.Context, uuid string) (int32, error)
@@ -77,14 +78,16 @@ type ColumnUseCase struct {
 	repo         ColumnRepo
 	creationRepo CreationRepo
 	tm           Transaction
+	re           Recovery
 	log          *log.Helper
 }
 
-func NewColumnUseCase(repo ColumnRepo, creationRepo CreationRepo, tm Transaction, logger log.Logger) *ColumnUseCase {
+func NewColumnUseCase(repo ColumnRepo, re Recovery, creationRepo CreationRepo, tm Transaction, logger log.Logger) *ColumnUseCase {
 	return &ColumnUseCase{
 		repo:         repo,
 		creationRepo: creationRepo,
 		tm:           tm,
+		re:           re,
 		log:          log.NewHelper(log.With(logger, "module", "creation/biz/columnUseCase")),
 	}
 }
@@ -217,33 +220,15 @@ func (r *ColumnUseCase) SendColumnEdit(ctx context.Context, id int32, uuid, ip s
 }
 
 func (r *ColumnUseCase) CreateColumn(ctx context.Context, id, auth int32, uuid string) error {
-	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
-		var err error
-		err = r.repo.DeleteColumnDraft(ctx, id, uuid)
-		if err != nil {
-			return v1.ErrorCreateColumnFailed("delete column draft failed: %s", err.Error())
-		}
-
-		err = r.repo.CreateColumn(ctx, id, auth, uuid)
-		if err != nil {
-			return v1.ErrorCreateColumnFailed("create column failed: %s", err.Error())
-		}
-
-		err = r.repo.CreateColumnStatistic(ctx, id, auth, uuid)
-		if err != nil {
-			return v1.ErrorCreateColumnFailed("create column statistic failed: %s", err.Error())
-		}
-
-		err = r.repo.SendColumnToMq(ctx, &Column{
-			ColumnId: id,
-			Uuid:     uuid,
-			Auth:     auth,
-		}, "create_column_cache_and_search")
-		if err != nil {
-			return v1.ErrorCreateColumnFailed("create column to mq failed: %s", err.Error())
-		}
-		return nil
-	})
+	err := r.repo.SendColumnToMq(ctx, &Column{
+		ColumnId: id,
+		Uuid:     uuid,
+		Auth:     auth,
+	}, "create_column_db_cache_and_search")
+	if err != nil {
+		return v1.ErrorCreateColumnFailed("create column to mq failed: %s", err.Error())
+	}
+	return nil
 }
 
 func (r *ColumnUseCase) EditColumn(ctx context.Context, id, auth int32, uuid string) error {
@@ -282,21 +267,39 @@ func (r *ColumnUseCase) DeleteColumn(ctx context.Context, id int32, uuid string)
 	})
 }
 
-func (r *ColumnUseCase) CreateColumnCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error {
-	err := r.repo.CreateColumnCache(ctx, id, auth, uuid)
-	if err != nil {
-		return v1.ErrorCreateColumnFailed("create column cache failed: %s", err.Error())
-	}
+func (r *ColumnUseCase) CreateColumnDbCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		var err error
+		err = r.repo.DeleteColumnDraft(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorCreateColumnFailed("delete column draft failed: %s", err.Error())
+		}
 
-	if auth == 2 {
+		err = r.repo.CreateColumn(ctx, id, auth, uuid)
+		if err != nil {
+			return v1.ErrorCreateColumnFailed("create column failed: %s", err.Error())
+		}
+
+		err = r.repo.CreateColumnStatistic(ctx, id, auth, uuid)
+		if err != nil {
+			return v1.ErrorCreateColumnFailed("create column statistic failed: %s", err.Error())
+		}
+
+		err = r.repo.CreateColumnCache(ctx, id, auth, uuid)
+		if err != nil {
+			return v1.ErrorCreateColumnFailed("create column cache failed: %s", err.Error())
+		}
+
+		if auth == 2 {
+			return nil
+		}
+
+		err = r.repo.CreateColumnSearch(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorCreateColumnFailed("create column search failed: %s", err.Error())
+		}
 		return nil
-	}
-
-	err = r.repo.CreateColumnSearch(ctx, id, uuid)
-	if err != nil {
-		return v1.ErrorCreateColumnFailed("create column search failed: %s", err.Error())
-	}
-	return nil
+	})
 }
 
 func (r *ColumnUseCase) EditColumnCosAndSearch(ctx context.Context, id, auth int32, uuid string) error {
@@ -308,6 +311,10 @@ func (r *ColumnUseCase) EditColumnCosAndSearch(ctx context.Context, id, auth int
 	err = r.repo.EditColumnCos(ctx, id, uuid)
 	if err != nil {
 		return v1.ErrorEditColumnFailed("edit column cache failed: %s", err.Error())
+	}
+
+	if auth == 2 {
+		return nil
 	}
 
 	err = r.repo.EditColumnSearch(ctx, id, uuid)
