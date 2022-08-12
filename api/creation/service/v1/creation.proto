@@ -26,6 +26,8 @@ service Creation {
 
   rpc GetCollection(GetCollectionReq) returns (GetCollectionReply){}
 
+  rpc GetCollectionListInfo(GetCollectionListInfoReq) returns (GetCollectionsReply){}
+
   rpc GetCollections(GetCollectionsReq) returns (GetCollectionsReply){}
 
   rpc GetCollectionsCount(GetCollectionsCountReq) returns (GetCollectionsCountReply){}
@@ -276,6 +278,10 @@ message GetCollectionReply{
   string name = 2;
   string introduce = 3;
   int32 auth = 4;
+}
+
+message GetCollectionListInfoReq{
+  repeated int32 ids = 1;
 }
 
 message GetCollectionsReq{
