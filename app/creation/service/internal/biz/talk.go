@@ -11,6 +11,7 @@ type TalkRepo interface {
 	GetTalk(ctx context.Context, id int32) (*Talk, error)
 	GetTalkList(ctx context.Context, page int32) ([]*Talk, error)
 	GetTalkListHot(ctx context.Context, page int32) ([]*TalkStatistic, error)
+	GetTalkHotFromDB(ctx context.Context, page int32) ([]*TalkStatistic, error)
 	GetUserTalkList(ctx context.Context, page int32, uuid string) ([]*Talk, error)
 	GetUserTalkListVisitor(ctx context.Context, page int32, uuid string) ([]*Talk, error)
 	GetTalkCount(ctx context.Context, uuid string) (int32, error)
@@ -68,14 +69,16 @@ type TalkUseCase struct {
 	repo         TalkRepo
 	creationRepo CreationRepo
 	tm           Transaction
+	re           Recovery
 	log          *log.Helper
 }
 
-func NewTalkUseCase(repo TalkRepo, creationRepo CreationRepo, tm Transaction, logger log.Logger) *TalkUseCase {
+func NewTalkUseCase(repo TalkRepo, re Recovery, creationRepo CreationRepo, tm Transaction, logger log.Logger) *TalkUseCase {
 	return &TalkUseCase{
 		repo:         repo,
 		creationRepo: creationRepo,
 		tm:           tm,
+		re:           re,
 		log:          log.NewHelper(log.With(logger, "module", "creation/biz/talkUseCase")),
 	}
 }
@@ -235,34 +238,15 @@ func (r *TalkUseCase) SendTalkEdit(ctx context.Context, id int32, uuid, ip strin
 }
 
 func (r *TalkUseCase) CreateTalk(ctx context.Context, id, auth int32, uuid string) error {
-	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
-		var err error
-		err = r.repo.DeleteTalkDraft(ctx, id, uuid)
-		if err != nil {
-			return v1.ErrorCreateTalkFailed("delete talk draft failed: %s", err.Error())
-		}
-
-		err = r.repo.CreateTalk(ctx, id, auth, uuid)
-		if err != nil {
-			return v1.ErrorCreateTalkFailed("create talk failed: %s", err.Error())
-		}
-
-		err = r.repo.CreateTalkStatistic(ctx, id, auth, uuid)
-		if err != nil {
-			return v1.ErrorCreateTalkFailed("create talk statistic failed: %s", err.Error())
-		}
-
-		err = r.repo.SendTalkToMq(ctx, &Talk{
-			TalkId: id,
-			Uuid:   uuid,
-			Auth:   auth,
-		}, "create_talk_cache_and_search")
-		if err != nil {
-			return v1.ErrorCreateTalkFailed("create talk to mq failed: %s", err.Error())
-		}
-
-		return nil
-	})
+	err := r.repo.SendTalkToMq(ctx, &Talk{
+		TalkId: id,
+		Uuid:   uuid,
+		Auth:   auth,
+	}, "create_talk_db_cache_and_search")
+	if err != nil {
+		return v1.ErrorCreateTalkFailed("create talk to mq failed: %s", err.Error())
+	}
+	return nil
 }
 
 func (r *TalkUseCase) EditTalk(ctx context.Context, id, auth int32, uuid string) error {
@@ -301,21 +285,39 @@ func (r *TalkUseCase) DeleteTalk(ctx context.Context, id int32, uuid string) err
 	})
 }
 
-func (r *TalkUseCase) CreateTalkCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error {
-	err := r.repo.CreateTalkCache(ctx, id, auth, uuid)
-	if err != nil {
-		return v1.ErrorCreateTalkFailed("create talk cache failed: %s", err.Error())
-	}
+func (r *TalkUseCase) CreateTalkDbCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		var err error
+		err = r.repo.DeleteTalkDraft(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorCreateTalkFailed("delete talk draft failed: %s", err.Error())
+		}
 
-	if auth == 2 {
+		err = r.repo.CreateTalk(ctx, id, auth, uuid)
+		if err != nil {
+			return v1.ErrorCreateTalkFailed("create talk failed: %s", err.Error())
+		}
+
+		err = r.repo.CreateTalkStatistic(ctx, id, auth, uuid)
+		if err != nil {
+			return v1.ErrorCreateTalkFailed("create talk statistic failed: %s", err.Error())
+		}
+
+		err = r.repo.CreateTalkCache(ctx, id, auth, uuid)
+		if err != nil {
+			return v1.ErrorCreateTalkFailed("create talk cache failed: %s", err.Error())
+		}
+
+		if auth == 2 {
+			return nil
+		}
+
+		err = r.repo.CreateTalkSearch(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorCreateTalkFailed("create talk search failed: %s", err.Error())
+		}
 		return nil
-	}
-
-	err = r.repo.CreateTalkSearch(ctx, id, uuid)
-	if err != nil {
-		return v1.ErrorCreateTalkFailed("create talk search failed: %s", err.Error())
-	}
-	return nil
+	})
 }
 
 func (r *TalkUseCase) EditTalkCosAndSearch(ctx context.Context, id, auth int32, uuid string) error {
@@ -327,6 +329,10 @@ func (r *TalkUseCase) EditTalkCosAndSearch(ctx context.Context, id, auth int32, 
 	err = r.repo.EditTalkCos(ctx, id, uuid)
 	if err != nil {
 		return v1.ErrorEditTalkFailed("edit talk cache failed: %s", err.Error())
+	}
+
+	if auth == 2 {
+		return nil
 	}
 
 	err = r.repo.EditTalkSearch(ctx, id, uuid)
