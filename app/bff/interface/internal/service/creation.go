@@ -520,8 +520,12 @@ func (s *BffService) GetUserTalkList(ctx context.Context, req *v1.GetUserTalkLis
 	}
 	for _, item := range talkList {
 		reply.Talk = append(reply.Talk, &v1.GetTalkListReply_Talk{
-			Id:   item.Id,
-			Uuid: item.Uuid,
+			Id:      item.Id,
+			Uuid:    item.Uuid,
+			Agree:   item.Agree,
+			Collect: item.Collect,
+			View:    item.View,
+			Comment: item.Comment,
 		})
 	}
 	return reply, nil
@@ -535,8 +539,12 @@ func (s *BffService) GetUserTalkListVisitor(ctx context.Context, req *v1.GetUser
 	}
 	for _, item := range talkList {
 		reply.Talk = append(reply.Talk, &v1.GetTalkListReply_Talk{
-			Id:   item.Id,
-			Uuid: item.Uuid,
+			Id:      item.Id,
+			Uuid:    item.Uuid,
+			Agree:   item.Agree,
+			Collect: item.Collect,
+			View:    item.View,
+			Comment: item.Comment,
 		})
 	}
 	return reply, nil
@@ -804,8 +812,11 @@ func (s *BffService) GetUserColumnList(ctx context.Context, req *v1.GetUserColum
 	}
 	for _, item := range columnList {
 		reply.Column = append(reply.Column, &v1.GetColumnListReply_Column{
-			Id:   item.Id,
-			Uuid: item.Uuid,
+			Id:      item.Id,
+			Uuid:    item.Uuid,
+			Agree:   item.Agree,
+			Collect: item.Collect,
+			View:    item.View,
 		})
 	}
 	return reply, nil
@@ -819,8 +830,11 @@ func (s *BffService) GetUserColumnListVisitor(ctx context.Context, req *v1.GetUs
 	}
 	for _, item := range columnList {
 		reply.Column = append(reply.Column, &v1.GetColumnListReply_Column{
-			Id:   item.Id,
-			Uuid: item.Uuid,
+			Id:      item.Id,
+			Uuid:    item.Uuid,
+			Agree:   item.Agree,
+			Collect: item.Collect,
+			View:    item.View,
 		})
 	}
 	return reply, nil
