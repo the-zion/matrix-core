@@ -7,9 +7,11 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/pkg/errors"
 	"github.com/the-zion/matrix-core/app/achievement/service/internal/biz"
+	"golang.org/x/sync/errgroup"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"strconv"
+	"time"
 )
 
 var _ biz.AchievementRepo = (*achievementRepo)(nil)
@@ -281,23 +283,133 @@ func (r *achievementRepo) CancelAchievementFollowFromCache(ctx context.Context, 
 }
 
 func (r *achievementRepo) GetAchievementList(ctx context.Context, uuids []string) ([]*biz.Achievement, error) {
-	list := make([]*Achievement, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid IN ?", uuids).Find(&list).Error
+	achievementList := make([]*biz.Achievement, 0)
+	exists, unExists, err := r.achievementListExist(ctx, uuids)
 	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get achievement list from db: uuids(%v)", uuids))
+		return nil, err
 	}
 
-	achievement := make([]*biz.Achievement, 0)
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(r.data.GroupRecover(ctx, func(ctx context.Context) error {
+		if len(exists) == 0 {
+			return nil
+		}
+		return r.getAchievementListFromCache(ctx, exists, &achievementList)
+	}))
+	g.Go(r.data.GroupRecover(ctx, func(ctx context.Context) error {
+		if len(unExists) == 0 {
+			return nil
+		}
+		return r.getAchievementListFromDb(ctx, unExists, &achievementList)
+	}))
+
+	err = g.Wait()
+	if err != nil {
+		return nil, err
+	}
+	return achievementList, nil
+}
+
+func (r *achievementRepo) achievementListExist(ctx context.Context, uuids []string) ([]string, []string, error) {
+	exists := make([]string, 0)
+	unExists := make([]string, 0)
+	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		for _, item := range uuids {
+			pipe.Exists(ctx, item)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, nil, errors.Wrapf(err, fmt.Sprintf("fail to check if achievement exist from cache: uuids(%v)", uuids))
+	}
+
+	for index, item := range cmd {
+		exist := item.(*redis.IntCmd).Val()
+		if exist == 1 {
+			exists = append(exists, uuids[index])
+		} else {
+			unExists = append(unExists, uuids[index])
+		}
+	}
+	return exists, unExists, nil
+}
+
+func (r *achievementRepo) getAchievementListFromCache(ctx context.Context, exists []string, achievementList *[]*biz.Achievement) error {
+	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		for _, uuid := range exists {
+			pipe.HMGet(ctx, uuid, "agree", "collect", "view", "follow", "followed")
+		}
+		return nil
+	})
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to get achievement list from cache: ids(%v)", exists))
+	}
+
+	for index, item := range cmd {
+		val := []int32{0, 0, 0, 0, 0}
+		for _index, count := range item.(*redis.SliceCmd).Val() {
+			if count == nil {
+				break
+			}
+			num, err := strconv.ParseInt(count.(string), 10, 32)
+			if err != nil {
+				return errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: count(%v)", count))
+			}
+			val[_index] = int32(num)
+		}
+		*achievementList = append(*achievementList, &biz.Achievement{
+			Uuid:     exists[index],
+			Agree:    val[0],
+			Collect:  val[1],
+			View:     val[2],
+			Follow:   val[3],
+			Followed: val[4],
+		})
+	}
+	return nil
+}
+
+func (r *achievementRepo) getAchievementListFromDb(ctx context.Context, unExists []string, achievementList *[]*biz.Achievement) error {
+	list := make([]*Achievement, 0)
+	err := r.data.db.WithContext(ctx).Where("uuid IN ?", unExists).Find(&list).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to get achievement list from db: uuids(%v)", unExists))
+	}
+
 	for _, item := range list {
-		achievement = append(achievement, &biz.Achievement{
+		*achievementList = append(*achievementList, &biz.Achievement{
 			Uuid:     item.Uuid,
 			View:     item.View,
 			Agree:    item.Agree,
+			Collect:  item.Collect,
 			Follow:   item.Follow,
 			Followed: item.Followed,
 		})
 	}
-	return achievement, nil
+
+	if len(list) != 0 {
+		go r.setAchievementListToCache(list)
+	}
+	return nil
+}
+
+func (r *achievementRepo) setAchievementListToCache(achievementList []*Achievement) {
+	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
+		for _, item := range achievementList {
+			key := item.Uuid
+			pipe.HSetNX(context.Background(), key, "agree", item.Agree)
+			pipe.HSetNX(context.Background(), key, "collect", item.Collect)
+			pipe.HSetNX(context.Background(), key, "view", item.View)
+			pipe.HSetNX(context.Background(), key, "follow", item.Follow)
+			pipe.HSetNX(context.Background(), key, "followed", item.Followed)
+			pipe.Expire(context.Background(), key, time.Hour*8)
+		}
+		return nil
+	})
+
+	if err != nil {
+		r.log.Errorf("fail to set achievement to cache, err(%s)", err.Error())
+	}
 }
 
 func (r *achievementRepo) GetUserAchievement(ctx context.Context, uuid string) (*biz.Achievement, error) {
@@ -368,8 +480,51 @@ func (r *achievementRepo) getAchievementFromDB(ctx context.Context, uuid string)
 }
 
 func (r *achievementRepo) setAchievementToCache(key string, achievement *biz.Achievement) {
-	err := r.data.redisCli.HMSet(context.Background(), key, "agree", achievement.Agree, "collect", achievement.Collect, "view", achievement.View, "follow", achievement.Follow, "followed", achievement.Followed).Err()
+	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
+		pipe.HSetNX(context.Background(), key, "agree", achievement.Agree)
+		pipe.HSetNX(context.Background(), key, "collect", achievement.Collect)
+		pipe.HSetNX(context.Background(), key, "view", achievement.View)
+		pipe.HSetNX(context.Background(), key, "follow", achievement.Follow)
+		pipe.HSetNX(context.Background(), key, "followed", achievement.Followed)
+		pipe.Expire(context.Background(), key, time.Hour*8)
+		return nil
+	})
 	if err != nil {
 		r.log.Errorf("fail to set achievement to cache, err(%s)", err.Error())
 	}
+}
+
+func (r *achievementRepo) AddAchievementScore(ctx context.Context, uuid string, score int32) error {
+	ach := &Achievement{
+		Uuid:  uuid,
+		Score: score,
+	}
+	err := r.data.DB(ctx).Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "uuid"}},
+		DoUpdates: clause.Assignments(map[string]interface{}{"score": gorm.Expr("score + ?", score)}),
+	}).Create(ach).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add achievement score: c(%v)", uuid))
+	}
+	return nil
+}
+
+func (r *achievementRepo) AddAchievementScoreToCache(ctx context.Context, uuid string, score int32) error {
+	var incrBy = redis.NewScript(`
+					local uuid = KEYS[1]
+					local value = ARGV[1]
+					local exist = redis.call("EXISTS", uuid)
+					if exist == 1 then
+						redis.call("HINCRBY", uuid, "score", value)
+					end
+					return 0
+	`)
+	keys := []string{uuid}
+	values := []interface{}{score}
+	_, err := incrBy.Run(ctx, r.data.redisCli, keys, values...).Result()
+
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add achievement score to cache: uuid(%s), score(%v)", uuid, score))
+	}
+	return nil
 }
