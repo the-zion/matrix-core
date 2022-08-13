@@ -62,6 +62,14 @@ func (s *AchievementService) CancelAchievementFollow(ctx context.Context, req *v
 	return &emptypb.Empty{}, nil
 }
 
+func (s *AchievementService) AddAchievementScore(ctx context.Context, req *v1.AddAchievementScoreReq) (*emptypb.Empty, error) {
+	err := s.ac.AddAchievementScore(ctx, req.Uuid, req.Score)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *AchievementService) GetAchievementList(ctx context.Context, req *v1.GetAchievementListReq) (*v1.GetAchievementListReply, error) {
 	reply := &v1.GetAchievementListReply{Achievement: make([]*v1.GetAchievementListReply_Achievement, 0)}
 	achievementList, err := s.ac.GetAchievementList(ctx, req.Uuids)
