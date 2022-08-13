@@ -174,7 +174,13 @@ func (s *BffService) GetFollowList(ctx context.Context, req *v1.GetFollowListReq
 	}
 	for _, item := range followList {
 		reply.Follow = append(reply.Follow, &v1.GetFollowListReply_Follow{
-			Uuid: item.Follow,
+			Uuid:      item.Follow,
+			Username:  item.Username,
+			Introduce: item.Introduce,
+			Agree:     item.Agree,
+			View:      item.View,
+			Follow:    item.FollowNum,
+			Followed:  item.FollowedNum,
 		})
 	}
 	return reply, nil
@@ -198,7 +204,13 @@ func (s *BffService) GetFollowedList(ctx context.Context, req *v1.GetFollowedLis
 	}
 	for _, item := range followedList {
 		reply.Follow = append(reply.Follow, &v1.GetFollowedListReply_Follow{
-			Uuid: item.Followed,
+			Uuid:      item.Followed,
+			Username:  item.Username,
+			Introduce: item.Introduce,
+			Agree:     item.Agree,
+			View:      item.View,
+			Follow:    item.FollowNum,
+			Followed:  item.FollowedNum,
 		})
 	}
 	return reply, nil
