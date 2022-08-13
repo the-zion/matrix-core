@@ -17,6 +17,8 @@ type ColumnRepo interface {
 	CreateColumnSearch(ctx context.Context, id int32, uuid string) error
 	AddColumnIncludes(ctx context.Context, id, articleId int32, uuid string) error
 	AddColumnIncludesToCache(ctx context.Context, id, articleId int32, uuid string) error
+	AddCreationUserColumn(ctx context.Context, uuid string, auth int32) error
+	ReduceCreationUserColumn(ctx context.Context, auth int32, uuid string) error
 
 	UpdateColumnCache(ctx context.Context, id, auth int32, uuid string) error
 	EditColumnCos(ctx context.Context, id int32, uuid string) error
@@ -25,7 +27,7 @@ type ColumnRepo interface {
 	DeleteColumnDraft(ctx context.Context, id int32, uuid string) error
 	DeleteColumnStatistic(ctx context.Context, id int32, uuid string) error
 	DeleteColumn(ctx context.Context, id int32, uuid string) error
-	DeleteColumnCache(ctx context.Context, id int32, uuid string) error
+	DeleteColumnCache(ctx context.Context, id, auth int32, uuid string) error
 	DeleteColumnSearch(ctx context.Context, id int32, uuid string) error
 	DeleteColumnIncludes(ctx context.Context, id, articleId int32, uuid string) error
 	DeleteColumnIncludesFromCache(ctx context.Context, id, articleId int32, uuid string) error
@@ -47,10 +49,12 @@ type ColumnRepo interface {
 	GetSubscribeListCount(ctx context.Context, uuid string) (int32, error)
 	GetColumnSubscribes(ctx context.Context, uuid string, ids []int32) ([]*Subscribe, error)
 	GetColumnSearch(ctx context.Context, page int32, search, time string) ([]*ColumnSearch, int32, error)
+	GetColumnAuth(ctx context.Context, id int32) (int32, error)
 
 	SendColumn(ctx context.Context, id int32, uuid string) (*ColumnDraft, error)
 	SendColumnToMq(ctx context.Context, column *Column, mode string) error
 	SendReviewToMq(ctx context.Context, review *ColumnReview) error
+	SendScoreToMq(ctx context.Context, score int32, uuid, mode string) error
 
 	FreezeColumnCos(ctx context.Context, id int32, uuid string) error
 
@@ -244,27 +248,14 @@ func (r *ColumnUseCase) EditColumn(ctx context.Context, id, auth int32, uuid str
 }
 
 func (r *ColumnUseCase) DeleteColumn(ctx context.Context, id int32, uuid string) error {
-	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
-		var err error
-		err = r.repo.DeleteColumn(ctx, id, uuid)
-		if err != nil {
-			return v1.ErrorDeleteColumnFailed("delete column failed: %s", err.Error())
-		}
-
-		err = r.repo.DeleteColumnStatistic(ctx, id, uuid)
-		if err != nil {
-			return v1.ErrorDeleteColumnFailed("delete column statistic failed: %s", err.Error())
-		}
-
-		err = r.repo.SendColumnToMq(ctx, &Column{
-			ColumnId: id,
-			Uuid:     uuid,
-		}, "delete_column_cache_and_search")
-		if err != nil {
-			return v1.ErrorDeleteColumnFailed("delete column to mq failed: %s", err.Error())
-		}
-		return nil
-	})
+	err := r.repo.SendColumnToMq(ctx, &Column{
+		ColumnId: id,
+		Uuid:     uuid,
+	}, "delete_column_cache_and_search")
+	if err != nil {
+		return v1.ErrorDeleteColumnFailed("delete column to mq failed: %s", err.Error())
+	}
+	return nil
 }
 
 func (r *ColumnUseCase) CreateColumnDbCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error {
@@ -285,6 +276,11 @@ func (r *ColumnUseCase) CreateColumnDbCacheAndSearch(ctx context.Context, id, au
 			return v1.ErrorCreateColumnFailed("create column statistic failed: %s", err.Error())
 		}
 
+		err = r.repo.AddCreationUserColumn(ctx, uuid, auth)
+		if err != nil {
+			return v1.ErrorCreateColumnFailed("add creation column failed: %s", err.Error())
+		}
+
 		err = r.repo.CreateColumnCache(ctx, id, auth, uuid)
 		if err != nil {
 			return v1.ErrorCreateColumnFailed("create column cache failed: %s", err.Error())
@@ -297,6 +293,11 @@ func (r *ColumnUseCase) CreateColumnDbCacheAndSearch(ctx context.Context, id, au
 		err = r.repo.CreateColumnSearch(ctx, id, uuid)
 		if err != nil {
 			return v1.ErrorCreateColumnFailed("create column search failed: %s", err.Error())
+		}
+
+		err = r.repo.SendScoreToMq(ctx, 50, uuid, "add_score")
+		if err != nil {
+			return v1.ErrorCreateColumnFailed("send 50 score to mq failed: %s", err.Error())
 		}
 		return nil
 	})
@@ -325,21 +326,44 @@ func (r *ColumnUseCase) EditColumnCosAndSearch(ctx context.Context, id, auth int
 }
 
 func (r *ColumnUseCase) DeleteColumnCacheAndSearch(ctx context.Context, id int32, uuid string) error {
-	err := r.repo.DeleteColumnCache(ctx, id, uuid)
-	if err != nil {
-		return v1.ErrorDeleteColumnFailed("delete column cache failed: %s", err.Error())
-	}
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		var err error
+		auth, err := r.repo.GetColumnAuth(ctx, id)
+		if err != nil {
+			return v1.ErrorDeleteTalkFailed("get talk auth failed: %s", err.Error())
+		}
 
-	err = r.repo.FreezeColumnCos(ctx, id, uuid)
-	if err != nil {
-		return v1.ErrorDeleteColumnFailed("freeze column cos failed: %s", err.Error())
-	}
+		err = r.repo.DeleteColumn(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorDeleteColumnFailed("delete column failed: %s", err.Error())
+		}
 
-	err = r.repo.DeleteColumnSearch(ctx, id, uuid)
-	if err != nil {
-		return v1.ErrorDeleteColumnFailed("delete column search failed: %s", err.Error())
-	}
-	return nil
+		err = r.repo.DeleteColumnStatistic(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorDeleteColumnFailed("delete column statistic failed: %s", err.Error())
+		}
+
+		err = r.repo.ReduceCreationUserColumn(ctx, auth, uuid)
+		if err != nil {
+			return v1.ErrorDeleteColumnFailed("delete column statistic failed: %s", err.Error())
+		}
+
+		err = r.repo.DeleteColumnCache(ctx, id, auth, uuid)
+		if err != nil {
+			return v1.ErrorDeleteColumnFailed("delete column cache failed: %s", err.Error())
+		}
+
+		err = r.repo.FreezeColumnCos(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorDeleteColumnFailed("freeze column cos failed: %s", err.Error())
+		}
+
+		err = r.repo.DeleteColumnSearch(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorDeleteColumnFailed("delete column search failed: %s", err.Error())
+		}
+		return nil
+	})
 }
 
 func (r *ColumnUseCase) GetColumnList(ctx context.Context, page int32) ([]*Column, error) {
