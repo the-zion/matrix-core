@@ -25,6 +25,8 @@ type AchievementRepo interface {
 	CancelAchievementFollow(ctx context.Context, uuid string) error
 	CancelAchievementFollowed(ctx context.Context, uuid string) error
 	CancelAchievementFollowFromCache(ctx context.Context, follow, followed string) error
+	AddAchievementScore(ctx context.Context, uuid string, score int32) error
+	AddAchievementScoreToCache(ctx context.Context, uuid string, score int32) error
 }
 
 type AchievementUseCase struct {
@@ -148,6 +150,20 @@ func (r *AchievementUseCase) CancelAchievementFollow(ctx context.Context, follow
 		err = r.repo.CancelAchievementFollowFromCache(ctx, follow, followed)
 		if err != nil {
 			return v1.ErrorCancelAchievementFollowFailed("cancel achievement follow from cache failed", err.Error())
+		}
+		return nil
+	})
+}
+
+func (r *AchievementUseCase) AddAchievementScore(ctx context.Context, uuid string, score int32) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		err := r.repo.AddAchievementScore(ctx, uuid, score)
+		if err != nil {
+			return v1.ErrorAddAchievementScoreFailed("add achievement score failed", err.Error())
+		}
+		err = r.repo.AddAchievementScoreToCache(ctx, uuid, score)
+		if err != nil {
+			return v1.ErrorAddAchievementScoreFailed("add achievement score failed", err.Error())
 		}
 		return nil
 	})
