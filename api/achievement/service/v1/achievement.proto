@@ -18,6 +18,7 @@ service Achievement {
   rpc CancelAchievementFollow(CancelAchievementFollowReq) returns (google.protobuf.Empty){}
   rpc GetAchievementList(GetAchievementListReq) returns (GetAchievementListReply){}
   rpc GetUserAchievement(GetUserAchievementReq) returns (GetUserAchievementReply){}
+  rpc AddAchievementScore(AddAchievementScoreReq) returns (google.protobuf.Empty){}
   rpc GetHealth(google.protobuf.Empty) returns (google.protobuf.Empty){
     option (google.api.http) = {
       get: "/v1/get/achievement/health"
@@ -80,4 +81,9 @@ message GetUserAchievementReply{
   int32 collect = 3;
   int32 follow = 4;
   int32 followed = 5;
+}
+
+message AddAchievementScoreReq{
+  string uuid = 1;
+  int32 score = 2;
 }
