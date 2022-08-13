@@ -762,6 +762,15 @@ func (r *talkRepo) GetTalkSearch(ctx context.Context, page int32, search, time s
 	return reply, int32(result["hits"].(map[string]interface{})["total"].(map[string]interface{})["value"].(float64)), nil
 }
 
+func (r *talkRepo) GetTalkAuth(ctx context.Context, id int32) (int32, error) {
+	talk := &Talk{}
+	err := r.data.db.WithContext(ctx).Where("talk_id = ?", id).First(talk).Error
+	if err != nil {
+		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get talk auth from db: id(%v)", id))
+	}
+	return talk.Auth, nil
+}
+
 func (r *talkRepo) CreateTalkDraft(ctx context.Context, uuid string) (int32, error) {
 	draft := &TalkDraft{
 		Uuid: uuid,
@@ -854,16 +863,58 @@ func (r *talkRepo) DeleteTalkStatistic(ctx context.Context, id int32, uuid strin
 	return nil
 }
 
-func (r *talkRepo) DeleteTalkCache(ctx context.Context, id int32, uuid string) error {
+func (r *talkRepo) DeleteTalkCache(ctx context.Context, id, auth int32, uuid string) error {
 	ids := strconv.Itoa(int(id))
-	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.ZRem(ctx, "talk", ids+"%"+uuid)
-		pipe.ZRem(ctx, "talk_hot", ids+"%"+uuid)
-		pipe.ZRem(ctx, "leaderboard", ids+"%"+uuid+"%talk")
-		pipe.Del(ctx, "talk_"+ids)
-		pipe.Del(ctx, "talk_collect_"+ids)
-		return nil
-	})
+	var incrBy = redis.NewScript(`
+					local key1 = KEYS[1]
+					local key2 = KEYS[2]
+					local key3 = KEYS[3]
+					local key4 = KEYS[4]
+					local key5 = KEYS[5]
+					local key6 = KEYS[6]
+					local key7 = KEYS[7]
+					local key8 = KEYS[8]
+					local key9 = KEYS[9]
+
+                    local member = ARGV[1]
+					local leadMember = ARGV[2]
+					local auth = ARGV[3]
+
+                    redis.call("ZREM", key1, member)
+					redis.call("ZREM", key2, member)
+					redis.call("ZREM", key3, leadMember)
+					redis.call("DEL", key4)
+					redis.call("DEL", key5)
+
+                    redis.call("ZREM", key6, member)
+
+                    local exist = redis.call("EXISTS", key8)
+					if exist == 1 then
+						local number = tonumber(redis.call("HGET", key8, "talk"))
+						if number > 0 then
+  							redis.call("HINCRBY", key8, "talk", -1)
+						end
+					end
+
+                    if auth == 2 then
+						return 0
+					end
+
+					redis.call("ZREM", key7, member)
+
+					local exist = redis.call("EXISTS", key9)
+					if exist == 1 then
+						local number = tonumber(redis.call("HGET", key9, "talk"))
+						if number > 0 then
+  							redis.call("HINCRBY", key9, "talk", -1)
+						end
+					end
+
+					return 0
+	`)
+	keys := []string{"talk", "talk_hot", "leaderboard", "talk_" + ids, "talk_collect_" + ids, "user_talk_list_" + uuid, "user_talk_list_visitor_" + uuid, "user_creation_info_" + uuid, "user_creation_info_visitor_" + uuid}
+	values := []interface{}{ids + "%" + uuid, ids + "%" + uuid + "%talk", auth}
+	_, err := incrBy.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to delete talk cache: id(%v), uuid(%s)", id, uuid))
 	}
@@ -877,6 +928,38 @@ func (r *talkRepo) FreezeTalkCos(ctx context.Context, id int32, uuid string) err
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to freeze talk: id(%v), uuid(%s)", id, uuid))
 	}
+	return nil
+}
+
+func (r *talkRepo) AddCreationUserTalk(ctx context.Context, uuid string, auth int32) error {
+	cu := &CreationUser{
+		Uuid: uuid,
+		Talk: 1,
+	}
+	err := r.data.DB(ctx).Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "uuid"}},
+		DoUpdates: clause.Assignments(map[string]interface{}{"talk": gorm.Expr("talk + ?", 1)}),
+	}).Create(cu).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add creation talk: uuid(%v)", uuid))
+	}
+
+	if auth == 2 {
+		return nil
+	}
+
+	cuv := &CreationUserVisitor{
+		Uuid: uuid,
+		Talk: 1,
+	}
+	err = r.data.DB(ctx).Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "uuid"}},
+		DoUpdates: clause.Assignments(map[string]interface{}{"talk": gorm.Expr("talk + ?", 1)}),
+	}).Create(cuv).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add creation talk visitor: uuid(%v)", uuid))
+	}
+
 	return nil
 }
 
@@ -922,6 +1005,10 @@ func (r *talkRepo) CreateTalkCache(ctx context.Context, id, auth int32, uuid str
 		pipe.Exists(ctx, "talk")
 		pipe.Exists(ctx, "talk_hot")
 		pipe.Exists(ctx, "leaderboard")
+		pipe.Exists(ctx, "user_talk_list_"+uuid)
+		pipe.Exists(ctx, "user_talk_list_visitor_"+uuid)
+		pipe.Exists(ctx, "user_creation_info_"+uuid)
+		pipe.Exists(ctx, "user_creation_info_visitor_"+uuid)
 		return nil
 	})
 	if err != nil {
@@ -940,6 +1027,17 @@ func (r *talkRepo) CreateTalkCache(ctx context.Context, id, auth int32, uuid str
 		pipe.HSetNX(ctx, "talk_"+ids, "collect", 0)
 		pipe.HSetNX(ctx, "talk_"+ids, "view", 0)
 		pipe.HSetNX(ctx, "talk_"+ids, "comment", 0)
+
+		if exists[3] == 1 {
+			pipe.ZAddNX(ctx, "user_talk_list_"+uuid, &redis.Z{
+				Score:  float64(id),
+				Member: ids + "%" + uuid,
+			})
+		}
+
+		if exists[5] == 1 {
+			pipe.HIncrBy(ctx, "user_creation_info_"+uuid, "talk", 1)
+		}
 
 		if auth == 2 {
 			return nil
@@ -964,6 +1062,17 @@ func (r *talkRepo) CreateTalkCache(ctx context.Context, id, auth int32, uuid str
 				Score:  0,
 				Member: ids + "%" + uuid + "%talk",
 			})
+		}
+
+		if exists[4] == 1 {
+			pipe.ZAddNX(ctx, "user_talk_list_visitor_"+uuid, &redis.Z{
+				Score:  0,
+				Member: ids + "%" + uuid + "%talk",
+			})
+		}
+
+		if exists[6] == 1 {
+			pipe.HIncrBy(ctx, "user_creation_info_visitor_"+uuid, "talk", 1)
 		}
 		return nil
 	})
@@ -1118,6 +1227,28 @@ func (r *talkRepo) SendTalkStatisticToMq(ctx context.Context, uuid, mode string)
 	_, err = r.data.achievementMqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send talk statistic to mq: uuid(%s)", uuid))
+	}
+	return nil
+}
+
+func (r *talkRepo) SendScoreToMq(ctx context.Context, score int32, uuid, mode string) error {
+	scoreMap := map[string]interface{}{}
+	scoreMap["uuid"] = uuid
+	scoreMap["score"] = score
+	scoreMap["mode"] = mode
+
+	data, err := json.Marshal(scoreMap)
+	if err != nil {
+		return err
+	}
+	msg := &primitive.Message{
+		Topic: "achievement",
+		Body:  data,
+	}
+	msg.WithKeys([]string{uuid})
+	_, err = r.data.achievementMqPro.producer.SendSync(ctx, msg)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to send score to mq: uuid(%s)", uuid))
 	}
 	return nil
 }
@@ -1285,6 +1416,25 @@ func (r *talkRepo) ReduceTalkCommentToCache(ctx context.Context, id int32, uuid 
 	_, err := incrBy.Run(ctx, r.data.redisCli, keys).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to reduce talk comment to cache: id(%v), uuid(%s)", id, uuid))
+	}
+	return nil
+}
+
+func (r *talkRepo) ReduceCreationUserTalk(ctx context.Context, auth int32, uuid string) error {
+	cu := CreationUser{}
+	err := r.data.DB(ctx).Model(&cu).Where("uuid = ? and talk > 0", uuid).Update("talk", gorm.Expr("talk - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to reduce creation user talk: uuid(%s)", uuid))
+	}
+
+	if auth == 2 {
+		return nil
+	}
+
+	cuv := CreationUserVisitor{}
+	err = r.data.DB(ctx).Model(&cuv).Where("uuid = ? and talk > 0", uuid).Update("talk", gorm.Expr("talk - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to reduce creation user talk visitor: uuid(%s)", uuid))
 	}
 	return nil
 }
