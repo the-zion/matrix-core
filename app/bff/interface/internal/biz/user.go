@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
+	"golang.org/x/sync/errgroup"
 )
 
 type UserRepo interface {
@@ -19,6 +20,10 @@ type UserRepo interface {
 	GetUserInfo(ctx context.Context, uuid string) (*UserProfile, error)
 	GetProfileUpdate(ctx context.Context, uuid string) (*UserProfileUpdate, error)
 	GetFollowList(ctx context.Context, page int32, uuid string) ([]*Follow, error)
+	GetFollowProfileList(ctx context.Context, page int32, uuid string, followList []*Follow) ([]*UserProfile, error)
+	GetFollowAchievementList(ctx context.Context, page int32, uuid string, followList []*Follow) ([]*Achievement, error)
+	GetFollowedProfileList(ctx context.Context, page int32, uuid string, followedList []*Follow) ([]*UserProfile, error)
+	GetFollowedAchievementList(ctx context.Context, page int32, uuid string, followedList []*Follow) ([]*Achievement, error)
 	GetFollowListCount(ctx context.Context, uuid string) (int32, error)
 	GetFollowedList(ctx context.Context, page int32, uuid string) ([]*Follow, error)
 	GetFollowedListCount(ctx context.Context, uuid string) (int32, error)
@@ -108,7 +113,48 @@ func (r *UserUseCase) GetUserFollow(ctx context.Context, uuid string) (bool, err
 }
 
 func (r *UserUseCase) GetFollowList(ctx context.Context, page int32, uuid string) ([]*Follow, error) {
-	return r.repo.GetFollowList(ctx, page, uuid)
+	followList, err := r.repo.GetFollowList(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		userProfileList, err := r.repo.GetFollowProfileList(ctx, page, uuid, followList)
+		if err != nil {
+			return err
+		}
+		for _, item := range userProfileList {
+			for index, listItem := range followList {
+				if listItem.Follow == item.Uuid {
+					followList[index].Username = item.Username
+					followList[index].Introduce = item.Introduce
+				}
+			}
+		}
+		return nil
+	}))
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		userAchievementList, err := r.repo.GetFollowAchievementList(ctx, page, uuid, followList)
+		if err != nil {
+			return err
+		}
+		for _, item := range userAchievementList {
+			for index, listItem := range followList {
+				if listItem.Follow == item.Uuid {
+					followList[index].Agree = item.Agree
+					followList[index].View = item.View
+					followList[index].FollowNum = item.Follow
+					followList[index].FollowedNum = item.Followed
+				}
+			}
+		}
+		return nil
+	}))
+	err = g.Wait()
+	if err != nil {
+		return nil, err
+	}
+	return followList, nil
 }
 
 func (r *UserUseCase) GetFollowListCount(ctx context.Context, uuid string) (int32, error) {
@@ -116,7 +162,48 @@ func (r *UserUseCase) GetFollowListCount(ctx context.Context, uuid string) (int3
 }
 
 func (r *UserUseCase) GetFollowedList(ctx context.Context, page int32, uuid string) ([]*Follow, error) {
-	return r.repo.GetFollowedList(ctx, page, uuid)
+	followedList, err := r.repo.GetFollowedList(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		userProfileList, err := r.repo.GetFollowedProfileList(ctx, page, uuid, followedList)
+		if err != nil {
+			return err
+		}
+		for _, item := range userProfileList {
+			for index, listItem := range followedList {
+				if listItem.Followed == item.Uuid {
+					followedList[index].Username = item.Username
+					followedList[index].Introduce = item.Introduce
+				}
+			}
+		}
+		return nil
+	}))
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		userAchievementList, err := r.repo.GetFollowedAchievementList(ctx, page, uuid, followedList)
+		if err != nil {
+			return err
+		}
+		for _, item := range userAchievementList {
+			for index, listItem := range followedList {
+				if listItem.Followed == item.Uuid {
+					followedList[index].Agree = item.Agree
+					followedList[index].View = item.View
+					followedList[index].FollowNum = item.Follow
+					followedList[index].FollowedNum = item.Followed
+				}
+			}
+		}
+		return nil
+	}))
+	err = g.Wait()
+	if err != nil {
+		return nil, err
+	}
+	return followedList, nil
 }
 
 func (r *UserUseCase) GetFollowedListCount(ctx context.Context, uuid string) (int32, error) {
