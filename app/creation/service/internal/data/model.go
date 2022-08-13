@@ -135,3 +135,23 @@ type Record struct {
 	Operation  string
 	Ip         string
 }
+
+type CreationUser struct {
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	Uuid        string `gorm:"primarykey;size:36"`
+	Article     int32  `gorm:"type:int unsigned;default:0"`
+	Column      int32  `gorm:"type:int unsigned;default:0"`
+	Talk        int32  `gorm:"type:int unsigned;default:0"`
+	Collections int32  `gorm:"type:int unsigned;default:0"`
+}
+
+type CreationUserVisitor struct {
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	Uuid        string `gorm:"primarykey;size:36"`
+	Article     int32  `gorm:"type:int unsigned;default:0"`
+	Column      int32  `gorm:"type:int unsigned;default:0"`
+	Talk        int32  `gorm:"type:int unsigned;default:0"`
+	Collections int32  `gorm:"type:int unsigned;default:0"`
+}
