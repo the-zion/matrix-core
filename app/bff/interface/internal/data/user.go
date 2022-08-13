@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-kratos/kratos/v2/log"
+	achievementV1 "github.com/the-zion/matrix-core/api/achievement/service/v1"
 	userV1 "github.com/the-zion/matrix-core/api/user/service/v1"
 	"github.com/the-zion/matrix-core/app/bff/interface/internal/biz"
 	"golang.org/x/sync/singleflight"
@@ -243,7 +244,7 @@ func (r *userRepo) GetUserFollows(ctx context.Context, userId string, uuids []st
 }
 
 func (r *userRepo) GetFollowList(ctx context.Context, page int32, uuid string) ([]*biz.Follow, error) {
-	result, err, _ := r.sg.Do(fmt.Sprintf("get_follow_%s", uuid), func() (interface{}, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_follow_%s_%v", uuid, page), func() (interface{}, error) {
 		reply := make([]*biz.Follow, 0)
 		followList, err := r.data.uc.GetFollowList(ctx, &userV1.GetFollowListReq{
 			Page: page,
@@ -264,6 +265,96 @@ func (r *userRepo) GetFollowList(ctx context.Context, page int32, uuid string) (
 		return nil, err
 	}
 	return result.([]*biz.Follow), nil
+}
+
+func (r *userRepo) GetFollowProfileList(ctx context.Context, page int32, uuid string, followList []*biz.Follow) ([]*biz.UserProfile, error) {
+	uuids := make([]string, 0)
+	for _, item := range followList {
+		uuids = append(uuids, item.Follow)
+	}
+	result, err, _ := r.sg.Do(fmt.Sprintf("user_follow_profile_list_%s_%v", uuid, page), func() (interface{}, error) {
+		return r.GetProfileList(ctx, uuids)
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.([]*biz.UserProfile), nil
+}
+
+func (r *userRepo) GetFollowAchievementList(ctx context.Context, page int32, uuid string, followList []*biz.Follow) ([]*biz.Achievement, error) {
+	uuids := make([]string, 0)
+	for _, item := range followList {
+		uuids = append(uuids, item.Follow)
+	}
+	result, err, _ := r.sg.Do(fmt.Sprintf("user_follow_achievement_list_%s_%v", uuid, page), func() (interface{}, error) {
+		reply := make([]*biz.Achievement, 0)
+		achievementList, err := r.data.ac.GetAchievementList(ctx, &achievementV1.GetAchievementListReq{
+			Uuids: uuids,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		for _, item := range achievementList.Achievement {
+			reply = append(reply, &biz.Achievement{
+				Uuid:     item.Uuid,
+				Agree:    item.Agree,
+				View:     item.View,
+				Followed: item.Followed,
+				Follow:   item.Follow,
+			})
+		}
+		return reply, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.([]*biz.Achievement), nil
+}
+
+func (r *userRepo) GetFollowedProfileList(ctx context.Context, page int32, uuid string, followedList []*biz.Follow) ([]*biz.UserProfile, error) {
+	uuids := make([]string, 0)
+	for _, item := range followedList {
+		uuids = append(uuids, item.Followed)
+	}
+	result, err, _ := r.sg.Do(fmt.Sprintf("user_followed_profile_list_%s_%v", uuid, page), func() (interface{}, error) {
+		return r.GetProfileList(ctx, uuids)
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.([]*biz.UserProfile), nil
+}
+
+func (r *userRepo) GetFollowedAchievementList(ctx context.Context, page int32, uuid string, followedList []*biz.Follow) ([]*biz.Achievement, error) {
+	uuids := make([]string, 0)
+	for _, item := range followedList {
+		uuids = append(uuids, item.Followed)
+	}
+	result, err, _ := r.sg.Do(fmt.Sprintf("user_followed_achievement_list_%s_%v", uuid, page), func() (interface{}, error) {
+		reply := make([]*biz.Achievement, 0)
+		achievementList, err := r.data.ac.GetAchievementList(ctx, &achievementV1.GetAchievementListReq{
+			Uuids: uuids,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		for _, item := range achievementList.Achievement {
+			reply = append(reply, &biz.Achievement{
+				Uuid:     item.Uuid,
+				Agree:    item.Agree,
+				View:     item.View,
+				Followed: item.Followed,
+				Follow:   item.Follow,
+			})
+		}
+		return reply, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.([]*biz.Achievement), nil
 }
 
 func (r *userRepo) GetFollowListCount(ctx context.Context, uuid string) (int32, error) {
