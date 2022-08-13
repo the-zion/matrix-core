@@ -292,6 +292,52 @@ func (r *creationRepo) GetCollectCount(ctx context.Context, id int32) (int64, er
 }
 
 func (r *creationRepo) GetCollections(ctx context.Context, uuid string, page int32) ([]*biz.Collections, error) {
+	collections, err := r.getUserCollectionsListFromCache(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	size := len(collections)
+	if size != 0 {
+		return collections, nil
+	}
+
+	collections, err = r.getUserCollectionsListFromDB(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	size = len(collections)
+	if size != 0 {
+		go r.setUserCollectionsListToCache("user_collections_list_"+uuid, collections)
+	}
+	return collections, nil
+}
+
+func (r *creationRepo) getUserCollectionsListFromCache(ctx context.Context, page int32, uuid string) ([]*biz.Collections, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int64(page - 1)
+	list, err := r.data.redisCli.ZRevRange(ctx, "user_collections_list_"+uuid, index*10, index*10+9).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user collections list visitor from cache: key(%s), page(%v)", "user_collections_list_", page))
+	}
+
+	collections := make([]*biz.Collections, 0)
+	for _, item := range list {
+		id, err := strconv.ParseInt(item, 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s)", item))
+		}
+		collections = append(collections, &biz.Collections{
+			Id: int32(id),
+		})
+	}
+	return collections, nil
+}
+
+func (r *creationRepo) getUserCollectionsListFromDB(ctx context.Context, page int32, uuid string) ([]*biz.Collections, error) {
 	if page < 1 {
 		page = 1
 	}
@@ -305,9 +351,7 @@ func (r *creationRepo) GetCollections(ctx context.Context, uuid string, page int
 	collections := make([]*biz.Collections, 0)
 	for _, item := range list {
 		collections = append(collections, &biz.Collections{
-			Id:        int32(item.ID),
-			Name:      item.Name,
-			Introduce: item.Introduce,
+			Id: int32(item.ID),
 		})
 	}
 	return collections, nil
@@ -331,7 +375,7 @@ func (r *creationRepo) GetCollectionsByVisitor(ctx context.Context, uuid string,
 
 	size = len(collections)
 	if size != 0 {
-		go r.setUserCollectionsListVisitorToCache("user_collections_list_visitor_"+uuid, collections)
+		go r.setUserCollectionsListToCache("user_collections_list_visitor_"+uuid, collections)
 	}
 	return collections, nil
 }
@@ -379,7 +423,7 @@ func (r *creationRepo) getUserCollectionsListVisitorFromDB(ctx context.Context, 
 	return collections, nil
 }
 
-func (r *creationRepo) setUserCollectionsListVisitorToCache(key string, collections []*biz.Collections) {
+func (r *creationRepo) setUserCollectionsListToCache(key string, collections []*biz.Collections) {
 	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
 		z := make([]*redis.Z, 0)
 		for _, item := range collections {
