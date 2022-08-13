@@ -702,6 +702,15 @@ func (r *articleRepo) GetArticleSearch(ctx context.Context, page int32, search, 
 	return reply, int32(result["hits"].(map[string]interface{})["total"].(map[string]interface{})["value"].(float64)), nil
 }
 
+func (r *articleRepo) GetArticleAuth(ctx context.Context, id int32) (int32, error) {
+	article := &Article{}
+	err := r.data.db.WithContext(ctx).Where("article_id = ?", id).First(article).Error
+	if err != nil {
+		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get article auth from db: id(%v)", id))
+	}
+	return article.Auth, nil
+}
+
 func (r *articleRepo) CreateArticle(ctx context.Context, id, auth int32, uuid string) error {
 	article := &Article{
 		ArticleId: id,
@@ -772,6 +781,10 @@ func (r *articleRepo) CreateArticleCache(ctx context.Context, id, auth int32, uu
 		pipe.Exists(ctx, "article")
 		pipe.Exists(ctx, "article_hot")
 		pipe.Exists(ctx, "leaderboard")
+		pipe.Exists(ctx, "user_article_list_"+uuid)
+		pipe.Exists(ctx, "user_article_list_visitor_"+uuid)
+		pipe.Exists(ctx, "user_creation_info_"+uuid)
+		pipe.Exists(ctx, "user_creation_info_visitor_"+uuid)
 		return nil
 	})
 	if err != nil {
@@ -790,6 +803,17 @@ func (r *articleRepo) CreateArticleCache(ctx context.Context, id, auth int32, uu
 		pipe.HSetNX(ctx, "article_"+ids, "collect", 0)
 		pipe.HSetNX(ctx, "article_"+ids, "view", 0)
 		pipe.HSetNX(ctx, "article_"+ids, "comment", 0)
+
+		if exists[3] == 1 {
+			pipe.ZAddNX(ctx, "user_article_list_"+uuid, &redis.Z{
+				Score:  float64(id),
+				Member: ids + "%" + uuid,
+			})
+		}
+
+		if exists[5] == 1 {
+			pipe.HIncrBy(ctx, "user_creation_info_"+uuid, "article", 1)
+		}
 
 		if auth == 2 {
 			return nil
@@ -816,6 +840,17 @@ func (r *articleRepo) CreateArticleCache(ctx context.Context, id, auth int32, uu
 			})
 		}
 
+		if exists[4] == 1 {
+			pipe.ZAddNX(ctx, "user_article_list_visitor_"+uuid, &redis.Z{
+				Score:  0,
+				Member: ids + "%" + uuid + "%article",
+			})
+		}
+
+		if exists[6] == 1 {
+			pipe.HIncrBy(ctx, "user_creation_info_visitor_"+uuid, "article", 1)
+		}
+
 		return nil
 	})
 	if err != nil {
@@ -828,16 +863,58 @@ func (r *articleRepo) UpdateArticleCache(ctx context.Context, id, auth int32, uu
 	return r.CreateArticleCache(ctx, id, auth, uuid)
 }
 
-func (r *articleRepo) DeleteArticleCache(ctx context.Context, id int32, uuid string) error {
+func (r *articleRepo) DeleteArticleCache(ctx context.Context, id, auth int32, uuid string) error {
 	ids := strconv.Itoa(int(id))
-	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.ZRem(ctx, "article", ids+"%"+uuid)
-		pipe.ZRem(ctx, "article_hot", ids+"%"+uuid)
-		pipe.ZRem(ctx, "leaderboard", ids+"%"+uuid+"%article")
-		pipe.Del(ctx, "article_"+ids)
-		pipe.Del(ctx, "article_collect_"+ids)
-		return nil
-	})
+	var incrBy = redis.NewScript(`
+					local key1 = KEYS[1]
+					local key2 = KEYS[2]
+					local key3 = KEYS[3]
+					local key4 = KEYS[4]
+					local key5 = KEYS[5]
+					local key6 = KEYS[6]
+					local key7 = KEYS[7]
+					local key8 = KEYS[8]
+					local key9 = KEYS[9]
+
+                    local member = ARGV[1]
+					local leadMember = ARGV[2]
+					local auth = ARGV[3]
+
+                    redis.call("ZREM", key1, member)
+					redis.call("ZREM", key2, member)
+					redis.call("ZREM", key3, leadMember)
+					redis.call("DEL", key4)
+					redis.call("DEL", key5)
+
+                    redis.call("ZREM", key6, member)
+
+                    local exist = redis.call("EXISTS", key8)
+					if exist == 1 then
+						local number = tonumber(redis.call("HGET", key8, "article"))
+						if number > 0 then
+  							redis.call("HINCRBY", key8, "article", -1)
+						end
+					end
+
+                    if auth == 2 then
+						return 0
+					end
+
+					redis.call("ZREM", key7, member)
+
+					local exist = redis.call("EXISTS", key9)
+					if exist == 1 then
+						local number = tonumber(redis.call("HGET", key9, "article"))
+						if number > 0 then
+  							redis.call("HINCRBY", key9, "article", -1)
+						end
+					end
+
+					return 0
+	`)
+	keys := []string{"article", "article_hot", "leaderboard", "article_" + ids, "article_collect_" + ids, "user_article_list_" + uuid, "user_article_list_visitor_" + uuid, "user_creation_info_" + uuid, "user_creation_info_visitor_" + uuid}
+	values := []interface{}{ids + "%" + uuid, ids + "%" + uuid + "%article", auth}
+	_, err := incrBy.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to delete article cache: id(%v), uuid(%s)", id, uuid))
 	}
@@ -919,6 +996,38 @@ func (r *articleRepo) AddArticleCommentToCache(ctx context.Context, id int32, uu
 	return nil
 }
 
+func (r *articleRepo) AddCreationUserArticle(ctx context.Context, uuid string, auth int32) error {
+	cu := &CreationUser{
+		Uuid:    uuid,
+		Article: 1,
+	}
+	err := r.data.DB(ctx).Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "uuid"}},
+		DoUpdates: clause.Assignments(map[string]interface{}{"article": gorm.Expr("article + ?", 1)}),
+	}).Create(cu).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add creation article: uuid(%v)", uuid))
+	}
+
+	if auth == 2 {
+		return nil
+	}
+
+	cuv := &CreationUserVisitor{
+		Uuid:    uuid,
+		Article: 1,
+	}
+	err = r.data.DB(ctx).Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "uuid"}},
+		DoUpdates: clause.Assignments(map[string]interface{}{"article": gorm.Expr("article + ?", 1)}),
+	}).Create(cuv).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add creation article visitor: uuid(%v)", uuid))
+	}
+
+	return nil
+}
+
 func (r *articleRepo) ReduceArticleComment(ctx context.Context, id int32) error {
 	as := ArticleStatistic{}
 	err := r.data.DB(ctx).Model(&as).Where("article_id = ? and comment > 0", id).Update("comment", gorm.Expr("comment - ?", 1)).Error
@@ -945,6 +1054,25 @@ func (r *articleRepo) ReduceArticleCommentToCache(ctx context.Context, id int32,
 	_, err := incrBy.Run(ctx, r.data.redisCli, keys).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to reduce article comment to cache: id(%v), uuid(%s)", id, uuid))
+	}
+	return nil
+}
+
+func (r *articleRepo) ReduceCreationUserArticle(ctx context.Context, auth int32, uuid string) error {
+	cu := CreationUser{}
+	err := r.data.DB(ctx).Model(&cu).Where("uuid = ? and article > 0", uuid).Update("article", gorm.Expr("article - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to reduce creation user article: uuid(%s)", uuid))
+	}
+
+	if auth == 2 {
+		return nil
+	}
+
+	cuv := CreationUserVisitor{}
+	err = r.data.DB(ctx).Model(&cuv).Where("uuid = ? and article > 0", uuid).Update("article", gorm.Expr("article - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to reduce creation user article visitor: uuid(%s)", uuid))
 	}
 	return nil
 }
@@ -1092,6 +1220,28 @@ func (r *articleRepo) SendReviewToMq(ctx context.Context, review *biz.ArticleRev
 	_, err = r.data.articleReviewMqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send review to mq: %v", err))
+	}
+	return nil
+}
+
+func (r *articleRepo) SendScoreToMq(ctx context.Context, score int32, uuid, mode string) error {
+	scoreMap := map[string]interface{}{}
+	scoreMap["uuid"] = uuid
+	scoreMap["score"] = score
+	scoreMap["mode"] = mode
+
+	data, err := json.Marshal(scoreMap)
+	if err != nil {
+		return err
+	}
+	msg := &primitive.Message{
+		Topic: "achievement",
+		Body:  data,
+	}
+	msg.WithKeys([]string{uuid})
+	_, err = r.data.achievementMqPro.producer.SendSync(ctx, msg)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to send score to mq: uuid(%s)", uuid))
 	}
 	return nil
 }
