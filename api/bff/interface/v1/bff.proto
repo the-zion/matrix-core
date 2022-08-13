@@ -1034,6 +1034,12 @@ message GetFollowListReq{
 message GetFollowListReply{
   message Follow{
     string uuid = 1;
+    string username = 2;
+    string introduce = 3;
+    int32 agree = 4;
+    int32 view = 5;
+    int32 follow = 6;
+    int32 followed = 7;
   }
   repeated Follow follow = 1;
 }
@@ -1054,6 +1060,12 @@ message GetFollowedListReq{
 message GetFollowedListReply{
   message Follow{
     string uuid = 1;
+    string username = 2;
+    string introduce = 3;
+    int32 agree = 4;
+    int32 view = 5;
+    int32 follow = 6;
+    int32 followed = 7;
   }
   repeated Follow follow = 1;
 }
