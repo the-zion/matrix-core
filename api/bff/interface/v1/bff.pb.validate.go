@@ -19403,6 +19403,18 @@ func (m *GetFollowListReply_Follow) validate(all bool) error {
 
 	// no validation rules for Uuid
 
+	// no validation rules for Username
+
+	// no validation rules for Introduce
+
+	// no validation rules for Agree
+
+	// no validation rules for View
+
+	// no validation rules for Follow
+
+	// no validation rules for Followed
+
 	if len(errors) > 0 {
 		return GetFollowListReply_FollowMultiError(errors)
 	}
@@ -19506,6 +19518,18 @@ func (m *GetFollowedListReply_Follow) validate(all bool) error {
 	var errors []error
 
 	// no validation rules for Uuid
+
+	// no validation rules for Username
+
+	// no validation rules for Introduce
+
+	// no validation rules for Agree
+
+	// no validation rules for View
+
+	// no validation rules for Follow
+
+	// no validation rules for Followed
 
 	if len(errors) > 0 {
 		return GetFollowedListReply_FollowMultiError(errors)
