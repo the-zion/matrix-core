@@ -143,6 +143,57 @@ func (r *columnRepo) AddColumnIncludesToCache(ctx context.Context, id, articleId
 	return nil
 }
 
+func (r *columnRepo) AddCreationUserColumn(ctx context.Context, uuid string, auth int32) error {
+	cu := &CreationUser{
+		Uuid:   uuid,
+		Column: 1,
+	}
+	err := r.data.DB(ctx).Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "uuid"}},
+		DoUpdates: clause.Assignments(map[string]interface{}{"column": gorm.Expr("column + ?", 1)}),
+	}).Create(cu).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add creation column: uuid(%v)", uuid))
+	}
+
+	if auth == 2 {
+		return nil
+	}
+
+	cuv := &CreationUserVisitor{
+		Uuid:   uuid,
+		Column: 1,
+	}
+	err = r.data.DB(ctx).Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "uuid"}},
+		DoUpdates: clause.Assignments(map[string]interface{}{"column": gorm.Expr("column + ?", 1)}),
+	}).Create(cuv).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add creation column visitor: uuid(%v)", uuid))
+	}
+
+	return nil
+}
+
+func (r *columnRepo) ReduceCreationUserColumn(ctx context.Context, auth int32, uuid string) error {
+	cu := CreationUser{}
+	err := r.data.DB(ctx).Model(&cu).Where("uuid = ? and column > 0", uuid).Update("column", gorm.Expr("column - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to reduce creation user column: uuid(%s)", uuid))
+	}
+
+	if auth == 2 {
+		return nil
+	}
+
+	cuv := CreationUserVisitor{}
+	err = r.data.DB(ctx).Model(&cuv).Where("uuid = ? and column > 0", uuid).Update("column", gorm.Expr("column - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to reduce creation user column visitor: uuid(%s)", uuid))
+	}
+	return nil
+}
+
 func (r *columnRepo) DeleteColumnIncludes(ctx context.Context, id, articleId int32, uuid string) error {
 	cc := &ColumnInclusion{
 		Status: 2,
@@ -230,12 +281,38 @@ func (r *columnRepo) SendReviewToMq(ctx context.Context, review *biz.ColumnRevie
 	return nil
 }
 
+func (r *columnRepo) SendScoreToMq(ctx context.Context, score int32, uuid, mode string) error {
+	scoreMap := map[string]interface{}{}
+	scoreMap["uuid"] = uuid
+	scoreMap["score"] = score
+	scoreMap["mode"] = mode
+
+	data, err := json.Marshal(scoreMap)
+	if err != nil {
+		return err
+	}
+	msg := &primitive.Message{
+		Topic: "achievement",
+		Body:  data,
+	}
+	msg.WithKeys([]string{uuid})
+	_, err = r.data.achievementMqPro.producer.SendSync(ctx, msg)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to send score to mq: uuid(%s)", uuid))
+	}
+	return nil
+}
+
 func (r *columnRepo) CreateColumnCache(ctx context.Context, id, auth int32, uuid string) error {
 	exists := make([]int32, 0)
 	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		pipe.Exists(ctx, "column")
 		pipe.Exists(ctx, "column_hot")
 		pipe.Exists(ctx, "leaderboard")
+		pipe.Exists(ctx, "user_column_list_"+uuid)
+		pipe.Exists(ctx, "user_column_list_visitor_"+uuid)
+		pipe.Exists(ctx, "user_creation_info_"+uuid)
+		pipe.Exists(ctx, "user_creation_info_visitor_"+uuid)
 		return nil
 	})
 	if err != nil {
@@ -253,6 +330,17 @@ func (r *columnRepo) CreateColumnCache(ctx context.Context, id, auth int32, uuid
 		pipe.HSetNX(ctx, "column_"+ids, "agree", 0)
 		pipe.HSetNX(ctx, "column_"+ids, "collect", 0)
 		pipe.HSetNX(ctx, "column_"+ids, "view", 0)
+
+		if exists[3] == 1 {
+			pipe.ZAddNX(ctx, "user_column_list_"+uuid, &redis.Z{
+				Score:  float64(id),
+				Member: ids + "%" + uuid,
+			})
+		}
+
+		if exists[5] == 1 {
+			pipe.HIncrBy(ctx, "user_creation_info_"+uuid, "column", 1)
+		}
 
 		if auth == 2 {
 			return nil
@@ -277,6 +365,17 @@ func (r *columnRepo) CreateColumnCache(ctx context.Context, id, auth int32, uuid
 				Score:  0,
 				Member: ids + "%" + uuid + "%column",
 			})
+		}
+
+		if exists[4] == 1 {
+			pipe.ZAddNX(ctx, "user_column_list_visitor_"+uuid, &redis.Z{
+				Score:  0,
+				Member: ids + "%" + uuid + "%column",
+			})
+		}
+
+		if exists[6] == 1 {
+			pipe.HIncrBy(ctx, "user_creation_info_visitor_"+uuid, "column", 1)
 		}
 		return nil
 	})
@@ -929,16 +1028,58 @@ func (r *columnRepo) DeleteColumnStatistic(ctx context.Context, id int32, uuid s
 	return nil
 }
 
-func (r *columnRepo) DeleteColumnCache(ctx context.Context, id int32, uuid string) error {
+func (r *columnRepo) DeleteColumnCache(ctx context.Context, id, auth int32, uuid string) error {
 	ids := strconv.Itoa(int(id))
-	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.ZRem(ctx, "column", ids+"%"+uuid)
-		pipe.ZRem(ctx, "column_hot", ids+"%"+uuid)
-		pipe.ZRem(ctx, "leaderboard", ids+"%"+uuid+"%column")
-		pipe.Del(ctx, "column_"+ids)
-		pipe.Del(ctx, "column_collect_"+ids)
-		return nil
-	})
+	var incrBy = redis.NewScript(`
+					local key1 = KEYS[1]
+					local key2 = KEYS[2]
+					local key3 = KEYS[3]
+					local key4 = KEYS[4]
+					local key5 = KEYS[5]
+					local key6 = KEYS[6]
+					local key7 = KEYS[7]
+					local key8 = KEYS[8]
+					local key9 = KEYS[9]
+
+                    local member = ARGV[1]
+					local leadMember = ARGV[2]
+					local auth = ARGV[3]
+
+                    redis.call("ZREM", key1, member)
+					redis.call("ZREM", key2, member)
+					redis.call("ZREM", key3, leadMember)
+					redis.call("DEL", key4)
+					redis.call("DEL", key5)
+
+                    redis.call("ZREM", key6, member)
+
+                    local exist = redis.call("EXISTS", key8)
+					if exist == 1 then
+						local number = tonumber(redis.call("HGET", key8, "column"))
+						if number > 0 then
+  							redis.call("HINCRBY", key8, "column", -1)
+						end
+					end
+
+                    if auth == 2 then
+						return 0
+					end
+
+					redis.call("ZREM", key7, member)
+
+					local exist = redis.call("EXISTS", key9)
+					if exist == 1 then
+						local number = tonumber(redis.call("HGET", key9, "column"))
+						if number > 0 then
+  							redis.call("HINCRBY", key9, "column", -1)
+						end
+					end
+
+					return 0
+	`)
+	keys := []string{"column", "column_hot", "leaderboard", "column_" + ids, "column_collect_" + ids, "user_column_list_" + uuid, "user_column_list_visitor_" + uuid, "user_creation_info_" + uuid, "user_creation_info_visitor_" + uuid}
+	values := []interface{}{ids + "%" + uuid, ids + "%" + uuid + "%column", auth}
+	_, err := incrBy.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to delete column cache: id(%v), uuid(%s)", id, uuid))
 	}
@@ -1166,6 +1307,15 @@ func (r *columnRepo) GetColumnSearch(ctx context.Context, page int32, search, ti
 	}
 	res.Body.Close()
 	return reply, int32(result["hits"].(map[string]interface{})["total"].(map[string]interface{})["value"].(float64)), nil
+}
+
+func (r *columnRepo) GetColumnAuth(ctx context.Context, id int32) (int32, error) {
+	column := &Column{}
+	err := r.data.db.WithContext(ctx).Where("column_id = ?", id).First(column).Error
+	if err != nil {
+		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get column auth from db: id(%v)", id))
+	}
+	return column.Auth, nil
 }
 
 func (r *columnRepo) DeleteColumnSearch(ctx context.Context, id int32, uuid string) error {
