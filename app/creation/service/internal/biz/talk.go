@@ -22,6 +22,7 @@ type TalkRepo interface {
 	GetTalkAgreeJudge(ctx context.Context, id int32, uuid string) (bool, error)
 	GetTalkCollectJudge(ctx context.Context, id int32, uuid string) (bool, error)
 	GetTalkSearch(ctx context.Context, page int32, search, time string) ([]*TalkSearch, int32, error)
+	GetTalkAuth(ctx context.Context, id int32) (int32, error)
 
 	CreateTalkDraft(ctx context.Context, uuid string) (int32, error)
 	CreateTalkFolder(ctx context.Context, id int32, uuid string) error
@@ -29,10 +30,12 @@ type TalkRepo interface {
 	CreateTalkStatistic(ctx context.Context, id, auth int32, uuid string) error
 	CreateTalkCache(ctx context.Context, id, auth int32, uuid string) error
 	CreateTalkSearch(ctx context.Context, id int32, uuid string) error
+	AddCreationUserTalk(ctx context.Context, uuid string, auth int32) error
 	AddTalkComment(ctx context.Context, id int32) error
 	AddTalkCommentToCache(ctx context.Context, id int32, uuid string) error
 	ReduceTalkComment(ctx context.Context, id int32) error
 	ReduceTalkCommentToCache(ctx context.Context, id int32, uuid string) error
+	ReduceCreationUserTalk(ctx context.Context, auth int32, uuid string) error
 
 	SetTalkAgree(ctx context.Context, id int32, uuid string) error
 	SetTalkView(ctx context.Context, id int32, uuid string) error
@@ -51,11 +54,12 @@ type TalkRepo interface {
 	SendReviewToMq(ctx context.Context, review *TalkReview) error
 	SendTalkToMq(ctx context.Context, talk *Talk, mode string) error
 	SendTalkStatisticToMq(ctx context.Context, uuid, mode string) error
+	SendScoreToMq(ctx context.Context, score int32, uuid, mode string) error
 
 	DeleteTalk(ctx context.Context, id int32, uuid string) error
 	DeleteTalkDraft(ctx context.Context, id int32, uuid string) error
 	DeleteTalkStatistic(ctx context.Context, id int32, uuid string) error
-	DeleteTalkCache(ctx context.Context, id int32, uuid string) error
+	DeleteTalkCache(ctx context.Context, id, auth int32, uuid string) error
 	DeleteTalkSearch(ctx context.Context, id int32, uuid string) error
 
 	FreezeTalkCos(ctx context.Context, id int32, uuid string) error
@@ -262,27 +266,14 @@ func (r *TalkUseCase) EditTalk(ctx context.Context, id, auth int32, uuid string)
 }
 
 func (r *TalkUseCase) DeleteTalk(ctx context.Context, id int32, uuid string) error {
-	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
-		var err error
-		err = r.repo.DeleteTalk(ctx, id, uuid)
-		if err != nil {
-			return v1.ErrorDeleteTalkFailed("delete talk failed: %s", err.Error())
-		}
-
-		err = r.repo.DeleteTalkStatistic(ctx, id, uuid)
-		if err != nil {
-			return v1.ErrorDeleteTalkFailed("delete talk statistic failed: %s", err.Error())
-		}
-
-		err = r.repo.SendTalkToMq(ctx, &Talk{
-			TalkId: id,
-			Uuid:   uuid,
-		}, "delete_talk_cache_and_search")
-		if err != nil {
-			return v1.ErrorDeleteTalkFailed("delete talk to mq failed: %s", err.Error())
-		}
-		return nil
-	})
+	err := r.repo.SendTalkToMq(ctx, &Talk{
+		TalkId: id,
+		Uuid:   uuid,
+	}, "delete_talk_cache_and_search")
+	if err != nil {
+		return v1.ErrorDeleteTalkFailed("delete talk to mq failed: %s", err.Error())
+	}
+	return nil
 }
 
 func (r *TalkUseCase) CreateTalkDbCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error {
@@ -303,6 +294,11 @@ func (r *TalkUseCase) CreateTalkDbCacheAndSearch(ctx context.Context, id, auth i
 			return v1.ErrorCreateTalkFailed("create talk statistic failed: %s", err.Error())
 		}
 
+		err = r.repo.AddCreationUserTalk(ctx, uuid, auth)
+		if err != nil {
+			return v1.ErrorCreateTalkFailed("add creation talk failed: %s", err.Error())
+		}
+
 		err = r.repo.CreateTalkCache(ctx, id, auth, uuid)
 		if err != nil {
 			return v1.ErrorCreateTalkFailed("create talk cache failed: %s", err.Error())
@@ -315,6 +311,11 @@ func (r *TalkUseCase) CreateTalkDbCacheAndSearch(ctx context.Context, id, auth i
 		err = r.repo.CreateTalkSearch(ctx, id, uuid)
 		if err != nil {
 			return v1.ErrorCreateTalkFailed("create talk search failed: %s", err.Error())
+		}
+
+		err = r.repo.SendScoreToMq(ctx, 50, uuid, "add_score")
+		if err != nil {
+			return v1.ErrorCreateTalkFailed("send 50 score to mq failed: %s", err.Error())
 		}
 		return nil
 	})
@@ -343,21 +344,44 @@ func (r *TalkUseCase) EditTalkCosAndSearch(ctx context.Context, id, auth int32, 
 }
 
 func (r *TalkUseCase) DeleteTalkCacheAndSearch(ctx context.Context, id int32, uuid string) error {
-	err := r.repo.DeleteTalkCache(ctx, id, uuid)
-	if err != nil {
-		return v1.ErrorDeleteTalkFailed("delete talk cache failed: %s", err.Error())
-	}
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		var err error
+		auth, err := r.repo.GetTalkAuth(ctx, id)
+		if err != nil {
+			return v1.ErrorDeleteTalkFailed("get talk auth failed: %s", err.Error())
+		}
 
-	err = r.repo.FreezeTalkCos(ctx, id, uuid)
-	if err != nil {
-		return v1.ErrorDeleteTalkFailed("freeze talk cos failed: %s", err.Error())
-	}
+		err = r.repo.DeleteTalk(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorDeleteTalkFailed("delete talk failed: %s", err.Error())
+		}
 
-	err = r.repo.DeleteTalkSearch(ctx, id, uuid)
-	if err != nil {
-		return v1.ErrorDeleteTalkFailed("delete talk search failed: %s", err.Error())
-	}
-	return nil
+		err = r.repo.DeleteTalkStatistic(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorDeleteTalkFailed("delete talk statistic failed: %s", err.Error())
+		}
+
+		err = r.repo.ReduceCreationUserTalk(ctx, auth, uuid)
+		if err != nil {
+			return v1.ErrorDeleteTalkFailed("delete talk statistic failed: %s", err.Error())
+		}
+
+		err = r.repo.DeleteTalkCache(ctx, id, auth, uuid)
+		if err != nil {
+			return v1.ErrorDeleteTalkFailed("delete talk cache failed: %s", err.Error())
+		}
+
+		err = r.repo.FreezeTalkCos(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorDeleteTalkFailed("freeze talk cos failed: %s", err.Error())
+		}
+
+		err = r.repo.DeleteTalkSearch(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorDeleteTalkFailed("delete talk search failed: %s", err.Error())
+		}
+		return nil
+	})
 }
 
 func (r *TalkUseCase) SetTalkAgree(ctx context.Context, id int32, uuid, userUuid string) error {
