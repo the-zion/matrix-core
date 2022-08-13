@@ -57,9 +57,16 @@ type AvatarReview struct {
 }
 
 type Follow struct {
-	Follow   string
-	Followed string
-	Status   int32
+	Follow      string
+	Followed    string
+	Username    string
+	Introduce   string
+	Agree       int32
+	View        int32
+	Collect     int32
+	FollowNum   int32
+	FollowedNum int32
+	Status      int32
 }
 
 type Follows struct {
