@@ -1414,6 +1414,112 @@ var _ interface {
 	ErrorName() string
 } = GetUserAchievementReplyValidationError{}
 
+// Validate checks the field values on AddAchievementScoreReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AddAchievementScoreReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AddAchievementScoreReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AddAchievementScoreReqMultiError, or nil if none found.
+func (m *AddAchievementScoreReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AddAchievementScoreReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Uuid
+
+	// no validation rules for Score
+
+	if len(errors) > 0 {
+		return AddAchievementScoreReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// AddAchievementScoreReqMultiError is an error wrapping multiple validation
+// errors returned by AddAchievementScoreReq.ValidateAll() if the designated
+// constraints aren't met.
+type AddAchievementScoreReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AddAchievementScoreReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AddAchievementScoreReqMultiError) AllErrors() []error { return m }
+
+// AddAchievementScoreReqValidationError is the validation error returned by
+// AddAchievementScoreReq.Validate if the designated constraints aren't met.
+type AddAchievementScoreReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AddAchievementScoreReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AddAchievementScoreReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AddAchievementScoreReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AddAchievementScoreReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AddAchievementScoreReqValidationError) ErrorName() string {
+	return "AddAchievementScoreReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AddAchievementScoreReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAddAchievementScoreReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AddAchievementScoreReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AddAchievementScoreReqValidationError{}
+
 // Validate checks the field values on GetAchievementListReply_Achievement with
 // the rules defined in the proto definition for this message. If any rules
 // are violated, the first error encountered is returned, or nil if there are
