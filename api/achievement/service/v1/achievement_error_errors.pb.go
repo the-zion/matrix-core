@@ -130,3 +130,27 @@ func IsGetAchievementFailed(err error) bool {
 func ErrorGetAchievementFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, AchievementErrorReason_GET_ACHIEVEMENT_FAILED.String(), fmt.Sprintf(format, args...))
 }
+
+func IsAddAchievementScoreFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == AchievementErrorReason_ADD_ACHIEVEMENT_SCORE_FAILED.String() && e.Code == 500
+}
+
+func ErrorAddAchievementScoreFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, AchievementErrorReason_ADD_ACHIEVEMENT_SCORE_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsReduceAchievementScoreFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == AchievementErrorReason_REDUCE_ACHIEVEMENT_SCORE_FAILED.String() && e.Code == 500
+}
+
+func ErrorReduceAchievementScoreFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, AchievementErrorReason_REDUCE_ACHIEVEMENT_SCORE_FAILED.String(), fmt.Sprintf(format, args...))
+}
