@@ -24,6 +24,7 @@ type ArticleRepo interface {
 	GetArticleStatistic(ctx context.Context, id int32) (*ArticleStatistic, error)
 	GetArticleListStatistic(ctx context.Context, ids []int32) ([]*ArticleStatistic, error)
 	GetArticleSearch(ctx context.Context, page int32, search, time string) ([]*ArticleSearch, int32, error)
+	GetArticleAuth(ctx context.Context, id int32) (int32, error)
 
 	CreateArticle(ctx context.Context, id, auth int32, uuid string) error
 	CreateArticleStatistic(ctx context.Context, id, auth int32, uuid string) error
@@ -33,8 +34,10 @@ type ArticleRepo interface {
 	CreateArticleSearch(ctx context.Context, id int32, uuid string) error
 	AddArticleComment(ctx context.Context, id int32) error
 	AddArticleCommentToCache(ctx context.Context, id int32, uuid string) error
+	AddCreationUserArticle(ctx context.Context, uuid string, auth int32) error
 	ReduceArticleComment(ctx context.Context, id int32) error
 	ReduceArticleCommentToCache(ctx context.Context, id int32, uuid string) error
+	ReduceCreationUserArticle(ctx context.Context, auth int32, uuid string) error
 
 	EditArticleCos(ctx context.Context, id int32, uuid string) error
 	EditArticleSearch(ctx context.Context, id int32, uuid string) error
@@ -42,7 +45,7 @@ type ArticleRepo interface {
 
 	DeleteArticle(ctx context.Context, id int32, uuid string) error
 	DeleteArticleStatistic(ctx context.Context, id int32, uuid string) error
-	DeleteArticleCache(ctx context.Context, id int32, uuid string) error
+	DeleteArticleCache(ctx context.Context, id, auth int32, uuid string) error
 	DeleteArticleSearch(ctx context.Context, id int32, uuid string) error
 	DeleteArticleDraft(ctx context.Context, id int32, uuid string) error
 
@@ -51,6 +54,7 @@ type ArticleRepo interface {
 
 	SendArticle(ctx context.Context, id int32, uuid string) (*ArticleDraft, error)
 	SendReviewToMq(ctx context.Context, review *ArticleReview) error
+	SendScoreToMq(ctx context.Context, score int32, uuid, mode string) error
 	SendArticleToMq(ctx context.Context, article *Article, mode string) error
 	SendArticleStatisticToMq(ctx context.Context, uuid, mode string) error
 
@@ -130,27 +134,14 @@ func (r *ArticleUseCase) EditArticle(ctx context.Context, id, auth int32, uuid s
 }
 
 func (r *ArticleUseCase) DeleteArticle(ctx context.Context, id int32, uuid string) error {
-	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
-		var err error
-		err = r.repo.DeleteArticle(ctx, id, uuid)
-		if err != nil {
-			return v1.ErrorDeleteArticleFailed("delete article failed: %s", err.Error())
-		}
-
-		err = r.repo.DeleteArticleStatistic(ctx, id, uuid)
-		if err != nil {
-			return v1.ErrorDeleteArticleFailed("delete article statistic failed: %s", err.Error())
-		}
-
-		err = r.repo.SendArticleToMq(ctx, &Article{
-			ArticleId: id,
-			Uuid:      uuid,
-		}, "delete_article_cache_and_search")
-		if err != nil {
-			return v1.ErrorEditArticleFailed("delete article to mq failed: %s", err.Error())
-		}
-		return nil
-	})
+	err := r.repo.SendArticleToMq(ctx, &Article{
+		ArticleId: id,
+		Uuid:      uuid,
+	}, "delete_article_cache_and_search")
+	if err != nil {
+		return v1.ErrorEditArticleFailed("delete article to mq failed: %s", err.Error())
+	}
+	return nil
 }
 
 func (r *ArticleUseCase) CreateArticleDbCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error {
@@ -171,6 +162,11 @@ func (r *ArticleUseCase) CreateArticleDbCacheAndSearch(ctx context.Context, id, 
 			return v1.ErrorCreateArticleFailed("create article statistic failed: %s", err.Error())
 		}
 
+		err = r.repo.AddCreationUserArticle(ctx, uuid, auth)
+		if err != nil {
+			return v1.ErrorCreateArticleFailed("add creation article failed: %s", err.Error())
+		}
+
 		err = r.repo.CreateArticleCache(ctx, id, auth, uuid)
 		if err != nil {
 			return v1.ErrorCreateArticleFailed("create article cache failed: %s", err.Error())
@@ -183,6 +179,11 @@ func (r *ArticleUseCase) CreateArticleDbCacheAndSearch(ctx context.Context, id, 
 		err = r.repo.CreateArticleSearch(ctx, id, uuid)
 		if err != nil {
 			return v1.ErrorCreateArticleFailed("create article search failed: %s", err.Error())
+		}
+
+		err = r.repo.SendScoreToMq(ctx, 50, uuid, "add_score")
+		if err != nil {
+			return v1.ErrorCreateArticleFailed("send 50 score to mq failed: %s", err.Error())
 		}
 		return nil
 	})
@@ -211,21 +212,45 @@ func (r *ArticleUseCase) EditArticleCosAndSearch(ctx context.Context, id, auth i
 }
 
 func (r *ArticleUseCase) DeleteArticleCacheAndSearch(ctx context.Context, id int32, uuid string) error {
-	err := r.repo.DeleteArticleCache(ctx, id, uuid)
-	if err != nil {
-		return v1.ErrorDeleteArticleFailed("delete article cache failed: %s", err.Error())
-	}
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		var err error
+		auth, err := r.repo.GetArticleAuth(ctx, id)
+		if err != nil {
+			return v1.ErrorDeleteArticleFailed("get article auth failed: %s", err.Error())
+		}
 
-	err = r.repo.FreezeArticleCos(ctx, id, uuid)
-	if err != nil {
-		return v1.ErrorDeleteArticleFailed("freeze article cos failed: %s", err.Error())
-	}
+		err = r.repo.DeleteArticle(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorDeleteArticleFailed("delete article failed: %s", err.Error())
+		}
 
-	err = r.repo.DeleteArticleSearch(ctx, id, uuid)
-	if err != nil {
-		return v1.ErrorDeleteArticleFailed("delete article search failed: %s", err.Error())
-	}
-	return nil
+		err = r.repo.DeleteArticleStatistic(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorDeleteArticleFailed("delete article statistic failed: %s", err.Error())
+		}
+
+		err = r.repo.ReduceCreationUserArticle(ctx, auth, uuid)
+		if err != nil {
+			return v1.ErrorDeleteArticleFailed("delete article statistic failed: %s", err.Error())
+		}
+
+		err = r.repo.DeleteArticleCache(ctx, id, auth, uuid)
+		if err != nil {
+			return v1.ErrorDeleteArticleFailed("delete article cache failed: %s", err.Error())
+		}
+
+		err = r.repo.FreezeArticleCos(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorDeleteArticleFailed("freeze article cos failed: %s", err.Error())
+		}
+
+		err = r.repo.DeleteArticleSearch(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorDeleteArticleFailed("delete article search failed: %s", err.Error())
+		}
+		return nil
+
+	})
 }
 
 func (r *ArticleUseCase) CreateArticleDraft(ctx context.Context, uuid string) (int32, error) {
