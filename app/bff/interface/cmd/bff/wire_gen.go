@@ -31,9 +31,10 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, re
 		return nil, nil, err
 	}
 	userRepo := data.NewUserRepo(dataData, logger)
-	recovery := data.NewRecovery(dataData)
-	userUseCase := biz.NewUserUseCase(userRepo, recovery, logger)
+	achievementRepo := data.NewAchievementRepo(dataData, logger)
 	creationRepo := data.NewCreationRepo(dataData, logger)
+	recovery := data.NewRecovery(dataData)
+	userUseCase := biz.NewUserUseCase(userRepo, achievementRepo, creationRepo, recovery, logger)
 	creationUseCase := biz.NewCreationUseCase(creationRepo, recovery, logger)
 	talkRepo := data.NewTalkRepo(dataData, logger)
 	talkUseCase := biz.NewTalkUseCase(talkRepo, recovery, logger)
@@ -41,7 +42,6 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, re
 	articleUseCase := biz.NewArticleUseCase(articleRepo, recovery, logger)
 	columnRepo := data.NewColumnRepo(dataData, logger)
 	columnUseCase := biz.NewColumnUseCase(columnRepo, recovery, logger)
-	achievementRepo := data.NewAchievementRepo(dataData, logger)
 	achievementUseCase := biz.NewAchievementUseCase(achievementRepo, recovery, logger)
 	newsRepo := data.NewNewsRepo(dataData, logger)
 	newsUseCase := biz.NewNewsUseCase(newsRepo, recovery, logger)
