@@ -35,7 +35,11 @@ service User {
 
   rpc SetUserFollow (SetUserFollowReq) returns (google.protobuf.Empty) {}
 
+  rpc SetFollowDbAndCache (SetFollowDbAndCacheReq) returns (google.protobuf.Empty) {}
+
   rpc CancelUserFollow (CancelUserFollowReq) returns (google.protobuf.Empty) {}
+
+  rpc CancelFollowDbAndCache (CancelFollowDbAndCacheReq) returns (google.protobuf.Empty) {}
 
   rpc GetAccount (GetAccountReq) returns (GetAccountReply) {}
 
@@ -152,7 +156,17 @@ message SetUserFollowReq{
   string user_uuid = 2 [(validate.rules).string.uuid = true];
 }
 
+message SetFollowDbAndCacheReq{
+  string uuid = 1[(validate.rules).string.uuid = true];
+  string user_uuid = 2 [(validate.rules).string.uuid = true];
+}
+
 message CancelUserFollowReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+  string user_uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message CancelFollowDbAndCacheReq{
   string uuid = 1 [(validate.rules).string.uuid = true];
   string user_uuid = 2 [(validate.rules).string.uuid = true];
 }
@@ -283,16 +297,11 @@ message GetFollowedListCountReply{
 }
 
 message GetUserFollowsReq{
-  repeated string uuids = 1 [(validate.rules).repeated.items.string.uuid = true];
-  string userId = 2 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.uuid = true];
 }
 
 message GetUserFollowsReply{
-  message Follows{
-    string uuid = 1;
-    int32 follow_judge = 2;
-  }
-  repeated Follows follows = 1;
+  map<string, bool> follows = 1;
 }
 
 message GetUserSearchReq{
