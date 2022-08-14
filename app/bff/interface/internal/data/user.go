@@ -224,23 +224,14 @@ func (r *userRepo) GetUserFollow(ctx context.Context, uuid, userUuid string) (bo
 	return reply.Follow, nil
 }
 
-func (r *userRepo) GetUserFollows(ctx context.Context, userId string, uuids []string) ([]*biz.Follows, error) {
-	reply := make([]*biz.Follows, 0)
-	followsList, err := r.data.uc.GetUserFollows(ctx, &userV1.GetUserFollowsReq{
-		Uuids:  uuids,
-		UserId: userId,
+func (r *userRepo) GetUserFollows(ctx context.Context, uuid string) (map[string]bool, error) {
+	followsMap, err := r.data.uc.GetUserFollows(ctx, &userV1.GetUserFollowsReq{
+		Uuid: uuid,
 	})
 	if err != nil {
 		return nil, err
 	}
-
-	for _, item := range followsList.Follows {
-		reply = append(reply, &biz.Follows{
-			Uuid:   item.Uuid,
-			Follow: item.FollowJudge,
-		})
-	}
-	return reply, nil
+	return followsMap.Follows, nil
 }
 
 func (r *userRepo) GetFollowList(ctx context.Context, page int32, uuid string) ([]*biz.Follow, error) {
