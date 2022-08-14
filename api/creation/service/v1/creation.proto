@@ -36,6 +36,10 @@ service Creation {
 
   rpc GetCollectionsVisitorCount(GetCollectionsCountReq) returns (GetCollectionsCountReply){}
 
+  rpc GetCreationUser(GetCreationUserReq) returns (GetCreationUserReply){}
+
+  rpc GetCreationUserVisitor(GetCreationUserReq) returns (GetCreationUserReply){}
+
   rpc CreateCollections(CreateCollectionsReq) returns (google.protobuf.Empty){}
 
   rpc EditCollections(EditCollectionsReq) returns (google.protobuf.Empty){}
@@ -304,6 +308,17 @@ message GetCollectionsCountReq{
 
 message GetCollectionsCountReply{
   int32 count = 1;
+}
+
+message GetCreationUserReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+message GetCreationUserReply{
+  int32 article = 1;
+  int32 column = 2;
+  int32 talk = 3;
+  int32 collections = 4;
 }
 
 message CreateCollectionsReq{
