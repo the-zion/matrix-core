@@ -11,15 +11,25 @@ type UserAccount struct {
 }
 
 type UserProfile struct {
-	Uuid      string
-	Username  string
-	Avatar    string
-	School    string
-	Company   string
-	Job       string
-	Homepage  string
-	Introduce string
-	Created   string
+	Uuid        string
+	Username    string
+	Avatar      string
+	School      string
+	Company     string
+	Job         string
+	Homepage    string
+	Introduce   string
+	Created     string
+	Score       int32
+	Agree       int32
+	Collect     int32
+	View        int32
+	Follow      int32
+	Followed    int32
+	Article     int32
+	Column      int32
+	Talk        int32
+	Collections int32
 }
 
 type UserSearch struct {
@@ -275,8 +285,16 @@ type ColumnSearch struct {
 	Update    string
 }
 
+type CreationUser struct {
+	Article     int32
+	Column      int32
+	Talk        int32
+	Collections int32
+}
+
 type Achievement struct {
 	Uuid     string
+	Score    int32
 	Agree    int32
 	Collect  int32
 	View     int32
