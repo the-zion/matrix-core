@@ -32,6 +32,7 @@ type CommentRepo interface {
 	SendSubCommentToMq(ctx context.Context, comment *SubComment, mode string) error
 	SendReviewToMq(ctx context.Context, review *CommentReview) error
 	SendCommentStatisticToMq(ctx context.Context, uuid, mode string) error
+	SendScoreToMq(ctx context.Context, score int32, uuid, mode string) error
 	SetRecord(ctx context.Context, id int32, uuid, ip string) error
 	SetCommentAgree(ctx context.Context, id int32, uuid string) error
 	SetSubCommentAgree(ctx context.Context, id int32, uuid string) error
@@ -322,6 +323,10 @@ func (r *CommentUseCase) SetCommentAgreeDbAndCache(ctx context.Context, id, crea
 		if err != nil {
 			return v1.ErrorSetAgreeFailed("set comment agree to mq failed: %s", err.Error())
 		}
+		err = r.repo.SendScoreToMq(ctx, 2, uuid, "add_score")
+		if err != nil {
+			return v1.ErrorCreateCommentFailed("send 2 score to mq failed: %s", err.Error())
+		}
 		return nil
 	})
 }
@@ -343,6 +348,10 @@ func (r *CommentUseCase) SetSubCommentAgreeDbAndCache(ctx context.Context, id in
 		err = r.repo.SendCommentStatisticToMq(ctx, uuid, "agree")
 		if err != nil {
 			return v1.ErrorSetAgreeFailed("set comment agree to mq failed: %s", err.Error())
+		}
+		err = r.repo.SendScoreToMq(ctx, 2, uuid, "add_score")
+		if err != nil {
+			return v1.ErrorCreateCommentFailed("send 2 score to mq failed: %s", err.Error())
 		}
 		return nil
 	})
@@ -447,6 +456,11 @@ func (r *CommentUseCase) CreateCommentDbAndCache(ctx context.Context, id, creati
 		if err != nil {
 			return v1.ErrorCreateCommentFailed("create comment cache failed: %s", err.Error())
 		}
+
+		err = r.repo.SendScoreToMq(ctx, 5, uuid, "add_score")
+		if err != nil {
+			return v1.ErrorCreateCommentFailed("send 5 score to mq failed: %s", err.Error())
+		}
 		return nil
 	})
 }
@@ -484,6 +498,11 @@ func (r *CommentUseCase) CreateSubCommentDbAndCache(ctx context.Context, id, roo
 		err = r.repo.CreateSubCommentCache(ctx, id, rootId, uuid, parentUserId)
 		if err != nil {
 			return v1.ErrorCreateCommentFailed("create sub comment cache failed: %s", err.Error())
+		}
+
+		err = r.repo.SendScoreToMq(ctx, 5, uuid, "add_score")
+		if err != nil {
+			return v1.ErrorCreateCommentFailed("send 5 score to mq failed: %s", err.Error())
 		}
 		return nil
 	})
