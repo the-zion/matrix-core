@@ -111,6 +111,7 @@ const OperationBffGetUserCommentAgree = "/bff.v1.Bff/GetUserCommentAgree"
 const OperationBffGetUserFollow = "/bff.v1.Bff/GetUserFollow"
 const OperationBffGetUserFollows = "/bff.v1.Bff/GetUserFollows"
 const OperationBffGetUserInfo = "/bff.v1.Bff/GetUserInfo"
+const OperationBffGetUserInfoVisitor = "/bff.v1.Bff/GetUserInfoVisitor"
 const OperationBffGetUserSearch = "/bff.v1.Bff/GetUserSearch"
 const OperationBffGetUserTalkList = "/bff.v1.Bff/GetUserTalkList"
 const OperationBffGetUserTalkListVisitor = "/bff.v1.Bff/GetUserTalkListVisitor"
@@ -244,8 +245,9 @@ type BffHTTPServer interface {
 	GetUserColumnListVisitor(context.Context, *GetUserColumnListVisitorReq) (*GetColumnListReply, error)
 	GetUserCommentAgree(context.Context, *emptypb.Empty) (*GetUserCommentAgreeReply, error)
 	GetUserFollow(context.Context, *GetUserFollowReq) (*GetUserFollowReply, error)
-	GetUserFollows(context.Context, *GetUserFollowsReq) (*GetUserFollowsReply, error)
-	GetUserInfo(context.Context, *GetUserInfoReq) (*GetUserInfoReply, error)
+	GetUserFollows(context.Context, *emptypb.Empty) (*GetUserFollowsReply, error)
+	GetUserInfo(context.Context, *emptypb.Empty) (*GetUserInfoReply, error)
+	GetUserInfoVisitor(context.Context, *GetUserInfoVisitorReq) (*GetUserInfoReply, error)
 	GetUserSearch(context.Context, *GetUserSearchReq) (*GetUserSearchReply, error)
 	GetUserTalkList(context.Context, *GetUserTalkListReq) (*GetTalkListReply, error)
 	GetUserTalkListVisitor(context.Context, *GetUserTalkListVisitorReq) (*GetTalkListReply, error)
@@ -305,6 +307,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.GET("/v1/get/user/profile", _Bff_GetProfile0_HTTP_Handler(srv))
 	r.GET("/v1/get/profile/list", _Bff_GetProfileList0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/info", _Bff_GetUserInfo0_HTTP_Handler(srv))
+	r.GET("/v1/get/user/info/visitor", _Bff_GetUserInfoVisitor0_HTTP_Handler(srv))
 	r.POST("/v1/get/user/follow", _Bff_GetUserFollow0_HTTP_Handler(srv))
 	r.POST("/v1/get/user/follows", _Bff_GetUserFollows0_HTTP_Handler(srv))
 	r.GET("/v1/get/follow/list", _Bff_GetFollowList0_HTTP_Handler(srv))
@@ -657,13 +660,32 @@ func _Bff_GetProfileList0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context)
 
 func _Bff_GetUserInfo0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in GetUserInfoReq
+		var in emptypb.Empty
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, OperationBffGetUserInfo)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetUserInfo(ctx, req.(*GetUserInfoReq))
+			return srv.GetUserInfo(ctx, req.(*emptypb.Empty))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetUserInfoReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_GetUserInfoVisitor0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetUserInfoVisitorReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetUserInfoVisitor)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetUserInfoVisitor(ctx, req.(*GetUserInfoVisitorReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -695,13 +717,13 @@ func _Bff_GetUserFollow0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) 
 
 func _Bff_GetUserFollows0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in GetUserFollowsReq
+		var in emptypb.Empty
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, OperationBffGetUserFollows)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetUserFollows(ctx, req.(*GetUserFollowsReq))
+			return srv.GetUserFollows(ctx, req.(*emptypb.Empty))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -3044,8 +3066,9 @@ type BffHTTPClient interface {
 	GetUserColumnListVisitor(ctx context.Context, req *GetUserColumnListVisitorReq, opts ...http.CallOption) (rsp *GetColumnListReply, err error)
 	GetUserCommentAgree(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetUserCommentAgreeReply, err error)
 	GetUserFollow(ctx context.Context, req *GetUserFollowReq, opts ...http.CallOption) (rsp *GetUserFollowReply, err error)
-	GetUserFollows(ctx context.Context, req *GetUserFollowsReq, opts ...http.CallOption) (rsp *GetUserFollowsReply, err error)
-	GetUserInfo(ctx context.Context, req *GetUserInfoReq, opts ...http.CallOption) (rsp *GetUserInfoReply, err error)
+	GetUserFollows(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetUserFollowsReply, err error)
+	GetUserInfo(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetUserInfoReply, err error)
+	GetUserInfoVisitor(ctx context.Context, req *GetUserInfoVisitorReq, opts ...http.CallOption) (rsp *GetUserInfoReply, err error)
 	GetUserSearch(ctx context.Context, req *GetUserSearchReq, opts ...http.CallOption) (rsp *GetUserSearchReply, err error)
 	GetUserTalkList(ctx context.Context, req *GetUserTalkListReq, opts ...http.CallOption) (rsp *GetTalkListReply, err error)
 	GetUserTalkListVisitor(ctx context.Context, req *GetUserTalkListVisitorReq, opts ...http.CallOption) (rsp *GetTalkListReply, err error)
@@ -4255,7 +4278,7 @@ func (c *BffHTTPClientImpl) GetUserFollow(ctx context.Context, in *GetUserFollow
 	return &out, err
 }
 
-func (c *BffHTTPClientImpl) GetUserFollows(ctx context.Context, in *GetUserFollowsReq, opts ...http.CallOption) (*GetUserFollowsReply, error) {
+func (c *BffHTTPClientImpl) GetUserFollows(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*GetUserFollowsReply, error) {
 	var out GetUserFollowsReply
 	pattern := "/v1/get/user/follows"
 	path := binding.EncodeURL(pattern, in, false)
@@ -4268,11 +4291,24 @@ func (c *BffHTTPClientImpl) GetUserFollows(ctx context.Context, in *GetUserFollo
 	return &out, err
 }
 
-func (c *BffHTTPClientImpl) GetUserInfo(ctx context.Context, in *GetUserInfoReq, opts ...http.CallOption) (*GetUserInfoReply, error) {
+func (c *BffHTTPClientImpl) GetUserInfo(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*GetUserInfoReply, error) {
 	var out GetUserInfoReply
 	pattern := "/v1/get/user/info"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationBffGetUserInfo))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetUserInfoVisitor(ctx context.Context, in *GetUserInfoVisitorReq, opts ...http.CallOption) (*GetUserInfoReply, error) {
+	var out GetUserInfoReply
+	pattern := "/v1/get/user/info/visitor"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationBffGetUserInfoVisitor))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

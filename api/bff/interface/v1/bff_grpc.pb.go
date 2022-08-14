@@ -35,9 +35,10 @@ type BffClient interface {
 	GetAccount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetAccountReply, error)
 	GetProfile(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetProfileReply, error)
 	GetProfileList(ctx context.Context, in *GetProfileListReq, opts ...grpc.CallOption) (*GetProfileListReply, error)
-	GetUserInfo(ctx context.Context, in *GetUserInfoReq, opts ...grpc.CallOption) (*GetUserInfoReply, error)
+	GetUserInfo(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserInfoReply, error)
+	GetUserInfoVisitor(ctx context.Context, in *GetUserInfoVisitorReq, opts ...grpc.CallOption) (*GetUserInfoReply, error)
 	GetUserFollow(ctx context.Context, in *GetUserFollowReq, opts ...grpc.CallOption) (*GetUserFollowReply, error)
-	GetUserFollows(ctx context.Context, in *GetUserFollowsReq, opts ...grpc.CallOption) (*GetUserFollowsReply, error)
+	GetUserFollows(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserFollowsReply, error)
 	GetFollowList(ctx context.Context, in *GetFollowListReq, opts ...grpc.CallOption) (*GetFollowListReply, error)
 	GetFollowListCount(ctx context.Context, in *GetFollowListCountReq, opts ...grpc.CallOption) (*GetFollowListCountReply, error)
 	GetFollowedList(ctx context.Context, in *GetFollowedListReq, opts ...grpc.CallOption) (*GetFollowedListReply, error)
@@ -275,9 +276,18 @@ func (c *bffClient) GetProfileList(ctx context.Context, in *GetProfileListReq, o
 	return out, nil
 }
 
-func (c *bffClient) GetUserInfo(ctx context.Context, in *GetUserInfoReq, opts ...grpc.CallOption) (*GetUserInfoReply, error) {
+func (c *bffClient) GetUserInfo(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserInfoReply, error) {
 	out := new(GetUserInfoReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserInfo", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetUserInfoVisitor(ctx context.Context, in *GetUserInfoVisitorReq, opts ...grpc.CallOption) (*GetUserInfoReply, error) {
+	out := new(GetUserInfoReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserInfoVisitor", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -293,7 +303,7 @@ func (c *bffClient) GetUserFollow(ctx context.Context, in *GetUserFollowReq, opt
 	return out, nil
 }
 
-func (c *bffClient) GetUserFollows(ctx context.Context, in *GetUserFollowsReq, opts ...grpc.CallOption) (*GetUserFollowsReply, error) {
+func (c *bffClient) GetUserFollows(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserFollowsReply, error) {
 	out := new(GetUserFollowsReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserFollows", in, out, opts...)
 	if err != nil {
@@ -1380,9 +1390,10 @@ type BffServer interface {
 	GetAccount(context.Context, *emptypb.Empty) (*GetAccountReply, error)
 	GetProfile(context.Context, *emptypb.Empty) (*GetProfileReply, error)
 	GetProfileList(context.Context, *GetProfileListReq) (*GetProfileListReply, error)
-	GetUserInfo(context.Context, *GetUserInfoReq) (*GetUserInfoReply, error)
+	GetUserInfo(context.Context, *emptypb.Empty) (*GetUserInfoReply, error)
+	GetUserInfoVisitor(context.Context, *GetUserInfoVisitorReq) (*GetUserInfoReply, error)
 	GetUserFollow(context.Context, *GetUserFollowReq) (*GetUserFollowReply, error)
-	GetUserFollows(context.Context, *GetUserFollowsReq) (*GetUserFollowsReply, error)
+	GetUserFollows(context.Context, *emptypb.Empty) (*GetUserFollowsReply, error)
 	GetFollowList(context.Context, *GetFollowListReq) (*GetFollowListReply, error)
 	GetFollowListCount(context.Context, *GetFollowListCountReq) (*GetFollowListCountReply, error)
 	GetFollowedList(context.Context, *GetFollowedListReq) (*GetFollowedListReply, error)
@@ -1545,13 +1556,16 @@ func (UnimplementedBffServer) GetProfile(context.Context, *emptypb.Empty) (*GetP
 func (UnimplementedBffServer) GetProfileList(context.Context, *GetProfileListReq) (*GetProfileListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProfileList not implemented")
 }
-func (UnimplementedBffServer) GetUserInfo(context.Context, *GetUserInfoReq) (*GetUserInfoReply, error) {
+func (UnimplementedBffServer) GetUserInfo(context.Context, *emptypb.Empty) (*GetUserInfoReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserInfo not implemented")
+}
+func (UnimplementedBffServer) GetUserInfoVisitor(context.Context, *GetUserInfoVisitorReq) (*GetUserInfoReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserInfoVisitor not implemented")
 }
 func (UnimplementedBffServer) GetUserFollow(context.Context, *GetUserFollowReq) (*GetUserFollowReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserFollow not implemented")
 }
-func (UnimplementedBffServer) GetUserFollows(context.Context, *GetUserFollowsReq) (*GetUserFollowsReply, error) {
+func (UnimplementedBffServer) GetUserFollows(context.Context, *emptypb.Empty) (*GetUserFollowsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserFollows not implemented")
 }
 func (UnimplementedBffServer) GetFollowList(context.Context, *GetFollowListReq) (*GetFollowListReply, error) {
@@ -2138,7 +2152,7 @@ func _Bff_GetProfileList_Handler(srv interface{}, ctx context.Context, dec func(
 }
 
 func _Bff_GetUserInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetUserInfoReq)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -2150,7 +2164,25 @@ func _Bff_GetUserInfo_Handler(srv interface{}, ctx context.Context, dec func(int
 		FullMethod: "/bff.v1.Bff/GetUserInfo",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BffServer).GetUserInfo(ctx, req.(*GetUserInfoReq))
+		return srv.(BffServer).GetUserInfo(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetUserInfoVisitor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserInfoVisitorReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetUserInfoVisitor(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetUserInfoVisitor",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetUserInfoVisitor(ctx, req.(*GetUserInfoVisitorReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2174,7 +2206,7 @@ func _Bff_GetUserFollow_Handler(srv interface{}, ctx context.Context, dec func(i
 }
 
 func _Bff_GetUserFollows_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetUserFollowsReq)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -2186,7 +2218,7 @@ func _Bff_GetUserFollows_Handler(srv interface{}, ctx context.Context, dec func(
 		FullMethod: "/bff.v1.Bff/GetUserFollows",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BffServer).GetUserFollows(ctx, req.(*GetUserFollowsReq))
+		return srv.(BffServer).GetUserFollows(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -4373,6 +4405,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserInfo",
 			Handler:    _Bff_GetUserInfo_Handler,
+		},
+		{
+			MethodName: "GetUserInfoVisitor",
+			Handler:    _Bff_GetUserInfoVisitor_Handler,
 		},
 		{
 			MethodName: "GetUserFollow",
