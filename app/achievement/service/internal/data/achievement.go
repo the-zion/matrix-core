@@ -92,7 +92,7 @@ func (r *achievementRepo) CancelAchievementCollect(ctx context.Context, uuid str
 }
 
 func (r *achievementRepo) SetAchievementAgreeToCache(ctx context.Context, uuid string) error {
-	var incrBy = redis.NewScript(`
+	var script = redis.NewScript(`
 					local uuid = KEYS[1]
 					local exist = redis.call("EXISTS", uuid)
 					if exist == 1 then
@@ -101,7 +101,7 @@ func (r *achievementRepo) SetAchievementAgreeToCache(ctx context.Context, uuid s
 					return 0
 	`)
 	keys := []string{uuid}
-	_, err := incrBy.Run(ctx, r.data.redisCli, keys).Result()
+	_, err := script.Run(ctx, r.data.redisCli, keys).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set achievement agree to cache: uuid(%s)", uuid))
 	}
@@ -109,7 +109,7 @@ func (r *achievementRepo) SetAchievementAgreeToCache(ctx context.Context, uuid s
 }
 
 func (r *achievementRepo) CancelAchievementAgreeFromCache(ctx context.Context, uuid string) error {
-	var incrBy = redis.NewScript(`
+	var script = redis.NewScript(`
 					local uuid = KEYS[1]
 					local exist = redis.call("EXISTS", uuid)
 					if exist == 1 then
@@ -121,7 +121,7 @@ func (r *achievementRepo) CancelAchievementAgreeFromCache(ctx context.Context, u
 					return 0
 	`)
 	keys := []string{uuid}
-	_, err := incrBy.Run(ctx, r.data.redisCli, keys).Result()
+	_, err := script.Run(ctx, r.data.redisCli, keys).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel achievement agree from cache: uuid(%s)", uuid))
 	}
@@ -129,7 +129,7 @@ func (r *achievementRepo) CancelAchievementAgreeFromCache(ctx context.Context, u
 }
 
 func (r *achievementRepo) SetAchievementViewToCache(ctx context.Context, uuid string) error {
-	var incrBy = redis.NewScript(`
+	var script = redis.NewScript(`
 					local uuid = KEYS[1]
 					local exist = redis.call("EXISTS", uuid)
 					if exist == 1 then
@@ -138,7 +138,7 @@ func (r *achievementRepo) SetAchievementViewToCache(ctx context.Context, uuid st
 					return 0
 	`)
 	keys := []string{uuid}
-	_, err := incrBy.Run(ctx, r.data.redisCli, keys).Result()
+	_, err := script.Run(ctx, r.data.redisCli, keys).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set achievement view to cache: uuid(%s)", uuid))
 	}
@@ -146,7 +146,7 @@ func (r *achievementRepo) SetAchievementViewToCache(ctx context.Context, uuid st
 }
 
 func (r *achievementRepo) SetAchievementCollectToCache(ctx context.Context, uuid string) error {
-	var incrBy = redis.NewScript(`
+	var script = redis.NewScript(`
 					local uuid = KEYS[1]
 					local exist = redis.call("EXISTS", uuid)
 					if exist == 1 then
@@ -155,7 +155,7 @@ func (r *achievementRepo) SetAchievementCollectToCache(ctx context.Context, uuid
 					return 0
 	`)
 	keys := []string{uuid}
-	_, err := incrBy.Run(ctx, r.data.redisCli, keys).Result()
+	_, err := script.Run(ctx, r.data.redisCli, keys).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set achievement collect to cache: uuid(%s)", uuid))
 	}
@@ -163,7 +163,7 @@ func (r *achievementRepo) SetAchievementCollectToCache(ctx context.Context, uuid
 }
 
 func (r *achievementRepo) CancelAchievementCollectFromCache(ctx context.Context, uuid string) error {
-	var incrBy = redis.NewScript(`
+	var script = redis.NewScript(`
 					local uuid = KEYS[1]
 					local exist = redis.call("EXISTS", uuid)
 					if exist == 1 then
@@ -175,7 +175,7 @@ func (r *achievementRepo) CancelAchievementCollectFromCache(ctx context.Context,
 					return 0
 	`)
 	keys := []string{uuid}
-	_, err := incrBy.Run(ctx, r.data.redisCli, keys).Result()
+	_, err := script.Run(ctx, r.data.redisCli, keys).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel achievement collect from cache: uuid(%s)", uuid))
 	}
@@ -213,7 +213,7 @@ func (r *achievementRepo) SetAchievementFollowed(ctx context.Context, uuid strin
 }
 
 func (r *achievementRepo) SetAchievementFollowToCache(ctx context.Context, follow, followed string) error {
-	var incrBy = redis.NewScript(`
+	var script = redis.NewScript(`
 					local follow = KEYS[1]
 					local exist = redis.call("EXISTS", follow)
 					if exist == 1 then
@@ -228,7 +228,7 @@ func (r *achievementRepo) SetAchievementFollowToCache(ctx context.Context, follo
 					return 0
 	`)
 	keys := []string{follow, followed}
-	_, err := incrBy.Run(ctx, r.data.redisCli, keys).Result()
+	_, err := script.Run(ctx, r.data.redisCli, keys).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set achievement follow to cache: follow(%s), followed(%s)", follow, followed))
 	}
@@ -254,7 +254,7 @@ func (r *achievementRepo) CancelAchievementFollowed(ctx context.Context, uuid st
 }
 
 func (r *achievementRepo) CancelAchievementFollowFromCache(ctx context.Context, follow, followed string) error {
-	var incrBy = redis.NewScript(`
+	var script = redis.NewScript(`
 					local follow = KEYS[1]
 					local exist = redis.call("EXISTS", follow)
 					if exist == 1 then
@@ -275,7 +275,7 @@ func (r *achievementRepo) CancelAchievementFollowFromCache(ctx context.Context, 
 					return 0
 	`)
 	keys := []string{follow, followed}
-	_, err := incrBy.Run(ctx, r.data.redisCli, keys).Result()
+	_, err := script.Run(ctx, r.data.redisCli, keys).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel achievement follow to cache: follow(%s), followed(%s)", follow, followed))
 	}
@@ -510,7 +510,7 @@ func (r *achievementRepo) AddAchievementScore(ctx context.Context, uuid string, 
 }
 
 func (r *achievementRepo) AddAchievementScoreToCache(ctx context.Context, uuid string, score int32) error {
-	var incrBy = redis.NewScript(`
+	var script = redis.NewScript(`
 					local uuid = KEYS[1]
 					local value = ARGV[1]
 					local exist = redis.call("EXISTS", uuid)
@@ -521,7 +521,7 @@ func (r *achievementRepo) AddAchievementScoreToCache(ctx context.Context, uuid s
 	`)
 	keys := []string{uuid}
 	values := []interface{}{score}
-	_, err := incrBy.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to add achievement score to cache: uuid(%s), score(%v)", uuid, score))
