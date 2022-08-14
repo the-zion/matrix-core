@@ -90,9 +90,15 @@ service Bff{
     };
   }
 
-  rpc GetUserInfo (GetUserInfoReq) returns (GetUserInfoReply) {
+  rpc GetUserInfo (google.protobuf.Empty) returns (GetUserInfoReply) {
     option (google.api.http) = {
       get: "/v1/get/user/info",
+    };
+  }
+
+  rpc GetUserInfoVisitor (GetUserInfoVisitorReq) returns (GetUserInfoReply) {
+    option (google.api.http) = {
+      get: "/v1/get/user/info/visitor",
     };
   }
 
@@ -103,7 +109,7 @@ service Bff{
     };
   }
 
-  rpc GetUserFollows (GetUserFollowsReq) returns (GetUserFollowsReply) {
+  rpc GetUserFollows (google.protobuf.Empty) returns (GetUserFollowsReply) {
     option (google.api.http) = {
       post: "/v1/get/user/follows",
       body: "*"
@@ -991,19 +997,29 @@ message GetProfileListReply{
   repeated Profile profile = 1;
 }
 
-message GetUserInfoReq{
+message GetUserInfoVisitorReq{
   string uuid = 1;
 }
 
 message GetUserInfoReply{
-  string username = 2;
-  string avatar = 3;
-  string school = 4;
-  string company = 5;
-  string job = 6;
-  string homepage = 7;
-  string introduce = 8;
-  string created = 9;
+  string username = 1;
+  string avatar = 2;
+  string school = 3;
+  string company = 4;
+  string job = 5;
+  string homepage = 6;
+  string introduce = 7;
+  string created = 8;
+  int32 score = 9;
+  int32 agree = 10;
+  int32 collect = 11;
+  int32 view = 12;
+  int32 follow = 13;
+  int32 followed = 14;
+  int32 article = 15;
+  int32 column = 16;
+  int32 talk = 17;
+  int32 collections = 18;
 }
 
 message GetUserFollowReq{
@@ -1623,16 +1639,8 @@ message GetSubscribeListCountReply{
   int32 count = 1;
 }
 
-message GetUserFollowsReq{
-  repeated string uuids = 1;
-}
-
 message GetUserFollowsReply{
-  message Follows{
-    string uuid = 1;
-    int32 follow_judge = 2;
-  }
-  repeated Follows follows = 1;
+  map<string, bool> follows = 1;
 }
 
 message GetColumnListReq{
