@@ -98,12 +98,12 @@ func (r *commentRepo) getUserCommentAgreeFromDb(ctx context.Context, uuid string
 		agreeMap[item.CommentId] = true
 	}
 	if len(list) != 0 {
-		go r.settUserCommentAgreeToCache(uuid, list)
+		go r.setUserCommentAgreeToCache(uuid, list)
 	}
 	return agreeMap, nil
 }
 
-func (r *commentRepo) settUserCommentAgreeToCache(uuid string, agreeList []*CommentAgree) {
+func (r *commentRepo) setUserCommentAgreeToCache(uuid string, agreeList []*CommentAgree) {
 	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
 		set := make([]interface{}, 0)
 		key := "user_comment_agree_" + uuid
@@ -681,7 +681,7 @@ func (r *commentRepo) SetRecord(ctx context.Context, id int32, uuid, ip string) 
 }
 
 func (r *commentRepo) SetUserCommentAgreeToCache(ctx context.Context, id int32, userUuid string) error {
-	var incrBy = redis.NewScript(`
+	var script = redis.NewScript(`
 					local key = KEYS[1]
                     local change = ARGV[1]
 					local value = redis.call("EXISTS", key)
@@ -693,7 +693,7 @@ func (r *commentRepo) SetUserCommentAgreeToCache(ctx context.Context, id int32, 
 	`)
 	keys := []string{"user_comment_agree_" + userUuid}
 	values := []interface{}{strconv.Itoa(int(id))}
-	_, err := incrBy.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set user comment agree to cache: id(%v), userUuid(%s)", id, userUuid))
 	}
@@ -853,7 +853,7 @@ func (r *commentRepo) CancelCommentAgreeFromCache(ctx context.Context, id, creat
 	statisticKey := fmt.Sprintf("comment_%v", id)
 	userKey := fmt.Sprintf("user_comment_agree_%s", userUuid)
 
-	var incrBy = redis.NewScript(`
+	var script = redis.NewScript(`
 					local hotKey = KEYS[1]
                     local member = ARGV[1]
 					local hotKeyExist = redis.call("EXISTS", hotKey)
@@ -880,7 +880,7 @@ func (r *commentRepo) CancelCommentAgreeFromCache(ctx context.Context, id, creat
 	`)
 	keys := []string{hotKey, statisticKey, userKey}
 	values := []interface{}{fmt.Sprintf("%v%s%s", id, "%", uuid), id}
-	_, err := incrBy.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to update(cancel) comment cache: id(%v), creationId(%v), creationType(%v), uuid(%s), userUuid(%s) ", id, creationId, creationType, uuid, userUuid))
 	}
@@ -891,7 +891,7 @@ func (r *commentRepo) CancelSubCommentAgreeFromCache(ctx context.Context, id int
 	statisticKey := fmt.Sprintf("comment_%v", id)
 	userKey := fmt.Sprintf("user_comment_agree_%s", userUuid)
 
-	var incrBy = redis.NewScript(`
+	var script = redis.NewScript(`
 					local statisticKey = KEYS[1]
 					local statisticKeyExist = redis.call("EXISTS", statisticKey)
 					if statisticKeyExist == 1 then
@@ -908,7 +908,7 @@ func (r *commentRepo) CancelSubCommentAgreeFromCache(ctx context.Context, id int
 	`)
 	keys := []string{statisticKey, userKey}
 	values := []interface{}{id}
-	_, err := incrBy.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to update(cancel) sub comment cache: id(%v), uuid(%s), userUuid(%s) ", id, uuid, userUuid))
 	}
@@ -1049,6 +1049,28 @@ func (r *commentRepo) SendCommentStatisticToMq(ctx context.Context, uuid, mode s
 	_, err = r.data.achievementMqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send talk statistic to mq: uuid(%s)", uuid))
+	}
+	return nil
+}
+
+func (r *commentRepo) SendScoreToMq(ctx context.Context, score int32, uuid, mode string) error {
+	scoreMap := map[string]interface{}{}
+	scoreMap["uuid"] = uuid
+	scoreMap["score"] = score
+	scoreMap["mode"] = mode
+
+	data, err := json.Marshal(scoreMap)
+	if err != nil {
+		return err
+	}
+	msg := &primitive.Message{
+		Topic: "achievement",
+		Body:  data,
+	}
+	msg.WithKeys([]string{uuid})
+	_, err = r.data.achievementMqPro.producer.SendSync(ctx, msg)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to send score to mq: uuid(%s)", uuid))
 	}
 	return nil
 }
@@ -1262,7 +1284,7 @@ func (r *commentRepo) RemoveSubCommentCache(ctx context.Context, id, rootId int3
 	commetkey := "comment_" + ids
 	subCommentKey := "sub_comment_" + rootIds
 	rootKey := "comment_" + rootIds
-	var incrBy = redis.NewScript(`
+	var script = redis.NewScript(`
 					local commetkey = KEYS[1]
 					redis.call("DEL", commetkey)
 
@@ -1283,7 +1305,7 @@ func (r *commentRepo) RemoveSubCommentCache(ctx context.Context, id, rootId int3
 	`)
 	keys := []string{commetkey, subCommentKey, rootKey, mode}
 	values := []interface{}{ids + "%" + uuid + "%" + reply, mode}
-	_, err := incrBy.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to remove comment cache: id(%v), uuid(%s), rootId(%v), reply(%s)", id, uuid, rootId, reply))
 	}
