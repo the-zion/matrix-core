@@ -28,7 +28,7 @@ type UserRepo interface {
 	GetFollowedList(ctx context.Context, page int32, uuid string) ([]*Follow, error)
 	GetFollowedListCount(ctx context.Context, uuid string) (int32, error)
 	GetUserFollow(ctx context.Context, uuid, userUuid string) (bool, error)
-	GetUserFollows(ctx context.Context, userId string, uuids []string) ([]*Follows, error)
+	GetUserFollows(ctx context.Context, uuid string) (map[string]bool, error)
 	GetUserSearch(ctx context.Context, page int32, search string) ([]*UserSearch, int32, error)
 	SetProfileUpdate(ctx context.Context, profile *UserProfileUpdate) error
 	SetUserPhone(ctx context.Context, uuid, phone, code string) error
@@ -42,16 +42,20 @@ type UserRepo interface {
 }
 
 type UserUseCase struct {
-	repo UserRepo
-	re   Recovery
-	log  *log.Helper
+	repo         UserRepo
+	achRepo      AchievementRepo
+	creationRepo CreationRepo
+	re           Recovery
+	log          *log.Helper
 }
 
-func NewUserUseCase(repo UserRepo, re Recovery, logger log.Logger) *UserUseCase {
+func NewUserUseCase(repo UserRepo, achRepo AchievementRepo, creationRepo CreationRepo, re Recovery, logger log.Logger) *UserUseCase {
 	return &UserUseCase{
-		repo: repo,
-		re:   re,
-		log:  log.NewHelper(log.With(logger, "module", "bff/biz/UserUseCase")),
+		repo:         repo,
+		achRepo:      achRepo,
+		creationRepo: creationRepo,
+		re:           re,
+		log:          log.NewHelper(log.With(logger, "module", "bff/biz/UserUseCase")),
 	}
 }
 
@@ -98,8 +102,101 @@ func (r *UserUseCase) GetProfileList(ctx context.Context, uuids []string) ([]*Us
 	return r.repo.GetProfileList(ctx, uuids)
 }
 
-func (r *UserUseCase) GetUserInfo(ctx context.Context, uuid string) (*UserProfile, error) {
-	return r.repo.GetUserInfo(ctx, uuid)
+func (r *UserUseCase) GetUserInfo(ctx context.Context) (*UserProfile, error) {
+	uuid := ctx.Value("uuid").(string)
+	userProfile := &UserProfile{}
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		profile, err := r.repo.GetUserInfo(ctx, uuid)
+		if err != nil {
+			return err
+		}
+		userProfile.Uuid = profile.Uuid
+		userProfile.Username = profile.Username
+		userProfile.School = profile.School
+		userProfile.Company = profile.Company
+		userProfile.Job = profile.Job
+		userProfile.Homepage = profile.Homepage
+		userProfile.Introduce = profile.Introduce
+		userProfile.Created = profile.Created
+		return nil
+	}))
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		ach, err := r.achRepo.GetUserAchievement(ctx, uuid)
+		if err != nil {
+			return err
+		}
+		userProfile.Score = ach.Score
+		userProfile.Agree = ach.Agree
+		userProfile.Collect = ach.Collect
+		userProfile.View = ach.View
+		return nil
+	}))
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		creation, err := r.creationRepo.GetCreationUser(ctx, uuid)
+		if err != nil {
+			return err
+		}
+		userProfile.Article = creation.Article
+		userProfile.Talk = creation.Talk
+		userProfile.Column = creation.Column
+		userProfile.Collections = creation.Collections
+		return nil
+	}))
+	err := g.Wait()
+	if err != nil {
+		return nil, err
+	}
+	return userProfile, err
+}
+
+func (r *UserUseCase) GetUserInfoVisitor(ctx context.Context, uuid string) (*UserProfile, error) {
+	userProfile := &UserProfile{}
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		profile, err := r.repo.GetUserInfo(ctx, uuid)
+		if err != nil {
+			return err
+		}
+		userProfile.Uuid = profile.Uuid
+		userProfile.Username = profile.Username
+		userProfile.School = profile.School
+		userProfile.Company = profile.Company
+		userProfile.Job = profile.Job
+		userProfile.Homepage = profile.Homepage
+		userProfile.Introduce = profile.Introduce
+		userProfile.Created = profile.Created
+		return nil
+	}))
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		ach, err := r.achRepo.GetUserAchievement(ctx, uuid)
+		if err != nil {
+			return err
+		}
+		userProfile.Score = ach.Score
+		userProfile.Agree = ach.Agree
+		userProfile.Collect = ach.Collect
+		userProfile.View = ach.View
+		userProfile.Follow = ach.Follow
+		userProfile.Followed = ach.Followed
+		return nil
+	}))
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		creation, err := r.creationRepo.GetCreationUserVisitor(ctx, uuid)
+		if err != nil {
+			return err
+		}
+		userProfile.Article = creation.Article
+		userProfile.Talk = creation.Talk
+		userProfile.Column = creation.Column
+		userProfile.Collections = creation.Collections
+		return nil
+	}))
+	err := g.Wait()
+	if err != nil {
+		return nil, err
+	}
+	return userProfile, err
 }
 
 func (r *UserUseCase) GetProfileUpdate(ctx context.Context) (*UserProfileUpdate, error) {
@@ -210,9 +307,9 @@ func (r *UserUseCase) GetFollowedListCount(ctx context.Context, uuid string) (in
 	return r.repo.GetFollowedListCount(ctx, uuid)
 }
 
-func (r *UserUseCase) GetUserFollows(ctx context.Context, uuids []string) ([]*Follows, error) {
-	userId := ctx.Value("uuid").(string)
-	return r.repo.GetUserFollows(ctx, userId, uuids)
+func (r *UserUseCase) GetUserFollows(ctx context.Context) (map[string]bool, error) {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.GetUserFollows(ctx, uuid)
 }
 
 func (r *UserUseCase) GetUserSearch(ctx context.Context, page int32, search string) ([]*UserSearch, int32, error) {
