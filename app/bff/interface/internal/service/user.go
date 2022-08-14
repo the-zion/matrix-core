@@ -122,20 +122,53 @@ func (s *BffService) GetProfileList(ctx context.Context, req *v1.GetProfileListR
 	return reply, nil
 }
 
-func (s *BffService) GetUserInfo(ctx context.Context, req *v1.GetUserInfoReq) (*v1.GetUserInfoReply, error) {
-	userProfile, err := s.uc.GetUserInfo(ctx, req.Uuid)
+func (s *BffService) GetUserInfo(ctx context.Context, _ *emptypb.Empty) (*v1.GetUserInfoReply, error) {
+	userProfile, err := s.uc.GetUserInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
 	return &v1.GetUserInfoReply{
-		Username:  userProfile.Username,
-		Avatar:    userProfile.Avatar,
-		School:    userProfile.School,
-		Company:   userProfile.Company,
-		Job:       userProfile.Job,
-		Homepage:  userProfile.Homepage,
-		Introduce: userProfile.Introduce,
-		Created:   userProfile.Created,
+		Username:    userProfile.Username,
+		School:      userProfile.School,
+		Company:     userProfile.Company,
+		Job:         userProfile.Job,
+		Homepage:    userProfile.Homepage,
+		Introduce:   userProfile.Introduce,
+		Created:     userProfile.Created,
+		Score:       userProfile.Score,
+		Agree:       userProfile.Agree,
+		Collect:     userProfile.Collect,
+		View:        userProfile.View,
+		Article:     userProfile.Article,
+		Column:      userProfile.Column,
+		Talk:        userProfile.Talk,
+		Collections: userProfile.Collections,
+	}, nil
+}
+
+func (s *BffService) GetUserInfoVisitor(ctx context.Context, req *v1.GetUserInfoVisitorReq) (*v1.GetUserInfoReply, error) {
+	userProfile, err := s.uc.GetUserInfoVisitor(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetUserInfoReply{
+		Username:    userProfile.Username,
+		School:      userProfile.School,
+		Company:     userProfile.Company,
+		Job:         userProfile.Job,
+		Homepage:    userProfile.Homepage,
+		Introduce:   userProfile.Introduce,
+		Created:     userProfile.Created,
+		Score:       userProfile.Score,
+		Agree:       userProfile.Agree,
+		Collect:     userProfile.Collect,
+		View:        userProfile.View,
+		Follow:      userProfile.Follow,
+		Followed:    userProfile.Followed,
+		Article:     userProfile.Article,
+		Column:      userProfile.Column,
+		Talk:        userProfile.Talk,
+		Collections: userProfile.Collections,
 	}, nil
 }
 
@@ -226,19 +259,14 @@ func (s *BffService) GetFollowedListCount(ctx context.Context, req *v1.GetFollow
 	}, nil
 }
 
-func (s *BffService) GetUserFollows(ctx context.Context, req *v1.GetUserFollowsReq) (*v1.GetUserFollowsReply, error) {
-	reply := &v1.GetUserFollowsReply{Follows: make([]*v1.GetUserFollowsReply_Follows, 0)}
-	followsList, err := s.uc.GetUserFollows(ctx, req.Uuids)
+func (s *BffService) GetUserFollows(ctx context.Context, _ *emptypb.Empty) (*v1.GetUserFollowsReply, error) {
+	followsMap, err := s.uc.GetUserFollows(ctx)
 	if err != nil {
 		return nil, err
 	}
-	for _, item := range followsList {
-		reply.Follows = append(reply.Follows, &v1.GetUserFollowsReply_Follows{
-			Uuid:        item.Uuid,
-			FollowJudge: item.Follow,
-		})
-	}
-	return reply, nil
+	return &v1.GetUserFollowsReply{
+		Follows: followsMap,
+	}, nil
 }
 
 func (s *BffService) GetUserSearch(ctx context.Context, req *v1.GetUserSearchReq) (*v1.GetUserSearchReply, error) {
