@@ -343,6 +343,48 @@ func (r *creationRepo) GetCollectionsVisitorCount(ctx context.Context, uuid stri
 	return result.(int32), nil
 }
 
+func (r *creationRepo) GetCreationUser(ctx context.Context, uuid string) (*biz.CreationUser, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_creation_user_%s", uuid), func() (interface{}, error) {
+		creation := &biz.CreationUser{}
+		reply, err := r.data.cc.GetCreationUser(ctx, &creationV1.GetCreationUserReq{
+			Uuid: uuid,
+		})
+		if err != nil {
+			return 0, err
+		}
+		creation.Article = reply.Article
+		creation.Talk = reply.Talk
+		creation.Collections = reply.Collections
+		creation.Column = reply.Column
+		return creation, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*biz.CreationUser), nil
+}
+
+func (r *creationRepo) GetCreationUserVisitor(ctx context.Context, uuid string) (*biz.CreationUser, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_creation_user_visitor_%s", uuid), func() (interface{}, error) {
+		creation := &biz.CreationUser{}
+		reply, err := r.data.cc.GetCreationUserVisitor(ctx, &creationV1.GetCreationUserReq{
+			Uuid: uuid,
+		})
+		if err != nil {
+			return 0, err
+		}
+		creation.Article = reply.Article
+		creation.Talk = reply.Talk
+		creation.Collections = reply.Collections
+		creation.Column = reply.Column
+		return creation, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*biz.CreationUser), nil
+}
+
 func (r *creationRepo) CreateCollections(ctx context.Context, uuid, name, introduce string, auth int32) error {
 	_, err := r.data.cc.CreateCollections(ctx, &creationV1.CreateCollectionsReq{
 		Uuid:      uuid,
