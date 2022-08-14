@@ -2034,6 +2034,140 @@ var _ interface {
 	ErrorName() string
 } = SetUserFollowReqValidationError{}
 
+// Validate checks the field values on SetFollowDbAndCacheReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SetFollowDbAndCacheReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SetFollowDbAndCacheReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SetFollowDbAndCacheReqMultiError, or nil if none found.
+func (m *SetFollowDbAndCacheReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SetFollowDbAndCacheReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = SetFollowDbAndCacheReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if err := m._validateUuid(m.GetUserUuid()); err != nil {
+		err = SetFollowDbAndCacheReqValidationError{
+			field:  "UserUuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return SetFollowDbAndCacheReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *SetFollowDbAndCacheReq) _validateUuid(uuid string) error {
+	if matched := _user_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// SetFollowDbAndCacheReqMultiError is an error wrapping multiple validation
+// errors returned by SetFollowDbAndCacheReq.ValidateAll() if the designated
+// constraints aren't met.
+type SetFollowDbAndCacheReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SetFollowDbAndCacheReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SetFollowDbAndCacheReqMultiError) AllErrors() []error { return m }
+
+// SetFollowDbAndCacheReqValidationError is the validation error returned by
+// SetFollowDbAndCacheReq.Validate if the designated constraints aren't met.
+type SetFollowDbAndCacheReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SetFollowDbAndCacheReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SetFollowDbAndCacheReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SetFollowDbAndCacheReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SetFollowDbAndCacheReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SetFollowDbAndCacheReqValidationError) ErrorName() string {
+	return "SetFollowDbAndCacheReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SetFollowDbAndCacheReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSetFollowDbAndCacheReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SetFollowDbAndCacheReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SetFollowDbAndCacheReqValidationError{}
+
 // Validate checks the field values on CancelUserFollowReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -2167,6 +2301,140 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CancelUserFollowReqValidationError{}
+
+// Validate checks the field values on CancelFollowDbAndCacheReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *CancelFollowDbAndCacheReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CancelFollowDbAndCacheReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// CancelFollowDbAndCacheReqMultiError, or nil if none found.
+func (m *CancelFollowDbAndCacheReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CancelFollowDbAndCacheReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = CancelFollowDbAndCacheReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if err := m._validateUuid(m.GetUserUuid()); err != nil {
+		err = CancelFollowDbAndCacheReqValidationError{
+			field:  "UserUuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return CancelFollowDbAndCacheReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *CancelFollowDbAndCacheReq) _validateUuid(uuid string) error {
+	if matched := _user_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// CancelFollowDbAndCacheReqMultiError is an error wrapping multiple validation
+// errors returned by CancelFollowDbAndCacheReq.ValidateAll() if the
+// designated constraints aren't met.
+type CancelFollowDbAndCacheReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CancelFollowDbAndCacheReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CancelFollowDbAndCacheReqMultiError) AllErrors() []error { return m }
+
+// CancelFollowDbAndCacheReqValidationError is the validation error returned by
+// CancelFollowDbAndCacheReq.Validate if the designated constraints aren't met.
+type CancelFollowDbAndCacheReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CancelFollowDbAndCacheReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CancelFollowDbAndCacheReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CancelFollowDbAndCacheReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CancelFollowDbAndCacheReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CancelFollowDbAndCacheReqValidationError) ErrorName() string {
+	return "CancelFollowDbAndCacheReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CancelFollowDbAndCacheReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCancelFollowDbAndCacheReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CancelFollowDbAndCacheReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CancelFollowDbAndCacheReqValidationError{}
 
 // Validate checks the field values on ChangeUserPasswordReq with the rules
 // defined in the proto definition for this message. If any rules are
@@ -4808,26 +5076,9 @@ func (m *GetUserFollowsReq) validate(all bool) error {
 
 	var errors []error
 
-	for idx, item := range m.GetUuids() {
-		_, _ = idx, item
-
-		if err := m._validateUuid(item); err != nil {
-			err = GetUserFollowsReqValidationError{
-				field:  fmt.Sprintf("Uuids[%v]", idx),
-				reason: "value must be a valid UUID",
-				cause:  err,
-			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
-		}
-
-	}
-
-	if err := m._validateUuid(m.GetUserId()); err != nil {
+	if err := m._validateUuid(m.GetUuid()); err != nil {
 		err = GetUserFollowsReqValidationError{
-			field:  "UserId",
+			field:  "Uuid",
 			reason: "value must be a valid UUID",
 			cause:  err,
 		}
@@ -4947,39 +5198,7 @@ func (m *GetUserFollowsReply) validate(all bool) error {
 
 	var errors []error
 
-	for idx, item := range m.GetFollows() {
-		_, _ = idx, item
-
-		if all {
-			switch v := interface{}(item).(type) {
-			case interface{ ValidateAll() error }:
-				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, GetUserFollowsReplyValidationError{
-						field:  fmt.Sprintf("Follows[%v]", idx),
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			case interface{ Validate() error }:
-				if err := v.Validate(); err != nil {
-					errors = append(errors, GetUserFollowsReplyValidationError{
-						field:  fmt.Sprintf("Follows[%v]", idx),
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
-			if err := v.Validate(); err != nil {
-				return GetUserFollowsReplyValidationError{
-					field:  fmt.Sprintf("Follows[%v]", idx),
-					reason: "embedded message failed validation",
-					cause:  err,
-				}
-			}
-		}
-
-	}
+	// no validation rules for Follows
 
 	if len(errors) > 0 {
 		return GetUserFollowsReplyMultiError(errors)
@@ -6063,113 +6282,6 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetFollowedListReply_FollowValidationError{}
-
-// Validate checks the field values on GetUserFollowsReply_Follows with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *GetUserFollowsReply_Follows) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on GetUserFollowsReply_Follows with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// GetUserFollowsReply_FollowsMultiError, or nil if none found.
-func (m *GetUserFollowsReply_Follows) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *GetUserFollowsReply_Follows) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	// no validation rules for Uuid
-
-	// no validation rules for FollowJudge
-
-	if len(errors) > 0 {
-		return GetUserFollowsReply_FollowsMultiError(errors)
-	}
-
-	return nil
-}
-
-// GetUserFollowsReply_FollowsMultiError is an error wrapping multiple
-// validation errors returned by GetUserFollowsReply_Follows.ValidateAll() if
-// the designated constraints aren't met.
-type GetUserFollowsReply_FollowsMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m GetUserFollowsReply_FollowsMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m GetUserFollowsReply_FollowsMultiError) AllErrors() []error { return m }
-
-// GetUserFollowsReply_FollowsValidationError is the validation error returned
-// by GetUserFollowsReply_Follows.Validate if the designated constraints
-// aren't met.
-type GetUserFollowsReply_FollowsValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e GetUserFollowsReply_FollowsValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e GetUserFollowsReply_FollowsValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e GetUserFollowsReply_FollowsValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e GetUserFollowsReply_FollowsValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e GetUserFollowsReply_FollowsValidationError) ErrorName() string {
-	return "GetUserFollowsReply_FollowsValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e GetUserFollowsReply_FollowsValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sGetUserFollowsReply_Follows.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = GetUserFollowsReply_FollowsValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = GetUserFollowsReply_FollowsValidationError{}
 
 // Validate checks the field values on GetUserSearchReply_List with the rules
 // defined in the proto definition for this message. If any rules are

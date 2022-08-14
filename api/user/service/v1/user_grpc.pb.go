@@ -36,7 +36,9 @@ type UserClient interface {
 	SetUserEmail(ctx context.Context, in *SetUserEmailReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetUserPassword(ctx context.Context, in *SetUserPasswordReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetUserFollow(ctx context.Context, in *SetUserFollowReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetFollowDbAndCache(ctx context.Context, in *SetFollowDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelUserFollow(ctx context.Context, in *CancelUserFollowReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CancelFollowDbAndCache(ctx context.Context, in *CancelFollowDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetAccount(ctx context.Context, in *GetAccountReq, opts ...grpc.CallOption) (*GetAccountReply, error)
 	GetProfile(ctx context.Context, in *GetProfileReq, opts ...grpc.CallOption) (*GetProfileReply, error)
 	GetProfileList(ctx context.Context, in *GetProfileListReq, opts ...grpc.CallOption) (*GetProfileListReply, error)
@@ -181,9 +183,27 @@ func (c *userClient) SetUserFollow(ctx context.Context, in *SetUserFollowReq, op
 	return out, nil
 }
 
+func (c *userClient) SetFollowDbAndCache(ctx context.Context, in *SetFollowDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/user.v1.User/SetFollowDbAndCache", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *userClient) CancelUserFollow(ctx context.Context, in *CancelUserFollowReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/user.v1.User/CancelUserFollow", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) CancelFollowDbAndCache(ctx context.Context, in *CancelFollowDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/user.v1.User/CancelFollowDbAndCache", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -360,7 +380,9 @@ type UserServer interface {
 	SetUserEmail(context.Context, *SetUserEmailReq) (*emptypb.Empty, error)
 	SetUserPassword(context.Context, *SetUserPasswordReq) (*emptypb.Empty, error)
 	SetUserFollow(context.Context, *SetUserFollowReq) (*emptypb.Empty, error)
+	SetFollowDbAndCache(context.Context, *SetFollowDbAndCacheReq) (*emptypb.Empty, error)
 	CancelUserFollow(context.Context, *CancelUserFollowReq) (*emptypb.Empty, error)
+	CancelFollowDbAndCache(context.Context, *CancelFollowDbAndCacheReq) (*emptypb.Empty, error)
 	GetAccount(context.Context, *GetAccountReq) (*GetAccountReply, error)
 	GetProfile(context.Context, *GetProfileReq) (*GetProfileReply, error)
 	GetProfileList(context.Context, *GetProfileListReq) (*GetProfileListReply, error)
@@ -424,8 +446,14 @@ func (UnimplementedUserServer) SetUserPassword(context.Context, *SetUserPassword
 func (UnimplementedUserServer) SetUserFollow(context.Context, *SetUserFollowReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetUserFollow not implemented")
 }
+func (UnimplementedUserServer) SetFollowDbAndCache(context.Context, *SetFollowDbAndCacheReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetFollowDbAndCache not implemented")
+}
 func (UnimplementedUserServer) CancelUserFollow(context.Context, *CancelUserFollowReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CancelUserFollow not implemented")
+}
+func (UnimplementedUserServer) CancelFollowDbAndCache(context.Context, *CancelFollowDbAndCacheReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelFollowDbAndCache not implemented")
 }
 func (UnimplementedUserServer) GetAccount(context.Context, *GetAccountReq) (*GetAccountReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAccount not implemented")
@@ -725,6 +753,24 @@ func _User_SetUserFollow_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _User_SetFollowDbAndCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetFollowDbAndCacheReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).SetFollowDbAndCache(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/SetFollowDbAndCache",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).SetFollowDbAndCache(ctx, req.(*SetFollowDbAndCacheReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _User_CancelUserFollow_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CancelUserFollowReq)
 	if err := dec(in); err != nil {
@@ -739,6 +785,24 @@ func _User_CancelUserFollow_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServer).CancelUserFollow(ctx, req.(*CancelUserFollowReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_CancelFollowDbAndCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelFollowDbAndCacheReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).CancelFollowDbAndCache(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/CancelFollowDbAndCache",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).CancelFollowDbAndCache(ctx, req.(*CancelFollowDbAndCacheReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1109,8 +1173,16 @@ var User_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _User_SetUserFollow_Handler,
 		},
 		{
+			MethodName: "SetFollowDbAndCache",
+			Handler:    _User_SetFollowDbAndCache_Handler,
+		},
+		{
 			MethodName: "CancelUserFollow",
 			Handler:    _User_CancelUserFollow_Handler,
+		},
+		{
+			MethodName: "CancelFollowDbAndCache",
+			Handler:    _User_CancelFollowDbAndCache_Handler,
 		},
 		{
 			MethodName: "GetAccount",
