@@ -36,6 +36,8 @@ type CreationClient interface {
 	GetCollectionsCount(ctx context.Context, in *GetCollectionsCountReq, opts ...grpc.CallOption) (*GetCollectionsCountReply, error)
 	GetCollectionsByVisitor(ctx context.Context, in *GetCollectionsReq, opts ...grpc.CallOption) (*GetCollectionsReply, error)
 	GetCollectionsVisitorCount(ctx context.Context, in *GetCollectionsCountReq, opts ...grpc.CallOption) (*GetCollectionsCountReply, error)
+	GetCreationUser(ctx context.Context, in *GetCreationUserReq, opts ...grpc.CallOption) (*GetCreationUserReply, error)
+	GetCreationUserVisitor(ctx context.Context, in *GetCreationUserReq, opts ...grpc.CallOption) (*GetCreationUserReply, error)
 	CreateCollections(ctx context.Context, in *CreateCollectionsReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	EditCollections(ctx context.Context, in *EditCollectionsReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteCollections(ctx context.Context, in *DeleteCollectionsReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -249,6 +251,24 @@ func (c *creationClient) GetCollectionsByVisitor(ctx context.Context, in *GetCol
 func (c *creationClient) GetCollectionsVisitorCount(ctx context.Context, in *GetCollectionsCountReq, opts ...grpc.CallOption) (*GetCollectionsCountReply, error) {
 	out := new(GetCollectionsCountReply)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetCollectionsVisitorCount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) GetCreationUser(ctx context.Context, in *GetCreationUserReq, opts ...grpc.CallOption) (*GetCreationUserReply, error) {
+	out := new(GetCreationUserReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetCreationUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) GetCreationUserVisitor(ctx context.Context, in *GetCreationUserReq, opts ...grpc.CallOption) (*GetCreationUserReply, error) {
+	out := new(GetCreationUserReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetCreationUserVisitor", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1100,6 +1120,8 @@ type CreationServer interface {
 	GetCollectionsCount(context.Context, *GetCollectionsCountReq) (*GetCollectionsCountReply, error)
 	GetCollectionsByVisitor(context.Context, *GetCollectionsReq) (*GetCollectionsReply, error)
 	GetCollectionsVisitorCount(context.Context, *GetCollectionsCountReq) (*GetCollectionsCountReply, error)
+	GetCreationUser(context.Context, *GetCreationUserReq) (*GetCreationUserReply, error)
+	GetCreationUserVisitor(context.Context, *GetCreationUserReq) (*GetCreationUserReply, error)
 	CreateCollections(context.Context, *CreateCollectionsReq) (*emptypb.Empty, error)
 	EditCollections(context.Context, *EditCollectionsReq) (*emptypb.Empty, error)
 	DeleteCollections(context.Context, *DeleteCollectionsReq) (*emptypb.Empty, error)
@@ -1237,6 +1259,12 @@ func (UnimplementedCreationServer) GetCollectionsByVisitor(context.Context, *Get
 }
 func (UnimplementedCreationServer) GetCollectionsVisitorCount(context.Context, *GetCollectionsCountReq) (*GetCollectionsCountReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCollectionsVisitorCount not implemented")
+}
+func (UnimplementedCreationServer) GetCreationUser(context.Context, *GetCreationUserReq) (*GetCreationUserReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCreationUser not implemented")
+}
+func (UnimplementedCreationServer) GetCreationUserVisitor(context.Context, *GetCreationUserReq) (*GetCreationUserReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCreationUserVisitor not implemented")
 }
 func (UnimplementedCreationServer) CreateCollections(context.Context, *CreateCollectionsReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateCollections not implemented")
@@ -1757,6 +1785,42 @@ func _Creation_GetCollectionsVisitorCount_Handler(srv interface{}, ctx context.C
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CreationServer).GetCollectionsVisitorCount(ctx, req.(*GetCollectionsCountReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_GetCreationUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCreationUserReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetCreationUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetCreationUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetCreationUser(ctx, req.(*GetCreationUserReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_GetCreationUserVisitor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCreationUserReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetCreationUserVisitor(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetCreationUserVisitor",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetCreationUserVisitor(ctx, req.(*GetCreationUserReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -3475,6 +3539,14 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetCollectionsVisitorCount",
 			Handler:    _Creation_GetCollectionsVisitorCount_Handler,
+		},
+		{
+			MethodName: "GetCreationUser",
+			Handler:    _Creation_GetCreationUser_Handler,
+		},
+		{
+			MethodName: "GetCreationUserVisitor",
+			Handler:    _Creation_GetCreationUserVisitor_Handler,
 		},
 		{
 			MethodName: "CreateCollections",

@@ -1937,6 +1937,238 @@ var _ interface {
 	ErrorName() string
 } = GetCollectionsCountReplyValidationError{}
 
+// Validate checks the field values on GetCreationUserReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetCreationUserReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetCreationUserReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetCreationUserReqMultiError, or nil if none found.
+func (m *GetCreationUserReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetCreationUserReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = GetCreationUserReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return GetCreationUserReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *GetCreationUserReq) _validateUuid(uuid string) error {
+	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// GetCreationUserReqMultiError is an error wrapping multiple validation errors
+// returned by GetCreationUserReq.ValidateAll() if the designated constraints
+// aren't met.
+type GetCreationUserReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetCreationUserReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetCreationUserReqMultiError) AllErrors() []error { return m }
+
+// GetCreationUserReqValidationError is the validation error returned by
+// GetCreationUserReq.Validate if the designated constraints aren't met.
+type GetCreationUserReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetCreationUserReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetCreationUserReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetCreationUserReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetCreationUserReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetCreationUserReqValidationError) ErrorName() string {
+	return "GetCreationUserReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetCreationUserReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetCreationUserReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetCreationUserReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetCreationUserReqValidationError{}
+
+// Validate checks the field values on GetCreationUserReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetCreationUserReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetCreationUserReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetCreationUserReplyMultiError, or nil if none found.
+func (m *GetCreationUserReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetCreationUserReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Article
+
+	// no validation rules for Column
+
+	// no validation rules for Talk
+
+	// no validation rules for Collections
+
+	if len(errors) > 0 {
+		return GetCreationUserReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetCreationUserReplyMultiError is an error wrapping multiple validation
+// errors returned by GetCreationUserReply.ValidateAll() if the designated
+// constraints aren't met.
+type GetCreationUserReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetCreationUserReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetCreationUserReplyMultiError) AllErrors() []error { return m }
+
+// GetCreationUserReplyValidationError is the validation error returned by
+// GetCreationUserReply.Validate if the designated constraints aren't met.
+type GetCreationUserReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetCreationUserReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetCreationUserReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetCreationUserReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetCreationUserReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetCreationUserReplyValidationError) ErrorName() string {
+	return "GetCreationUserReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetCreationUserReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetCreationUserReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetCreationUserReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetCreationUserReplyValidationError{}
+
 // Validate checks the field values on CreateCollectionsReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
