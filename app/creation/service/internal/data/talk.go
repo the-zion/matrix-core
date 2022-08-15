@@ -865,7 +865,7 @@ func (r *talkRepo) DeleteTalkStatistic(ctx context.Context, id int32, uuid strin
 
 func (r *talkRepo) DeleteTalkCache(ctx context.Context, id, auth int32, uuid string) error {
 	ids := strconv.Itoa(int(id))
-	var incrBy = redis.NewScript(`
+	var script = redis.NewScript(`
 					local key1 = KEYS[1]
 					local key2 = KEYS[2]
 					local key3 = KEYS[3]
@@ -914,7 +914,7 @@ func (r *talkRepo) DeleteTalkCache(ctx context.Context, id, auth int32, uuid str
 	`)
 	keys := []string{"talk", "talk_hot", "leaderboard", "talk_" + ids, "talk_collect_" + ids, "user_talk_list_" + uuid, "user_talk_list_visitor_" + uuid, "user_creation_info_" + uuid, "user_creation_info_visitor_" + uuid}
 	values := []interface{}{ids + "%" + uuid, ids + "%" + uuid + "%talk", auth}
-	_, err := incrBy.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to delete talk cache: id(%v), uuid(%s)", id, uuid))
 	}
@@ -1401,7 +1401,7 @@ func (r *talkRepo) ReduceTalkComment(ctx context.Context, id int32) error {
 
 func (r *talkRepo) ReduceTalkCommentToCache(ctx context.Context, id int32, uuid string) error {
 	key := "talk_" + strconv.Itoa(int(id))
-	var incrBy = redis.NewScript(`
+	var script = redis.NewScript(`
 					local key = KEYS[1]
 					local value = redis.call("EXISTS", key)
 					if value == 1 then
@@ -1413,7 +1413,7 @@ func (r *talkRepo) ReduceTalkCommentToCache(ctx context.Context, id int32, uuid 
 					return 0
 	`)
 	keys := []string{key}
-	_, err := incrBy.Run(ctx, r.data.redisCli, keys).Result()
+	_, err := script.Run(ctx, r.data.redisCli, keys).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to reduce talk comment to cache: id(%v), uuid(%s)", id, uuid))
 	}
