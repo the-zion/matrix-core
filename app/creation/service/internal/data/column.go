@@ -1030,7 +1030,7 @@ func (r *columnRepo) DeleteColumnStatistic(ctx context.Context, id int32, uuid s
 
 func (r *columnRepo) DeleteColumnCache(ctx context.Context, id, auth int32, uuid string) error {
 	ids := strconv.Itoa(int(id))
-	var incrBy = redis.NewScript(`
+	var script = redis.NewScript(`
 					local key1 = KEYS[1]
 					local key2 = KEYS[2]
 					local key3 = KEYS[3]
@@ -1079,7 +1079,7 @@ func (r *columnRepo) DeleteColumnCache(ctx context.Context, id, auth int32, uuid
 	`)
 	keys := []string{"column", "column_hot", "leaderboard", "column_" + ids, "column_collect_" + ids, "user_column_list_" + uuid, "user_column_list_visitor_" + uuid, "user_creation_info_" + uuid, "user_creation_info_visitor_" + uuid}
 	values := []interface{}{ids + "%" + uuid, ids + "%" + uuid + "%column", auth}
-	_, err := incrBy.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to delete column cache: id(%v), uuid(%s)", id, uuid))
 	}
