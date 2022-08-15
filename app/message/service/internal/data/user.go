@@ -107,3 +107,25 @@ func (r *userRepo) SendCode(msgs ...*primitive.MessageExt) {
 		}
 	}
 }
+
+func (r *userRepo) SetFollowDbAndCache(ctx context.Context, uuid, userId string) error {
+	_, err := r.data.uc.SetFollowDbAndCache(ctx, &userV1.SetFollowDbAndCacheReq{
+		Uuid:     uuid,
+		UserUuid: userId,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *userRepo) CancelFollowDbAndCache(ctx context.Context, uuid, userId string) error {
+	_, err := r.data.uc.CancelFollowDbAndCache(ctx, &userV1.CancelFollowDbAndCacheReq{
+		Uuid:     uuid,
+		UserUuid: userId,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
