@@ -178,6 +178,32 @@ func (s *CreationService) GetCollectionsVisitorCount(ctx context.Context, req *v
 	}, nil
 }
 
+func (s *CreationService) GetCreationUser(ctx context.Context, req *v1.GetCreationUserReq) (*v1.GetCreationUserReply, error) {
+	creationUser, err := s.cc.GetCreationUser(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetCreationUserReply{
+		Article:     creationUser.Article,
+		Talk:        creationUser.Talk,
+		Collections: creationUser.Collections,
+		Column:      creationUser.Column,
+	}, nil
+}
+
+func (s *CreationService) GetCreationUserVisitor(ctx context.Context, req *v1.GetCreationUserReq) (*v1.GetCreationUserReply, error) {
+	creationUser, err := s.cc.GetCreationUserVisitor(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetCreationUserReply{
+		Article:     creationUser.Article,
+		Talk:        creationUser.Talk,
+		Collections: creationUser.Collections,
+		Column:      creationUser.Column,
+	}, nil
+}
+
 func (s *CreationService) CreateCollections(ctx context.Context, req *v1.CreateCollectionsReq) (*emptypb.Empty, error) {
 	err := s.cc.CreateCollections(ctx, req.Uuid, req.Name, req.Introduce, req.Auth)
 	if err != nil {
