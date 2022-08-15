@@ -12,6 +12,8 @@ type UserRepo interface {
 	UploadProfileToCos(msg *primitive.MessageExt) error
 	ProfileReviewPass(ctx context.Context, uuid, update string) error
 	ProfileReviewNotPass(ctx context.Context, uuid string) error
+	SetFollowDbAndCache(ctx context.Context, uuid, userId string) error
+	CancelFollowDbAndCache(ctx context.Context, uuid, userId string) error
 }
 
 type UserUseCase struct {
@@ -69,4 +71,12 @@ func (r *UserUseCase) ProfileReview(ctx context.Context, tr *TextReview) error {
 		return err
 	}
 	return nil
+}
+
+func (r *UserUseCase) SetFollowDbAndCache(ctx context.Context, uuid, userId string) error {
+	return r.repo.SetFollowDbAndCache(ctx, uuid, userId)
+}
+
+func (r *UserUseCase) CancelFollowDbAndCache(ctx context.Context, uuid, userId string) error {
+	return r.repo.CancelFollowDbAndCache(ctx, uuid, userId)
 }
