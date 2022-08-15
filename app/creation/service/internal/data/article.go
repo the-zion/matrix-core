@@ -865,7 +865,7 @@ func (r *articleRepo) UpdateArticleCache(ctx context.Context, id, auth int32, uu
 
 func (r *articleRepo) DeleteArticleCache(ctx context.Context, id, auth int32, uuid string) error {
 	ids := strconv.Itoa(int(id))
-	var incrBy = redis.NewScript(`
+	var script = redis.NewScript(`
 					local key1 = KEYS[1]
 					local key2 = KEYS[2]
 					local key3 = KEYS[3]
@@ -914,7 +914,7 @@ func (r *articleRepo) DeleteArticleCache(ctx context.Context, id, auth int32, uu
 	`)
 	keys := []string{"article", "article_hot", "leaderboard", "article_" + ids, "article_collect_" + ids, "user_article_list_" + uuid, "user_article_list_visitor_" + uuid, "user_creation_info_" + uuid, "user_creation_info_visitor_" + uuid}
 	values := []interface{}{ids + "%" + uuid, ids + "%" + uuid + "%article", auth}
-	_, err := incrBy.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to delete article cache: id(%v), uuid(%s)", id, uuid))
 	}
@@ -1039,7 +1039,7 @@ func (r *articleRepo) ReduceArticleComment(ctx context.Context, id int32) error 
 
 func (r *articleRepo) ReduceArticleCommentToCache(ctx context.Context, id int32, uuid string) error {
 	key := "article_" + strconv.Itoa(int(id))
-	var incrBy = redis.NewScript(`
+	var script = redis.NewScript(`
 					local key = KEYS[1]
 					local value = redis.call("EXISTS", key)
 					if value == 1 then
@@ -1051,7 +1051,7 @@ func (r *articleRepo) ReduceArticleCommentToCache(ctx context.Context, id int32,
 					return 0
 	`)
 	keys := []string{key}
-	_, err := incrBy.Run(ctx, r.data.redisCli, keys).Result()
+	_, err := script.Run(ctx, r.data.redisCli, keys).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to reduce article comment to cache: id(%v), uuid(%s)", id, uuid))
 	}
