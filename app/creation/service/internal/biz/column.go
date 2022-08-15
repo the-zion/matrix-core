@@ -295,9 +295,9 @@ func (r *ColumnUseCase) CreateColumnDbCacheAndSearch(ctx context.Context, id, au
 			return v1.ErrorCreateColumnFailed("create column search failed: %s", err.Error())
 		}
 
-		err = r.repo.SendScoreToMq(ctx, 50, uuid, "add_score")
+		err = r.repo.SendScoreToMq(ctx, 20, uuid, "add_score")
 		if err != nil {
-			return v1.ErrorCreateColumnFailed("send 50 score to mq failed: %s", err.Error())
+			return v1.ErrorCreateColumnFailed("send 20 score to mq failed: %s", err.Error())
 		}
 		return nil
 	})
