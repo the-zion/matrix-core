@@ -23,6 +23,8 @@ type CreationRepo interface {
 	GetCollectionsByVisitor(ctx context.Context, uuid string, page int32) ([]*Collections, error)
 	GetCollectionsCount(ctx context.Context, uuid string) (int32, error)
 	GetCollectionsVisitorCount(ctx context.Context, uuid string) (int32, error)
+	GetCreationUser(ctx context.Context, uuid string) (*CreationUser, error)
+	GetCreationUserVisitor(ctx context.Context, uuid string) (*CreationUser, error)
 	CreateCollections(ctx context.Context, uuid, name, introduce string, auth int32) error
 	EditCollections(ctx context.Context, id int32, uuid, name, introduce string, auth int32) error
 	DeleteCollections(ctx context.Context, id int32, uuid string) error
@@ -223,6 +225,22 @@ func (r *CreationUseCase) GetCollectionsVisitorCount(ctx context.Context, uuid s
 		return 0, v1.ErrorGetCountFailed("get collections count failed: %s", err.Error())
 	}
 	return count, nil
+}
+
+func (r *CreationUseCase) GetCreationUser(ctx context.Context, uuid string) (*CreationUser, error) {
+	creationUser, err := r.repo.GetCreationUser(ctx, uuid)
+	if err != nil {
+		return nil, v1.ErrorGetCreationUserFailed("get creation user failed: %s", err.Error())
+	}
+	return creationUser, nil
+}
+
+func (r *CreationUseCase) GetCreationUserVisitor(ctx context.Context, uuid string) (*CreationUser, error) {
+	creationUser, err := r.repo.GetCreationUserVisitor(ctx, uuid)
+	if err != nil {
+		return nil, v1.ErrorGetCreationUserFailed("get creation user failed: %s", err.Error())
+	}
+	return creationUser, nil
 }
 
 func (r *CreationUseCase) CreateCollections(ctx context.Context, uuid, name, introduce string, auth int32) error {
