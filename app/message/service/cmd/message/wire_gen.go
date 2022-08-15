@@ -25,28 +25,31 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, re
 	creationClient := data.NewCreationServiceClient(registry, logger)
 	commentClient := data.NewCommentServiceClient(registry, logger)
 	achievementClient := data.NewAchievementServiceClient(registry, logger)
+	jwt := data.NewJwtClient(confData)
 	cosUser := data.NewCosUserClient(confData, logger)
 	cosCreation := data.NewCosCreationClient(confData, logger)
 	cosComment := data.NewCosCommentClient(confData, logger)
 	txCode := data.NewPhoneCode(confData)
 	goMail := data.NewGoMail(confData)
-	dataData, err := data.NewData(logger, userClient, creationClient, commentClient, achievementClient, cosUser, cosCreation, cosComment, txCode, goMail)
+	dataData, err := data.NewData(logger, userClient, creationClient, commentClient, achievementClient, jwt, cosUser, cosCreation, cosComment, txCode, goMail)
 	if err != nil {
 		return nil, nil, err
 	}
 	userRepo := data.NewUserRepo(dataData, logger)
 	userUseCase := biz.NewUserUseCase(userRepo, logger)
 	creationRepo := data.NewCreationRepo(dataData, logger)
-	creationUseCase := biz.NewCreationUseCase(creationRepo, logger)
+	bizJwt := data.NewJwt(dataData)
+	creationUseCase := biz.NewCreationUseCase(creationRepo, bizJwt, logger)
 	achievementRepo := data.NewAchievementRepo(dataData, logger)
 	achievementCase := biz.NewAchievementUseCase(achievementRepo, logger)
 	commentRepo := data.NewCommentRepo(dataData, logger)
-	commentUseCase := biz.NewCommentUseCase(commentRepo, logger)
+	commentUseCase := biz.NewCommentUseCase(commentRepo, bizJwt, logger)
 	messageService := service.NewMessageService(userUseCase, creationUseCase, achievementCase, commentUseCase, logger)
 	httpServer := server.NewHTTPServer(confServer, messageService, logger)
 	grpcServer := server.NewGRPCServer(confServer, messageService, logger)
 	codeMqConsumerServer := server.NewCodeMqConsumerServer(confServer, messageService, logger)
 	profileMqConsumerServer := server.NewProfileMqConsumerServer(confServer, messageService, logger)
+	followMqConsumerServer := server.NewFollowMqConsumerServer(confServer, messageService, logger)
 	articleReviewMqConsumerServer := server.NewArticleReviewMqConsumerServer(confServer, messageService, logger)
 	articleMqConsumerServer := server.NewArticleMqConsumerServer(confServer, messageService, logger)
 	talkReviewMqConsumerServer := server.NewTalkReviewMqConsumerServer(confServer, messageService, logger)
@@ -56,7 +59,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, re
 	achievementMqConsumerServer := server.NewAchievementMqConsumerServer(confServer, messageService, logger)
 	commentReviewMqConsumerServer := server.NewCommentReviewMqConsumerServer(confServer, messageService, logger)
 	commentMqConsumerServer := server.NewCommentMqConsumerServer(confServer, messageService, logger)
-	app := newApp(logger, registry, httpServer, grpcServer, codeMqConsumerServer, profileMqConsumerServer, articleReviewMqConsumerServer, articleMqConsumerServer, talkReviewMqConsumerServer, talkMqConsumerServer, columnReviewMqConsumerServer, columnMqConsumerServer, achievementMqConsumerServer, commentReviewMqConsumerServer, commentMqConsumerServer)
+	app := newApp(logger, registry, httpServer, grpcServer, codeMqConsumerServer, profileMqConsumerServer, followMqConsumerServer, articleReviewMqConsumerServer, articleMqConsumerServer, talkReviewMqConsumerServer, talkMqConsumerServer, columnReviewMqConsumerServer, columnMqConsumerServer, achievementMqConsumerServer, commentReviewMqConsumerServer, commentMqConsumerServer)
 	return app, func() {
 	}, nil
 }
