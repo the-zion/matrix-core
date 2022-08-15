@@ -459,6 +459,148 @@ func (r *creationRepo) GetCollectionsVisitorCount(ctx context.Context, uuid stri
 	return int32(count), nil
 }
 
+func (r *creationRepo) GetCreationUser(ctx context.Context, uuid string) (*biz.CreationUser, error) {
+	var creationUser *biz.CreationUser
+	key := "creation_user_" + uuid
+	exist, err := r.data.redisCli.Exists(ctx, key).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to judge if key exist or not from cache: key(%s)", key))
+	}
+
+	if exist == 1 {
+		creationUser, err = r.getCreationUserFromCache(ctx, key)
+		if err != nil {
+			return nil, err
+		}
+		return creationUser, nil
+	}
+
+	creationUser, err = r.getCreationUserFromDB(ctx, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	go r.setCreationUserToCache(key, creationUser)
+
+	return creationUser, nil
+}
+
+func (r *creationRepo) getCreationUserFromCache(ctx context.Context, key string) (*biz.CreationUser, error) {
+	statistic, err := r.data.redisCli.HMGet(ctx, key, "article", "column", "talk", "collections").Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user creation form cache: key(%s)", key))
+	}
+	val := []int32{0, 0, 0, 0}
+	for _index, count := range statistic {
+		if count == nil {
+			break
+		}
+		num, err := strconv.ParseInt(count.(string), 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: count(%v)", count))
+		}
+		val[_index] = int32(num)
+	}
+	return &biz.CreationUser{
+		Article:     val[0],
+		Column:      val[1],
+		Talk:        val[2],
+		Collections: val[3],
+	}, nil
+}
+
+func (r *creationRepo) getCreationUserFromDB(ctx context.Context, uuid string) (*biz.CreationUser, error) {
+	cuv := &CreationUser{}
+	err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).First(cuv).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("faile to get user creation from db: uuid(%v)", uuid))
+	}
+	return &biz.CreationUser{
+		Article:     cuv.Article,
+		Column:      cuv.Column,
+		Collections: cuv.Collections,
+		Talk:        cuv.Talk,
+	}, nil
+}
+
+func (r *creationRepo) setCreationUserToCache(key string, creationUser *biz.CreationUser) {
+	err := r.data.redisCli.HMSet(context.Background(), key, "article", creationUser.Article, "talk", creationUser.Talk, "column", creationUser.Column, "collections", creationUser.Collections).Err()
+	if err != nil {
+		r.log.Errorf("fail to set user creation to cache, err(%s)", err.Error())
+	}
+}
+
+func (r *creationRepo) GetCreationUserVisitor(ctx context.Context, uuid string) (*biz.CreationUser, error) {
+	var creationUser *biz.CreationUser
+	key := "creation_user_visitor_" + uuid
+	exist, err := r.data.redisCli.Exists(ctx, key).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to judge if key exist or not from cache: key(%s)", key))
+	}
+
+	if exist == 1 {
+		creationUser, err = r.getCreationUserVisitorFromCache(ctx, key)
+		if err != nil {
+			return nil, err
+		}
+		return creationUser, nil
+	}
+
+	creationUser, err = r.getCreationUserVisitorFromDB(ctx, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	go r.setCreationUserVisitorToCache(key, creationUser)
+
+	return creationUser, nil
+}
+
+func (r *creationRepo) getCreationUserVisitorFromCache(ctx context.Context, key string) (*biz.CreationUser, error) {
+	statistic, err := r.data.redisCli.HMGet(ctx, key, "article", "column", "talk", "collections").Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user creation form cache: key(%s)", key))
+	}
+	val := []int32{0, 0, 0, 0}
+	for _index, count := range statistic {
+		if count == nil {
+			break
+		}
+		num, err := strconv.ParseInt(count.(string), 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: count(%v)", count))
+		}
+		val[_index] = int32(num)
+	}
+	return &biz.CreationUser{
+		Article:     val[0],
+		Column:      val[1],
+		Talk:        val[2],
+		Collections: val[3],
+	}, nil
+}
+
+func (r *creationRepo) getCreationUserVisitorFromDB(ctx context.Context, uuid string) (*biz.CreationUser, error) {
+	cuv := &CreationUserVisitor{}
+	err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).First(cuv).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("faile to get user creation from db: uuid(%v)", uuid))
+	}
+	return &biz.CreationUser{
+		Article:     cuv.Article,
+		Column:      cuv.Column,
+		Collections: cuv.Collections,
+		Talk:        cuv.Talk,
+	}, nil
+}
+
+func (r *creationRepo) setCreationUserVisitorToCache(key string, creationUser *biz.CreationUser) {
+	err := r.data.redisCli.HMSet(context.Background(), key, "article", creationUser.Article, "talk", creationUser.Talk, "column", creationUser.Column, "collections", creationUser.Collections).Err()
+	if err != nil {
+		r.log.Errorf("fail to set user creation to cache, err(%s)", err.Error())
+	}
+}
+
 func (r *creationRepo) CreateCollections(ctx context.Context, uuid, name, introduce string, auth int32) error {
 	collect := &Collections{
 		Uuid:      uuid,
