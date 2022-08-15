@@ -13,6 +13,7 @@ type AchievementRepo interface {
 	CancelAchievementCollect(ctx context.Context, uuid string) error
 	SetAchievementFollow(ctx context.Context, follow, followed string) error
 	CancelAchievementFollow(ctx context.Context, follow, followed string) error
+	AddAchievementScore(ctx context.Context, uuid string, score int32) error
 }
 
 type AchievementCase struct {
@@ -53,4 +54,8 @@ func (r *AchievementCase) SetAchievementFollow(ctx context.Context, follow, foll
 
 func (r *AchievementCase) CancelAchievementFollow(ctx context.Context, follow, followed string) error {
 	return r.repo.CancelAchievementFollow(ctx, follow, followed)
+}
+
+func (r *AchievementCase) AddAchievementScore(ctx context.Context, uuid string, score int32) error {
+	return r.repo.AddAchievementScore(ctx, uuid, score)
 }
