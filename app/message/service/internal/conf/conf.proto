@@ -28,12 +28,16 @@ message Server {
     message Profile{
       string groupName = 1;
     }
+    message Follow{
+      string groupName = 1;
+    }
     Code code = 1;
     Profile profile = 2;
-    string serverAddress = 3;
-    string secretKey = 4;
-    string accessKey = 5;
-    string nameSpace = 6;
+    Follow follow = 3;
+    string serverAddress = 4;
+    string secretKey = 5;
+    string accessKey = 6;
+    string nameSpace = 7;
   }
   message CreationMq{
     message ArticleReview{
@@ -106,6 +110,9 @@ message Data {
   message Mail{
     string code = 1;
   }
+  message Jwt{
+    string key = 1;
+  }
   message Cos{
     message BucketUser{
       string bucketUrl = 1;
@@ -130,8 +137,9 @@ message Data {
     BucketCreation bucketCreation = 2;
     BucketComment bucketComment = 3;
   }
-  Code code = 1;
-  Mail mail = 2;
-  Cos cos = 3;
+  Jwt jwt = 1;
+  Code code = 2;
+  Mail mail = 3;
+  Cos cos = 4;
 }
 
