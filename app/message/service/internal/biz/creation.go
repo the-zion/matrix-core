@@ -13,14 +13,14 @@ type CreationRepo interface {
 	ToReviewEditArticle(id int32, uuid string) error
 	ArticleCreateReviewPass(ctx context.Context, id, auth int32, uuid string) error
 	ArticleEditReviewPass(ctx context.Context, id, auth int32, uuid string) error
-	CreateArticleCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error
+	CreateArticleDbCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error
 	EditArticleCosAndSearch(ctx context.Context, id, auth int32, uuid string) error
 	DeleteArticleCacheAndSearch(ctx context.Context, id int32, uuid string) error
 
 	ToReviewCreateTalk(id int32, uuid string) error
 	ToReviewEditTalk(id int32, uuid string) error
 	TalkCreateReviewPass(ctx context.Context, id, auth int32, uuid string) error
-	CreateTalkCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error
+	CreateTalkDbCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error
 	TalkEditReviewPass(ctx context.Context, id, auth int32, uuid string) error
 	EditTalkCosAndSearch(ctx context.Context, id, auth int32, uuid string) error
 	DeleteTalkCacheAndSearch(ctx context.Context, id int32, uuid string) error
@@ -29,7 +29,7 @@ type CreationRepo interface {
 	ToReviewEditColumn(id int32, uuid string) error
 	ColumnCreateReviewPass(ctx context.Context, id, auth int32, uuid string) error
 	ColumnEditReviewPass(ctx context.Context, id, auth int32, uuid string) error
-	CreateColumnCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error
+	CreateColumnDbCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error
 	EditColumnCosAndSearch(ctx context.Context, id, auth int32, uuid string) error
 	DeleteColumnCacheAndSearch(ctx context.Context, id int32, uuid string) error
 
@@ -39,12 +39,14 @@ type CreationRepo interface {
 
 type CreationUseCase struct {
 	repo CreationRepo
+	jwt  Jwt
 	log  *log.Helper
 }
 
-func NewCreationUseCase(repo CreationRepo, logger log.Logger) *CreationUseCase {
+func NewCreationUseCase(repo CreationRepo, jwt Jwt, logger log.Logger) *CreationUseCase {
 	return &CreationUseCase{
 		repo: repo,
+		jwt:  jwt,
 		log:  log.NewHelper(log.With(logger, "module", "message/biz/creationUseCase")),
 	}
 }
@@ -59,11 +61,11 @@ func (r *CreationUseCase) ToReviewEditArticle(id int32, uuid string) error {
 
 func (r *CreationUseCase) ArticleCreateReview(ctx context.Context, tr *TextReview) error {
 	var err error
-	var uuid, id, auths string
+	var token, id, auths string
 	var ok bool
 
-	if uuid, ok = tr.CosHeaders["X-Cos-Meta-Uuid"]; !ok || uuid == "" {
-		r.log.Info("uuid not exist，%v", tr)
+	if token, ok = tr.CosHeaders["X-Cos-Meta-Token"]; !ok || token == "" {
+		r.log.Info("token not exist，%v", tr)
 		return nil
 	}
 
@@ -75,6 +77,11 @@ func (r *CreationUseCase) ArticleCreateReview(ctx context.Context, tr *TextRevie
 	if auths, ok = tr.CosHeaders["X-Cos-Meta-Auth"]; !ok || auths == "" {
 		r.log.Info("auth not exist，%v", tr)
 		return nil
+	}
+
+	uuid, err := r.jwt.JwtCheck(token)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to get uuid from token: %s", token))
 	}
 
 	aid, err := strconv.ParseInt(id, 10, 32)
@@ -105,11 +112,11 @@ func (r *CreationUseCase) ArticleCreateReview(ctx context.Context, tr *TextRevie
 
 func (r *CreationUseCase) ArticleEditReview(ctx context.Context, tr *TextReview) error {
 	var err error
-	var uuid, id, auths string
+	var token, id, auths string
 	var ok bool
 
-	if uuid, ok = tr.CosHeaders["X-Cos-Meta-Uuid"]; !ok || uuid == "" {
-		r.log.Info("uuid not exist，%v", tr)
+	if token, ok = tr.CosHeaders["X-Cos-Meta-Token"]; !ok || token == "" {
+		r.log.Info("token not exist，%v", tr)
 		return nil
 	}
 
@@ -121,6 +128,11 @@ func (r *CreationUseCase) ArticleEditReview(ctx context.Context, tr *TextReview)
 	if auths, ok = tr.CosHeaders["X-Cos-Meta-Auth"]; !ok || auths == "" {
 		r.log.Info("auth not exist，%v", tr)
 		return nil
+	}
+
+	uuid, err := r.jwt.JwtCheck(token)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to get uuid from token: %s", token))
 	}
 
 	aid, err := strconv.ParseInt(id, 10, 32)
@@ -149,8 +161,8 @@ func (r *CreationUseCase) ArticleEditReview(ctx context.Context, tr *TextReview)
 	return nil
 }
 
-func (r *CreationUseCase) CreateArticleCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error {
-	return r.repo.CreateArticleCacheAndSearch(ctx, id, auth, uuid)
+func (r *CreationUseCase) CreateArticleDbCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error {
+	return r.repo.CreateArticleDbCacheAndSearch(ctx, id, auth, uuid)
 }
 
 func (r *CreationUseCase) EditArticleCosAndSearch(ctx context.Context, id, auth int32, uuid string) error {
@@ -171,11 +183,11 @@ func (r *CreationUseCase) ToReviewEditTalk(id int32, uuid string) error {
 
 func (r *CreationUseCase) TalkCreateReview(ctx context.Context, tr *TextReview) error {
 	var err error
-	var uuid, id, auths string
+	var token, id, auths string
 	var ok bool
 
-	if uuid, ok = tr.CosHeaders["X-Cos-Meta-Uuid"]; !ok || uuid == "" {
-		r.log.Info("uuid not exist，%v", tr)
+	if token, ok = tr.CosHeaders["X-Cos-Meta-Token"]; !ok || token == "" {
+		r.log.Info("token not exist，%v", tr)
 		return nil
 	}
 
@@ -187,6 +199,11 @@ func (r *CreationUseCase) TalkCreateReview(ctx context.Context, tr *TextReview) 
 	if auths, ok = tr.CosHeaders["X-Cos-Meta-Auth"]; !ok || auths == "" {
 		r.log.Info("auth not exist，%v", tr)
 		return nil
+	}
+
+	uuid, err := r.jwt.JwtCheck(token)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to get uuid from token: %s", token))
 	}
 
 	aid, err := strconv.ParseInt(id, 10, 32)
@@ -217,11 +234,11 @@ func (r *CreationUseCase) TalkCreateReview(ctx context.Context, tr *TextReview) 
 
 func (r *CreationUseCase) TalkEditReview(ctx context.Context, tr *TextReview) error {
 	var err error
-	var uuid, id, auths string
+	var token, id, auths string
 	var ok bool
 
-	if uuid, ok = tr.CosHeaders["X-Cos-Meta-Uuid"]; !ok || uuid == "" {
-		r.log.Info("uuid not exist，%v", tr)
+	if token, ok = tr.CosHeaders["X-Cos-Meta-Token"]; !ok || token == "" {
+		r.log.Info("token not exist，%v", tr)
 		return nil
 	}
 
@@ -233,6 +250,11 @@ func (r *CreationUseCase) TalkEditReview(ctx context.Context, tr *TextReview) er
 	if auths, ok = tr.CosHeaders["X-Cos-Meta-Auth"]; !ok || auths == "" {
 		r.log.Info("auth not exist，%v", tr)
 		return nil
+	}
+
+	uuid, err := r.jwt.JwtCheck(token)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to get uuid from token: %s", token))
 	}
 
 	aid, err := strconv.ParseInt(id, 10, 32)
@@ -261,8 +283,8 @@ func (r *CreationUseCase) TalkEditReview(ctx context.Context, tr *TextReview) er
 	return nil
 }
 
-func (r *CreationUseCase) CreateTalkCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error {
-	return r.repo.CreateTalkCacheAndSearch(ctx, id, auth, uuid)
+func (r *CreationUseCase) CreateTalkDbCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error {
+	return r.repo.CreateTalkDbCacheAndSearch(ctx, id, auth, uuid)
 }
 
 func (r *CreationUseCase) EditTalkCosAndSearch(ctx context.Context, id, auth int32, uuid string) error {
@@ -283,11 +305,11 @@ func (r *CreationUseCase) ToReviewEditColumn(id int32, uuid string) error {
 
 func (r *CreationUseCase) ColumnCreateReview(ctx context.Context, tr *TextReview) error {
 	var err error
-	var uuid, id, auths string
+	var token, id, auths string
 	var ok bool
 
-	if uuid, ok = tr.CosHeaders["X-Cos-Meta-Uuid"]; !ok || uuid == "" {
-		r.log.Info("uuid not exist，%v", tr)
+	if token, ok = tr.CosHeaders["X-Cos-Meta-Token"]; !ok || token == "" {
+		r.log.Info("token not exist，%v", tr)
 		return nil
 	}
 
@@ -299,6 +321,11 @@ func (r *CreationUseCase) ColumnCreateReview(ctx context.Context, tr *TextReview
 	if auths, ok = tr.CosHeaders["X-Cos-Meta-Auth"]; !ok || auths == "" {
 		r.log.Info("auth not exist，%v", tr)
 		return nil
+	}
+
+	uuid, err := r.jwt.JwtCheck(token)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to get uuid from token: %s", token))
 	}
 
 	aid, err := strconv.ParseInt(id, 10, 32)
@@ -329,11 +356,11 @@ func (r *CreationUseCase) ColumnCreateReview(ctx context.Context, tr *TextReview
 
 func (r *CreationUseCase) ColumnEditReview(ctx context.Context, tr *TextReview) error {
 	var err error
-	var uuid, id, auths string
+	var token, id, auths string
 	var ok bool
 
-	if uuid, ok = tr.CosHeaders["X-Cos-Meta-Uuid"]; !ok || uuid == "" {
-		r.log.Info("uuid not exist，%v", tr)
+	if token, ok = tr.CosHeaders["X-Cos-Meta-Token"]; !ok || token == "" {
+		r.log.Info("token not exist，%v", tr)
 		return nil
 	}
 
@@ -345,6 +372,11 @@ func (r *CreationUseCase) ColumnEditReview(ctx context.Context, tr *TextReview) 
 	if auths, ok = tr.CosHeaders["X-Cos-Meta-Auth"]; !ok || auths == "" {
 		r.log.Info("auth not exist，%v", tr)
 		return nil
+	}
+
+	uuid, err := r.jwt.JwtCheck(token)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to get uuid from token: %s", token))
 	}
 
 	aid, err := strconv.ParseInt(id, 10, 32)
@@ -373,8 +405,8 @@ func (r *CreationUseCase) ColumnEditReview(ctx context.Context, tr *TextReview) 
 	return nil
 }
 
-func (r *CreationUseCase) CreateColumnCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error {
-	return r.repo.CreateColumnCacheAndSearch(ctx, id, auth, uuid)
+func (r *CreationUseCase) CreateColumnDbCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error {
+	return r.repo.CreateColumnDbCacheAndSearch(ctx, id, auth, uuid)
 }
 
 func (r *CreationUseCase) EditColumnCosAndSearch(ctx context.Context, id, auth int32, uuid string) error {
