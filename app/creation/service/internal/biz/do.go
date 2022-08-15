@@ -163,3 +163,10 @@ type ColumnSearch struct {
 	Cover     string
 	Update    string
 }
+
+type CreationUser struct {
+	Article     int32
+	Column      int32
+	Talk        int32
+	Collections int32
+}
