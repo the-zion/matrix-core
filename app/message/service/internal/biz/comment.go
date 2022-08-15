@@ -25,12 +25,14 @@ type CommentRepo interface {
 
 type CommentUseCase struct {
 	repo CommentRepo
+	jwt  Jwt
 	log  *log.Helper
 }
 
-func NewCommentUseCase(repo CommentRepo, logger log.Logger) *CommentUseCase {
+func NewCommentUseCase(repo CommentRepo, jwt Jwt, logger log.Logger) *CommentUseCase {
 	return &CommentUseCase{
 		repo: repo,
+		jwt:  jwt,
 		log:  log.NewHelper(log.With(logger, "module", "message/biz/commentUseCase")),
 	}
 }
@@ -45,11 +47,11 @@ func (r *CommentUseCase) ToReviewCreateSubComment(id int32, uuid string) error {
 
 func (r *CommentUseCase) CommentCreateReview(ctx context.Context, tr *TextReview) error {
 	var err error
-	var uuid, id, creationId, creationType string
+	var token, id, creationId, creationType string
 	var ok bool
 
-	if uuid, ok = tr.CosHeaders["X-Cos-Meta-Uuid"]; !ok || uuid == "" {
-		r.log.Info("uuid not exist，%v", tr)
+	if token, ok = tr.CosHeaders["X-Cos-Meta-Token"]; !ok || token == "" {
+		r.log.Info("token not exist，%v", tr)
 		return nil
 	}
 
@@ -66,6 +68,11 @@ func (r *CommentUseCase) CommentCreateReview(ctx context.Context, tr *TextReview
 	if creationType, ok = tr.CosHeaders["X-Cos-Meta-Creationtype"]; !ok || creationType == "" {
 		r.log.Info("creationType not exist，%v", tr)
 		return nil
+	}
+
+	uuid, err := r.jwt.JwtCheck(token)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to get uuid from token: %s", token))
 	}
 
 	aid, err := strconv.ParseInt(id, 10, 32)
@@ -101,11 +108,11 @@ func (r *CommentUseCase) CommentCreateReview(ctx context.Context, tr *TextReview
 
 func (r *CommentUseCase) SubCommentCreateReview(ctx context.Context, tr *TextReview) error {
 	var err error
-	var uuid, id, rootId, parentId string
+	var token, id, rootId, parentId string
 	var ok bool
 
-	if uuid, ok = tr.CosHeaders["X-Cos-Meta-Uuid"]; !ok || uuid == "" {
-		r.log.Info("uuid not exist，%v", tr)
+	if token, ok = tr.CosHeaders["X-Cos-Meta-Token"]; !ok || token == "" {
+		r.log.Info("token not exist，%v", tr)
 		return nil
 	}
 
@@ -126,6 +133,11 @@ func (r *CommentUseCase) SubCommentCreateReview(ctx context.Context, tr *TextRev
 
 	if parentId == "" {
 		parentId = "0"
+	}
+
+	uuid, err := r.jwt.JwtCheck(token)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to get uuid from token: %s", token))
 	}
 
 	aid, err := strconv.ParseInt(id, 10, 32)
