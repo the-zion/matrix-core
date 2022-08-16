@@ -36,7 +36,7 @@ func NewAchievementMqConsumerServer(conf *conf.Server, messageService *service.M
 	}
 
 	delayLevel := 3
-	err = c.Subscribe("achievement", consumer.MessageSelector{}, func(ctx context.Context,
+	err = c.Subscribe("achievement", consumer.MessageSelector{}, MqRecovery(func(ctx context.Context,
 		msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
 
 		concurrentCtx, _ := primitive.GetConcurrentlyCtx(ctx)
@@ -66,6 +66,8 @@ func NewAchievementMqConsumerServer(conf *conf.Server, messageService *service.M
 			err = messageService.SetAchievementFollow(ctx, m["follow"].(string), m["followed"].(string))
 		case "follow_cancel":
 			err = messageService.CancelAchievementFollow(ctx, m["follow"].(string), m["followed"].(string))
+		case "add_score":
+			err = messageService.AddAchievementScore(ctx, m["uuid"].(string), int32(m["score"].(float64)))
 		}
 
 		if err != nil {
@@ -73,7 +75,7 @@ func NewAchievementMqConsumerServer(conf *conf.Server, messageService *service.M
 			return consumer.ConsumeRetryLater, nil
 		}
 		return consumer.ConsumeSuccess, nil
-	})
+	}))
 	if err != nil {
 		l.Fatalf("consumer subscribe error: %v", err)
 	}
