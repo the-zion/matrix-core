@@ -90,3 +90,14 @@ func (r *achievementRepo) CancelAchievementFollow(ctx context.Context, follow, f
 	}
 	return nil
 }
+
+func (r *achievementRepo) AddAchievementScore(ctx context.Context, uuid string, score int32) error {
+	_, err := r.data.ac.AddAchievementScore(ctx, &achievementv1.AddAchievementScoreReq{
+		Uuid:  uuid,
+		Score: score,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
