@@ -36,7 +36,7 @@ func NewArticleReviewMqConsumerServer(conf *conf.Server, messageService *service
 	}
 
 	delayLevel := 3
-	err = c.Subscribe("article_review", consumer.MessageSelector{}, func(ctx context.Context,
+	err = c.Subscribe("article_review", consumer.MessageSelector{}, MqRecovery(func(ctx context.Context,
 		msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
 
 		concurrentCtx, _ := primitive.GetConcurrentlyCtx(ctx)
@@ -63,7 +63,7 @@ func NewArticleReviewMqConsumerServer(conf *conf.Server, messageService *service
 			return consumer.ConsumeRetryLater, nil
 		}
 		return consumer.ConsumeSuccess, nil
-	})
+	}))
 	if err != nil {
 		l.Fatalf("consumer subscribe error: %v", err)
 	}
@@ -108,7 +108,7 @@ func NewArticleMqConsumerServer(conf *conf.Server, messageService *service.Messa
 	}
 
 	delayLevel := 3
-	err = c.Subscribe("article", consumer.MessageSelector{}, func(ctx context.Context,
+	err = c.Subscribe("article", consumer.MessageSelector{}, MqRecovery(func(ctx context.Context,
 		msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
 
 		concurrentCtx, _ := primitive.GetConcurrentlyCtx(ctx)
@@ -124,8 +124,8 @@ func NewArticleMqConsumerServer(conf *conf.Server, messageService *service.Messa
 
 		mode := m["mode"].(string)
 		switch mode {
-		case "create_article_cache_and_search":
-			err = messageService.CreateArticleCacheAndSearch(ctx, int32(m["id"].(float64)), int32(m["auth"].(float64)), m["uuid"].(string))
+		case "create_article_db_cache_and_search":
+			err = messageService.CreateArticleDbCacheAndSearch(ctx, int32(m["id"].(float64)), int32(m["auth"].(float64)), m["uuid"].(string))
 		case "edit_article_cos_and_search":
 			err = messageService.EditArticleCosAndSearch(ctx, int32(m["id"].(float64)), int32(m["auth"].(float64)), m["uuid"].(string))
 		case "delete_article_cache_and_search":
@@ -137,7 +137,7 @@ func NewArticleMqConsumerServer(conf *conf.Server, messageService *service.Messa
 			return consumer.ConsumeRetryLater, nil
 		}
 		return consumer.ConsumeSuccess, nil
-	})
+	}))
 	if err != nil {
 		l.Fatalf("consumer subscribe error: %v", err)
 	}
@@ -182,7 +182,7 @@ func NewTalkReviewMqConsumerServer(conf *conf.Server, messageService *service.Me
 	}
 
 	delayLevel := 3
-	err = c.Subscribe("talk_review", consumer.MessageSelector{}, func(ctx context.Context,
+	err = c.Subscribe("talk_review", consumer.MessageSelector{}, MqRecovery(func(ctx context.Context,
 		msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
 
 		concurrentCtx, _ := primitive.GetConcurrentlyCtx(ctx)
@@ -209,7 +209,7 @@ func NewTalkReviewMqConsumerServer(conf *conf.Server, messageService *service.Me
 			return consumer.ConsumeRetryLater, nil
 		}
 		return consumer.ConsumeSuccess, nil
-	})
+	}))
 	if err != nil {
 		l.Fatalf("consumer subscribe error: %v", err)
 	}
@@ -254,7 +254,7 @@ func NewTalkMqConsumerServer(conf *conf.Server, messageService *service.MessageS
 	}
 
 	delayLevel := 3
-	err = c.Subscribe("talk", consumer.MessageSelector{}, func(ctx context.Context,
+	err = c.Subscribe("talk", consumer.MessageSelector{}, MqRecovery(func(ctx context.Context,
 		msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
 
 		concurrentCtx, _ := primitive.GetConcurrentlyCtx(ctx)
@@ -270,8 +270,8 @@ func NewTalkMqConsumerServer(conf *conf.Server, messageService *service.MessageS
 
 		mode := m["mode"].(string)
 		switch mode {
-		case "create_talk_cache_and_search":
-			err = messageService.CreateTalkCacheAndSearch(ctx, int32(m["id"].(float64)), int32(m["auth"].(float64)), m["uuid"].(string))
+		case "create_talk_db_cache_and_search":
+			err = messageService.CreateTalkDbCacheAndSearch(ctx, int32(m["id"].(float64)), int32(m["auth"].(float64)), m["uuid"].(string))
 		case "edit_talk_cos_and_search":
 			err = messageService.EditTalkCosAndSearch(ctx, int32(m["id"].(float64)), int32(m["auth"].(float64)), m["uuid"].(string))
 		case "delete_talk_cache_and_search":
@@ -283,7 +283,7 @@ func NewTalkMqConsumerServer(conf *conf.Server, messageService *service.MessageS
 			return consumer.ConsumeRetryLater, nil
 		}
 		return consumer.ConsumeSuccess, nil
-	})
+	}))
 	if err != nil {
 		l.Fatalf("consumer subscribe error: %v", err)
 	}
@@ -328,7 +328,7 @@ func NewColumnReviewMqConsumerServer(conf *conf.Server, messageService *service.
 	}
 
 	delayLevel := 3
-	err = c.Subscribe("column_review", consumer.MessageSelector{}, func(ctx context.Context,
+	err = c.Subscribe("column_review", consumer.MessageSelector{}, MqRecovery(func(ctx context.Context,
 		msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
 
 		concurrentCtx, _ := primitive.GetConcurrentlyCtx(ctx)
@@ -355,7 +355,7 @@ func NewColumnReviewMqConsumerServer(conf *conf.Server, messageService *service.
 			return consumer.ConsumeRetryLater, nil
 		}
 		return consumer.ConsumeSuccess, nil
-	})
+	}))
 	if err != nil {
 		l.Fatalf("consumer subscribe error: %v", err)
 	}
@@ -400,7 +400,7 @@ func NewColumnMqConsumerServer(conf *conf.Server, messageService *service.Messag
 	}
 
 	delayLevel := 3
-	err = c.Subscribe("column", consumer.MessageSelector{}, func(ctx context.Context,
+	err = c.Subscribe("column", consumer.MessageSelector{}, MqRecovery(func(ctx context.Context,
 		msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
 
 		concurrentCtx, _ := primitive.GetConcurrentlyCtx(ctx)
@@ -416,8 +416,8 @@ func NewColumnMqConsumerServer(conf *conf.Server, messageService *service.Messag
 
 		mode := m["mode"].(string)
 		switch mode {
-		case "create_column_cache_and_search":
-			err = messageService.CreateColumnCacheAndSearch(ctx, int32(m["id"].(float64)), int32(m["auth"].(float64)), m["uuid"].(string))
+		case "create_column_db_cache_and_search":
+			err = messageService.CreateColumnDbCacheAndSearch(ctx, int32(m["id"].(float64)), int32(m["auth"].(float64)), m["uuid"].(string))
 		case "edit_column_cos_and_search":
 			err = messageService.EditColumnCosAndSearch(ctx, int32(m["id"].(float64)), int32(m["auth"].(float64)), m["uuid"].(string))
 		case "delete_column_cache_and_search":
@@ -429,7 +429,7 @@ func NewColumnMqConsumerServer(conf *conf.Server, messageService *service.Messag
 			return consumer.ConsumeRetryLater, nil
 		}
 		return consumer.ConsumeSuccess, nil
-	})
+	}))
 	if err != nil {
 		l.Fatalf("consumer subscribe error: %v", err)
 	}
