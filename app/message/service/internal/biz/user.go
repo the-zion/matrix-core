@@ -41,6 +41,11 @@ func (r *UserUseCase) AvatarReview(ctx context.Context, ar *AvatarReview) error 
 	return nil
 }
 
+func (r *UserUseCase) CoverReview(ctx context.Context, cr *CoverReview) error {
+	fmt.Println(cr)
+	return nil
+}
+
 func (r *UserUseCase) ProfileReview(ctx context.Context, tr *TextReview) error {
 	var uuid, updated string
 	var ok bool
