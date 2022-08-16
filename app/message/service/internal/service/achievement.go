@@ -31,3 +31,7 @@ func (s *MessageService) SetAchievementFollow(ctx context.Context, follow, follo
 func (s *MessageService) CancelAchievementFollow(ctx context.Context, follow, followed string) error {
 	return s.ac.CancelAchievementFollow(ctx, follow, followed)
 }
+
+func (s *MessageService) AddAchievementScore(ctx context.Context, uuid string, score int32) error {
+	return s.ac.AddAchievementScore(ctx, uuid, score)
+}
