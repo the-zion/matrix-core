@@ -466,7 +466,7 @@ func (r *achievementRepo) getAchievementFromCache(ctx context.Context, key strin
 func (r *achievementRepo) getAchievementFromDB(ctx context.Context, uuid string) (*biz.Achievement, error) {
 	ach := &Achievement{}
 	err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).First(ach).Error
-	if err != nil {
+	if !errors.Is(err, gorm.ErrRecordNotFound) && err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("faile to get achievement from db: uuid(%s)", uuid))
 	}
 	return &biz.Achievement{
