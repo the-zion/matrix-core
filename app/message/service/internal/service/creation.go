@@ -32,8 +32,8 @@ func (s *MessageService) ArticleEditReview(ctx context.Context, req *v1.TextRevi
 	return &emptypb.Empty{}, nil
 }
 
-func (s *MessageService) CreateArticleCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error {
-	return s.cc.CreateArticleCacheAndSearch(ctx, id, auth, uuid)
+func (s *MessageService) CreateArticleDbCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error {
+	return s.cc.CreateArticleDbCacheAndSearch(ctx, id, auth, uuid)
 }
 
 func (s *MessageService) EditArticleCosAndSearch(ctx context.Context, id, auth int32, uuid string) error {
@@ -70,8 +70,8 @@ func (s *MessageService) TalkEditReview(ctx context.Context, req *v1.TextReviewR
 	return &emptypb.Empty{}, nil
 }
 
-func (s *MessageService) CreateTalkCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error {
-	return s.cc.CreateTalkCacheAndSearch(ctx, id, auth, uuid)
+func (s *MessageService) CreateTalkDbCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error {
+	return s.cc.CreateTalkDbCacheAndSearch(ctx, id, auth, uuid)
 }
 
 func (s *MessageService) EditTalkCosAndSearch(ctx context.Context, id, auth int32, uuid string) error {
@@ -108,8 +108,8 @@ func (s *MessageService) ColumnEditReview(ctx context.Context, req *v1.TextRevie
 	return &emptypb.Empty{}, nil
 }
 
-func (s *MessageService) CreateColumnCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error {
-	return s.cc.CreateColumnCacheAndSearch(ctx, id, auth, uuid)
+func (s *MessageService) CreateColumnDbCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error {
+	return s.cc.CreateColumnDbCacheAndSearch(ctx, id, auth, uuid)
 }
 
 func (s *MessageService) EditColumnCosAndSearch(ctx context.Context, id, auth int32, uuid string) error {
@@ -118,4 +118,12 @@ func (s *MessageService) EditColumnCosAndSearch(ctx context.Context, id, auth in
 
 func (s *MessageService) DeleteColumnCacheAndSearch(ctx context.Context, id int32, uuid string) error {
 	return s.cc.DeleteColumnCacheAndSearch(ctx, id, uuid)
+}
+
+func (s *MessageService) AddCreationComment(ctx context.Context, createId, createType int32, uuid string) {
+	s.cc.AddCreationComment(ctx, createId, createType, uuid)
+}
+
+func (s *MessageService) ReduceCreationComment(ctx context.Context, createId, createType int32, uuid string) {
+	s.cc.ReduceCreationComment(ctx, createId, createType, uuid)
 }
