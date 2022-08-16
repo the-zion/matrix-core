@@ -175,6 +175,146 @@ var _ interface {
 	ErrorName() string
 } = AvatarReviewReqValidationError{}
 
+// Validate checks the field values on CoverReviewReq with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *CoverReviewReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CoverReviewReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in CoverReviewReqMultiError,
+// or nil if none found.
+func (m *CoverReviewReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CoverReviewReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetJobsDetail()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, CoverReviewReqValidationError{
+					field:  "JobsDetail",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, CoverReviewReqValidationError{
+					field:  "JobsDetail",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetJobsDetail()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return CoverReviewReqValidationError{
+				field:  "JobsDetail",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if utf8.RuneCountInString(m.GetEventName()) > 1000 {
+		err := CoverReviewReqValidationError{
+			field:  "EventName",
+			reason: "value length must be at most 1000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return CoverReviewReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// CoverReviewReqMultiError is an error wrapping multiple validation errors
+// returned by CoverReviewReq.ValidateAll() if the designated constraints
+// aren't met.
+type CoverReviewReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CoverReviewReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CoverReviewReqMultiError) AllErrors() []error { return m }
+
+// CoverReviewReqValidationError is the validation error returned by
+// CoverReviewReq.Validate if the designated constraints aren't met.
+type CoverReviewReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CoverReviewReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CoverReviewReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CoverReviewReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CoverReviewReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CoverReviewReqValidationError) ErrorName() string { return "CoverReviewReqValidationError" }
+
+// Error satisfies the builtin error interface
+func (e CoverReviewReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCoverReviewReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CoverReviewReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CoverReviewReqValidationError{}
+
 // Validate checks the field values on TextReviewReq with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
@@ -1537,3 +1677,244 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = AvatarReviewReq_JobsDetailStructValidationError{}
+
+// Validate checks the field values on CoverReviewReq_JobsDetailStruct with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *CoverReviewReq_JobsDetailStruct) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CoverReviewReq_JobsDetailStruct with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// CoverReviewReq_JobsDetailStructMultiError, or nil if none found.
+func (m *CoverReviewReq_JobsDetailStruct) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CoverReviewReq_JobsDetailStruct) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetCode()) > 1000 {
+		err := CoverReviewReq_JobsDetailStructValidationError{
+			field:  "Code",
+			reason: "value length must be at most 1000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetMessage()) > 1000 {
+		err := CoverReviewReq_JobsDetailStructValidationError{
+			field:  "Message",
+			reason: "value length must be at most 1000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetJobId()) > 1000 {
+		err := CoverReviewReq_JobsDetailStructValidationError{
+			field:  "JobId",
+			reason: "value length must be at most 1000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetState()) > 1000 {
+		err := CoverReviewReq_JobsDetailStructValidationError{
+			field:  "State",
+			reason: "value length must be at most 1000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetObject()) > 1000 {
+		err := CoverReviewReq_JobsDetailStructValidationError{
+			field:  "Object",
+			reason: "value length must be at most 1000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetLabel()) > 1000 {
+		err := CoverReviewReq_JobsDetailStructValidationError{
+			field:  "Label",
+			reason: "value length must be at most 1000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for Result
+
+	if utf8.RuneCountInString(m.GetCategory()) > 1000 {
+		err := CoverReviewReq_JobsDetailStructValidationError{
+			field:  "Category",
+			reason: "value length must be at most 1000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetBucketId()) > 1000 {
+		err := CoverReviewReq_JobsDetailStructValidationError{
+			field:  "BucketId",
+			reason: "value length must be at most 1000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetRegion()) > 1000 {
+		err := CoverReviewReq_JobsDetailStructValidationError{
+			field:  "Region",
+			reason: "value length must be at most 1000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	{
+		sorted_keys := make([]string, len(m.GetCosHeaders()))
+		i := 0
+		for key := range m.GetCosHeaders() {
+			sorted_keys[i] = key
+			i++
+		}
+		sort.Slice(sorted_keys, func(i, j int) bool { return sorted_keys[i] < sorted_keys[j] })
+		for _, key := range sorted_keys {
+			val := m.GetCosHeaders()[key]
+			_ = val
+
+			if utf8.RuneCountInString(key) > 1000 {
+				err := CoverReviewReq_JobsDetailStructValidationError{
+					field:  fmt.Sprintf("CosHeaders[%v]", key),
+					reason: "value length must be at most 1000 runes",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+			if utf8.RuneCountInString(val) > 1000 {
+				err := CoverReviewReq_JobsDetailStructValidationError{
+					field:  fmt.Sprintf("CosHeaders[%v]", key),
+					reason: "value length must be at most 1000 runes",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
+	if len(errors) > 0 {
+		return CoverReviewReq_JobsDetailStructMultiError(errors)
+	}
+
+	return nil
+}
+
+// CoverReviewReq_JobsDetailStructMultiError is an error wrapping multiple
+// validation errors returned by CoverReviewReq_JobsDetailStruct.ValidateAll()
+// if the designated constraints aren't met.
+type CoverReviewReq_JobsDetailStructMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CoverReviewReq_JobsDetailStructMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CoverReviewReq_JobsDetailStructMultiError) AllErrors() []error { return m }
+
+// CoverReviewReq_JobsDetailStructValidationError is the validation error
+// returned by CoverReviewReq_JobsDetailStruct.Validate if the designated
+// constraints aren't met.
+type CoverReviewReq_JobsDetailStructValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CoverReviewReq_JobsDetailStructValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CoverReviewReq_JobsDetailStructValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CoverReviewReq_JobsDetailStructValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CoverReviewReq_JobsDetailStructValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CoverReviewReq_JobsDetailStructValidationError) ErrorName() string {
+	return "CoverReviewReq_JobsDetailStructValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CoverReviewReq_JobsDetailStructValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCoverReviewReq_JobsDetailStruct.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CoverReviewReq_JobsDetailStructValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CoverReviewReq_JobsDetailStructValidationError{}

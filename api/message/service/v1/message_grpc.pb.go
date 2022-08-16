@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MessageClient interface {
 	AvatarReview(ctx context.Context, in *AvatarReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CoverReview(ctx context.Context, in *CoverReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ProfileReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ArticleCreateReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ArticleEditReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -46,6 +47,15 @@ func NewMessageClient(cc grpc.ClientConnInterface) MessageClient {
 func (c *messageClient) AvatarReview(ctx context.Context, in *AvatarReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/message.v1.Message/AvatarReview", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *messageClient) CoverReview(ctx context.Context, in *CoverReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/message.v1.Message/CoverReview", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -138,6 +148,7 @@ func (c *messageClient) SubCommentCreateReview(ctx context.Context, in *TextRevi
 // for forward compatibility
 type MessageServer interface {
 	AvatarReview(context.Context, *AvatarReviewReq) (*emptypb.Empty, error)
+	CoverReview(context.Context, *CoverReviewReq) (*emptypb.Empty, error)
 	ProfileReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	ArticleCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	ArticleEditReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
@@ -156,6 +167,9 @@ type UnimplementedMessageServer struct {
 
 func (UnimplementedMessageServer) AvatarReview(context.Context, *AvatarReviewReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AvatarReview not implemented")
+}
+func (UnimplementedMessageServer) CoverReview(context.Context, *CoverReviewReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CoverReview not implemented")
 }
 func (UnimplementedMessageServer) ProfileReview(context.Context, *TextReviewReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ProfileReview not implemented")
@@ -211,6 +225,24 @@ func _Message_AvatarReview_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MessageServer).AvatarReview(ctx, req.(*AvatarReviewReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Message_CoverReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CoverReviewReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MessageServer).CoverReview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/message.v1.Message/CoverReview",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MessageServer).CoverReview(ctx, req.(*CoverReviewReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -387,6 +419,10 @@ var Message_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AvatarReview",
 			Handler:    _Message_AvatarReview_Handler,
+		},
+		{
+			MethodName: "CoverReview",
+			Handler:    _Message_CoverReview_Handler,
 		},
 		{
 			MethodName: "ProfileReview",

@@ -26,6 +26,7 @@ const OperationMessageAvatarReview = "/message.v1.Message/AvatarReview"
 const OperationMessageColumnCreateReview = "/message.v1.Message/ColumnCreateReview"
 const OperationMessageColumnEditReview = "/message.v1.Message/ColumnEditReview"
 const OperationMessageCommentCreateReview = "/message.v1.Message/CommentCreateReview"
+const OperationMessageCoverReview = "/message.v1.Message/CoverReview"
 const OperationMessageProfileReview = "/message.v1.Message/ProfileReview"
 const OperationMessageSubCommentCreateReview = "/message.v1.Message/SubCommentCreateReview"
 const OperationMessageTalkCreateReview = "/message.v1.Message/TalkCreateReview"
@@ -38,6 +39,7 @@ type MessageHTTPServer interface {
 	ColumnCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	ColumnEditReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	CommentCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
+	CoverReview(context.Context, *CoverReviewReq) (*emptypb.Empty, error)
 	ProfileReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	SubCommentCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	TalkCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
@@ -47,6 +49,7 @@ type MessageHTTPServer interface {
 func RegisterMessageHTTPServer(s *http.Server, srv MessageHTTPServer) {
 	r := s.Route("/")
 	r.POST("/tx/message/avatar/review", _Message_AvatarReview0_HTTP_Handler(srv))
+	r.POST("/tx/message/cover/review", _Message_CoverReview0_HTTP_Handler(srv))
 	r.POST("/tx/message/profile/review", _Message_ProfileReview0_HTTP_Handler(srv))
 	r.POST("/tx/message/article/create/review", _Message_ArticleCreateReview0_HTTP_Handler(srv))
 	r.POST("/tx/message/article/edit/review", _Message_ArticleEditReview0_HTTP_Handler(srv))
@@ -67,6 +70,25 @@ func _Message_AvatarReview0_HTTP_Handler(srv MessageHTTPServer) func(ctx http.Co
 		http.SetOperation(ctx, OperationMessageAvatarReview)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.AvatarReview(ctx, req.(*AvatarReviewReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Message_CoverReview0_HTTP_Handler(srv MessageHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in CoverReviewReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationMessageCoverReview)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.CoverReview(ctx, req.(*CoverReviewReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -255,6 +277,7 @@ type MessageHTTPClient interface {
 	ColumnCreateReview(ctx context.Context, req *TextReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	ColumnEditReview(ctx context.Context, req *TextReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	CommentCreateReview(ctx context.Context, req *TextReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	CoverReview(ctx context.Context, req *CoverReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	ProfileReview(ctx context.Context, req *TextReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SubCommentCreateReview(ctx context.Context, req *TextReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	TalkCreateReview(ctx context.Context, req *TextReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -339,6 +362,19 @@ func (c *MessageHTTPClientImpl) CommentCreateReview(ctx context.Context, in *Tex
 	pattern := "/tx/message/comment/create/review"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationMessageCommentCreateReview))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *MessageHTTPClientImpl) CoverReview(ctx context.Context, in *CoverReviewReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/tx/message/cover/review"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationMessageCoverReview))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
