@@ -22,7 +22,7 @@ import (
 	"net/url"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewCreationRepo, NewCommentRepo, NewAchievementRepo, NewPhoneCode, NewGoMail, NewUserServiceClient, NewCreationServiceClient, NewAchievementServiceClient, NewCommentServiceClient, NewCosUserClient, NewCosCreationClient, NewCosCommentClient)
+var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewCreationRepo, NewCommentRepo, NewAchievementRepo, NewPhoneCode, NewGoMail, NewUserServiceClient, NewCreationServiceClient, NewAchievementServiceClient, NewCommentServiceClient, NewCosUserClient, NewCosCreationClient, NewCosCommentClient, NewJwtClient, NewJwt)
 
 type TxCode struct {
 	client  *sms.Client
@@ -48,12 +48,17 @@ type CosComment struct {
 	callback map[string]string
 }
 
+type Jwt struct {
+	key string
+}
+
 type Data struct {
 	log            *log.Helper
 	uc             userv1.UserClient
 	cc             creationv1.CreationClient
 	commc          commentv1.CommentClient
 	ac             achievementv1.AchievementClient
+	jwt            Jwt
 	phoneCodeCli   *TxCode
 	goMailCli      *GoMail
 	cosUserCli     *CosUser
@@ -220,7 +225,7 @@ func NewCosCommentClient(conf *conf.Data, logger log.Logger) *CosComment {
 	}
 }
 
-func NewData(logger log.Logger, uc userv1.UserClient, cc creationv1.CreationClient, commc commentv1.CommentClient, ac achievementv1.AchievementClient, cosUser *CosUser, cosCreation *CosCreation, cosComment *CosComment, phoneCodeCli *TxCode, goMailCli *GoMail) (*Data, error) {
+func NewData(logger log.Logger, uc userv1.UserClient, cc creationv1.CreationClient, commc commentv1.CommentClient, ac achievementv1.AchievementClient, jwt Jwt, cosUser *CosUser, cosCreation *CosCreation, cosComment *CosComment, phoneCodeCli *TxCode, goMailCli *GoMail) (*Data, error) {
 	l := log.NewHelper(log.With(logger, "module", "message/data"))
 	d := &Data{
 		log:            l,
@@ -228,6 +233,7 @@ func NewData(logger log.Logger, uc userv1.UserClient, cc creationv1.CreationClie
 		cc:             cc,
 		commc:          commc,
 		ac:             ac,
+		jwt:            jwt,
 		phoneCodeCli:   phoneCodeCli,
 		goMailCli:      goMailCli,
 		cosUserCli:     cosUser,
