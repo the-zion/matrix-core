@@ -8,6 +8,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/the-zion/matrix-core/app/creation/service/internal/biz"
 	"golang.org/x/sync/errgroup"
+	"gorm.io/gorm"
 	"strconv"
 	"strings"
 	"time"
@@ -583,7 +584,7 @@ func (r *creationRepo) getCreationUserVisitorFromCache(ctx context.Context, key 
 func (r *creationRepo) getCreationUserVisitorFromDB(ctx context.Context, uuid string) (*biz.CreationUser, error) {
 	cuv := &CreationUserVisitor{}
 	err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).First(cuv).Error
-	if err != nil {
+	if !errors.Is(err, gorm.ErrRecordNotFound) && err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("faile to get user creation from db: uuid(%v)", uuid))
 	}
 	return &biz.CreationUser{
