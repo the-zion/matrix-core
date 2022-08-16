@@ -79,8 +79,8 @@ func (r *creationRepo) ArticleEditReviewPass(ctx context.Context, id, auth int32
 	return nil
 }
 
-func (r *creationRepo) CreateArticleCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error {
-	_, err := r.data.cc.CreateArticleCacheAndSearch(ctx, &creationV1.CreateArticleCacheAndSearchReq{
+func (r *creationRepo) CreateArticleDbCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error {
+	_, err := r.data.cc.CreateArticleDbCacheAndSearch(ctx, &creationV1.CreateArticleDbCacheAndSearchReq{
 		Id:   id,
 		Auth: auth,
 		Uuid: uuid,
@@ -170,8 +170,8 @@ func (r *creationRepo) TalkEditReviewPass(ctx context.Context, id, auth int32, u
 	return nil
 }
 
-func (r *creationRepo) CreateTalkCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error {
-	_, err := r.data.cc.CreateTalkCacheAndSearch(ctx, &creationV1.CreateTalkCacheAndSearchReq{
+func (r *creationRepo) CreateTalkDbCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error {
+	_, err := r.data.cc.CreateTalkDbCacheAndSearch(ctx, &creationV1.CreateTalkDbCacheAndSearchReq{
 		Id:   id,
 		Auth: auth,
 		Uuid: uuid,
@@ -261,8 +261,8 @@ func (r *creationRepo) ColumnEditReviewPass(ctx context.Context, id, auth int32,
 	return nil
 }
 
-func (r *creationRepo) CreateColumnCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error {
-	_, err := r.data.cc.CreateColumnCacheAndSearch(ctx, &creationV1.CreateColumnCacheAndSearchReq{
+func (r *creationRepo) CreateColumnDbCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error {
+	_, err := r.data.cc.CreateColumnDbCacheAndSearch(ctx, &creationV1.CreateColumnDbCacheAndSearchReq{
 		Id:   id,
 		Auth: auth,
 		Uuid: uuid,
