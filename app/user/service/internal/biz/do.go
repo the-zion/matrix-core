@@ -1,5 +1,7 @@
 package biz
 
+import "time"
+
 type User struct {
 	Uuid     string
 	Phone    string
@@ -24,6 +26,12 @@ type Profile struct {
 	Introduce string
 }
 
+type UserSearch struct {
+	Uuid      string
+	Username  string
+	Introduce string
+}
+
 type ProfileUpdate struct {
 	Profile
 	Status int32
@@ -38,6 +46,8 @@ type Credentials struct {
 }
 
 type Follow struct {
+	Id       int32
+	Update   time.Time
 	Follow   string
 	Followed string
 	Status   int32
