@@ -111,8 +111,7 @@ service Bff{
 
   rpc GetUserFollows (google.protobuf.Empty) returns (GetUserFollowsReply) {
     option (google.api.http) = {
-      post: "/v1/get/user/follows",
-      body: "*"
+      get: "/v1/get/user/follows",
     };
   }
 
@@ -353,6 +352,13 @@ service Bff{
     };
   }
 
+  rpc GetUserArticleListSimple(GetUserArticleListSimpleReq) returns (GetArticleListReply){
+    option (google.api.http) = {
+      post: "/v1/get/user/article/list/simple",
+      body: "*"
+    };
+  }
+
   rpc GetUserArticleListVisitor(GetUserArticleListVisitorReq) returns (GetArticleListReply){
     option (google.api.http) = {
       get: "/v1/get/user/article/list/visitor"
@@ -490,6 +496,13 @@ service Bff{
   rpc GetUserTalkList(GetUserTalkListReq) returns (GetTalkListReply){
     option (google.api.http) = {
       post: "/v1/get/user/talk/list",
+      body: "*"
+    };
+  }
+
+  rpc GetUserTalkListSimple(GetUserTalkListSimpleReq) returns (GetTalkListReply){
+    option (google.api.http) = {
+      post: "/v1/get/user/talk/list/simple",
       body: "*"
     };
   }
@@ -684,6 +697,13 @@ service Bff{
   rpc GetUserColumnList(GetUserColumnListReq) returns (GetColumnListReply){
     option (google.api.http) = {
       post: "/v1/get/user/column/list",
+      body: "*"
+    };
+  }
+
+  rpc GetUserColumnListSimple(GetUserColumnListSimpleReq) returns (GetColumnListReply){
+    option (google.api.http) = {
+      post: "/v1/get/user/column/list/simple",
       body: "*"
     };
   }
@@ -1274,6 +1294,10 @@ message GetUserArticleListReq{
   int32 page = 1;
 }
 
+message GetUserArticleListSimpleReq{
+  int32 page = 1;
+}
+
 message GetUserArticleListVisitorReq{
   int32 page = 1;
   string uuid = 2;
@@ -1495,6 +1519,10 @@ message GetUserTalkListReq{
   int32 page = 1;
 }
 
+message GetUserTalkListSimpleReq{
+  int32 page = 1;
+}
+
 message GetUserTalkListVisitorReq{
   int32 page = 1;
   string uuid = 2;
@@ -1688,6 +1716,10 @@ message GetColumnListStatisticReply{
 }
 
 message GetUserColumnListReq{
+  int32 page = 1;
+}
+
+message GetUserColumnListSimpleReq{
   int32 page = 1;
 }
 
