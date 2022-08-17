@@ -1,0 +1,15 @@
+PUT user
+{
+  "mappings": {
+    "properties": {
+      "username": {
+        "type": "text",
+        "analyzer": "thulac"
+      },
+      "introduce": {
+        "type": "text",
+        "index": false
+      }
+    }
+  }
+}
