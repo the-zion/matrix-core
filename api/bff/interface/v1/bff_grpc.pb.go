@@ -76,6 +76,7 @@ type BffClient interface {
 	GetArticleCount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetArticleCountReply, error)
 	GetArticleCountVisitor(ctx context.Context, in *GetArticleCountVisitorReq, opts ...grpc.CallOption) (*GetArticleCountReply, error)
 	GetUserArticleList(ctx context.Context, in *GetUserArticleListReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
+	GetUserArticleListSimple(ctx context.Context, in *GetUserArticleListSimpleReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
 	GetUserArticleListVisitor(ctx context.Context, in *GetUserArticleListVisitorReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
 	GetArticleStatistic(ctx context.Context, in *GetArticleStatisticReq, opts ...grpc.CallOption) (*GetArticleStatisticReply, error)
 	GetArticleListStatistic(ctx context.Context, in *GetArticleListStatisticReq, opts ...grpc.CallOption) (*GetArticleListStatisticReply, error)
@@ -97,6 +98,7 @@ type BffClient interface {
 	GetTalkListHot(ctx context.Context, in *GetTalkListHotReq, opts ...grpc.CallOption) (*GetTalkListHotReply, error)
 	GetTalkListStatistic(ctx context.Context, in *GetTalkListStatisticReq, opts ...grpc.CallOption) (*GetTalkListStatisticReply, error)
 	GetUserTalkList(ctx context.Context, in *GetUserTalkListReq, opts ...grpc.CallOption) (*GetTalkListReply, error)
+	GetUserTalkListSimple(ctx context.Context, in *GetUserTalkListSimpleReq, opts ...grpc.CallOption) (*GetTalkListReply, error)
 	GetUserTalkListVisitor(ctx context.Context, in *GetUserTalkListVisitorReq, opts ...grpc.CallOption) (*GetTalkListReply, error)
 	GetTalkCount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetTalkCountReply, error)
 	GetTalkCountVisitor(ctx context.Context, in *GetTalkCountVisitorReq, opts ...grpc.CallOption) (*GetTalkCountReply, error)
@@ -126,6 +128,7 @@ type BffClient interface {
 	GetColumnListHot(ctx context.Context, in *GetColumnListHotReq, opts ...grpc.CallOption) (*GetColumnListHotReply, error)
 	GetColumnListStatistic(ctx context.Context, in *GetColumnListStatisticReq, opts ...grpc.CallOption) (*GetColumnListStatisticReply, error)
 	GetUserColumnList(ctx context.Context, in *GetUserColumnListReq, opts ...grpc.CallOption) (*GetColumnListReply, error)
+	GetUserColumnListSimple(ctx context.Context, in *GetUserColumnListSimpleReq, opts ...grpc.CallOption) (*GetColumnListReply, error)
 	GetUserColumnListVisitor(ctx context.Context, in *GetUserColumnListVisitorReq, opts ...grpc.CallOption) (*GetColumnListReply, error)
 	GetColumnCount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetColumnCountReply, error)
 	GetColumnCountVisitor(ctx context.Context, in *GetColumnCountVisitorReq, opts ...grpc.CallOption) (*GetColumnCountReply, error)
@@ -636,6 +639,15 @@ func (c *bffClient) GetUserArticleList(ctx context.Context, in *GetUserArticleLi
 	return out, nil
 }
 
+func (c *bffClient) GetUserArticleListSimple(ctx context.Context, in *GetUserArticleListSimpleReq, opts ...grpc.CallOption) (*GetArticleListReply, error) {
+	out := new(GetArticleListReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserArticleListSimple", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) GetUserArticleListVisitor(ctx context.Context, in *GetUserArticleListVisitorReq, opts ...grpc.CallOption) (*GetArticleListReply, error) {
 	out := new(GetArticleListReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserArticleListVisitor", in, out, opts...)
@@ -819,6 +831,15 @@ func (c *bffClient) GetTalkListStatistic(ctx context.Context, in *GetTalkListSta
 func (c *bffClient) GetUserTalkList(ctx context.Context, in *GetUserTalkListReq, opts ...grpc.CallOption) (*GetTalkListReply, error) {
 	out := new(GetTalkListReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserTalkList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetUserTalkListSimple(ctx context.Context, in *GetUserTalkListSimpleReq, opts ...grpc.CallOption) (*GetTalkListReply, error) {
+	out := new(GetTalkListReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserTalkListSimple", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1080,6 +1101,15 @@ func (c *bffClient) GetColumnListStatistic(ctx context.Context, in *GetColumnLis
 func (c *bffClient) GetUserColumnList(ctx context.Context, in *GetUserColumnListReq, opts ...grpc.CallOption) (*GetColumnListReply, error) {
 	out := new(GetColumnListReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserColumnList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetUserColumnListSimple(ctx context.Context, in *GetUserColumnListSimpleReq, opts ...grpc.CallOption) (*GetColumnListReply, error) {
+	out := new(GetColumnListReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserColumnListSimple", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1431,6 +1461,7 @@ type BffServer interface {
 	GetArticleCount(context.Context, *emptypb.Empty) (*GetArticleCountReply, error)
 	GetArticleCountVisitor(context.Context, *GetArticleCountVisitorReq) (*GetArticleCountReply, error)
 	GetUserArticleList(context.Context, *GetUserArticleListReq) (*GetArticleListReply, error)
+	GetUserArticleListSimple(context.Context, *GetUserArticleListSimpleReq) (*GetArticleListReply, error)
 	GetUserArticleListVisitor(context.Context, *GetUserArticleListVisitorReq) (*GetArticleListReply, error)
 	GetArticleStatistic(context.Context, *GetArticleStatisticReq) (*GetArticleStatisticReply, error)
 	GetArticleListStatistic(context.Context, *GetArticleListStatisticReq) (*GetArticleListStatisticReply, error)
@@ -1452,6 +1483,7 @@ type BffServer interface {
 	GetTalkListHot(context.Context, *GetTalkListHotReq) (*GetTalkListHotReply, error)
 	GetTalkListStatistic(context.Context, *GetTalkListStatisticReq) (*GetTalkListStatisticReply, error)
 	GetUserTalkList(context.Context, *GetUserTalkListReq) (*GetTalkListReply, error)
+	GetUserTalkListSimple(context.Context, *GetUserTalkListSimpleReq) (*GetTalkListReply, error)
 	GetUserTalkListVisitor(context.Context, *GetUserTalkListVisitorReq) (*GetTalkListReply, error)
 	GetTalkCount(context.Context, *emptypb.Empty) (*GetTalkCountReply, error)
 	GetTalkCountVisitor(context.Context, *GetTalkCountVisitorReq) (*GetTalkCountReply, error)
@@ -1481,6 +1513,7 @@ type BffServer interface {
 	GetColumnListHot(context.Context, *GetColumnListHotReq) (*GetColumnListHotReply, error)
 	GetColumnListStatistic(context.Context, *GetColumnListStatisticReq) (*GetColumnListStatisticReply, error)
 	GetUserColumnList(context.Context, *GetUserColumnListReq) (*GetColumnListReply, error)
+	GetUserColumnListSimple(context.Context, *GetUserColumnListSimpleReq) (*GetColumnListReply, error)
 	GetUserColumnListVisitor(context.Context, *GetUserColumnListVisitorReq) (*GetColumnListReply, error)
 	GetColumnCount(context.Context, *emptypb.Empty) (*GetColumnCountReply, error)
 	GetColumnCountVisitor(context.Context, *GetColumnCountVisitorReq) (*GetColumnCountReply, error)
@@ -1676,6 +1709,9 @@ func (UnimplementedBffServer) GetArticleCountVisitor(context.Context, *GetArticl
 func (UnimplementedBffServer) GetUserArticleList(context.Context, *GetUserArticleListReq) (*GetArticleListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserArticleList not implemented")
 }
+func (UnimplementedBffServer) GetUserArticleListSimple(context.Context, *GetUserArticleListSimpleReq) (*GetArticleListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserArticleListSimple not implemented")
+}
 func (UnimplementedBffServer) GetUserArticleListVisitor(context.Context, *GetUserArticleListVisitorReq) (*GetArticleListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserArticleListVisitor not implemented")
 }
@@ -1738,6 +1774,9 @@ func (UnimplementedBffServer) GetTalkListStatistic(context.Context, *GetTalkList
 }
 func (UnimplementedBffServer) GetUserTalkList(context.Context, *GetUserTalkListReq) (*GetTalkListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserTalkList not implemented")
+}
+func (UnimplementedBffServer) GetUserTalkListSimple(context.Context, *GetUserTalkListSimpleReq) (*GetTalkListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserTalkListSimple not implemented")
 }
 func (UnimplementedBffServer) GetUserTalkListVisitor(context.Context, *GetUserTalkListVisitorReq) (*GetTalkListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserTalkListVisitor not implemented")
@@ -1825,6 +1864,9 @@ func (UnimplementedBffServer) GetColumnListStatistic(context.Context, *GetColumn
 }
 func (UnimplementedBffServer) GetUserColumnList(context.Context, *GetUserColumnListReq) (*GetColumnListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserColumnList not implemented")
+}
+func (UnimplementedBffServer) GetUserColumnListSimple(context.Context, *GetUserColumnListSimpleReq) (*GetColumnListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserColumnListSimple not implemented")
 }
 func (UnimplementedBffServer) GetUserColumnListVisitor(context.Context, *GetUserColumnListVisitorReq) (*GetColumnListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserColumnListVisitor not implemented")
@@ -2871,6 +2913,24 @@ func _Bff_GetUserArticleList_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_GetUserArticleListSimple_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserArticleListSimpleReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetUserArticleListSimple(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetUserArticleListSimple",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetUserArticleListSimple(ctx, req.(*GetUserArticleListSimpleReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_GetUserArticleListVisitor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetUserArticleListVisitorReq)
 	if err := dec(in); err != nil {
@@ -3245,6 +3305,24 @@ func _Bff_GetUserTalkList_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BffServer).GetUserTalkList(ctx, req.(*GetUserTalkListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetUserTalkListSimple_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserTalkListSimpleReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetUserTalkListSimple(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetUserTalkListSimple",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetUserTalkListSimple(ctx, req.(*GetUserTalkListSimpleReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -3767,6 +3845,24 @@ func _Bff_GetUserColumnList_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BffServer).GetUserColumnList(ctx, req.(*GetUserColumnListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetUserColumnListSimple_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserColumnListSimpleReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetUserColumnListSimple(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetUserColumnListSimple",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetUserColumnListSimple(ctx, req.(*GetUserColumnListSimpleReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -4563,6 +4659,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Bff_GetUserArticleList_Handler,
 		},
 		{
+			MethodName: "GetUserArticleListSimple",
+			Handler:    _Bff_GetUserArticleListSimple_Handler,
+		},
+		{
 			MethodName: "GetUserArticleListVisitor",
 			Handler:    _Bff_GetUserArticleListVisitor_Handler,
 		},
@@ -4645,6 +4745,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserTalkList",
 			Handler:    _Bff_GetUserTalkList_Handler,
+		},
+		{
+			MethodName: "GetUserTalkListSimple",
+			Handler:    _Bff_GetUserTalkListSimple_Handler,
 		},
 		{
 			MethodName: "GetUserTalkListVisitor",
@@ -4761,6 +4865,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserColumnList",
 			Handler:    _Bff_GetUserColumnList_Handler,
+		},
+		{
+			MethodName: "GetUserColumnListSimple",
+			Handler:    _Bff_GetUserColumnListSimple_Handler,
 		},
 		{
 			MethodName: "GetUserColumnListVisitor",

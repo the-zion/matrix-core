@@ -104,8 +104,10 @@ const OperationBffGetTalkSearch = "/bff.v1.Bff/GetTalkSearch"
 const OperationBffGetTalkStatistic = "/bff.v1.Bff/GetTalkStatistic"
 const OperationBffGetUserAchievement = "/bff.v1.Bff/GetUserAchievement"
 const OperationBffGetUserArticleList = "/bff.v1.Bff/GetUserArticleList"
+const OperationBffGetUserArticleListSimple = "/bff.v1.Bff/GetUserArticleListSimple"
 const OperationBffGetUserArticleListVisitor = "/bff.v1.Bff/GetUserArticleListVisitor"
 const OperationBffGetUserColumnList = "/bff.v1.Bff/GetUserColumnList"
+const OperationBffGetUserColumnListSimple = "/bff.v1.Bff/GetUserColumnListSimple"
 const OperationBffGetUserColumnListVisitor = "/bff.v1.Bff/GetUserColumnListVisitor"
 const OperationBffGetUserCommentAgree = "/bff.v1.Bff/GetUserCommentAgree"
 const OperationBffGetUserFollow = "/bff.v1.Bff/GetUserFollow"
@@ -114,6 +116,7 @@ const OperationBffGetUserInfo = "/bff.v1.Bff/GetUserInfo"
 const OperationBffGetUserInfoVisitor = "/bff.v1.Bff/GetUserInfoVisitor"
 const OperationBffGetUserSearch = "/bff.v1.Bff/GetUserSearch"
 const OperationBffGetUserTalkList = "/bff.v1.Bff/GetUserTalkList"
+const OperationBffGetUserTalkListSimple = "/bff.v1.Bff/GetUserTalkListSimple"
 const OperationBffGetUserTalkListVisitor = "/bff.v1.Bff/GetUserTalkListVisitor"
 const OperationBffLoginByCode = "/bff.v1.Bff/LoginByCode"
 const OperationBffLoginByGithub = "/bff.v1.Bff/LoginByGithub"
@@ -240,8 +243,10 @@ type BffHTTPServer interface {
 	GetTalkStatistic(context.Context, *GetTalkStatisticReq) (*GetTalkStatisticReply, error)
 	GetUserAchievement(context.Context, *GetUserAchievementReq) (*GetUserAchievementReply, error)
 	GetUserArticleList(context.Context, *GetUserArticleListReq) (*GetArticleListReply, error)
+	GetUserArticleListSimple(context.Context, *GetUserArticleListSimpleReq) (*GetArticleListReply, error)
 	GetUserArticleListVisitor(context.Context, *GetUserArticleListVisitorReq) (*GetArticleListReply, error)
 	GetUserColumnList(context.Context, *GetUserColumnListReq) (*GetColumnListReply, error)
+	GetUserColumnListSimple(context.Context, *GetUserColumnListSimpleReq) (*GetColumnListReply, error)
 	GetUserColumnListVisitor(context.Context, *GetUserColumnListVisitorReq) (*GetColumnListReply, error)
 	GetUserCommentAgree(context.Context, *emptypb.Empty) (*GetUserCommentAgreeReply, error)
 	GetUserFollow(context.Context, *GetUserFollowReq) (*GetUserFollowReply, error)
@@ -250,6 +255,7 @@ type BffHTTPServer interface {
 	GetUserInfoVisitor(context.Context, *GetUserInfoVisitorReq) (*GetUserInfoReply, error)
 	GetUserSearch(context.Context, *GetUserSearchReq) (*GetUserSearchReply, error)
 	GetUserTalkList(context.Context, *GetUserTalkListReq) (*GetTalkListReply, error)
+	GetUserTalkListSimple(context.Context, *GetUserTalkListSimpleReq) (*GetTalkListReply, error)
 	GetUserTalkListVisitor(context.Context, *GetUserTalkListVisitorReq) (*GetTalkListReply, error)
 	LoginByCode(context.Context, *LoginByCodeReq) (*LoginReply, error)
 	LoginByGithub(context.Context, *LoginByGithubReq) (*LoginReply, error)
@@ -309,7 +315,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.GET("/v1/get/user/info", _Bff_GetUserInfo0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/info/visitor", _Bff_GetUserInfoVisitor0_HTTP_Handler(srv))
 	r.POST("/v1/get/user/follow", _Bff_GetUserFollow0_HTTP_Handler(srv))
-	r.POST("/v1/get/user/follows", _Bff_GetUserFollows0_HTTP_Handler(srv))
+	r.GET("/v1/get/user/follows", _Bff_GetUserFollows0_HTTP_Handler(srv))
 	r.GET("/v1/get/follow/list", _Bff_GetFollowList0_HTTP_Handler(srv))
 	r.GET("/v1/get/follow/list/count", _Bff_GetFollowListCount0_HTTP_Handler(srv))
 	r.GET("/v1/get/followed/list", _Bff_GetFollowedList0_HTTP_Handler(srv))
@@ -346,6 +352,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.POST("/v1/get/article/count", _Bff_GetArticleCount0_HTTP_Handler(srv))
 	r.GET("/v1/get/article/count/visitor", _Bff_GetArticleCountVisitor0_HTTP_Handler(srv))
 	r.POST("/v1/get/user/article/list", _Bff_GetUserArticleList0_HTTP_Handler(srv))
+	r.POST("/v1/get/user/article/list/simple", _Bff_GetUserArticleListSimple0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/article/list/visitor", _Bff_GetUserArticleListVisitor0_HTTP_Handler(srv))
 	r.GET("/v1/get/article/statistic", _Bff_GetArticleStatistic0_HTTP_Handler(srv))
 	r.GET("/v1/get/article/list/statistic", _Bff_GetArticleListStatistic0_HTTP_Handler(srv))
@@ -367,6 +374,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.GET("/v1/get/talk/list/hot", _Bff_GetTalkListHot0_HTTP_Handler(srv))
 	r.GET("/v1/get/talk/list/statistic", _Bff_GetTalkListStatistic0_HTTP_Handler(srv))
 	r.POST("/v1/get/user/talk/list", _Bff_GetUserTalkList0_HTTP_Handler(srv))
+	r.POST("/v1/get/user/talk/list/simple", _Bff_GetUserTalkListSimple0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/talk/list/visitor", _Bff_GetUserTalkListVisitor0_HTTP_Handler(srv))
 	r.POST("/v1/get/talk/count", _Bff_GetTalkCount0_HTTP_Handler(srv))
 	r.GET("/v1/get/talk/count/visitor", _Bff_GetTalkCountVisitor0_HTTP_Handler(srv))
@@ -396,6 +404,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.GET("/v1/get/column/list/hot", _Bff_GetColumnListHot0_HTTP_Handler(srv))
 	r.GET("/v1/get/column/list/statistic", _Bff_GetColumnListStatistic0_HTTP_Handler(srv))
 	r.POST("/v1/get/user/column/list", _Bff_GetUserColumnList0_HTTP_Handler(srv))
+	r.POST("/v1/get/user/column/list/simple", _Bff_GetUserColumnListSimple0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/column/list/visitor", _Bff_GetUserColumnListVisitor0_HTTP_Handler(srv))
 	r.POST("/v1/get/column/count", _Bff_GetColumnCount0_HTTP_Handler(srv))
 	r.GET("/v1/get/column/count/visitor", _Bff_GetColumnCountVisitor0_HTTP_Handler(srv))
@@ -718,7 +727,7 @@ func _Bff_GetUserFollow0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) 
 func _Bff_GetUserFollows0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in emptypb.Empty
-		if err := ctx.Bind(&in); err != nil {
+		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, OperationBffGetUserFollows)
@@ -1418,6 +1427,25 @@ func _Bff_GetUserArticleList0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Cont
 	}
 }
 
+func _Bff_GetUserArticleListSimple0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetUserArticleListSimpleReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetUserArticleListSimple)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetUserArticleListSimple(ctx, req.(*GetUserArticleListSimpleReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetArticleListReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _Bff_GetUserArticleListVisitor0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in GetUserArticleListVisitorReq
@@ -1807,6 +1835,25 @@ func _Bff_GetUserTalkList0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context
 		http.SetOperation(ctx, OperationBffGetUserTalkList)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.GetUserTalkList(ctx, req.(*GetUserTalkListReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetTalkListReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_GetUserTalkListSimple0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetUserTalkListSimpleReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetUserTalkListSimple)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetUserTalkListSimple(ctx, req.(*GetUserTalkListSimpleReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -2358,6 +2405,25 @@ func _Bff_GetUserColumnList0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Conte
 		http.SetOperation(ctx, OperationBffGetUserColumnList)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.GetUserColumnList(ctx, req.(*GetUserColumnListReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetColumnListReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_GetUserColumnListSimple0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetUserColumnListSimpleReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetUserColumnListSimple)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetUserColumnListSimple(ctx, req.(*GetUserColumnListSimpleReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -3061,8 +3127,10 @@ type BffHTTPClient interface {
 	GetTalkStatistic(ctx context.Context, req *GetTalkStatisticReq, opts ...http.CallOption) (rsp *GetTalkStatisticReply, err error)
 	GetUserAchievement(ctx context.Context, req *GetUserAchievementReq, opts ...http.CallOption) (rsp *GetUserAchievementReply, err error)
 	GetUserArticleList(ctx context.Context, req *GetUserArticleListReq, opts ...http.CallOption) (rsp *GetArticleListReply, err error)
+	GetUserArticleListSimple(ctx context.Context, req *GetUserArticleListSimpleReq, opts ...http.CallOption) (rsp *GetArticleListReply, err error)
 	GetUserArticleListVisitor(ctx context.Context, req *GetUserArticleListVisitorReq, opts ...http.CallOption) (rsp *GetArticleListReply, err error)
 	GetUserColumnList(ctx context.Context, req *GetUserColumnListReq, opts ...http.CallOption) (rsp *GetColumnListReply, err error)
+	GetUserColumnListSimple(ctx context.Context, req *GetUserColumnListSimpleReq, opts ...http.CallOption) (rsp *GetColumnListReply, err error)
 	GetUserColumnListVisitor(ctx context.Context, req *GetUserColumnListVisitorReq, opts ...http.CallOption) (rsp *GetColumnListReply, err error)
 	GetUserCommentAgree(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetUserCommentAgreeReply, err error)
 	GetUserFollow(ctx context.Context, req *GetUserFollowReq, opts ...http.CallOption) (rsp *GetUserFollowReply, err error)
@@ -3071,6 +3139,7 @@ type BffHTTPClient interface {
 	GetUserInfoVisitor(ctx context.Context, req *GetUserInfoVisitorReq, opts ...http.CallOption) (rsp *GetUserInfoReply, err error)
 	GetUserSearch(ctx context.Context, req *GetUserSearchReq, opts ...http.CallOption) (rsp *GetUserSearchReply, err error)
 	GetUserTalkList(ctx context.Context, req *GetUserTalkListReq, opts ...http.CallOption) (rsp *GetTalkListReply, err error)
+	GetUserTalkListSimple(ctx context.Context, req *GetUserTalkListSimpleReq, opts ...http.CallOption) (rsp *GetTalkListReply, err error)
 	GetUserTalkListVisitor(ctx context.Context, req *GetUserTalkListVisitorReq, opts ...http.CallOption) (rsp *GetTalkListReply, err error)
 	LoginByCode(ctx context.Context, req *LoginByCodeReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginByGithub(ctx context.Context, req *LoginByGithubReq, opts ...http.CallOption) (rsp *LoginReply, err error)
@@ -4213,6 +4282,19 @@ func (c *BffHTTPClientImpl) GetUserArticleList(ctx context.Context, in *GetUserA
 	return &out, err
 }
 
+func (c *BffHTTPClientImpl) GetUserArticleListSimple(ctx context.Context, in *GetUserArticleListSimpleReq, opts ...http.CallOption) (*GetArticleListReply, error) {
+	var out GetArticleListReply
+	pattern := "/v1/get/user/article/list/simple"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffGetUserArticleListSimple))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
 func (c *BffHTTPClientImpl) GetUserArticleListVisitor(ctx context.Context, in *GetUserArticleListVisitorReq, opts ...http.CallOption) (*GetArticleListReply, error) {
 	var out GetArticleListReply
 	pattern := "/v1/get/user/article/list/visitor"
@@ -4231,6 +4313,19 @@ func (c *BffHTTPClientImpl) GetUserColumnList(ctx context.Context, in *GetUserCo
 	pattern := "/v1/get/user/column/list"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationBffGetUserColumnList))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetUserColumnListSimple(ctx context.Context, in *GetUserColumnListSimpleReq, opts ...http.CallOption) (*GetColumnListReply, error) {
+	var out GetColumnListReply
+	pattern := "/v1/get/user/column/list/simple"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffGetUserColumnListSimple))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
@@ -4281,10 +4376,10 @@ func (c *BffHTTPClientImpl) GetUserFollow(ctx context.Context, in *GetUserFollow
 func (c *BffHTTPClientImpl) GetUserFollows(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*GetUserFollowsReply, error) {
 	var out GetUserFollowsReply
 	pattern := "/v1/get/user/follows"
-	path := binding.EncodeURL(pattern, in, false)
+	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationBffGetUserFollows))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -4335,6 +4430,19 @@ func (c *BffHTTPClientImpl) GetUserTalkList(ctx context.Context, in *GetUserTalk
 	pattern := "/v1/get/user/talk/list"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationBffGetUserTalkList))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetUserTalkListSimple(ctx context.Context, in *GetUserTalkListSimpleReq, opts ...http.CallOption) (*GetTalkListReply, error) {
+	var out GetTalkListReply
+	pattern := "/v1/get/user/talk/list/simple"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffGetUserTalkListSimple))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

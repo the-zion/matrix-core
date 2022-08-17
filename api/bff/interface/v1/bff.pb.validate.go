@@ -6533,6 +6533,111 @@ var _ interface {
 	ErrorName() string
 } = GetUserArticleListReqValidationError{}
 
+// Validate checks the field values on GetUserArticleListSimpleReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetUserArticleListSimpleReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserArticleListSimpleReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetUserArticleListSimpleReqMultiError, or nil if none found.
+func (m *GetUserArticleListSimpleReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserArticleListSimpleReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Page
+
+	if len(errors) > 0 {
+		return GetUserArticleListSimpleReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetUserArticleListSimpleReqMultiError is an error wrapping multiple
+// validation errors returned by GetUserArticleListSimpleReq.ValidateAll() if
+// the designated constraints aren't met.
+type GetUserArticleListSimpleReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserArticleListSimpleReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserArticleListSimpleReqMultiError) AllErrors() []error { return m }
+
+// GetUserArticleListSimpleReqValidationError is the validation error returned
+// by GetUserArticleListSimpleReq.Validate if the designated constraints
+// aren't met.
+type GetUserArticleListSimpleReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserArticleListSimpleReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserArticleListSimpleReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserArticleListSimpleReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserArticleListSimpleReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserArticleListSimpleReqValidationError) ErrorName() string {
+	return "GetUserArticleListSimpleReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetUserArticleListSimpleReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserArticleListSimpleReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserArticleListSimpleReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserArticleListSimpleReqValidationError{}
+
 // Validate checks the field values on GetUserArticleListVisitorReq with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -10744,6 +10849,110 @@ var _ interface {
 	ErrorName() string
 } = GetUserTalkListReqValidationError{}
 
+// Validate checks the field values on GetUserTalkListSimpleReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetUserTalkListSimpleReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserTalkListSimpleReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetUserTalkListSimpleReqMultiError, or nil if none found.
+func (m *GetUserTalkListSimpleReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserTalkListSimpleReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Page
+
+	if len(errors) > 0 {
+		return GetUserTalkListSimpleReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetUserTalkListSimpleReqMultiError is an error wrapping multiple validation
+// errors returned by GetUserTalkListSimpleReq.ValidateAll() if the designated
+// constraints aren't met.
+type GetUserTalkListSimpleReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserTalkListSimpleReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserTalkListSimpleReqMultiError) AllErrors() []error { return m }
+
+// GetUserTalkListSimpleReqValidationError is the validation error returned by
+// GetUserTalkListSimpleReq.Validate if the designated constraints aren't met.
+type GetUserTalkListSimpleReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserTalkListSimpleReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserTalkListSimpleReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserTalkListSimpleReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserTalkListSimpleReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserTalkListSimpleReqValidationError) ErrorName() string {
+	return "GetUserTalkListSimpleReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetUserTalkListSimpleReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserTalkListSimpleReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserTalkListSimpleReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserTalkListSimpleReqValidationError{}
+
 // Validate checks the field values on GetUserTalkListVisitorReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -14667,6 +14876,110 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetUserColumnListReqValidationError{}
+
+// Validate checks the field values on GetUserColumnListSimpleReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetUserColumnListSimpleReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserColumnListSimpleReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetUserColumnListSimpleReqMultiError, or nil if none found.
+func (m *GetUserColumnListSimpleReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserColumnListSimpleReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Page
+
+	if len(errors) > 0 {
+		return GetUserColumnListSimpleReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetUserColumnListSimpleReqMultiError is an error wrapping multiple
+// validation errors returned by GetUserColumnListSimpleReq.ValidateAll() if
+// the designated constraints aren't met.
+type GetUserColumnListSimpleReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserColumnListSimpleReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserColumnListSimpleReqMultiError) AllErrors() []error { return m }
+
+// GetUserColumnListSimpleReqValidationError is the validation error returned
+// by GetUserColumnListSimpleReq.Validate if the designated constraints aren't met.
+type GetUserColumnListSimpleReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserColumnListSimpleReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserColumnListSimpleReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserColumnListSimpleReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserColumnListSimpleReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserColumnListSimpleReqValidationError) ErrorName() string {
+	return "GetUserColumnListSimpleReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetUserColumnListSimpleReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserColumnListSimpleReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserColumnListSimpleReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserColumnListSimpleReqValidationError{}
 
 // Validate checks the field values on GetUserColumnListVisitorReq with the
 // rules defined in the proto definition for this message. If any rules are
