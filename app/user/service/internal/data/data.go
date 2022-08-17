@@ -5,6 +5,7 @@ import (
 	"github.com/apache/rocketmq-client-go/v2"
 	"github.com/apache/rocketmq-client-go/v2/primitive"
 	"github.com/apache/rocketmq-client-go/v2/producer"
+	"github.com/elastic/go-elasticsearch/v7"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-redis/redis/v8"
 	"github.com/google/wire"
@@ -13,10 +14,11 @@ import (
 	"github.com/the-zion/matrix-core/app/user/service/internal/conf"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"runtime"
 	"time"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewDB, NewTransaction, NewRedis, NewRocketmqCodeProducer, NewRocketmqProfileProducer, NewRocketmqAchievementProducer, NewCosClient, NewUserRepo, NewAuthRepo)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewTransaction, NewRedis, NewRocketmqCodeProducer, NewRocketmqProfileProducer, NewRocketmqFollowProducer, NewRocketmqAchievementProducer, NewCosClient, NewUserRepo, NewAuthRepo, NewElasticsearch, NewRecovery)
 
 type Cos struct {
 	client *sts.Client
@@ -31,8 +33,16 @@ type ProfileMqPro struct {
 	producer rocketmq.Producer
 }
 
+type FollowMqPro struct {
+	producer rocketmq.Producer
+}
+
 type AchievementMqPro struct {
 	producer rocketmq.Producer
+}
+
+type ElasticSearch struct {
+	es *elasticsearch.Client
 }
 
 type Data struct {
@@ -40,7 +50,9 @@ type Data struct {
 	redisCli         redis.Cmdable
 	codeMqPro        *CodeMqPro
 	profileMqPro     *ProfileMqPro
+	followMqPro      *FollowMqPro
 	achievementMqPro *AchievementMqPro
+	elasticSearch    *ElasticSearch
 	cos              *Cos
 }
 
@@ -62,6 +74,24 @@ func (d *Data) DB(ctx context.Context) *gorm.DB {
 }
 
 func NewTransaction(d *Data) biz.Transaction {
+	return d
+}
+
+func (d *Data) GroupRecover(ctx context.Context, fn func(ctx context.Context) error) func() error {
+	return func() error {
+		defer func() {
+			if rerr := recover(); rerr != nil {
+				buf := make([]byte, 64<<10)
+				n := runtime.Stack(buf, false)
+				buf = buf[:n]
+				log.Context(ctx).Errorf("%v: %s\n", rerr, buf)
+			}
+		}()
+		return fn(ctx)
+	}
+}
+
+func NewRecovery(d *Data) biz.Recovery {
 	return d
 }
 
@@ -147,6 +177,32 @@ func NewRocketmqProfileProducer(conf *conf.Data, logger log.Logger) *ProfileMqPr
 	}
 }
 
+func NewRocketmqFollowProducer(conf *conf.Data, logger log.Logger) *FollowMqPro {
+	l := log.NewHelper(log.With(logger, "module", "user/data/rocketmq-follow-producer"))
+	p, err := rocketmq.NewProducer(
+		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.Rocketmq.ServerAddress})),
+		producer.WithCredentials(primitive.Credentials{
+			SecretKey: conf.Rocketmq.SecretKey,
+			AccessKey: conf.Rocketmq.AccessKey,
+		}),
+		producer.WithInstanceName("user"),
+		producer.WithGroupName(conf.Rocketmq.Follow.GroupName),
+		producer.WithNamespace(conf.Rocketmq.NameSpace),
+	)
+
+	if err != nil {
+		l.Fatalf("init follow error: %v", err)
+	}
+
+	err = p.Start()
+	if err != nil {
+		l.Fatalf("start follow error: %v", err)
+	}
+	return &FollowMqPro{
+		producer: p,
+	}
+}
+
 func NewRocketmqAchievementProducer(conf *conf.Data, logger log.Logger) *AchievementMqPro {
 	l := log.NewHelper(log.With(logger, "module", "creation/data/rocketmq-achievement-producer"))
 	p, err := rocketmq.NewProducer(
@@ -200,7 +256,36 @@ func NewCosClient(conf *conf.Data) *Cos {
 	}
 }
 
-func NewData(db *gorm.DB, redisCmd redis.Cmdable, cp *CodeMqPro, pp *ProfileMqPro, aq *AchievementMqPro, cos *Cos, logger log.Logger) (*Data, func(), error) {
+func NewElasticsearch(conf *conf.Data, logger log.Logger) *ElasticSearch {
+	l := log.NewHelper(log.With(logger, "module", "creation/data/elastic-search"))
+	cfg := elasticsearch.Config{
+		Username: conf.ElasticSearch.User,
+		Password: conf.ElasticSearch.Password,
+		Addresses: []string{
+			conf.ElasticSearch.Endpoint,
+		},
+	}
+	es, err := elasticsearch.NewClient(cfg)
+	if err != nil {
+		l.Fatalf("Error creating the es client: %s", err)
+	}
+
+	res, err := es.Info()
+	if err != nil {
+		l.Fatalf("Error getting response: %s", err)
+	}
+	defer res.Body.Close()
+
+	if res.IsError() {
+		l.Fatalf("Error: %s", res.String())
+	}
+
+	return &ElasticSearch{
+		es: es,
+	}
+}
+
+func NewData(db *gorm.DB, redisCmd redis.Cmdable, cp *CodeMqPro, es *ElasticSearch, pp *ProfileMqPro, fp *FollowMqPro, aq *AchievementMqPro, cos *Cos, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(logger, "module", "user/data/new-data"))
 
 	d := &Data{
@@ -208,7 +293,9 @@ func NewData(db *gorm.DB, redisCmd redis.Cmdable, cp *CodeMqPro, pp *ProfileMqPr
 		codeMqPro:        cp,
 		profileMqPro:     pp,
 		achievementMqPro: aq,
+		followMqPro:      fp,
 		redisCli:         redisCmd,
+		elasticSearch:    es,
 		cos:              cos,
 	}
 	return d, func() {
@@ -223,6 +310,11 @@ func NewData(db *gorm.DB, redisCmd redis.Cmdable, cp *CodeMqPro, pp *ProfileMqPr
 		err = d.profileMqPro.producer.Shutdown()
 		if err != nil {
 			l.Errorf("shutdown profile producer error: %v", err.Error())
+		}
+
+		err = d.followMqPro.producer.Shutdown()
+		if err != nil {
+			l.Errorf("shutdown follow producer error: %v", err.Error())
 		}
 
 		err = d.achievementMqPro.producer.Shutdown()
