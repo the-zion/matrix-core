@@ -282,6 +282,25 @@ func (s *BffService) GetUserArticleList(ctx context.Context, req *v1.GetUserArti
 	return reply, nil
 }
 
+func (s *BffService) GetUserArticleListSimple(ctx context.Context, req *v1.GetUserArticleListSimpleReq) (*v1.GetArticleListReply, error) {
+	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0)}
+	articleList, err := s.ac.GetUserArticleListSimple(ctx, req.Page)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range articleList {
+		reply.Article = append(reply.Article, &v1.GetArticleListReply_Article{
+			Id:      item.Id,
+			Uuid:    item.Uuid,
+			Agree:   item.Agree,
+			Collect: item.Collect,
+			View:    item.View,
+			Comment: item.Comment,
+		})
+	}
+	return reply, nil
+}
+
 func (s *BffService) GetUserArticleListVisitor(ctx context.Context, req *v1.GetUserArticleListVisitorReq) (*v1.GetArticleListReply, error) {
 	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0)}
 	articleList, err := s.ac.GetUserArticleListVisitor(ctx, req.Page, req.Uuid)
@@ -515,6 +534,25 @@ func (s *BffService) GetTalkListHot(ctx context.Context, req *v1.GetTalkListHotR
 func (s *BffService) GetUserTalkList(ctx context.Context, req *v1.GetUserTalkListReq) (*v1.GetTalkListReply, error) {
 	reply := &v1.GetTalkListReply{Talk: make([]*v1.GetTalkListReply_Talk, 0)}
 	talkList, err := s.tc.GetUserTalkList(ctx, req.Page)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range talkList {
+		reply.Talk = append(reply.Talk, &v1.GetTalkListReply_Talk{
+			Id:      item.Id,
+			Uuid:    item.Uuid,
+			Agree:   item.Agree,
+			Collect: item.Collect,
+			View:    item.View,
+			Comment: item.Comment,
+		})
+	}
+	return reply, nil
+}
+
+func (s *BffService) GetUserTalkListSimple(ctx context.Context, req *v1.GetUserTalkListSimpleReq) (*v1.GetTalkListReply, error) {
+	reply := &v1.GetTalkListReply{Talk: make([]*v1.GetTalkListReply_Talk, 0)}
+	talkList, err := s.tc.GetUserTalkListSimple(ctx, req.Page)
 	if err != nil {
 		return nil, err
 	}
@@ -807,6 +845,24 @@ func (s *BffService) GetColumnListHot(ctx context.Context, req *v1.GetColumnList
 func (s *BffService) GetUserColumnList(ctx context.Context, req *v1.GetUserColumnListReq) (*v1.GetColumnListReply, error) {
 	reply := &v1.GetColumnListReply{Column: make([]*v1.GetColumnListReply_Column, 0)}
 	columnList, err := s.coc.GetUserColumnList(ctx, req.Page)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range columnList {
+		reply.Column = append(reply.Column, &v1.GetColumnListReply_Column{
+			Id:      item.Id,
+			Uuid:    item.Uuid,
+			Agree:   item.Agree,
+			Collect: item.Collect,
+			View:    item.View,
+		})
+	}
+	return reply, nil
+}
+
+func (s *BffService) GetUserColumnListSimple(ctx context.Context, req *v1.GetUserColumnListSimpleReq) (*v1.GetColumnListReply, error) {
+	reply := &v1.GetColumnListReply{Column: make([]*v1.GetColumnListReply_Column, 0)}
+	columnList, err := s.coc.GetUserColumnListSimple(ctx, req.Page)
 	if err != nil {
 		return nil, err
 	}
