@@ -45,3 +45,32 @@ func (s *MessageService) AvatarReview(ctx context.Context, req *v1.AvatarReviewR
 	}
 	return &emptypb.Empty{}, nil
 }
+
+func (s *MessageService) CoverReview(ctx context.Context, req *v1.CoverReviewReq) (*emptypb.Empty, error) {
+	err := s.uc.CoverReview(ctx, &biz.CoverReview{
+		Code:       req.JobsDetail.Code,
+		Message:    req.JobsDetail.Message,
+		JobId:      req.JobsDetail.JobId,
+		State:      req.JobsDetail.State,
+		Object:     req.JobsDetail.Object,
+		Label:      req.JobsDetail.Label,
+		Result:     req.JobsDetail.Result,
+		Category:   req.JobsDetail.Category,
+		BucketId:   req.JobsDetail.BucketId,
+		Region:     req.JobsDetail.Region,
+		CosHeaders: req.JobsDetail.CosHeaders,
+		EventName:  req.EventName,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *MessageService) SetFollowDbAndCache(ctx context.Context, uuid, userId string) error {
+	return s.uc.SetFollowDbAndCache(ctx, uuid, userId)
+}
+
+func (s *MessageService) CancelFollowDbAndCache(ctx context.Context, uuid, userId string) error {
+	return s.uc.CancelFollowDbAndCache(ctx, uuid, userId)
+}
