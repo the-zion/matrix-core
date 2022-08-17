@@ -337,6 +337,29 @@ func (r *ArticleUseCase) GetUserArticleList(ctx context.Context, page int32) ([]
 	return articleList, nil
 }
 
+func (r *ArticleUseCase) GetUserArticleListSimple(ctx context.Context, page int32) ([]*Article, error) {
+	uuid := ctx.Value("uuid").(string)
+	articleList, err := r.repo.GetUserArticleList(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+	articleListStatistic, err := r.repo.GetArticleListStatistic(ctx, articleList)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range articleListStatistic {
+		for index, listItem := range articleList {
+			if listItem.Id == item.Id {
+				articleList[index].Agree = item.Agree
+				articleList[index].View = item.View
+				articleList[index].Collect = item.Collect
+				articleList[index].Comment = item.Comment
+			}
+		}
+	}
+	return articleList[:2], nil
+}
+
 func (r *ArticleUseCase) GetUserArticleListVisitor(ctx context.Context, page int32, uuid string) ([]*Article, error) {
 	articleList, err := r.repo.GetUserArticleListVisitor(ctx, page, uuid)
 	if err != nil {
@@ -503,6 +526,29 @@ func (r *TalkUseCase) GetUserTalkList(ctx context.Context, page int32) ([]*Talk,
 		}
 	}
 	return talkList, nil
+}
+
+func (r *TalkUseCase) GetUserTalkListSimple(ctx context.Context, page int32) ([]*Talk, error) {
+	uuid := ctx.Value("uuid").(string)
+	talkList, err := r.repo.GetUserTalkList(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+	talkListStatistic, err := r.repo.GetTalkListStatistic(ctx, talkList)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range talkListStatistic {
+		for index, listItem := range talkList {
+			if listItem.Id == item.Id {
+				talkList[index].Agree = item.Agree
+				talkList[index].View = item.View
+				talkList[index].Collect = item.Collect
+				talkList[index].Comment = item.Comment
+			}
+		}
+	}
+	return talkList[:2], nil
 }
 
 func (r *TalkUseCase) GetUserTalkListVisitor(ctx context.Context, page int32, uuid string) ([]*Talk, error) {
@@ -693,6 +739,28 @@ func (r *ColumnUseCase) GetUserColumnList(ctx context.Context, page int32) ([]*C
 		}
 	}
 	return columnList, nil
+}
+
+func (r *ColumnUseCase) GetUserColumnListSimple(ctx context.Context, page int32) ([]*Column, error) {
+	uuid := ctx.Value("uuid").(string)
+	columnList, err := r.repo.GetUserColumnList(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+	columnListStatistic, err := r.repo.GetColumnListStatistic(ctx, columnList)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range columnListStatistic {
+		for index, listItem := range columnList {
+			if listItem.Id == item.Id {
+				columnList[index].Agree = item.Agree
+				columnList[index].View = item.View
+				columnList[index].Collect = item.Collect
+			}
+		}
+	}
+	return columnList[:2], nil
 }
 
 func (r *ColumnUseCase) GetUserColumnListVisitor(ctx context.Context, page int32, uuid string) ([]*Column, error) {
