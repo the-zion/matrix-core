@@ -36,9 +36,8 @@ type ProfileUpdate struct {
 }
 
 type Follow struct {
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	Follow    string `gorm:"primaryKey;size:36"`
-	Followed  string `gorm:"primaryKey;size:36"`
-	Status    int32
+	gorm.Model
+	Follow   string `gorm:"uniqueIndex:idx_follow;size:36"`
+	Followed string `gorm:"uniqueIndex:idx_follow;size:36"`
+	Status   int32
 }
