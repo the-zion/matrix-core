@@ -55,12 +55,16 @@ message Data {
     message Profile{
       string groupName = 1;
     }
+    message Follow{
+      string groupName = 1;
+    }
     Code code = 1;
     Profile profile = 2;
-    string serverAddress = 3;
-    string secretKey = 4;
-    string accessKey = 5;
-    string nameSpace = 6;
+    Profile follow = 3;
+    string serverAddress = 4;
+    string secretKey = 5;
+    string accessKey = 6;
+    string nameSpace = 7;
   }
   message Cos{
     message Statement{
@@ -76,11 +80,17 @@ message Data {
     string region = 3;
     Policy policy = 4;
   }
+  message ElasticSearch{
+    string endpoint = 1;
+    string user = 2;
+    string password = 3;
+  }
   Database database = 1;
   Redis redis = 2;
   Rocketmq rocketmq = 5;
   AchievementMq achievementMq = 6;
-  Cos cos = 7;
+  ElasticSearch elasticSearch = 7;
+  Cos cos = 8;
 }
 
 message Auth {
