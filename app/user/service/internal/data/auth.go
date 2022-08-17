@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"context"
 	"encoding/gob"
+	"encoding/json"
 	"fmt"
 	"github.com/apache/rocketmq-client-go/v2/primitive"
+	"github.com/elastic/go-elasticsearch/v7/esapi"
 	kerrors "github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/pkg/errors"
@@ -144,6 +146,38 @@ func (r *authRepo) CreateUserProfileUpdate(ctx context.Context, account, uuid st
 	err := r.data.DB(ctx).Select("Uuid", "Username", "Updated").Create(pu).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to create table: profile_update, uuid(%s)", uuid))
+	}
+	return nil
+}
+
+func (r *authRepo) CreateUserSearch(ctx context.Context, account, uuid string) error {
+	user := map[string]string{}
+	user["username"] = account
+	user["introduce"] = ""
+	body, err := json.Marshal(user)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("error marshaling document: account(%s), uuid(%s)", account, uuid))
+	}
+
+	req := esapi.IndexRequest{
+		Index:      "user",
+		DocumentID: uuid,
+		Body:       bytes.NewReader(body),
+		Refresh:    "true",
+	}
+	res, err := req.Do(ctx, r.data.elasticSearch.es)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("error getting user search create response: account(%s), uuid(%s)", account, uuid))
+	}
+	defer res.Body.Close()
+
+	if res.IsError() {
+		var e map[string]interface{}
+		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
+			return errors.Wrapf(err, fmt.Sprintf("error parsing the response body: account(%s), uuid(%s)", account, uuid))
+		} else {
+			return errors.Errorf(fmt.Sprintf("error indexing document to es: reason(%v), account(%s), uuid(%s)", e, account, uuid))
+		}
 	}
 	return nil
 }
