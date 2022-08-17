@@ -133,17 +133,29 @@ func (s *UserService) GetFollowedListCount(ctx context.Context, req *v1.GetFollo
 }
 
 func (s *UserService) GetUserFollows(ctx context.Context, req *v1.GetUserFollowsReq) (*v1.GetUserFollowsReply, error) {
-	reply := &v1.GetUserFollowsReply{Follows: make([]*v1.GetUserFollowsReply_Follows, 0)}
-	followsList, err := s.uc.GetUserFollows(ctx, req.UserId, req.Uuids)
+	followsMap, err := s.uc.GetUserFollows(ctx, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
-	for _, item := range followsList {
-		reply.Follows = append(reply.Follows, &v1.GetUserFollowsReply_Follows{
-			Uuid:        item.Uuid,
-			FollowJudge: item.Follow,
+	return &v1.GetUserFollowsReply{
+		Follows: followsMap,
+	}, nil
+}
+
+func (s *UserService) GetUserSearch(ctx context.Context, req *v1.GetUserSearchReq) (*v1.GetUserSearchReply, error) {
+	reply := &v1.GetUserSearchReply{List: make([]*v1.GetUserSearchReply_List, 0)}
+	userList, total, err := s.uc.GetUserSearch(ctx, req.Page, req.Search)
+	if err != nil {
+		return reply, err
+	}
+	for _, item := range userList {
+		reply.List = append(reply.List, &v1.GetUserSearchReply_List{
+			Uuid:      item.Uuid,
+			Username:  item.Username,
+			Introduce: item.Introduce,
 		})
 	}
+	reply.Total = total
 	return reply, nil
 }
 
@@ -171,8 +183,24 @@ func (s *UserService) SetUserFollow(ctx context.Context, req *v1.SetUserFollowRe
 	return &emptypb.Empty{}, nil
 }
 
+func (s *UserService) SetFollowDbAndCache(ctx context.Context, req *v1.SetFollowDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.uc.SetFollowDbAndCache(ctx, req.Uuid, req.UserUuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *UserService) CancelUserFollow(ctx context.Context, req *v1.CancelUserFollowReq) (*emptypb.Empty, error) {
 	err := s.uc.CancelUserFollow(ctx, req.Uuid, req.UserUuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *UserService) CancelFollowDbAndCache(ctx context.Context, req *v1.CancelFollowDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.uc.CancelFollowDbAndCache(ctx, req.Uuid, req.UserUuid)
 	if err != nil {
 		return nil, err
 	}
