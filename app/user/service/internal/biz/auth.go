@@ -20,6 +20,7 @@ type AuthRepo interface {
 	CreateUserWithEmail(ctx context.Context, email, password string) (*User, error)
 	CreateUserProfile(ctx context.Context, account, uuid string) error
 	CreateUserProfileUpdate(ctx context.Context, account, uuid string) error
+	CreateUserSearch(ctx context.Context, account, uuid string) error
 	SetUserPhone(ctx context.Context, uuid, phone string) error
 	SetUserEmail(ctx context.Context, uuid, email string) error
 	SetUserPassword(ctx context.Context, uuid, password string) error
@@ -40,15 +41,17 @@ type AuthUseCase struct {
 	repo     AuthRepo
 	userRepo UserRepo
 	tm       Transaction
+	re       Recovery
 	log      *log.Helper
 }
 
-func NewAuthUseCase(conf *conf.Auth, repo AuthRepo, userRepo UserRepo, tm Transaction, logger log.Logger) *AuthUseCase {
+func NewAuthUseCase(conf *conf.Auth, repo AuthRepo, re Recovery, userRepo UserRepo, tm Transaction, logger log.Logger) *AuthUseCase {
 	return &AuthUseCase{
 		key:      conf.ApiKey,
 		repo:     repo,
 		userRepo: userRepo,
 		tm:       tm,
+		re:       re,
 		log:      log.NewHelper(log.With(logger, "module", "user/biz/authUseCase")),
 	}
 }
@@ -68,6 +71,10 @@ func (r *AuthUseCase) UserRegister(ctx context.Context, email, password, code st
 			return err
 		}
 		err = r.repo.CreateUserProfileUpdate(ctx, email, user.Uuid)
+		if err != nil {
+			return err
+		}
+		err = r.repo.CreateUserSearch(ctx, email, user.Uuid)
 		if err != nil {
 			return err
 		}
@@ -113,6 +120,10 @@ func (r *AuthUseCase) LoginByCode(ctx context.Context, phone, code string) (stri
 				return err
 			}
 			err = r.repo.CreateUserProfileUpdate(ctx, phone, user.Uuid)
+			if err != nil {
+				return err
+			}
+			err = r.repo.CreateUserSearch(ctx, phone, user.Uuid)
 			if err != nil {
 				return err
 			}
