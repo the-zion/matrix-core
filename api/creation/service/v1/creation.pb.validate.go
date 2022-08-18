@@ -2089,6 +2089,8 @@ func (m *GetCreationUserReply) validate(all bool) error {
 
 	// no validation rules for Collections
 
+	// no validation rules for Collect
+
 	if len(errors) > 0 {
 		return GetCreationUserReplyMultiError(errors)
 	}
