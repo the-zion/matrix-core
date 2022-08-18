@@ -114,6 +114,8 @@ const OperationBffGetUserFollow = "/bff.v1.Bff/GetUserFollow"
 const OperationBffGetUserFollows = "/bff.v1.Bff/GetUserFollows"
 const OperationBffGetUserInfo = "/bff.v1.Bff/GetUserInfo"
 const OperationBffGetUserInfoVisitor = "/bff.v1.Bff/GetUserInfoVisitor"
+const OperationBffGetUserMedal = "/bff.v1.Bff/GetUserMedal"
+const OperationBffGetUserMedalProgress = "/bff.v1.Bff/GetUserMedalProgress"
 const OperationBffGetUserSearch = "/bff.v1.Bff/GetUserSearch"
 const OperationBffGetUserTalkList = "/bff.v1.Bff/GetUserTalkList"
 const OperationBffGetUserTalkListSimple = "/bff.v1.Bff/GetUserTalkListSimple"
@@ -253,6 +255,8 @@ type BffHTTPServer interface {
 	GetUserFollows(context.Context, *emptypb.Empty) (*GetUserFollowsReply, error)
 	GetUserInfo(context.Context, *emptypb.Empty) (*GetUserInfoReply, error)
 	GetUserInfoVisitor(context.Context, *GetUserInfoVisitorReq) (*GetUserInfoReply, error)
+	GetUserMedal(context.Context, *GetUserMedalReq) (*GetUserMedalReply, error)
+	GetUserMedalProgress(context.Context, *emptypb.Empty) (*GetUserMedalProgressReply, error)
 	GetUserSearch(context.Context, *GetUserSearchReq) (*GetUserSearchReply, error)
 	GetUserTalkList(context.Context, *GetUserTalkListReq) (*GetTalkListReply, error)
 	GetUserTalkListSimple(context.Context, *GetUserTalkListSimpleReq) (*GetTalkListReply, error)
@@ -423,6 +427,8 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.GET("/v1/get/news", _Bff_GetNews0_HTTP_Handler(srv))
 	r.GET("/v1/get/achievement/list", _Bff_GetAchievementList0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/achievement", _Bff_GetUserAchievement0_HTTP_Handler(srv))
+	r.GET("/v1/get/user/medal", _Bff_GetUserMedal0_HTTP_Handler(srv))
+	r.GET("/v1/get/user/medal/progress", _Bff_GetUserMedalProgress0_HTTP_Handler(srv))
 	r.GET("/v1/get/last/comment/draft", _Bff_GetLastCommentDraft0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/comment/agree", _Bff_GetUserCommentAgree0_HTTP_Handler(srv))
 	r.GET("/v1/get/comment/list", _Bff_GetCommentList0_HTTP_Handler(srv))
@@ -2776,6 +2782,44 @@ func _Bff_GetUserAchievement0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Cont
 	}
 }
 
+func _Bff_GetUserMedal0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetUserMedalReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetUserMedal)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetUserMedal(ctx, req.(*GetUserMedalReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetUserMedalReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_GetUserMedalProgress0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in emptypb.Empty
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetUserMedalProgress)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetUserMedalProgress(ctx, req.(*emptypb.Empty))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetUserMedalProgressReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _Bff_GetLastCommentDraft0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in emptypb.Empty
@@ -3137,6 +3181,8 @@ type BffHTTPClient interface {
 	GetUserFollows(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetUserFollowsReply, err error)
 	GetUserInfo(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetUserInfoReply, err error)
 	GetUserInfoVisitor(ctx context.Context, req *GetUserInfoVisitorReq, opts ...http.CallOption) (rsp *GetUserInfoReply, err error)
+	GetUserMedal(ctx context.Context, req *GetUserMedalReq, opts ...http.CallOption) (rsp *GetUserMedalReply, err error)
+	GetUserMedalProgress(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetUserMedalProgressReply, err error)
 	GetUserSearch(ctx context.Context, req *GetUserSearchReq, opts ...http.CallOption) (rsp *GetUserSearchReply, err error)
 	GetUserTalkList(ctx context.Context, req *GetUserTalkListReq, opts ...http.CallOption) (rsp *GetTalkListReply, err error)
 	GetUserTalkListSimple(ctx context.Context, req *GetUserTalkListSimpleReq, opts ...http.CallOption) (rsp *GetTalkListReply, err error)
@@ -4404,6 +4450,32 @@ func (c *BffHTTPClientImpl) GetUserInfoVisitor(ctx context.Context, in *GetUserI
 	pattern := "/v1/get/user/info/visitor"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationBffGetUserInfoVisitor))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetUserMedal(ctx context.Context, in *GetUserMedalReq, opts ...http.CallOption) (*GetUserMedalReply, error) {
+	var out GetUserMedalReply
+	pattern := "/v1/get/user/medal"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationBffGetUserMedal))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetUserMedalProgress(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*GetUserMedalProgressReply, error) {
+	var out GetUserMedalProgressReply
+	pattern := "/v1/get/user/medal/progress"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationBffGetUserMedalProgress))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
