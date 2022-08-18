@@ -394,15 +394,16 @@ func (r *achievementRepo) getAchievementListFromDb(ctx context.Context, unExists
 }
 
 func (r *achievementRepo) setAchievementListToCache(achievementList []*Achievement) {
-	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		for _, item := range achievementList {
 			key := item.Uuid
-			pipe.HSetNX(context.Background(), key, "agree", item.Agree)
-			pipe.HSetNX(context.Background(), key, "collect", item.Collect)
-			pipe.HSetNX(context.Background(), key, "view", item.View)
-			pipe.HSetNX(context.Background(), key, "follow", item.Follow)
-			pipe.HSetNX(context.Background(), key, "followed", item.Followed)
-			pipe.Expire(context.Background(), key, time.Hour*8)
+			pipe.HSetNX(ctx, key, "agree", item.Agree)
+			pipe.HSetNX(ctx, key, "collect", item.Collect)
+			pipe.HSetNX(ctx, key, "view", item.View)
+			pipe.HSetNX(ctx, key, "follow", item.Follow)
+			pipe.HSetNX(ctx, key, "followed", item.Followed)
+			pipe.Expire(ctx, key, time.Hour*8)
 		}
 		return nil
 	})
@@ -480,17 +481,226 @@ func (r *achievementRepo) getAchievementFromDB(ctx context.Context, uuid string)
 }
 
 func (r *achievementRepo) setAchievementToCache(key string, achievement *biz.Achievement) {
-	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
-		pipe.HSetNX(context.Background(), key, "agree", achievement.Agree)
-		pipe.HSetNX(context.Background(), key, "collect", achievement.Collect)
-		pipe.HSetNX(context.Background(), key, "view", achievement.View)
-		pipe.HSetNX(context.Background(), key, "follow", achievement.Follow)
-		pipe.HSetNX(context.Background(), key, "followed", achievement.Followed)
-		pipe.Expire(context.Background(), key, time.Hour*8)
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.HSetNX(ctx, key, "agree", achievement.Agree)
+		pipe.HSetNX(ctx, key, "collect", achievement.Collect)
+		pipe.HSetNX(ctx, key, "view", achievement.View)
+		pipe.HSetNX(ctx, key, "follow", achievement.Follow)
+		pipe.HSetNX(ctx, key, "followed", achievement.Followed)
+		pipe.Expire(ctx, key, time.Hour*8)
 		return nil
 	})
 	if err != nil {
 		r.log.Errorf("fail to set achievement to cache, err(%s)", err.Error())
+	}
+}
+
+func (r *achievementRepo) GetUserMedal(ctx context.Context, uuid string) (*biz.Medal, error) {
+	var medal *biz.Medal
+	key := "medal_" + uuid
+	exist, err := r.data.redisCli.Exists(ctx, key).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to judge if key exist or not from cache: key(%s)", key))
+	}
+
+	if exist == 1 {
+		medal, err = r.getMedalFromCache(ctx, key)
+		if err != nil {
+			return nil, err
+		}
+		return medal, nil
+	}
+
+	medal, err = r.getMedalFromDB(ctx, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	go r.setMedalToCache(key, medal)
+
+	return medal, nil
+}
+
+func (r *achievementRepo) getMedalFromCache(ctx context.Context, key string) (*biz.Medal, error) {
+	medal, err := r.data.redisCli.HMGet(ctx, key,
+		"creation1", "creation2", "creation3", "creation4", "creation5", "creation6", "creation7",
+		"agree1", "agree2", "agree3", "agree4", "agree5", "agree6",
+		"view1", "view2", "view3",
+		"comment1", "comment2", "comment3",
+		"collect1", "collect2", "collect3").Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get medal form cache: key(%s)", key))
+	}
+	val := []int32{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+	for _index, count := range medal {
+		if count == nil {
+			break
+		}
+		num, err := strconv.ParseInt(count.(string), 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: count(%v)", count))
+		}
+		val[_index] = int32(num)
+	}
+	return &biz.Medal{
+		Creation1: val[0],
+		Creation2: val[1],
+		Creation3: val[2],
+		Creation4: val[3],
+		Creation5: val[4],
+		Creation6: val[5],
+		Creation7: val[6],
+		Agree1:    val[7],
+		Agree2:    val[8],
+		Agree3:    val[9],
+		Agree4:    val[10],
+		Agree5:    val[11],
+		Agree6:    val[12],
+		View1:     val[13],
+		View2:     val[14],
+		View3:     val[15],
+		Comment1:  val[16],
+		Comment2:  val[17],
+		Comment3:  val[18],
+		Collect1:  val[19],
+		Collect2:  val[20],
+		Collect3:  val[21],
+	}, nil
+}
+
+func (r *achievementRepo) getMedalFromDB(ctx context.Context, uuid string) (*biz.Medal, error) {
+	medal := &Medal{}
+	err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).First(medal).Error
+	if !errors.Is(err, gorm.ErrRecordNotFound) && err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("faile to get achievement from db: uuid(%s)", uuid))
+	}
+	return &biz.Medal{
+		Creation1: medal.Creation1,
+		Creation2: medal.Creation2,
+		Creation3: medal.Creation3,
+		Creation4: medal.Creation4,
+		Creation5: medal.Creation5,
+		Creation6: medal.Creation6,
+		Creation7: medal.Creation7,
+		Agree1:    medal.Agree1,
+		Agree2:    medal.Agree2,
+		Agree3:    medal.Agree3,
+		Agree4:    medal.Agree4,
+		Agree5:    medal.Agree5,
+		Agree6:    medal.Agree6,
+		View1:     medal.View1,
+		View2:     medal.View2,
+		View3:     medal.View3,
+		Comment1:  medal.Comment1,
+		Comment2:  medal.Comment2,
+		Comment3:  medal.Comment3,
+		Collect1:  medal.Collect1,
+		Collect2:  medal.Collect2,
+		Collect3:  medal.Collect3,
+	}, nil
+}
+
+func (r *achievementRepo) setMedalToCache(key string, medal *biz.Medal) {
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.HSetNX(ctx, key, "creation1", medal.Creation1)
+		pipe.HSetNX(ctx, key, "creation2", medal.Creation2)
+		pipe.HSetNX(ctx, key, "creation3", medal.Creation3)
+		pipe.HSetNX(ctx, key, "creation4", medal.Creation4)
+		pipe.HSetNX(ctx, key, "creation5", medal.Creation5)
+		pipe.HSetNX(ctx, key, "creation6", medal.Creation6)
+		pipe.HSetNX(ctx, key, "creation7", medal.Creation7)
+		pipe.HSetNX(ctx, key, "agree1", medal.Agree1)
+		pipe.HSetNX(ctx, key, "agree2", medal.Agree2)
+		pipe.HSetNX(ctx, key, "agree3", medal.Agree3)
+		pipe.HSetNX(ctx, key, "agree4", medal.Agree4)
+		pipe.HSetNX(ctx, key, "agree5", medal.Agree5)
+		pipe.HSetNX(ctx, key, "agree6", medal.Agree6)
+		pipe.HSetNX(ctx, key, "view1", medal.View1)
+		pipe.HSetNX(ctx, key, "view2", medal.View2)
+		pipe.HSetNX(ctx, key, "view3", medal.View3)
+		pipe.HSetNX(ctx, key, "comment1", medal.Comment1)
+		pipe.HSetNX(ctx, key, "comment2", medal.Comment2)
+		pipe.HSetNX(ctx, key, "comment3", medal.Comment3)
+		pipe.HSetNX(ctx, key, "collect1", medal.Collect1)
+		pipe.HSetNX(ctx, key, "collect2", medal.Collect2)
+		pipe.HSetNX(ctx, key, "collect3", medal.Collect3)
+		pipe.Expire(ctx, key, time.Hour*8)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to set medal to cache, err(%s)", err.Error())
+	}
+}
+
+func (r *achievementRepo) GetUserActive(ctx context.Context, uuid string) (*biz.Active, error) {
+	var active *biz.Active
+	key := "active_" + uuid
+	exist, err := r.data.redisCli.Exists(ctx, key).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to judge if key exist or not from cache: key(%s)", key))
+	}
+
+	if exist == 1 {
+		active, err = r.getActiveFromCache(ctx, key)
+		if err != nil {
+			return nil, err
+		}
+		return active, nil
+	}
+
+	active, err = r.getActiveFromDB(ctx, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	go r.setActiveToCache(key, active)
+
+	return active, nil
+}
+
+func (r *achievementRepo) getActiveFromCache(ctx context.Context, key string) (*biz.Active, error) {
+	active, err := r.data.redisCli.HMGet(ctx, key, "agree").Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get active form cache: key(%s)", key))
+	}
+	val := []int32{0}
+	for _index, count := range active {
+		if count == nil {
+			break
+		}
+		num, err := strconv.ParseInt(count.(string), 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: count(%v)", count))
+		}
+		val[_index] = int32(num)
+	}
+	return &biz.Active{
+		Agree: val[0],
+	}, nil
+}
+
+func (r *achievementRepo) getActiveFromDB(ctx context.Context, uuid string) (*biz.Active, error) {
+	active := &Active{}
+	err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).First(active).Error
+	if !errors.Is(err, gorm.ErrRecordNotFound) && err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("faile to get active from db: uuid(%s)", uuid))
+	}
+	return &biz.Active{
+		Agree: active.Agree,
+	}, nil
+}
+
+func (r *achievementRepo) setActiveToCache(key string, active *biz.Active) {
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.HSetNX(ctx, key, "agree", active.Agree)
+		pipe.Expire(ctx, key, time.Hour*8)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to set active to cache, err(%s)", err.Error())
 	}
 }
 
