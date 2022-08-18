@@ -514,10 +514,28 @@ func (m *GetUserCommentAgreeReq) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Uuid
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = GetUserCommentAgreeReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GetUserCommentAgreeReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *GetUserCommentAgreeReq) _validateUuid(uuid string) error {
+	if matched := _comment_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -699,6 +717,232 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetUserCommentAgreeReplyValidationError{}
+
+// Validate checks the field values on GetCommentUserReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *GetCommentUserReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetCommentUserReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetCommentUserReqMultiError, or nil if none found.
+func (m *GetCommentUserReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetCommentUserReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = GetCommentUserReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return GetCommentUserReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *GetCommentUserReq) _validateUuid(uuid string) error {
+	if matched := _comment_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// GetCommentUserReqMultiError is an error wrapping multiple validation errors
+// returned by GetCommentUserReq.ValidateAll() if the designated constraints
+// aren't met.
+type GetCommentUserReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetCommentUserReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetCommentUserReqMultiError) AllErrors() []error { return m }
+
+// GetCommentUserReqValidationError is the validation error returned by
+// GetCommentUserReq.Validate if the designated constraints aren't met.
+type GetCommentUserReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetCommentUserReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetCommentUserReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetCommentUserReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetCommentUserReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetCommentUserReqValidationError) ErrorName() string {
+	return "GetCommentUserReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetCommentUserReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetCommentUserReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetCommentUserReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetCommentUserReqValidationError{}
+
+// Validate checks the field values on GetCommentUserReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetCommentUserReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetCommentUserReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetCommentUserReplyMultiError, or nil if none found.
+func (m *GetCommentUserReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetCommentUserReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Comment
+
+	if len(errors) > 0 {
+		return GetCommentUserReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetCommentUserReplyMultiError is an error wrapping multiple validation
+// errors returned by GetCommentUserReply.ValidateAll() if the designated
+// constraints aren't met.
+type GetCommentUserReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetCommentUserReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetCommentUserReplyMultiError) AllErrors() []error { return m }
+
+// GetCommentUserReplyValidationError is the validation error returned by
+// GetCommentUserReply.Validate if the designated constraints aren't met.
+type GetCommentUserReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetCommentUserReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetCommentUserReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetCommentUserReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetCommentUserReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetCommentUserReplyValidationError) ErrorName() string {
+	return "GetCommentUserReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetCommentUserReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetCommentUserReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetCommentUserReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetCommentUserReplyValidationError{}
 
 // Validate checks the field values on SendCommentReq with the rules defined in
 // the proto definition for this message. If any rules are violated, the first

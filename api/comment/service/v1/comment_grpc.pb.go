@@ -26,6 +26,7 @@ type CommentClient interface {
 	GetHealth(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetLastCommentDraft(ctx context.Context, in *GetLastCommentDraftReq, opts ...grpc.CallOption) (*GetLastCommentDraftReply, error)
 	GetUserCommentAgree(ctx context.Context, in *GetUserCommentAgreeReq, opts ...grpc.CallOption) (*GetUserCommentAgreeReply, error)
+	GetCommentUser(ctx context.Context, in *GetCommentUserReq, opts ...grpc.CallOption) (*GetCommentUserReply, error)
 	GetCommentList(ctx context.Context, in *GetCommentListReq, opts ...grpc.CallOption) (*GetCommentListReply, error)
 	GetSubCommentList(ctx context.Context, in *GetSubCommentListReq, opts ...grpc.CallOption) (*GetSubCommentListReply, error)
 	GetCommentListHot(ctx context.Context, in *GetCommentListReq, opts ...grpc.CallOption) (*GetCommentListReply, error)
@@ -81,6 +82,15 @@ func (c *commentClient) GetLastCommentDraft(ctx context.Context, in *GetLastComm
 func (c *commentClient) GetUserCommentAgree(ctx context.Context, in *GetUserCommentAgreeReq, opts ...grpc.CallOption) (*GetUserCommentAgreeReply, error) {
 	out := new(GetUserCommentAgreeReply)
 	err := c.cc.Invoke(ctx, "/comment.v1.Comment/GetUserCommentAgree", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *commentClient) GetCommentUser(ctx context.Context, in *GetCommentUserReq, opts ...grpc.CallOption) (*GetCommentUserReply, error) {
+	out := new(GetCommentUserReply)
+	err := c.cc.Invoke(ctx, "/comment.v1.Comment/GetCommentUser", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -310,6 +320,7 @@ type CommentServer interface {
 	GetHealth(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	GetLastCommentDraft(context.Context, *GetLastCommentDraftReq) (*GetLastCommentDraftReply, error)
 	GetUserCommentAgree(context.Context, *GetUserCommentAgreeReq) (*GetUserCommentAgreeReply, error)
+	GetCommentUser(context.Context, *GetCommentUserReq) (*GetCommentUserReply, error)
 	GetCommentList(context.Context, *GetCommentListReq) (*GetCommentListReply, error)
 	GetSubCommentList(context.Context, *GetSubCommentListReq) (*GetSubCommentListReply, error)
 	GetCommentListHot(context.Context, *GetCommentListReq) (*GetCommentListReply, error)
@@ -349,6 +360,9 @@ func (UnimplementedCommentServer) GetLastCommentDraft(context.Context, *GetLastC
 }
 func (UnimplementedCommentServer) GetUserCommentAgree(context.Context, *GetUserCommentAgreeReq) (*GetUserCommentAgreeReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserCommentAgree not implemented")
+}
+func (UnimplementedCommentServer) GetCommentUser(context.Context, *GetCommentUserReq) (*GetCommentUserReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCommentUser not implemented")
 }
 func (UnimplementedCommentServer) GetCommentList(context.Context, *GetCommentListReq) (*GetCommentListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCommentList not implemented")
@@ -485,6 +499,24 @@ func _Comment_GetUserCommentAgree_Handler(srv interface{}, ctx context.Context, 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CommentServer).GetUserCommentAgree(ctx, req.(*GetUserCommentAgreeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Comment_GetCommentUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCommentUserReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommentServer).GetCommentUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/comment.v1.Comment/GetCommentUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommentServer).GetCommentUser(ctx, req.(*GetCommentUserReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -939,6 +971,10 @@ var Comment_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserCommentAgree",
 			Handler:    _Comment_GetUserCommentAgree_Handler,
+		},
+		{
+			MethodName: "GetCommentUser",
+			Handler:    _Comment_GetCommentUser_Handler,
 		},
 		{
 			MethodName: "GetCommentList",
