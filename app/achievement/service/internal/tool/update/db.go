@@ -24,6 +24,8 @@ func NewDB(logger log.Logger) *gorm.DB {
 	}
 	if err := db.AutoMigrate(
 		&data.Achievement{},
+		&data.Active{},
+		&data.Medal{},
 	); err != nil {
 		l.Fatalf("failed creat or update table resources: %v", err)
 	}
