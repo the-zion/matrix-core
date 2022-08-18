@@ -319,6 +319,7 @@ message GetCreationUserReply{
   int32 column = 2;
   int32 talk = 3;
   int32 collections = 4;
+  int32 collect = 5;
 }
 
 message CreateCollectionsReq{
