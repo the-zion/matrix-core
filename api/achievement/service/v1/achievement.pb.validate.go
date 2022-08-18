@@ -1520,6 +1520,498 @@ var _ interface {
 	ErrorName() string
 } = AddAchievementScoreReqValidationError{}
 
+// Validate checks the field values on GetUserMedalReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *GetUserMedalReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserMedalReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetUserMedalReqMultiError, or nil if none found.
+func (m *GetUserMedalReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserMedalReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = GetUserMedalReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return GetUserMedalReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *GetUserMedalReq) _validateUuid(uuid string) error {
+	if matched := _achievement_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// GetUserMedalReqMultiError is an error wrapping multiple validation errors
+// returned by GetUserMedalReq.ValidateAll() if the designated constraints
+// aren't met.
+type GetUserMedalReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserMedalReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserMedalReqMultiError) AllErrors() []error { return m }
+
+// GetUserMedalReqValidationError is the validation error returned by
+// GetUserMedalReq.Validate if the designated constraints aren't met.
+type GetUserMedalReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserMedalReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserMedalReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserMedalReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserMedalReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserMedalReqValidationError) ErrorName() string { return "GetUserMedalReqValidationError" }
+
+// Error satisfies the builtin error interface
+func (e GetUserMedalReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserMedalReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserMedalReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserMedalReqValidationError{}
+
+// Validate checks the field values on GetUserMedalReply with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *GetUserMedalReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserMedalReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetUserMedalReplyMultiError, or nil if none found.
+func (m *GetUserMedalReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserMedalReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Creation1
+
+	// no validation rules for Creation2
+
+	// no validation rules for Creation3
+
+	// no validation rules for Creation4
+
+	// no validation rules for Creation5
+
+	// no validation rules for Creation6
+
+	// no validation rules for Creation7
+
+	// no validation rules for Agree1
+
+	// no validation rules for Agree2
+
+	// no validation rules for Agree3
+
+	// no validation rules for Agree4
+
+	// no validation rules for Agree5
+
+	// no validation rules for Agree6
+
+	// no validation rules for View1
+
+	// no validation rules for View2
+
+	// no validation rules for View3
+
+	// no validation rules for Comment1
+
+	// no validation rules for Comment2
+
+	// no validation rules for Comment3
+
+	// no validation rules for Collect1
+
+	// no validation rules for Collect2
+
+	// no validation rules for Collect3
+
+	if len(errors) > 0 {
+		return GetUserMedalReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetUserMedalReplyMultiError is an error wrapping multiple validation errors
+// returned by GetUserMedalReply.ValidateAll() if the designated constraints
+// aren't met.
+type GetUserMedalReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserMedalReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserMedalReplyMultiError) AllErrors() []error { return m }
+
+// GetUserMedalReplyValidationError is the validation error returned by
+// GetUserMedalReply.Validate if the designated constraints aren't met.
+type GetUserMedalReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserMedalReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserMedalReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserMedalReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserMedalReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserMedalReplyValidationError) ErrorName() string {
+	return "GetUserMedalReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetUserMedalReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserMedalReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserMedalReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserMedalReplyValidationError{}
+
+// Validate checks the field values on GetUserActiveReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *GetUserActiveReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserActiveReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetUserActiveReqMultiError, or nil if none found.
+func (m *GetUserActiveReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserActiveReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = GetUserActiveReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return GetUserActiveReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *GetUserActiveReq) _validateUuid(uuid string) error {
+	if matched := _achievement_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// GetUserActiveReqMultiError is an error wrapping multiple validation errors
+// returned by GetUserActiveReq.ValidateAll() if the designated constraints
+// aren't met.
+type GetUserActiveReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserActiveReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserActiveReqMultiError) AllErrors() []error { return m }
+
+// GetUserActiveReqValidationError is the validation error returned by
+// GetUserActiveReq.Validate if the designated constraints aren't met.
+type GetUserActiveReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserActiveReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserActiveReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserActiveReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserActiveReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserActiveReqValidationError) ErrorName() string { return "GetUserActiveReqValidationError" }
+
+// Error satisfies the builtin error interface
+func (e GetUserActiveReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserActiveReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserActiveReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserActiveReqValidationError{}
+
+// Validate checks the field values on GetUserActiveReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetUserActiveReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserActiveReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetUserActiveReplyMultiError, or nil if none found.
+func (m *GetUserActiveReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserActiveReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Agree
+
+	// no validation rules for View
+
+	if len(errors) > 0 {
+		return GetUserActiveReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetUserActiveReplyMultiError is an error wrapping multiple validation errors
+// returned by GetUserActiveReply.ValidateAll() if the designated constraints
+// aren't met.
+type GetUserActiveReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserActiveReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserActiveReplyMultiError) AllErrors() []error { return m }
+
+// GetUserActiveReplyValidationError is the validation error returned by
+// GetUserActiveReply.Validate if the designated constraints aren't met.
+type GetUserActiveReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserActiveReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserActiveReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserActiveReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserActiveReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserActiveReplyValidationError) ErrorName() string {
+	return "GetUserActiveReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetUserActiveReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserActiveReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserActiveReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserActiveReplyValidationError{}
+
 // Validate checks the field values on GetAchievementListReply_Achievement with
 // the rules defined in the proto definition for this message. If any rules
 // are violated, the first error encountered is returned, or nil if there are

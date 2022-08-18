@@ -32,8 +32,10 @@ type AchievementClient interface {
 	CancelAchievementFollow(ctx context.Context, in *CancelAchievementFollowReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetAchievementList(ctx context.Context, in *GetAchievementListReq, opts ...grpc.CallOption) (*GetAchievementListReply, error)
 	GetUserAchievement(ctx context.Context, in *GetUserAchievementReq, opts ...grpc.CallOption) (*GetUserAchievementReply, error)
-	AddAchievementScore(ctx context.Context, in *AddAchievementScoreReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetUserMedal(ctx context.Context, in *GetUserMedalReq, opts ...grpc.CallOption) (*GetUserMedalReply, error)
+	GetUserActive(ctx context.Context, in *GetUserActiveReq, opts ...grpc.CallOption) (*GetUserActiveReply, error)
 	GetHealth(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AddAchievementScore(ctx context.Context, in *AddAchievementScoreReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type achievementClient struct {
@@ -125,9 +127,18 @@ func (c *achievementClient) GetUserAchievement(ctx context.Context, in *GetUserA
 	return out, nil
 }
 
-func (c *achievementClient) AddAchievementScore(ctx context.Context, in *AddAchievementScoreReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/achievement.v1.Achievement/AddAchievementScore", in, out, opts...)
+func (c *achievementClient) GetUserMedal(ctx context.Context, in *GetUserMedalReq, opts ...grpc.CallOption) (*GetUserMedalReply, error) {
+	out := new(GetUserMedalReply)
+	err := c.cc.Invoke(ctx, "/achievement.v1.Achievement/GetUserMedal", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *achievementClient) GetUserActive(ctx context.Context, in *GetUserActiveReq, opts ...grpc.CallOption) (*GetUserActiveReply, error) {
+	out := new(GetUserActiveReply)
+	err := c.cc.Invoke(ctx, "/achievement.v1.Achievement/GetUserActive", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -137,6 +148,15 @@ func (c *achievementClient) AddAchievementScore(ctx context.Context, in *AddAchi
 func (c *achievementClient) GetHealth(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/achievement.v1.Achievement/GetHealth", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *achievementClient) AddAchievementScore(ctx context.Context, in *AddAchievementScoreReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/achievement.v1.Achievement/AddAchievementScore", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -156,8 +176,10 @@ type AchievementServer interface {
 	CancelAchievementFollow(context.Context, *CancelAchievementFollowReq) (*emptypb.Empty, error)
 	GetAchievementList(context.Context, *GetAchievementListReq) (*GetAchievementListReply, error)
 	GetUserAchievement(context.Context, *GetUserAchievementReq) (*GetUserAchievementReply, error)
-	AddAchievementScore(context.Context, *AddAchievementScoreReq) (*emptypb.Empty, error)
+	GetUserMedal(context.Context, *GetUserMedalReq) (*GetUserMedalReply, error)
+	GetUserActive(context.Context, *GetUserActiveReq) (*GetUserActiveReply, error)
 	GetHealth(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
+	AddAchievementScore(context.Context, *AddAchievementScoreReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedAchievementServer()
 }
 
@@ -192,11 +214,17 @@ func (UnimplementedAchievementServer) GetAchievementList(context.Context, *GetAc
 func (UnimplementedAchievementServer) GetUserAchievement(context.Context, *GetUserAchievementReq) (*GetUserAchievementReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserAchievement not implemented")
 }
-func (UnimplementedAchievementServer) AddAchievementScore(context.Context, *AddAchievementScoreReq) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddAchievementScore not implemented")
+func (UnimplementedAchievementServer) GetUserMedal(context.Context, *GetUserMedalReq) (*GetUserMedalReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserMedal not implemented")
+}
+func (UnimplementedAchievementServer) GetUserActive(context.Context, *GetUserActiveReq) (*GetUserActiveReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserActive not implemented")
 }
 func (UnimplementedAchievementServer) GetHealth(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetHealth not implemented")
+}
+func (UnimplementedAchievementServer) AddAchievementScore(context.Context, *AddAchievementScoreReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddAchievementScore not implemented")
 }
 func (UnimplementedAchievementServer) mustEmbedUnimplementedAchievementServer() {}
 
@@ -373,20 +401,38 @@ func _Achievement_GetUserAchievement_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Achievement_AddAchievementScore_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddAchievementScoreReq)
+func _Achievement_GetUserMedal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserMedalReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AchievementServer).AddAchievementScore(ctx, in)
+		return srv.(AchievementServer).GetUserMedal(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/achievement.v1.Achievement/AddAchievementScore",
+		FullMethod: "/achievement.v1.Achievement/GetUserMedal",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AchievementServer).AddAchievementScore(ctx, req.(*AddAchievementScoreReq))
+		return srv.(AchievementServer).GetUserMedal(ctx, req.(*GetUserMedalReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Achievement_GetUserActive_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserActiveReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AchievementServer).GetUserActive(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/achievement.v1.Achievement/GetUserActive",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AchievementServer).GetUserActive(ctx, req.(*GetUserActiveReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -405,6 +451,24 @@ func _Achievement_GetHealth_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AchievementServer).GetHealth(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Achievement_AddAchievementScore_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddAchievementScoreReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AchievementServer).AddAchievementScore(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/achievement.v1.Achievement/AddAchievementScore",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AchievementServer).AddAchievementScore(ctx, req.(*AddAchievementScoreReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -453,12 +517,20 @@ var Achievement_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Achievement_GetUserAchievement_Handler,
 		},
 		{
-			MethodName: "AddAchievementScore",
-			Handler:    _Achievement_AddAchievementScore_Handler,
+			MethodName: "GetUserMedal",
+			Handler:    _Achievement_GetUserMedal_Handler,
+		},
+		{
+			MethodName: "GetUserActive",
+			Handler:    _Achievement_GetUserActive_Handler,
 		},
 		{
 			MethodName: "GetHealth",
 			Handler:    _Achievement_GetHealth_Handler,
+		},
+		{
+			MethodName: "AddAchievementScore",
+			Handler:    _Achievement_AddAchievementScore_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
