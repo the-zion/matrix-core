@@ -101,3 +101,44 @@ func (s *AchievementService) GetUserAchievement(ctx context.Context, req *v1.Get
 		Followed: achievement.Followed,
 	}, nil
 }
+
+func (s *AchievementService) GetUserMedal(ctx context.Context, req *v1.GetUserMedalReq) (*v1.GetUserMedalReply, error) {
+	medal, err := s.ac.GetUserMedal(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetUserMedalReply{
+		Creation1: medal.Creation1,
+		Creation2: medal.Creation2,
+		Creation3: medal.Creation3,
+		Creation4: medal.Creation4,
+		Creation5: medal.Creation5,
+		Creation6: medal.Creation6,
+		Creation7: medal.Creation7,
+		Agree1:    medal.Agree1,
+		Agree2:    medal.Agree2,
+		Agree3:    medal.Agree3,
+		Agree4:    medal.Agree4,
+		Agree5:    medal.Agree5,
+		Agree6:    medal.Agree6,
+		View1:     medal.View1,
+		View2:     medal.View2,
+		View3:     medal.View3,
+		Comment1:  medal.Comment1,
+		Comment2:  medal.Comment2,
+		Comment3:  medal.Comment3,
+		Collect1:  medal.Collect1,
+		Collect2:  medal.Collect2,
+		Collect3:  medal.Collect3,
+	}, nil
+}
+
+func (s *AchievementService) GetUserActive(ctx context.Context, req *v1.GetUserActiveReq) (*v1.GetUserActiveReply, error) {
+	active, err := s.ac.GetUserActive(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetUserActiveReply{
+		Agree: active.Agree,
+	}, nil
+}
