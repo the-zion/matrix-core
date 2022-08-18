@@ -18,12 +18,14 @@ service Achievement {
   rpc CancelAchievementFollow(CancelAchievementFollowReq) returns (google.protobuf.Empty){}
   rpc GetAchievementList(GetAchievementListReq) returns (GetAchievementListReply){}
   rpc GetUserAchievement(GetUserAchievementReq) returns (GetUserAchievementReply){}
-  rpc AddAchievementScore(AddAchievementScoreReq) returns (google.protobuf.Empty){}
+  rpc GetUserMedal(GetUserMedalReq) returns (GetUserMedalReply){}
+  rpc GetUserActive(GetUserActiveReq) returns (GetUserActiveReply){}
   rpc GetHealth(google.protobuf.Empty) returns (google.protobuf.Empty){
     option (google.api.http) = {
       get: "/v1/get/achievement/health"
     };
   }
+  rpc AddAchievementScore(AddAchievementScoreReq) returns (google.protobuf.Empty){}
 }
 
 message SetAchievementAgreeReq{
@@ -86,4 +88,42 @@ message GetUserAchievementReply{
 message AddAchievementScoreReq{
   string uuid = 1;
   int32 score = 2;
+}
+
+message GetUserMedalReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+message GetUserMedalReply{
+  int32 creation1 = 1;
+  int32 creation2 = 2;
+  int32 creation3 = 3;
+  int32 creation4 = 4;
+  int32 creation5 = 5;
+  int32 creation6 = 6;
+  int32 creation7 = 7;
+  int32 agree1 = 8;
+  int32 agree2 = 9;
+  int32 agree3 = 10;
+  int32 agree4 = 11;
+  int32 agree5 = 12;
+  int32 agree6 = 13;
+  int32 view1 = 14;
+  int32 view2 = 15;
+  int32 view3 = 16;
+  int32 comment1 = 17;
+  int32 comment2 = 18;
+  int32 comment3 = 19;
+  int32 collect1 = 20;
+  int32 collect2 = 21;
+  int32 collect3 = 22;
+}
+
+message GetUserActiveReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+message GetUserActiveReply{
+  int32 agree = 1;
+  int32 view = 2;
 }
