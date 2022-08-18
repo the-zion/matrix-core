@@ -9,6 +9,8 @@ import (
 type AchievementRepo interface {
 	GetAchievementList(ctx context.Context, uuids []string) ([]*Achievement, error)
 	GetUserAchievement(ctx context.Context, uuid string) (*Achievement, error)
+	GetUserMedal(ctx context.Context, uuid string) (*Medal, error)
+	GetUserActive(ctx context.Context, uuid string) (*Active, error)
 	SetAchievementAgree(ctx context.Context, uuid string) error
 	SetAchievementView(ctx context.Context, uuid string) error
 	SetAchievementCollect(ctx context.Context, uuid string) error
@@ -183,4 +185,20 @@ func (r *AchievementUseCase) GetUserAchievement(ctx context.Context, uuid string
 		return nil, v1.ErrorGetAchievementFailed("get achievement failed: %s", err.Error())
 	}
 	return achievement, nil
+}
+
+func (r *AchievementUseCase) GetUserMedal(ctx context.Context, uuid string) (*Medal, error) {
+	medal, err := r.repo.GetUserMedal(ctx, uuid)
+	if err != nil {
+		return nil, v1.ErrorGetMedalFailed("get medal failed: %s", err.Error())
+	}
+	return medal, nil
+}
+
+func (r *AchievementUseCase) GetUserActive(ctx context.Context, uuid string) (*Active, error) {
+	active, err := r.repo.GetUserActive(ctx, uuid)
+	if err != nil {
+		return nil, v1.ErrorGetActiveFailed("get active failed: %s", err.Error())
+	}
+	return active, nil
 }
