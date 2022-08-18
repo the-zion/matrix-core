@@ -19,6 +19,8 @@ service Comment {
 
   rpc GetUserCommentAgree(GetUserCommentAgreeReq) returns (GetUserCommentAgreeReply){}
 
+  rpc GetCommentUser(GetCommentUserReq) returns (GetCommentUserReply){}
+
   rpc GetCommentList(GetCommentListReq) returns (GetCommentListReply){}
 
   rpc GetSubCommentList(GetSubCommentListReq) returns (GetSubCommentListReply){}
@@ -92,11 +94,19 @@ message GetLastCommentDraftReply{
 }
 
 message GetUserCommentAgreeReq{
-  string uuid = 1;
+  string uuid = 1 [(validate.rules).string.uuid = true];
 }
 
 message GetUserCommentAgreeReply{
   map<int32, bool> agree = 1;
+}
+
+message GetCommentUserReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+message GetCommentUserReply{
+  int32 comment = 1;
 }
 
 message SendCommentReq{
