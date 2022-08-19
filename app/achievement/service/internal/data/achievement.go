@@ -2,7 +2,9 @@ package data
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"github.com/apache/rocketmq-client-go/v2/primitive"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-redis/redis/v8"
 	"github.com/pkg/errors"
@@ -78,6 +80,26 @@ func (r *achievementRepo) SetAchievementCollect(ctx context.Context, uuid string
 	}).Create(ach).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to add achievement collect: uuid(%v)", uuid))
+	}
+	return nil
+}
+
+func (r *achievementRepo) SetUserMedalToCache(ctx context.Context, medal, uuid string) error {
+	var script = redis.NewScript(`
+					local key = KEYS[1]
+                    local change = ARGV[1]
+					local value = redis.call("EXISTS", key)
+					if value == 1 then
+  						local result = redis.call("HSET", key, change, 1)
+						return result
+					end
+					return 0
+	`)
+	keys := []string{"medal_" + uuid}
+	values := []interface{}{medal}
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to set user medal to cache: medal(%s), uuid(%s)", medal, uuid))
 	}
 	return nil
 }
@@ -278,6 +300,34 @@ func (r *achievementRepo) CancelAchievementFollowFromCache(ctx context.Context, 
 	_, err := script.Run(ctx, r.data.redisCli, keys).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel achievement follow to cache: follow(%s), followed(%s)", follow, followed))
+	}
+	return nil
+}
+
+func (r *achievementRepo) CancelUserMedalFromCache(ctx context.Context, medal, uuid string) error {
+	var script = redis.NewScript(`
+					local key = KEYS[1]
+					local change = ARGV[1]
+					local exist = redis.call("EXISTS", key)
+					if exist == 1 then
+						redis.call("HSET", key, change, 2)
+					end
+					return 0
+	`)
+	keys := []string{"medal_" + uuid}
+	values := []interface{}{medal}
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to cancel user medal from cache: medal(%s), uuid(%s)", medal, uuid))
+	}
+	return nil
+}
+
+func (r *achievementRepo) CancelUserMedal(ctx context.Context, medal, uuid string) error {
+	m := &Medal{}
+	err := r.data.DB(ctx).Model(m).Where(fmt.Sprintf("uuid = ? and %s = ?", medal), uuid, 1).Update(medal, 2).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to cancel user medal from db: medal(%s), uuid(%s)", medal, uuid))
 	}
 	return nil
 }
@@ -702,6 +752,43 @@ func (r *achievementRepo) setActiveToCache(key string, active *biz.Active) {
 	if err != nil {
 		r.log.Errorf("fail to set active to cache, err(%s)", err.Error())
 	}
+}
+
+func (r *achievementRepo) SendMedalToMq(ctx context.Context, medal, uuid, mode string) error {
+	commentMap := map[string]interface{}{}
+	commentMap["uuid"] = uuid
+	commentMap["medal"] = medal
+	commentMap["mode"] = mode
+
+	data, err := json.Marshal(commentMap)
+	if err != nil {
+		return err
+	}
+	msg := &primitive.Message{
+		Topic: "achievement",
+		Body:  data,
+	}
+	msg.WithKeys([]string{uuid})
+	_, err = r.data.achievementMqPro.producer.SendSync(ctx, msg)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to send medal to mq: %v", medal))
+	}
+	return nil
+}
+
+func (r *achievementRepo) SetUserMedal(ctx context.Context, medal, uuid string) error {
+	m := make(map[string]interface{}, 0)
+	m["uuid"] = uuid
+	m[medal] = 1
+
+	err := r.data.DB(ctx).Model(&Medal{}).Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "uuid"}},
+		DoUpdates: clause.Assignments(map[string]interface{}{medal: gorm.Expr(medal+" = ?", 1)}),
+	}).Create(m).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to set user medal: c(%v)", uuid))
+	}
+	return nil
 }
 
 func (r *achievementRepo) AddAchievementScore(ctx context.Context, uuid string, score int32) error {
