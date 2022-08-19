@@ -71,6 +71,30 @@ func ErrorSetAchievementFollowFailed(format string, args ...interface{}) *errors
 	return errors.New(500, AchievementErrorReason_SET_ACHIEVEMENT_FOLLOW_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsSetMedalFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == AchievementErrorReason_SET_MEDAL_FAILED.String() && e.Code == 500
+}
+
+func ErrorSetMedalFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, AchievementErrorReason_SET_MEDAL_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsAccessMedalFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == AchievementErrorReason_ACCESS_MEDAL_FAILED.String() && e.Code == 500
+}
+
+func ErrorAccessMedalFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, AchievementErrorReason_ACCESS_MEDAL_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsCancelAchievementAgreeFailed(err error) bool {
 	if err == nil {
 		return false
@@ -105,6 +129,18 @@ func IsCancelAchievementFollowFailed(err error) bool {
 
 func ErrorCancelAchievementFollowFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, AchievementErrorReason_CANCEL_ACHIEVEMENT_FOLLOW_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsCancelMedalSetFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == AchievementErrorReason_CANCEL_MEDAL_SET_FAILED.String() && e.Code == 500
+}
+
+func ErrorCancelMedalSetFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, AchievementErrorReason_CANCEL_MEDAL_SET_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
 func IsGetAchievementListFailed(err error) bool {
