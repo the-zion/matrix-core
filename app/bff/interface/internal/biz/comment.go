@@ -9,6 +9,7 @@ import (
 type CommentRepo interface {
 	GetLastCommentDraft(ctx context.Context, uuid string) (*CommentDraft, error)
 	GetUserCommentAgree(ctx context.Context, uuid string) (map[int32]bool, error)
+	GetCommentUser(ctx context.Context, uuid string) (int32, error)
 	GetCommentList(ctx context.Context, page, creationId, creationType int32) ([]*Comment, error)
 	GetSubCommentList(ctx context.Context, page, id int32) ([]*SubComment, error)
 	GetCommentListHot(ctx context.Context, page, creationId, creationType int32) ([]*Comment, error)
