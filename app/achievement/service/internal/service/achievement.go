@@ -142,3 +142,51 @@ func (s *AchievementService) GetUserActive(ctx context.Context, req *v1.GetUserA
 		Agree: active.Agree,
 	}, nil
 }
+
+func (s *AchievementService) SetUserMedal(ctx context.Context, req *v1.SetUserMedalReq) (*emptypb.Empty, error) {
+	err := s.ac.SetUserMedal(ctx, req.Medal, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *AchievementService) SetUserMedalDbAndCache(ctx context.Context, req *v1.SetUserMedalDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.ac.SetUserMedalDbAndCache(ctx, req.Medal, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *AchievementService) CancelUserMedalSet(ctx context.Context, req *v1.CancelUserMedalSetReq) (*emptypb.Empty, error) {
+	err := s.ac.CancelUserMedalSet(ctx, req.Medal, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *AchievementService) CancelUserMedalDbAndCache(ctx context.Context, req *v1.CancelUserMedalDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.ac.CancelUserMedalDbAndCache(ctx, req.Medal, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *AchievementService) AccessUserMedal(ctx context.Context, req *v1.AccessUserMedalReq) (*emptypb.Empty, error) {
+	err := s.ac.AccessUserMedal(ctx, req.Medal, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *AchievementService) AccessUserMedalDbAndCache(ctx context.Context, req *v1.AccessUserMedalReq) (*emptypb.Empty, error) {
+	err := s.ac.AccessUserMedalDbAndCache(ctx, req.Medal, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
