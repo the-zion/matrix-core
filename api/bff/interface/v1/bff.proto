@@ -837,9 +837,28 @@ service Bff{
     };
   }
 
+  rpc AccessUserMedal(AccessUserMedalReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/access/user/medal",
+      body: "*"
+    };
+  }
+
   rpc GetUserMedalProgress(google.protobuf.Empty) returns (GetUserMedalProgressReply){
     option (google.api.http) = {
       get: "/v1/get/user/medal/progress"
+    };
+  }
+
+  rpc SetUserMedal(SetUserMedalReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      get: "/v1/set/user/medal"
+    };
+  }
+
+  rpc CancelUserMedalSet(CancelUserMedalSetReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      get: "/v1/cancel/user/medal/set"
     };
   }
 
@@ -1912,6 +1931,10 @@ message GetUserMedalReply{
   int32 collect3 = 22;
 }
 
+message AccessUserMedalReq{
+  string medal = 1;
+}
+
 message GetUserMedalProgressReply{
   int32 creation = 1;
   int32 agree = 2;
@@ -1919,6 +1942,14 @@ message GetUserMedalProgressReply{
   int32 view = 4;
   int32 comment = 5;
   int32 collect = 6;
+}
+
+message SetUserMedalReq{
+  string medal = 1;
+}
+
+message CancelUserMedalSetReq{
+  string medal = 1;
 }
 
 // --------------------comment service------------------------
