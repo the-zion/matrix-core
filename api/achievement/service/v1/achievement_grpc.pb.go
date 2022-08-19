@@ -30,6 +30,12 @@ type AchievementClient interface {
 	CancelAchievementCollect(ctx context.Context, in *CancelAchievementCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetAchievementFollow(ctx context.Context, in *SetAchievementFollowReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelAchievementFollow(ctx context.Context, in *CancelAchievementFollowReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CancelUserMedalSet(ctx context.Context, in *CancelUserMedalSetReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetUserMedal(ctx context.Context, in *SetUserMedalReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetUserMedalDbAndCache(ctx context.Context, in *SetUserMedalDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CancelUserMedalDbAndCache(ctx context.Context, in *CancelUserMedalDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AccessUserMedal(ctx context.Context, in *AccessUserMedalReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AccessUserMedalDbAndCache(ctx context.Context, in *AccessUserMedalReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetAchievementList(ctx context.Context, in *GetAchievementListReq, opts ...grpc.CallOption) (*GetAchievementListReply, error)
 	GetUserAchievement(ctx context.Context, in *GetUserAchievementReq, opts ...grpc.CallOption) (*GetUserAchievementReply, error)
 	GetUserMedal(ctx context.Context, in *GetUserMedalReq, opts ...grpc.CallOption) (*GetUserMedalReply, error)
@@ -109,6 +115,60 @@ func (c *achievementClient) CancelAchievementFollow(ctx context.Context, in *Can
 	return out, nil
 }
 
+func (c *achievementClient) CancelUserMedalSet(ctx context.Context, in *CancelUserMedalSetReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/achievement.v1.Achievement/CancelUserMedalSet", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *achievementClient) SetUserMedal(ctx context.Context, in *SetUserMedalReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/achievement.v1.Achievement/SetUserMedal", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *achievementClient) SetUserMedalDbAndCache(ctx context.Context, in *SetUserMedalDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/achievement.v1.Achievement/SetUserMedalDbAndCache", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *achievementClient) CancelUserMedalDbAndCache(ctx context.Context, in *CancelUserMedalDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/achievement.v1.Achievement/CancelUserMedalDbAndCache", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *achievementClient) AccessUserMedal(ctx context.Context, in *AccessUserMedalReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/achievement.v1.Achievement/AccessUserMedal", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *achievementClient) AccessUserMedalDbAndCache(ctx context.Context, in *AccessUserMedalReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/achievement.v1.Achievement/AccessUserMedalDbAndCache", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *achievementClient) GetAchievementList(ctx context.Context, in *GetAchievementListReq, opts ...grpc.CallOption) (*GetAchievementListReply, error) {
 	out := new(GetAchievementListReply)
 	err := c.cc.Invoke(ctx, "/achievement.v1.Achievement/GetAchievementList", in, out, opts...)
@@ -174,6 +234,12 @@ type AchievementServer interface {
 	CancelAchievementCollect(context.Context, *CancelAchievementCollectReq) (*emptypb.Empty, error)
 	SetAchievementFollow(context.Context, *SetAchievementFollowReq) (*emptypb.Empty, error)
 	CancelAchievementFollow(context.Context, *CancelAchievementFollowReq) (*emptypb.Empty, error)
+	CancelUserMedalSet(context.Context, *CancelUserMedalSetReq) (*emptypb.Empty, error)
+	SetUserMedal(context.Context, *SetUserMedalReq) (*emptypb.Empty, error)
+	SetUserMedalDbAndCache(context.Context, *SetUserMedalDbAndCacheReq) (*emptypb.Empty, error)
+	CancelUserMedalDbAndCache(context.Context, *CancelUserMedalDbAndCacheReq) (*emptypb.Empty, error)
+	AccessUserMedal(context.Context, *AccessUserMedalReq) (*emptypb.Empty, error)
+	AccessUserMedalDbAndCache(context.Context, *AccessUserMedalReq) (*emptypb.Empty, error)
 	GetAchievementList(context.Context, *GetAchievementListReq) (*GetAchievementListReply, error)
 	GetUserAchievement(context.Context, *GetUserAchievementReq) (*GetUserAchievementReply, error)
 	GetUserMedal(context.Context, *GetUserMedalReq) (*GetUserMedalReply, error)
@@ -207,6 +273,24 @@ func (UnimplementedAchievementServer) SetAchievementFollow(context.Context, *Set
 }
 func (UnimplementedAchievementServer) CancelAchievementFollow(context.Context, *CancelAchievementFollowReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CancelAchievementFollow not implemented")
+}
+func (UnimplementedAchievementServer) CancelUserMedalSet(context.Context, *CancelUserMedalSetReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelUserMedalSet not implemented")
+}
+func (UnimplementedAchievementServer) SetUserMedal(context.Context, *SetUserMedalReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetUserMedal not implemented")
+}
+func (UnimplementedAchievementServer) SetUserMedalDbAndCache(context.Context, *SetUserMedalDbAndCacheReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetUserMedalDbAndCache not implemented")
+}
+func (UnimplementedAchievementServer) CancelUserMedalDbAndCache(context.Context, *CancelUserMedalDbAndCacheReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelUserMedalDbAndCache not implemented")
+}
+func (UnimplementedAchievementServer) AccessUserMedal(context.Context, *AccessUserMedalReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AccessUserMedal not implemented")
+}
+func (UnimplementedAchievementServer) AccessUserMedalDbAndCache(context.Context, *AccessUserMedalReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AccessUserMedalDbAndCache not implemented")
 }
 func (UnimplementedAchievementServer) GetAchievementList(context.Context, *GetAchievementListReq) (*GetAchievementListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAchievementList not implemented")
@@ -365,6 +449,114 @@ func _Achievement_CancelAchievementFollow_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Achievement_CancelUserMedalSet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelUserMedalSetReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AchievementServer).CancelUserMedalSet(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/achievement.v1.Achievement/CancelUserMedalSet",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AchievementServer).CancelUserMedalSet(ctx, req.(*CancelUserMedalSetReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Achievement_SetUserMedal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetUserMedalReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AchievementServer).SetUserMedal(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/achievement.v1.Achievement/SetUserMedal",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AchievementServer).SetUserMedal(ctx, req.(*SetUserMedalReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Achievement_SetUserMedalDbAndCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetUserMedalDbAndCacheReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AchievementServer).SetUserMedalDbAndCache(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/achievement.v1.Achievement/SetUserMedalDbAndCache",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AchievementServer).SetUserMedalDbAndCache(ctx, req.(*SetUserMedalDbAndCacheReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Achievement_CancelUserMedalDbAndCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelUserMedalDbAndCacheReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AchievementServer).CancelUserMedalDbAndCache(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/achievement.v1.Achievement/CancelUserMedalDbAndCache",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AchievementServer).CancelUserMedalDbAndCache(ctx, req.(*CancelUserMedalDbAndCacheReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Achievement_AccessUserMedal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AccessUserMedalReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AchievementServer).AccessUserMedal(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/achievement.v1.Achievement/AccessUserMedal",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AchievementServer).AccessUserMedal(ctx, req.(*AccessUserMedalReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Achievement_AccessUserMedalDbAndCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AccessUserMedalReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AchievementServer).AccessUserMedalDbAndCache(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/achievement.v1.Achievement/AccessUserMedalDbAndCache",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AchievementServer).AccessUserMedalDbAndCache(ctx, req.(*AccessUserMedalReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Achievement_GetAchievementList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetAchievementListReq)
 	if err := dec(in); err != nil {
@@ -507,6 +699,30 @@ var Achievement_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CancelAchievementFollow",
 			Handler:    _Achievement_CancelAchievementFollow_Handler,
+		},
+		{
+			MethodName: "CancelUserMedalSet",
+			Handler:    _Achievement_CancelUserMedalSet_Handler,
+		},
+		{
+			MethodName: "SetUserMedal",
+			Handler:    _Achievement_SetUserMedal_Handler,
+		},
+		{
+			MethodName: "SetUserMedalDbAndCache",
+			Handler:    _Achievement_SetUserMedalDbAndCache_Handler,
+		},
+		{
+			MethodName: "CancelUserMedalDbAndCache",
+			Handler:    _Achievement_CancelUserMedalDbAndCache_Handler,
+		},
+		{
+			MethodName: "AccessUserMedal",
+			Handler:    _Achievement_AccessUserMedal_Handler,
+		},
+		{
+			MethodName: "AccessUserMedalDbAndCache",
+			Handler:    _Achievement_AccessUserMedalDbAndCache_Handler,
 		},
 		{
 			MethodName: "GetAchievementList",

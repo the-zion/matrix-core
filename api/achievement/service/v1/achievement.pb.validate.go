@@ -917,6 +917,691 @@ var _ interface {
 	ErrorName() string
 } = CancelAchievementFollowReqValidationError{}
 
+// Validate checks the field values on SetUserMedalReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *SetUserMedalReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SetUserMedalReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SetUserMedalReqMultiError, or nil if none found.
+func (m *SetUserMedalReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SetUserMedalReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = SetUserMedalReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if _, ok := _SetUserMedalReq_Medal_InLookup[m.GetMedal()]; !ok {
+		err := SetUserMedalReqValidationError{
+			field:  "Medal",
+			reason: "value must be in list [creation1 creation2 creation3 creation4 creation5 creation6 creation7 agree1 agree2 agree3 agree4 agree5 agree6 view1 view2 view3 comment1 comment2 comment3 collect1 collect2 collect3]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return SetUserMedalReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *SetUserMedalReq) _validateUuid(uuid string) error {
+	if matched := _achievement_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// SetUserMedalReqMultiError is an error wrapping multiple validation errors
+// returned by SetUserMedalReq.ValidateAll() if the designated constraints
+// aren't met.
+type SetUserMedalReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SetUserMedalReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SetUserMedalReqMultiError) AllErrors() []error { return m }
+
+// SetUserMedalReqValidationError is the validation error returned by
+// SetUserMedalReq.Validate if the designated constraints aren't met.
+type SetUserMedalReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SetUserMedalReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SetUserMedalReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SetUserMedalReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SetUserMedalReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SetUserMedalReqValidationError) ErrorName() string { return "SetUserMedalReqValidationError" }
+
+// Error satisfies the builtin error interface
+func (e SetUserMedalReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSetUserMedalReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SetUserMedalReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SetUserMedalReqValidationError{}
+
+var _SetUserMedalReq_Medal_InLookup = map[string]struct{}{
+	"creation1": {},
+	"creation2": {},
+	"creation3": {},
+	"creation4": {},
+	"creation5": {},
+	"creation6": {},
+	"creation7": {},
+	"agree1":    {},
+	"agree2":    {},
+	"agree3":    {},
+	"agree4":    {},
+	"agree5":    {},
+	"agree6":    {},
+	"view1":     {},
+	"view2":     {},
+	"view3":     {},
+	"comment1":  {},
+	"comment2":  {},
+	"comment3":  {},
+	"collect1":  {},
+	"collect2":  {},
+	"collect3":  {},
+}
+
+// Validate checks the field values on CancelUserMedalSetReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *CancelUserMedalSetReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CancelUserMedalSetReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// CancelUserMedalSetReqMultiError, or nil if none found.
+func (m *CancelUserMedalSetReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CancelUserMedalSetReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = CancelUserMedalSetReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if _, ok := _CancelUserMedalSetReq_Medal_InLookup[m.GetMedal()]; !ok {
+		err := CancelUserMedalSetReqValidationError{
+			field:  "Medal",
+			reason: "value must be in list [creation1 creation2 creation3 creation4 creation5 creation6 creation7 agree1 agree2 agree3 agree4 agree5 agree6 view1 view2 view3 comment1 comment2 comment3 collect1 collect2 collect3]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return CancelUserMedalSetReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *CancelUserMedalSetReq) _validateUuid(uuid string) error {
+	if matched := _achievement_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// CancelUserMedalSetReqMultiError is an error wrapping multiple validation
+// errors returned by CancelUserMedalSetReq.ValidateAll() if the designated
+// constraints aren't met.
+type CancelUserMedalSetReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CancelUserMedalSetReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CancelUserMedalSetReqMultiError) AllErrors() []error { return m }
+
+// CancelUserMedalSetReqValidationError is the validation error returned by
+// CancelUserMedalSetReq.Validate if the designated constraints aren't met.
+type CancelUserMedalSetReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CancelUserMedalSetReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CancelUserMedalSetReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CancelUserMedalSetReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CancelUserMedalSetReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CancelUserMedalSetReqValidationError) ErrorName() string {
+	return "CancelUserMedalSetReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CancelUserMedalSetReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCancelUserMedalSetReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CancelUserMedalSetReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CancelUserMedalSetReqValidationError{}
+
+var _CancelUserMedalSetReq_Medal_InLookup = map[string]struct{}{
+	"creation1": {},
+	"creation2": {},
+	"creation3": {},
+	"creation4": {},
+	"creation5": {},
+	"creation6": {},
+	"creation7": {},
+	"agree1":    {},
+	"agree2":    {},
+	"agree3":    {},
+	"agree4":    {},
+	"agree5":    {},
+	"agree6":    {},
+	"view1":     {},
+	"view2":     {},
+	"view3":     {},
+	"comment1":  {},
+	"comment2":  {},
+	"comment3":  {},
+	"collect1":  {},
+	"collect2":  {},
+	"collect3":  {},
+}
+
+// Validate checks the field values on SetUserMedalDbAndCacheReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SetUserMedalDbAndCacheReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SetUserMedalDbAndCacheReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SetUserMedalDbAndCacheReqMultiError, or nil if none found.
+func (m *SetUserMedalDbAndCacheReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SetUserMedalDbAndCacheReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Medal
+
+	// no validation rules for Uuid
+
+	if len(errors) > 0 {
+		return SetUserMedalDbAndCacheReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// SetUserMedalDbAndCacheReqMultiError is an error wrapping multiple validation
+// errors returned by SetUserMedalDbAndCacheReq.ValidateAll() if the
+// designated constraints aren't met.
+type SetUserMedalDbAndCacheReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SetUserMedalDbAndCacheReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SetUserMedalDbAndCacheReqMultiError) AllErrors() []error { return m }
+
+// SetUserMedalDbAndCacheReqValidationError is the validation error returned by
+// SetUserMedalDbAndCacheReq.Validate if the designated constraints aren't met.
+type SetUserMedalDbAndCacheReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SetUserMedalDbAndCacheReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SetUserMedalDbAndCacheReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SetUserMedalDbAndCacheReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SetUserMedalDbAndCacheReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SetUserMedalDbAndCacheReqValidationError) ErrorName() string {
+	return "SetUserMedalDbAndCacheReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SetUserMedalDbAndCacheReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSetUserMedalDbAndCacheReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SetUserMedalDbAndCacheReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SetUserMedalDbAndCacheReqValidationError{}
+
+// Validate checks the field values on CancelUserMedalDbAndCacheReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *CancelUserMedalDbAndCacheReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CancelUserMedalDbAndCacheReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// CancelUserMedalDbAndCacheReqMultiError, or nil if none found.
+func (m *CancelUserMedalDbAndCacheReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CancelUserMedalDbAndCacheReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Medal
+
+	// no validation rules for Uuid
+
+	if len(errors) > 0 {
+		return CancelUserMedalDbAndCacheReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// CancelUserMedalDbAndCacheReqMultiError is an error wrapping multiple
+// validation errors returned by CancelUserMedalDbAndCacheReq.ValidateAll() if
+// the designated constraints aren't met.
+type CancelUserMedalDbAndCacheReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CancelUserMedalDbAndCacheReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CancelUserMedalDbAndCacheReqMultiError) AllErrors() []error { return m }
+
+// CancelUserMedalDbAndCacheReqValidationError is the validation error returned
+// by CancelUserMedalDbAndCacheReq.Validate if the designated constraints
+// aren't met.
+type CancelUserMedalDbAndCacheReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CancelUserMedalDbAndCacheReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CancelUserMedalDbAndCacheReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CancelUserMedalDbAndCacheReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CancelUserMedalDbAndCacheReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CancelUserMedalDbAndCacheReqValidationError) ErrorName() string {
+	return "CancelUserMedalDbAndCacheReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CancelUserMedalDbAndCacheReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCancelUserMedalDbAndCacheReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CancelUserMedalDbAndCacheReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CancelUserMedalDbAndCacheReqValidationError{}
+
+// Validate checks the field values on AccessUserMedalReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AccessUserMedalReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AccessUserMedalReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AccessUserMedalReqMultiError, or nil if none found.
+func (m *AccessUserMedalReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AccessUserMedalReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = AccessUserMedalReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if _, ok := _AccessUserMedalReq_Medal_InLookup[m.GetMedal()]; !ok {
+		err := AccessUserMedalReqValidationError{
+			field:  "Medal",
+			reason: "value must be in list [creation1 creation2 creation3 creation4 creation5 creation6 creation7 agree1 agree2 agree3 agree4 agree5 agree6 view1 view2 view3 comment1 comment2 comment3 collect1 collect2 collect3]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return AccessUserMedalReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *AccessUserMedalReq) _validateUuid(uuid string) error {
+	if matched := _achievement_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// AccessUserMedalReqMultiError is an error wrapping multiple validation errors
+// returned by AccessUserMedalReq.ValidateAll() if the designated constraints
+// aren't met.
+type AccessUserMedalReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AccessUserMedalReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AccessUserMedalReqMultiError) AllErrors() []error { return m }
+
+// AccessUserMedalReqValidationError is the validation error returned by
+// AccessUserMedalReq.Validate if the designated constraints aren't met.
+type AccessUserMedalReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AccessUserMedalReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AccessUserMedalReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AccessUserMedalReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AccessUserMedalReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AccessUserMedalReqValidationError) ErrorName() string {
+	return "AccessUserMedalReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AccessUserMedalReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAccessUserMedalReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AccessUserMedalReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AccessUserMedalReqValidationError{}
+
+var _AccessUserMedalReq_Medal_InLookup = map[string]struct{}{
+	"creation1": {},
+	"creation2": {},
+	"creation3": {},
+	"creation4": {},
+	"creation5": {},
+	"creation6": {},
+	"creation7": {},
+	"agree1":    {},
+	"agree2":    {},
+	"agree3":    {},
+	"agree4":    {},
+	"agree5":    {},
+	"agree6":    {},
+	"view1":     {},
+	"view2":     {},
+	"view3":     {},
+	"comment1":  {},
+	"comment2":  {},
+	"comment3":  {},
+	"collect1":  {},
+	"collect2":  {},
+	"collect3":  {},
+}
+
 // Validate checks the field values on GetAchievementListReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
