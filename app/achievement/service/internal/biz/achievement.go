@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
 	v1 "github.com/the-zion/matrix-core/api/achievement/service/v1"
+	"golang.org/x/sync/errgroup"
 )
 
 type AchievementRepo interface {
@@ -20,6 +21,8 @@ type AchievementRepo interface {
 	SetAchievementViewToCache(ctx context.Context, uuid string) error
 	SetAchievementCollectToCache(ctx context.Context, uuid string) error
 	SetAchievementFollowToCache(ctx context.Context, follow, followed string) error
+	SetUserMedalToCache(ctx context.Context, medal, uuid string) error
+	SetUserMedal(ctx context.Context, medal, uuid string) error
 	CancelAchievementAgree(ctx context.Context, uuid string) error
 	CancelAchievementAgreeFromCache(ctx context.Context, uuid string) error
 	CancelAchievementCollect(ctx context.Context, uuid string) error
@@ -27,8 +30,11 @@ type AchievementRepo interface {
 	CancelAchievementFollow(ctx context.Context, uuid string) error
 	CancelAchievementFollowed(ctx context.Context, uuid string) error
 	CancelAchievementFollowFromCache(ctx context.Context, follow, followed string) error
+	CancelUserMedalFromCache(ctx context.Context, medal, uuid string) error
+	CancelUserMedal(ctx context.Context, medal, uuid string) error
 	AddAchievementScore(ctx context.Context, uuid string, score int32) error
 	AddAchievementScoreToCache(ctx context.Context, uuid string, score int32) error
+	SendMedalToMq(ctx context.Context, medal, uuid, mode string) error
 }
 
 type AchievementUseCase struct {
@@ -201,4 +207,103 @@ func (r *AchievementUseCase) GetUserActive(ctx context.Context, uuid string) (*A
 		return nil, v1.ErrorGetActiveFailed("get active failed: %s", err.Error())
 	}
 	return active, nil
+}
+
+func (r *AchievementUseCase) SetUserMedal(ctx context.Context, medal, uuid string) error {
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		err := r.repo.SetUserMedalToCache(ctx, medal, uuid)
+		if err != nil {
+			return v1.ErrorSetMedalFailed("set user medal to cache failed: %s", err.Error())
+		}
+		return nil
+	}))
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		err := r.repo.SendMedalToMq(ctx, medal, uuid, "set_user_medal_db_and_cache")
+		if err != nil {
+			return v1.ErrorSetMedalFailed("set user medal to mq failed: %s", err.Error())
+		}
+		return nil
+	}))
+	return g.Wait()
+}
+
+func (r *AchievementUseCase) SetUserMedalDbAndCache(ctx context.Context, medal, uuid string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		err := r.repo.SetUserMedal(ctx, medal, uuid)
+		if err != nil {
+			return v1.ErrorSetMedalFailed("set medal failed", err.Error())
+		}
+		err = r.repo.SetUserMedalToCache(ctx, medal, uuid)
+		if err != nil {
+			return v1.ErrorSetMedalFailed("set medal to cache failed", err.Error())
+		}
+		return nil
+	})
+}
+
+func (r *AchievementUseCase) CancelUserMedalSet(ctx context.Context, medal, uuid string) error {
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		err := r.repo.CancelUserMedalFromCache(ctx, medal, uuid)
+		if err != nil {
+			return v1.ErrorCancelMedalSetFailed("cancel user medal from cache failed: %s", err.Error())
+		}
+		return nil
+	}))
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		err := r.repo.SendMedalToMq(ctx, medal, uuid, "cancel_user_medal_db_and_cache")
+		if err != nil {
+			return v1.ErrorCancelMedalSetFailed("cancel user medal to mq failed: %s", err.Error())
+		}
+		return nil
+	}))
+	return g.Wait()
+}
+
+func (r *AchievementUseCase) CancelUserMedalDbAndCache(ctx context.Context, medal, uuid string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		err := r.repo.CancelUserMedal(ctx, medal, uuid)
+		if err != nil {
+			return v1.ErrorCancelMedalSetFailed("cancel user medal set failed", err.Error())
+		}
+		err = r.repo.CancelUserMedalFromCache(ctx, medal, uuid)
+		if err != nil {
+			return v1.ErrorCancelMedalSetFailed("cancel user medal set failed: %s", err.Error())
+		}
+		return nil
+	})
+}
+
+func (r *AchievementUseCase) AccessUserMedal(ctx context.Context, medal, uuid string) error {
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		err := r.repo.SetUserMedalToCache(ctx, medal, uuid)
+		if err != nil {
+			return v1.ErrorAccessMedalFailed("access user medal to cache failed: %s", err.Error())
+		}
+		return nil
+	}))
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		err := r.repo.SendMedalToMq(ctx, medal, uuid, "access_user_medal_db_and_cache")
+		if err != nil {
+			return v1.ErrorAccessMedalFailed("access user medal to mq failed: %s", err.Error())
+		}
+		return nil
+	}))
+	return g.Wait()
+}
+
+func (r *AchievementUseCase) AccessUserMedalDbAndCache(ctx context.Context, medal, uuid string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		err := r.repo.SetUserMedal(ctx, medal, uuid)
+		if err != nil {
+			return v1.ErrorCancelMedalSetFailed("cancel user medal set failed", err.Error())
+		}
+		err = r.repo.SetUserMedalToCache(ctx, medal, uuid)
+		if err != nil {
+			return v1.ErrorAccessMedalFailed("access user medal to cache failed: %s", err.Error())
+		}
+		return nil
+	})
 }
