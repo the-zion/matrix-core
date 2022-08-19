@@ -9,4 +9,5 @@ enum MessageErrorReason {
   option (errors.default_code) = 500;
 
   UNKNOWN_ERROR = 0;
+  ACCESS_USER_MEDAL_FAILED = 1;
 }
