@@ -22,3 +22,15 @@ func IsUnknownError(err error) bool {
 func ErrorUnknownError(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, MessageErrorReason_UNKNOWN_ERROR.String(), fmt.Sprintf(format, args...))
 }
+
+func IsAccessUserMedalFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == MessageErrorReason_ACCESS_USER_MEDAL_FAILED.String() && e.Code == 500
+}
+
+func ErrorAccessUserMedalFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, MessageErrorReason_ACCESS_USER_MEDAL_FAILED.String(), fmt.Sprintf(format, args...))
+}
