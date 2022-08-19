@@ -148,7 +148,10 @@ type BffClient interface {
 	GetAchievementList(ctx context.Context, in *GetAchievementListReq, opts ...grpc.CallOption) (*GetAchievementListReply, error)
 	GetUserAchievement(ctx context.Context, in *GetUserAchievementReq, opts ...grpc.CallOption) (*GetUserAchievementReply, error)
 	GetUserMedal(ctx context.Context, in *GetUserMedalReq, opts ...grpc.CallOption) (*GetUserMedalReply, error)
+	AccessUserMedal(ctx context.Context, in *AccessUserMedalReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetUserMedalProgress(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserMedalProgressReply, error)
+	SetUserMedal(ctx context.Context, in *SetUserMedalReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CancelUserMedalSet(ctx context.Context, in *CancelUserMedalSetReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetLastCommentDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLastCommentDraftReply, error)
 	GetUserCommentAgree(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserCommentAgreeReply, error)
 	GetCommentList(ctx context.Context, in *GetCommentListReq, opts ...grpc.CallOption) (*GetCommentListReply, error)
@@ -1289,9 +1292,36 @@ func (c *bffClient) GetUserMedal(ctx context.Context, in *GetUserMedalReq, opts 
 	return out, nil
 }
 
+func (c *bffClient) AccessUserMedal(ctx context.Context, in *AccessUserMedalReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/AccessUserMedal", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) GetUserMedalProgress(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserMedalProgressReply, error) {
 	out := new(GetUserMedalProgressReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserMedalProgress", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) SetUserMedal(ctx context.Context, in *SetUserMedalReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SetUserMedal", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) CancelUserMedalSet(ctx context.Context, in *CancelUserMedalSetReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/CancelUserMedalSet", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1553,7 +1583,10 @@ type BffServer interface {
 	GetAchievementList(context.Context, *GetAchievementListReq) (*GetAchievementListReply, error)
 	GetUserAchievement(context.Context, *GetUserAchievementReq) (*GetUserAchievementReply, error)
 	GetUserMedal(context.Context, *GetUserMedalReq) (*GetUserMedalReply, error)
+	AccessUserMedal(context.Context, *AccessUserMedalReq) (*emptypb.Empty, error)
 	GetUserMedalProgress(context.Context, *emptypb.Empty) (*GetUserMedalProgressReply, error)
+	SetUserMedal(context.Context, *SetUserMedalReq) (*emptypb.Empty, error)
+	CancelUserMedalSet(context.Context, *CancelUserMedalSetReq) (*emptypb.Empty, error)
 	GetLastCommentDraft(context.Context, *emptypb.Empty) (*GetLastCommentDraftReply, error)
 	GetUserCommentAgree(context.Context, *emptypb.Empty) (*GetUserCommentAgreeReply, error)
 	GetCommentList(context.Context, *GetCommentListReq) (*GetCommentListReply, error)
@@ -1947,8 +1980,17 @@ func (UnimplementedBffServer) GetUserAchievement(context.Context, *GetUserAchiev
 func (UnimplementedBffServer) GetUserMedal(context.Context, *GetUserMedalReq) (*GetUserMedalReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserMedal not implemented")
 }
+func (UnimplementedBffServer) AccessUserMedal(context.Context, *AccessUserMedalReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AccessUserMedal not implemented")
+}
 func (UnimplementedBffServer) GetUserMedalProgress(context.Context, *emptypb.Empty) (*GetUserMedalProgressReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserMedalProgress not implemented")
+}
+func (UnimplementedBffServer) SetUserMedal(context.Context, *SetUserMedalReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetUserMedal not implemented")
+}
+func (UnimplementedBffServer) CancelUserMedalSet(context.Context, *CancelUserMedalSetReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelUserMedalSet not implemented")
 }
 func (UnimplementedBffServer) GetLastCommentDraft(context.Context, *emptypb.Empty) (*GetLastCommentDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLastCommentDraft not implemented")
@@ -4237,6 +4279,24 @@ func _Bff_GetUserMedal_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_AccessUserMedal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AccessUserMedalReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).AccessUserMedal(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/AccessUserMedal",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).AccessUserMedal(ctx, req.(*AccessUserMedalReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_GetUserMedalProgress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
@@ -4251,6 +4311,42 @@ func _Bff_GetUserMedalProgress_Handler(srv interface{}, ctx context.Context, dec
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BffServer).GetUserMedalProgress(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_SetUserMedal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetUserMedalReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).SetUserMedal(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/SetUserMedal",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).SetUserMedal(ctx, req.(*SetUserMedalReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_CancelUserMedalSet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelUserMedalSetReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).CancelUserMedalSet(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/CancelUserMedalSet",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).CancelUserMedalSet(ctx, req.(*CancelUserMedalSetReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -5011,8 +5107,20 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Bff_GetUserMedal_Handler,
 		},
 		{
+			MethodName: "AccessUserMedal",
+			Handler:    _Bff_AccessUserMedal_Handler,
+		},
+		{
 			MethodName: "GetUserMedalProgress",
 			Handler:    _Bff_GetUserMedalProgress_Handler,
+		},
+		{
+			MethodName: "SetUserMedal",
+			Handler:    _Bff_SetUserMedal_Handler,
+		},
+		{
+			MethodName: "CancelUserMedalSet",
+			Handler:    _Bff_CancelUserMedalSet_Handler,
 		},
 		{
 			MethodName: "GetLastCommentDraft",

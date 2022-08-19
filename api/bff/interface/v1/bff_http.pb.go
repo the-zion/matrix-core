@@ -20,6 +20,7 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
+const OperationBffAccessUserMedal = "/bff.v1.Bff/AccessUserMedal"
 const OperationBffAddColumnIncludes = "/bff.v1.Bff/AddColumnIncludes"
 const OperationBffArticleDraftMark = "/bff.v1.Bff/ArticleDraftMark"
 const OperationBffArticleStatisticJudge = "/bff.v1.Bff/ArticleStatisticJudge"
@@ -33,6 +34,7 @@ const OperationBffCancelSubscribeColumn = "/bff.v1.Bff/CancelSubscribeColumn"
 const OperationBffCancelTalkAgree = "/bff.v1.Bff/CancelTalkAgree"
 const OperationBffCancelTalkCollect = "/bff.v1.Bff/CancelTalkCollect"
 const OperationBffCancelUserFollow = "/bff.v1.Bff/CancelUserFollow"
+const OperationBffCancelUserMedalSet = "/bff.v1.Bff/CancelUserMedalSet"
 const OperationBffChangeUserPassword = "/bff.v1.Bff/ChangeUserPassword"
 const OperationBffColumnStatisticJudge = "/bff.v1.Bff/ColumnStatisticJudge"
 const OperationBffCreateArticleDraft = "/bff.v1.Bff/CreateArticleDraft"
@@ -151,6 +153,7 @@ const OperationBffSetTalkCollect = "/bff.v1.Bff/SetTalkCollect"
 const OperationBffSetTalkView = "/bff.v1.Bff/SetTalkView"
 const OperationBffSetUserEmail = "/bff.v1.Bff/SetUserEmail"
 const OperationBffSetUserFollow = "/bff.v1.Bff/SetUserFollow"
+const OperationBffSetUserMedal = "/bff.v1.Bff/SetUserMedal"
 const OperationBffSetUserPassword = "/bff.v1.Bff/SetUserPassword"
 const OperationBffSetUserPhone = "/bff.v1.Bff/SetUserPhone"
 const OperationBffSubscribeColumn = "/bff.v1.Bff/SubscribeColumn"
@@ -161,6 +164,7 @@ const OperationBffUnbindUserPhone = "/bff.v1.Bff/UnbindUserPhone"
 const OperationBffUserRegister = "/bff.v1.Bff/UserRegister"
 
 type BffHTTPServer interface {
+	AccessUserMedal(context.Context, *AccessUserMedalReq) (*emptypb.Empty, error)
 	AddColumnIncludes(context.Context, *AddColumnIncludesReq) (*emptypb.Empty, error)
 	ArticleDraftMark(context.Context, *ArticleDraftMarkReq) (*emptypb.Empty, error)
 	ArticleStatisticJudge(context.Context, *ArticleStatisticJudgeReq) (*ArticleStatisticJudgeReply, error)
@@ -174,6 +178,7 @@ type BffHTTPServer interface {
 	CancelTalkAgree(context.Context, *CancelTalkAgreeReq) (*emptypb.Empty, error)
 	CancelTalkCollect(context.Context, *CancelTalkCollectReq) (*emptypb.Empty, error)
 	CancelUserFollow(context.Context, *CancelUserFollowReq) (*emptypb.Empty, error)
+	CancelUserMedalSet(context.Context, *CancelUserMedalSetReq) (*emptypb.Empty, error)
 	ChangeUserPassword(context.Context, *ChangeUserPasswordReq) (*emptypb.Empty, error)
 	ColumnStatisticJudge(context.Context, *ColumnStatisticJudgeReq) (*ColumnStatisticJudgeReply, error)
 	CreateArticleDraft(context.Context, *emptypb.Empty) (*CreateArticleDraftReply, error)
@@ -292,6 +297,7 @@ type BffHTTPServer interface {
 	SetTalkView(context.Context, *SetTalkViewReq) (*emptypb.Empty, error)
 	SetUserEmail(context.Context, *SetUserEmailReq) (*emptypb.Empty, error)
 	SetUserFollow(context.Context, *SetUserFollowReq) (*emptypb.Empty, error)
+	SetUserMedal(context.Context, *SetUserMedalReq) (*emptypb.Empty, error)
 	SetUserPassword(context.Context, *SetUserPasswordReq) (*emptypb.Empty, error)
 	SetUserPhone(context.Context, *SetUserPhoneReq) (*emptypb.Empty, error)
 	SubscribeColumn(context.Context, *SubscribeColumnReq) (*emptypb.Empty, error)
@@ -428,7 +434,10 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.GET("/v1/get/achievement/list", _Bff_GetAchievementList0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/achievement", _Bff_GetUserAchievement0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/medal", _Bff_GetUserMedal0_HTTP_Handler(srv))
+	r.POST("/v1/access/user/medal", _Bff_AccessUserMedal0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/medal/progress", _Bff_GetUserMedalProgress0_HTTP_Handler(srv))
+	r.GET("/v1/set/user/medal", _Bff_SetUserMedal0_HTTP_Handler(srv))
+	r.GET("/v1/cancel/user/medal/set", _Bff_CancelUserMedalSet0_HTTP_Handler(srv))
 	r.GET("/v1/get/last/comment/draft", _Bff_GetLastCommentDraft0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/comment/agree", _Bff_GetUserCommentAgree0_HTTP_Handler(srv))
 	r.GET("/v1/get/comment/list", _Bff_GetCommentList0_HTTP_Handler(srv))
@@ -2801,6 +2810,25 @@ func _Bff_GetUserMedal0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) e
 	}
 }
 
+func _Bff_AccessUserMedal0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AccessUserMedalReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffAccessUserMedal)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AccessUserMedal(ctx, req.(*AccessUserMedalReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _Bff_GetUserMedalProgress0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in emptypb.Empty
@@ -2816,6 +2844,44 @@ func _Bff_GetUserMedalProgress0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Co
 			return err
 		}
 		reply := out.(*GetUserMedalProgressReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_SetUserMedal0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SetUserMedalReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffSetUserMedal)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SetUserMedal(ctx, req.(*SetUserMedalReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_CancelUserMedalSet0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in CancelUserMedalSetReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffCancelUserMedalSet)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.CancelUserMedalSet(ctx, req.(*CancelUserMedalSetReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
 		return ctx.Result(200, reply)
 	}
 }
@@ -3087,6 +3153,7 @@ func _Bff_CancelSubCommentAgree0_HTTP_Handler(srv BffHTTPServer) func(ctx http.C
 }
 
 type BffHTTPClient interface {
+	AccessUserMedal(ctx context.Context, req *AccessUserMedalReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	AddColumnIncludes(ctx context.Context, req *AddColumnIncludesReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	ArticleDraftMark(ctx context.Context, req *ArticleDraftMarkReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	ArticleStatisticJudge(ctx context.Context, req *ArticleStatisticJudgeReq, opts ...http.CallOption) (rsp *ArticleStatisticJudgeReply, err error)
@@ -3100,6 +3167,7 @@ type BffHTTPClient interface {
 	CancelTalkAgree(ctx context.Context, req *CancelTalkAgreeReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	CancelTalkCollect(ctx context.Context, req *CancelTalkCollectReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	CancelUserFollow(ctx context.Context, req *CancelUserFollowReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	CancelUserMedalSet(ctx context.Context, req *CancelUserMedalSetReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	ChangeUserPassword(ctx context.Context, req *ChangeUserPasswordReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	ColumnStatisticJudge(ctx context.Context, req *ColumnStatisticJudgeReq, opts ...http.CallOption) (rsp *ColumnStatisticJudgeReply, err error)
 	CreateArticleDraft(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *CreateArticleDraftReply, err error)
@@ -3218,6 +3286,7 @@ type BffHTTPClient interface {
 	SetTalkView(ctx context.Context, req *SetTalkViewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SetUserEmail(ctx context.Context, req *SetUserEmailReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SetUserFollow(ctx context.Context, req *SetUserFollowReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	SetUserMedal(ctx context.Context, req *SetUserMedalReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SetUserPassword(ctx context.Context, req *SetUserPasswordReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SetUserPhone(ctx context.Context, req *SetUserPhoneReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SubscribeColumn(ctx context.Context, req *SubscribeColumnReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -3234,6 +3303,19 @@ type BffHTTPClientImpl struct {
 
 func NewBffHTTPClient(client *http.Client) BffHTTPClient {
 	return &BffHTTPClientImpl{client}
+}
+
+func (c *BffHTTPClientImpl) AccessUserMedal(ctx context.Context, in *AccessUserMedalReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/access/user/medal"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffAccessUserMedal))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
 }
 
 func (c *BffHTTPClientImpl) AddColumnIncludes(ctx context.Context, in *AddColumnIncludesReq, opts ...http.CallOption) (*emptypb.Empty, error) {
@@ -3399,6 +3481,19 @@ func (c *BffHTTPClientImpl) CancelUserFollow(ctx context.Context, in *CancelUser
 	opts = append(opts, http.Operation(OperationBffCancelUserFollow))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) CancelUserMedalSet(ctx context.Context, in *CancelUserMedalSetReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/cancel/user/medal/set"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationBffCancelUserMedalSet))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -4933,6 +5028,19 @@ func (c *BffHTTPClientImpl) SetUserFollow(ctx context.Context, in *SetUserFollow
 	opts = append(opts, http.Operation(OperationBffSetUserFollow))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) SetUserMedal(ctx context.Context, in *SetUserMedalReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/set/user/medal"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationBffSetUserMedal))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}
