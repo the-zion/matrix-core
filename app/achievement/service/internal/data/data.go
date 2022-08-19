@@ -2,6 +2,9 @@ package data
 
 import (
 	"context"
+	"github.com/apache/rocketmq-client-go/v2"
+	"github.com/apache/rocketmq-client-go/v2/primitive"
+	"github.com/apache/rocketmq-client-go/v2/producer"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-redis/redis/v8"
 	"github.com/google/wire"
@@ -14,12 +17,17 @@ import (
 	"time"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewTransaction, NewAchievementRepo, NewRecovery)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewTransaction, NewAchievementRepo, NewRecovery, NewRocketmqAchievementProducer)
+
+type AchievementMqPro struct {
+	producer rocketmq.Producer
+}
 
 type Data struct {
-	db       *gorm.DB
-	log      *log.Helper
-	redisCli redis.Cmdable
+	db               *gorm.DB
+	log              *log.Helper
+	redisCli         redis.Cmdable
+	achievementMqPro *AchievementMqPro
 }
 
 type contextTxKey struct{}
@@ -93,12 +101,40 @@ func NewRedis(conf *conf.Data, logger log.Logger) redis.Cmdable {
 	return client
 }
 
-func NewData(db *gorm.DB, redisCmd redis.Cmdable, logger log.Logger) (*Data, func(), error) {
+func NewRocketmqAchievementProducer(conf *conf.Data, logger log.Logger) *AchievementMqPro {
+	l := log.NewHelper(log.With(logger, "module", "creation/data/rocketmq-achievement-producer"))
+	p, err := rocketmq.NewProducer(
+		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.AchievementMq.ServerAddress})),
+		producer.WithCredentials(primitive.Credentials{
+			SecretKey: conf.AchievementMq.SecretKey,
+			AccessKey: conf.AchievementMq.AccessKey,
+		}),
+		producer.WithInstanceName("achievement"),
+		producer.WithGroupName(conf.AchievementMq.Achievement.GroupName),
+		producer.WithNamespace(conf.AchievementMq.NameSpace),
+	)
+
+	if err != nil {
+		l.Fatalf("init producer error: %v", err)
+	}
+
+	err = p.Start()
+	if err != nil {
+		l.Fatalf("start producer error: %v", err)
+	}
+
+	return &AchievementMqPro{
+		producer: p,
+	}
+}
+
+func NewData(db *gorm.DB, redisCmd redis.Cmdable, achievementMqPro *AchievementMqPro, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(logger, "module", "achievement/data/new-data"))
 
 	d := &Data{
-		db:       db,
-		redisCli: redisCmd,
+		db:               db,
+		redisCli:         redisCmd,
+		achievementMqPro: achievementMqPro,
 	}
 	return d, func() {
 		l.Info("closing the data resources")
