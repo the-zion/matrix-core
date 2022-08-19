@@ -16,6 +16,12 @@ service Achievement {
   rpc CancelAchievementCollect(CancelAchievementCollectReq) returns (google.protobuf.Empty){}
   rpc SetAchievementFollow(SetAchievementFollowReq) returns (google.protobuf.Empty){}
   rpc CancelAchievementFollow(CancelAchievementFollowReq) returns (google.protobuf.Empty){}
+  rpc CancelUserMedalSet(CancelUserMedalSetReq) returns (google.protobuf.Empty){}
+  rpc SetUserMedal(SetUserMedalReq) returns (google.protobuf.Empty){}
+  rpc SetUserMedalDbAndCache(SetUserMedalDbAndCacheReq) returns (google.protobuf.Empty){}
+  rpc CancelUserMedalDbAndCache(CancelUserMedalDbAndCacheReq) returns (google.protobuf.Empty){}
+  rpc AccessUserMedal(AccessUserMedalReq) returns (google.protobuf.Empty){}
+  rpc AccessUserMedalDbAndCache(AccessUserMedalReq) returns (google.protobuf.Empty){}
   rpc GetAchievementList(GetAchievementListReq) returns (GetAchievementListReply){}
   rpc GetUserAchievement(GetUserAchievementReq) returns (GetUserAchievementReply){}
   rpc GetUserMedal(GetUserMedalReq) returns (GetUserMedalReply){}
@@ -56,6 +62,49 @@ message SetAchievementFollowReq{
 message CancelAchievementFollowReq{
   string follow = 1 [(validate.rules).string.uuid = true];
   string followed = 2 [(validate.rules).string.uuid = true];
+}
+
+message SetUserMedalReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+  string medal = 2 [(validate.rules).string = {in: [
+    "creation1", "creation2", "creation3", "creation4", "creation5", "creation6", "creation7",
+    "agree1", "agree2", "agree3", "agree4", "agree5", "agree6",
+    "view1", "view2", "view3",
+    "comment1", "comment2", "comment3",
+    "collect1", "collect2", "collect3"
+  ]}];
+}
+
+message CancelUserMedalSetReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+  string medal = 2 [(validate.rules).string = {in: [
+    "creation1", "creation2", "creation3", "creation4", "creation5", "creation6", "creation7",
+    "agree1", "agree2", "agree3", "agree4", "agree5", "agree6",
+    "view1", "view2", "view3",
+    "comment1", "comment2", "comment3",
+    "collect1", "collect2", "collect3"
+  ]}];
+}
+
+message SetUserMedalDbAndCacheReq{
+  string medal = 1;
+  string uuid = 2;
+}
+
+message CancelUserMedalDbAndCacheReq{
+  string medal = 1;
+  string uuid = 2;
+}
+
+message AccessUserMedalReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+  string medal = 2 [(validate.rules).string = {in: [
+    "creation1", "creation2", "creation3", "creation4", "creation5", "creation6", "creation7",
+    "agree1", "agree2", "agree3", "agree4", "agree5", "agree6",
+    "view1", "view2", "view3",
+    "comment1", "comment2", "comment3",
+    "collect1", "collect2", "collect3"
+  ]}];
 }
 
 message GetAchievementListReq{
