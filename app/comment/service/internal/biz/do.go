@@ -21,6 +21,11 @@ type Comment struct {
 	Comment      int32
 }
 
+type CommentUser struct {
+	Uuid    string
+	Comment int32
+}
+
 type SubComment struct {
 	CommentId int32
 	RootId    int32
