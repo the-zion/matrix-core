@@ -143,6 +143,7 @@ func (s *BffService) GetUserInfo(ctx context.Context, _ *emptypb.Empty) (*v1.Get
 		Column:      userProfile.Column,
 		Talk:        userProfile.Talk,
 		Collections: userProfile.Collections,
+		Subscribe:   userProfile.Subscribe,
 	}, nil
 }
 
