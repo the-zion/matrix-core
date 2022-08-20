@@ -31,6 +31,16 @@ func (s *CommentService) GetUserCommentAgree(ctx context.Context, req *v1.GetUse
 	}, nil
 }
 
+func (s *CommentService) GetCommentUser(ctx context.Context, req *v1.GetCommentUserReq) (*v1.GetCommentUserReply, error) {
+	commentUser, err := s.cc.GetCommentUser(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetCommentUserReply{
+		Comment: commentUser.Comment,
+	}, nil
+}
+
 func (s *CommentService) GetCommentList(ctx context.Context, req *v1.GetCommentListReq) (*v1.GetCommentListReply, error) {
 	reply := &v1.GetCommentListReply{Comment: make([]*v1.GetCommentListReply_Comment, 0)}
 	commentList, err := s.cc.GetCommentList(ctx, req.Page, req.CreationId, req.CreationType)
