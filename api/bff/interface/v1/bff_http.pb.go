@@ -436,8 +436,8 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.GET("/v1/get/user/medal", _Bff_GetUserMedal0_HTTP_Handler(srv))
 	r.POST("/v1/access/user/medal", _Bff_AccessUserMedal0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/medal/progress", _Bff_GetUserMedalProgress0_HTTP_Handler(srv))
-	r.GET("/v1/set/user/medal", _Bff_SetUserMedal0_HTTP_Handler(srv))
-	r.GET("/v1/cancel/user/medal/set", _Bff_CancelUserMedalSet0_HTTP_Handler(srv))
+	r.POST("/v1/set/user/medal", _Bff_SetUserMedal0_HTTP_Handler(srv))
+	r.POST("/v1/cancel/user/medal/set", _Bff_CancelUserMedalSet0_HTTP_Handler(srv))
 	r.GET("/v1/get/last/comment/draft", _Bff_GetLastCommentDraft0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/comment/agree", _Bff_GetUserCommentAgree0_HTTP_Handler(srv))
 	r.GET("/v1/get/comment/list", _Bff_GetCommentList0_HTTP_Handler(srv))
@@ -2851,7 +2851,7 @@ func _Bff_GetUserMedalProgress0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Co
 func _Bff_SetUserMedal0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in SetUserMedalReq
-		if err := ctx.BindQuery(&in); err != nil {
+		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, OperationBffSetUserMedal)
@@ -2870,7 +2870,7 @@ func _Bff_SetUserMedal0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) e
 func _Bff_CancelUserMedalSet0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in CancelUserMedalSetReq
-		if err := ctx.BindQuery(&in); err != nil {
+		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, OperationBffCancelUserMedalSet)
@@ -3490,10 +3490,10 @@ func (c *BffHTTPClientImpl) CancelUserFollow(ctx context.Context, in *CancelUser
 func (c *BffHTTPClientImpl) CancelUserMedalSet(ctx context.Context, in *CancelUserMedalSetReq, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
 	pattern := "/v1/cancel/user/medal/set"
-	path := binding.EncodeURL(pattern, in, true)
+	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationBffCancelUserMedalSet))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -5037,10 +5037,10 @@ func (c *BffHTTPClientImpl) SetUserFollow(ctx context.Context, in *SetUserFollow
 func (c *BffHTTPClientImpl) SetUserMedal(ctx context.Context, in *SetUserMedalReq, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
 	pattern := "/v1/set/user/medal"
-	path := binding.EncodeURL(pattern, in, true)
+	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationBffSetUserMedal))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

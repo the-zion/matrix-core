@@ -1718,6 +1718,8 @@ func (m *GetUserInfoReply) validate(all bool) error {
 
 	// no validation rules for Collections
 
+	// no validation rules for Subscribe
+
 	if len(errors) > 0 {
 		return GetUserInfoReplyMultiError(errors)
 	}
