@@ -5,6 +5,7 @@ import (
 	kerrors "github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	v1 "github.com/the-zion/matrix-core/api/creation/service/v1"
+	"golang.org/x/sync/errgroup"
 )
 
 type ArticleRepo interface {
@@ -56,15 +57,18 @@ type ArticleRepo interface {
 	SendReviewToMq(ctx context.Context, review *ArticleReview) error
 	SendScoreToMq(ctx context.Context, score int32, uuid, mode string) error
 	SendArticleToMq(ctx context.Context, article *Article, mode string) error
+	SendStatisticToMq(ctx context.Context, id int32, uuid, userUuid, mode string) error
 	SendArticleStatisticToMq(ctx context.Context, uuid, mode string) error
 
 	SetArticleAgree(ctx context.Context, id int32, uuid string) error
+	SetUserArticleAgree(ctx context.Context, id int32, userUuid string) error
 	SetArticleView(ctx context.Context, id int32, uuid string) error
 	SetArticleUserCollect(ctx context.Context, id, collectionsId int32, userUuid string) error
 	SetArticleCollect(ctx context.Context, id int32, uuid string) error
 	SetArticleAgreeToCache(ctx context.Context, id int32, uuid, userUuid string) error
 	SetArticleViewToCache(ctx context.Context, id int32, uuid string) error
 	SetArticleCollectToCache(ctx context.Context, id int32, uuid, userUuid string) error
+	SetUserArticleAgreeToCache(ctx context.Context, id int32, userUuid string) error
 
 	CancelArticleAgree(ctx context.Context, id int32, uuid string) error
 	CancelArticleAgreeFromCache(ctx context.Context, id int32, uuid, userUuid string) error
@@ -413,8 +417,31 @@ func (r *ArticleUseCase) SendArticleEdit(ctx context.Context, id int32, uuid, ip
 }
 
 func (r *ArticleUseCase) SetArticleAgree(ctx context.Context, id int32, uuid, userUuid string) error {
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		err := r.repo.SetUserArticleAgreeToCache(ctx, id, userUuid)
+		if err != nil {
+			return v1.ErrorSetAgreeFailed("set article agree to cache failed: %s", err.Error())
+		}
+		return nil
+	}))
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		err := r.repo.SendStatisticToMq(ctx, id, uuid, userUuid, "set_article_agree_db_and_cache")
+		if err != nil {
+			return v1.ErrorSetAgreeFailed("set article agree to mq failed: %s", err.Error())
+		}
+		return nil
+	}))
+	return g.Wait()
+}
+
+func (r *ArticleUseCase) SetArticleAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
 	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		err := r.repo.SetArticleAgree(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorSetAgreeFailed("set article agree failed: %s", err.Error())
+		}
+		err = r.repo.SetUserArticleAgree(ctx, id, userUuid)
 		if err != nil {
 			return v1.ErrorSetAgreeFailed("set article agree failed: %s", err.Error())
 		}
@@ -431,6 +458,14 @@ func (r *ArticleUseCase) SetArticleAgree(ctx context.Context, id int32, uuid, us
 }
 
 func (r *ArticleUseCase) SetArticleView(ctx context.Context, id int32, uuid string) error {
+	err := r.repo.SendStatisticToMq(ctx, id, uuid, "", "set_article_view_db_and_cache")
+	if err != nil {
+		return v1.ErrorSetViewFailed("set article view failed: %s", err.Error())
+	}
+	return nil
+}
+
+func (r *ArticleUseCase) SetArticleViewDbAndCache(ctx context.Context, id int32, uuid string) error {
 	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		err := r.repo.SetArticleView(ctx, id, uuid)
 		if err != nil {
