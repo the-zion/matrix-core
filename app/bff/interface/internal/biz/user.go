@@ -141,6 +141,7 @@ func (r *UserUseCase) GetUserInfo(ctx context.Context) (*UserProfile, error) {
 		userProfile.Talk = creation.Talk
 		userProfile.Column = creation.Column
 		userProfile.Collections = creation.Collections
+		userProfile.Subscribe = creation.Subscribe
 		return nil
 	}))
 	err := g.Wait()
