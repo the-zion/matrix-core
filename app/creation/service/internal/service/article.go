@@ -277,6 +277,22 @@ func (s *CreationService) SetArticleView(ctx context.Context, req *v1.SetArticle
 	return &emptypb.Empty{}, nil
 }
 
+func (s *CreationService) SetArticleViewDbAndCache(ctx context.Context, req *v1.SetArticleViewDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.ac.SetArticleViewDbAndCache(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) SetArticleAgreeDbAndCache(ctx context.Context, req *v1.SetArticleAgreeDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.ac.SetArticleAgreeDbAndCache(ctx, req.Id, req.Uuid, req.UserUuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *CreationService) SetArticleCollect(ctx context.Context, req *v1.SetArticleCollectReq) (*emptypb.Empty, error) {
 	err := s.ac.SetArticleCollect(ctx, req.Id, req.CollectionsId, req.Uuid, req.UserUuid)
 	if err != nil {
