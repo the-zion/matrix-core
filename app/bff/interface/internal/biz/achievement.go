@@ -94,12 +94,12 @@ func (r *AchievementUseCase) GetUserMedalProgress(ctx context.Context) (*MedalPr
 
 func (r *AchievementUseCase) SetUserMedal(ctx context.Context, medal string) error {
 	uuid := ctx.Value("uuid").(string)
-	return r.repo.SetUserMedal(ctx, uuid, medal)
+	return r.repo.SetUserMedal(ctx, medal, uuid)
 }
 
 func (r *AchievementUseCase) CancelUserMedalSet(ctx context.Context, medal string) error {
 	uuid := ctx.Value("uuid").(string)
-	return r.repo.CancelUserMedalSet(ctx, uuid, medal)
+	return r.repo.CancelUserMedalSet(ctx, medal, uuid)
 }
 
 func (r *AchievementUseCase) AccessUserMedal(ctx context.Context, medal string) error {
