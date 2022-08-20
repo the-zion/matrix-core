@@ -28,6 +28,7 @@ func NewDB(logger log.Logger) *gorm.DB {
 		&data.CommentDraft{},
 		&data.Record{},
 		&data.CommentAgree{},
+		&data.CommentUser{},
 	); err != nil {
 		l.Fatalf("failed creat or update table resources: %v", err)
 	}
