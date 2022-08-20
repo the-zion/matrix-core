@@ -78,6 +78,10 @@ service Creation {
 
   rpc DeleteArticleCacheAndSearch(DeleteArticleCacheAndSearchReq) returns (google.protobuf.Empty){}
 
+  rpc SetArticleViewDbAndCache(SetArticleViewDbAndCacheReq)returns (google.protobuf.Empty){}
+
+  rpc SetArticleAgreeDbAndCache(SetArticleAgreeDbAndCacheReq)returns (google.protobuf.Empty){}
+
   rpc CreateArticleDraft(CreateArticleDraftReq) returns (CreateArticleDraftReply){}
 
   rpc ArticleDraftMark(ArticleDraftMarkReq) returns (google.protobuf.Empty){}
@@ -320,6 +324,7 @@ message GetCreationUserReply{
   int32 talk = 3;
   int32 collections = 4;
   int32 collect = 5;
+  int32 subscribe = 6;
 }
 
 message CreateCollectionsReq{
@@ -459,18 +464,29 @@ message EditArticleReq{
 message CreateArticleDbCacheAndSearchReq{
   int32 id = 1;
   int32 auth = 2;
-  string uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 3;
 }
 
 message EditArticleCosAndSearchReq{
   int32 id = 1;
   int32 auth = 2;
-  string uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 3;
 }
 
 message DeleteArticleCacheAndSearchReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2;
+}
+
+message SetArticleViewDbAndCacheReq{
+  int32 id = 1;
+  string uuid = 2;
+}
+
+message SetArticleAgreeDbAndCacheReq{
+  int32 id = 1;
+  string uuid = 2;
+  string userUuid = 3;
 }
 
 message CreateArticleDraftReq{
