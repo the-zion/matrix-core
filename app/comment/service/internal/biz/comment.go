@@ -11,6 +11,7 @@ import (
 type CommentRepo interface {
 	GetLastCommentDraft(ctx context.Context, uuid string) (*CommentDraft, error)
 	GetUserCommentAgree(ctx context.Context, uuid string) (map[int32]bool, error)
+	GetCommentUser(ctx context.Context, uuid string) (*CommentUser, error)
 	GetCommentList(ctx context.Context, page, creationId, creationType int32) ([]*Comment, error)
 	GetSubCommentList(ctx context.Context, page, id int32) ([]*SubComment, error)
 	GetCommentListHot(ctx context.Context, page, creationId, creationType int32) ([]*Comment, error)
@@ -88,6 +89,14 @@ func (r *CommentUseCase) GetUserCommentAgree(ctx context.Context, uuid string) (
 		return nil, v1.ErrorGetUserCommentAgreeFailed("get user comment agree failed: %s", err.Error())
 	}
 	return agreeMap, nil
+}
+
+func (r *CommentUseCase) GetCommentUser(ctx context.Context, uuid string) (*CommentUser, error) {
+	commentUser, err := r.repo.GetCommentUser(ctx, uuid)
+	if err != nil {
+		return nil, v1.ErrorGetCommentUserFailed("get comment user failed: %s", err.Error())
+	}
+	return commentUser, nil
 }
 
 func (r *CommentUseCase) GetCommentList(ctx context.Context, page, creationId, creationType int32) ([]*Comment, error) {
