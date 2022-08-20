@@ -28,6 +28,7 @@ type UserProfile struct {
 	Followed    int32
 	Article     int32
 	Column      int32
+	Subscribe   int32
 	Talk        int32
 	Collections int32
 }
@@ -290,6 +291,7 @@ type CreationUser struct {
 	Column      int32
 	Talk        int32
 	Collect     int32
+	Subscribe   int32
 	Collections int32
 }
 
