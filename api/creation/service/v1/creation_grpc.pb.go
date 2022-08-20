@@ -57,6 +57,8 @@ type CreationClient interface {
 	CreateArticleDbCacheAndSearch(ctx context.Context, in *CreateArticleDbCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	EditArticleCosAndSearch(ctx context.Context, in *EditArticleCosAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteArticleCacheAndSearch(ctx context.Context, in *DeleteArticleCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetArticleViewDbAndCache(ctx context.Context, in *SetArticleViewDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetArticleAgreeDbAndCache(ctx context.Context, in *SetArticleAgreeDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateArticleDraft(ctx context.Context, in *CreateArticleDraftReq, opts ...grpc.CallOption) (*CreateArticleDraftReply, error)
 	ArticleDraftMark(ctx context.Context, in *ArticleDraftMarkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetArticleDraftList(ctx context.Context, in *GetArticleDraftListReq, opts ...grpc.CallOption) (*GetArticleDraftListReply, error)
@@ -440,6 +442,24 @@ func (c *creationClient) EditArticleCosAndSearch(ctx context.Context, in *EditAr
 func (c *creationClient) DeleteArticleCacheAndSearch(ctx context.Context, in *DeleteArticleCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/DeleteArticleCacheAndSearch", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) SetArticleViewDbAndCache(ctx context.Context, in *SetArticleViewDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/SetArticleViewDbAndCache", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) SetArticleAgreeDbAndCache(ctx context.Context, in *SetArticleAgreeDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/SetArticleAgreeDbAndCache", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1141,6 +1161,8 @@ type CreationServer interface {
 	CreateArticleDbCacheAndSearch(context.Context, *CreateArticleDbCacheAndSearchReq) (*emptypb.Empty, error)
 	EditArticleCosAndSearch(context.Context, *EditArticleCosAndSearchReq) (*emptypb.Empty, error)
 	DeleteArticleCacheAndSearch(context.Context, *DeleteArticleCacheAndSearchReq) (*emptypb.Empty, error)
+	SetArticleViewDbAndCache(context.Context, *SetArticleViewDbAndCacheReq) (*emptypb.Empty, error)
+	SetArticleAgreeDbAndCache(context.Context, *SetArticleAgreeDbAndCacheReq) (*emptypb.Empty, error)
 	CreateArticleDraft(context.Context, *CreateArticleDraftReq) (*CreateArticleDraftReply, error)
 	ArticleDraftMark(context.Context, *ArticleDraftMarkReq) (*emptypb.Empty, error)
 	GetArticleDraftList(context.Context, *GetArticleDraftListReq) (*GetArticleDraftListReply, error)
@@ -1322,6 +1344,12 @@ func (UnimplementedCreationServer) EditArticleCosAndSearch(context.Context, *Edi
 }
 func (UnimplementedCreationServer) DeleteArticleCacheAndSearch(context.Context, *DeleteArticleCacheAndSearchReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteArticleCacheAndSearch not implemented")
+}
+func (UnimplementedCreationServer) SetArticleViewDbAndCache(context.Context, *SetArticleViewDbAndCacheReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetArticleViewDbAndCache not implemented")
+}
+func (UnimplementedCreationServer) SetArticleAgreeDbAndCache(context.Context, *SetArticleAgreeDbAndCacheReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetArticleAgreeDbAndCache not implemented")
 }
 func (UnimplementedCreationServer) CreateArticleDraft(context.Context, *CreateArticleDraftReq) (*CreateArticleDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateArticleDraft not implemented")
@@ -2163,6 +2191,42 @@ func _Creation_DeleteArticleCacheAndSearch_Handler(srv interface{}, ctx context.
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CreationServer).DeleteArticleCacheAndSearch(ctx, req.(*DeleteArticleCacheAndSearchReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_SetArticleViewDbAndCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetArticleViewDbAndCacheReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).SetArticleViewDbAndCache(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/SetArticleViewDbAndCache",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).SetArticleViewDbAndCache(ctx, req.(*SetArticleViewDbAndCacheReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_SetArticleAgreeDbAndCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetArticleAgreeDbAndCacheReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).SetArticleAgreeDbAndCache(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/SetArticleAgreeDbAndCache",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).SetArticleAgreeDbAndCache(ctx, req.(*SetArticleAgreeDbAndCacheReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -3623,6 +3687,14 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteArticleCacheAndSearch",
 			Handler:    _Creation_DeleteArticleCacheAndSearch_Handler,
+		},
+		{
+			MethodName: "SetArticleViewDbAndCache",
+			Handler:    _Creation_SetArticleViewDbAndCache_Handler,
+		},
+		{
+			MethodName: "SetArticleAgreeDbAndCache",
+			Handler:    _Creation_SetArticleAgreeDbAndCache_Handler,
 		},
 		{
 			MethodName: "CreateArticleDraft",

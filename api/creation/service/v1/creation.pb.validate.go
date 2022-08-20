@@ -2091,6 +2091,8 @@ func (m *GetCreationUserReply) validate(all bool) error {
 
 	// no validation rules for Collect
 
+	// no validation rules for Subscribe
+
 	if len(errors) > 0 {
 		return GetCreationUserReplyMultiError(errors)
 	}
@@ -4852,28 +4854,10 @@ func (m *CreateArticleDbCacheAndSearchReq) validate(all bool) error {
 
 	// no validation rules for Auth
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = CreateArticleDbCacheAndSearchReqValidationError{
-			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
+	// no validation rules for Uuid
 
 	if len(errors) > 0 {
 		return CreateArticleDbCacheAndSearchReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *CreateArticleDbCacheAndSearchReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -4980,28 +4964,10 @@ func (m *EditArticleCosAndSearchReq) validate(all bool) error {
 
 	// no validation rules for Auth
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = EditArticleCosAndSearchReqValidationError{
-			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
+	// no validation rules for Uuid
 
 	if len(errors) > 0 {
 		return EditArticleCosAndSearchReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *EditArticleCosAndSearchReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -5104,28 +5070,10 @@ func (m *DeleteArticleCacheAndSearchReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = DeleteArticleCacheAndSearchReqValidationError{
-			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
+	// no validation rules for Uuid
 
 	if len(errors) > 0 {
 		return DeleteArticleCacheAndSearchReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *DeleteArticleCacheAndSearchReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -5204,6 +5152,222 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = DeleteArticleCacheAndSearchReqValidationError{}
+
+// Validate checks the field values on SetArticleViewDbAndCacheReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SetArticleViewDbAndCacheReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SetArticleViewDbAndCacheReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SetArticleViewDbAndCacheReqMultiError, or nil if none found.
+func (m *SetArticleViewDbAndCacheReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SetArticleViewDbAndCacheReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Uuid
+
+	if len(errors) > 0 {
+		return SetArticleViewDbAndCacheReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// SetArticleViewDbAndCacheReqMultiError is an error wrapping multiple
+// validation errors returned by SetArticleViewDbAndCacheReq.ValidateAll() if
+// the designated constraints aren't met.
+type SetArticleViewDbAndCacheReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SetArticleViewDbAndCacheReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SetArticleViewDbAndCacheReqMultiError) AllErrors() []error { return m }
+
+// SetArticleViewDbAndCacheReqValidationError is the validation error returned
+// by SetArticleViewDbAndCacheReq.Validate if the designated constraints
+// aren't met.
+type SetArticleViewDbAndCacheReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SetArticleViewDbAndCacheReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SetArticleViewDbAndCacheReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SetArticleViewDbAndCacheReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SetArticleViewDbAndCacheReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SetArticleViewDbAndCacheReqValidationError) ErrorName() string {
+	return "SetArticleViewDbAndCacheReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SetArticleViewDbAndCacheReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSetArticleViewDbAndCacheReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SetArticleViewDbAndCacheReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SetArticleViewDbAndCacheReqValidationError{}
+
+// Validate checks the field values on SetArticleAgreeDbAndCacheReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SetArticleAgreeDbAndCacheReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SetArticleAgreeDbAndCacheReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SetArticleAgreeDbAndCacheReqMultiError, or nil if none found.
+func (m *SetArticleAgreeDbAndCacheReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SetArticleAgreeDbAndCacheReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Uuid
+
+	// no validation rules for UserUuid
+
+	if len(errors) > 0 {
+		return SetArticleAgreeDbAndCacheReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// SetArticleAgreeDbAndCacheReqMultiError is an error wrapping multiple
+// validation errors returned by SetArticleAgreeDbAndCacheReq.ValidateAll() if
+// the designated constraints aren't met.
+type SetArticleAgreeDbAndCacheReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SetArticleAgreeDbAndCacheReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SetArticleAgreeDbAndCacheReqMultiError) AllErrors() []error { return m }
+
+// SetArticleAgreeDbAndCacheReqValidationError is the validation error returned
+// by SetArticleAgreeDbAndCacheReq.Validate if the designated constraints
+// aren't met.
+type SetArticleAgreeDbAndCacheReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SetArticleAgreeDbAndCacheReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SetArticleAgreeDbAndCacheReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SetArticleAgreeDbAndCacheReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SetArticleAgreeDbAndCacheReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SetArticleAgreeDbAndCacheReqValidationError) ErrorName() string {
+	return "SetArticleAgreeDbAndCacheReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SetArticleAgreeDbAndCacheReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSetArticleAgreeDbAndCacheReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SetArticleAgreeDbAndCacheReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SetArticleAgreeDbAndCacheReqValidationError{}
 
 // Validate checks the field values on CreateArticleDraftReq with the rules
 // defined in the proto definition for this message. If any rules are
