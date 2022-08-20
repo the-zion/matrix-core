@@ -27,26 +27,54 @@ func NewCommentRepo(data *Data, logger log.Logger) biz.CommentRepo {
 }
 
 func (r *commentRepo) GetLastCommentDraft(ctx context.Context, uuid string) (*biz.CommentDraft, error) {
-	reply, err := r.data.commc.GetLastCommentDraft(ctx, &commentV1.GetLastCommentDraftReq{
-		Uuid: uuid,
+	result, err, _ := r.sg.Do(fmt.Sprintf("last_comment_draft_"+uuid), func() (interface{}, error) {
+		reply, err := r.data.commc.GetLastCommentDraft(ctx, &commentV1.GetLastCommentDraftReq{
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return &biz.CommentDraft{
+			Id:     reply.Id,
+			Status: reply.Status,
+		}, nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	return &biz.CommentDraft{
-		Id:     reply.Id,
-		Status: reply.Status,
-	}, nil
+	return result.(*biz.CommentDraft), nil
 }
 
 func (r *commentRepo) GetUserCommentAgree(ctx context.Context, uuid string) (map[int32]bool, error) {
-	reply, err := r.data.commc.GetUserCommentAgree(ctx, &commentV1.GetUserCommentAgreeReq{
-		Uuid: uuid,
+	result, err, _ := r.sg.Do(fmt.Sprintf("user_comment_agree_"+uuid), func() (interface{}, error) {
+		reply, err := r.data.commc.GetUserCommentAgree(ctx, &commentV1.GetUserCommentAgreeReq{
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return reply.Agree, nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	return reply.Agree, nil
+	return result.(map[int32]bool), nil
+}
+
+func (r *commentRepo) GetCommentUser(ctx context.Context, uuid string) (int32, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_comment_user_"+uuid), func() (interface{}, error) {
+		reply, err := r.data.commc.GetCommentUser(ctx, &commentV1.GetCommentUserReq{
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return reply.Comment, nil
+	})
+	if err != nil {
+		return 0, err
+	}
+	return result.(int32), nil
 }
 
 func (r *commentRepo) GetCommentList(ctx context.Context, page, creationId, creationType int32) ([]*biz.Comment, error) {
