@@ -169,4 +169,6 @@ type CreationUser struct {
 	Column      int32
 	Talk        int32
 	Collections int32
+	Collect     int32
+	Subscribe   int32
 }
