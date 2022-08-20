@@ -113,40 +113,52 @@ func (r *userRepo) GetCosSessionKey(ctx context.Context, uuid string) (*biz.Cred
 }
 
 func (r *userRepo) GetAccount(ctx context.Context, uuid string) (*biz.UserAccount, error) {
-	account, err := r.data.uc.GetAccount(ctx, &userV1.GetAccountReq{
-		Uuid: uuid,
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_account_%s", uuid), func() (interface{}, error) {
+		account, err := r.data.uc.GetAccount(ctx, &userV1.GetAccountReq{
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return &biz.UserAccount{
+			Phone:    account.Phone,
+			Email:    account.Email,
+			Qq:       account.Qq,
+			Wechat:   account.Wechat,
+			Weibo:    account.Weibo,
+			Github:   account.Github,
+			Password: account.Password,
+		}, nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	return &biz.UserAccount{
-		Phone:    account.Phone,
-		Email:    account.Email,
-		Qq:       account.Qq,
-		Wechat:   account.Wechat,
-		Weibo:    account.Weibo,
-		Github:   account.Github,
-		Password: account.Password,
-	}, nil
+	return result.(*biz.UserAccount), nil
 }
 
 func (r *userRepo) GetProfile(ctx context.Context, uuid string) (*biz.UserProfile, error) {
-	reply, err := r.data.uc.GetProfile(ctx, &userV1.GetProfileReq{
-		Uuid: uuid,
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_profile_%s", uuid), func() (interface{}, error) {
+		reply, err := r.data.uc.GetProfile(ctx, &userV1.GetProfileReq{
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return &biz.UserProfile{
+			Uuid:      reply.Uuid,
+			Username:  reply.Username,
+			Avatar:    reply.Avatar,
+			School:    reply.School,
+			Company:   reply.Company,
+			Job:       reply.Job,
+			Homepage:  reply.Homepage,
+			Introduce: reply.Introduce,
+		}, nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	return &biz.UserProfile{
-		Uuid:      reply.Uuid,
-		Username:  reply.Username,
-		Avatar:    reply.Avatar,
-		School:    reply.School,
-		Company:   reply.Company,
-		Job:       reply.Job,
-		Homepage:  reply.Homepage,
-		Introduce: reply.Introduce,
-	}, nil
+	return result.(*biz.UserProfile), nil
 }
 
 func (r *userRepo) GetProfileList(ctx context.Context, uuids []string) ([]*biz.UserProfile, error) {
@@ -195,43 +207,61 @@ func (r *userRepo) GetUserInfo(ctx context.Context, uuid string) (*biz.UserProfi
 }
 
 func (r *userRepo) GetProfileUpdate(ctx context.Context, uuid string) (*biz.UserProfileUpdate, error) {
-	pu := &biz.UserProfileUpdate{}
-	reply, err := r.data.uc.GetProfileUpdate(ctx, &userV1.GetProfileUpdateReq{
-		Uuid: uuid,
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_profile_update_%s", uuid), func() (interface{}, error) {
+		pu := &biz.UserProfileUpdate{}
+		reply, err := r.data.uc.GetProfileUpdate(ctx, &userV1.GetProfileUpdateReq{
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		pu.Username = reply.Username
+		pu.Avatar = reply.Avatar
+		pu.School = reply.School
+		pu.Company = reply.Company
+		pu.Job = reply.Job
+		pu.Homepage = reply.Homepage
+		pu.Introduce = reply.Introduce
+		pu.Status = reply.Status
+		return pu, nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	pu.Username = reply.Username
-	pu.Avatar = reply.Avatar
-	pu.School = reply.School
-	pu.Company = reply.Company
-	pu.Job = reply.Job
-	pu.Homepage = reply.Homepage
-	pu.Introduce = reply.Introduce
-	pu.Status = reply.Status
-	return pu, nil
+	return result.(*biz.UserProfileUpdate), nil
 }
 
 func (r *userRepo) GetUserFollow(ctx context.Context, uuid, userUuid string) (bool, error) {
-	reply, err := r.data.uc.GetUserFollow(ctx, &userV1.GetUserFollowReq{
-		Uuid:     uuid,
-		UserUuid: userUuid,
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_user_follow_%s_%s", uuid, userUuid), func() (interface{}, error) {
+		reply, err := r.data.uc.GetUserFollow(ctx, &userV1.GetUserFollowReq{
+			Uuid:     uuid,
+			UserUuid: userUuid,
+		})
+		if err != nil {
+			return false, err
+		}
+		return reply.Follow, nil
 	})
 	if err != nil {
 		return false, err
 	}
-	return reply.Follow, nil
+	return result.(bool), nil
 }
 
 func (r *userRepo) GetUserFollows(ctx context.Context, uuid string) (map[string]bool, error) {
-	followsMap, err := r.data.uc.GetUserFollows(ctx, &userV1.GetUserFollowsReq{
-		Uuid: uuid,
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_user_follows_%s", uuid), func() (interface{}, error) {
+		followsMap, err := r.data.uc.GetUserFollows(ctx, &userV1.GetUserFollowsReq{
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return followsMap.Follows, nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	return followsMap.Follows, nil
+	return result.(map[string]bool), nil
 }
 
 func (r *userRepo) GetFollowList(ctx context.Context, page int32, uuid string) ([]*biz.Follow, error) {
