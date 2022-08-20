@@ -852,13 +852,15 @@ service Bff{
 
   rpc SetUserMedal(SetUserMedalReq) returns (google.protobuf.Empty){
     option (google.api.http) = {
-      get: "/v1/set/user/medal"
+      post: "/v1/set/user/medal"
+      body: "*"
     };
   }
 
   rpc CancelUserMedalSet(CancelUserMedalSetReq) returns (google.protobuf.Empty){
     option (google.api.http) = {
-      get: "/v1/cancel/user/medal/set"
+      post: "/v1/cancel/user/medal/set"
+      body: "*"
     };
   }
 
@@ -1071,6 +1073,7 @@ message GetUserInfoReply{
   int32 column = 16;
   int32 talk = 17;
   int32 collections = 18;
+  int32 subscribe = 19;
 }
 
 message GetUserFollowReq{
