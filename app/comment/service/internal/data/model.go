@@ -42,6 +42,13 @@ type SubComment struct {
 	Agree     int32          `gorm:"type:int unsigned;default:0"`
 }
 
+type CommentUser struct {
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Uuid      string `gorm:"primarykey;size:36"`
+	Comment   int32  `gorm:"type:int unsigned;default:0"`
+}
+
 type Record struct {
 	gorm.Model
 	Uuid     string `gorm:"size:36"`
