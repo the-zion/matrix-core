@@ -274,22 +274,28 @@ func (r *creationRepo) GetCollectionListInfo(ctx context.Context, collectionsLis
 }
 
 func (r *creationRepo) GetCollections(ctx context.Context, uuid string, page int32) ([]*biz.Collections, error) {
-	collections := make([]*biz.Collections, 0)
-	reply, err := r.data.cc.GetCollections(ctx, &creationV1.GetCollectionsReq{
-		Uuid: uuid,
-		Page: page,
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_collections_%s_%v", uuid, page), func() (interface{}, error) {
+		collections := make([]*biz.Collections, 0)
+		reply, err := r.data.cc.GetCollections(ctx, &creationV1.GetCollectionsReq{
+			Uuid: uuid,
+			Page: page,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range reply.Collections {
+			collections = append(collections, &biz.Collections{
+				Id:        item.Id,
+				Name:      item.Name,
+				Introduce: item.Introduce,
+			})
+		}
+		return collections, nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	for _, item := range reply.Collections {
-		collections = append(collections, &biz.Collections{
-			Id:        item.Id,
-			Name:      item.Name,
-			Introduce: item.Introduce,
-		})
-	}
-	return collections, nil
+	return result.([]*biz.Collections), nil
 }
 
 func (r *creationRepo) GetCollectionsByVisitor(ctx context.Context, uuid string, page int32) ([]*biz.Collections, error) {
@@ -356,6 +362,8 @@ func (r *creationRepo) GetCreationUser(ctx context.Context, uuid string) (*biz.C
 		creation.Talk = reply.Talk
 		creation.Collections = reply.Collections
 		creation.Column = reply.Column
+		creation.Collect = reply.Collect
+		creation.Subscribe = reply.Subscribe
 		return creation, nil
 	})
 	if err != nil {
@@ -424,16 +432,22 @@ func (r *creationRepo) DeleteCollections(ctx context.Context, id int32, uuid str
 }
 
 func (r *articleRepo) GetLastArticleDraft(ctx context.Context, uuid string) (*biz.ArticleDraft, error) {
-	reply, err := r.data.cc.GetLastArticleDraft(ctx, &creationV1.GetLastArticleDraftReq{
-		Uuid: uuid,
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_last_article_draft_%s", uuid), func() (interface{}, error) {
+		reply, err := r.data.cc.GetLastArticleDraft(ctx, &creationV1.GetLastArticleDraftReq{
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return &biz.ArticleDraft{
+			Id:     reply.Id,
+			Status: reply.Status,
+		}, nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	return &biz.ArticleDraft{
-		Id:     reply.Id,
-		Status: reply.Status,
-	}, nil
+	return result.(*biz.ArticleDraft), nil
 }
 
 func (r *articleRepo) GetArticleList(ctx context.Context, page int32) ([]*biz.Article, error) {
@@ -532,21 +546,27 @@ func (r *articleRepo) GetArticleCountVisitor(ctx context.Context, uuid string) (
 }
 
 func (r *articleRepo) GetUserArticleList(ctx context.Context, page int32, uuid string) ([]*biz.Article, error) {
-	reply := make([]*biz.Article, 0)
-	articleList, err := r.data.cc.GetUserArticleList(ctx, &creationV1.GetUserArticleListReq{
-		Page: page,
-		Uuid: uuid,
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_user_article_list_%s_%v", uuid, page), func() (interface{}, error) {
+		reply := make([]*biz.Article, 0)
+		articleList, err := r.data.cc.GetUserArticleList(ctx, &creationV1.GetUserArticleListReq{
+			Page: page,
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range articleList.Article {
+			reply = append(reply, &biz.Article{
+				Id:   item.Id,
+				Uuid: item.Uuid,
+			})
+		}
+		return reply, nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	for _, item := range articleList.Article {
-		reply = append(reply, &biz.Article{
-			Id:   item.Id,
-			Uuid: item.Uuid,
-		})
-	}
-	return reply, nil
+	return result.([]*biz.Article), nil
 }
 
 func (r *articleRepo) GetUserArticleListVisitor(ctx context.Context, page int32, uuid string) ([]*biz.Article, error) {
@@ -620,19 +640,25 @@ func (r *articleRepo) GetArticleListStatistic(ctx context.Context, articleList [
 }
 
 func (r *articleRepo) GetArticleDraftList(ctx context.Context, uuid string) ([]*biz.ArticleDraft, error) {
-	reply := make([]*biz.ArticleDraft, 0)
-	draftList, err := r.data.cc.GetArticleDraftList(ctx, &creationV1.GetArticleDraftListReq{
-		Uuid: uuid,
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_article_draft_list_%s", uuid), func() (interface{}, error) {
+		reply := make([]*biz.ArticleDraft, 0)
+		draftList, err := r.data.cc.GetArticleDraftList(ctx, &creationV1.GetArticleDraftListReq{
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range draftList.Draft {
+			reply = append(reply, &biz.ArticleDraft{
+				Id: item.Id,
+			})
+		}
+		return reply, nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	for _, item := range draftList.Draft {
-		reply = append(reply, &biz.ArticleDraft{
-			Id: item.Id,
-		})
-	}
-	return reply, nil
+	return result.([]*biz.ArticleDraft), nil
 }
 
 func (r *articleRepo) GetArticleSearch(ctx context.Context, page int32, search, time string) ([]*biz.ArticleSearch, int32, error) {
@@ -776,17 +802,23 @@ func (r *articleRepo) CancelArticleCollect(ctx context.Context, id int32, uuid, 
 }
 
 func (r *articleRepo) ArticleStatisticJudge(ctx context.Context, id int32, uuid string) (*biz.ArticleStatisticJudge, error) {
-	reply, err := r.data.cc.ArticleStatisticJudge(ctx, &creationV1.ArticleStatisticJudgeReq{
-		Id:   id,
-		Uuid: uuid,
+	result, err, _ := r.sg.Do(fmt.Sprintf("article_statistic_judge_%s_%v", uuid, id), func() (interface{}, error) {
+		reply, err := r.data.cc.ArticleStatisticJudge(ctx, &creationV1.ArticleStatisticJudgeReq{
+			Id:   id,
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return &biz.ArticleStatisticJudge{
+			Agree:   reply.Agree,
+			Collect: reply.Collect,
+		}, nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	return &biz.ArticleStatisticJudge{
-		Agree:   reply.Agree,
-		Collect: reply.Collect,
-	}, nil
+	return result.(*biz.ArticleStatisticJudge), nil
 }
 
 func (r *talkRepo) GetTalkList(ctx context.Context, page int32) ([]*biz.Talk, error) {
@@ -836,21 +868,27 @@ func (r *talkRepo) GetTalkListHot(ctx context.Context, page int32) ([]*biz.Talk,
 }
 
 func (r *talkRepo) GetUserTalkList(ctx context.Context, page int32, uuid string) ([]*biz.Talk, error) {
-	reply := make([]*biz.Talk, 0)
-	talkList, err := r.data.cc.GetUserTalkList(ctx, &creationV1.GetUserTalkListReq{
-		Page: page,
-		Uuid: uuid,
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_user_talk_list_%s_%v", uuid, page), func() (interface{}, error) {
+		reply := make([]*biz.Talk, 0)
+		talkList, err := r.data.cc.GetUserTalkList(ctx, &creationV1.GetUserTalkListReq{
+			Page: page,
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range talkList.Talk {
+			reply = append(reply, &biz.Talk{
+				Id:   item.Id,
+				Uuid: item.Uuid,
+			})
+		}
+		return reply, nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	for _, item := range talkList.Talk {
-		reply = append(reply, &biz.Talk{
-			Id:   item.Id,
-			Uuid: item.Uuid,
-		})
-	}
-	return reply, nil
+	return result.([]*biz.Talk), nil
 }
 
 func (r *talkRepo) GetUserTalkListVisitor(ctx context.Context, page int32, uuid string) ([]*biz.Talk, error) {
@@ -950,16 +988,22 @@ func (r *talkRepo) GetTalkStatistic(ctx context.Context, id int32) (*biz.TalkSta
 }
 
 func (r *talkRepo) GetLastTalkDraft(ctx context.Context, uuid string) (*biz.TalkDraft, error) {
-	reply, err := r.data.cc.GetLastTalkDraft(ctx, &creationV1.GetLastTalkDraftReq{
-		Uuid: uuid,
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_last_talk_draft_%s", uuid), func() (interface{}, error) {
+		reply, err := r.data.cc.GetLastTalkDraft(ctx, &creationV1.GetLastTalkDraftReq{
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return &biz.TalkDraft{
+			Id:     reply.Id,
+			Status: reply.Status,
+		}, nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	return &biz.TalkDraft{
-		Id:     reply.Id,
-		Status: reply.Status,
-	}, nil
+	return result.(*biz.TalkDraft), nil
 }
 
 func (r *talkRepo) GetTalkSearch(ctx context.Context, page int32, search, time string) ([]*biz.TalkSearch, int32, error) {
@@ -1092,30 +1136,42 @@ func (r *talkRepo) SetTalkCollect(ctx context.Context, id, collectionsId int32, 
 }
 
 func (r *talkRepo) TalkStatisticJudge(ctx context.Context, id int32, uuid string) (*biz.TalkStatisticJudge, error) {
-	reply, err := r.data.cc.TalkStatisticJudge(ctx, &creationV1.TalkStatisticJudgeReq{
-		Id:   id,
-		Uuid: uuid,
+	result, err, _ := r.sg.Do(fmt.Sprintf("talk_statistic_judge_%s_%v", uuid, id), func() (interface{}, error) {
+		reply, err := r.data.cc.TalkStatisticJudge(ctx, &creationV1.TalkStatisticJudgeReq{
+			Id:   id,
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return &biz.TalkStatisticJudge{
+			Agree:   reply.Agree,
+			Collect: reply.Collect,
+		}, nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	return &biz.TalkStatisticJudge{
-		Agree:   reply.Agree,
-		Collect: reply.Collect,
-	}, nil
+	return result.(*biz.TalkStatisticJudge), nil
 }
 
 func (r *columnRepo) GetLastColumnDraft(ctx context.Context, uuid string) (*biz.ColumnDraft, error) {
-	reply, err := r.data.cc.GetLastColumnDraft(ctx, &creationV1.GetLastColumnDraftReq{
-		Uuid: uuid,
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_last_column_draft_%s", uuid), func() (interface{}, error) {
+		reply, err := r.data.cc.GetLastColumnDraft(ctx, &creationV1.GetLastColumnDraftReq{
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return &biz.ColumnDraft{
+			Id:     reply.Id,
+			Status: reply.Status,
+		}, nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	return &biz.ColumnDraft{
-		Id:     reply.Id,
-		Status: reply.Status,
-	}, nil
+	return result.(*biz.ColumnDraft), nil
 }
 
 func (r *columnRepo) CreateColumnDraft(ctx context.Context, uuid string) (int32, error) {
@@ -1209,21 +1265,27 @@ func (r *columnRepo) GetColumnListHot(ctx context.Context, page int32) ([]*biz.C
 }
 
 func (r *columnRepo) GetUserColumnList(ctx context.Context, page int32, uuid string) ([]*biz.Column, error) {
-	reply := make([]*biz.Column, 0)
-	columnList, err := r.data.cc.GetUserColumnList(ctx, &creationV1.GetUserColumnListReq{
-		Page: page,
-		Uuid: uuid,
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_user_column_list_%s_%v", uuid, page), func() (interface{}, error) {
+		reply := make([]*biz.Column, 0)
+		columnList, err := r.data.cc.GetUserColumnList(ctx, &creationV1.GetUserColumnListReq{
+			Page: page,
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range columnList.Column {
+			reply = append(reply, &biz.Column{
+				Id:   item.Id,
+				Uuid: item.Uuid,
+			})
+		}
+		return reply, nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	for _, item := range columnList.Column {
-		reply = append(reply, &biz.Column{
-			Id:   item.Id,
-			Uuid: item.Uuid,
-		})
-	}
-	return reply, nil
+	return result.([]*biz.Column), nil
 }
 
 func (r *columnRepo) GetUserColumnListVisitor(ctx context.Context, page int32, uuid string) ([]*biz.Column, error) {
@@ -1321,21 +1383,27 @@ func (r *columnRepo) GetColumnStatistic(ctx context.Context, id int32) (*biz.Col
 }
 
 func (r *columnRepo) GetSubscribeList(ctx context.Context, page int32, uuid string) ([]*biz.Subscribe, error) {
-	reply := make([]*biz.Subscribe, 0)
-	subscribeList, err := r.data.cc.GetSubscribeList(ctx, &creationV1.GetSubscribeListReq{
-		Page: page,
-		Uuid: uuid,
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_subscribe_list_%s_%v", uuid, page), func() (interface{}, error) {
+		reply := make([]*biz.Subscribe, 0)
+		subscribeList, err := r.data.cc.GetSubscribeList(ctx, &creationV1.GetSubscribeListReq{
+			Page: page,
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range subscribeList.Subscribe {
+			reply = append(reply, &biz.Subscribe{
+				ColumnId: item.Id,
+				AuthorId: item.Uuid,
+			})
+		}
+		return reply, nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	for _, item := range subscribeList.Subscribe {
-		reply = append(reply, &biz.Subscribe{
-			ColumnId: item.Id,
-			AuthorId: item.Uuid,
-		})
-	}
-	return reply, nil
+	return result.([]*biz.Subscribe), nil
 }
 
 func (r *columnRepo) GetSubscribeListCount(ctx context.Context, uuid string) (int32, error) {
