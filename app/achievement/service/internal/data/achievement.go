@@ -783,7 +783,7 @@ func (r *achievementRepo) SetUserMedal(ctx context.Context, medal, uuid string) 
 
 	err := r.data.DB(ctx).Model(&Medal{}).Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "uuid"}},
-		DoUpdates: clause.Assignments(map[string]interface{}{medal: gorm.Expr(medal+" = ?", 1)}),
+		DoUpdates: clause.Assignments(map[string]interface{}{medal: 1}),
 	}).Create(m).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set user medal: c(%v)", uuid))
