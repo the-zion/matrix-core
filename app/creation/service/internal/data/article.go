@@ -328,7 +328,8 @@ func (r *articleRepo) getUserArticleListVisitorFromDB(ctx context.Context, page 
 }
 
 func (r *articleRepo) setUserArticleListToCache(key string, article []*biz.Article) {
-	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		z := make([]*redis.Z, 0)
 		for _, item := range article {
 			z = append(z, &redis.Z{
@@ -336,8 +337,8 @@ func (r *articleRepo) setUserArticleListToCache(key string, article []*biz.Artic
 				Member: strconv.Itoa(int(item.ArticleId)) + "%" + item.Uuid,
 			})
 		}
-		pipe.ZAddNX(context.Background(), key, z...)
-		pipe.Expire(context.Background(), key, time.Hour*8)
+		pipe.ZAddNX(ctx, key, z...)
+		pipe.Expire(ctx, key, time.Hour*8)
 		return nil
 	})
 	if err != nil {
@@ -521,15 +522,16 @@ func (r *articleRepo) getArticleListStatisticFromDb(ctx context.Context, unExist
 }
 
 func (r *articleRepo) setArticleListStatisticToCache(commentList []*ArticleStatistic) {
-	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		for _, item := range commentList {
 			key := "article_" + strconv.Itoa(int(item.ArticleId))
-			pipe.HSetNX(context.Background(), key, "uuid", item.Uuid)
-			pipe.HSetNX(context.Background(), key, "agree", item.Agree)
-			pipe.HSetNX(context.Background(), key, "comment", item.Comment)
-			pipe.HSetNX(context.Background(), key, "collect", item.Collect)
-			pipe.HSetNX(context.Background(), key, "view", item.View)
-			pipe.Expire(context.Background(), key, time.Hour*8)
+			pipe.HSetNX(ctx, key, "uuid", item.Uuid)
+			pipe.HSetNX(ctx, key, "agree", item.Agree)
+			pipe.HSetNX(ctx, key, "comment", item.Comment)
+			pipe.HSetNX(ctx, key, "collect", item.Collect)
+			pipe.HSetNX(ctx, key, "view", item.View)
+			pipe.Expire(ctx, key, time.Hour*8)
 		}
 		return nil
 	})
@@ -783,8 +785,8 @@ func (r *articleRepo) CreateArticleCache(ctx context.Context, id, auth int32, uu
 		pipe.Exists(ctx, "leaderboard")
 		pipe.Exists(ctx, "user_article_list_"+uuid)
 		pipe.Exists(ctx, "user_article_list_visitor_"+uuid)
-		pipe.Exists(ctx, "user_creation_info_"+uuid)
-		pipe.Exists(ctx, "user_creation_info_visitor_"+uuid)
+		pipe.Exists(ctx, "creation_user_"+uuid)
+		pipe.Exists(ctx, "creation_user_visitor_"+uuid)
 		return nil
 	})
 	if err != nil {
@@ -812,7 +814,7 @@ func (r *articleRepo) CreateArticleCache(ctx context.Context, id, auth int32, uu
 		}
 
 		if exists[5] == 1 {
-			pipe.HIncrBy(ctx, "user_creation_info_"+uuid, "article", 1)
+			pipe.HIncrBy(ctx, "creation_user_"+uuid, "article", 1)
 		}
 
 		if auth == 2 {
@@ -848,7 +850,7 @@ func (r *articleRepo) CreateArticleCache(ctx context.Context, id, auth int32, uu
 		}
 
 		if exists[6] == 1 {
-			pipe.HIncrBy(ctx, "user_creation_info_visitor_"+uuid, "article", 1)
+			pipe.HIncrBy(ctx, "creation_user_visitor_"+uuid, "article", 1)
 		}
 
 		return nil
@@ -912,7 +914,7 @@ func (r *articleRepo) DeleteArticleCache(ctx context.Context, id, auth int32, uu
 
 					return 0
 	`)
-	keys := []string{"article", "article_hot", "leaderboard", "article_" + ids, "article_collect_" + ids, "user_article_list_" + uuid, "user_article_list_visitor_" + uuid, "user_creation_info_" + uuid, "user_creation_info_visitor_" + uuid}
+	keys := []string{"article", "article_hot", "leaderboard", "article_" + ids, "article_collect_" + ids, "user_article_list_" + uuid, "user_article_list_visitor_" + uuid, "creation_user_" + uuid, "creation_user_visitor_" + uuid}
 	values := []interface{}{ids + "%" + uuid, ids + "%" + uuid + "%article", auth}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
@@ -1269,6 +1271,29 @@ func (r *articleRepo) SendArticleToMq(ctx context.Context, article *biz.Article,
 	return nil
 }
 
+func (r *articleRepo) SendStatisticToMq(ctx context.Context, id int32, uuid, userUuid, mode string) error {
+	statisticMap := map[string]interface{}{}
+	statisticMap["id"] = id
+	statisticMap["uuid"] = uuid
+	statisticMap["userUuid"] = userUuid
+	statisticMap["mode"] = mode
+
+	data, err := json.Marshal(statisticMap)
+	if err != nil {
+		return err
+	}
+	msg := &primitive.Message{
+		Topic: "article",
+		Body:  data,
+	}
+	msg.WithKeys([]string{uuid})
+	_, err = r.data.articleMqPro.producer.SendSync(ctx, msg)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to send article statistic to mq: map(%v)", statisticMap))
+	}
+	return nil
+}
+
 func (r *articleRepo) SetArticleAgree(ctx context.Context, id int32, uuid string) error {
 	as := ArticleStatistic{}
 	err := r.data.DB(ctx).Model(&as).Where("article_id = ? and uuid = ?", id, uuid).Update("agree", gorm.Expr("agree + ?", 1)).Error
@@ -1278,17 +1303,60 @@ func (r *articleRepo) SetArticleAgree(ctx context.Context, id int32, uuid string
 	return nil
 }
 
+func (r *articleRepo) SetUserArticleAgree(ctx context.Context, id int32, userUuid string) error {
+	aa := &ArticleAgree{
+		ArticleId: id,
+		Uuid:      userUuid,
+		Status:    1,
+	}
+	err := r.data.DB(ctx).Clauses(clause.OnConflict{
+		DoUpdates: clause.Assignments(map[string]interface{}{"status": 1}),
+	}).Create(aa).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add user article agree: id(%v), userUuid(%s)", id, userUuid))
+	}
+	return nil
+}
+
 func (r *articleRepo) SetArticleAgreeToCache(ctx context.Context, id int32, uuid, userUuid string) error {
-	ids := strconv.Itoa(int(id))
-	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.HIncrBy(ctx, "article_"+ids, "agree", 1)
-		pipe.ZIncrBy(ctx, "article_hot", 1, ids+"%"+uuid)
-		pipe.ZIncrBy(ctx, "leaderboard", 1, ids+"%"+uuid+"%article")
-		pipe.SAdd(ctx, "article_agree_"+ids, userUuid)
+	hotKey := fmt.Sprintf("article_hot")
+	statisticKey := fmt.Sprintf("article_%v", id)
+	boardKey := fmt.Sprintf("leaderboard")
+	userKey := fmt.Sprintf("user_article_agree_%s", userUuid)
+	exists := make([]int64, 0)
+	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.Exists(ctx, hotKey)
+		pipe.Exists(ctx, statisticKey)
+		pipe.Exists(ctx, boardKey)
+		pipe.Exists(ctx, userKey)
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to add article agree to cache: id(%v), uuid(%s), userUuid(%s)", id, uuid, userUuid)
+		return errors.Wrapf(err, fmt.Sprintf("fail to check if cache about user article agree exist: id(%v), uuid(%s), userUuid(%s) ", id, uuid, userUuid))
+	}
+
+	for _, item := range cmd {
+		exist := item.(*redis.IntCmd).Val()
+		exists = append(exists, exist)
+	}
+
+	_, err = r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		if exists[0] == 1 {
+			pipe.ZIncrBy(ctx, hotKey, 1, fmt.Sprintf("%v%s%s", id, "%", uuid))
+		}
+		if exists[1] == 1 {
+			pipe.HIncrBy(ctx, statisticKey, "agree", 1)
+		}
+		if exists[2] == 1 {
+			pipe.ZIncrBy(ctx, boardKey, 1, fmt.Sprintf("%v%s%s%s", id, "%", uuid, "%article"))
+		}
+		if exists[3] == 1 {
+			pipe.SAdd(ctx, userKey, id)
+		}
+		return nil
+	})
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add user article agree to cache: id(%v), uuid(%s), userUuid(%s)", id, uuid, userUuid))
 	}
 	return nil
 }
@@ -1304,12 +1372,21 @@ func (r *articleRepo) SetArticleView(ctx context.Context, id int32, uuid string)
 
 func (r *articleRepo) SetArticleViewToCache(ctx context.Context, id int32, uuid string) error {
 	ids := strconv.Itoa(int(id))
-	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.HIncrBy(ctx, "article_"+ids, "view", 1)
-		return nil
-	})
+	var script = redis.NewScript(`
+					local key = KEYS[1]
+					local value = ARGV[1]
+					local exist = redis.call("EXISTS", key)
+					if exist == 1 then
+						redis.call("HINCRBY", key, "view", value)
+					end
+					return 0
+	`)
+	keys := []string{"article_" + ids}
+	values := []interface{}{1}
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+
 	if err != nil {
-		r.log.Errorf("fail to add article agree to cache: id(%v), uuid(%s)", id, uuid)
+		return errors.Wrapf(err, fmt.Sprintf("fail to add article agree to cache: id(%v), uuid(%s)", id, uuid))
 	}
 	return nil
 }
@@ -1349,6 +1426,26 @@ func (r *articleRepo) SetArticleCollectToCache(ctx context.Context, id int32, uu
 	})
 	if err != nil {
 		r.log.Errorf("fail to add article collect to cache: id(%v), uuid(%s), userUuid(%s)", id, uuid, userUuid)
+	}
+	return nil
+}
+
+func (r *articleRepo) SetUserArticleAgreeToCache(ctx context.Context, id int32, userUuid string) error {
+	var script = redis.NewScript(`
+					local key = KEYS[1]
+                    local change = ARGV[1]
+					local value = redis.call("EXISTS", key)
+					if value == 1 then
+  						local result = redis.call("SADD", key, change)
+						return result
+					end
+					return 0
+	`)
+	keys := []string{"user_article_agree_" + userUuid}
+	values := []interface{}{strconv.Itoa(int(id))}
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to set user article agree to cache: id(%v), userUuid(%s)", id, userUuid))
 	}
 	return nil
 }
@@ -1521,7 +1618,8 @@ func (r *articleRepo) getColumnArticleFromDB(ctx context.Context, id int32) ([]*
 }
 
 func (r *articleRepo) setArticleToCache(key string, article []*biz.Article) {
-	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		z := make([]*redis.Z, 0)
 		for _, item := range article {
 			z = append(z, &redis.Z{
@@ -1529,7 +1627,7 @@ func (r *articleRepo) setArticleToCache(key string, article []*biz.Article) {
 				Member: strconv.Itoa(int(item.ArticleId)) + "%" + item.Uuid,
 			})
 		}
-		pipe.ZAddNX(context.Background(), key, z...)
+		pipe.ZAddNX(ctx, key, z...)
 		return nil
 	})
 	if err != nil {
@@ -1538,7 +1636,8 @@ func (r *articleRepo) setArticleToCache(key string, article []*biz.Article) {
 }
 
 func (r *articleRepo) setArticleHotToCache(key string, article []*biz.ArticleStatistic) {
-	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		z := make([]*redis.Z, 0)
 		for _, item := range article {
 			z = append(z, &redis.Z{
@@ -1546,7 +1645,7 @@ func (r *articleRepo) setArticleHotToCache(key string, article []*biz.ArticleSta
 				Member: strconv.Itoa(int(item.ArticleId)) + "%" + item.Uuid,
 			})
 		}
-		pipe.ZAddNX(context.Background(), key, z...)
+		pipe.ZAddNX(ctx, key, z...)
 		return nil
 	})
 	if err != nil {
@@ -1557,7 +1656,8 @@ func (r *articleRepo) setArticleHotToCache(key string, article []*biz.ArticleSta
 func (r *articleRepo) setColumnArticleToCache(id int32, article []*biz.Article) {
 	ids := strconv.Itoa(int(id))
 	length := len(article)
-	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		z := make([]*redis.Z, 0)
 		for index, item := range article {
 			z = append(z, &redis.Z{
@@ -1565,7 +1665,7 @@ func (r *articleRepo) setColumnArticleToCache(id int32, article []*biz.Article) 
 				Member: strconv.Itoa(int(item.ArticleId)) + "%" + item.Uuid,
 			})
 		}
-		pipe.ZAddNX(context.Background(), "column_includes_"+ids, z...)
+		pipe.ZAddNX(ctx, "column_includes_"+ids, z...)
 		return nil
 	})
 	if err != nil {
@@ -1599,7 +1699,12 @@ func (r *articleRepo) getArticleStatisticFromCache(ctx context.Context, key stri
 }
 
 func (r *articleRepo) setArticleStatisticToCache(key string, statistic *biz.ArticleStatistic) {
-	err := r.data.redisCli.HMSet(context.Background(), key, "uuid", statistic.Uuid, "agree", statistic.Agree, "collect", statistic.Collect, "view", statistic.View, "comment", statistic.Comment).Err()
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.HMSet(context.Background(), key, "uuid", statistic.Uuid, "agree", statistic.Agree, "collect", statistic.Collect, "view", statistic.View, "comment", statistic.Comment)
+		pipe.Expire(ctx, key, time.Hour*8)
+		return nil
+	})
 	if err != nil {
 		r.log.Errorf("fail to set article statistic to cache, err(%s)", err.Error())
 	}
