@@ -104,18 +104,89 @@ func (r *commentRepo) getUserCommentAgreeFromDb(ctx context.Context, uuid string
 }
 
 func (r *commentRepo) setUserCommentAgreeToCache(uuid string, agreeList []*CommentAgree) {
-	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		set := make([]interface{}, 0)
 		key := "user_comment_agree_" + uuid
 		for _, item := range agreeList {
 			set = append(set, item.CommentId)
 		}
-		pipe.SAdd(context.Background(), key, set...)
-		pipe.Expire(context.Background(), key, time.Hour*8)
+		pipe.SAdd(ctx, key, set...)
+		pipe.Expire(ctx, key, time.Hour*8)
 		return nil
 	})
 	if err != nil {
 		r.log.Errorf("fail to set user comment agree to cache: uuid(%s), agreeList(%v), error(%s) ", uuid, agreeList, err.Error())
+	}
+}
+
+func (r *commentRepo) GetCommentUser(ctx context.Context, uuid string) (*biz.CommentUser, error) {
+	var commentUser *biz.CommentUser
+	key := "comment_user_" + uuid
+	exist, err := r.data.redisCli.Exists(ctx, key).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to judge if key exist or not from cache: key(%s)", key))
+	}
+
+	if exist == 1 {
+		commentUser, err = r.getCommentUserFromCache(ctx, key)
+		if err != nil {
+			return nil, err
+		}
+		return commentUser, nil
+	}
+
+	commentUser, err = r.getCommentUserFromDB(ctx, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	go r.setCommentUserToCache(key, commentUser)
+
+	return commentUser, nil
+}
+
+func (r *commentRepo) getCommentUserFromCache(ctx context.Context, key string) (*biz.CommentUser, error) {
+	statistic, err := r.data.redisCli.HMGet(ctx, key, "comment").Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get comment user form cache: key(%s)", key))
+	}
+	val := []int32{0}
+	for _index, count := range statistic {
+		if count == nil {
+			break
+		}
+		num, err := strconv.ParseInt(count.(string), 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: count(%v)", count))
+		}
+		val[_index] = int32(num)
+	}
+	return &biz.CommentUser{
+		Comment: val[0],
+	}, nil
+}
+
+func (r *commentRepo) getCommentUserFromDB(ctx context.Context, uuid string) (*biz.CommentUser, error) {
+	cu := &CommentUser{}
+	err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).First(cu).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("faile to get comment user from db: uuid(%v)", uuid))
+	}
+	return &biz.CommentUser{
+		Comment: cu.Comment,
+	}, nil
+}
+
+func (r *commentRepo) setCommentUserToCache(key string, commentUser *biz.CommentUser) {
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.HMSet(context.Background(), key, "comment", commentUser.Comment)
+		pipe.Expire(ctx, key, time.Hour*8)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to set comment user to cache, err(%s)", err.Error())
 	}
 }
 
@@ -262,7 +333,8 @@ func (r *commentRepo) getSubCommentFromDB(ctx context.Context, page, id int32) (
 }
 
 func (r *commentRepo) setCommentToCache(creationId, creationType int32, comment []*biz.Comment) {
-	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		z := make([]*redis.Z, 0)
 		key := fmt.Sprintf("comment_%v_%v", creationId, creationType)
 		for _, item := range comment {
@@ -271,8 +343,8 @@ func (r *commentRepo) setCommentToCache(creationId, creationType int32, comment 
 				Member: strconv.Itoa(int(item.CommentId)) + "%" + item.Uuid,
 			})
 		}
-		pipe.ZAddNX(context.Background(), key, z...)
-		pipe.Expire(context.Background(), key, time.Hour*8)
+		pipe.ZAddNX(ctx, key, z...)
+		pipe.Expire(ctx, key, time.Hour*8)
 		return nil
 	})
 	if err != nil {
@@ -281,7 +353,8 @@ func (r *commentRepo) setCommentToCache(creationId, creationType int32, comment 
 }
 
 func (r *commentRepo) setSubCommentToCache(id int32, subComment []*biz.SubComment) {
-	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		z := make([]*redis.Z, 0)
 		key := fmt.Sprintf("sub_comment_%v", id)
 		for _, item := range subComment {
@@ -290,8 +363,8 @@ func (r *commentRepo) setSubCommentToCache(id int32, subComment []*biz.SubCommen
 				Member: strconv.Itoa(int(item.CommentId)) + "%" + item.Uuid + "%" + item.Reply,
 			})
 		}
-		pipe.ZAddNX(context.Background(), key, z...)
-		pipe.Expire(context.Background(), key, time.Hour*8)
+		pipe.ZAddNX(ctx, key, z...)
+		pipe.Expire(ctx, key, time.Hour*8)
 		return nil
 	})
 	if err != nil {
@@ -840,7 +913,7 @@ func (r *commentRepo) CancelSubCommentAgree(ctx context.Context, id int32, uuid 
 }
 
 func (r *commentRepo) CancelUserCommentAgree(ctx context.Context, id int32, userUuid string) error {
-	ca := &CommentAgree{}
+	ca := CommentAgree{}
 	err := r.data.DB(ctx).Model(&ca).Where("comment_id = ? and uuid = ?", id, userUuid).Update("status", 2).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel a comment agree to db: comment_id(%v), userUuid(%s)", id, userUuid))
@@ -1237,7 +1310,7 @@ func (r *commentRepo) RemoveComment(ctx context.Context, id int32, uuid string) 
 
 func (r *commentRepo) RemoveSubComment(ctx context.Context, id, rootId int32, uuid string) error {
 	c := &Comment{}
-	err := r.data.DB(ctx).Model(&c).Where("comment_id = ? and comment > 0", rootId).Update("comment", gorm.Expr("comment - ?", 1)).Error
+	err := r.data.DB(ctx).Model(c).Where("comment_id = ? and comment > 0", rootId).Update("comment", gorm.Expr("comment - ?", 1)).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel comment comment: id(%v)", rootId))
 	}
