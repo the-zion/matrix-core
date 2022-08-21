@@ -167,6 +167,30 @@ func ErrorGetArticleSearchFailed(format string, args ...interface{}) *errors.Err
 	return errors.New(500, CreationErrorReason_GET_ARTICLE_SEARCH_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsGetArticleAgreeFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_GET_ARTICLE_AGREE_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetArticleAgreeFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_GET_ARTICLE_AGREE_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsGetArticleCollectFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_GET_ARTICLE_COLLECT_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetArticleCollectFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_GET_ARTICLE_COLLECT_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsCreateArticleFailed(err error) bool {
 	if err == nil {
 		return false
@@ -213,6 +237,30 @@ func IsGetTalkFailed(err error) bool {
 
 func ErrorGetTalkFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, CreationErrorReason_GET_TALK_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsGetTalkAgreeFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_GET_TALK_AGREE_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetTalkAgreeFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_GET_TALK_AGREE_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsGetTalkCollectFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_GET_TALK_COLLECT_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetTalkCollectFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_GET_TALK_COLLECT_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
 func IsGetTalkDraftFailed(err error) bool {
@@ -333,6 +381,30 @@ func IsGetColumnFailed(err error) bool {
 
 func ErrorGetColumnFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, CreationErrorReason_GET_COLUMN_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsGetColumnAgreeFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_GET_COLUMN_AGREE_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetColumnAgreeFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_GET_COLUMN_AGREE_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsGetColumnCollectFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_GET_COLUMN_COLLECT_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetColumnCollectFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_GET_COLUMN_COLLECT_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
 func IsGetColumnDraftFailed(err error) bool {
