@@ -7,7 +7,7 @@ import (
 )
 
 func (s *AchievementService) SetAchievementAgree(ctx context.Context, req *v1.SetAchievementAgreeReq) (*emptypb.Empty, error) {
-	err := s.ac.SetAchievementAgree(ctx, req.Uuid)
+	err := s.ac.SetAchievementAgree(ctx, req.Uuid, req.UserUuid)
 	if err != nil {
 		return nil, err
 	}
@@ -15,7 +15,7 @@ func (s *AchievementService) SetAchievementAgree(ctx context.Context, req *v1.Se
 }
 
 func (s *AchievementService) CancelAchievementAgree(ctx context.Context, req *v1.CancelAchievementAgreeReq) (*emptypb.Empty, error) {
-	err := s.ac.CancelAchievementAgree(ctx, req.Uuid)
+	err := s.ac.CancelAchievementAgree(ctx, req.Uuid, req.UserUuid)
 	if err != nil {
 		return nil, err
 	}
