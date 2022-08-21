@@ -66,6 +66,7 @@ const OperationBffGetCollectTalk = "/bff.v1.Bff/GetCollectTalk"
 const OperationBffGetCollectTalkCount = "/bff.v1.Bff/GetCollectTalkCount"
 const OperationBffGetCollection = "/bff.v1.Bff/GetCollection"
 const OperationBffGetCollections = "/bff.v1.Bff/GetCollections"
+const OperationBffGetCollectionsAll = "/bff.v1.Bff/GetCollectionsAll"
 const OperationBffGetCollectionsByVisitor = "/bff.v1.Bff/GetCollectionsByVisitor"
 const OperationBffGetCollectionsCount = "/bff.v1.Bff/GetCollectionsCount"
 const OperationBffGetCollectionsVisitorCount = "/bff.v1.Bff/GetCollectionsVisitorCount"
@@ -105,6 +106,8 @@ const OperationBffGetTalkListStatistic = "/bff.v1.Bff/GetTalkListStatistic"
 const OperationBffGetTalkSearch = "/bff.v1.Bff/GetTalkSearch"
 const OperationBffGetTalkStatistic = "/bff.v1.Bff/GetTalkStatistic"
 const OperationBffGetUserAchievement = "/bff.v1.Bff/GetUserAchievement"
+const OperationBffGetUserArticleAgree = "/bff.v1.Bff/GetUserArticleAgree"
+const OperationBffGetUserArticleCollect = "/bff.v1.Bff/GetUserArticleCollect"
 const OperationBffGetUserArticleList = "/bff.v1.Bff/GetUserArticleList"
 const OperationBffGetUserArticleListSimple = "/bff.v1.Bff/GetUserArticleListSimple"
 const OperationBffGetUserArticleListVisitor = "/bff.v1.Bff/GetUserArticleListVisitor"
@@ -210,6 +213,7 @@ type BffHTTPServer interface {
 	GetCollectTalkCount(context.Context, *GetCollectTalkCountReq) (*GetCollectTalkCountReply, error)
 	GetCollection(context.Context, *GetCollectionReq) (*GetCollectionReply, error)
 	GetCollections(context.Context, *GetCollectionsReq) (*GetCollectionsReply, error)
+	GetCollectionsAll(context.Context, *emptypb.Empty) (*GetCollectionsReply, error)
 	GetCollectionsByVisitor(context.Context, *GetCollectionsByVisitorReq) (*GetCollectionsReply, error)
 	GetCollectionsCount(context.Context, *emptypb.Empty) (*GetCollectionsCountReply, error)
 	GetCollectionsVisitorCount(context.Context, *GetCollectionsVisitorCountReq) (*GetCollectionsCountReply, error)
@@ -249,6 +253,8 @@ type BffHTTPServer interface {
 	GetTalkSearch(context.Context, *GetTalkSearchReq) (*GetTalkSearchReply, error)
 	GetTalkStatistic(context.Context, *GetTalkStatisticReq) (*GetTalkStatisticReply, error)
 	GetUserAchievement(context.Context, *GetUserAchievementReq) (*GetUserAchievementReply, error)
+	GetUserArticleAgree(context.Context, *emptypb.Empty) (*GetUserArticleAgreeReply, error)
+	GetUserArticleCollect(context.Context, *emptypb.Empty) (*GetUserArticleCollectReply, error)
 	GetUserArticleList(context.Context, *GetUserArticleListReq) (*GetArticleListReply, error)
 	GetUserArticleListSimple(context.Context, *GetUserArticleListSimpleReq) (*GetArticleListReply, error)
 	GetUserArticleListVisitor(context.Context, *GetUserArticleListVisitorReq) (*GetArticleListReply, error)
@@ -350,6 +356,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.GET("/v1/get/collect/column/count", _Bff_GetCollectColumnCount0_HTTP_Handler(srv))
 	r.GET("/v1/get/collection", _Bff_GetCollection0_HTTP_Handler(srv))
 	r.POST("/v1/get/collections", _Bff_GetCollections0_HTTP_Handler(srv))
+	r.POST("/v1/get/collections/all", _Bff_GetCollectionsAll0_HTTP_Handler(srv))
 	r.POST("/v1/get/collections/count", _Bff_GetCollectionsCount0_HTTP_Handler(srv))
 	r.GET("/v1/get/collections/visitor", _Bff_GetCollectionsByVisitor0_HTTP_Handler(srv))
 	r.GET("/v1/get/collections/visitor/count", _Bff_GetCollectionsVisitorCount0_HTTP_Handler(srv))
@@ -365,6 +372,8 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.POST("/v1/get/user/article/list/simple", _Bff_GetUserArticleListSimple0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/article/list/visitor", _Bff_GetUserArticleListVisitor0_HTTP_Handler(srv))
 	r.GET("/v1/get/article/statistic", _Bff_GetArticleStatistic0_HTTP_Handler(srv))
+	r.GET("/v1/get/user/article/agree", _Bff_GetUserArticleAgree0_HTTP_Handler(srv))
+	r.GET("/v1/get/user/article/collect", _Bff_GetUserArticleCollect0_HTTP_Handler(srv))
 	r.GET("/v1/get/article/list/statistic", _Bff_GetArticleListStatistic0_HTTP_Handler(srv))
 	r.GET("/v1/get/last/article/draft", _Bff_GetLastArticleDraft0_HTTP_Handler(srv))
 	r.GET("/v1/get/article/search", _Bff_GetArticleSearch0_HTTP_Handler(srv))
@@ -1214,6 +1223,25 @@ func _Bff_GetCollections0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context)
 	}
 }
 
+func _Bff_GetCollectionsAll0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in emptypb.Empty
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetCollectionsAll)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetCollectionsAll(ctx, req.(*emptypb.Empty))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetCollectionsReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _Bff_GetCollectionsCount0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in emptypb.Empty
@@ -1495,6 +1523,44 @@ func _Bff_GetArticleStatistic0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Con
 			return err
 		}
 		reply := out.(*GetArticleStatisticReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_GetUserArticleAgree0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in emptypb.Empty
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetUserArticleAgree)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetUserArticleAgree(ctx, req.(*emptypb.Empty))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetUserArticleAgreeReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_GetUserArticleCollect0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in emptypb.Empty
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetUserArticleCollect)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetUserArticleCollect(ctx, req.(*emptypb.Empty))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetUserArticleCollectReply)
 		return ctx.Result(200, reply)
 	}
 }
@@ -3199,6 +3265,7 @@ type BffHTTPClient interface {
 	GetCollectTalkCount(ctx context.Context, req *GetCollectTalkCountReq, opts ...http.CallOption) (rsp *GetCollectTalkCountReply, err error)
 	GetCollection(ctx context.Context, req *GetCollectionReq, opts ...http.CallOption) (rsp *GetCollectionReply, err error)
 	GetCollections(ctx context.Context, req *GetCollectionsReq, opts ...http.CallOption) (rsp *GetCollectionsReply, err error)
+	GetCollectionsAll(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetCollectionsReply, err error)
 	GetCollectionsByVisitor(ctx context.Context, req *GetCollectionsByVisitorReq, opts ...http.CallOption) (rsp *GetCollectionsReply, err error)
 	GetCollectionsCount(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetCollectionsCountReply, err error)
 	GetCollectionsVisitorCount(ctx context.Context, req *GetCollectionsVisitorCountReq, opts ...http.CallOption) (rsp *GetCollectionsCountReply, err error)
@@ -3238,6 +3305,8 @@ type BffHTTPClient interface {
 	GetTalkSearch(ctx context.Context, req *GetTalkSearchReq, opts ...http.CallOption) (rsp *GetTalkSearchReply, err error)
 	GetTalkStatistic(ctx context.Context, req *GetTalkStatisticReq, opts ...http.CallOption) (rsp *GetTalkStatisticReply, err error)
 	GetUserAchievement(ctx context.Context, req *GetUserAchievementReq, opts ...http.CallOption) (rsp *GetUserAchievementReply, err error)
+	GetUserArticleAgree(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetUserArticleAgreeReply, err error)
+	GetUserArticleCollect(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetUserArticleCollectReply, err error)
 	GetUserArticleList(ctx context.Context, req *GetUserArticleListReq, opts ...http.CallOption) (rsp *GetArticleListReply, err error)
 	GetUserArticleListSimple(ctx context.Context, req *GetUserArticleListSimpleReq, opts ...http.CallOption) (rsp *GetArticleListReply, err error)
 	GetUserArticleListVisitor(ctx context.Context, req *GetUserArticleListVisitorReq, opts ...http.CallOption) (rsp *GetArticleListReply, err error)
@@ -3903,6 +3972,19 @@ func (c *BffHTTPClientImpl) GetCollections(ctx context.Context, in *GetCollectio
 	return &out, err
 }
 
+func (c *BffHTTPClientImpl) GetCollectionsAll(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*GetCollectionsReply, error) {
+	var out GetCollectionsReply
+	pattern := "/v1/get/collections/all"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffGetCollectionsAll))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
 func (c *BffHTTPClientImpl) GetCollectionsByVisitor(ctx context.Context, in *GetCollectionsByVisitorReq, opts ...http.CallOption) (*GetCollectionsReply, error) {
 	var out GetCollectionsReply
 	pattern := "/v1/get/collections/visitor"
@@ -4402,6 +4484,32 @@ func (c *BffHTTPClientImpl) GetUserAchievement(ctx context.Context, in *GetUserA
 	pattern := "/v1/get/user/achievement"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationBffGetUserAchievement))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetUserArticleAgree(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*GetUserArticleAgreeReply, error) {
+	var out GetUserArticleAgreeReply
+	pattern := "/v1/get/user/article/agree"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationBffGetUserArticleAgree))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetUserArticleCollect(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*GetUserArticleCollectReply, error) {
+	var out GetUserArticleCollectReply
+	pattern := "/v1/get/user/article/collect"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationBffGetUserArticleCollect))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
