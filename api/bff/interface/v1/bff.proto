@@ -272,6 +272,13 @@ service Bff{
     };
   }
 
+  rpc GetCollectionsAll(google.protobuf.Empty) returns (GetCollectionsReply){
+    option (google.api.http) = {
+      post: "/v1/get/collections/all"
+      body: "*"
+    };
+  }
+
   rpc GetCollectionsCount(google.protobuf.Empty) returns (GetCollectionsCountReply){
     option (google.api.http) = {
       post: "/v1/get/collections/count"
@@ -371,11 +378,24 @@ service Bff{
     };
   }
 
+  rpc GetUserArticleAgree(google.protobuf.Empty)returns (GetUserArticleAgreeReply){
+    option (google.api.http) = {
+      get: "/v1/get/user/article/agree"
+    };
+  }
+
+  rpc GetUserArticleCollect(google.protobuf.Empty)returns (GetUserArticleCollectReply){
+    option (google.api.http) = {
+      get: "/v1/get/user/article/collect"
+    };
+  }
+
   rpc GetArticleListStatistic(GetArticleListStatisticReq)returns (GetArticleListStatisticReply){
     option (google.api.http) = {
       get: "/v1/get/article/list/statistic"
     };
   }
+
 
   rpc GetLastArticleDraft(google.protobuf.Empty) returns (GetLastArticleDraftReply){
     option (google.api.http) = {
@@ -1347,6 +1367,14 @@ message GetArticleStatisticReply{
   int32 collect = 3;
   int32 view = 4;
   int32  comment = 5;
+}
+
+message GetUserArticleAgreeReply{
+  map<int32, bool> agree = 1;
+}
+
+message GetUserArticleCollectReply{
+  map<int32, bool> collect = 1;
 }
 
 message GetArticleListStatisticReq{
