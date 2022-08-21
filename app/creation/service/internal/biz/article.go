@@ -26,6 +26,8 @@ type ArticleRepo interface {
 	GetArticleListStatistic(ctx context.Context, ids []int32) ([]*ArticleStatistic, error)
 	GetArticleSearch(ctx context.Context, page int32, search, time string) ([]*ArticleSearch, int32, error)
 	GetArticleAuth(ctx context.Context, id int32) (int32, error)
+	GetUserArticleAgree(ctx context.Context, uuid string) (map[int32]bool, error)
+	GetUserArticleCollect(ctx context.Context, uuid string) (map[int32]bool, error)
 
 	CreateArticle(ctx context.Context, id, auth int32, uuid string) error
 	CreateArticleStatistic(ctx context.Context, id, auth int32, uuid string) error
@@ -57,24 +59,29 @@ type ArticleRepo interface {
 	SendReviewToMq(ctx context.Context, review *ArticleReview) error
 	SendScoreToMq(ctx context.Context, score int32, uuid, mode string) error
 	SendArticleToMq(ctx context.Context, article *Article, mode string) error
-	SendStatisticToMq(ctx context.Context, id int32, uuid, userUuid, mode string) error
-	SendArticleStatisticToMq(ctx context.Context, uuid, mode string) error
+	SendStatisticToMq(ctx context.Context, id, collectionsId int32, uuid, userUuid, mode string) error
+	SendArticleStatisticToMq(ctx context.Context, uuid, userUuid, mode string) error
 
 	SetArticleAgree(ctx context.Context, id int32, uuid string) error
 	SetUserArticleAgree(ctx context.Context, id int32, userUuid string) error
 	SetArticleView(ctx context.Context, id int32, uuid string) error
 	SetArticleUserCollect(ctx context.Context, id, collectionsId int32, userUuid string) error
+	SetCollectionArticle(ctx context.Context, collectionsId int32, userUuid string) error
+	SetCreationUserCollect(ctx context.Context, userUuid string) error
 	SetArticleCollect(ctx context.Context, id int32, uuid string) error
 	SetArticleAgreeToCache(ctx context.Context, id int32, uuid, userUuid string) error
 	SetArticleViewToCache(ctx context.Context, id int32, uuid string) error
-	SetArticleCollectToCache(ctx context.Context, id int32, uuid, userUuid string) error
+	SetArticleCollectToCache(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error
 	SetUserArticleAgreeToCache(ctx context.Context, id int32, userUuid string) error
+	SetUserArticleCollectToCache(ctx context.Context, id int32, userUuid string) error
 
 	CancelArticleAgree(ctx context.Context, id int32, uuid string) error
+	CancelUserArticleAgree(ctx context.Context, id int32, userUuid string) error
 	CancelArticleAgreeFromCache(ctx context.Context, id int32, uuid, userUuid string) error
 	CancelArticleUserCollect(ctx context.Context, id int32, userUuid string) error
 	CancelArticleCollect(ctx context.Context, id int32, uuid string) error
 	CancelArticleCollectFromCache(ctx context.Context, id int32, uuid, userUuid string) error
+	CancelUserArticleAgreeFromCache(ctx context.Context, id int32, userUuid string) error
 }
 type ArticleUseCase struct {
 	repo         ArticleRepo
@@ -350,6 +357,22 @@ func (r *ArticleUseCase) GetArticleStatistic(ctx context.Context, id int32) (*Ar
 	return statistic, nil
 }
 
+func (r *ArticleUseCase) GetUserArticleAgree(ctx context.Context, uuid string) (map[int32]bool, error) {
+	agreeMap, err := r.repo.GetUserArticleAgree(ctx, uuid)
+	if err != nil {
+		return nil, v1.ErrorGetArticleAgreeFailed("get user article agree failed: %s", err.Error())
+	}
+	return agreeMap, nil
+}
+
+func (r *ArticleUseCase) GetUserArticleCollect(ctx context.Context, uuid string) (map[int32]bool, error) {
+	collectMap, err := r.repo.GetUserArticleCollect(ctx, uuid)
+	if err != nil {
+		return nil, v1.ErrorGetArticleAgreeFailed("get user article collect failed: %s", err.Error())
+	}
+	return collectMap, nil
+}
+
 func (r *ArticleUseCase) GetArticleListStatistic(ctx context.Context, ids []int32) ([]*ArticleStatistic, error) {
 	statisticList, err := r.repo.GetArticleListStatistic(ctx, ids)
 	if err != nil {
@@ -421,12 +444,12 @@ func (r *ArticleUseCase) SetArticleAgree(ctx context.Context, id int32, uuid, us
 	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
 		err := r.repo.SetUserArticleAgreeToCache(ctx, id, userUuid)
 		if err != nil {
-			return v1.ErrorSetAgreeFailed("set article agree to cache failed: %s", err.Error())
+			return v1.ErrorSetAgreeFailed("set user article agree to cache failed: %s", err.Error())
 		}
 		return nil
 	}))
 	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
-		err := r.repo.SendStatisticToMq(ctx, id, uuid, userUuid, "set_article_agree_db_and_cache")
+		err := r.repo.SendStatisticToMq(ctx, id, 0, uuid, userUuid, "set_article_agree_db_and_cache")
 		if err != nil {
 			return v1.ErrorSetAgreeFailed("set article agree to mq failed: %s", err.Error())
 		}
@@ -449,16 +472,20 @@ func (r *ArticleUseCase) SetArticleAgreeDbAndCache(ctx context.Context, id int32
 		if err != nil {
 			return v1.ErrorSetAgreeFailed("set article agree to cache failed: %s", err.Error())
 		}
-		err = r.repo.SendArticleStatisticToMq(ctx, uuid, "agree")
+		err = r.repo.SendArticleStatisticToMq(ctx, uuid, userUuid, "agree")
 		if err != nil {
 			return v1.ErrorSetAgreeFailed("set article agree to mq failed: %s", err.Error())
+		}
+		err = r.repo.SendScoreToMq(ctx, 2, uuid, "add_score")
+		if err != nil {
+			return v1.ErrorSetAgreeFailed("send 2 score to mq failed: %s", err.Error())
 		}
 		return nil
 	})
 }
 
 func (r *ArticleUseCase) SetArticleView(ctx context.Context, id int32, uuid string) error {
-	err := r.repo.SendStatisticToMq(ctx, id, uuid, "", "set_article_view_db_and_cache")
+	err := r.repo.SendStatisticToMq(ctx, id, 0, uuid, "", "set_article_view_db_and_cache")
 	if err != nil {
 		return v1.ErrorSetViewFailed("set article view failed: %s", err.Error())
 	}
@@ -475,49 +502,107 @@ func (r *ArticleUseCase) SetArticleViewDbAndCache(ctx context.Context, id int32,
 		if err != nil {
 			return v1.ErrorSetViewFailed("set article view to cache failed: %s", err.Error())
 		}
-		err = r.repo.SendArticleStatisticToMq(ctx, uuid, "view")
+		err = r.repo.SendArticleStatisticToMq(ctx, uuid, "", "view")
 		if err != nil {
 			return v1.ErrorSetViewFailed("set article view to mq failed: %s", err.Error())
+		}
+		err = r.repo.SendScoreToMq(ctx, 1, uuid, "add_score")
+		if err != nil {
+			return v1.ErrorSetViewFailed("send 1 score to mq failed: %s", err.Error())
 		}
 		return nil
 	})
 }
 
 func (r *ArticleUseCase) SetArticleCollect(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error {
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		err := r.repo.SetUserArticleCollectToCache(ctx, id, userUuid)
+		if err != nil {
+			return v1.ErrorSetAgreeFailed("set user article collect to cache failed: %s", err.Error())
+		}
+		return nil
+	}))
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		err := r.repo.SendStatisticToMq(ctx, id, 0, uuid, userUuid, "set_article_collect_db_and_cache")
+		if err != nil {
+			return v1.ErrorSetAgreeFailed("set article collect to mq failed: %s", err.Error())
+		}
+		return nil
+	}))
+	return g.Wait()
+}
+
+func (r *ArticleUseCase) SetArticleCollectDbAndCacheReq(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error {
 	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		err := r.repo.SetArticleUserCollect(ctx, id, collectionsId, userUuid)
 		if err != nil {
 			return v1.ErrorSetCollectFailed("set article user collect failed: %s", err.Error())
 		}
+		err = r.repo.SetCollectionArticle(ctx, collectionsId, userUuid)
+		if err != nil {
+			return v1.ErrorSetCollectFailed("set article collection article collect failed: %s", err.Error())
+		}
+		err = r.repo.SetCreationUserCollect(ctx, userUuid)
+		if err != nil {
+			return v1.ErrorSetCollectFailed("set creation user collect failed: %s", err.Error())
+		}
 		err = r.repo.SetArticleCollect(ctx, id, uuid)
 		if err != nil {
 			return v1.ErrorSetCollectFailed("set article collect failed: %s", err.Error())
 		}
-		err = r.repo.SetArticleCollectToCache(ctx, id, uuid, userUuid)
+		err = r.repo.SetArticleCollectToCache(ctx, id, collectionsId, uuid, userUuid)
 		if err != nil {
 			return v1.ErrorSetCollectFailed("set article collect to cache failed: %s", err.Error())
 		}
-		err = r.repo.SendArticleStatisticToMq(ctx, uuid, "collect")
+		err = r.repo.SendArticleStatisticToMq(ctx, uuid, "", "collect")
 		if err != nil {
 			return v1.ErrorSetCollectFailed("set article collect to mq failed: %s", err.Error())
+		}
+		err = r.repo.SendScoreToMq(ctx, 2, uuid, "add_score")
+		if err != nil {
+			return v1.ErrorSetViewFailed("send 1 score to mq failed: %s", err.Error())
 		}
 		return nil
 	})
 }
 
 func (r *ArticleUseCase) CancelArticleAgree(ctx context.Context, id int32, uuid, userUuid string) error {
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		err := r.repo.CancelUserArticleAgreeFromCache(ctx, id, userUuid)
+		if err != nil {
+			return v1.ErrorSetAgreeFailed("cancel user article agree from cache failed: %s", err.Error())
+		}
+		return nil
+	}))
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		err := r.repo.SendStatisticToMq(ctx, id, 0, uuid, userUuid, "cancel_article_agree_db_and_cache")
+		if err != nil {
+			return v1.ErrorSetAgreeFailed("cancel article agree to mq failed: %s", err.Error())
+		}
+		return nil
+	}))
+	return g.Wait()
+}
+
+func (r *ArticleUseCase) CancelArticleAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
 	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		err := r.repo.CancelArticleAgree(ctx, id, uuid)
 		if err != nil {
 			return v1.ErrorCancelAgreeFailed("cancel article agree failed: %s", err.Error())
 		}
+		err = r.repo.CancelUserArticleAgree(ctx, id, userUuid)
+		if err != nil {
+			return v1.ErrorSetAgreeFailed("cancel article agree failed: %s", err.Error())
+		}
 		err = r.repo.CancelArticleAgreeFromCache(ctx, id, uuid, userUuid)
 		if err != nil {
 			return v1.ErrorCancelAgreeFailed("cancel article agree from cache failed: %s", err.Error())
 		}
-		err = r.repo.SendArticleStatisticToMq(ctx, uuid, "agree_cancel")
+		err = r.repo.SendArticleStatisticToMq(ctx, uuid, userUuid, "agree_cancel")
 		if err != nil {
-			return v1.ErrorCancelAgreeFailed("set article agree to mq failed: %s", err.Error())
+			return v1.ErrorCancelAgreeFailed("cancel article agree to mq failed: %s", err.Error())
 		}
 		return nil
 	})
@@ -537,7 +622,7 @@ func (r *ArticleUseCase) CancelArticleCollect(ctx context.Context, id int32, uui
 		if err != nil {
 			return v1.ErrorCancelCollectFailed("cancel article collect to cache failed: %s", err.Error())
 		}
-		err = r.repo.SendArticleStatisticToMq(ctx, uuid, "collect_cancel")
+		err = r.repo.SendArticleStatisticToMq(ctx, uuid, "", "collect_cancel")
 		if err != nil {
 			return v1.ErrorCancelCollectFailed("set article collect to mq failed: %s", err.Error())
 		}
