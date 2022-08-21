@@ -115,6 +115,26 @@ func (s *CreationService) GetArticleStatistic(ctx context.Context, req *v1.GetAr
 	}, nil
 }
 
+func (s *CreationService) GetUserArticleAgree(ctx context.Context, req *v1.GetUserArticleAgreeReq) (*v1.GetUserArticleAgreeReply, error) {
+	agreeMap, err := s.ac.GetUserArticleAgree(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetUserArticleAgreeReply{
+		Agree: agreeMap,
+	}, nil
+}
+
+func (s *CreationService) GetUserArticleCollect(ctx context.Context, req *v1.GetUserArticleCollectReq) (*v1.GetUserArticleCollectReply, error) {
+	collectMap, err := s.ac.GetUserArticleCollect(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetUserArticleCollectReply{
+		Collect: collectMap,
+	}, nil
+}
+
 func (s *CreationService) GetArticleListStatistic(ctx context.Context, req *v1.GetArticleListStatisticReq) (*v1.GetArticleListStatisticReply, error) {
 	reply := &v1.GetArticleListStatisticReply{Count: make([]*v1.GetArticleListStatisticReply_Count, 0)}
 	statisticList, err := s.ac.GetArticleListStatistic(ctx, req.Ids)
@@ -301,8 +321,24 @@ func (s *CreationService) SetArticleCollect(ctx context.Context, req *v1.SetArti
 	return &emptypb.Empty{}, nil
 }
 
+func (s *CreationService) SetArticleCollectDbAndCache(ctx context.Context, req *v1.SetArticleCollectDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.ac.SetArticleCollectDbAndCacheReq(ctx, req.Id, req.CollectionsId, req.Uuid, req.UserUuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *CreationService) CancelArticleAgree(ctx context.Context, req *v1.CancelArticleAgreeReq) (*emptypb.Empty, error) {
 	err := s.ac.CancelArticleAgree(ctx, req.Id, req.Uuid, req.UserUuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) CancelArticleAgreeDbAndCache(ctx context.Context, req *v1.CancelArticleAgreeDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.ac.CancelArticleAgreeDbAndCache(ctx, req.Id, req.Uuid, req.UserUuid)
 	if err != nil {
 		return nil, err
 	}
