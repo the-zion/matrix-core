@@ -19,6 +19,7 @@ type CreationRepo interface {
 	GetCollection(ctx context.Context, id int32, uuid string) (*Collections, error)
 	GetCollectionListInfo(ctx context.Context, collectionsList []*Collections) ([]*Collections, error)
 	GetCollections(ctx context.Context, uuid string, page int32) ([]*Collections, error)
+	GetCollectionsAll(ctx context.Context, uuid string) ([]*Collections, error)
 	GetCollectionsByVisitor(ctx context.Context, uuid string, page int32) ([]*Collections, error)
 	GetCollectionsCount(ctx context.Context, uuid string) (int32, error)
 	GetCollectionsVisitorCount(ctx context.Context, uuid string) (int32, error)
@@ -37,6 +38,8 @@ type ArticleRepo interface {
 	GetUserArticleList(ctx context.Context, page int32, uuid string) ([]*Article, error)
 	GetUserArticleListVisitor(ctx context.Context, page int32, uuid string) ([]*Article, error)
 	GetArticleStatistic(ctx context.Context, id int32) (*ArticleStatistic, error)
+	GetUserArticleAgree(ctx context.Context, uuid string) (map[int32]bool, error)
+	GetUserArticleCollect(ctx context.Context, uuid string) (map[int32]bool, error)
 	GetArticleListStatistic(ctx context.Context, articleList []*Article) ([]*ArticleStatistic, error)
 	GetArticleDraftList(ctx context.Context, uuid string) ([]*ArticleDraft, error)
 	GetArticleSearch(ctx context.Context, page int32, search, time string) ([]*ArticleSearch, int32, error)
@@ -214,7 +217,20 @@ func (r *CreationUseCase) GetCollection(ctx context.Context, id int32, uuid stri
 
 func (r *CreationUseCase) GetCollections(ctx context.Context, page int32) ([]*Collections, error) {
 	uuid := ctx.Value("uuid").(string)
-	return r.repo.GetCollections(ctx, uuid, page)
+	collectionsList, err := r.repo.GetCollections(ctx, uuid, page)
+	if err != nil {
+		return nil, err
+	}
+	return r.repo.GetCollectionListInfo(ctx, collectionsList)
+}
+
+func (r *CreationUseCase) GetCollectionsAll(ctx context.Context) ([]*Collections, error) {
+	uuid := ctx.Value("uuid").(string)
+	collectionsList, err := r.repo.GetCollectionsAll(ctx, uuid)
+	if err != nil {
+		return nil, err
+	}
+	return r.repo.GetCollectionListInfo(ctx, collectionsList)
 }
 
 func (r *CreationUseCase) GetCollectionsCount(ctx context.Context) (int32, error) {
@@ -384,6 +400,16 @@ func (r *ArticleUseCase) GetUserArticleListVisitor(ctx context.Context, page int
 
 func (r *ArticleUseCase) GetArticleStatistic(ctx context.Context, id int32) (*ArticleStatistic, error) {
 	return r.repo.GetArticleStatistic(ctx, id)
+}
+
+func (r *ArticleUseCase) GetUserArticleAgree(ctx context.Context) (map[int32]bool, error) {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.GetUserArticleAgree(ctx, uuid)
+}
+
+func (r *ArticleUseCase) GetUserArticleCollect(ctx context.Context) (map[int32]bool, error) {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.GetUserArticleCollect(ctx, uuid)
 }
 
 // GetArticleListStatistic todo: delete
