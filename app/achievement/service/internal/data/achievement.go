@@ -45,11 +45,35 @@ func (r *achievementRepo) SetAchievementAgree(ctx context.Context, uuid string) 
 	return nil
 }
 
+func (r *achievementRepo) SetActiveAgree(ctx context.Context, uuid string) error {
+	ac := &Active{
+		Uuid:  uuid,
+		Agree: 1,
+	}
+	err := r.data.DB(ctx).Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "uuid"}},
+		DoUpdates: clause.Assignments(map[string]interface{}{"agree": gorm.Expr("agree + ?", 1)}),
+	}).Create(ac).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add active agree: c(%v)", uuid))
+	}
+	return nil
+}
+
 func (r *achievementRepo) CancelAchievementAgree(ctx context.Context, uuid string) error {
 	ach := &Achievement{}
 	err := r.data.DB(ctx).Model(ach).Where("uuid = ? and agree > 0", uuid).Update("agree", gorm.Expr("agree - ?", 1)).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to subtract achievement agree: uuid(%v)", uuid))
+	}
+	return nil
+}
+
+func (r *achievementRepo) CancelActiveAgree(ctx context.Context, userUuid string) error {
+	active := &Active{}
+	err := r.data.DB(ctx).Model(active).Where("uuid = ? and agree > 0", userUuid).Update("agree", gorm.Expr("agree - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to subtract achievement agree: userUuid(%v)", userUuid))
 	}
 	return nil
 }
