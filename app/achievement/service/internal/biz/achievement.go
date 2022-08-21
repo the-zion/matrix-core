@@ -13,6 +13,7 @@ type AchievementRepo interface {
 	GetUserMedal(ctx context.Context, uuid string) (*Medal, error)
 	GetUserActive(ctx context.Context, uuid string) (*Active, error)
 	SetAchievementAgree(ctx context.Context, uuid string) error
+	SetActiveAgree(ctx context.Context, userUuid string) error
 	SetAchievementView(ctx context.Context, uuid string) error
 	SetAchievementCollect(ctx context.Context, uuid string) error
 	SetAchievementFollow(ctx context.Context, uuid string) error
@@ -24,6 +25,7 @@ type AchievementRepo interface {
 	SetUserMedalToCache(ctx context.Context, medal, uuid string) error
 	SetUserMedal(ctx context.Context, medal, uuid string) error
 	CancelAchievementAgree(ctx context.Context, uuid string) error
+	CancelActiveAgree(ctx context.Context, userUuid string) error
 	CancelAchievementAgreeFromCache(ctx context.Context, uuid string) error
 	CancelAchievementCollect(ctx context.Context, uuid string) error
 	CancelAchievementCollectFromCache(ctx context.Context, uuid string) error
@@ -53,9 +55,13 @@ func NewAchievementUseCase(repo AchievementRepo, re Recovery, tm Transaction, lo
 	}
 }
 
-func (r *AchievementUseCase) SetAchievementAgree(ctx context.Context, uuid string) error {
+func (r *AchievementUseCase) SetAchievementAgree(ctx context.Context, uuid, userUuid string) error {
 	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		err := r.repo.SetAchievementAgree(ctx, uuid)
+		if err != nil {
+			return v1.ErrorSetAchievementAgreeFailed("set achievement agree failed", err.Error())
+		}
+		err = r.repo.SetActiveAgree(ctx, userUuid)
 		if err != nil {
 			return v1.ErrorSetAchievementAgreeFailed("set achievement agree failed", err.Error())
 		}
@@ -67,9 +73,13 @@ func (r *AchievementUseCase) SetAchievementAgree(ctx context.Context, uuid strin
 	})
 }
 
-func (r *AchievementUseCase) CancelAchievementAgree(ctx context.Context, uuid string) error {
+func (r *AchievementUseCase) CancelAchievementAgree(ctx context.Context, uuid, userUuid string) error {
 	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		err := r.repo.CancelAchievementAgree(ctx, uuid)
+		if err != nil {
+			return v1.ErrorCancelAchievementAgreeFailed("cancel achievement agree failed", err.Error())
+		}
+		err = r.repo.CancelActiveAgree(ctx, userUuid)
 		if err != nil {
 			return v1.ErrorCancelAchievementAgreeFailed("cancel achievement agree failed", err.Error())
 		}
