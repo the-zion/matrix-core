@@ -30,6 +30,8 @@ service Creation {
 
   rpc GetCollections(GetCollectionsReq) returns (GetCollectionsReply){}
 
+  rpc GetCollectionsAll(GetCollectionsAllReq) returns (GetCollectionsReply){}
+
   rpc GetCollectionsCount(GetCollectionsCountReq) returns (GetCollectionsCountReply){}
 
   rpc GetCollectionsByVisitor(GetCollectionsReq) returns (GetCollectionsReply){}
@@ -62,6 +64,10 @@ service Creation {
 
   rpc GetArticleStatistic(GetArticleStatisticReq)returns (GetArticleStatisticReply){}
 
+  rpc GetUserArticleAgree(GetUserArticleAgreeReq) returns (GetUserArticleAgreeReply){}
+
+  rpc GetUserArticleCollect(GetUserArticleCollectReq)returns (GetUserArticleCollectReply){}
+
   rpc GetArticleListStatistic(GetArticleListStatisticReq)returns (GetArticleListStatisticReply){}
 
   rpc GetLastArticleDraft(GetLastArticleDraftReq) returns (GetLastArticleDraftReply){}
@@ -82,6 +88,8 @@ service Creation {
 
   rpc SetArticleAgreeDbAndCache(SetArticleAgreeDbAndCacheReq)returns (google.protobuf.Empty){}
 
+  rpc SetArticleCollectDbAndCache(SetArticleCollectDbAndCacheReq)returns (google.protobuf.Empty){}
+
   rpc CreateArticleDraft(CreateArticleDraftReq) returns (CreateArticleDraftReply){}
 
   rpc ArticleDraftMark(ArticleDraftMarkReq) returns (google.protobuf.Empty){}
@@ -101,6 +109,8 @@ service Creation {
   rpc SetArticleCollect(SetArticleCollectReq) returns (google.protobuf.Empty){}
 
   rpc CancelArticleAgree(CancelArticleAgreeReq) returns (google.protobuf.Empty){}
+
+  rpc CancelArticleAgreeDbAndCache(CancelArticleAgreeDbAndCacheReq) returns (google.protobuf.Empty){}
 
   rpc CancelArticleCollect(CancelArticleCollectReq) returns (google.protobuf.Empty){}
 
@@ -306,6 +316,10 @@ message GetCollectionsReply{
   repeated Collections collections = 1;
 }
 
+message GetCollectionsAllReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
 message GetCollectionsCountReq{
   string uuid = 1 [(validate.rules).string.uuid = true];
 }
@@ -405,6 +419,22 @@ message GetArticleStatisticReply{
   int32  comment = 5;
 }
 
+message GetUserArticleAgreeReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+message GetUserArticleAgreeReply{
+  map<int32, bool> agree = 1;
+}
+
+message GetUserArticleCollectReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+message GetUserArticleCollectReply{
+  map<int32, bool> collect = 1;
+}
+
 message GetArticleListStatisticReq{
   repeated int32 ids = 1;
 }
@@ -489,6 +519,13 @@ message SetArticleAgreeDbAndCacheReq{
   string userUuid = 3;
 }
 
+message SetArticleCollectDbAndCacheReq{
+  int32 id = 1;
+  int32 collectionsId = 2;
+  string uuid = 3;
+  string userUuid = 4;
+}
+
 message CreateArticleDraftReq{
   string uuid = 1 [(validate.rules).string.uuid = true];
 }
@@ -552,6 +589,12 @@ message CancelArticleAgreeReq{
   int32 id = 1;
   string uuid = 2 [(validate.rules).string.uuid = true];
   string user_uuid = 3 [(validate.rules).string.uuid = true];
+}
+
+message CancelArticleAgreeDbAndCacheReq{
+  int32 id = 1;
+  string uuid = 2;
+  string userUuid = 3;
 }
 
 message CancelArticleCollectReq{
