@@ -298,6 +298,30 @@ func (r *creationRepo) GetCollections(ctx context.Context, uuid string, page int
 	return result.([]*biz.Collections), nil
 }
 
+func (r *creationRepo) GetCollectionsAll(ctx context.Context, uuid string) ([]*biz.Collections, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_collections_all_%s", uuid), func() (interface{}, error) {
+		collections := make([]*biz.Collections, 0)
+		reply, err := r.data.cc.GetCollectionsAll(ctx, &creationV1.GetCollectionsAllReq{
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range reply.Collections {
+			collections = append(collections, &biz.Collections{
+				Id:        item.Id,
+				Name:      item.Name,
+				Introduce: item.Introduce,
+			})
+		}
+		return collections, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.([]*biz.Collections), nil
+}
+
 func (r *creationRepo) GetCollectionsByVisitor(ctx context.Context, uuid string, page int32) ([]*biz.Collections, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_collections_by_visitor_%s_%v", uuid, page), func() (interface{}, error) {
 		collections := make([]*biz.Collections, 0)
@@ -613,6 +637,38 @@ func (r *articleRepo) GetArticleStatistic(ctx context.Context, id int32) (*biz.A
 		return nil, err
 	}
 	return result.(*biz.ArticleStatistic), nil
+}
+
+func (r *articleRepo) GetUserArticleAgree(ctx context.Context, uuid string) (map[int32]bool, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("user_article_agree_"+uuid), func() (interface{}, error) {
+		reply, err := r.data.cc.GetUserArticleAgree(ctx, &creationV1.GetUserArticleAgreeReq{
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return reply.Agree, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(map[int32]bool), nil
+}
+
+func (r *articleRepo) GetUserArticleCollect(ctx context.Context, uuid string) (map[int32]bool, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("user_article_collect_"+uuid), func() (interface{}, error) {
+		reply, err := r.data.cc.GetUserArticleCollect(ctx, &creationV1.GetUserArticleCollectReq{
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return reply.Collect, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(map[int32]bool), nil
 }
 
 func (r *articleRepo) GetArticleListStatistic(ctx context.Context, articleList []*biz.Article) ([]*biz.ArticleStatistic, error) {
