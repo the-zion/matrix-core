@@ -60,28 +60,12 @@ func (m *SetAchievementAgreeReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = SetAchievementAgreeReqValidationError{
-			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
+	// no validation rules for Uuid
+
+	// no validation rules for UserUuid
 
 	if len(errors) > 0 {
 		return SetAchievementAgreeReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *SetAchievementAgreeReq) _validateUuid(uuid string) error {
-	if matched := _achievement_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -182,28 +166,12 @@ func (m *CancelAchievementAgreeReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = CancelAchievementAgreeReqValidationError{
-			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
+	// no validation rules for Uuid
+
+	// no validation rules for UserUuid
 
 	if len(errors) > 0 {
 		return CancelAchievementAgreeReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *CancelAchievementAgreeReq) _validateUuid(uuid string) error {
-	if matched := _achievement_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -304,28 +272,10 @@ func (m *SetAchievementViewReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = SetAchievementViewReqValidationError{
-			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
+	// no validation rules for Uuid
 
 	if len(errors) > 0 {
 		return SetAchievementViewReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *SetAchievementViewReq) _validateUuid(uuid string) error {
-	if matched := _achievement_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -426,28 +376,10 @@ func (m *SetAchievementCollectReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = SetAchievementCollectReqValidationError{
-			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
+	// no validation rules for Uuid
 
 	if len(errors) > 0 {
 		return SetAchievementCollectReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *SetAchievementCollectReq) _validateUuid(uuid string) error {
-	if matched := _achievement_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -548,28 +480,10 @@ func (m *CancelAchievementCollectReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = CancelAchievementCollectReqValidationError{
-			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
+	// no validation rules for Uuid
 
 	if len(errors) > 0 {
 		return CancelAchievementCollectReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *CancelAchievementCollectReq) _validateUuid(uuid string) error {
-	if matched := _achievement_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -671,40 +585,12 @@ func (m *SetAchievementFollowReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetFollow()); err != nil {
-		err = SetAchievementFollowReqValidationError{
-			field:  "Follow",
-			reason: "value must be a valid UUID",
-			cause:  err,
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
+	// no validation rules for Follow
 
-	if err := m._validateUuid(m.GetFollowed()); err != nil {
-		err = SetAchievementFollowReqValidationError{
-			field:  "Followed",
-			reason: "value must be a valid UUID",
-			cause:  err,
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
+	// no validation rules for Followed
 
 	if len(errors) > 0 {
 		return SetAchievementFollowReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *SetAchievementFollowReq) _validateUuid(uuid string) error {
-	if matched := _achievement_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -805,40 +691,12 @@ func (m *CancelAchievementFollowReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetFollow()); err != nil {
-		err = CancelAchievementFollowReqValidationError{
-			field:  "Follow",
-			reason: "value must be a valid UUID",
-			cause:  err,
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
+	// no validation rules for Follow
 
-	if err := m._validateUuid(m.GetFollowed()); err != nil {
-		err = CancelAchievementFollowReqValidationError{
-			field:  "Followed",
-			reason: "value must be a valid UUID",
-			cause:  err,
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
+	// no validation rules for Followed
 
 	if len(errors) > 0 {
 		return CancelAchievementFollowReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *CancelAchievementFollowReq) _validateUuid(uuid string) error {
-	if matched := _achievement_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
