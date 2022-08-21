@@ -35,33 +35,35 @@ service Achievement {
 }
 
 message SetAchievementAgreeReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1;
+  string userUuid = 2;
 }
 
 message CancelAchievementAgreeReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1;
+  string userUuid = 2;
 }
 
 message SetAchievementViewReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1;
 }
 
 message SetAchievementCollectReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1;
 }
 
 message CancelAchievementCollectReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1;
 }
 
 message SetAchievementFollowReq{
-  string follow = 1 [(validate.rules).string.uuid = true];
-  string followed = 2 [(validate.rules).string.uuid = true];
+  string follow = 1;
+  string followed = 2;
 }
 
 message CancelAchievementFollowReq{
-  string follow = 1 [(validate.rules).string.uuid = true];
-  string followed = 2 [(validate.rules).string.uuid = true];
+  string follow = 1;
+  string followed = 2;
 }
 
 message SetUserMedalReq{
