@@ -713,6 +713,152 @@ func (r *articleRepo) GetArticleAuth(ctx context.Context, id int32) (int32, erro
 	return article.Auth, nil
 }
 
+func (r *articleRepo) GetUserArticleAgree(ctx context.Context, uuid string) (map[int32]bool, error) {
+	exist, err := r.userArticleAgreeExist(ctx, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	if exist == 1 {
+		return r.getUserArticleAgreeFromCache(ctx, uuid)
+	} else {
+		return r.getUserArticleAgreeFromDb(ctx, uuid)
+	}
+}
+
+func (r *articleRepo) userArticleAgreeExist(ctx context.Context, uuid string) (int32, error) {
+	exist, err := r.data.redisCli.Exists(ctx, "user_article_agree_"+uuid).Result()
+	if err != nil {
+		return 0, errors.Wrapf(err, fmt.Sprintf("fail to check if user article agree exist from cache: uuid(%s)", uuid))
+	}
+	return int32(exist), nil
+}
+
+func (r *articleRepo) getUserArticleAgreeFromCache(ctx context.Context, uuid string) (map[int32]bool, error) {
+	key := "user_article_agree_" + uuid
+	agreeSet, err := r.data.redisCli.SMembers(ctx, key).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user article agree from cache: uuid(%s)", uuid))
+	}
+
+	agreeMap := make(map[int32]bool, 0)
+	for _, item := range agreeSet {
+		id, err := strconv.ParseInt(item, 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s), uuid(%s), key(%s)", id, uuid, key))
+		}
+		agreeMap[int32(id)] = true
+	}
+	return agreeMap, nil
+}
+
+func (r *articleRepo) getUserArticleAgreeFromDb(ctx context.Context, uuid string) (map[int32]bool, error) {
+	list := make([]*ArticleAgree, 0)
+	err := r.data.db.WithContext(ctx).Where("uuid = ? and status = ?", uuid, 1).Find(&list).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user article agree from db: uuid(%s)", uuid))
+	}
+
+	agreeMap := make(map[int32]bool, 0)
+	for _, item := range list {
+		agreeMap[item.ArticleId] = true
+	}
+	if len(list) != 0 {
+		go r.setUserArticleAgreeToCache(uuid, list)
+	}
+	return agreeMap, nil
+}
+
+func (r *articleRepo) setUserArticleAgreeToCache(uuid string, agreeList []*ArticleAgree) {
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		set := make([]interface{}, 0)
+		key := "user_article_agree_" + uuid
+		for _, item := range agreeList {
+			set = append(set, item.ArticleId)
+		}
+		pipe.SAdd(ctx, key, set...)
+		pipe.Expire(ctx, key, time.Hour*8)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to set user article agree to cache: uuid(%s), agreeList(%v), error(%s) ", uuid, agreeList, err.Error())
+	}
+}
+
+func (r *articleRepo) GetUserArticleCollect(ctx context.Context, uuid string) (map[int32]bool, error) {
+	exist, err := r.userArticleCollectExist(ctx, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	if exist == 1 {
+		return r.getUserArticleCollectFromCache(ctx, uuid)
+	} else {
+		return r.getUserArticleCollectFromDb(ctx, uuid)
+	}
+}
+
+func (r *articleRepo) userArticleCollectExist(ctx context.Context, uuid string) (int32, error) {
+	exist, err := r.data.redisCli.Exists(ctx, "user_article_collect_"+uuid).Result()
+	if err != nil {
+		return 0, errors.Wrapf(err, fmt.Sprintf("fail to check if user article collect exist from cache: uuid(%s)", uuid))
+	}
+	return int32(exist), nil
+}
+
+func (r *articleRepo) getUserArticleCollectFromCache(ctx context.Context, uuid string) (map[int32]bool, error) {
+	key := "user_article_collect_" + uuid
+	collectSet, err := r.data.redisCli.SMembers(ctx, key).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user article collect from cache: uuid(%s)", uuid))
+	}
+
+	collectMap := make(map[int32]bool, 0)
+	for _, item := range collectSet {
+		id, err := strconv.ParseInt(item, 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s), uuid(%s), key(%s)", id, uuid, key))
+		}
+		collectMap[int32(id)] = true
+	}
+	return collectMap, nil
+}
+
+func (r *articleRepo) getUserArticleCollectFromDb(ctx context.Context, uuid string) (map[int32]bool, error) {
+	list := make([]*ArticleCollect, 0)
+	err := r.data.db.WithContext(ctx).Where("uuid = ? and status = ?", uuid, 1).Find(&list).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user article collect from db: uuid(%s)", uuid))
+	}
+
+	collectMap := make(map[int32]bool, 0)
+	for _, item := range list {
+		collectMap[item.ArticleId] = true
+	}
+	if len(list) != 0 {
+		go r.setUserArticleCollectToCache(uuid, list)
+	}
+	return collectMap, nil
+}
+
+func (r *articleRepo) setUserArticleCollectToCache(uuid string, collectList []*ArticleCollect) {
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		set := make([]interface{}, 0)
+		key := "user_article_collect_" + uuid
+		for _, item := range collectList {
+			set = append(set, item.ArticleId)
+		}
+		pipe.SAdd(ctx, key, set...)
+		pipe.Expire(ctx, key, time.Hour*8)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to set user article collect to cache: uuid(%s), collectList(%v), error(%s) ", uuid, collectList, err.Error())
+	}
+}
+
 func (r *articleRepo) CreateArticle(ctx context.Context, id, auth int32, uuid string) error {
 	article := &Article{
 		ArticleId: id,
@@ -1271,9 +1417,10 @@ func (r *articleRepo) SendArticleToMq(ctx context.Context, article *biz.Article,
 	return nil
 }
 
-func (r *articleRepo) SendStatisticToMq(ctx context.Context, id int32, uuid, userUuid, mode string) error {
+func (r *articleRepo) SendStatisticToMq(ctx context.Context, id, collectionsId int32, uuid, userUuid, mode string) error {
 	statisticMap := map[string]interface{}{}
 	statisticMap["id"] = id
+	statisticMap["collectionsId"] = collectionsId
 	statisticMap["uuid"] = uuid
 	statisticMap["userUuid"] = userUuid
 	statisticMap["mode"] = mode
@@ -1408,6 +1555,30 @@ func (r *articleRepo) SetArticleUserCollect(ctx context.Context, id, collections
 	return nil
 }
 
+func (r *articleRepo) SetCollectionArticle(ctx context.Context, collectionsId int32, userUuid string) error {
+	c := Collections{}
+	err := r.data.DB(ctx).Model(&c).Where("id = ? and uuid = ?", collectionsId, userUuid).Update("article", gorm.Expr("article + ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add collection article collect: collectionsId(%v), userUuid(%s)", collectionsId, userUuid))
+	}
+	return nil
+}
+
+func (r *articleRepo) SetCreationUserCollect(ctx context.Context, userUuid string) error {
+	cu := &CreationUser{
+		Uuid:    userUuid,
+		Collect: 1,
+	}
+	err := r.data.DB(ctx).Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "uuid"}},
+		DoUpdates: clause.Assignments(map[string]interface{}{"collect": gorm.Expr("collect + ?", 1)}),
+	}).Create(cu).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add creation collect: uuid(%v)", userUuid))
+	}
+	return nil
+}
+
 func (r *articleRepo) SetArticleCollect(ctx context.Context, id int32, uuid string) error {
 	as := ArticleStatistic{}
 	err := r.data.DB(ctx).Model(&as).Where("article_id = ? and uuid = ?", id, uuid).Update("collect", gorm.Expr("collect + ?", 1)).Error
@@ -1417,15 +1588,53 @@ func (r *articleRepo) SetArticleCollect(ctx context.Context, id int32, uuid stri
 	return nil
 }
 
-func (r *articleRepo) SetArticleCollectToCache(ctx context.Context, id int32, uuid, userUuid string) error {
-	ids := strconv.Itoa(int(id))
-	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.HIncrBy(ctx, "article_"+ids, "collect", 1)
-		pipe.SAdd(ctx, "article_collect_"+ids, userUuid)
+func (r *articleRepo) SetArticleCollectToCache(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error {
+	statisticKey := fmt.Sprintf("article_%v", id)
+	collectKey := fmt.Sprintf("collections_%v_article", collectionsId)
+	collectionsKey := fmt.Sprintf("collections_%v", collectionsId)
+	creationKey := fmt.Sprintf("creation_user_%s", userUuid)
+	userKey := fmt.Sprintf("user_article_collect_%s", userUuid)
+	exists := make([]int64, 0)
+	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.Exists(ctx, statisticKey)
+		pipe.Exists(ctx, collectKey)
+		pipe.Exists(ctx, collectionsKey)
+		pipe.Exists(ctx, creationKey)
+		pipe.Exists(ctx, userKey)
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to add article collect to cache: id(%v), uuid(%s), userUuid(%s)", id, uuid, userUuid)
+		return errors.Wrapf(err, fmt.Sprintf("fail to check if cache about user article collect exist: id(%v), collectionsId(%v), uuid(%s), userUuid(%s) ", id, collectionsId, uuid, userUuid))
+	}
+
+	for _, item := range cmd {
+		exist := item.(*redis.IntCmd).Val()
+		exists = append(exists, exist)
+	}
+
+	_, err = r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		if exists[0] == 1 {
+			pipe.HIncrBy(ctx, statisticKey, "collect", 1)
+		}
+		if exists[1] == 1 {
+			pipe.ZAddNX(ctx, collectKey, &redis.Z{
+				Score:  0,
+				Member: fmt.Sprintf("%v%s%s", id, "%", uuid),
+			})
+		}
+		if exists[2] == 1 {
+			pipe.HIncrBy(ctx, collectionsKey, "article", 1)
+		}
+		if exists[3] == 1 {
+			pipe.HIncrBy(ctx, creationKey, "collect", 1)
+		}
+		if exists[4] == 1 {
+			pipe.SAdd(ctx, userKey, id)
+		}
+		return nil
+	})
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add article collect to cache: id(%v), collectionsId(%v), uuid(%s), userUuid(%s)", id, collectionsId, uuid, userUuid))
 	}
 	return nil
 }
@@ -1450,6 +1659,26 @@ func (r *articleRepo) SetUserArticleAgreeToCache(ctx context.Context, id int32, 
 	return nil
 }
 
+func (r *articleRepo) SetUserArticleCollectToCache(ctx context.Context, id int32, userUuid string) error {
+	var script = redis.NewScript(`
+					local key = KEYS[1]
+                    local change = ARGV[1]
+					local value = redis.call("EXISTS", key)
+					if value == 1 then
+  						local result = redis.call("SADD", key, change)
+						return result
+					end
+					return 0
+	`)
+	keys := []string{"user_article_collect_" + userUuid}
+	values := []interface{}{strconv.Itoa(int(id))}
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to set user article collect to cache: id(%v), userUuid(%s)", id, userUuid))
+	}
+	return nil
+}
+
 func (r *articleRepo) CancelArticleAgree(ctx context.Context, id int32, uuid string) error {
 	as := ArticleStatistic{}
 	err := r.data.DB(ctx).Model(&as).Where("article_id = ? and uuid = ?", id, uuid).Update("agree", gorm.Expr("agree - ?", 1)).Error
@@ -1459,17 +1688,61 @@ func (r *articleRepo) CancelArticleAgree(ctx context.Context, id int32, uuid str
 	return nil
 }
 
-func (r *articleRepo) CancelArticleAgreeFromCache(ctx context.Context, id int32, uuid, userUuid string) error {
-	ids := strconv.Itoa(int(id))
-	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.HIncrBy(ctx, "article_"+ids, "agree", -1)
-		pipe.ZIncrBy(ctx, "article_hot", -1, ids+"%"+uuid)
-		pipe.ZIncrBy(ctx, "leaderboard", -1, ids+"%"+uuid+"%article")
-		pipe.SRem(ctx, "article_agree_"+ids, userUuid)
-		return nil
-	})
+func (r *articleRepo) CancelUserArticleAgree(ctx context.Context, id int32, userUuid string) error {
+	as := ArticleAgree{}
+	err := r.data.DB(ctx).Model(&as).Where("article_id = ? and uuid = ?", id, userUuid).Update("status", 2).Error
 	if err != nil {
-		r.log.Errorf("fail to cancel article agree from cache: id(%v), uuid(%s), userUuid(%s)", id, uuid, userUuid)
+		return errors.Wrapf(err, fmt.Sprintf("fail to cancel user article agree: id(%v), userUuid(%s)", id, userUuid))
+	}
+	return nil
+}
+
+func (r *articleRepo) CancelArticleAgreeFromCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	hotKey := "article_hot"
+	boardKey := "leaderboard"
+	statisticKey := fmt.Sprintf("article_%v", id)
+	userKey := fmt.Sprintf("user_article_agree_%s", userUuid)
+
+	var script = redis.NewScript(`
+					local hotKey = KEYS[1]
+                    local member = ARGV[1]
+					local hotKeyExist = redis.call("EXISTS", hotKey)
+					if hotKeyExist == 1 then
+						local score = tonumber(redis.call("ZSCORE", hotKey, member))
+						if score > 0 then
+  							redis.call("ZINCRBY", hotKey, -1, member)
+						end
+					end
+
+					local boardKey = KEYS[2]
+                    local member = ARGV[2]
+					local boardKeyExist = redis.call("EXISTS", boardKey)
+					if boardKeyExist == 1 then
+						local score = tonumber(redis.call("ZSCORE", boardKey, member))
+						if score > 0 then
+  							redis.call("ZINCRBY", boardKey, -1, member)
+						end
+					end
+
+					local statisticKey = KEYS[3]
+					local statisticKeyExist = redis.call("EXISTS", statisticKey)
+					if statisticKeyExist == 1 then
+						local number = tonumber(redis.call("HGET", statisticKey, "agree"))
+						if number > 0 then
+  							redis.call("HINCRBY", statisticKey, "agree", -1)
+						end
+					end
+
+					local userKey = KEYS[4]
+					local commentId = ARGV[3]
+					redis.call("SREM", userKey, commentId)
+					return 0
+	`)
+	keys := []string{hotKey, boardKey, statisticKey, userKey}
+	values := []interface{}{fmt.Sprintf("%v%s%s", id, "%", uuid), fmt.Sprintf("%v%s%s%s", id, "%", uuid, "%article"), id}
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to cancel article agree from cache: id(%v), uuid(%s), userUuid(%s)", id, uuid, userUuid))
 	}
 	return nil
 }
@@ -1507,9 +1780,30 @@ func (r *articleRepo) CancelArticleCollectFromCache(ctx context.Context, id int3
 	return nil
 }
 
-func (r *articleRepo) SendArticleStatisticToMq(ctx context.Context, uuid, mode string) error {
+func (r *articleRepo) CancelUserArticleAgreeFromCache(ctx context.Context, id int32, userUuid string) error {
+	var script = redis.NewScript(`
+					local key = KEYS[1]
+                    local change = ARGV[1]
+					local value = redis.call("EXISTS", key)
+					if value == 1 then
+  						local result = redis.call("SREM", key, change)
+						return result
+					end
+					return 0
+	`)
+	keys := []string{"user_article_agree_" + userUuid}
+	values := []interface{}{strconv.Itoa(int(id))}
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to cancel user article agree from cache: id(%v), userUuid(%s)", id, userUuid))
+	}
+	return nil
+}
+
+func (r *articleRepo) SendArticleStatisticToMq(ctx context.Context, uuid, userUuid, mode string) error {
 	achievement := map[string]interface{}{}
 	achievement["uuid"] = uuid
+	achievement["userUuid"] = userUuid
 	achievement["mode"] = mode
 
 	data, err := json.Marshal(achievement)
