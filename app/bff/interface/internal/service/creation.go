@@ -128,6 +128,22 @@ func (s *BffService) GetCollections(ctx context.Context, req *v1.GetCollectionsR
 	return reply, nil
 }
 
+func (s *BffService) GetCollectionsAll(ctx context.Context, _ *emptypb.Empty) (*v1.GetCollectionsReply, error) {
+	reply := &v1.GetCollectionsReply{Collections: make([]*v1.GetCollectionsReply_Collections, 0)}
+	collections, err := s.cc.GetCollectionsAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range collections {
+		reply.Collections = append(reply.Collections, &v1.GetCollectionsReply_Collections{
+			Id:        item.Id,
+			Name:      item.Name,
+			Introduce: item.Introduce,
+		})
+	}
+	return reply, nil
+}
+
 func (s *BffService) GetCollectionsCount(ctx context.Context, _ *emptypb.Empty) (*v1.GetCollectionsCountReply, error) {
 	count, err := s.cc.GetCollectionsCount(ctx)
 	if err != nil {
@@ -331,6 +347,26 @@ func (s *BffService) GetArticleStatistic(ctx context.Context, req *v1.GetArticle
 		Collect: articleStatistic.Collect,
 		View:    articleStatistic.View,
 		Comment: articleStatistic.Comment,
+	}, nil
+}
+
+func (s *BffService) GetUserArticleAgree(ctx context.Context, _ *emptypb.Empty) (*v1.GetUserArticleAgreeReply, error) {
+	agreeMap, err := s.ac.GetUserArticleAgree(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetUserArticleAgreeReply{
+		Agree: agreeMap,
+	}, nil
+}
+
+func (s *BffService) GetUserArticleCollect(ctx context.Context, _ *emptypb.Empty) (*v1.GetUserArticleCollectReply, error) {
+	collectMap, err := s.ac.GetUserArticleCollect(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetUserArticleCollectReply{
+		Collect: collectMap,
 	}, nil
 }
 
