@@ -1711,6 +1711,128 @@ var _ interface {
 	ErrorName() string
 } = GetCollectionsReplyValidationError{}
 
+// Validate checks the field values on GetCollectionsAllReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetCollectionsAllReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetCollectionsAllReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetCollectionsAllReqMultiError, or nil if none found.
+func (m *GetCollectionsAllReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetCollectionsAllReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = GetCollectionsAllReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return GetCollectionsAllReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *GetCollectionsAllReq) _validateUuid(uuid string) error {
+	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// GetCollectionsAllReqMultiError is an error wrapping multiple validation
+// errors returned by GetCollectionsAllReq.ValidateAll() if the designated
+// constraints aren't met.
+type GetCollectionsAllReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetCollectionsAllReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetCollectionsAllReqMultiError) AllErrors() []error { return m }
+
+// GetCollectionsAllReqValidationError is the validation error returned by
+// GetCollectionsAllReq.Validate if the designated constraints aren't met.
+type GetCollectionsAllReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetCollectionsAllReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetCollectionsAllReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetCollectionsAllReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetCollectionsAllReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetCollectionsAllReqValidationError) ErrorName() string {
+	return "GetCollectionsAllReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetCollectionsAllReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetCollectionsAllReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetCollectionsAllReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetCollectionsAllReqValidationError{}
+
 // Validate checks the field values on GetCollectionsCountReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -3848,6 +3970,458 @@ var _ interface {
 	ErrorName() string
 } = GetArticleStatisticReplyValidationError{}
 
+// Validate checks the field values on GetUserArticleAgreeReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetUserArticleAgreeReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserArticleAgreeReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetUserArticleAgreeReqMultiError, or nil if none found.
+func (m *GetUserArticleAgreeReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserArticleAgreeReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = GetUserArticleAgreeReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return GetUserArticleAgreeReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *GetUserArticleAgreeReq) _validateUuid(uuid string) error {
+	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// GetUserArticleAgreeReqMultiError is an error wrapping multiple validation
+// errors returned by GetUserArticleAgreeReq.ValidateAll() if the designated
+// constraints aren't met.
+type GetUserArticleAgreeReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserArticleAgreeReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserArticleAgreeReqMultiError) AllErrors() []error { return m }
+
+// GetUserArticleAgreeReqValidationError is the validation error returned by
+// GetUserArticleAgreeReq.Validate if the designated constraints aren't met.
+type GetUserArticleAgreeReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserArticleAgreeReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserArticleAgreeReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserArticleAgreeReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserArticleAgreeReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserArticleAgreeReqValidationError) ErrorName() string {
+	return "GetUserArticleAgreeReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetUserArticleAgreeReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserArticleAgreeReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserArticleAgreeReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserArticleAgreeReqValidationError{}
+
+// Validate checks the field values on GetUserArticleAgreeReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetUserArticleAgreeReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserArticleAgreeReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetUserArticleAgreeReplyMultiError, or nil if none found.
+func (m *GetUserArticleAgreeReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserArticleAgreeReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Agree
+
+	if len(errors) > 0 {
+		return GetUserArticleAgreeReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetUserArticleAgreeReplyMultiError is an error wrapping multiple validation
+// errors returned by GetUserArticleAgreeReply.ValidateAll() if the designated
+// constraints aren't met.
+type GetUserArticleAgreeReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserArticleAgreeReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserArticleAgreeReplyMultiError) AllErrors() []error { return m }
+
+// GetUserArticleAgreeReplyValidationError is the validation error returned by
+// GetUserArticleAgreeReply.Validate if the designated constraints aren't met.
+type GetUserArticleAgreeReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserArticleAgreeReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserArticleAgreeReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserArticleAgreeReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserArticleAgreeReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserArticleAgreeReplyValidationError) ErrorName() string {
+	return "GetUserArticleAgreeReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetUserArticleAgreeReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserArticleAgreeReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserArticleAgreeReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserArticleAgreeReplyValidationError{}
+
+// Validate checks the field values on GetUserArticleCollectReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetUserArticleCollectReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserArticleCollectReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetUserArticleCollectReqMultiError, or nil if none found.
+func (m *GetUserArticleCollectReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserArticleCollectReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = GetUserArticleCollectReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return GetUserArticleCollectReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *GetUserArticleCollectReq) _validateUuid(uuid string) error {
+	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// GetUserArticleCollectReqMultiError is an error wrapping multiple validation
+// errors returned by GetUserArticleCollectReq.ValidateAll() if the designated
+// constraints aren't met.
+type GetUserArticleCollectReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserArticleCollectReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserArticleCollectReqMultiError) AllErrors() []error { return m }
+
+// GetUserArticleCollectReqValidationError is the validation error returned by
+// GetUserArticleCollectReq.Validate if the designated constraints aren't met.
+type GetUserArticleCollectReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserArticleCollectReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserArticleCollectReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserArticleCollectReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserArticleCollectReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserArticleCollectReqValidationError) ErrorName() string {
+	return "GetUserArticleCollectReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetUserArticleCollectReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserArticleCollectReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserArticleCollectReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserArticleCollectReqValidationError{}
+
+// Validate checks the field values on GetUserArticleCollectReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetUserArticleCollectReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserArticleCollectReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetUserArticleCollectReplyMultiError, or nil if none found.
+func (m *GetUserArticleCollectReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserArticleCollectReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Collect
+
+	if len(errors) > 0 {
+		return GetUserArticleCollectReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetUserArticleCollectReplyMultiError is an error wrapping multiple
+// validation errors returned by GetUserArticleCollectReply.ValidateAll() if
+// the designated constraints aren't met.
+type GetUserArticleCollectReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserArticleCollectReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserArticleCollectReplyMultiError) AllErrors() []error { return m }
+
+// GetUserArticleCollectReplyValidationError is the validation error returned
+// by GetUserArticleCollectReply.Validate if the designated constraints aren't met.
+type GetUserArticleCollectReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserArticleCollectReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserArticleCollectReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserArticleCollectReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserArticleCollectReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserArticleCollectReplyValidationError) ErrorName() string {
+	return "GetUserArticleCollectReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetUserArticleCollectReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserArticleCollectReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserArticleCollectReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserArticleCollectReplyValidationError{}
+
 // Validate checks the field values on GetArticleListStatisticReq with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -5368,6 +5942,117 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = SetArticleAgreeDbAndCacheReqValidationError{}
+
+// Validate checks the field values on SetArticleCollectDbAndCacheReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SetArticleCollectDbAndCacheReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SetArticleCollectDbAndCacheReq with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// SetArticleCollectDbAndCacheReqMultiError, or nil if none found.
+func (m *SetArticleCollectDbAndCacheReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SetArticleCollectDbAndCacheReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for CollectionsId
+
+	// no validation rules for Uuid
+
+	// no validation rules for UserUuid
+
+	if len(errors) > 0 {
+		return SetArticleCollectDbAndCacheReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// SetArticleCollectDbAndCacheReqMultiError is an error wrapping multiple
+// validation errors returned by SetArticleCollectDbAndCacheReq.ValidateAll()
+// if the designated constraints aren't met.
+type SetArticleCollectDbAndCacheReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SetArticleCollectDbAndCacheReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SetArticleCollectDbAndCacheReqMultiError) AllErrors() []error { return m }
+
+// SetArticleCollectDbAndCacheReqValidationError is the validation error
+// returned by SetArticleCollectDbAndCacheReq.Validate if the designated
+// constraints aren't met.
+type SetArticleCollectDbAndCacheReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SetArticleCollectDbAndCacheReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SetArticleCollectDbAndCacheReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SetArticleCollectDbAndCacheReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SetArticleCollectDbAndCacheReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SetArticleCollectDbAndCacheReqValidationError) ErrorName() string {
+	return "SetArticleCollectDbAndCacheReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SetArticleCollectDbAndCacheReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSetArticleCollectDbAndCacheReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SetArticleCollectDbAndCacheReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SetArticleCollectDbAndCacheReqValidationError{}
 
 // Validate checks the field values on CreateArticleDraftReq with the rules
 // defined in the proto definition for this message. If any rules are
@@ -6900,6 +7585,115 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CancelArticleAgreeReqValidationError{}
+
+// Validate checks the field values on CancelArticleAgreeDbAndCacheReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *CancelArticleAgreeDbAndCacheReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CancelArticleAgreeDbAndCacheReq with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// CancelArticleAgreeDbAndCacheReqMultiError, or nil if none found.
+func (m *CancelArticleAgreeDbAndCacheReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CancelArticleAgreeDbAndCacheReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Uuid
+
+	// no validation rules for UserUuid
+
+	if len(errors) > 0 {
+		return CancelArticleAgreeDbAndCacheReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// CancelArticleAgreeDbAndCacheReqMultiError is an error wrapping multiple
+// validation errors returned by CancelArticleAgreeDbAndCacheReq.ValidateAll()
+// if the designated constraints aren't met.
+type CancelArticleAgreeDbAndCacheReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CancelArticleAgreeDbAndCacheReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CancelArticleAgreeDbAndCacheReqMultiError) AllErrors() []error { return m }
+
+// CancelArticleAgreeDbAndCacheReqValidationError is the validation error
+// returned by CancelArticleAgreeDbAndCacheReq.Validate if the designated
+// constraints aren't met.
+type CancelArticleAgreeDbAndCacheReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CancelArticleAgreeDbAndCacheReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CancelArticleAgreeDbAndCacheReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CancelArticleAgreeDbAndCacheReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CancelArticleAgreeDbAndCacheReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CancelArticleAgreeDbAndCacheReqValidationError) ErrorName() string {
+	return "CancelArticleAgreeDbAndCacheReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CancelArticleAgreeDbAndCacheReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCancelArticleAgreeDbAndCacheReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CancelArticleAgreeDbAndCacheReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CancelArticleAgreeDbAndCacheReqValidationError{}
 
 // Validate checks the field values on CancelArticleCollectReq with the rules
 // defined in the proto definition for this message. If any rules are
