@@ -266,14 +266,15 @@ func (r *creationRepo) getCollectionsListInfoFromDb(ctx context.Context, unExist
 }
 
 func (r *creationRepo) setCollectionsListInfoToCache(collectionsList []*Collections) {
-	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		for _, item := range collectionsList {
 			key := "collection_" + strconv.Itoa(int(item.ID))
-			pipe.HSetNX(context.Background(), key, "uuid", item.Uuid)
-			pipe.HSetNX(context.Background(), key, "auth", item.Auth)
-			pipe.HSetNX(context.Background(), key, "name", item.Name)
-			pipe.HSetNX(context.Background(), key, "introduce", item.Introduce)
-			pipe.Expire(context.Background(), key, time.Hour*8)
+			pipe.HSetNX(ctx, key, "uuid", item.Uuid)
+			pipe.HSetNX(ctx, key, "auth", item.Auth)
+			pipe.HSetNX(ctx, key, "name", item.Name)
+			pipe.HSetNX(ctx, key, "introduce", item.Introduce)
+			pipe.Expire(ctx, key, time.Hour*8)
 		}
 		return nil
 	})
@@ -322,7 +323,7 @@ func (r *creationRepo) getUserCollectionsListFromCache(ctx context.Context, page
 	index := int64(page - 1)
 	list, err := r.data.redisCli.ZRevRange(ctx, "user_collections_list_"+uuid, index*10, index*10+9).Result()
 	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user collections list visitor from cache: key(%s), page(%v)", "user_collections_list_", page))
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user collections list from cache: key(%s), page(%v)", "user_collections_list_", page))
 	}
 
 	collections := make([]*biz.Collections, 0)
@@ -425,7 +426,8 @@ func (r *creationRepo) getUserCollectionsListVisitorFromDB(ctx context.Context, 
 }
 
 func (r *creationRepo) setUserCollectionsListToCache(key string, collections []*biz.Collections) {
-	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		z := make([]*redis.Z, 0)
 		for _, item := range collections {
 			z = append(z, &redis.Z{
@@ -433,13 +435,71 @@ func (r *creationRepo) setUserCollectionsListToCache(key string, collections []*
 				Member: strconv.Itoa(int(item.Id)),
 			})
 		}
-		pipe.ZAddNX(context.Background(), key, z...)
-		pipe.Expire(context.Background(), key, time.Hour*8)
+		pipe.ZAddNX(ctx, key, z...)
+		pipe.Expire(ctx, key, time.Hour*8)
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set talk to cache: collections(%v)", collections)
+		r.log.Errorf("fail to set collections to cache: collections(%v)", collections)
 	}
+}
+
+func (r *creationRepo) GetCollectionsAll(ctx context.Context, uuid string) ([]*biz.Collections, error) {
+	collections, err := r.getUserCollectionsListAllFromCache(ctx, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	size := len(collections)
+	if size != 0 {
+		return collections, nil
+	}
+
+	collections, err = r.getUserCollectionsListAllFromDB(ctx, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	size = len(collections)
+	if size != 0 {
+		go r.setUserCollectionsListToCache("user_collections_list_all_"+uuid, collections)
+	}
+	return collections, nil
+}
+
+func (r *creationRepo) getUserCollectionsListAllFromCache(ctx context.Context, uuid string) ([]*biz.Collections, error) {
+	list, err := r.data.redisCli.ZRevRange(ctx, "user_collections_list_all_"+uuid, 0, -1).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user collections list all from cache: key(%s)", "user_collections_list_all_"+uuid))
+	}
+
+	collections := make([]*biz.Collections, 0)
+	for _, item := range list {
+		id, err := strconv.ParseInt(item, 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s)", item))
+		}
+		collections = append(collections, &biz.Collections{
+			Id: int32(id),
+		})
+	}
+	return collections, nil
+}
+
+func (r *creationRepo) getUserCollectionsListAllFromDB(ctx context.Context, uuid string) ([]*biz.Collections, error) {
+	list := make([]*Collections, 0)
+	handle := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).Order("id desc").Find(&list)
+	err := handle.Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get collections from db: uuid(%s)", uuid))
+	}
+	collections := make([]*biz.Collections, 0)
+	for _, item := range list {
+		collections = append(collections, &biz.Collections{
+			Id: int32(item.ID),
+		})
+	}
+	return collections, nil
 }
 
 func (r *creationRepo) GetCollectionsCount(ctx context.Context, uuid string) (int32, error) {
@@ -487,11 +547,11 @@ func (r *creationRepo) GetCreationUser(ctx context.Context, uuid string) (*biz.C
 }
 
 func (r *creationRepo) getCreationUserFromCache(ctx context.Context, key string) (*biz.CreationUser, error) {
-	statistic, err := r.data.redisCli.HMGet(ctx, key, "article", "column", "talk", "collections").Result()
+	statistic, err := r.data.redisCli.HMGet(ctx, key, "article", "column", "talk", "collections", "collect", "subscribe").Result()
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user creation form cache: key(%s)", key))
 	}
-	val := []int32{0, 0, 0, 0}
+	val := []int32{0, 0, 0, 0, 0, 0}
 	for _index, count := range statistic {
 		if count == nil {
 			break
@@ -507,6 +567,8 @@ func (r *creationRepo) getCreationUserFromCache(ctx context.Context, key string)
 		Column:      val[1],
 		Talk:        val[2],
 		Collections: val[3],
+		Collect:     val[4],
+		Subscribe:   val[5],
 	}, nil
 }
 
@@ -521,11 +583,18 @@ func (r *creationRepo) getCreationUserFromDB(ctx context.Context, uuid string) (
 		Column:      cuv.Column,
 		Collections: cuv.Collections,
 		Talk:        cuv.Talk,
+		Collect:     cuv.Collect,
+		Subscribe:   cuv.Subscribe,
 	}, nil
 }
 
 func (r *creationRepo) setCreationUserToCache(key string, creationUser *biz.CreationUser) {
-	err := r.data.redisCli.HMSet(context.Background(), key, "article", creationUser.Article, "talk", creationUser.Talk, "column", creationUser.Column, "collections", creationUser.Collections).Err()
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.HMSet(context.Background(), key, "article", creationUser.Article, "talk", creationUser.Talk, "column", creationUser.Column, "collections", creationUser.Collections, "collect", creationUser.Collect, "subscribe", creationUser.Subscribe)
+		pipe.Expire(ctx, key, time.Hour*8)
+		return nil
+	})
 	if err != nil {
 		r.log.Errorf("fail to set user creation to cache, err(%s)", err.Error())
 	}
@@ -596,7 +665,12 @@ func (r *creationRepo) getCreationUserVisitorFromDB(ctx context.Context, uuid st
 }
 
 func (r *creationRepo) setCreationUserVisitorToCache(key string, creationUser *biz.CreationUser) {
-	err := r.data.redisCli.HMSet(context.Background(), key, "article", creationUser.Article, "talk", creationUser.Talk, "column", creationUser.Column, "collections", creationUser.Collections).Err()
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.HMSet(context.Background(), key, "article", creationUser.Article, "talk", creationUser.Talk, "column", creationUser.Column, "collections", creationUser.Collections)
+		pipe.Expire(ctx, key, time.Hour*8)
+		return nil
+	})
 	if err != nil {
 		r.log.Errorf("fail to set user creation to cache, err(%s)", err.Error())
 	}
