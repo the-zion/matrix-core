@@ -75,6 +75,7 @@ type CreationClient interface {
 	CancelArticleAgree(ctx context.Context, in *CancelArticleAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelArticleAgreeDbAndCache(ctx context.Context, in *CancelArticleAgreeDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelArticleCollect(ctx context.Context, in *CancelArticleCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CancelArticleCollectDbAndCache(ctx context.Context, in *CancelArticleCollectDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ArticleStatisticJudge(ctx context.Context, in *ArticleStatisticJudgeReq, opts ...grpc.CallOption) (*ArticleStatisticJudgeReply, error)
 	GetTalkList(ctx context.Context, in *GetTalkListReq, opts ...grpc.CallOption) (*GetTalkListReply, error)
 	GetTalkListHot(ctx context.Context, in *GetTalkListHotReq, opts ...grpc.CallOption) (*GetTalkListHotReply, error)
@@ -96,10 +97,14 @@ type CreationClient interface {
 	EditTalkCosAndSearch(ctx context.Context, in *EditTalkCosAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteTalkCacheAndSearch(ctx context.Context, in *DeleteTalkCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetTalkView(ctx context.Context, in *SetTalkViewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetTalkViewDbAndCache(ctx context.Context, in *SetTalkViewDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	TalkStatisticJudge(ctx context.Context, in *TalkStatisticJudgeReq, opts ...grpc.CallOption) (*TalkStatisticJudgeReply, error)
 	SetTalkAgree(ctx context.Context, in *SetTalkAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetTalkAgreeDbAndCache(ctx context.Context, in *SetTalkAgreeDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetTalkCollect(ctx context.Context, in *SetTalkCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetTalkCollectDbAndCache(ctx context.Context, in *SetTalkCollectDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelTalkAgree(ctx context.Context, in *CancelTalkAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CancelTalkAgreeDbAndCache(ctx context.Context, in *CancelTalkAgreeDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelTalkCollect(ctx context.Context, in *CancelTalkCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetLastColumnDraft(ctx context.Context, in *GetLastColumnDraftReq, opts ...grpc.CallOption) (*GetLastColumnDraftReply, error)
 	GetColumnSearch(ctx context.Context, in *GetColumnSearchReq, opts ...grpc.CallOption) (*GetColumnSearchReply, error)
@@ -615,6 +620,15 @@ func (c *creationClient) CancelArticleCollect(ctx context.Context, in *CancelArt
 	return out, nil
 }
 
+func (c *creationClient) CancelArticleCollectDbAndCache(ctx context.Context, in *CancelArticleCollectDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/CancelArticleCollectDbAndCache", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *creationClient) ArticleStatisticJudge(ctx context.Context, in *ArticleStatisticJudgeReq, opts ...grpc.CallOption) (*ArticleStatisticJudgeReply, error) {
 	out := new(ArticleStatisticJudgeReply)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/ArticleStatisticJudge", in, out, opts...)
@@ -804,6 +818,15 @@ func (c *creationClient) SetTalkView(ctx context.Context, in *SetTalkViewReq, op
 	return out, nil
 }
 
+func (c *creationClient) SetTalkViewDbAndCache(ctx context.Context, in *SetTalkViewDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/SetTalkViewDbAndCache", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *creationClient) TalkStatisticJudge(ctx context.Context, in *TalkStatisticJudgeReq, opts ...grpc.CallOption) (*TalkStatisticJudgeReply, error) {
 	out := new(TalkStatisticJudgeReply)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/TalkStatisticJudge", in, out, opts...)
@@ -822,6 +845,15 @@ func (c *creationClient) SetTalkAgree(ctx context.Context, in *SetTalkAgreeReq, 
 	return out, nil
 }
 
+func (c *creationClient) SetTalkAgreeDbAndCache(ctx context.Context, in *SetTalkAgreeDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/SetTalkAgreeDbAndCache", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *creationClient) SetTalkCollect(ctx context.Context, in *SetTalkCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/SetTalkCollect", in, out, opts...)
@@ -831,9 +863,27 @@ func (c *creationClient) SetTalkCollect(ctx context.Context, in *SetTalkCollectR
 	return out, nil
 }
 
+func (c *creationClient) SetTalkCollectDbAndCache(ctx context.Context, in *SetTalkCollectDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/SetTalkCollectDbAndCache", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *creationClient) CancelTalkAgree(ctx context.Context, in *CancelTalkAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/CancelTalkAgree", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) CancelTalkAgreeDbAndCache(ctx context.Context, in *CancelTalkAgreeDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/CancelTalkAgreeDbAndCache", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1229,6 +1279,7 @@ type CreationServer interface {
 	CancelArticleAgree(context.Context, *CancelArticleAgreeReq) (*emptypb.Empty, error)
 	CancelArticleAgreeDbAndCache(context.Context, *CancelArticleAgreeDbAndCacheReq) (*emptypb.Empty, error)
 	CancelArticleCollect(context.Context, *CancelArticleCollectReq) (*emptypb.Empty, error)
+	CancelArticleCollectDbAndCache(context.Context, *CancelArticleCollectDbAndCacheReq) (*emptypb.Empty, error)
 	ArticleStatisticJudge(context.Context, *ArticleStatisticJudgeReq) (*ArticleStatisticJudgeReply, error)
 	GetTalkList(context.Context, *GetTalkListReq) (*GetTalkListReply, error)
 	GetTalkListHot(context.Context, *GetTalkListHotReq) (*GetTalkListHotReply, error)
@@ -1250,10 +1301,14 @@ type CreationServer interface {
 	EditTalkCosAndSearch(context.Context, *EditTalkCosAndSearchReq) (*emptypb.Empty, error)
 	DeleteTalkCacheAndSearch(context.Context, *DeleteTalkCacheAndSearchReq) (*emptypb.Empty, error)
 	SetTalkView(context.Context, *SetTalkViewReq) (*emptypb.Empty, error)
+	SetTalkViewDbAndCache(context.Context, *SetTalkViewDbAndCacheReq) (*emptypb.Empty, error)
 	TalkStatisticJudge(context.Context, *TalkStatisticJudgeReq) (*TalkStatisticJudgeReply, error)
 	SetTalkAgree(context.Context, *SetTalkAgreeReq) (*emptypb.Empty, error)
+	SetTalkAgreeDbAndCache(context.Context, *SetTalkAgreeDbAndCacheReq) (*emptypb.Empty, error)
 	SetTalkCollect(context.Context, *SetTalkCollectReq) (*emptypb.Empty, error)
+	SetTalkCollectDbAndCache(context.Context, *SetTalkCollectDbAndCacheReq) (*emptypb.Empty, error)
 	CancelTalkAgree(context.Context, *CancelTalkAgreeReq) (*emptypb.Empty, error)
+	CancelTalkAgreeDbAndCache(context.Context, *CancelTalkAgreeDbAndCacheReq) (*emptypb.Empty, error)
 	CancelTalkCollect(context.Context, *CancelTalkCollectReq) (*emptypb.Empty, error)
 	GetLastColumnDraft(context.Context, *GetLastColumnDraftReq) (*GetLastColumnDraftReply, error)
 	GetColumnSearch(context.Context, *GetColumnSearchReq) (*GetColumnSearchReply, error)
@@ -1454,6 +1509,9 @@ func (UnimplementedCreationServer) CancelArticleAgreeDbAndCache(context.Context,
 func (UnimplementedCreationServer) CancelArticleCollect(context.Context, *CancelArticleCollectReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CancelArticleCollect not implemented")
 }
+func (UnimplementedCreationServer) CancelArticleCollectDbAndCache(context.Context, *CancelArticleCollectDbAndCacheReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelArticleCollectDbAndCache not implemented")
+}
 func (UnimplementedCreationServer) ArticleStatisticJudge(context.Context, *ArticleStatisticJudgeReq) (*ArticleStatisticJudgeReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ArticleStatisticJudge not implemented")
 }
@@ -1517,17 +1575,29 @@ func (UnimplementedCreationServer) DeleteTalkCacheAndSearch(context.Context, *De
 func (UnimplementedCreationServer) SetTalkView(context.Context, *SetTalkViewReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetTalkView not implemented")
 }
+func (UnimplementedCreationServer) SetTalkViewDbAndCache(context.Context, *SetTalkViewDbAndCacheReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetTalkViewDbAndCache not implemented")
+}
 func (UnimplementedCreationServer) TalkStatisticJudge(context.Context, *TalkStatisticJudgeReq) (*TalkStatisticJudgeReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method TalkStatisticJudge not implemented")
 }
 func (UnimplementedCreationServer) SetTalkAgree(context.Context, *SetTalkAgreeReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetTalkAgree not implemented")
 }
+func (UnimplementedCreationServer) SetTalkAgreeDbAndCache(context.Context, *SetTalkAgreeDbAndCacheReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetTalkAgreeDbAndCache not implemented")
+}
 func (UnimplementedCreationServer) SetTalkCollect(context.Context, *SetTalkCollectReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetTalkCollect not implemented")
 }
+func (UnimplementedCreationServer) SetTalkCollectDbAndCache(context.Context, *SetTalkCollectDbAndCacheReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetTalkCollectDbAndCache not implemented")
+}
 func (UnimplementedCreationServer) CancelTalkAgree(context.Context, *CancelTalkAgreeReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CancelTalkAgree not implemented")
+}
+func (UnimplementedCreationServer) CancelTalkAgreeDbAndCache(context.Context, *CancelTalkAgreeDbAndCacheReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelTalkAgreeDbAndCache not implemented")
 }
 func (UnimplementedCreationServer) CancelTalkCollect(context.Context, *CancelTalkCollectReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CancelTalkCollect not implemented")
@@ -2589,6 +2659,24 @@ func _Creation_CancelArticleCollect_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Creation_CancelArticleCollectDbAndCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelArticleCollectDbAndCacheReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).CancelArticleCollectDbAndCache(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/CancelArticleCollectDbAndCache",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).CancelArticleCollectDbAndCache(ctx, req.(*CancelArticleCollectDbAndCacheReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Creation_ArticleStatisticJudge_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ArticleStatisticJudgeReq)
 	if err := dec(in); err != nil {
@@ -2967,6 +3055,24 @@ func _Creation_SetTalkView_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Creation_SetTalkViewDbAndCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetTalkViewDbAndCacheReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).SetTalkViewDbAndCache(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/SetTalkViewDbAndCache",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).SetTalkViewDbAndCache(ctx, req.(*SetTalkViewDbAndCacheReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Creation_TalkStatisticJudge_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(TalkStatisticJudgeReq)
 	if err := dec(in); err != nil {
@@ -3003,6 +3109,24 @@ func _Creation_SetTalkAgree_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Creation_SetTalkAgreeDbAndCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetTalkAgreeDbAndCacheReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).SetTalkAgreeDbAndCache(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/SetTalkAgreeDbAndCache",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).SetTalkAgreeDbAndCache(ctx, req.(*SetTalkAgreeDbAndCacheReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Creation_SetTalkCollect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SetTalkCollectReq)
 	if err := dec(in); err != nil {
@@ -3021,6 +3145,24 @@ func _Creation_SetTalkCollect_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Creation_SetTalkCollectDbAndCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetTalkCollectDbAndCacheReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).SetTalkCollectDbAndCache(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/SetTalkCollectDbAndCache",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).SetTalkCollectDbAndCache(ctx, req.(*SetTalkCollectDbAndCacheReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Creation_CancelTalkAgree_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CancelTalkAgreeReq)
 	if err := dec(in); err != nil {
@@ -3035,6 +3177,24 @@ func _Creation_CancelTalkAgree_Handler(srv interface{}, ctx context.Context, dec
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CreationServer).CancelTalkAgree(ctx, req.(*CancelTalkAgreeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_CancelTalkAgreeDbAndCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelTalkAgreeDbAndCacheReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).CancelTalkAgreeDbAndCache(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/CancelTalkAgreeDbAndCache",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).CancelTalkAgreeDbAndCache(ctx, req.(*CancelTalkAgreeDbAndCacheReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -3921,6 +4081,10 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Creation_CancelArticleCollect_Handler,
 		},
 		{
+			MethodName: "CancelArticleCollectDbAndCache",
+			Handler:    _Creation_CancelArticleCollectDbAndCache_Handler,
+		},
+		{
 			MethodName: "ArticleStatisticJudge",
 			Handler:    _Creation_ArticleStatisticJudge_Handler,
 		},
@@ -4005,6 +4169,10 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Creation_SetTalkView_Handler,
 		},
 		{
+			MethodName: "SetTalkViewDbAndCache",
+			Handler:    _Creation_SetTalkViewDbAndCache_Handler,
+		},
+		{
 			MethodName: "TalkStatisticJudge",
 			Handler:    _Creation_TalkStatisticJudge_Handler,
 		},
@@ -4013,12 +4181,24 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Creation_SetTalkAgree_Handler,
 		},
 		{
+			MethodName: "SetTalkAgreeDbAndCache",
+			Handler:    _Creation_SetTalkAgreeDbAndCache_Handler,
+		},
+		{
 			MethodName: "SetTalkCollect",
 			Handler:    _Creation_SetTalkCollect_Handler,
 		},
 		{
+			MethodName: "SetTalkCollectDbAndCache",
+			Handler:    _Creation_SetTalkCollectDbAndCache_Handler,
+		},
+		{
 			MethodName: "CancelTalkAgree",
 			Handler:    _Creation_CancelTalkAgree_Handler,
+		},
+		{
+			MethodName: "CancelTalkAgreeDbAndCache",
+			Handler:    _Creation_CancelTalkAgreeDbAndCache_Handler,
 		},
 		{
 			MethodName: "CancelTalkCollect",

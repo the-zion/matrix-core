@@ -7831,6 +7831,117 @@ var _ interface {
 	ErrorName() string
 } = CancelArticleCollectReqValidationError{}
 
+// Validate checks the field values on CancelArticleCollectDbAndCacheReq with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *CancelArticleCollectDbAndCacheReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CancelArticleCollectDbAndCacheReq
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the result is a list of violation errors wrapped in
+// CancelArticleCollectDbAndCacheReqMultiError, or nil if none found.
+func (m *CancelArticleCollectDbAndCacheReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CancelArticleCollectDbAndCacheReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Uuid
+
+	// no validation rules for UserUuid
+
+	if len(errors) > 0 {
+		return CancelArticleCollectDbAndCacheReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// CancelArticleCollectDbAndCacheReqMultiError is an error wrapping multiple
+// validation errors returned by
+// CancelArticleCollectDbAndCacheReq.ValidateAll() if the designated
+// constraints aren't met.
+type CancelArticleCollectDbAndCacheReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CancelArticleCollectDbAndCacheReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CancelArticleCollectDbAndCacheReqMultiError) AllErrors() []error { return m }
+
+// CancelArticleCollectDbAndCacheReqValidationError is the validation error
+// returned by CancelArticleCollectDbAndCacheReq.Validate if the designated
+// constraints aren't met.
+type CancelArticleCollectDbAndCacheReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CancelArticleCollectDbAndCacheReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CancelArticleCollectDbAndCacheReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CancelArticleCollectDbAndCacheReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CancelArticleCollectDbAndCacheReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CancelArticleCollectDbAndCacheReqValidationError) ErrorName() string {
+	return "CancelArticleCollectDbAndCacheReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CancelArticleCollectDbAndCacheReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCancelArticleCollectDbAndCacheReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CancelArticleCollectDbAndCacheReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CancelArticleCollectDbAndCacheReqValidationError{}
+
 // Validate checks the field values on ArticleStatisticJudgeReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -11417,6 +11528,112 @@ var _ interface {
 	ErrorName() string
 } = SetTalkViewReqValidationError{}
 
+// Validate checks the field values on SetTalkViewDbAndCacheReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SetTalkViewDbAndCacheReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SetTalkViewDbAndCacheReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SetTalkViewDbAndCacheReqMultiError, or nil if none found.
+func (m *SetTalkViewDbAndCacheReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SetTalkViewDbAndCacheReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Uuid
+
+	if len(errors) > 0 {
+		return SetTalkViewDbAndCacheReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// SetTalkViewDbAndCacheReqMultiError is an error wrapping multiple validation
+// errors returned by SetTalkViewDbAndCacheReq.ValidateAll() if the designated
+// constraints aren't met.
+type SetTalkViewDbAndCacheReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SetTalkViewDbAndCacheReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SetTalkViewDbAndCacheReqMultiError) AllErrors() []error { return m }
+
+// SetTalkViewDbAndCacheReqValidationError is the validation error returned by
+// SetTalkViewDbAndCacheReq.Validate if the designated constraints aren't met.
+type SetTalkViewDbAndCacheReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SetTalkViewDbAndCacheReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SetTalkViewDbAndCacheReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SetTalkViewDbAndCacheReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SetTalkViewDbAndCacheReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SetTalkViewDbAndCacheReqValidationError) ErrorName() string {
+	return "SetTalkViewDbAndCacheReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SetTalkViewDbAndCacheReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSetTalkViewDbAndCacheReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SetTalkViewDbAndCacheReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SetTalkViewDbAndCacheReqValidationError{}
+
 // Validate checks the field values on TalkStatisticJudgeReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -11781,6 +11998,114 @@ var _ interface {
 	ErrorName() string
 } = SetTalkAgreeReqValidationError{}
 
+// Validate checks the field values on SetTalkAgreeDbAndCacheReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SetTalkAgreeDbAndCacheReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SetTalkAgreeDbAndCacheReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SetTalkAgreeDbAndCacheReqMultiError, or nil if none found.
+func (m *SetTalkAgreeDbAndCacheReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SetTalkAgreeDbAndCacheReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Uuid
+
+	// no validation rules for UserUuid
+
+	if len(errors) > 0 {
+		return SetTalkAgreeDbAndCacheReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// SetTalkAgreeDbAndCacheReqMultiError is an error wrapping multiple validation
+// errors returned by SetTalkAgreeDbAndCacheReq.ValidateAll() if the
+// designated constraints aren't met.
+type SetTalkAgreeDbAndCacheReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SetTalkAgreeDbAndCacheReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SetTalkAgreeDbAndCacheReqMultiError) AllErrors() []error { return m }
+
+// SetTalkAgreeDbAndCacheReqValidationError is the validation error returned by
+// SetTalkAgreeDbAndCacheReq.Validate if the designated constraints aren't met.
+type SetTalkAgreeDbAndCacheReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SetTalkAgreeDbAndCacheReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SetTalkAgreeDbAndCacheReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SetTalkAgreeDbAndCacheReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SetTalkAgreeDbAndCacheReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SetTalkAgreeDbAndCacheReqValidationError) ErrorName() string {
+	return "SetTalkAgreeDbAndCacheReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SetTalkAgreeDbAndCacheReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSetTalkAgreeDbAndCacheReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SetTalkAgreeDbAndCacheReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SetTalkAgreeDbAndCacheReqValidationError{}
+
 // Validate checks the field values on SetTalkCollectReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -11919,6 +12244,117 @@ var _ interface {
 	ErrorName() string
 } = SetTalkCollectReqValidationError{}
 
+// Validate checks the field values on SetTalkCollectDbAndCacheReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SetTalkCollectDbAndCacheReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SetTalkCollectDbAndCacheReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SetTalkCollectDbAndCacheReqMultiError, or nil if none found.
+func (m *SetTalkCollectDbAndCacheReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SetTalkCollectDbAndCacheReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for CollectionsId
+
+	// no validation rules for Uuid
+
+	// no validation rules for UserUuid
+
+	if len(errors) > 0 {
+		return SetTalkCollectDbAndCacheReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// SetTalkCollectDbAndCacheReqMultiError is an error wrapping multiple
+// validation errors returned by SetTalkCollectDbAndCacheReq.ValidateAll() if
+// the designated constraints aren't met.
+type SetTalkCollectDbAndCacheReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SetTalkCollectDbAndCacheReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SetTalkCollectDbAndCacheReqMultiError) AllErrors() []error { return m }
+
+// SetTalkCollectDbAndCacheReqValidationError is the validation error returned
+// by SetTalkCollectDbAndCacheReq.Validate if the designated constraints
+// aren't met.
+type SetTalkCollectDbAndCacheReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SetTalkCollectDbAndCacheReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SetTalkCollectDbAndCacheReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SetTalkCollectDbAndCacheReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SetTalkCollectDbAndCacheReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SetTalkCollectDbAndCacheReqValidationError) ErrorName() string {
+	return "SetTalkCollectDbAndCacheReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SetTalkCollectDbAndCacheReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSetTalkCollectDbAndCacheReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SetTalkCollectDbAndCacheReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SetTalkCollectDbAndCacheReqValidationError{}
+
 // Validate checks the field values on CancelTalkAgreeReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -12054,6 +12490,115 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CancelTalkAgreeReqValidationError{}
+
+// Validate checks the field values on CancelTalkAgreeDbAndCacheReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *CancelTalkAgreeDbAndCacheReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CancelTalkAgreeDbAndCacheReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// CancelTalkAgreeDbAndCacheReqMultiError, or nil if none found.
+func (m *CancelTalkAgreeDbAndCacheReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CancelTalkAgreeDbAndCacheReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Uuid
+
+	// no validation rules for UserUuid
+
+	if len(errors) > 0 {
+		return CancelTalkAgreeDbAndCacheReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// CancelTalkAgreeDbAndCacheReqMultiError is an error wrapping multiple
+// validation errors returned by CancelTalkAgreeDbAndCacheReq.ValidateAll() if
+// the designated constraints aren't met.
+type CancelTalkAgreeDbAndCacheReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CancelTalkAgreeDbAndCacheReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CancelTalkAgreeDbAndCacheReqMultiError) AllErrors() []error { return m }
+
+// CancelTalkAgreeDbAndCacheReqValidationError is the validation error returned
+// by CancelTalkAgreeDbAndCacheReq.Validate if the designated constraints
+// aren't met.
+type CancelTalkAgreeDbAndCacheReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CancelTalkAgreeDbAndCacheReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CancelTalkAgreeDbAndCacheReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CancelTalkAgreeDbAndCacheReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CancelTalkAgreeDbAndCacheReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CancelTalkAgreeDbAndCacheReqValidationError) ErrorName() string {
+	return "CancelTalkAgreeDbAndCacheReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CancelTalkAgreeDbAndCacheReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCancelTalkAgreeDbAndCacheReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CancelTalkAgreeDbAndCacheReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CancelTalkAgreeDbAndCacheReqValidationError{}
 
 // Validate checks the field values on CancelTalkCollectReq with the rules
 // defined in the proto definition for this message. If any rules are
