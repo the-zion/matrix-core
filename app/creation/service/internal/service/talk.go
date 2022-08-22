@@ -232,8 +232,24 @@ func (s *CreationService) SetTalkAgree(ctx context.Context, req *v1.SetTalkAgree
 	return &emptypb.Empty{}, nil
 }
 
+func (s *CreationService) SetTalkAgreeDbAndCache(ctx context.Context, req *v1.SetTalkAgreeDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.tc.SetTalkAgreeDbAndCache(ctx, req.Id, req.Uuid, req.UserUuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *CreationService) CancelTalkAgree(ctx context.Context, req *v1.CancelTalkAgreeReq) (*emptypb.Empty, error) {
 	err := s.tc.CancelTalkAgree(ctx, req.Id, req.Uuid, req.UserUuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) CancelTalkAgreeDbAndCache(ctx context.Context, req *v1.CancelTalkAgreeDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.tc.CancelTalkAgreeDbAndCache(ctx, req.Id, req.Uuid, req.UserUuid)
 	if err != nil {
 		return nil, err
 	}
@@ -256,8 +272,24 @@ func (s *CreationService) SetTalkView(ctx context.Context, req *v1.SetTalkViewRe
 	return &emptypb.Empty{}, nil
 }
 
+func (s *CreationService) SetTalkViewDbAndCache(ctx context.Context, req *v1.SetTalkViewDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.tc.SetTalkViewDbAndCache(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *CreationService) SetTalkCollect(ctx context.Context, req *v1.SetTalkCollectReq) (*emptypb.Empty, error) {
 	err := s.tc.SetTalkCollect(ctx, req.Id, req.CollectionsId, req.Uuid, req.UserUuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) SetTalkCollectDbAndCache(ctx context.Context, req *v1.SetTalkCollectDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.tc.SetTalkCollectDbAndCache(ctx, req.Id, req.CollectionsId, req.Uuid, req.UserUuid)
 	if err != nil {
 		return nil, err
 	}
