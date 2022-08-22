@@ -322,7 +322,7 @@ func (s *CreationService) SetArticleCollect(ctx context.Context, req *v1.SetArti
 }
 
 func (s *CreationService) SetArticleCollectDbAndCache(ctx context.Context, req *v1.SetArticleCollectDbAndCacheReq) (*emptypb.Empty, error) {
-	err := s.ac.SetArticleCollectDbAndCacheReq(ctx, req.Id, req.CollectionsId, req.Uuid, req.UserUuid)
+	err := s.ac.SetArticleCollectDbAndCache(ctx, req.Id, req.CollectionsId, req.Uuid, req.UserUuid)
 	if err != nil {
 		return nil, err
 	}
@@ -347,6 +347,14 @@ func (s *CreationService) CancelArticleAgreeDbAndCache(ctx context.Context, req 
 
 func (s *CreationService) CancelArticleCollect(ctx context.Context, req *v1.CancelArticleCollectReq) (*emptypb.Empty, error) {
 	err := s.ac.CancelArticleCollect(ctx, req.Id, req.Uuid, req.UserUuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) CancelArticleCollectDbAndCache(ctx context.Context, req *v1.CancelArticleCollectDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.ac.CancelArticleCollectDbAndCache(ctx, req.Id, req.Uuid, req.UserUuid)
 	if err != nil {
 		return nil, err
 	}
