@@ -311,8 +311,8 @@ func (r *columnRepo) CreateColumnCache(ctx context.Context, id, auth int32, uuid
 		pipe.Exists(ctx, "leaderboard")
 		pipe.Exists(ctx, "user_column_list_"+uuid)
 		pipe.Exists(ctx, "user_column_list_visitor_"+uuid)
-		pipe.Exists(ctx, "user_creation_info_"+uuid)
-		pipe.Exists(ctx, "user_creation_info_visitor_"+uuid)
+		pipe.Exists(ctx, "creation_user_"+uuid)
+		pipe.Exists(ctx, "creation_user_visitor_"+uuid)
 		return nil
 	})
 	if err != nil {
@@ -339,7 +339,7 @@ func (r *columnRepo) CreateColumnCache(ctx context.Context, id, auth int32, uuid
 		}
 
 		if exists[5] == 1 {
-			pipe.HIncrBy(ctx, "user_creation_info_"+uuid, "column", 1)
+			pipe.HIncrBy(ctx, "creation_user_"+uuid, "column", 1)
 		}
 
 		if auth == 2 {
@@ -375,7 +375,7 @@ func (r *columnRepo) CreateColumnCache(ctx context.Context, id, auth int32, uuid
 		}
 
 		if exists[6] == 1 {
-			pipe.HIncrBy(ctx, "user_creation_info_visitor_"+uuid, "column", 1)
+			pipe.HIncrBy(ctx, "creation_user_visitor_"+uuid, "column", 1)
 		}
 		return nil
 	})
@@ -534,7 +534,8 @@ func (r *columnRepo) getColumnFromDB(ctx context.Context, page int32) ([]*biz.Co
 }
 
 func (r *columnRepo) setColumnToCache(key string, column []*biz.Column) {
-	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		z := make([]*redis.Z, 0)
 		for _, item := range column {
 			z = append(z, &redis.Z{
@@ -542,7 +543,7 @@ func (r *columnRepo) setColumnToCache(key string, column []*biz.Column) {
 				Member: strconv.Itoa(int(item.ColumnId)) + "%" + item.Uuid,
 			})
 		}
-		pipe.ZAddNX(context.Background(), key, z...)
+		pipe.ZAddNX(ctx, key, z...)
 		return nil
 	})
 	if err != nil {
@@ -1004,7 +1005,12 @@ func (r *columnRepo) getColumnStatisticFromDB(ctx context.Context, id int32) (*b
 }
 
 func (r *columnRepo) setColumnStatisticToCache(key string, statistic *biz.ColumnStatistic) {
-	err := r.data.redisCli.HMSet(context.Background(), key, "uuid", statistic.Uuid, "agree", statistic.Agree, "collect", statistic.Collect, "view", statistic.View).Err()
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.HMSet(context.Background(), key, "uuid", statistic.Uuid, "agree", statistic.Agree, "collect", statistic.Collect, "view", statistic.View).Err()
+		pipe.Expire(ctx, key, time.Hour*8)
+		return nil
+	})
 	if err != nil {
 		r.log.Errorf("fail to set column statistic to cache, err(%s)", err.Error())
 	}
@@ -1077,7 +1083,7 @@ func (r *columnRepo) DeleteColumnCache(ctx context.Context, id, auth int32, uuid
 
 					return 0
 	`)
-	keys := []string{"column", "column_hot", "leaderboard", "column_" + ids, "column_collect_" + ids, "user_column_list_" + uuid, "user_column_list_visitor_" + uuid, "user_creation_info_" + uuid, "user_creation_info_visitor_" + uuid}
+	keys := []string{"column", "column_hot", "leaderboard", "column_" + ids, "column_collect_" + ids, "user_column_list_" + uuid, "user_column_list_visitor_" + uuid, "creation_user_" + uuid, "creation_user_visitor_" + uuid}
 	values := []interface{}{ids + "%" + uuid, ids + "%" + uuid + "%column", auth}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
