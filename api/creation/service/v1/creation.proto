@@ -114,6 +114,8 @@ service Creation {
 
   rpc CancelArticleCollect(CancelArticleCollectReq) returns (google.protobuf.Empty){}
 
+  rpc CancelArticleCollectDbAndCache(CancelArticleCollectDbAndCacheReq) returns (google.protobuf.Empty){}
+
   rpc ArticleStatisticJudge(ArticleStatisticJudgeReq) returns (ArticleStatisticJudgeReply){}
 
   rpc GetTalkList(GetTalkListReq) returns (GetTalkListReply){}
@@ -156,13 +158,21 @@ service Creation {
 
   rpc SetTalkView(SetTalkViewReq) returns (google.protobuf.Empty){}
 
+  rpc SetTalkViewDbAndCache(SetTalkViewDbAndCacheReq)returns (google.protobuf.Empty){}
+
   rpc TalkStatisticJudge(TalkStatisticJudgeReq) returns (TalkStatisticJudgeReply){}
 
   rpc SetTalkAgree(SetTalkAgreeReq) returns (google.protobuf.Empty){}
 
+  rpc SetTalkAgreeDbAndCache(SetTalkAgreeDbAndCacheReq) returns (google.protobuf.Empty){}
+
   rpc SetTalkCollect(SetTalkCollectReq) returns (google.protobuf.Empty){}
 
+  rpc SetTalkCollectDbAndCache(SetTalkCollectDbAndCacheReq) returns (google.protobuf.Empty){}
+
   rpc CancelTalkAgree(CancelTalkAgreeReq) returns (google.protobuf.Empty){}
+
+  rpc CancelTalkAgreeDbAndCache(CancelTalkAgreeDbAndCacheReq) returns (google.protobuf.Empty){}
 
   rpc CancelTalkCollect(CancelTalkCollectReq) returns (google.protobuf.Empty){}
 
@@ -603,6 +613,12 @@ message CancelArticleCollectReq{
   string user_uuid = 3 [(validate.rules).string.uuid = true];
 }
 
+message CancelArticleCollectDbAndCacheReq{
+  int32 id = 1;
+  string uuid = 2;
+  string user_uuid = 3;
+}
+
 message ArticleStatisticJudgeReq{
   int32 id = 1;
   string uuid = 3 [(validate.rules).string.uuid = true];
@@ -774,6 +790,11 @@ message SetTalkViewReq{
   string uuid = 2 [(validate.rules).string.uuid = true];
 }
 
+message SetTalkViewDbAndCacheReq{
+  int32 id = 1;
+  string uuid = 2;
+}
+
 message TalkStatisticJudgeReq{
   int32 id = 1;
   string uuid = 3 [(validate.rules).string.uuid = true];
@@ -790,6 +811,12 @@ message SetTalkAgreeReq{
   string user_uuid = 3 [(validate.rules).string.uuid = true];
 }
 
+message SetTalkAgreeDbAndCacheReq{
+  int32 id = 1;
+  string uuid = 2;
+  string userUuid = 3;
+}
+
 message SetTalkCollectReq{
   int32 id = 1;
   int32 collections_id = 2;
@@ -797,10 +824,23 @@ message SetTalkCollectReq{
   string user_uuid = 4 [(validate.rules).string.uuid = true];
 }
 
+message SetTalkCollectDbAndCacheReq{
+  int32 id = 1;
+  int32 collections_id = 2;
+  string uuid = 3;
+  string userUuid = 4;
+}
+
 message CancelTalkAgreeReq{
   int32 id = 1;
   string uuid = 2 [(validate.rules).string.uuid = true];
   string user_uuid = 3 [(validate.rules).string.uuid = true];
+}
+
+message CancelTalkAgreeDbAndCacheReq{
+  int32 id = 1;
+  string uuid = 2;
+  string userUuid = 3;
 }
 
 message CancelTalkCollectReq{
