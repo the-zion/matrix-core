@@ -842,6 +842,15 @@ func (r *articleRepo) getUserArticleCollectFromDb(ctx context.Context, uuid stri
 	return collectMap, nil
 }
 
+func (r *articleRepo) GetCollectionsIdFromArticleCollect(ctx context.Context, id int32) (int32, error) {
+	collect := &Collect{}
+	err := r.data.db.WithContext(ctx).Where("creations_id = ? and mode = ?", id, 1).First(collect).Error
+	if err != nil {
+		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get collections id  from db: creationsId(%v)", id))
+	}
+	return collect.CollectionsId, nil
+}
+
 func (r *articleRepo) setUserArticleCollectToCache(uuid string, collectList []*ArticleCollect) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
@@ -1538,7 +1547,7 @@ func (r *articleRepo) SetArticleViewToCache(ctx context.Context, id int32, uuid 
 	return nil
 }
 
-func (r *articleRepo) SetArticleUserCollect(ctx context.Context, id, collectionsId int32, userUuid string) error {
+func (r *articleRepo) SetCollectionsArticleCollect(ctx context.Context, id, collectionsId int32, userUuid string) error {
 	collect := &Collect{
 		CollectionsId: collectionsId,
 		Uuid:          userUuid,
@@ -1560,6 +1569,21 @@ func (r *articleRepo) SetCollectionArticle(ctx context.Context, collectionsId in
 	err := r.data.DB(ctx).Model(&c).Where("id = ? and uuid = ?", collectionsId, userUuid).Update("article", gorm.Expr("article + ?", 1)).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to add collection article collect: collectionsId(%v), userUuid(%s)", collectionsId, userUuid))
+	}
+	return nil
+}
+
+func (r *articleRepo) SetUserArticleCollect(ctx context.Context, id int32, userUuid string) error {
+	ac := &ArticleCollect{
+		ArticleId: id,
+		Uuid:      userUuid,
+		Status:    1,
+	}
+	err := r.data.DB(ctx).Clauses(clause.OnConflict{
+		DoUpdates: clause.Assignments(map[string]interface{}{"status": 1}),
+	}).Create(ac).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add user article collect: id(%v), userUuid(%s)", id, userUuid))
 	}
 	return nil
 }
@@ -1681,7 +1705,7 @@ func (r *articleRepo) SetUserArticleCollectToCache(ctx context.Context, id int32
 
 func (r *articleRepo) CancelArticleAgree(ctx context.Context, id int32, uuid string) error {
 	as := ArticleStatistic{}
-	err := r.data.DB(ctx).Model(&as).Where("article_id = ? and uuid = ?", id, uuid).Update("agree", gorm.Expr("agree - ?", 1)).Error
+	err := r.data.DB(ctx).Model(&as).Where("article_id = ? and uuid = ? and agree > 0", id, uuid).Update("agree", gorm.Expr("agree - ?", 1)).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel article agree: id(%v)", id))
 	}
@@ -1689,8 +1713,8 @@ func (r *articleRepo) CancelArticleAgree(ctx context.Context, id int32, uuid str
 }
 
 func (r *articleRepo) CancelUserArticleAgree(ctx context.Context, id int32, userUuid string) error {
-	as := ArticleAgree{}
-	err := r.data.DB(ctx).Model(&as).Where("article_id = ? and uuid = ?", id, userUuid).Update("status", 2).Error
+	aa := ArticleAgree{}
+	err := r.data.DB(ctx).Model(&aa).Where("article_id = ? and uuid = ?", id, userUuid).Update("status", 2).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel user article agree: id(%v), userUuid(%s)", id, userUuid))
 	}
@@ -1747,7 +1771,7 @@ func (r *articleRepo) CancelArticleAgreeFromCache(ctx context.Context, id int32,
 	return nil
 }
 
-func (r *articleRepo) CancelArticleUserCollect(ctx context.Context, id int32, userUuid string) error {
+func (r *articleRepo) CancelCollectionsArticleCollect(ctx context.Context, id int32, userUuid string) error {
 	collect := &Collect{
 		Status: 2,
 	}
@@ -1758,24 +1782,93 @@ func (r *articleRepo) CancelArticleUserCollect(ctx context.Context, id int32, us
 	return nil
 }
 
+func (r *articleRepo) CancelUserArticleCollect(ctx context.Context, id int32, userUuid string) error {
+	ac := &ArticleCollect{
+		Status: 2,
+	}
+	err := r.data.DB(ctx).Model(&ArticleCollect{}).Where("article_id = ? and uuid = ?", id, userUuid).Updates(ac).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to cancel user article collect: article_id(%v), userUuid(%s)", id, userUuid))
+	}
+	return nil
+}
+
+func (r *articleRepo) CancelCollectionArticle(ctx context.Context, id int32, uuid string) error {
+	collections := &Collections{}
+	err := r.data.DB(ctx).Model(collections).Where("id = ? and uuid = ? and article > 0", id, uuid).Update("article", gorm.Expr("article - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to cancel collections article: id(%v)", id))
+	}
+	return nil
+}
+
+func (r *articleRepo) ReduceCreationUserCollect(ctx context.Context, uuid string) error {
+	cu := &CreationUser{}
+	err := r.data.DB(ctx).Model(cu).Where("uuid = ? and collect > 0", uuid).Update("collect", gorm.Expr("collect - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to reduce creation user collect: uuid(%v)", uuid))
+	}
+	return nil
+}
+
 func (r *articleRepo) CancelArticleCollect(ctx context.Context, id int32, uuid string) error {
 	as := &ArticleStatistic{}
-	err := r.data.DB(ctx).Model(as).Where("article_id = ? and uuid = ?", id, uuid).Update("collect", gorm.Expr("collect - ?", 1)).Error
+	err := r.data.DB(ctx).Model(as).Where("article_id = ? and uuid = ? and collect > 0", id, uuid).Update("collect", gorm.Expr("collect - ?", 1)).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel article collect: id(%v)", id))
 	}
 	return nil
 }
 
-func (r *articleRepo) CancelArticleCollectFromCache(ctx context.Context, id int32, uuid, userUuid string) error {
-	ids := strconv.Itoa(int(id))
-	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.HIncrBy(ctx, "article_"+ids, "collect", -1)
-		pipe.SRem(ctx, "article_collect_"+ids, userUuid)
-		return nil
-	})
+func (r *articleRepo) CancelArticleCollectFromCache(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error {
+	statisticKey := fmt.Sprintf("article_%v", id)
+	collectKey := fmt.Sprintf("collections_%v_article", collectionsId)
+	collectionsKey := fmt.Sprintf("collections_%v", collectionsId)
+	creationKey := fmt.Sprintf("creation_user_%s", userUuid)
+	userKey := fmt.Sprintf("user_article_collect_%s", userUuid)
+	var script = redis.NewScript(`
+					local statisticKey = KEYS[1]
+					local statisticKeyExist = redis.call("EXISTS", statisticKey)
+					if statisticKeyExist == 1 then
+						local number = tonumber(redis.call("HGET", statisticKey, "collect"))
+						if number > 0 then
+  							redis.call("HINCRBY", statisticKey, "collect", -1)
+						end
+					end
+
+					local collectKey = KEYS[2]
+					local articleMember = ARGV[1]
+					redis.call("ZREM", collectKey, articleMember)
+
+					local collectionsKey = KEYS[3]
+					local collectionsKeyExist = redis.call("EXISTS", collectionsKey)
+					if collectionsKeyExist == 1 then
+						local number = tonumber(redis.call("HGET", collectionsKey, "article"))
+						if number > 0 then
+  							redis.call("HINCRBY", collectionsKey, "article", -1)
+						end
+					end
+
+					local creationKey = KEYS[4]
+					local creationKeyExist = redis.call("EXISTS", creationKey)
+					if creationKeyExist == 1 then
+						local number = tonumber(redis.call("HGET", creationKey, "collect"))
+						if number > 0 then
+  							redis.call("HINCRBY", creationKey, "collect", -1)
+						end
+					end
+
+					local userKey = KEYS[5]
+					local articleId = ARGV[2]
+					redis.call("SREM", userKey, articleId)
+
+					return 0
+	`)
+	keys := []string{statisticKey, collectKey, collectionsKey, creationKey, userKey}
+	values := []interface{}{fmt.Sprintf("%v%s%s", id, "%", uuid), id}
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
-		r.log.Errorf("fail to cancel article collect from cache: id(%v), uuid(%s), userUuid(%s)", id, uuid, userUuid)
+		return errors.Wrapf(err, fmt.Sprintf("fail to cancel article collect from cache: id(%v), collectionsId(%v), uuid(%s), userUuid(%s)", id, collectionsId, uuid, userUuid))
 	}
 	return nil
 }
@@ -1792,6 +1885,26 @@ func (r *articleRepo) CancelUserArticleAgreeFromCache(ctx context.Context, id in
 					return 0
 	`)
 	keys := []string{"user_article_agree_" + userUuid}
+	values := []interface{}{strconv.Itoa(int(id))}
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to cancel user article agree from cache: id(%v), userUuid(%s)", id, userUuid))
+	}
+	return nil
+}
+
+func (r *articleRepo) CancelUserArticleCollectFromCache(ctx context.Context, id int32, userUuid string) error {
+	var script = redis.NewScript(`
+					local key = KEYS[1]
+                    local change = ARGV[1]
+					local value = redis.call("EXISTS", key)
+					if value == 1 then
+  						local result = redis.call("SREM", key, change)
+						return result
+					end
+					return 0
+	`)
+	keys := []string{"user_article_collect_" + userUuid}
 	values := []interface{}{strconv.Itoa(int(id))}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
