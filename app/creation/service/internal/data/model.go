@@ -63,12 +63,43 @@ type TalkDraft struct {
 	Status int32  `gorm:"default:1"`
 }
 
+type ArticleAgree struct {
+	gorm.Model
+	ArticleId int32  `gorm:"uniqueIndex:idx_unique"`
+	Uuid      string `gorm:"uniqueIndex:idx_unique;size:36"`
+	Status    int32  `gorm:"default:1"`
+}
+
+type ArticleCollect struct {
+	gorm.Model
+	ArticleId int32  `gorm:"uniqueIndex:idx_unique"`
+	Uuid      string `gorm:"uniqueIndex:idx_unique;size:36"`
+	Status    int32  `gorm:"default:1"`
+}
+
+type TalkAgree struct {
+	gorm.Model
+	TalkId int32  `gorm:"uniqueIndex:idx_unique"`
+	Uuid   string `gorm:"uniqueIndex:idx_unique;size:36"`
+	Status int32  `gorm:"default:1"`
+}
+
+type TalkCollect struct {
+	gorm.Model
+	TalkId int32  `gorm:"uniqueIndex:idx_unique"`
+	Uuid   string `gorm:"uniqueIndex:idx_unique;size:36"`
+	Status int32  `gorm:"default:1"`
+}
+
 type Collections struct {
 	gorm.Model
 	Uuid      string `gorm:"index;size:36"`
 	Name      string `gorm:"size:50"`
 	Introduce string `gorm:"size:100"`
 	Auth      int32  `gorm:"default:1"`
+	Article   int32  `gorm:"type:int unsigned;default:0"`
+	Column    int32  `gorm:"type:int unsigned;default:0"`
+	Talk      int32  `gorm:"type:int unsigned;default:0"`
 }
 
 type Collect struct {
@@ -144,6 +175,8 @@ type CreationUser struct {
 	Column      int32  `gorm:"type:int unsigned;default:0"`
 	Talk        int32  `gorm:"type:int unsigned;default:0"`
 	Collections int32  `gorm:"type:int unsigned;default:0"`
+	Collect     int32  `gorm:"type:int unsigned;default:0"`
+	Subscribe   int32  `gorm:"type:int unsigned;default:0"`
 }
 
 type CreationUserVisitor struct {
