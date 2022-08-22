@@ -20,6 +20,7 @@ type CreationRepo interface {
 	GetCollection(ctx context.Context, id int32, uuid string) (*Collections, error)
 	GetCollectionListInfo(ctx context.Context, ids []int32) ([]*Collections, error)
 	GetCollections(ctx context.Context, uuid string, page int32) ([]*Collections, error)
+	GetCollectionsAll(ctx context.Context, uuid string) ([]*Collections, error)
 	GetCollectionsByVisitor(ctx context.Context, uuid string, page int32) ([]*Collections, error)
 	GetCollectionsCount(ctx context.Context, uuid string) (int32, error)
 	GetCollectionsVisitorCount(ctx context.Context, uuid string) (int32, error)
@@ -203,6 +204,15 @@ func (r *CreationUseCase) GetCollections(ctx context.Context, uuid string, page 
 	}
 	return collections, nil
 }
+
+func (r *CreationUseCase) GetCollectionsAll(ctx context.Context, uuid string) ([]*Collections, error) {
+	collections, err := r.repo.GetCollectionsAll(ctx, uuid)
+	if err != nil {
+		return nil, v1.ErrorGetCollectionsFailed("get collections all failed: %s", err.Error())
+	}
+	return collections, nil
+}
+
 func (r *CreationUseCase) GetCollectionsByVisitor(ctx context.Context, uuid string, page int32) ([]*Collections, error) {
 	collections, err := r.repo.GetCollectionsByVisitor(ctx, uuid, page)
 	if err != nil {
