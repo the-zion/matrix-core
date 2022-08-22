@@ -28,6 +28,7 @@ type ArticleRepo interface {
 	GetArticleAuth(ctx context.Context, id int32) (int32, error)
 	GetUserArticleAgree(ctx context.Context, uuid string) (map[int32]bool, error)
 	GetUserArticleCollect(ctx context.Context, uuid string) (map[int32]bool, error)
+	GetCollectionsIdFromArticleCollect(ctx context.Context, id int32) (int32, error)
 
 	CreateArticle(ctx context.Context, id, auth int32, uuid string) error
 	CreateArticleStatistic(ctx context.Context, id, auth int32, uuid string) error
@@ -65,8 +66,9 @@ type ArticleRepo interface {
 	SetArticleAgree(ctx context.Context, id int32, uuid string) error
 	SetUserArticleAgree(ctx context.Context, id int32, userUuid string) error
 	SetArticleView(ctx context.Context, id int32, uuid string) error
-	SetArticleUserCollect(ctx context.Context, id, collectionsId int32, userUuid string) error
+	SetCollectionsArticleCollect(ctx context.Context, id, collectionsId int32, userUuid string) error
 	SetCollectionArticle(ctx context.Context, collectionsId int32, userUuid string) error
+	SetUserArticleCollect(ctx context.Context, id int32, userUuid string) error
 	SetCreationUserCollect(ctx context.Context, userUuid string) error
 	SetArticleCollect(ctx context.Context, id int32, uuid string) error
 	SetArticleAgreeToCache(ctx context.Context, id int32, uuid, userUuid string) error
@@ -78,10 +80,14 @@ type ArticleRepo interface {
 	CancelArticleAgree(ctx context.Context, id int32, uuid string) error
 	CancelUserArticleAgree(ctx context.Context, id int32, userUuid string) error
 	CancelArticleAgreeFromCache(ctx context.Context, id int32, uuid, userUuid string) error
-	CancelArticleUserCollect(ctx context.Context, id int32, userUuid string) error
+	CancelCollectionsArticleCollect(ctx context.Context, id int32, userUuid string) error
+	CancelUserArticleCollect(ctx context.Context, id int32, userUuid string) error
+	CancelCollectionArticle(ctx context.Context, collectionsId int32, userUuid string) error
+	ReduceCreationUserCollect(ctx context.Context, userUuid string) error
 	CancelArticleCollect(ctx context.Context, id int32, uuid string) error
-	CancelArticleCollectFromCache(ctx context.Context, id int32, uuid, userUuid string) error
+	CancelArticleCollectFromCache(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error
 	CancelUserArticleAgreeFromCache(ctx context.Context, id int32, userUuid string) error
+	CancelUserArticleCollectFromCache(ctx context.Context, id int32, userUuid string) error
 }
 type ArticleUseCase struct {
 	repo         ArticleRepo
@@ -524,7 +530,7 @@ func (r *ArticleUseCase) SetArticleCollect(ctx context.Context, id, collectionsI
 		return nil
 	}))
 	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
-		err := r.repo.SendStatisticToMq(ctx, id, 0, uuid, userUuid, "set_article_collect_db_and_cache")
+		err := r.repo.SendStatisticToMq(ctx, id, collectionsId, uuid, userUuid, "set_article_collect_db_and_cache")
 		if err != nil {
 			return v1.ErrorSetAgreeFailed("set article collect to mq failed: %s", err.Error())
 		}
@@ -533,15 +539,19 @@ func (r *ArticleUseCase) SetArticleCollect(ctx context.Context, id, collectionsI
 	return g.Wait()
 }
 
-func (r *ArticleUseCase) SetArticleCollectDbAndCacheReq(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error {
+func (r *ArticleUseCase) SetArticleCollectDbAndCache(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error {
 	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
-		err := r.repo.SetArticleUserCollect(ctx, id, collectionsId, userUuid)
+		err := r.repo.SetCollectionsArticleCollect(ctx, id, collectionsId, userUuid)
 		if err != nil {
 			return v1.ErrorSetCollectFailed("set article user collect failed: %s", err.Error())
 		}
 		err = r.repo.SetCollectionArticle(ctx, collectionsId, userUuid)
 		if err != nil {
 			return v1.ErrorSetCollectFailed("set article collection article collect failed: %s", err.Error())
+		}
+		err = r.repo.SetUserArticleCollect(ctx, id, userUuid)
+		if err != nil {
+			return v1.ErrorSetCollectFailed("set user article collect failed: %s", err.Error())
 		}
 		err = r.repo.SetCreationUserCollect(ctx, userUuid)
 		if err != nil {
@@ -609,22 +619,57 @@ func (r *ArticleUseCase) CancelArticleAgreeDbAndCache(ctx context.Context, id in
 }
 
 func (r *ArticleUseCase) CancelArticleCollect(ctx context.Context, id int32, uuid, userUuid string) error {
-	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
-		err := r.repo.CancelArticleUserCollect(ctx, id, userUuid)
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		err := r.repo.CancelUserArticleCollectFromCache(ctx, id, userUuid)
 		if err != nil {
-			return v1.ErrorCancelCollectFailed("cancel article user collect failed: %s", err.Error())
+			return v1.ErrorSetAgreeFailed("cancel user article collect from cache failed: %s", err.Error())
+		}
+		return nil
+	}))
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		err := r.repo.SendStatisticToMq(ctx, id, 0, uuid, userUuid, "cancel_article_collect_db_and_cache")
+		if err != nil {
+			return v1.ErrorSetAgreeFailed("cancel article collect to mq failed: %s", err.Error())
+		}
+		return nil
+	}))
+	return g.Wait()
+}
+
+func (r *ArticleUseCase) CancelArticleCollectDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		collectionsId, err := r.repo.GetCollectionsIdFromArticleCollect(ctx, id)
+		if err != nil {
+			return v1.ErrorSetCollectFailed("get collections Id from  collect failed: %s", err.Error())
+		}
+		err = r.repo.CancelCollectionsArticleCollect(ctx, id, userUuid)
+		if err != nil {
+			return v1.ErrorSetCollectFailed("cancel article user collect failed: %s", err.Error())
+		}
+		err = r.repo.CancelUserArticleCollect(ctx, id, userUuid)
+		if err != nil {
+			return v1.ErrorSetCollectFailed("cancel user article collect failed: %s", err.Error())
+		}
+		err = r.repo.CancelCollectionArticle(ctx, collectionsId, userUuid)
+		if err != nil {
+			return v1.ErrorSetCollectFailed("cancel article collection article collect failed: %s", err.Error())
+		}
+		err = r.repo.ReduceCreationUserCollect(ctx, userUuid)
+		if err != nil {
+			return v1.ErrorSetCollectFailed("reduce creation user collect failed: %s", err.Error())
 		}
 		err = r.repo.CancelArticleCollect(ctx, id, uuid)
 		if err != nil {
-			return v1.ErrorCancelCollectFailed("cancel article collect failed: %s", err.Error())
+			return v1.ErrorSetCollectFailed("cancel article collect failed: %s", err.Error())
 		}
-		err = r.repo.CancelArticleCollectFromCache(ctx, id, uuid, userUuid)
+		err = r.repo.CancelArticleCollectFromCache(ctx, id, collectionsId, uuid, userUuid)
 		if err != nil {
-			return v1.ErrorCancelCollectFailed("cancel article collect to cache failed: %s", err.Error())
+			return v1.ErrorSetCollectFailed("cancel article collect from cache failed: %s", err.Error())
 		}
 		err = r.repo.SendArticleStatisticToMq(ctx, uuid, "", "collect_cancel")
 		if err != nil {
-			return v1.ErrorCancelCollectFailed("set article collect to mq failed: %s", err.Error())
+			return v1.ErrorSetCollectFailed("cancel article collect to mq failed: %s", err.Error())
 		}
 		return nil
 	})
