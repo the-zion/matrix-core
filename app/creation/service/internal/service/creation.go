@@ -142,6 +142,22 @@ func (s *CreationService) GetCollections(ctx context.Context, req *v1.GetCollect
 	return reply, nil
 }
 
+func (s *CreationService) GetCollectionsAll(ctx context.Context, req *v1.GetCollectionsAllReq) (*v1.GetCollectionsReply, error) {
+	reply := &v1.GetCollectionsReply{Collections: make([]*v1.GetCollectionsReply_Collections, 0)}
+	collections, err := s.cc.GetCollectionsAll(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range collections {
+		reply.Collections = append(reply.Collections, &v1.GetCollectionsReply_Collections{
+			Id:        item.Id,
+			Name:      item.Name,
+			Introduce: item.Introduce,
+		})
+	}
+	return reply, nil
+}
+
 func (s *CreationService) GetCollectionsByVisitor(ctx context.Context, req *v1.GetCollectionsReq) (*v1.GetCollectionsReply, error) {
 	reply := &v1.GetCollectionsReply{Collections: make([]*v1.GetCollectionsReply_Collections, 0)}
 	collections, err := s.cc.GetCollectionsByVisitor(ctx, req.Uuid, req.Page)
@@ -188,6 +204,8 @@ func (s *CreationService) GetCreationUser(ctx context.Context, req *v1.GetCreati
 		Talk:        creationUser.Talk,
 		Collections: creationUser.Collections,
 		Column:      creationUser.Column,
+		Collect:     creationUser.Collect,
+		Subscribe:   creationUser.Subscribe,
 	}, nil
 }
 
