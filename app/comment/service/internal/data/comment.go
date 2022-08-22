@@ -1105,9 +1105,10 @@ func (r *commentRepo) SendSubCommentAgreeToMq(ctx context.Context, id int32, uui
 	return nil
 }
 
-func (r *commentRepo) SendCommentStatisticToMq(ctx context.Context, uuid, mode string) error {
+func (r *commentRepo) SendCommentStatisticToMq(ctx context.Context, uuid, userUuid, mode string) error {
 	achievement := map[string]interface{}{}
 	achievement["uuid"] = uuid
+	achievement["userUuid"] = userUuid
 	achievement["mode"] = mode
 
 	data, err := json.Marshal(achievement)
