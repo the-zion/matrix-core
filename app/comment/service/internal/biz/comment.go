@@ -32,7 +32,7 @@ type CommentRepo interface {
 	SendCommentToMq(ctx context.Context, comment *Comment, mode string) error
 	SendSubCommentToMq(ctx context.Context, comment *SubComment, mode string) error
 	SendReviewToMq(ctx context.Context, review *CommentReview) error
-	SendCommentStatisticToMq(ctx context.Context, uuid, mode string) error
+	SendCommentStatisticToMq(ctx context.Context, uuid, userUuid, mode string) error
 	SendScoreToMq(ctx context.Context, score int32, uuid, mode string) error
 	SetRecord(ctx context.Context, id int32, uuid, ip string) error
 	SetCommentAgree(ctx context.Context, id int32, uuid string) error
@@ -328,7 +328,7 @@ func (r *CommentUseCase) SetCommentAgreeDbAndCache(ctx context.Context, id, crea
 		if err != nil {
 			return v1.ErrorSetAgreeFailed("set comment agree to cache failed: %s", err.Error())
 		}
-		err = r.repo.SendCommentStatisticToMq(ctx, uuid, "agree")
+		err = r.repo.SendCommentStatisticToMq(ctx, uuid, userUuid, "agree")
 		if err != nil {
 			return v1.ErrorSetAgreeFailed("set comment agree to mq failed: %s", err.Error())
 		}
@@ -354,7 +354,7 @@ func (r *CommentUseCase) SetSubCommentAgreeDbAndCache(ctx context.Context, id in
 		if err != nil {
 			return v1.ErrorSetAgreeFailed("set sub comment agree to cache failed: %s", err.Error())
 		}
-		err = r.repo.SendCommentStatisticToMq(ctx, uuid, "agree")
+		err = r.repo.SendCommentStatisticToMq(ctx, uuid, userUuid, "agree")
 		if err != nil {
 			return v1.ErrorSetAgreeFailed("set comment agree to mq failed: %s", err.Error())
 		}
@@ -418,7 +418,7 @@ func (r *CommentUseCase) CancelCommentAgreeDbAndCache(ctx context.Context, id, c
 		if err != nil {
 			return v1.ErrorCancelAgreeFailed("cancel comment agree from cache failed: %s", err.Error())
 		}
-		err = r.repo.SendCommentStatisticToMq(ctx, uuid, "agree_cancel")
+		err = r.repo.SendCommentStatisticToMq(ctx, uuid, userUuid, "agree_cancel")
 		if err != nil {
 			return v1.ErrorCancelAgreeFailed("cancel comment agree from mq failed: %s", err.Error())
 		}
@@ -440,7 +440,7 @@ func (r *CommentUseCase) CancelSubCommentAgreeDbAndCache(ctx context.Context, id
 		if err != nil {
 			return v1.ErrorCancelAgreeFailed("cancel comment agree from cache failed: %s", err.Error())
 		}
-		err = r.repo.SendCommentStatisticToMq(ctx, uuid, "agree_cancel")
+		err = r.repo.SendCommentStatisticToMq(ctx, uuid, userUuid, "agree_cancel")
 		if err != nil {
 			return v1.ErrorCancelAgreeFailed("cancel comment agree from mq failed: %s", err.Error())
 		}
