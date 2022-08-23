@@ -91,6 +91,20 @@ type TalkCollect struct {
 	Status int32  `gorm:"default:1"`
 }
 
+type ColumnAgree struct {
+	gorm.Model
+	ColumnId int32  `gorm:"uniqueIndex:idx_unique"`
+	Uuid     string `gorm:"uniqueIndex:idx_unique;size:36"`
+	Status   int32  `gorm:"default:1"`
+}
+
+type ColumnCollect struct {
+	gorm.Model
+	ColumnId int32  `gorm:"uniqueIndex:idx_unique"`
+	Uuid     string `gorm:"uniqueIndex:idx_unique;size:36"`
+	Status   int32  `gorm:"default:1"`
+}
+
 type Collections struct {
 	gorm.Model
 	Uuid      string `gorm:"index;size:36"`
