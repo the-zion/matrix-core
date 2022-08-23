@@ -842,15 +842,6 @@ func (r *articleRepo) getUserArticleCollectFromDb(ctx context.Context, uuid stri
 	return collectMap, nil
 }
 
-func (r *articleRepo) GetCollectionsIdFromArticleCollect(ctx context.Context, id int32) (int32, error) {
-	collect := &Collect{}
-	err := r.data.db.WithContext(ctx).Where("creations_id = ? and mode = ?", id, 1).First(collect).Error
-	if err != nil {
-		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get collections id  from db: creationsId(%v)", id))
-	}
-	return collect.CollectionsId, nil
-}
-
 func (r *articleRepo) setUserArticleCollectToCache(uuid string, collectList []*ArticleCollect) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
@@ -866,6 +857,15 @@ func (r *articleRepo) setUserArticleCollectToCache(uuid string, collectList []*A
 	if err != nil {
 		r.log.Errorf("fail to set user article collect to cache: uuid(%s), collectList(%v), error(%s) ", uuid, collectList, err.Error())
 	}
+}
+
+func (r *articleRepo) GetCollectionsIdFromArticleCollect(ctx context.Context, id int32) (int32, error) {
+	collect := &Collect{}
+	err := r.data.db.WithContext(ctx).Where("creations_id = ? and mode = ?", id, 1).First(collect).Error
+	if err != nil {
+		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get collections id  from db: creationsId(%v)", id))
+	}
+	return collect.CollectionsId, nil
 }
 
 func (r *articleRepo) CreateArticle(ctx context.Context, id, auth int32, uuid string) error {
