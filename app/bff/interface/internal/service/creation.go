@@ -708,6 +708,26 @@ func (s *BffService) GetTalkSearch(ctx context.Context, req *v1.GetTalkSearchReq
 	return reply, nil
 }
 
+func (s *BffService) GetUserTalkAgree(ctx context.Context, _ *emptypb.Empty) (*v1.GetUserTalkAgreeReply, error) {
+	agreeMap, err := s.tc.GetUserTalkAgree(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetUserTalkAgreeReply{
+		Agree: agreeMap,
+	}, nil
+}
+
+func (s *BffService) GetUserTalkCollect(ctx context.Context, _ *emptypb.Empty) (*v1.GetUserTalkCollectReply, error) {
+	collectMap, err := s.tc.GetUserTalkCollect(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetUserTalkCollectReply{
+		Collect: collectMap,
+	}, nil
+}
+
 func (s *BffService) CreateTalkDraft(ctx context.Context, _ *emptypb.Empty) (*v1.CreateTalkDraftReply, error) {
 	id, err := s.tc.CreateTalkDraft(ctx)
 	if err != nil {
