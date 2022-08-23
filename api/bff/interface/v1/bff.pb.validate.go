@@ -11835,6 +11835,214 @@ var _ interface {
 	ErrorName() string
 } = GetTalkSearchReplyValidationError{}
 
+// Validate checks the field values on GetUserTalkAgreeReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetUserTalkAgreeReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserTalkAgreeReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetUserTalkAgreeReplyMultiError, or nil if none found.
+func (m *GetUserTalkAgreeReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserTalkAgreeReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Agree
+
+	if len(errors) > 0 {
+		return GetUserTalkAgreeReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetUserTalkAgreeReplyMultiError is an error wrapping multiple validation
+// errors returned by GetUserTalkAgreeReply.ValidateAll() if the designated
+// constraints aren't met.
+type GetUserTalkAgreeReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserTalkAgreeReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserTalkAgreeReplyMultiError) AllErrors() []error { return m }
+
+// GetUserTalkAgreeReplyValidationError is the validation error returned by
+// GetUserTalkAgreeReply.Validate if the designated constraints aren't met.
+type GetUserTalkAgreeReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserTalkAgreeReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserTalkAgreeReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserTalkAgreeReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserTalkAgreeReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserTalkAgreeReplyValidationError) ErrorName() string {
+	return "GetUserTalkAgreeReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetUserTalkAgreeReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserTalkAgreeReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserTalkAgreeReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserTalkAgreeReplyValidationError{}
+
+// Validate checks the field values on GetUserTalkCollectReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetUserTalkCollectReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserTalkCollectReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetUserTalkCollectReplyMultiError, or nil if none found.
+func (m *GetUserTalkCollectReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserTalkCollectReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Collect
+
+	if len(errors) > 0 {
+		return GetUserTalkCollectReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetUserTalkCollectReplyMultiError is an error wrapping multiple validation
+// errors returned by GetUserTalkCollectReply.ValidateAll() if the designated
+// constraints aren't met.
+type GetUserTalkCollectReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserTalkCollectReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserTalkCollectReplyMultiError) AllErrors() []error { return m }
+
+// GetUserTalkCollectReplyValidationError is the validation error returned by
+// GetUserTalkCollectReply.Validate if the designated constraints aren't met.
+type GetUserTalkCollectReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserTalkCollectReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserTalkCollectReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserTalkCollectReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserTalkCollectReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserTalkCollectReplyValidationError) ErrorName() string {
+	return "GetUserTalkCollectReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetUserTalkCollectReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserTalkCollectReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserTalkCollectReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserTalkCollectReplyValidationError{}
+
 // Validate checks the field values on CreateTalkDraftReply with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.

@@ -108,6 +108,8 @@ type BffClient interface {
 	GetTalkStatistic(ctx context.Context, in *GetTalkStatisticReq, opts ...grpc.CallOption) (*GetTalkStatisticReply, error)
 	GetLastTalkDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLastTalkDraftReply, error)
 	GetTalkSearch(ctx context.Context, in *GetTalkSearchReq, opts ...grpc.CallOption) (*GetTalkSearchReply, error)
+	GetUserTalkAgree(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserTalkAgreeReply, error)
+	GetUserTalkCollect(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserTalkCollectReply, error)
 	CreateTalkDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateTalkDraftReply, error)
 	SendTalk(ctx context.Context, in *SendTalkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SendTalkEdit(ctx context.Context, in *SendTalkEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -935,6 +937,24 @@ func (c *bffClient) GetTalkSearch(ctx context.Context, in *GetTalkSearchReq, opt
 	return out, nil
 }
 
+func (c *bffClient) GetUserTalkAgree(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserTalkAgreeReply, error) {
+	out := new(GetUserTalkAgreeReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserTalkAgree", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetUserTalkCollect(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserTalkCollectReply, error) {
+	out := new(GetUserTalkCollectReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserTalkCollect", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) CreateTalkDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateTalkDraftReply, error) {
 	out := new(CreateTalkDraftReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/CreateTalkDraft", in, out, opts...)
@@ -1573,6 +1593,8 @@ type BffServer interface {
 	GetTalkStatistic(context.Context, *GetTalkStatisticReq) (*GetTalkStatisticReply, error)
 	GetLastTalkDraft(context.Context, *emptypb.Empty) (*GetLastTalkDraftReply, error)
 	GetTalkSearch(context.Context, *GetTalkSearchReq) (*GetTalkSearchReply, error)
+	GetUserTalkAgree(context.Context, *emptypb.Empty) (*GetUserTalkAgreeReply, error)
+	GetUserTalkCollect(context.Context, *emptypb.Empty) (*GetUserTalkCollectReply, error)
 	CreateTalkDraft(context.Context, *emptypb.Empty) (*CreateTalkDraftReply, error)
 	SendTalk(context.Context, *SendTalkReq) (*emptypb.Empty, error)
 	SendTalkEdit(context.Context, *SendTalkEditReq) (*emptypb.Empty, error)
@@ -1892,6 +1914,12 @@ func (UnimplementedBffServer) GetLastTalkDraft(context.Context, *emptypb.Empty) 
 }
 func (UnimplementedBffServer) GetTalkSearch(context.Context, *GetTalkSearchReq) (*GetTalkSearchReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTalkSearch not implemented")
+}
+func (UnimplementedBffServer) GetUserTalkAgree(context.Context, *emptypb.Empty) (*GetUserTalkAgreeReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserTalkAgree not implemented")
+}
+func (UnimplementedBffServer) GetUserTalkCollect(context.Context, *emptypb.Empty) (*GetUserTalkCollectReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserTalkCollect not implemented")
 }
 func (UnimplementedBffServer) CreateTalkDraft(context.Context, *emptypb.Empty) (*CreateTalkDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTalkDraft not implemented")
@@ -3601,6 +3629,42 @@ func _Bff_GetTalkSearch_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_GetUserTalkAgree_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetUserTalkAgree(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetUserTalkAgree",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetUserTalkAgree(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetUserTalkCollect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetUserTalkCollect(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetUserTalkCollect",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetUserTalkCollect(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_CreateTalkDraft_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
@@ -5041,6 +5105,14 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetTalkSearch",
 			Handler:    _Bff_GetTalkSearch_Handler,
+		},
+		{
+			MethodName: "GetUserTalkAgree",
+			Handler:    _Bff_GetUserTalkAgree_Handler,
+		},
+		{
+			MethodName: "GetUserTalkCollect",
+			Handler:    _Bff_GetUserTalkCollect_Handler,
 		},
 		{
 			MethodName: "CreateTalkDraft",
