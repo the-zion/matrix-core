@@ -514,11 +514,11 @@ func (r *achievementRepo) GetUserAchievement(ctx context.Context, uuid string) (
 }
 
 func (r *achievementRepo) getAchievementFromCache(ctx context.Context, key string) (*biz.Achievement, error) {
-	achievement, err := r.data.redisCli.HMGet(ctx, key, "agree", "collect", "view", "follow", "followed").Result()
+	achievement, err := r.data.redisCli.HMGet(ctx, key, "agree", "collect", "view", "follow", "followed", "score").Result()
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get achievement form cache: key(%s)", key))
 	}
-	val := []int32{0, 0, 0, 0, 0}
+	val := []int32{0, 0, 0, 0, 0, 0}
 	for _index, count := range achievement {
 		if count == nil {
 			break
@@ -535,6 +535,7 @@ func (r *achievementRepo) getAchievementFromCache(ctx context.Context, key strin
 		View:     val[2],
 		Follow:   val[3],
 		Followed: val[4],
+		Score:    val[5],
 	}, nil
 }
 
@@ -551,6 +552,7 @@ func (r *achievementRepo) getAchievementFromDB(ctx context.Context, uuid string)
 		View:     ach.View,
 		Follow:   ach.Follow,
 		Followed: ach.Followed,
+		Score:    ach.Score,
 	}, nil
 }
 
@@ -562,6 +564,8 @@ func (r *achievementRepo) setAchievementToCache(key string, achievement *biz.Ach
 		pipe.HSetNX(ctx, key, "view", achievement.View)
 		pipe.HSetNX(ctx, key, "follow", achievement.Follow)
 		pipe.HSetNX(ctx, key, "followed", achievement.Followed)
+		pipe.HSetNX(ctx, key, "followed", achievement.Followed)
+		pipe.HSetNX(ctx, key, "score", achievement.Score)
 		pipe.Expire(ctx, key, time.Hour*8)
 		return nil
 	})
