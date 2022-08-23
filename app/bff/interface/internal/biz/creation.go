@@ -66,6 +66,8 @@ type TalkRepo interface {
 	GetTalkStatistic(ctx context.Context, id int32) (*TalkStatistic, error)
 	GetLastTalkDraft(ctx context.Context, uuid string) (*TalkDraft, error)
 	GetTalkSearch(ctx context.Context, page int32, search, time string) ([]*TalkSearch, int32, error)
+	GetUserTalkAgree(ctx context.Context, uuid string) (map[int32]bool, error)
+	GetUserTalkCollect(ctx context.Context, uuid string) (map[int32]bool, error)
 	CreateTalkDraft(ctx context.Context, uuid string) (int32, error)
 	SendTalk(ctx context.Context, id int32, uuid, ip string) error
 	SendTalkEdit(ctx context.Context, id int32, uuid, ip string) error
@@ -625,6 +627,16 @@ func (r *TalkUseCase) GetLastTalkDraft(ctx context.Context) (*TalkDraft, error) 
 
 func (r *TalkUseCase) GetTalkSearch(ctx context.Context, page int32, search, time string) ([]*TalkSearch, int32, error) {
 	return r.repo.GetTalkSearch(ctx, page, search, time)
+}
+
+func (r *TalkUseCase) GetUserTalkAgree(ctx context.Context) (map[int32]bool, error) {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.GetUserTalkAgree(ctx, uuid)
+}
+
+func (r *TalkUseCase) GetUserTalkCollect(ctx context.Context) (map[int32]bool, error) {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.GetUserTalkCollect(ctx, uuid)
 }
 
 func (r *TalkUseCase) CreateTalkDraft(ctx context.Context) (int32, error) {
