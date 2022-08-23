@@ -134,6 +134,7 @@ message GetUserAchievementReply{
   int32 collect = 3;
   int32 follow = 4;
   int32 followed = 5;
+  int32 score = 6;
 }
 
 message AddAchievementScoreReq{
