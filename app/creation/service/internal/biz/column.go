@@ -6,6 +6,7 @@ import (
 	kerrors "github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	v1 "github.com/the-zion/matrix-core/api/creation/service/v1"
+	"golang.org/x/sync/errgroup"
 )
 
 type ColumnRepo interface {
@@ -50,29 +51,45 @@ type ColumnRepo interface {
 	GetColumnSubscribes(ctx context.Context, uuid string, ids []int32) ([]*Subscribe, error)
 	GetColumnSearch(ctx context.Context, page int32, search, time string) ([]*ColumnSearch, int32, error)
 	GetColumnAuth(ctx context.Context, id int32) (int32, error)
+	GetCollectionsIdFromColumnCollect(ctx context.Context, id int32) (int32, error)
 
 	SendColumn(ctx context.Context, id int32, uuid string) (*ColumnDraft, error)
 	SendColumnToMq(ctx context.Context, column *Column, mode string) error
 	SendReviewToMq(ctx context.Context, review *ColumnReview) error
 	SendScoreToMq(ctx context.Context, score int32, uuid, mode string) error
+	SendStatisticToMq(ctx context.Context, id, collectionsId int32, uuid, userUuid, mode string) error
 
 	FreezeColumnCos(ctx context.Context, id int32, uuid string) error
 
 	SetColumnAgree(ctx context.Context, id int32, uuid string) error
+	SetUserColumnAgree(ctx context.Context, id int32, userUuid string) error
 	SetColumnAgreeToCache(ctx context.Context, id int32, uuid, userUuid string) error
-	SendColumnStatisticToMq(ctx context.Context, uuid, mode string) error
+	SendColumnStatisticToMq(ctx context.Context, uuid, userUuid, mode string) error
 	SetColumnView(ctx context.Context, id int32, uuid string) error
 	SetColumnViewToCache(ctx context.Context, id int32, uuid string) error
 	SetColumnUserCollect(ctx context.Context, id, collectionsId int32, userUuid string) error
 	SetColumnCollect(ctx context.Context, id int32, uuid string) error
-	SetColumnCollectToCache(ctx context.Context, id int32, uuid, userUuid string) error
+	SetColumnCollectToCache(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error
+	SetUserColumnAgreeToCache(ctx context.Context, id int32, userUuid string) error
+	SetUserColumnCollectToCache(ctx context.Context, id int32, userUuid string) error
+	SetCollectionsColumnCollect(ctx context.Context, id, collectionsId int32, userUuid string) error
+	SetCollectionColumn(ctx context.Context, collectionsId int32, userUuid string) error
+	SetUserColumnCollect(ctx context.Context, id int32, userUuid string) error
+	SetCreationUserCollect(ctx context.Context, userUuid string) error
 
 	CancelColumnAgree(ctx context.Context, id int32, uuid string) error
 	CancelColumnAgreeFromCache(ctx context.Context, id int32, uuid, userUuid string) error
 	CancelColumnCollect(ctx context.Context, id int32, uuid string) error
-	CancelColumnCollectFromCache(ctx context.Context, id int32, uuid, userUuid string) error
+	CancelColumnCollectFromCache(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error
 	CancelColumnUserCollect(ctx context.Context, id int32, userUuid string) error
 	CancelSubscribeColumn(ctx context.Context, id int32, uuid string) error
+	CancelUserColumnAgreeFromCache(ctx context.Context, id int32, userUuid string) error
+	CancelUserColumnAgree(ctx context.Context, id int32, userUuid string) error
+	CancelUserColumnCollectFromCache(ctx context.Context, id int32, userUuid string) error
+	CancelCollectionsColumnCollect(ctx context.Context, id int32, userUuid string) error
+	CancelUserColumnCollect(ctx context.Context, id int32, userUuid string) error
+	CancelCollectionColumn(ctx context.Context, collectionsId int32, userUuid string) error
+	ReduceCreationUserCollect(ctx context.Context, userUuid string) error
 
 	SubscribeColumn(ctx context.Context, id int32, author, uuid string) error
 	SubscribeJudge(ctx context.Context, id int32, uuid string) (bool, error)
@@ -330,7 +347,7 @@ func (r *ColumnUseCase) DeleteColumnCacheAndSearch(ctx context.Context, id int32
 		var err error
 		auth, err := r.repo.GetColumnAuth(ctx, id)
 		if err != nil {
-			return v1.ErrorDeleteTalkFailed("get talk auth failed: %s", err.Error())
+			return v1.ErrorDeleteColumnFailed("get column auth failed: %s", err.Error())
 		}
 
 		err = r.repo.DeleteColumn(ctx, id, uuid)
@@ -356,6 +373,10 @@ func (r *ColumnUseCase) DeleteColumnCacheAndSearch(ctx context.Context, id int32
 		err = r.repo.FreezeColumnCos(ctx, id, uuid)
 		if err != nil {
 			return v1.ErrorDeleteColumnFailed("freeze column cos failed: %s", err.Error())
+		}
+
+		if auth == 2 {
+			return nil
 		}
 
 		err = r.repo.DeleteColumnSearch(ctx, id, uuid)
@@ -470,8 +491,31 @@ func (r *ColumnUseCase) GetColumnSubscribes(ctx context.Context, uuid string, id
 }
 
 func (r *ColumnUseCase) SetColumnAgree(ctx context.Context, id int32, uuid, userUuid string) error {
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		err := r.repo.SetUserColumnAgreeToCache(ctx, id, userUuid)
+		if err != nil {
+			return v1.ErrorSetAgreeFailed("set user column agree to cache failed: %s", err.Error())
+		}
+		return nil
+	}))
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		err := r.repo.SendStatisticToMq(ctx, id, 0, uuid, userUuid, "set_column_agree_db_and_cache")
+		if err != nil {
+			return v1.ErrorSetAgreeFailed("set column agree to mq failed: %s", err.Error())
+		}
+		return nil
+	}))
+	return g.Wait()
+}
+
+func (r *ColumnUseCase) SetColumnAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
 	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		err := r.repo.SetColumnAgree(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorSetAgreeFailed("set column agree failed: %s", err.Error())
+		}
+		err = r.repo.SetUserColumnAgree(ctx, id, userUuid)
 		if err != nil {
 			return v1.ErrorSetAgreeFailed("set column agree failed: %s", err.Error())
 		}
@@ -479,15 +523,27 @@ func (r *ColumnUseCase) SetColumnAgree(ctx context.Context, id int32, uuid, user
 		if err != nil {
 			return v1.ErrorSetAgreeFailed("set column agree to cache failed: %s", err.Error())
 		}
-		err = r.repo.SendColumnStatisticToMq(ctx, uuid, "agree")
+		err = r.repo.SendColumnStatisticToMq(ctx, uuid, userUuid, "agree")
 		if err != nil {
 			return v1.ErrorSetAgreeFailed("set column agree to mq failed: %s", err.Error())
+		}
+		err = r.repo.SendScoreToMq(ctx, 2, uuid, "add_score")
+		if err != nil {
+			return v1.ErrorSetAgreeFailed("send 2 score to mq failed: %s", err.Error())
 		}
 		return nil
 	})
 }
 
 func (r *ColumnUseCase) SetColumnView(ctx context.Context, id int32, uuid string) error {
+	err := r.repo.SendStatisticToMq(ctx, id, 0, uuid, "", "set_column_view_db_and_cache")
+	if err != nil {
+		return v1.ErrorSetViewFailed("set column view failed: %s", err.Error())
+	}
+	return nil
+}
+
+func (r *ColumnUseCase) SetColumnViewDbAndCache(ctx context.Context, id int32, uuid string) error {
 	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		err := r.repo.SetColumnView(ctx, id, uuid)
 		if err != nil {
@@ -497,17 +553,44 @@ func (r *ColumnUseCase) SetColumnView(ctx context.Context, id int32, uuid string
 		if err != nil {
 			return v1.ErrorSetViewFailed("set column view to cache failed: %s", err.Error())
 		}
-		err = r.repo.SendColumnStatisticToMq(ctx, uuid, "view")
+		err = r.repo.SendColumnStatisticToMq(ctx, uuid, "", "view")
 		if err != nil {
 			return v1.ErrorSetViewFailed("set column view to mq failed: %s", err.Error())
+		}
+		err = r.repo.SendScoreToMq(ctx, 1, uuid, "add_score")
+		if err != nil {
+			return v1.ErrorSetViewFailed("send 1 score to mq failed: %s", err.Error())
 		}
 		return nil
 	})
 }
 
 func (r *ColumnUseCase) CancelColumnAgree(ctx context.Context, id int32, uuid, userUuid string) error {
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		err := r.repo.CancelUserColumnAgreeFromCache(ctx, id, userUuid)
+		if err != nil {
+			return v1.ErrorSetAgreeFailed("cancel user column agree from cache failed: %s", err.Error())
+		}
+		return nil
+	}))
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		err := r.repo.SendStatisticToMq(ctx, id, 0, uuid, userUuid, "cancel_column_agree_db_and_cache")
+		if err != nil {
+			return v1.ErrorSetAgreeFailed("cancel column agree to mq failed: %s", err.Error())
+		}
+		return nil
+	}))
+	return g.Wait()
+}
+
+func (r *ColumnUseCase) CancelColumnAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
 	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		err := r.repo.CancelColumnAgree(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorCancelAgreeFailed("cancel column agree failed: %s", err.Error())
+		}
+		err = r.repo.CancelUserColumnAgree(ctx, id, userUuid)
 		if err != nil {
 			return v1.ErrorCancelAgreeFailed("cancel column agree failed: %s", err.Error())
 		}
@@ -515,53 +598,142 @@ func (r *ColumnUseCase) CancelColumnAgree(ctx context.Context, id int32, uuid, u
 		if err != nil {
 			return v1.ErrorCancelAgreeFailed("cancel column agree from cache failed: %s", err.Error())
 		}
-		err = r.repo.SendColumnStatisticToMq(ctx, uuid, "agree_cancel")
+		err = r.repo.SendColumnStatisticToMq(ctx, uuid, userUuid, "agree_cancel")
 		if err != nil {
-			return v1.ErrorCancelAgreeFailed("set column agree to mq failed: %s", err.Error())
+			return v1.ErrorCancelAgreeFailed("cancel column agree to mq failed: %s", err.Error())
 		}
 		return nil
 	})
 }
 
 func (r *ColumnUseCase) SetColumnCollect(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error {
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		err := r.repo.SetUserColumnCollectToCache(ctx, id, userUuid)
+		if err != nil {
+			return v1.ErrorSetAgreeFailed("set user column collect to cache failed: %s", err.Error())
+		}
+		return nil
+	}))
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		err := r.repo.SendStatisticToMq(ctx, id, collectionsId, uuid, userUuid, "set_column_collect_db_and_cache")
+		if err != nil {
+			return v1.ErrorSetAgreeFailed("set column collect to mq failed: %s", err.Error())
+		}
+		return nil
+	}))
+	return g.Wait()
+}
+
+func (r *ColumnUseCase) SetColumnCollectDbAndCache(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error {
 	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
-		err := r.repo.SetColumnUserCollect(ctx, id, collectionsId, userUuid)
+		err := r.repo.SetCollectionsColumnCollect(ctx, id, collectionsId, userUuid)
 		if err != nil {
 			return v1.ErrorSetCollectFailed("set column user collect failed: %s", err.Error())
+		}
+		err = r.repo.SetCollectionColumn(ctx, collectionsId, userUuid)
+		if err != nil {
+			return v1.ErrorSetCollectFailed("set column collection collect failed: %s", err.Error())
+		}
+		err = r.repo.SetUserColumnCollect(ctx, id, userUuid)
+		if err != nil {
+			return v1.ErrorSetCollectFailed("set user column collect failed: %s", err.Error())
+		}
+		err = r.repo.SetCreationUserCollect(ctx, userUuid)
+		if err != nil {
+			return v1.ErrorSetCollectFailed("set creation user collect failed: %s", err.Error())
 		}
 		err = r.repo.SetColumnCollect(ctx, id, uuid)
 		if err != nil {
 			return v1.ErrorSetCollectFailed("set column collect failed: %s", err.Error())
 		}
-		err = r.repo.SetColumnCollectToCache(ctx, id, uuid, userUuid)
+		err = r.repo.SetColumnCollectToCache(ctx, id, collectionsId, uuid, userUuid)
 		if err != nil {
 			return v1.ErrorSetCollectFailed("set column collect to cache failed: %s", err.Error())
 		}
-		err = r.repo.SendColumnStatisticToMq(ctx, uuid, "collect")
+		err = r.repo.SendColumnStatisticToMq(ctx, uuid, "", "collect")
 		if err != nil {
 			return v1.ErrorSetCollectFailed("set column collect to mq failed: %s", err.Error())
+		}
+		err = r.repo.SendScoreToMq(ctx, 2, uuid, "add_score")
+		if err != nil {
+			return v1.ErrorSetViewFailed("send 1 score to mq failed: %s", err.Error())
 		}
 		return nil
 	})
 }
 
 func (r *ColumnUseCase) CancelColumnCollect(ctx context.Context, id int32, uuid, userUuid string) error {
-	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
-		err := r.repo.CancelColumnUserCollect(ctx, id, userUuid)
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		err := r.repo.CancelUserColumnCollectFromCache(ctx, id, userUuid)
 		if err != nil {
-			return v1.ErrorCancelCollectFailed("cancel column user collect failed: %s", err.Error())
+			return v1.ErrorSetAgreeFailed("cancel user column collect from cache failed: %s", err.Error())
+		}
+		return nil
+	}))
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		err := r.repo.SendStatisticToMq(ctx, id, 0, uuid, userUuid, "cancel_column_collect_db_and_cache")
+		if err != nil {
+			return v1.ErrorSetAgreeFailed("cancel column collect to mq failed: %s", err.Error())
+		}
+		return nil
+	}))
+	return g.Wait()
+	//return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+	//	err := r.repo.CancelColumnUserCollect(ctx, id, userUuid)
+	//	if err != nil {
+	//		return v1.ErrorCancelCollectFailed("cancel column user collect failed: %s", err.Error())
+	//	}
+	//	err = r.repo.CancelColumnCollect(ctx, id, uuid)
+	//	if err != nil {
+	//		return v1.ErrorCancelCollectFailed("cancel column collect failed: %s", err.Error())
+	//	}
+	//	err = r.repo.CancelColumnCollectFromCache(ctx, id, uuid, userUuid)
+	//	if err != nil {
+	//		return v1.ErrorCancelCollectFailed("cancel column collect to cache failed: %s", err.Error())
+	//	}
+	//	err = r.repo.SendColumnStatisticToMq(ctx, uuid, "collect_cancel")
+	//	if err != nil {
+	//		return v1.ErrorCancelCollectFailed("set column collect to mq failed: %s", err.Error())
+	//	}
+	//	return nil
+	//})
+}
+
+func (r *ColumnUseCase) CancelColumnCollectDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		collectionsId, err := r.repo.GetCollectionsIdFromColumnCollect(ctx, id)
+		if err != nil {
+			return v1.ErrorSetCollectFailed("get collections Id from collect failed: %s", err.Error())
+		}
+		err = r.repo.CancelCollectionsColumnCollect(ctx, id, userUuid)
+		if err != nil {
+			return v1.ErrorSetCollectFailed("cancel column user collect failed: %s", err.Error())
+		}
+		err = r.repo.CancelUserColumnCollect(ctx, id, userUuid)
+		if err != nil {
+			return v1.ErrorSetCollectFailed("cancel user column collect failed: %s", err.Error())
+		}
+		err = r.repo.CancelCollectionColumn(ctx, collectionsId, userUuid)
+		if err != nil {
+			return v1.ErrorSetCollectFailed("cancel column collection collect failed: %s", err.Error())
+		}
+		err = r.repo.ReduceCreationUserCollect(ctx, userUuid)
+		if err != nil {
+			return v1.ErrorSetCollectFailed("reduce creation user collect failed: %s", err.Error())
 		}
 		err = r.repo.CancelColumnCollect(ctx, id, uuid)
 		if err != nil {
-			return v1.ErrorCancelCollectFailed("cancel column collect failed: %s", err.Error())
+			return v1.ErrorSetCollectFailed("cancel column collect failed: %s", err.Error())
 		}
-		err = r.repo.CancelColumnCollectFromCache(ctx, id, uuid, userUuid)
+		err = r.repo.CancelColumnCollectFromCache(ctx, id, collectionsId, uuid, userUuid)
 		if err != nil {
-			return v1.ErrorCancelCollectFailed("cancel column collect to cache failed: %s", err.Error())
+			return v1.ErrorSetCollectFailed("cancel column collect from cache failed: %s", err.Error())
 		}
-		err = r.repo.SendColumnStatisticToMq(ctx, uuid, "collect_cancel")
+		err = r.repo.SendColumnStatisticToMq(ctx, uuid, "", "collect_cancel")
 		if err != nil {
-			return v1.ErrorCancelCollectFailed("set column collect to mq failed: %s", err.Error())
+			return v1.ErrorSetCollectFailed("cancel column collect to mq failed: %s", err.Error())
 		}
 		return nil
 	})
