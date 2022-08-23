@@ -261,6 +261,10 @@ func (r *ArticleUseCase) DeleteArticleCacheAndSearch(ctx context.Context, id int
 			return v1.ErrorDeleteArticleFailed("freeze article cos failed: %s", err.Error())
 		}
 
+		if auth == 2 {
+			return nil
+		}
+
 		err = r.repo.DeleteArticleSearch(ctx, id, uuid)
 		if err != nil {
 			return v1.ErrorDeleteArticleFailed("delete article search failed: %s", err.Error())
@@ -604,7 +608,7 @@ func (r *ArticleUseCase) CancelArticleAgreeDbAndCache(ctx context.Context, id in
 		}
 		err = r.repo.CancelUserArticleAgree(ctx, id, userUuid)
 		if err != nil {
-			return v1.ErrorSetAgreeFailed("cancel article agree failed: %s", err.Error())
+			return v1.ErrorCancelAgreeFailed("cancel article agree failed: %s", err.Error())
 		}
 		err = r.repo.CancelArticleAgreeFromCache(ctx, id, uuid, userUuid)
 		if err != nil {
