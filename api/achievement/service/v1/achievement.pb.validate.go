@@ -1877,6 +1877,8 @@ func (m *GetUserAchievementReply) validate(all bool) error {
 
 	// no validation rules for Followed
 
+	// no validation rules for Score
+
 	if len(errors) > 0 {
 		return GetUserAchievementReplyMultiError(errors)
 	}
