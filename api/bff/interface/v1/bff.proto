@@ -274,8 +274,7 @@ service Bff{
 
   rpc GetCollectionsAll(google.protobuf.Empty) returns (GetCollectionsReply){
     option (google.api.http) = {
-      post: "/v1/get/collections/all"
-      body: "*"
+      get: "/v1/get/collections/all"
     };
   }
 
@@ -564,6 +563,18 @@ service Bff{
     };
   }
 
+  rpc GetUserTalkAgree(google.protobuf.Empty)returns (GetUserTalkAgreeReply){
+    option (google.api.http) = {
+      get: "/v1/get/user/talk/agree"
+    };
+  }
+
+  rpc GetUserTalkCollect(google.protobuf.Empty)returns (GetUserTalkCollectReply){
+    option (google.api.http) = {
+      get: "/v1/get/user/talk/collect"
+    };
+  }
+
   rpc CreateTalkDraft(google.protobuf.Empty) returns (CreateTalkDraftReply){
     option (google.api.http) = {
       post: "/v1/create/talk/draft"
@@ -770,6 +781,12 @@ service Bff{
   rpc GetColumnStatistic(GetColumnStatisticReq)returns (GetColumnStatisticReply){
     option (google.api.http) = {
       get: "/v1/get/column/statistic"
+    };
+  }
+
+  rpc GetUserColumnAgree(google.protobuf.Empty)returns (GetUserTalkAgreeReply){
+    option (google.api.http) = {
+      get: "/v1/get/user/column/agree"
     };
   }
 
@@ -1625,6 +1642,14 @@ message GetTalkSearchReply{
   }
   repeated List list = 1;
   int32 total = 2;
+}
+
+message GetUserTalkAgreeReply{
+  map<int32, bool> agree = 1;
+}
+
+message GetUserTalkCollectReply{
+  map<int32, bool> collect = 1;
 }
 
 message CreateTalkDraftReply{
