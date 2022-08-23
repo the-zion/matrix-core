@@ -59,6 +59,7 @@ func (r *achievementRepo) GetUserAchievement(ctx context.Context, uuid string) (
 			Collect:  achievement.Collect,
 			Follow:   achievement.Follow,
 			Followed: achievement.Followed,
+			Score:    achievement.Score,
 		}, nil
 	})
 	if err != nil {
