@@ -138,6 +138,10 @@ service Creation {
 
   rpc GetTalkSearch(GetTalkSearchReq)returns (GetTalkSearchReply){}
 
+  rpc GetUserTalkAgree(GetUserTalkAgreeReq)returns (GetUserTalkAgreeReply){}
+
+  rpc GetUserTalkCollect(GetUserTalkCollectReq)returns (GetUserTalkCollectReply){}
+
   rpc CreateTalkDraft(CreateTalkDraftReq) returns (CreateTalkDraftReply){}
 
   rpc SendTalk(SendTalkReq) returns (google.protobuf.Empty){}
@@ -175,6 +179,8 @@ service Creation {
   rpc CancelTalkAgreeDbAndCache(CancelTalkAgreeDbAndCacheReq) returns (google.protobuf.Empty){}
 
   rpc CancelTalkCollect(CancelTalkCollectReq) returns (google.protobuf.Empty){}
+
+  rpc CancelTalkCollectDbAndCache(CancelTalkCollectDbAndCacheReq) returns (google.protobuf.Empty){}
 
   rpc GetLastColumnDraft(GetLastColumnDraftReq) returns (GetLastColumnDraftReply){}
 
@@ -230,13 +236,23 @@ service Creation {
 
   rpc SetColumnAgree(SetColumnAgreeReq) returns (google.protobuf.Empty){}
 
+  rpc SetColumnAgreeDbAndCache(SetColumnAgreeDbAndCacheReq)returns (google.protobuf.Empty){}
+
   rpc CancelColumnAgree(CancelColumnAgreeReq) returns (google.protobuf.Empty){}
+
+  rpc CancelColumnAgreeDbAndCache(CancelColumnAgreeDbAndCacheReq) returns (google.protobuf.Empty){}
 
   rpc SetColumnCollect(SetColumnCollectReq) returns (google.protobuf.Empty){}
 
+  rpc SetColumnCollectDbAndCache(SetColumnCollectDbAndCacheReq) returns (google.protobuf.Empty){}
+
   rpc CancelColumnCollect(CancelColumnCollectReq) returns (google.protobuf.Empty){}
 
+  rpc CancelColumnCollectDbAndCache(CancelColumnCollectDbAndCacheReq) returns (google.protobuf.Empty){}
+
   rpc SetColumnView(SetColumnViewReq) returns (google.protobuf.Empty){}
+
+  rpc SetColumnViewDbAndCache(SetColumnViewDbAndCacheReq) returns (google.protobuf.Empty){}
 
   rpc AddColumnIncludes(AddColumnIncludesReq) returns (google.protobuf.Empty){}
 
@@ -245,6 +261,7 @@ service Creation {
   rpc GetNews(GetNewsReq) returns (GetNewsReply){}
 
   rpc AddCreationComment(AddCreationCommentReq) returns (google.protobuf.Empty){}
+
   rpc ReduceCreationComment(ReduceCreationCommentReq) returns (google.protobuf.Empty){}
 }
 
@@ -731,6 +748,22 @@ message GetTalkSearchReply{
   int32 total = 2;
 }
 
+message GetUserTalkAgreeReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+message GetUserTalkCollectReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+message GetUserTalkAgreeReply{
+  map<int32, bool> agree = 1;
+}
+
+message GetUserTalkCollectReply{
+  map<int32, bool> collect = 1;
+}
+
 message CreateTalkDraftReq{
   string uuid = 1 [(validate.rules).string.uuid = true];
 }
@@ -847,6 +880,12 @@ message CancelTalkCollectReq{
   int32 id = 1;
   string uuid = 2 [(validate.rules).string.uuid = true];
   string user_uuid = 3 [(validate.rules).string.uuid = true];
+}
+
+message CancelTalkCollectDbAndCacheReq{
+  int32 id = 1;
+  string uuid = 2 ;
+  string user_uuid = 3;
 }
 
 message GetLastColumnDraftReq{
@@ -1077,10 +1116,22 @@ message SetColumnAgreeReq{
   string user_uuid = 3 [(validate.rules).string.uuid = true];
 }
 
+message SetColumnAgreeDbAndCacheReq{
+  int32 id = 1;
+  string uuid = 2;
+  string userUuid = 3;
+}
+
 message CancelColumnAgreeReq{
   int32 id = 1;
   string uuid = 2 [(validate.rules).string.uuid = true];
   string user_uuid = 3 [(validate.rules).string.uuid = true];
+}
+
+message CancelColumnAgreeDbAndCacheReq{
+  int32 id = 1;
+  string uuid = 2;
+  string userUuid = 3;
 }
 
 message SetColumnCollectReq{
@@ -1090,15 +1141,33 @@ message SetColumnCollectReq{
   string user_uuid = 4 [(validate.rules).string.uuid = true];
 }
 
+message SetColumnCollectDbAndCacheReq{
+  int32 id = 1;
+  int32 collections_id = 2;
+  string uuid = 3;
+  string userUuid = 4;
+}
+
 message CancelColumnCollectReq{
   int32 id = 1;
   string uuid = 2 [(validate.rules).string.uuid = true];
   string user_uuid = 3 [(validate.rules).string.uuid = true];
 }
 
+message CancelColumnCollectDbAndCacheReq{
+  int32 id = 1;
+  string uuid = 2 ;
+  string user_uuid = 3;
+}
+
 message SetColumnViewReq{
   int32 id = 1;
   string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message SetColumnViewDbAndCacheReq{
+  int32 id = 1;
+  string uuid = 2;
 }
 
 message AddColumnIncludesReq{
