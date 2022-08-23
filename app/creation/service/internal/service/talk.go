@@ -150,6 +150,26 @@ func (s *CreationService) GetTalkSearch(ctx context.Context, req *v1.GetTalkSear
 	return reply, nil
 }
 
+func (s *CreationService) GetUserTalkAgree(ctx context.Context, req *v1.GetUserTalkAgreeReq) (*v1.GetUserTalkAgreeReply, error) {
+	agreeMap, err := s.tc.GetUserTalkAgree(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetUserTalkAgreeReply{
+		Agree: agreeMap,
+	}, nil
+}
+
+func (s *CreationService) GetUserTalkCollect(ctx context.Context, req *v1.GetUserTalkCollectReq) (*v1.GetUserTalkCollectReply, error) {
+	collectMap, err := s.tc.GetUserTalkCollect(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetUserTalkCollectReply{
+		Collect: collectMap,
+	}, nil
+}
+
 func (s *CreationService) CreateTalkDraft(ctx context.Context, req *v1.CreateTalkDraftReq) (*v1.CreateTalkDraftReply, error) {
 	id, err := s.tc.CreateTalkDraft(ctx, req.Uuid)
 	if err != nil {
@@ -258,6 +278,14 @@ func (s *CreationService) CancelTalkAgreeDbAndCache(ctx context.Context, req *v1
 
 func (s *CreationService) CancelTalkCollect(ctx context.Context, req *v1.CancelTalkCollectReq) (*emptypb.Empty, error) {
 	err := s.tc.CancelTalkCollect(ctx, req.Id, req.Uuid, req.UserUuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) CancelTalkCollectDbAndCache(ctx context.Context, req *v1.CancelTalkCollectDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.tc.CancelTalkCollectDbAndCache(ctx, req.Id, req.Uuid, req.UserUuid)
 	if err != nil {
 		return nil, err
 	}
