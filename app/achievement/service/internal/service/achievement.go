@@ -99,6 +99,7 @@ func (s *AchievementService) GetUserAchievement(ctx context.Context, req *v1.Get
 		Collect:  achievement.Collect,
 		Follow:   achievement.Follow,
 		Followed: achievement.Followed,
+		Score:    achievement.Score,
 	}, nil
 }
 
