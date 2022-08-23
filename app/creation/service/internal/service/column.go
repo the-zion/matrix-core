@@ -307,8 +307,24 @@ func (s *CreationService) SetColumnAgree(ctx context.Context, req *v1.SetColumnA
 	return &emptypb.Empty{}, nil
 }
 
+func (s *CreationService) SetColumnAgreeDbAndCache(ctx context.Context, req *v1.SetColumnAgreeDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.coc.SetColumnAgreeDbAndCache(ctx, req.Id, req.Uuid, req.UserUuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *CreationService) CancelColumnAgree(ctx context.Context, req *v1.CancelColumnAgreeReq) (*emptypb.Empty, error) {
 	err := s.coc.CancelColumnAgree(ctx, req.Id, req.Uuid, req.UserUuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) CancelColumnAgreeDbAndCache(ctx context.Context, req *v1.CancelColumnAgreeDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.coc.CancelColumnAgreeDbAndCache(ctx, req.Id, req.Uuid, req.UserUuid)
 	if err != nil {
 		return nil, err
 	}
@@ -323,6 +339,14 @@ func (s *CreationService) SetColumnCollect(ctx context.Context, req *v1.SetColum
 	return &emptypb.Empty{}, nil
 }
 
+func (s *CreationService) SetColumnCollectDbAndCache(ctx context.Context, req *v1.SetColumnCollectDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.coc.SetColumnCollectDbAndCache(ctx, req.Id, req.CollectionsId, req.Uuid, req.UserUuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *CreationService) CancelColumnCollect(ctx context.Context, req *v1.CancelColumnCollectReq) (*emptypb.Empty, error) {
 	err := s.coc.CancelColumnCollect(ctx, req.Id, req.Uuid, req.UserUuid)
 	if err != nil {
@@ -331,8 +355,24 @@ func (s *CreationService) CancelColumnCollect(ctx context.Context, req *v1.Cance
 	return &emptypb.Empty{}, nil
 }
 
+func (s *CreationService) CancelColumnCollectDbAndCache(ctx context.Context, req *v1.CancelColumnCollectDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.coc.CancelColumnCollectDbAndCache(ctx, req.Id, req.Uuid, req.UserUuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *CreationService) SetColumnView(ctx context.Context, req *v1.SetColumnViewReq) (*emptypb.Empty, error) {
 	err := s.coc.SetColumnView(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) SetColumnViewDbAndCache(ctx context.Context, req *v1.SetColumnViewDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.coc.SetColumnViewDbAndCache(ctx, req.Id, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
