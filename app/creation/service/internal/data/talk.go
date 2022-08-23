@@ -771,6 +771,152 @@ func (r *talkRepo) GetTalkSearch(ctx context.Context, page int32, search, time s
 	return reply, int32(result["hits"].(map[string]interface{})["total"].(map[string]interface{})["value"].(float64)), nil
 }
 
+func (r *talkRepo) GetUserTalkAgree(ctx context.Context, uuid string) (map[int32]bool, error) {
+	exist, err := r.userTalkAgreeExist(ctx, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	if exist == 1 {
+		return r.getUserTalkAgreeFromCache(ctx, uuid)
+	} else {
+		return r.getUserTalkAgreeFromDb(ctx, uuid)
+	}
+}
+
+func (r *talkRepo) userTalkAgreeExist(ctx context.Context, uuid string) (int32, error) {
+	exist, err := r.data.redisCli.Exists(ctx, "user_talk_agree_"+uuid).Result()
+	if err != nil {
+		return 0, errors.Wrapf(err, fmt.Sprintf("fail to check if user talk agree exist from cache: uuid(%s)", uuid))
+	}
+	return int32(exist), nil
+}
+
+func (r *talkRepo) getUserTalkAgreeFromCache(ctx context.Context, uuid string) (map[int32]bool, error) {
+	key := "user_talk_agree_" + uuid
+	agreeSet, err := r.data.redisCli.SMembers(ctx, key).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user talk agree from cache: uuid(%s)", uuid))
+	}
+
+	agreeMap := make(map[int32]bool, 0)
+	for _, item := range agreeSet {
+		id, err := strconv.ParseInt(item, 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s), uuid(%s), key(%s)", id, uuid, key))
+		}
+		agreeMap[int32(id)] = true
+	}
+	return agreeMap, nil
+}
+
+func (r *talkRepo) getUserTalkAgreeFromDb(ctx context.Context, uuid string) (map[int32]bool, error) {
+	list := make([]*TalkAgree, 0)
+	err := r.data.db.WithContext(ctx).Where("uuid = ? and status = ?", uuid, 1).Find(&list).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user talk agree from db: uuid(%s)", uuid))
+	}
+
+	agreeMap := make(map[int32]bool, 0)
+	for _, item := range list {
+		agreeMap[item.TalkId] = true
+	}
+	if len(list) != 0 {
+		go r.setUserTalkAgreeToCache(uuid, list)
+	}
+	return agreeMap, nil
+}
+
+func (r *talkRepo) setUserTalkAgreeToCache(uuid string, agreeList []*TalkAgree) {
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		set := make([]interface{}, 0)
+		key := "user_talk_agree_" + uuid
+		for _, item := range agreeList {
+			set = append(set, item.TalkId)
+		}
+		pipe.SAdd(ctx, key, set...)
+		pipe.Expire(ctx, key, time.Hour*8)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to set user talk agree to cache: uuid(%s), agreeList(%v), error(%s) ", uuid, agreeList, err.Error())
+	}
+}
+
+func (r *talkRepo) GetUserTalkCollect(ctx context.Context, uuid string) (map[int32]bool, error) {
+	exist, err := r.userTalkCollectExist(ctx, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	if exist == 1 {
+		return r.getUserTalkCollectFromCache(ctx, uuid)
+	} else {
+		return r.getUserTalkCollectFromDb(ctx, uuid)
+	}
+}
+
+func (r *talkRepo) userTalkCollectExist(ctx context.Context, uuid string) (int32, error) {
+	exist, err := r.data.redisCli.Exists(ctx, "user_talk_collect_"+uuid).Result()
+	if err != nil {
+		return 0, errors.Wrapf(err, fmt.Sprintf("fail to check if user talk collect exist from cache: uuid(%s)", uuid))
+	}
+	return int32(exist), nil
+}
+
+func (r *talkRepo) getUserTalkCollectFromCache(ctx context.Context, uuid string) (map[int32]bool, error) {
+	key := "user_talk_collect_" + uuid
+	collectSet, err := r.data.redisCli.SMembers(ctx, key).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user talk collect from cache: uuid(%s)", uuid))
+	}
+
+	collectMap := make(map[int32]bool, 0)
+	for _, item := range collectSet {
+		id, err := strconv.ParseInt(item, 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s), uuid(%s), key(%s)", id, uuid, key))
+		}
+		collectMap[int32(id)] = true
+	}
+	return collectMap, nil
+}
+
+func (r *talkRepo) getUserTalkCollectFromDb(ctx context.Context, uuid string) (map[int32]bool, error) {
+	list := make([]*TalkCollect, 0)
+	err := r.data.db.WithContext(ctx).Where("uuid = ? and status = ?", uuid, 1).Find(&list).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user talk collect from db: uuid(%s)", uuid))
+	}
+
+	collectMap := make(map[int32]bool, 0)
+	for _, item := range list {
+		collectMap[item.TalkId] = true
+	}
+	if len(list) != 0 {
+		go r.setUserTalkCollectToCache(uuid, list)
+	}
+	return collectMap, nil
+}
+
+func (r *talkRepo) setUserTalkCollectToCache(uuid string, collectList []*TalkCollect) {
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		set := make([]interface{}, 0)
+		key := "user_talk_collect_" + uuid
+		for _, item := range collectList {
+			set = append(set, item.TalkId)
+		}
+		pipe.SAdd(ctx, key, set...)
+		pipe.Expire(ctx, key, time.Hour*8)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to set user talk collect to cache: uuid(%s), collectList(%v), error(%s) ", uuid, collectList, err.Error())
+	}
+}
+
 func (r *talkRepo) GetTalkAuth(ctx context.Context, id int32) (int32, error) {
 	talk := &Talk{}
 	err := r.data.db.WithContext(ctx).Where("talk_id = ?", id).First(talk).Error
@@ -778,6 +924,15 @@ func (r *talkRepo) GetTalkAuth(ctx context.Context, id int32) (int32, error) {
 		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get talk auth from db: id(%v)", id))
 	}
 	return talk.Auth, nil
+}
+
+func (r *talkRepo) GetCollectionsIdFromTalkCollect(ctx context.Context, id int32) (int32, error) {
+	collect := &Collect{}
+	err := r.data.db.WithContext(ctx).Where("creations_id = ? and mode = ?", id, 3).First(collect).Error
+	if err != nil {
+		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get collections id  from db: creationsId(%v)", id))
+	}
+	return collect.CollectionsId, nil
 }
 
 func (r *talkRepo) CreateTalkDraft(ctx context.Context, uuid string) (int32, error) {
@@ -1560,22 +1715,62 @@ func (r *talkRepo) CancelTalkUserCollect(ctx context.Context, id int32, userUuid
 
 func (r *talkRepo) CancelTalkCollect(ctx context.Context, id int32, uuid string) error {
 	ts := &TalkStatistic{}
-	err := r.data.DB(ctx).Model(ts).Where("talk_id = ? and uuid = ?", id, uuid).Update("collect", gorm.Expr("collect - ?", 1)).Error
+	err := r.data.DB(ctx).Model(ts).Where("talk_id = ? and uuid = ? and collect > 0", id, uuid).Update("collect", gorm.Expr("collect - ?", 1)).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel talk collect: id(%v)", id))
 	}
 	return nil
 }
 
-func (r *talkRepo) CancelTalkCollectFromCache(ctx context.Context, id int32, uuid, userUuid string) error {
-	ids := strconv.Itoa(int(id))
-	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.HIncrBy(ctx, "talk_"+ids, "collect", -1)
-		pipe.SRem(ctx, "talk_collect_"+ids, userUuid)
-		return nil
-	})
+func (r *talkRepo) CancelTalkCollectFromCache(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error {
+	statisticKey := fmt.Sprintf("talk_%v", id)
+	collectKey := fmt.Sprintf("collections_%v_talk", collectionsId)
+	collectionsKey := fmt.Sprintf("collections_%v", collectionsId)
+	creationKey := fmt.Sprintf("creation_user_%s", userUuid)
+	userKey := fmt.Sprintf("user_talk_collect_%s", userUuid)
+	var script = redis.NewScript(`
+					local statisticKey = KEYS[1]
+					local statisticKeyExist = redis.call("EXISTS", statisticKey)
+					if statisticKeyExist == 1 then
+						local number = tonumber(redis.call("HGET", statisticKey, "collect"))
+						if number > 0 then
+  							redis.call("HINCRBY", statisticKey, "collect", -1)
+						end
+					end
+
+					local collectKey = KEYS[2]
+					local talkMember = ARGV[1]
+					redis.call("ZREM", collectKey, talkMember)
+
+					local collectionsKey = KEYS[3]
+					local collectionsKeyExist = redis.call("EXISTS", collectionsKey)
+					if collectionsKeyExist == 1 then
+						local number = tonumber(redis.call("HGET", collectionsKey, "talk"))
+						if number > 0 then
+  							redis.call("HINCRBY", collectionsKey, "talk", -1)
+						end
+					end
+
+					local creationKey = KEYS[4]
+					local creationKeyExist = redis.call("EXISTS", creationKey)
+					if creationKeyExist == 1 then
+						local number = tonumber(redis.call("HGET", creationKey, "collect"))
+						if number > 0 then
+  							redis.call("HINCRBY", creationKey, "collect", -1)
+						end
+					end
+
+					local userKey = KEYS[5]
+					local talkId = ARGV[2]
+					redis.call("SREM", userKey, talkId)
+
+					return 0
+	`)
+	keys := []string{statisticKey, collectKey, collectionsKey, creationKey, userKey}
+	values := []interface{}{fmt.Sprintf("%v%s%s", id, "%", uuid), id}
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
-		r.log.Errorf("fail to cancel talk collect from cache: id(%v), uuid(%s), userUuid(%s)", id, uuid, userUuid)
+		return errors.Wrapf(err, fmt.Sprintf("fail to cancel talk collect from cache: id(%v), collectionsId(%v), uuid(%s), userUuid(%s)", id, collectionsId, uuid, userUuid))
 	}
 	return nil
 }
@@ -1596,6 +1791,66 @@ func (r *talkRepo) CancelUserTalkAgreeFromCache(ctx context.Context, id int32, u
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel user talk agree from cache: id(%v), userUuid(%s)", id, userUuid))
+	}
+	return nil
+}
+
+func (r *talkRepo) CancelUserTalkCollectFromCache(ctx context.Context, id int32, userUuid string) error {
+	var script = redis.NewScript(`
+					local key = KEYS[1]
+                    local change = ARGV[1]
+					local value = redis.call("EXISTS", key)
+					if value == 1 then
+  						local result = redis.call("SREM", key, change)
+						return result
+					end
+					return 0
+	`)
+	keys := []string{"user_talk_collect_" + userUuid}
+	values := []interface{}{strconv.Itoa(int(id))}
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to cancel user talk agree from cache: id(%v), userUuid(%s)", id, userUuid))
+	}
+	return nil
+}
+
+func (r *talkRepo) CancelCollectionsTalkCollect(ctx context.Context, id int32, userUuid string) error {
+	collect := &Collect{
+		Status: 2,
+	}
+	err := r.data.DB(ctx).Model(&Collect{}).Where("creations_id = ? and mode = ? and uuid = ?", id, 3, userUuid).Updates(collect).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to cancel talk collect: talk_id(%v), userUuid(%s)", id, userUuid))
+	}
+	return nil
+}
+
+func (r *talkRepo) CancelUserTalkCollect(ctx context.Context, id int32, userUuid string) error {
+	tc := &TalkCollect{
+		Status: 2,
+	}
+	err := r.data.DB(ctx).Model(&TalkCollect{}).Where("talk_id = ? and uuid = ?", id, userUuid).Updates(tc).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to cancel user talk collect: talk_id(%v), userUuid(%s)", id, userUuid))
+	}
+	return nil
+}
+
+func (r *talkRepo) CancelCollectionTalk(ctx context.Context, id int32, uuid string) error {
+	collections := &Collections{}
+	err := r.data.DB(ctx).Model(collections).Where("id = ? and uuid = ? and talk > 0", id, uuid).Update("talk", gorm.Expr("talk - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to cancel collections talk: id(%v)", id))
+	}
+	return nil
+}
+
+func (r *talkRepo) ReduceCreationUserCollect(ctx context.Context, uuid string) error {
+	cu := &CreationUser{}
+	err := r.data.DB(ctx).Model(cu).Where("uuid = ? and collect > 0", uuid).Update("collect", gorm.Expr("collect - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to reduce creation user collect: uuid(%v)", uuid))
 	}
 	return nil
 }
