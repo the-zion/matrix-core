@@ -7,6 +7,7 @@ type Achievement struct {
 	View     int32
 	Follow   int32
 	Followed int32
+	Score    int32
 }
 
 type Medal struct {
