@@ -1086,6 +1086,38 @@ func (r *talkRepo) GetTalkSearch(ctx context.Context, page int32, search, time s
 	return reply, searchReply.Total, nil
 }
 
+func (r *talkRepo) GetUserTalkAgree(ctx context.Context, uuid string) (map[int32]bool, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("user_talk_agree_"+uuid), func() (interface{}, error) {
+		reply, err := r.data.cc.GetUserTalkAgree(ctx, &creationV1.GetUserTalkAgreeReq{
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return reply.Agree, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(map[int32]bool), nil
+}
+
+func (r *talkRepo) GetUserTalkCollect(ctx context.Context, uuid string) (map[int32]bool, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("user_talk_collect_"+uuid), func() (interface{}, error) {
+		reply, err := r.data.cc.GetUserTalkCollect(ctx, &creationV1.GetUserTalkCollectReq{
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return reply.Collect, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(map[int32]bool), nil
+}
+
 func (r *talkRepo) CreateTalkDraft(ctx context.Context, uuid string) (int32, error) {
 	reply, err := r.data.cc.CreateTalkDraft(ctx, &creationV1.CreateTalkDraftReq{
 		Uuid: uuid,
