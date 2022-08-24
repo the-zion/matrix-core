@@ -244,7 +244,7 @@ func (r *creationRepo) getCollectionsListInfoFromCache(ctx context.Context, exis
 
 func (r *creationRepo) getCollectionsListInfoFromDb(ctx context.Context, unExists []int32, collectionsListInfo *[]*biz.Collections) error {
 	list := make([]*Collections, 0)
-	err := r.data.db.WithContext(ctx).Where("id IN ?", unExists).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Where("id IN ?", unExists).Order("id desc").Find(&list).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to get collections list info from db: ids(%v)", unExists))
 	}

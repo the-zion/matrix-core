@@ -124,7 +124,7 @@ func (r *talkRepo) getUserTalkListFromCache(ctx context.Context, page int32, uui
 	index := int64(page - 1)
 	list, err := r.data.redisCli.ZRevRange(ctx, "user_talk_list_"+uuid, index*10, index*10+9).Result()
 	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user talk list visitor from cache: key(%s), page(%v)", "user_talk_list_", page))
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user talk list visitor from cache: key(%s), page(%v)", "user_talk_list_"+uuid, page))
 	}
 
 	talk := make([]*biz.Talk, 0)
@@ -193,7 +193,7 @@ func (r *talkRepo) getUserTalkListVisitorFromCache(ctx context.Context, page int
 	index := int64(page - 1)
 	list, err := r.data.redisCli.ZRevRange(ctx, "user_talk_list_visitor_"+uuid, index*10, index*10+9).Result()
 	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user talk list visitor from cache: key(%s), page(%v)", "user_talk_list_visitor_", page))
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user talk list visitor from cache: key(%s), page(%v)", "user_talk_list_visitor_"+uuid, page))
 	}
 
 	talk := make([]*biz.Talk, 0)
