@@ -336,6 +336,25 @@ func (s *BffService) GetUserArticleListVisitor(ctx context.Context, req *v1.GetU
 	return reply, nil
 }
 
+func (s *BffService) GetUserArticleListAll(ctx context.Context, _ *emptypb.Empty) (*v1.GetArticleListReply, error) {
+	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0)}
+	articleList, err := s.ac.GetUserArticleListAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range articleList {
+		reply.Article = append(reply.Article, &v1.GetArticleListReply_Article{
+			Id:      item.Id,
+			Uuid:    item.Uuid,
+			Agree:   item.Agree,
+			Collect: item.Collect,
+			View:    item.View,
+			Comment: item.Comment,
+		})
+	}
+	return reply, nil
+}
+
 func (s *BffService) GetArticleStatistic(ctx context.Context, req *v1.GetArticleStatisticReq) (*v1.GetArticleStatisticReply, error) {
 	articleStatistic, err := s.ac.GetArticleStatistic(ctx, req.Id)
 	if err != nil {
@@ -1061,6 +1080,26 @@ func (s *BffService) GetColumnSearch(ctx context.Context, req *v1.GetColumnSearc
 	}
 	reply.Total = total
 	return reply, nil
+}
+
+func (s *BffService) GetUserColumnAgree(ctx context.Context, _ *emptypb.Empty) (*v1.GetUserColumnAgreeReply, error) {
+	agreeMap, err := s.coc.GetUserColumnAgree(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetUserColumnAgreeReply{
+		Agree: agreeMap,
+	}, nil
+}
+
+func (s *BffService) GetUserColumnCollect(ctx context.Context, _ *emptypb.Empty) (*v1.GetUserColumnCollectReply, error) {
+	agreeMap, err := s.coc.GetUserColumnCollect(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetUserColumnCollectReply{
+		Collect: agreeMap,
+	}, nil
 }
 
 func (s *BffService) ColumnStatisticJudge(ctx context.Context, req *v1.ColumnStatisticJudgeReq) (*v1.ColumnStatisticJudgeReply, error) {
