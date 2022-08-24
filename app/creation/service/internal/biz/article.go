@@ -21,6 +21,7 @@ type ArticleRepo interface {
 	GetArticleCount(ctx context.Context, uuid string) (int32, error)
 	GetArticleCountVisitor(ctx context.Context, uuid string) (int32, error)
 	GetUserArticleList(ctx context.Context, page int32, uuid string) ([]*Article, error)
+	GetUserArticleListAll(ctx context.Context, uuid string) ([]*Article, error)
 	GetUserArticleListVisitor(ctx context.Context, page int32, uuid string) ([]*Article, error)
 	GetArticleStatistic(ctx context.Context, id int32) (*ArticleStatistic, error)
 	GetArticleListStatistic(ctx context.Context, ids []int32) ([]*ArticleStatistic, error)
@@ -347,6 +348,14 @@ func (r *ArticleUseCase) GetUserArticleList(ctx context.Context, page int32, uui
 	articleList, err := r.repo.GetUserArticleList(ctx, page, uuid)
 	if err != nil {
 		return nil, v1.ErrorGetArticleListFailed("get user article list failed: %s", err.Error())
+	}
+	return articleList, nil
+}
+
+func (r *ArticleUseCase) GetUserArticleListAll(ctx context.Context, uuid string) ([]*Article, error) {
+	articleList, err := r.repo.GetUserArticleListAll(ctx, uuid)
+	if err != nil {
+		return nil, v1.ErrorGetArticleListFailed("get article list all failed: %s", err.Error())
 	}
 	return articleList, nil
 }
