@@ -219,7 +219,7 @@ func (r *articleRepo) getUserArticleListFromCache(ctx context.Context, page int3
 	index := int64(page - 1)
 	list, err := r.data.redisCli.ZRevRange(ctx, "user_article_list_"+uuid, index*10, index*10+9).Result()
 	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user article list from cache: key(%s), page(%v)", "user_article_list_", page))
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user article list from cache: key(%s), page(%v)", "user_article_list_"+uuid, page))
 	}
 
 	article := make([]*biz.Article, 0)
@@ -246,6 +246,67 @@ func (r *articleRepo) getUserArticleListFromDB(ctx context.Context, page int32, 
 	err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).Order("article_id desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user article from db: page(%v), uuid(%s)", page, uuid))
+	}
+
+	article := make([]*biz.Article, 0)
+	for _, item := range list {
+		article = append(article, &biz.Article{
+			ArticleId: item.ArticleId,
+			Uuid:      item.Uuid,
+		})
+	}
+	return article, nil
+}
+
+func (r *articleRepo) GetUserArticleListAll(ctx context.Context, uuid string) ([]*biz.Article, error) {
+	article, err := r.getUserArticleListAllFromCache(ctx, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	size := len(article)
+	if size != 0 {
+		return article, nil
+	}
+
+	article, err = r.getUserArticleListAllFromDB(ctx, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	size = len(article)
+	if size != 0 {
+		go r.setUserArticleListToCache("user_article_list_all_"+uuid, article)
+	}
+	return article, nil
+}
+
+func (r *articleRepo) getUserArticleListAllFromCache(ctx context.Context, uuid string) ([]*biz.Article, error) {
+	list, err := r.data.redisCli.ZRevRange(ctx, "user_article_list_all_"+uuid, 0, -1).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user article list all from cache: key(%s)", "user_article_list_all_"+uuid))
+	}
+
+	article := make([]*biz.Article, 0)
+	for _, item := range list {
+		member := strings.Split(item, "%")
+		id, err := strconv.ParseInt(member[0], 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s)", member[0]))
+		}
+		article = append(article, &biz.Article{
+			ArticleId: int32(id),
+			Uuid:      member[1],
+		})
+	}
+	return article, nil
+}
+
+func (r *articleRepo) getUserArticleListAllFromDB(ctx context.Context, uuid string) ([]*biz.Article, error) {
+	list := make([]*Article, 0)
+	err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).Order("article_id desc").Find(&list).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user article all from db:, uuid(%s)", uuid))
 	}
 
 	article := make([]*biz.Article, 0)
@@ -288,7 +349,7 @@ func (r *articleRepo) getUserArticleListVisitorFromCache(ctx context.Context, pa
 	index := int64(page - 1)
 	list, err := r.data.redisCli.ZRevRange(ctx, "user_article_list_visitor_"+uuid, index*10, index*10+9).Result()
 	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user article list visitor from cache: key(%s), page(%v)", "user_article_list_visitor_", page))
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user article list visitor from cache: key(%s), page(%v)", "user_article_list_visitor_"+uuid, page))
 	}
 
 	article := make([]*biz.Article, 0)
@@ -2073,6 +2134,7 @@ func (r *articleRepo) setColumnArticleToCache(id int32, article []*biz.Article) 
 			})
 		}
 		pipe.ZAddNX(ctx, "column_includes_"+ids, z...)
+		pipe.Expire(ctx, "column_includes_"+ids, time.Hour*8)
 		return nil
 	})
 	if err != nil {
