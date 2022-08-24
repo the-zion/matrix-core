@@ -16,6 +16,11 @@ type CreationRepo interface {
 	CreateArticleDbCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error
 	EditArticleCosAndSearch(ctx context.Context, id, auth int32, uuid string) error
 	DeleteArticleCacheAndSearch(ctx context.Context, id int32, uuid string) error
+	SetArticleViewDbAndCache(ctx context.Context, id int32, uuid string) error
+	SetArticleAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error
+	SetArticleCollectDbAndCache(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error
+	CancelArticleAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error
+	CancelArticleCollectDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error
 
 	ToReviewCreateTalk(id int32, uuid string) error
 	ToReviewEditTalk(id int32, uuid string) error
@@ -24,6 +29,11 @@ type CreationRepo interface {
 	TalkEditReviewPass(ctx context.Context, id, auth int32, uuid string) error
 	EditTalkCosAndSearch(ctx context.Context, id, auth int32, uuid string) error
 	DeleteTalkCacheAndSearch(ctx context.Context, id int32, uuid string) error
+	SetTalkViewDbAndCache(ctx context.Context, id int32, uuid string) error
+	SetTalkAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error
+	CancelTalkAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error
+	SetTalkCollectDbAndCache(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error
+	CancelTalkCollectDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error
 
 	ToReviewCreateColumn(id int32, uuid string) error
 	ToReviewEditColumn(id int32, uuid string) error
@@ -32,9 +42,17 @@ type CreationRepo interface {
 	CreateColumnDbCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error
 	EditColumnCosAndSearch(ctx context.Context, id, auth int32, uuid string) error
 	DeleteColumnCacheAndSearch(ctx context.Context, id int32, uuid string) error
+	SetColumnAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error
+	SetColumnViewDbAndCache(ctx context.Context, id int32, uuid string) error
+	CancelColumnAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error
+	SetColumnCollectDbAndCache(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error
+	CancelColumnCollectDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error
+	AddColumnIncludesDbAndCache(ctx context.Context, id, articleId int32, uuid string) error
+	DeleteColumnIncludesDbAndCache(ctx context.Context, id, articleId int32, uuid string) error
 
 	AddCreationComment(ctx context.Context, createId, createType int32, uuid string)
 	ReduceCreationComment(ctx context.Context, createId, createType int32, uuid string)
+	GetCreationUser(ctx context.Context, uuid string) (int32, int32, int32, error)
 }
 
 type CreationUseCase struct {
@@ -173,6 +191,26 @@ func (r *CreationUseCase) DeleteArticleCacheAndSearch(ctx context.Context, id in
 	return r.repo.DeleteArticleCacheAndSearch(ctx, id, uuid)
 }
 
+func (r *CreationUseCase) SetArticleViewDbAndCache(ctx context.Context, id int32, uuid string) error {
+	return r.repo.SetArticleViewDbAndCache(ctx, id, uuid)
+}
+
+func (r *CreationUseCase) SetArticleAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	return r.repo.SetArticleAgreeDbAndCache(ctx, id, uuid, userUuid)
+}
+
+func (r *CreationUseCase) CancelArticleAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	return r.repo.CancelArticleAgreeDbAndCache(ctx, id, uuid, userUuid)
+}
+
+func (r *CreationUseCase) SetArticleCollectDbAndCache(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error {
+	return r.repo.SetArticleCollectDbAndCache(ctx, id, collectionsId, uuid, userUuid)
+}
+
+func (r *CreationUseCase) CancelArticleCollectDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	return r.repo.CancelArticleCollectDbAndCache(ctx, id, uuid, userUuid)
+}
+
 func (r *CreationUseCase) ToReviewCreateTalk(id int32, uuid string) error {
 	return r.repo.ToReviewCreateTalk(id, uuid)
 }
@@ -295,6 +333,26 @@ func (r *CreationUseCase) DeleteTalkCacheAndSearch(ctx context.Context, id int32
 	return r.repo.DeleteTalkCacheAndSearch(ctx, id, uuid)
 }
 
+func (r *CreationUseCase) SetTalkViewDbAndCache(ctx context.Context, id int32, uuid string) error {
+	return r.repo.SetTalkViewDbAndCache(ctx, id, uuid)
+}
+
+func (r *CreationUseCase) SetTalkAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	return r.repo.SetTalkAgreeDbAndCache(ctx, id, uuid, userUuid)
+}
+
+func (r *CreationUseCase) CancelTalkAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	return r.repo.CancelTalkAgreeDbAndCache(ctx, id, uuid, userUuid)
+}
+
+func (r *CreationUseCase) SetTalkCollectDbAndCache(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error {
+	return r.repo.SetTalkCollectDbAndCache(ctx, id, collectionsId, uuid, userUuid)
+}
+
+func (r *CreationUseCase) CancelTalkCollectDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	return r.repo.CancelTalkCollectDbAndCache(ctx, id, uuid, userUuid)
+}
+
 func (r *CreationUseCase) ToReviewCreateColumn(id int32, uuid string) error {
 	return r.repo.ToReviewCreateColumn(id, uuid)
 }
@@ -415,6 +473,34 @@ func (r *CreationUseCase) EditColumnCosAndSearch(ctx context.Context, id, auth i
 
 func (r *CreationUseCase) DeleteColumnCacheAndSearch(ctx context.Context, id int32, uuid string) error {
 	return r.repo.DeleteColumnCacheAndSearch(ctx, id, uuid)
+}
+
+func (r *CreationUseCase) SetColumnViewDbAndCache(ctx context.Context, id int32, uuid string) error {
+	return r.repo.SetColumnViewDbAndCache(ctx, id, uuid)
+}
+
+func (r *CreationUseCase) SetColumnAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	return r.repo.SetColumnAgreeDbAndCache(ctx, id, uuid, userUuid)
+}
+
+func (r *CreationUseCase) CancelColumnAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	return r.repo.CancelColumnAgreeDbAndCache(ctx, id, uuid, userUuid)
+}
+
+func (r *CreationUseCase) SetColumnCollectDbAndCache(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error {
+	return r.repo.SetColumnCollectDbAndCache(ctx, id, collectionsId, uuid, userUuid)
+}
+
+func (r *CreationUseCase) CancelColumnCollectDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	return r.repo.CancelColumnCollectDbAndCache(ctx, id, uuid, userUuid)
+}
+
+func (r *CreationUseCase) AddColumnIncludesDbAndCache(ctx context.Context, id, articleId int32, uuid string) error {
+	return r.repo.AddColumnIncludesDbAndCache(ctx, id, articleId, uuid)
+}
+
+func (r *CreationUseCase) DeleteColumnIncludesDbAndCache(ctx context.Context, id, articleId int32, uuid string) error {
+	return r.repo.DeleteColumnIncludesDbAndCache(ctx, id, articleId, uuid)
 }
 
 func (r *CreationUseCase) AddCreationComment(ctx context.Context, createId, createType int32, uuid string) {
