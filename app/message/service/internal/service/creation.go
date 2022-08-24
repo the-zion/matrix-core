@@ -44,6 +44,26 @@ func (s *MessageService) DeleteArticleCacheAndSearch(ctx context.Context, id int
 	return s.cc.DeleteArticleCacheAndSearch(ctx, id, uuid)
 }
 
+func (s *MessageService) SetArticleViewDbAndCache(ctx context.Context, id int32, uuid string) error {
+	return s.cc.SetArticleViewDbAndCache(ctx, id, uuid)
+}
+
+func (s *MessageService) SetArticleAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	return s.cc.SetArticleAgreeDbAndCache(ctx, id, uuid, userUuid)
+}
+
+func (s *MessageService) CancelArticleAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	return s.cc.CancelArticleAgreeDbAndCache(ctx, id, uuid, userUuid)
+}
+
+func (s *MessageService) SetArticleCollectDbAndCache(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error {
+	return s.cc.SetArticleCollectDbAndCache(ctx, id, collectionsId, uuid, userUuid)
+}
+
+func (s *MessageService) CancelArticleCollectDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	return s.cc.CancelArticleCollectDbAndCache(ctx, id, uuid, userUuid)
+}
+
 func (s *MessageService) ToReviewCreateTalk(id int32, uuid string) error {
 	return s.cc.ToReviewCreateTalk(id, uuid)
 }
@@ -82,6 +102,26 @@ func (s *MessageService) DeleteTalkCacheAndSearch(ctx context.Context, id int32,
 	return s.cc.DeleteTalkCacheAndSearch(ctx, id, uuid)
 }
 
+func (s *MessageService) SetTalkViewDbAndCache(ctx context.Context, id int32, uuid string) error {
+	return s.cc.SetTalkViewDbAndCache(ctx, id, uuid)
+}
+
+func (s *MessageService) SetTalkAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	return s.cc.SetTalkAgreeDbAndCache(ctx, id, uuid, userUuid)
+}
+
+func (s *MessageService) CancelTalkAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	return s.cc.CancelTalkAgreeDbAndCache(ctx, id, uuid, userUuid)
+}
+
+func (s *MessageService) SetTalkCollectDbAndCache(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error {
+	return s.cc.SetTalkCollectDbAndCache(ctx, id, collectionsId, uuid, userUuid)
+}
+
+func (s *MessageService) CancelTalkCollectDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	return s.cc.CancelTalkCollectDbAndCache(ctx, id, uuid, userUuid)
+}
+
 func (s *MessageService) ToReviewCreateColumn(id int32, uuid string) error {
 	return s.cc.ToReviewCreateColumn(id, uuid)
 }
@@ -118,6 +158,34 @@ func (s *MessageService) EditColumnCosAndSearch(ctx context.Context, id, auth in
 
 func (s *MessageService) DeleteColumnCacheAndSearch(ctx context.Context, id int32, uuid string) error {
 	return s.cc.DeleteColumnCacheAndSearch(ctx, id, uuid)
+}
+
+func (s *MessageService) SetColumnViewDbAndCache(ctx context.Context, id int32, uuid string) error {
+	return s.cc.SetColumnViewDbAndCache(ctx, id, uuid)
+}
+
+func (s *MessageService) SetColumnAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	return s.cc.SetColumnAgreeDbAndCache(ctx, id, uuid, userUuid)
+}
+
+func (s *MessageService) CancelColumnAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	return s.cc.CancelColumnAgreeDbAndCache(ctx, id, uuid, userUuid)
+}
+
+func (s *MessageService) SetColumnCollectDbAndCache(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error {
+	return s.cc.SetColumnCollectDbAndCache(ctx, id, collectionsId, uuid, userUuid)
+}
+
+func (s *MessageService) CancelColumnCollectDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	return s.cc.CancelColumnCollectDbAndCache(ctx, id, uuid, userUuid)
+}
+
+func (s *MessageService) AddColumnIncludesDbAndCache(ctx context.Context, id, articleId int32, uuid string) error {
+	return s.cc.AddColumnIncludesDbAndCache(ctx, id, articleId, uuid)
+}
+
+func (s *MessageService) DeleteColumnIncludesDbAndCache(ctx context.Context, id, articleId int32, uuid string) error {
+	return s.cc.DeleteColumnIncludesDbAndCache(ctx, id, articleId, uuid)
 }
 
 func (s *MessageService) AddCreationComment(ctx context.Context, createId, createType int32, uuid string) {
