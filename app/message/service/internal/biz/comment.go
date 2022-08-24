@@ -21,6 +21,7 @@ type CommentRepo interface {
 	SetSubCommentAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error
 	CancelCommentAgreeDbAndCache(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error
 	CancelSubCommentAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error
+	GetCommentUser(ctx context.Context, uuid string) (int32, error)
 }
 
 type CommentUseCase struct {
