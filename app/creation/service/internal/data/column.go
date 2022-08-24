@@ -129,14 +129,20 @@ func (r *columnRepo) AddColumnIncludes(ctx context.Context, id, articleId int32,
 func (r *columnRepo) AddColumnIncludesToCache(ctx context.Context, id, articleId int32, uuid string) error {
 	ids := strconv.Itoa(int(id))
 	articleIds := strconv.Itoa(int(articleId))
-	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-
-		pipe.ZAddNX(ctx, "column_includes_"+ids, &redis.Z{
-			Score:  float64(time.Now().Unix()),
-			Member: articleIds + "%" + uuid,
-		})
-		return nil
-	})
+	var script = redis.NewScript(`
+					local key = KEYS[1]
+					local member = KEYS[2]
+                    local change = ARGV[1]
+					local value = redis.call("EXISTS", key)
+					if value == 1 then
+  						local result = redis.call("ZADD", change, member)
+						return result
+					end
+					return 0
+	`)
+	keys := []string{"column_includes_" + ids, articleIds + "%" + uuid}
+	values := []interface{}{float64(time.Now().Unix())}
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to add column includes to cache: uuid(%s), id(%v)", uuid, id))
 	}
@@ -322,6 +328,29 @@ func (r *columnRepo) SendStatisticToMq(ctx context.Context, id, collectionsId in
 	_, err = r.data.columnMqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send column statistic to mq: map(%v)", statisticMap))
+	}
+	return nil
+}
+
+func (r *columnRepo) SendColumnIncludesToMq(ctx context.Context, id, articleId int32, uuid, mode string) error {
+	includesMap := map[string]interface{}{}
+	includesMap["id"] = id
+	includesMap["articleId"] = articleId
+	includesMap["uuid"] = uuid
+	includesMap["mode"] = mode
+
+	data, err := json.Marshal(includesMap)
+	if err != nil {
+		return err
+	}
+	msg := &primitive.Message{
+		Topic: "column",
+		Body:  data,
+	}
+	msg.WithKeys([]string{uuid})
+	_, err = r.data.columnMqPro.producer.SendSync(ctx, msg)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add column includes to mq: map(%v)", includesMap))
 	}
 	return nil
 }
@@ -627,7 +656,7 @@ func (r *columnRepo) getUserColumnListFromCache(ctx context.Context, page int32,
 	index := int64(page - 1)
 	list, err := r.data.redisCli.ZRevRange(ctx, "user_column_list_"+uuid, index*10, index*10+9).Result()
 	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user column list visitor from cache: key(%s), page(%v)", "user_column_list_", page))
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user column list visitor from cache: key(%s), page(%v)", "user_column_list_"+uuid, page))
 	}
 
 	column := make([]*biz.Column, 0)
@@ -696,7 +725,7 @@ func (r *columnRepo) getUserColumnListVisitorFromCache(ctx context.Context, page
 	index := int64(page - 1)
 	list, err := r.data.redisCli.ZRevRange(ctx, "user_column_list_visitor_"+uuid, index*10, index*10+9).Result()
 	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user column list visitor from cache: key(%s), page(%v)", "user_column_list_visitor_", page))
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user column list visitor from cache: key(%s), page(%v)", "user_column_list_visitor_"+uuid, page))
 	}
 
 	column := make([]*biz.Column, 0)
@@ -1942,6 +1971,152 @@ func (r *columnRepo) GetCollectionsIdFromColumnCollect(ctx context.Context, id i
 		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get collections id  from db: creationsId(%v)", id))
 	}
 	return collect.CollectionsId, nil
+}
+
+func (r *columnRepo) GetUserColumnAgree(ctx context.Context, uuid string) (map[int32]bool, error) {
+	exist, err := r.userColumnAgreeExist(ctx, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	if exist == 1 {
+		return r.getUserColumnAgreeFromCache(ctx, uuid)
+	} else {
+		return r.getUserColumnAgreeFromDb(ctx, uuid)
+	}
+}
+
+func (r *columnRepo) userColumnAgreeExist(ctx context.Context, uuid string) (int32, error) {
+	exist, err := r.data.redisCli.Exists(ctx, "user_column_agree_"+uuid).Result()
+	if err != nil {
+		return 0, errors.Wrapf(err, fmt.Sprintf("fail to check if user column agree exist from cache: uuid(%s)", uuid))
+	}
+	return int32(exist), nil
+}
+
+func (r *columnRepo) getUserColumnAgreeFromCache(ctx context.Context, uuid string) (map[int32]bool, error) {
+	key := "user_column_agree_" + uuid
+	agreeSet, err := r.data.redisCli.SMembers(ctx, key).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user column agree from cache: uuid(%s)", uuid))
+	}
+
+	agreeMap := make(map[int32]bool, 0)
+	for _, item := range agreeSet {
+		id, err := strconv.ParseInt(item, 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s), uuid(%s), key(%s)", id, uuid, key))
+		}
+		agreeMap[int32(id)] = true
+	}
+	return agreeMap, nil
+}
+
+func (r *columnRepo) getUserColumnAgreeFromDb(ctx context.Context, uuid string) (map[int32]bool, error) {
+	list := make([]*ColumnAgree, 0)
+	err := r.data.db.WithContext(ctx).Where("uuid = ? and status = ?", uuid, 1).Find(&list).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user column agree from db: uuid(%s)", uuid))
+	}
+
+	agreeMap := make(map[int32]bool, 0)
+	for _, item := range list {
+		agreeMap[item.ColumnId] = true
+	}
+	if len(list) != 0 {
+		go r.setUserColumnAgreeToCache(uuid, list)
+	}
+	return agreeMap, nil
+}
+
+func (r *columnRepo) setUserColumnAgreeToCache(uuid string, agreeList []*ColumnAgree) {
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		set := make([]interface{}, 0)
+		key := "user_column_agree_" + uuid
+		for _, item := range agreeList {
+			set = append(set, item.ColumnId)
+		}
+		pipe.SAdd(ctx, key, set...)
+		pipe.Expire(ctx, key, time.Hour*8)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to set user column agree to cache: uuid(%s), agreeList(%v), error(%s) ", uuid, agreeList, err.Error())
+	}
+}
+
+func (r *columnRepo) GetUserColumnCollect(ctx context.Context, uuid string) (map[int32]bool, error) {
+	exist, err := r.userColumnCollectExist(ctx, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	if exist == 1 {
+		return r.getUserColumnCollectFromCache(ctx, uuid)
+	} else {
+		return r.getUserColumnCollectFromDb(ctx, uuid)
+	}
+}
+
+func (r *columnRepo) userColumnCollectExist(ctx context.Context, uuid string) (int32, error) {
+	exist, err := r.data.redisCli.Exists(ctx, "user_column_collect_"+uuid).Result()
+	if err != nil {
+		return 0, errors.Wrapf(err, fmt.Sprintf("fail to check if user column collect exist from cache: uuid(%s)", uuid))
+	}
+	return int32(exist), nil
+}
+
+func (r *columnRepo) getUserColumnCollectFromCache(ctx context.Context, uuid string) (map[int32]bool, error) {
+	key := "user_column_collect_" + uuid
+	collectSet, err := r.data.redisCli.SMembers(ctx, key).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user column collect from cache: uuid(%s)", uuid))
+	}
+
+	collectMap := make(map[int32]bool, 0)
+	for _, item := range collectSet {
+		id, err := strconv.ParseInt(item, 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s), uuid(%s), key(%s)", id, uuid, key))
+		}
+		collectMap[int32(id)] = true
+	}
+	return collectMap, nil
+}
+
+func (r *columnRepo) getUserColumnCollectFromDb(ctx context.Context, uuid string) (map[int32]bool, error) {
+	list := make([]*ColumnCollect, 0)
+	err := r.data.db.WithContext(ctx).Where("uuid = ? and status = ?", uuid, 1).Find(&list).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user column collect from db: uuid(%s)", uuid))
+	}
+
+	collectMap := make(map[int32]bool, 0)
+	for _, item := range list {
+		collectMap[item.ColumnId] = true
+	}
+	if len(list) != 0 {
+		go r.setUserColumnCollectToCache(uuid, list)
+	}
+	return collectMap, nil
+}
+
+func (r *columnRepo) setUserColumnCollectToCache(uuid string, collectList []*ColumnCollect) {
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		set := make([]interface{}, 0)
+		key := "user_column_collect_" + uuid
+		for _, item := range collectList {
+			set = append(set, item.ColumnId)
+		}
+		pipe.SAdd(ctx, key, set...)
+		pipe.Expire(ctx, key, time.Hour*8)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to set user column collect to cache: uuid(%s), collectList(%v), error(%s) ", uuid, collectList, err.Error())
+	}
 }
 
 func (r *columnRepo) SubscribeJudge(ctx context.Context, id int32, uuid string) (bool, error) {
