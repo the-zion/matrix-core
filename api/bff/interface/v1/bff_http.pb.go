@@ -109,8 +109,11 @@ const OperationBffGetUserAchievement = "/bff.v1.Bff/GetUserAchievement"
 const OperationBffGetUserArticleAgree = "/bff.v1.Bff/GetUserArticleAgree"
 const OperationBffGetUserArticleCollect = "/bff.v1.Bff/GetUserArticleCollect"
 const OperationBffGetUserArticleList = "/bff.v1.Bff/GetUserArticleList"
+const OperationBffGetUserArticleListAll = "/bff.v1.Bff/GetUserArticleListAll"
 const OperationBffGetUserArticleListSimple = "/bff.v1.Bff/GetUserArticleListSimple"
 const OperationBffGetUserArticleListVisitor = "/bff.v1.Bff/GetUserArticleListVisitor"
+const OperationBffGetUserColumnAgree = "/bff.v1.Bff/GetUserColumnAgree"
+const OperationBffGetUserColumnCollect = "/bff.v1.Bff/GetUserColumnCollect"
 const OperationBffGetUserColumnList = "/bff.v1.Bff/GetUserColumnList"
 const OperationBffGetUserColumnListSimple = "/bff.v1.Bff/GetUserColumnListSimple"
 const OperationBffGetUserColumnListVisitor = "/bff.v1.Bff/GetUserColumnListVisitor"
@@ -258,8 +261,11 @@ type BffHTTPServer interface {
 	GetUserArticleAgree(context.Context, *emptypb.Empty) (*GetUserArticleAgreeReply, error)
 	GetUserArticleCollect(context.Context, *emptypb.Empty) (*GetUserArticleCollectReply, error)
 	GetUserArticleList(context.Context, *GetUserArticleListReq) (*GetArticleListReply, error)
+	GetUserArticleListAll(context.Context, *emptypb.Empty) (*GetArticleListReply, error)
 	GetUserArticleListSimple(context.Context, *GetUserArticleListSimpleReq) (*GetArticleListReply, error)
 	GetUserArticleListVisitor(context.Context, *GetUserArticleListVisitorReq) (*GetArticleListReply, error)
+	GetUserColumnAgree(context.Context, *emptypb.Empty) (*GetUserColumnAgreeReply, error)
+	GetUserColumnCollect(context.Context, *emptypb.Empty) (*GetUserColumnCollectReply, error)
 	GetUserColumnList(context.Context, *GetUserColumnListReq) (*GetColumnListReply, error)
 	GetUserColumnListSimple(context.Context, *GetUserColumnListSimpleReq) (*GetColumnListReply, error)
 	GetUserColumnListVisitor(context.Context, *GetUserColumnListVisitorReq) (*GetColumnListReply, error)
@@ -375,6 +381,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.POST("/v1/get/user/article/list", _Bff_GetUserArticleList0_HTTP_Handler(srv))
 	r.POST("/v1/get/user/article/list/simple", _Bff_GetUserArticleListSimple0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/article/list/visitor", _Bff_GetUserArticleListVisitor0_HTTP_Handler(srv))
+	r.GET("/v1/get/user/article/list/all", _Bff_GetUserArticleListAll0_HTTP_Handler(srv))
 	r.GET("/v1/get/article/statistic", _Bff_GetArticleStatistic0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/article/agree", _Bff_GetUserArticleAgree0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/article/collect", _Bff_GetUserArticleCollect0_HTTP_Handler(srv))
@@ -437,6 +444,8 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.POST("/v1/send/column/edit", _Bff_SendColumnEdit0_HTTP_Handler(srv))
 	r.POST("/v1/delete/column", _Bff_DeleteColumn0_HTTP_Handler(srv))
 	r.GET("/v1/get/column/statistic", _Bff_GetColumnStatistic0_HTTP_Handler(srv))
+	r.GET("/v1/get/user/column/agree", _Bff_GetUserColumnAgree0_HTTP_Handler(srv))
+	r.GET("/v1/get/user/column/collect", _Bff_GetUserColumnCollect0_HTTP_Handler(srv))
 	r.POST("/v1/column/statistic/judge", _Bff_ColumnStatisticJudge0_HTTP_Handler(srv))
 	r.POST("/v1/set/column/agree", _Bff_SetColumnAgree0_HTTP_Handler(srv))
 	r.POST("/v1/cancel/column/agree", _Bff_CancelColumnAgree0_HTTP_Handler(srv))
@@ -1504,6 +1513,25 @@ func _Bff_GetUserArticleListVisitor0_HTTP_Handler(srv BffHTTPServer) func(ctx ht
 		http.SetOperation(ctx, OperationBffGetUserArticleListVisitor)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.GetUserArticleListVisitor(ctx, req.(*GetUserArticleListVisitorReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetArticleListReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_GetUserArticleListAll0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in emptypb.Empty
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetUserArticleListAll)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetUserArticleListAll(ctx, req.(*emptypb.Empty))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -2692,6 +2720,44 @@ func _Bff_GetColumnStatistic0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Cont
 	}
 }
 
+func _Bff_GetUserColumnAgree0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in emptypb.Empty
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetUserColumnAgree)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetUserColumnAgree(ctx, req.(*emptypb.Empty))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetUserColumnAgreeReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_GetUserColumnCollect0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in emptypb.Empty
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetUserColumnCollect)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetUserColumnCollect(ctx, req.(*emptypb.Empty))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetUserColumnCollectReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _Bff_ColumnStatisticJudge0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in ColumnStatisticJudgeReq
@@ -3352,8 +3418,11 @@ type BffHTTPClient interface {
 	GetUserArticleAgree(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetUserArticleAgreeReply, err error)
 	GetUserArticleCollect(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetUserArticleCollectReply, err error)
 	GetUserArticleList(ctx context.Context, req *GetUserArticleListReq, opts ...http.CallOption) (rsp *GetArticleListReply, err error)
+	GetUserArticleListAll(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetArticleListReply, err error)
 	GetUserArticleListSimple(ctx context.Context, req *GetUserArticleListSimpleReq, opts ...http.CallOption) (rsp *GetArticleListReply, err error)
 	GetUserArticleListVisitor(ctx context.Context, req *GetUserArticleListVisitorReq, opts ...http.CallOption) (rsp *GetArticleListReply, err error)
+	GetUserColumnAgree(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetUserColumnAgreeReply, err error)
+	GetUserColumnCollect(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetUserColumnCollectReply, err error)
 	GetUserColumnList(ctx context.Context, req *GetUserColumnListReq, opts ...http.CallOption) (rsp *GetColumnListReply, err error)
 	GetUserColumnListSimple(ctx context.Context, req *GetUserColumnListSimpleReq, opts ...http.CallOption) (rsp *GetColumnListReply, err error)
 	GetUserColumnListVisitor(ctx context.Context, req *GetUserColumnListVisitorReq, opts ...http.CallOption) (rsp *GetColumnListReply, err error)
@@ -4577,6 +4646,19 @@ func (c *BffHTTPClientImpl) GetUserArticleList(ctx context.Context, in *GetUserA
 	return &out, err
 }
 
+func (c *BffHTTPClientImpl) GetUserArticleListAll(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*GetArticleListReply, error) {
+	var out GetArticleListReply
+	pattern := "/v1/get/user/article/list/all"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationBffGetUserArticleListAll))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
 func (c *BffHTTPClientImpl) GetUserArticleListSimple(ctx context.Context, in *GetUserArticleListSimpleReq, opts ...http.CallOption) (*GetArticleListReply, error) {
 	var out GetArticleListReply
 	pattern := "/v1/get/user/article/list/simple"
@@ -4595,6 +4677,32 @@ func (c *BffHTTPClientImpl) GetUserArticleListVisitor(ctx context.Context, in *G
 	pattern := "/v1/get/user/article/list/visitor"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationBffGetUserArticleListVisitor))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetUserColumnAgree(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*GetUserColumnAgreeReply, error) {
+	var out GetUserColumnAgreeReply
+	pattern := "/v1/get/user/column/agree"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationBffGetUserColumnAgree))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetUserColumnCollect(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*GetUserColumnCollectReply, error) {
+	var out GetUserColumnCollectReply
+	pattern := "/v1/get/user/column/collect"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationBffGetUserColumnCollect))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

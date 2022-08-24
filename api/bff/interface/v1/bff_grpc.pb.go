@@ -79,6 +79,7 @@ type BffClient interface {
 	GetUserArticleList(ctx context.Context, in *GetUserArticleListReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
 	GetUserArticleListSimple(ctx context.Context, in *GetUserArticleListSimpleReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
 	GetUserArticleListVisitor(ctx context.Context, in *GetUserArticleListVisitorReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
+	GetUserArticleListAll(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetArticleListReply, error)
 	GetArticleStatistic(ctx context.Context, in *GetArticleStatisticReq, opts ...grpc.CallOption) (*GetArticleStatisticReply, error)
 	GetUserArticleAgree(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserArticleAgreeReply, error)
 	GetUserArticleCollect(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserArticleCollectReply, error)
@@ -141,6 +142,8 @@ type BffClient interface {
 	SendColumnEdit(ctx context.Context, in *SendColumnEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteColumn(ctx context.Context, in *DeleteColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetColumnStatistic(ctx context.Context, in *GetColumnStatisticReq, opts ...grpc.CallOption) (*GetColumnStatisticReply, error)
+	GetUserColumnAgree(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserColumnAgreeReply, error)
+	GetUserColumnCollect(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserColumnCollectReply, error)
 	ColumnStatisticJudge(ctx context.Context, in *ColumnStatisticJudgeReq, opts ...grpc.CallOption) (*ColumnStatisticJudgeReply, error)
 	SetColumnAgree(ctx context.Context, in *SetColumnAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelColumnAgree(ctx context.Context, in *CancelColumnAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -670,6 +673,15 @@ func (c *bffClient) GetUserArticleListSimple(ctx context.Context, in *GetUserArt
 func (c *bffClient) GetUserArticleListVisitor(ctx context.Context, in *GetUserArticleListVisitorReq, opts ...grpc.CallOption) (*GetArticleListReply, error) {
 	out := new(GetArticleListReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserArticleListVisitor", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetUserArticleListAll(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetArticleListReply, error) {
+	out := new(GetArticleListReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserArticleListAll", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1234,6 +1246,24 @@ func (c *bffClient) GetColumnStatistic(ctx context.Context, in *GetColumnStatist
 	return out, nil
 }
 
+func (c *bffClient) GetUserColumnAgree(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserColumnAgreeReply, error) {
+	out := new(GetUserColumnAgreeReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserColumnAgree", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetUserColumnCollect(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserColumnCollectReply, error) {
+	out := new(GetUserColumnCollectReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserColumnCollect", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) ColumnStatisticJudge(ctx context.Context, in *ColumnStatisticJudgeReq, opts ...grpc.CallOption) (*ColumnStatisticJudgeReply, error) {
 	out := new(ColumnStatisticJudgeReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/ColumnStatisticJudge", in, out, opts...)
@@ -1564,6 +1594,7 @@ type BffServer interface {
 	GetUserArticleList(context.Context, *GetUserArticleListReq) (*GetArticleListReply, error)
 	GetUserArticleListSimple(context.Context, *GetUserArticleListSimpleReq) (*GetArticleListReply, error)
 	GetUserArticleListVisitor(context.Context, *GetUserArticleListVisitorReq) (*GetArticleListReply, error)
+	GetUserArticleListAll(context.Context, *emptypb.Empty) (*GetArticleListReply, error)
 	GetArticleStatistic(context.Context, *GetArticleStatisticReq) (*GetArticleStatisticReply, error)
 	GetUserArticleAgree(context.Context, *emptypb.Empty) (*GetUserArticleAgreeReply, error)
 	GetUserArticleCollect(context.Context, *emptypb.Empty) (*GetUserArticleCollectReply, error)
@@ -1626,6 +1657,8 @@ type BffServer interface {
 	SendColumnEdit(context.Context, *SendColumnEditReq) (*emptypb.Empty, error)
 	DeleteColumn(context.Context, *DeleteColumnReq) (*emptypb.Empty, error)
 	GetColumnStatistic(context.Context, *GetColumnStatisticReq) (*GetColumnStatisticReply, error)
+	GetUserColumnAgree(context.Context, *emptypb.Empty) (*GetUserColumnAgreeReply, error)
+	GetUserColumnCollect(context.Context, *emptypb.Empty) (*GetUserColumnCollectReply, error)
 	ColumnStatisticJudge(context.Context, *ColumnStatisticJudgeReq) (*ColumnStatisticJudgeReply, error)
 	SetColumnAgree(context.Context, *SetColumnAgreeReq) (*emptypb.Empty, error)
 	CancelColumnAgree(context.Context, *CancelColumnAgreeReq) (*emptypb.Empty, error)
@@ -1828,6 +1861,9 @@ func (UnimplementedBffServer) GetUserArticleListSimple(context.Context, *GetUser
 func (UnimplementedBffServer) GetUserArticleListVisitor(context.Context, *GetUserArticleListVisitorReq) (*GetArticleListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserArticleListVisitor not implemented")
 }
+func (UnimplementedBffServer) GetUserArticleListAll(context.Context, *emptypb.Empty) (*GetArticleListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserArticleListAll not implemented")
+}
 func (UnimplementedBffServer) GetArticleStatistic(context.Context, *GetArticleStatisticReq) (*GetArticleStatisticReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetArticleStatistic not implemented")
 }
@@ -2013,6 +2049,12 @@ func (UnimplementedBffServer) DeleteColumn(context.Context, *DeleteColumnReq) (*
 }
 func (UnimplementedBffServer) GetColumnStatistic(context.Context, *GetColumnStatisticReq) (*GetColumnStatisticReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetColumnStatistic not implemented")
+}
+func (UnimplementedBffServer) GetUserColumnAgree(context.Context, *emptypb.Empty) (*GetUserColumnAgreeReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserColumnAgree not implemented")
+}
+func (UnimplementedBffServer) GetUserColumnCollect(context.Context, *emptypb.Empty) (*GetUserColumnCollectReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserColumnCollect not implemented")
 }
 func (UnimplementedBffServer) ColumnStatisticJudge(context.Context, *ColumnStatisticJudgeReq) (*ColumnStatisticJudgeReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ColumnStatisticJudge not implemented")
@@ -3103,6 +3145,24 @@ func _Bff_GetUserArticleListVisitor_Handler(srv interface{}, ctx context.Context
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BffServer).GetUserArticleListVisitor(ctx, req.(*GetUserArticleListVisitorReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetUserArticleListAll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetUserArticleListAll(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetUserArticleListAll",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetUserArticleListAll(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -4223,6 +4283,42 @@ func _Bff_GetColumnStatistic_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_GetUserColumnAgree_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetUserColumnAgree(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetUserColumnAgree",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetUserColumnAgree(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetUserColumnCollect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetUserColumnCollect(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetUserColumnCollect",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetUserColumnCollect(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_ColumnStatisticJudge_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ColumnStatisticJudgeReq)
 	if err := dec(in); err != nil {
@@ -4991,6 +5087,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Bff_GetUserArticleListVisitor_Handler,
 		},
 		{
+			MethodName: "GetUserArticleListAll",
+			Handler:    _Bff_GetUserArticleListAll_Handler,
+		},
+		{
 			MethodName: "GetArticleStatistic",
 			Handler:    _Bff_GetArticleStatistic_Handler,
 		},
@@ -5237,6 +5337,14 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetColumnStatistic",
 			Handler:    _Bff_GetColumnStatistic_Handler,
+		},
+		{
+			MethodName: "GetUserColumnAgree",
+			Handler:    _Bff_GetUserColumnAgree_Handler,
+		},
+		{
+			MethodName: "GetUserColumnCollect",
+			Handler:    _Bff_GetUserColumnCollect_Handler,
 		},
 		{
 			MethodName: "ColumnStatisticJudge",

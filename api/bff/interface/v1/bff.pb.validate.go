@@ -16484,6 +16484,214 @@ var _ interface {
 	ErrorName() string
 } = GetColumnStatisticReplyValidationError{}
 
+// Validate checks the field values on GetUserColumnAgreeReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetUserColumnAgreeReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserColumnAgreeReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetUserColumnAgreeReplyMultiError, or nil if none found.
+func (m *GetUserColumnAgreeReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserColumnAgreeReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Agree
+
+	if len(errors) > 0 {
+		return GetUserColumnAgreeReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetUserColumnAgreeReplyMultiError is an error wrapping multiple validation
+// errors returned by GetUserColumnAgreeReply.ValidateAll() if the designated
+// constraints aren't met.
+type GetUserColumnAgreeReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserColumnAgreeReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserColumnAgreeReplyMultiError) AllErrors() []error { return m }
+
+// GetUserColumnAgreeReplyValidationError is the validation error returned by
+// GetUserColumnAgreeReply.Validate if the designated constraints aren't met.
+type GetUserColumnAgreeReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserColumnAgreeReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserColumnAgreeReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserColumnAgreeReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserColumnAgreeReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserColumnAgreeReplyValidationError) ErrorName() string {
+	return "GetUserColumnAgreeReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetUserColumnAgreeReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserColumnAgreeReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserColumnAgreeReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserColumnAgreeReplyValidationError{}
+
+// Validate checks the field values on GetUserColumnCollectReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetUserColumnCollectReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserColumnCollectReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetUserColumnCollectReplyMultiError, or nil if none found.
+func (m *GetUserColumnCollectReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserColumnCollectReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Collect
+
+	if len(errors) > 0 {
+		return GetUserColumnCollectReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetUserColumnCollectReplyMultiError is an error wrapping multiple validation
+// errors returned by GetUserColumnCollectReply.ValidateAll() if the
+// designated constraints aren't met.
+type GetUserColumnCollectReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserColumnCollectReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserColumnCollectReplyMultiError) AllErrors() []error { return m }
+
+// GetUserColumnCollectReplyValidationError is the validation error returned by
+// GetUserColumnCollectReply.Validate if the designated constraints aren't met.
+type GetUserColumnCollectReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserColumnCollectReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserColumnCollectReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserColumnCollectReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserColumnCollectReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserColumnCollectReplyValidationError) ErrorName() string {
+	return "GetUserColumnCollectReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetUserColumnCollectReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserColumnCollectReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserColumnCollectReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserColumnCollectReplyValidationError{}
+
 // Validate checks the field values on ColumnStatisticJudgeReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
