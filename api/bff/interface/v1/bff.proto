@@ -371,6 +371,12 @@ service Bff{
     };
   }
 
+  rpc GetUserArticleListAll(google.protobuf.Empty) returns (GetArticleListReply){
+    option (google.api.http) = {
+      get: "/v1/get/user/article/list/all"
+    };
+  }
+
   rpc GetArticleStatistic(GetArticleStatisticReq)returns (GetArticleStatisticReply){
     option (google.api.http) = {
       get: "/v1/get/article/statistic"
@@ -784,9 +790,15 @@ service Bff{
     };
   }
 
-  rpc GetUserColumnAgree(google.protobuf.Empty)returns (GetUserTalkAgreeReply){
+  rpc GetUserColumnAgree(google.protobuf.Empty)returns (GetUserColumnAgreeReply){
     option (google.api.http) = {
       get: "/v1/get/user/column/agree"
+    };
+  }
+
+  rpc GetUserColumnCollect(google.protobuf.Empty)returns (GetUserColumnCollectReply){
+    option (google.api.http) = {
+      get: "/v1/get/user/column/collect"
     };
   }
 
@@ -1864,6 +1876,14 @@ message GetColumnStatisticReply{
   int32 agree = 2;
   int32 collect = 3;
   int32 view = 4;
+}
+
+message GetUserColumnAgreeReply{
+  map<int32, bool> agree = 1;
+}
+
+message GetUserColumnCollectReply{
+  map<int32, bool> collect = 1;
 }
 
 message ColumnStatisticJudgeReq{
