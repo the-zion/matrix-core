@@ -32,6 +32,7 @@ type ArticleRepo interface {
 	GetLastArticleDraft(ctx context.Context, uuid string) (*ArticleDraft, error)
 	GetArticleList(ctx context.Context, page int32) ([]*Article, error)
 	GetArticleListHot(ctx context.Context, page int32) ([]*Article, error)
+	GetUserArticleListAll(ctx context.Context, uuid string) ([]*Article, error)
 	GetColumnArticleList(ctx context.Context, id int32) ([]*Article, error)
 	GetArticleCount(ctx context.Context, uuid string) (int32, error)
 	GetArticleCountVisitor(ctx context.Context, uuid string) (int32, error)
@@ -94,6 +95,8 @@ type ColumnRepo interface {
 	GetSubscribeListCount(ctx context.Context, uuid string) (int32, error)
 	GetColumnSubscribes(ctx context.Context, uuid string, ids []int32) ([]*Subscribe, error)
 	GetColumnSearch(ctx context.Context, page int32, search, time string) ([]*ColumnSearch, int32, error)
+	GetUserColumnAgree(ctx context.Context, uuid string) (map[int32]bool, error)
+	GetUserColumnCollect(ctx context.Context, uuid string) (map[int32]bool, error)
 	SendColumn(ctx context.Context, id int32, uuid, ip string) error
 	SendColumnEdit(ctx context.Context, id int32, uuid, ip string) error
 	CreateColumnDraft(ctx context.Context, uuid string) (int32, error)
@@ -380,6 +383,29 @@ func (r *ArticleUseCase) GetUserArticleListSimple(ctx context.Context, page int3
 
 func (r *ArticleUseCase) GetUserArticleListVisitor(ctx context.Context, page int32, uuid string) ([]*Article, error) {
 	articleList, err := r.repo.GetUserArticleListVisitor(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+	articleListStatistic, err := r.repo.GetArticleListStatistic(ctx, articleList)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range articleListStatistic {
+		for index, listItem := range articleList {
+			if listItem.Id == item.Id {
+				articleList[index].Agree = item.Agree
+				articleList[index].View = item.View
+				articleList[index].Collect = item.Collect
+				articleList[index].Comment = item.Comment
+			}
+		}
+	}
+	return articleList, nil
+}
+
+func (r *ArticleUseCase) GetUserArticleListAll(ctx context.Context) ([]*Article, error) {
+	uuid := ctx.Value("uuid").(string)
+	articleList, err := r.repo.GetUserArticleListAll(ctx, uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -878,6 +904,16 @@ func (r *ColumnUseCase) GetColumnSubscribes(ctx context.Context, ids []int32) ([
 
 func (r *ColumnUseCase) GetColumnSearch(ctx context.Context, page int32, search, time string) ([]*ColumnSearch, int32, error) {
 	return r.repo.GetColumnSearch(ctx, page, search, time)
+}
+
+func (r *ColumnUseCase) GetUserColumnAgree(ctx context.Context) (map[int32]bool, error) {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.GetUserColumnAgree(ctx, uuid)
+}
+
+func (r *ColumnUseCase) GetUserColumnCollect(ctx context.Context) (map[int32]bool, error) {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.GetUserColumnCollect(ctx, uuid)
 }
 
 func (r *ColumnUseCase) SetColumnAgree(ctx context.Context, id int32, uuid string) error {
