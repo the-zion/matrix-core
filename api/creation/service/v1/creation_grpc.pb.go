@@ -49,6 +49,7 @@ type CreationClient interface {
 	GetArticleCountVisitor(ctx context.Context, in *GetArticleCountVisitorReq, opts ...grpc.CallOption) (*GetArticleCountReply, error)
 	GetUserArticleList(ctx context.Context, in *GetUserArticleListReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
 	GetUserArticleListVisitor(ctx context.Context, in *GetUserArticleListVisitorReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
+	GetUserArticleListAll(ctx context.Context, in *GetUserArticleListAllReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
 	GetArticleStatistic(ctx context.Context, in *GetArticleStatisticReq, opts ...grpc.CallOption) (*GetArticleStatisticReply, error)
 	GetUserArticleAgree(ctx context.Context, in *GetUserArticleAgreeReq, opts ...grpc.CallOption) (*GetUserArticleAgreeReply, error)
 	GetUserArticleCollect(ctx context.Context, in *GetUserArticleCollectReq, opts ...grpc.CallOption) (*GetUserArticleCollectReply, error)
@@ -130,6 +131,8 @@ type CreationClient interface {
 	GetSubscribeList(ctx context.Context, in *GetSubscribeListReq, opts ...grpc.CallOption) (*GetSubscribeListReply, error)
 	GetSubscribeListCount(ctx context.Context, in *GetSubscribeListCountReq, opts ...grpc.CallOption) (*GetSubscribeListCountReply, error)
 	GetColumnSubscribes(ctx context.Context, in *GetColumnSubscribesReq, opts ...grpc.CallOption) (*GetColumnSubscribesReply, error)
+	GetUserColumnAgree(ctx context.Context, in *GetUserColumnAgreeReq, opts ...grpc.CallOption) (*GetUserColumnAgreeReply, error)
+	GetUserColumnCollect(ctx context.Context, in *GetUserColumnCollectReq, opts ...grpc.CallOption) (*GetUserColumnCollectReply, error)
 	SendColumnEdit(ctx context.Context, in *SendColumnEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	EditColumn(ctx context.Context, in *EditColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteColumn(ctx context.Context, in *DeleteColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -146,7 +149,9 @@ type CreationClient interface {
 	SetColumnView(ctx context.Context, in *SetColumnViewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetColumnViewDbAndCache(ctx context.Context, in *SetColumnViewDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	AddColumnIncludes(ctx context.Context, in *AddColumnIncludesReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AddColumnIncludesDbAndCache(ctx context.Context, in *AddColumnIncludesDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteColumnIncludes(ctx context.Context, in *DeleteColumnIncludesReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DeleteColumnIncludesDbAndCache(ctx context.Context, in *DeleteColumnIncludesDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetNews(ctx context.Context, in *GetNewsReq, opts ...grpc.CallOption) (*GetNewsReply, error)
 	AddCreationComment(ctx context.Context, in *AddCreationCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ReduceCreationComment(ctx context.Context, in *ReduceCreationCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -388,6 +393,15 @@ func (c *creationClient) GetUserArticleList(ctx context.Context, in *GetUserArti
 func (c *creationClient) GetUserArticleListVisitor(ctx context.Context, in *GetUserArticleListVisitorReq, opts ...grpc.CallOption) (*GetArticleListReply, error) {
 	out := new(GetArticleListReply)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetUserArticleListVisitor", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) GetUserArticleListAll(ctx context.Context, in *GetUserArticleListAllReq, opts ...grpc.CallOption) (*GetArticleListReply, error) {
+	out := new(GetArticleListReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetUserArticleListAll", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1123,6 +1137,24 @@ func (c *creationClient) GetColumnSubscribes(ctx context.Context, in *GetColumnS
 	return out, nil
 }
 
+func (c *creationClient) GetUserColumnAgree(ctx context.Context, in *GetUserColumnAgreeReq, opts ...grpc.CallOption) (*GetUserColumnAgreeReply, error) {
+	out := new(GetUserColumnAgreeReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetUserColumnAgree", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) GetUserColumnCollect(ctx context.Context, in *GetUserColumnCollectReq, opts ...grpc.CallOption) (*GetUserColumnCollectReply, error) {
+	out := new(GetUserColumnCollectReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetUserColumnCollect", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *creationClient) SendColumnEdit(ctx context.Context, in *SendColumnEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/SendColumnEdit", in, out, opts...)
@@ -1267,9 +1299,27 @@ func (c *creationClient) AddColumnIncludes(ctx context.Context, in *AddColumnInc
 	return out, nil
 }
 
+func (c *creationClient) AddColumnIncludesDbAndCache(ctx context.Context, in *AddColumnIncludesDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/AddColumnIncludesDbAndCache", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *creationClient) DeleteColumnIncludes(ctx context.Context, in *DeleteColumnIncludesReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/DeleteColumnIncludes", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) DeleteColumnIncludesDbAndCache(ctx context.Context, in *DeleteColumnIncludesDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/DeleteColumnIncludesDbAndCache", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1333,6 +1383,7 @@ type CreationServer interface {
 	GetArticleCountVisitor(context.Context, *GetArticleCountVisitorReq) (*GetArticleCountReply, error)
 	GetUserArticleList(context.Context, *GetUserArticleListReq) (*GetArticleListReply, error)
 	GetUserArticleListVisitor(context.Context, *GetUserArticleListVisitorReq) (*GetArticleListReply, error)
+	GetUserArticleListAll(context.Context, *GetUserArticleListAllReq) (*GetArticleListReply, error)
 	GetArticleStatistic(context.Context, *GetArticleStatisticReq) (*GetArticleStatisticReply, error)
 	GetUserArticleAgree(context.Context, *GetUserArticleAgreeReq) (*GetUserArticleAgreeReply, error)
 	GetUserArticleCollect(context.Context, *GetUserArticleCollectReq) (*GetUserArticleCollectReply, error)
@@ -1414,6 +1465,8 @@ type CreationServer interface {
 	GetSubscribeList(context.Context, *GetSubscribeListReq) (*GetSubscribeListReply, error)
 	GetSubscribeListCount(context.Context, *GetSubscribeListCountReq) (*GetSubscribeListCountReply, error)
 	GetColumnSubscribes(context.Context, *GetColumnSubscribesReq) (*GetColumnSubscribesReply, error)
+	GetUserColumnAgree(context.Context, *GetUserColumnAgreeReq) (*GetUserColumnAgreeReply, error)
+	GetUserColumnCollect(context.Context, *GetUserColumnCollectReq) (*GetUserColumnCollectReply, error)
 	SendColumnEdit(context.Context, *SendColumnEditReq) (*emptypb.Empty, error)
 	EditColumn(context.Context, *EditColumnReq) (*emptypb.Empty, error)
 	DeleteColumn(context.Context, *DeleteColumnReq) (*emptypb.Empty, error)
@@ -1430,7 +1483,9 @@ type CreationServer interface {
 	SetColumnView(context.Context, *SetColumnViewReq) (*emptypb.Empty, error)
 	SetColumnViewDbAndCache(context.Context, *SetColumnViewDbAndCacheReq) (*emptypb.Empty, error)
 	AddColumnIncludes(context.Context, *AddColumnIncludesReq) (*emptypb.Empty, error)
+	AddColumnIncludesDbAndCache(context.Context, *AddColumnIncludesDbAndCacheReq) (*emptypb.Empty, error)
 	DeleteColumnIncludes(context.Context, *DeleteColumnIncludesReq) (*emptypb.Empty, error)
+	DeleteColumnIncludesDbAndCache(context.Context, *DeleteColumnIncludesDbAndCacheReq) (*emptypb.Empty, error)
 	GetNews(context.Context, *GetNewsReq) (*GetNewsReply, error)
 	AddCreationComment(context.Context, *AddCreationCommentReq) (*emptypb.Empty, error)
 	ReduceCreationComment(context.Context, *ReduceCreationCommentReq) (*emptypb.Empty, error)
@@ -1518,6 +1573,9 @@ func (UnimplementedCreationServer) GetUserArticleList(context.Context, *GetUserA
 }
 func (UnimplementedCreationServer) GetUserArticleListVisitor(context.Context, *GetUserArticleListVisitorReq) (*GetArticleListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserArticleListVisitor not implemented")
+}
+func (UnimplementedCreationServer) GetUserArticleListAll(context.Context, *GetUserArticleListAllReq) (*GetArticleListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserArticleListAll not implemented")
 }
 func (UnimplementedCreationServer) GetArticleStatistic(context.Context, *GetArticleStatisticReq) (*GetArticleStatisticReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetArticleStatistic not implemented")
@@ -1762,6 +1820,12 @@ func (UnimplementedCreationServer) GetSubscribeListCount(context.Context, *GetSu
 func (UnimplementedCreationServer) GetColumnSubscribes(context.Context, *GetColumnSubscribesReq) (*GetColumnSubscribesReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetColumnSubscribes not implemented")
 }
+func (UnimplementedCreationServer) GetUserColumnAgree(context.Context, *GetUserColumnAgreeReq) (*GetUserColumnAgreeReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserColumnAgree not implemented")
+}
+func (UnimplementedCreationServer) GetUserColumnCollect(context.Context, *GetUserColumnCollectReq) (*GetUserColumnCollectReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserColumnCollect not implemented")
+}
 func (UnimplementedCreationServer) SendColumnEdit(context.Context, *SendColumnEditReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendColumnEdit not implemented")
 }
@@ -1810,8 +1874,14 @@ func (UnimplementedCreationServer) SetColumnViewDbAndCache(context.Context, *Set
 func (UnimplementedCreationServer) AddColumnIncludes(context.Context, *AddColumnIncludesReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddColumnIncludes not implemented")
 }
+func (UnimplementedCreationServer) AddColumnIncludesDbAndCache(context.Context, *AddColumnIncludesDbAndCacheReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddColumnIncludesDbAndCache not implemented")
+}
 func (UnimplementedCreationServer) DeleteColumnIncludes(context.Context, *DeleteColumnIncludesReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteColumnIncludes not implemented")
+}
+func (UnimplementedCreationServer) DeleteColumnIncludesDbAndCache(context.Context, *DeleteColumnIncludesDbAndCacheReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteColumnIncludesDbAndCache not implemented")
 }
 func (UnimplementedCreationServer) GetNews(context.Context, *GetNewsReq) (*GetNewsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetNews not implemented")
@@ -2299,6 +2369,24 @@ func _Creation_GetUserArticleListVisitor_Handler(srv interface{}, ctx context.Co
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CreationServer).GetUserArticleListVisitor(ctx, req.(*GetUserArticleListVisitorReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_GetUserArticleListAll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserArticleListAllReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetUserArticleListAll(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetUserArticleListAll",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetUserArticleListAll(ctx, req.(*GetUserArticleListAllReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -3761,6 +3849,42 @@ func _Creation_GetColumnSubscribes_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Creation_GetUserColumnAgree_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserColumnAgreeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetUserColumnAgree(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetUserColumnAgree",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetUserColumnAgree(ctx, req.(*GetUserColumnAgreeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_GetUserColumnCollect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserColumnCollectReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetUserColumnCollect(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetUserColumnCollect",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetUserColumnCollect(ctx, req.(*GetUserColumnCollectReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Creation_SendColumnEdit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SendColumnEditReq)
 	if err := dec(in); err != nil {
@@ -4049,6 +4173,24 @@ func _Creation_AddColumnIncludes_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Creation_AddColumnIncludesDbAndCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddColumnIncludesDbAndCacheReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).AddColumnIncludesDbAndCache(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/AddColumnIncludesDbAndCache",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).AddColumnIncludesDbAndCache(ctx, req.(*AddColumnIncludesDbAndCacheReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Creation_DeleteColumnIncludes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteColumnIncludesReq)
 	if err := dec(in); err != nil {
@@ -4063,6 +4205,24 @@ func _Creation_DeleteColumnIncludes_Handler(srv interface{}, ctx context.Context
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CreationServer).DeleteColumnIncludes(ctx, req.(*DeleteColumnIncludesReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_DeleteColumnIncludesDbAndCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteColumnIncludesDbAndCacheReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).DeleteColumnIncludesDbAndCache(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/DeleteColumnIncludesDbAndCache",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).DeleteColumnIncludesDbAndCache(ctx, req.(*DeleteColumnIncludesDbAndCacheReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -4231,6 +4391,10 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserArticleListVisitor",
 			Handler:    _Creation_GetUserArticleListVisitor_Handler,
+		},
+		{
+			MethodName: "GetUserArticleListAll",
+			Handler:    _Creation_GetUserArticleListAll_Handler,
 		},
 		{
 			MethodName: "GetArticleStatistic",
@@ -4557,6 +4721,14 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Creation_GetColumnSubscribes_Handler,
 		},
 		{
+			MethodName: "GetUserColumnAgree",
+			Handler:    _Creation_GetUserColumnAgree_Handler,
+		},
+		{
+			MethodName: "GetUserColumnCollect",
+			Handler:    _Creation_GetUserColumnCollect_Handler,
+		},
+		{
 			MethodName: "SendColumnEdit",
 			Handler:    _Creation_SendColumnEdit_Handler,
 		},
@@ -4621,8 +4793,16 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Creation_AddColumnIncludes_Handler,
 		},
 		{
+			MethodName: "AddColumnIncludesDbAndCache",
+			Handler:    _Creation_AddColumnIncludesDbAndCache_Handler,
+		},
+		{
 			MethodName: "DeleteColumnIncludes",
 			Handler:    _Creation_DeleteColumnIncludes_Handler,
+		},
+		{
+			MethodName: "DeleteColumnIncludesDbAndCache",
+			Handler:    _Creation_DeleteColumnIncludesDbAndCache_Handler,
 		},
 		{
 			MethodName: "GetNews",
