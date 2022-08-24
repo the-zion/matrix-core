@@ -101,6 +101,21 @@ func (s *CreationService) GetUserArticleListVisitor(ctx context.Context, req *v1
 	return reply, nil
 }
 
+func (s *CreationService) GetUserArticleListAll(ctx context.Context, req *v1.GetUserArticleListAllReq) (*v1.GetArticleListReply, error) {
+	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0)}
+	articleList, err := s.ac.GetUserArticleListAll(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range articleList {
+		reply.Article = append(reply.Article, &v1.GetArticleListReply_Article{
+			Id:   item.ArticleId,
+			Uuid: item.Uuid,
+		})
+	}
+	return reply, nil
+}
+
 func (s *CreationService) GetArticleStatistic(ctx context.Context, req *v1.GetArticleStatisticReq) (*v1.GetArticleStatisticReply, error) {
 	articleStatistic, err := s.ac.GetArticleStatistic(ctx, req.Id)
 	if err != nil {
