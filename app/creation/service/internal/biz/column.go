@@ -52,12 +52,14 @@ type ColumnRepo interface {
 	GetColumnSearch(ctx context.Context, page int32, search, time string) ([]*ColumnSearch, int32, error)
 	GetColumnAuth(ctx context.Context, id int32) (int32, error)
 	GetCollectionsIdFromColumnCollect(ctx context.Context, id int32) (int32, error)
-
+	GetUserColumnAgree(ctx context.Context, uuid string) (map[int32]bool, error)
+	GetUserColumnCollect(ctx context.Context, uuid string) (map[int32]bool, error)
 	SendColumn(ctx context.Context, id int32, uuid string) (*ColumnDraft, error)
 	SendColumnToMq(ctx context.Context, column *Column, mode string) error
 	SendReviewToMq(ctx context.Context, review *ColumnReview) error
 	SendScoreToMq(ctx context.Context, score int32, uuid, mode string) error
 	SendStatisticToMq(ctx context.Context, id, collectionsId int32, uuid, userUuid, mode string) error
+	SendColumnIncludesToMq(ctx context.Context, id, articleId int32, uuid, mode string) error
 
 	FreezeColumnCos(ctx context.Context, id int32, uuid string) error
 
@@ -130,6 +132,22 @@ func (r *ColumnUseCase) GetColumnSearch(ctx context.Context, page int32, search,
 		return nil, 0, v1.ErrorGetColumnSearchFailed("get column search failed: %s", err.Error())
 	}
 	return columnList, total, nil
+}
+
+func (r *ColumnUseCase) GetUserColumnAgree(ctx context.Context, uuid string) (map[int32]bool, error) {
+	agreeMap, err := r.repo.GetUserColumnAgree(ctx, uuid)
+	if err != nil {
+		return nil, v1.ErrorGetColumnAgreeFailed("get user column agree failed: %s", err.Error())
+	}
+	return agreeMap, nil
+}
+
+func (r *ColumnUseCase) GetUserColumnCollect(ctx context.Context, uuid string) (map[int32]bool, error) {
+	agreeMap, err := r.repo.GetUserColumnCollect(ctx, uuid)
+	if err != nil {
+		return nil, v1.ErrorGetColumnCollectFailed("get user column collect failed: %s", err.Error())
+	}
+	return agreeMap, nil
 }
 
 func (r *ColumnUseCase) CreateColumnDraft(ctx context.Context, uuid string) (int32, error) {
@@ -680,25 +698,6 @@ func (r *ColumnUseCase) CancelColumnCollect(ctx context.Context, id int32, uuid,
 		return nil
 	}))
 	return g.Wait()
-	//return r.tm.ExecTx(ctx, func(ctx context.Context) error {
-	//	err := r.repo.CancelColumnUserCollect(ctx, id, userUuid)
-	//	if err != nil {
-	//		return v1.ErrorCancelCollectFailed("cancel column user collect failed: %s", err.Error())
-	//	}
-	//	err = r.repo.CancelColumnCollect(ctx, id, uuid)
-	//	if err != nil {
-	//		return v1.ErrorCancelCollectFailed("cancel column collect failed: %s", err.Error())
-	//	}
-	//	err = r.repo.CancelColumnCollectFromCache(ctx, id, uuid, userUuid)
-	//	if err != nil {
-	//		return v1.ErrorCancelCollectFailed("cancel column collect to cache failed: %s", err.Error())
-	//	}
-	//	err = r.repo.SendColumnStatisticToMq(ctx, uuid, "collect_cancel")
-	//	if err != nil {
-	//		return v1.ErrorCancelCollectFailed("set column collect to mq failed: %s", err.Error())
-	//	}
-	//	return nil
-	//})
 }
 
 func (r *ColumnUseCase) CancelColumnCollectDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
@@ -740,6 +739,25 @@ func (r *ColumnUseCase) CancelColumnCollectDbAndCache(ctx context.Context, id in
 }
 
 func (r *ColumnUseCase) AddColumnIncludes(ctx context.Context, id, articleId int32, uuid string) error {
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		err := r.repo.AddColumnIncludesToCache(ctx, id, articleId, uuid)
+		if err != nil {
+			return v1.ErrorAddColumnIncludesFailed("add column includes failed: %s", err.Error())
+		}
+		return nil
+	}))
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		err := r.repo.SendColumnIncludesToMq(ctx, id, articleId, uuid, "add_column_includes_db_and_cache")
+		if err != nil {
+			return v1.ErrorAddColumnIncludesFailed("add column includes to mq failed: %s", err.Error())
+		}
+		return nil
+	}))
+	return g.Wait()
+}
+
+func (r *ColumnUseCase) AddColumnIncludesDbAndCache(ctx context.Context, id, articleId int32, uuid string) error {
 	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		err := r.repo.AddColumnIncludes(ctx, id, articleId, uuid)
 		if err != nil {
@@ -755,14 +773,35 @@ func (r *ColumnUseCase) AddColumnIncludes(ctx context.Context, id, articleId int
 }
 
 func (r *ColumnUseCase) DeleteColumnIncludes(ctx context.Context, id, articleId int32, uuid string) error {
-	err := r.repo.DeleteColumnIncludes(ctx, id, articleId, uuid)
-	if err != nil {
-		return v1.ErrorDeleteColumnIncludesFailed("delete column includes failed: %s", err.Error())
-	}
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		err := r.repo.DeleteColumnIncludesFromCache(ctx, id, articleId, uuid)
+		if err != nil {
+			return v1.ErrorDeleteColumnIncludesFailed("delete column includes from cache failed: %s", err.Error())
+		}
+		return nil
+	}))
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		err := r.repo.SendColumnIncludesToMq(ctx, id, articleId, uuid, "delete_column_includes_db_and_cache")
+		if err != nil {
+			return v1.ErrorDeleteColumnIncludesFailed("delete column includes to mq failed: %s", err.Error())
+		}
+		return nil
+	}))
+	return g.Wait()
+}
 
-	err = r.repo.DeleteColumnIncludesFromCache(ctx, id, articleId, uuid)
-	if err != nil {
-		return v1.ErrorDeleteColumnIncludesFailed("delete column includes from cache failed: %s", err.Error())
-	}
-	return nil
+func (r *ColumnUseCase) DeleteColumnIncludesDbAndCache(ctx context.Context, id, articleId int32, uuid string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		err := r.repo.DeleteColumnIncludes(ctx, id, articleId, uuid)
+		if err != nil {
+			return v1.ErrorDeleteColumnIncludesFailed("delete column includes failed: %s", err.Error())
+		}
+
+		err = r.repo.DeleteColumnIncludesFromCache(ctx, id, articleId, uuid)
+		if err != nil {
+			return v1.ErrorDeleteColumnIncludesFailed("delete column includes from cache failed: %s", err.Error())
+		}
+		return nil
+	})
 }
