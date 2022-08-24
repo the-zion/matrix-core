@@ -520,6 +520,29 @@ func (r *articleRepo) GetArticleListHot(ctx context.Context, page int32) ([]*biz
 	return result.([]*biz.Article), nil
 }
 
+func (r *articleRepo) GetUserArticleListAll(ctx context.Context, uuid string) ([]*biz.Article, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("article_all_%s", uuid), func() (interface{}, error) {
+		reply := make([]*biz.Article, 0)
+		articleList, err := r.data.cc.GetUserArticleListAll(ctx, &creationV1.GetUserArticleListAllReq{
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range articleList.Article {
+			reply = append(reply, &biz.Article{
+				Id:   item.Id,
+				Uuid: item.Uuid,
+			})
+		}
+		return reply, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.([]*biz.Article), nil
+}
+
 func (r *articleRepo) GetColumnArticleList(ctx context.Context, id int32) ([]*biz.Article, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_column_article_list_%v", id), func() (interface{}, error) {
 		reply := make([]*biz.Article, 0)
@@ -1544,6 +1567,38 @@ func (r *columnRepo) GetColumnSearch(ctx context.Context, page int32, search, ti
 		})
 	}
 	return reply, searchReply.Total, nil
+}
+
+func (r *columnRepo) GetUserColumnAgree(ctx context.Context, uuid string) (map[int32]bool, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("user_column_agree_"+uuid), func() (interface{}, error) {
+		reply, err := r.data.cc.GetUserColumnAgree(ctx, &creationV1.GetUserColumnAgreeReq{
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return reply.Agree, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(map[int32]bool), nil
+}
+
+func (r *columnRepo) GetUserColumnCollect(ctx context.Context, uuid string) (map[int32]bool, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("user_column_collect_"+uuid), func() (interface{}, error) {
+		reply, err := r.data.cc.GetUserColumnCollect(ctx, &creationV1.GetUserColumnCollectReq{
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return reply.Collect, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(map[int32]bool), nil
 }
 
 func (r *columnRepo) SendColumn(ctx context.Context, id int32, uuid, ip string) error {
