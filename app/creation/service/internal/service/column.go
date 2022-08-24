@@ -299,6 +299,26 @@ func (s *CreationService) GetColumnSearch(ctx context.Context, req *v1.GetColumn
 	return reply, nil
 }
 
+func (s *CreationService) GetUserColumnAgree(ctx context.Context, req *v1.GetUserColumnAgreeReq) (*v1.GetUserColumnAgreeReply, error) {
+	agreeMap, err := s.coc.GetUserColumnAgree(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetUserColumnAgreeReply{
+		Agree: agreeMap,
+	}, nil
+}
+
+func (s *CreationService) GetUserColumnCollect(ctx context.Context, req *v1.GetUserColumnCollectReq) (*v1.GetUserColumnCollectReply, error) {
+	collectMap, err := s.coc.GetUserColumnCollect(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetUserColumnCollectReply{
+		Collect: collectMap,
+	}, nil
+}
+
 func (s *CreationService) SetColumnAgree(ctx context.Context, req *v1.SetColumnAgreeReq) (*emptypb.Empty, error) {
 	err := s.coc.SetColumnAgree(ctx, req.Id, req.Uuid, req.UserUuid)
 	if err != nil {
@@ -387,8 +407,24 @@ func (s *CreationService) AddColumnIncludes(ctx context.Context, req *v1.AddColu
 	return &emptypb.Empty{}, nil
 }
 
+func (s *CreationService) AddColumnIncludesDbAndCache(ctx context.Context, req *v1.AddColumnIncludesDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.coc.AddColumnIncludesDbAndCache(ctx, req.Id, req.ArticleId, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *CreationService) DeleteColumnIncludes(ctx context.Context, req *v1.DeleteColumnIncludesReq) (*emptypb.Empty, error) {
 	err := s.coc.DeleteColumnIncludes(ctx, req.Id, req.ArticleId, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) DeleteColumnIncludesDbAndCache(ctx context.Context, req *v1.DeleteColumnIncludesDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.coc.DeleteColumnIncludesDbAndCache(ctx, req.Id, req.ArticleId, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
