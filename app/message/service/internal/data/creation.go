@@ -114,6 +114,66 @@ func (r *creationRepo) DeleteArticleCacheAndSearch(ctx context.Context, id int32
 	return nil
 }
 
+func (r *creationRepo) SetArticleViewDbAndCache(ctx context.Context, id int32, uuid string) error {
+	_, err := r.data.cc.SetArticleViewDbAndCache(ctx, &creationV1.SetArticleViewDbAndCacheReq{
+		Id:   id,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) SetArticleAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	_, err := r.data.cc.SetArticleAgreeDbAndCache(ctx, &creationV1.SetArticleAgreeDbAndCacheReq{
+		Id:       id,
+		Uuid:     uuid,
+		UserUuid: userUuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) SetArticleCollectDbAndCache(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error {
+	_, err := r.data.cc.SetArticleCollectDbAndCache(ctx, &creationV1.SetArticleCollectDbAndCacheReq{
+		Id:            id,
+		CollectionsId: collectionsId,
+		Uuid:          uuid,
+		UserUuid:      userUuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) CancelArticleAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	_, err := r.data.cc.CancelArticleAgreeDbAndCache(ctx, &creationV1.CancelArticleAgreeDbAndCacheReq{
+		Id:       id,
+		Uuid:     uuid,
+		UserUuid: userUuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) CancelArticleCollectDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	_, err := r.data.cc.CancelArticleCollectDbAndCache(ctx, &creationV1.CancelArticleCollectDbAndCacheReq{
+		Id:       id,
+		Uuid:     uuid,
+		UserUuid: userUuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *creationRepo) ToReviewCreateTalk(id int32, uuid string) error {
 	opt := &cos.PutTextAuditingJobOptions{
 		InputObject: "talk/" + uuid + "/" + strconv.Itoa(int(id)) + "/content",
@@ -187,6 +247,66 @@ func (r *creationRepo) EditTalkCosAndSearch(ctx context.Context, id, auth int32,
 		Id:   id,
 		Auth: auth,
 		Uuid: uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) SetTalkViewDbAndCache(ctx context.Context, id int32, uuid string) error {
+	_, err := r.data.cc.SetTalkViewDbAndCache(ctx, &creationV1.SetTalkViewDbAndCacheReq{
+		Id:   id,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) SetTalkAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	_, err := r.data.cc.SetTalkAgreeDbAndCache(ctx, &creationV1.SetTalkAgreeDbAndCacheReq{
+		Id:       id,
+		Uuid:     uuid,
+		UserUuid: userUuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) CancelTalkAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	_, err := r.data.cc.CancelTalkAgreeDbAndCache(ctx, &creationV1.CancelTalkAgreeDbAndCacheReq{
+		Id:       id,
+		Uuid:     uuid,
+		UserUuid: userUuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) SetTalkCollectDbAndCache(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error {
+	_, err := r.data.cc.SetTalkCollectDbAndCache(ctx, &creationV1.SetTalkCollectDbAndCacheReq{
+		Id:            id,
+		CollectionsId: collectionsId,
+		Uuid:          uuid,
+		UserUuid:      userUuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) CancelTalkCollectDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	_, err := r.data.cc.CancelTalkCollectDbAndCache(ctx, &creationV1.CancelTalkCollectDbAndCacheReq{
+		Id:       id,
+		Uuid:     uuid,
+		UserUuid: userUuid,
 	})
 	if err != nil {
 		return err
@@ -296,6 +416,90 @@ func (r *creationRepo) DeleteColumnCacheAndSearch(ctx context.Context, id int32,
 	return nil
 }
 
+func (r *creationRepo) SetColumnAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	_, err := r.data.cc.SetColumnAgreeDbAndCache(ctx, &creationV1.SetColumnAgreeDbAndCacheReq{
+		Id:       id,
+		Uuid:     uuid,
+		UserUuid: userUuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) SetColumnViewDbAndCache(ctx context.Context, id int32, uuid string) error {
+	_, err := r.data.cc.SetColumnViewDbAndCache(ctx, &creationV1.SetColumnViewDbAndCacheReq{
+		Id:   id,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) CancelColumnAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	_, err := r.data.cc.CancelColumnAgreeDbAndCache(ctx, &creationV1.CancelColumnAgreeDbAndCacheReq{
+		Id:       id,
+		Uuid:     uuid,
+		UserUuid: userUuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) SetColumnCollectDbAndCache(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error {
+	_, err := r.data.cc.SetColumnCollectDbAndCache(ctx, &creationV1.SetColumnCollectDbAndCacheReq{
+		Id:            id,
+		CollectionsId: collectionsId,
+		Uuid:          uuid,
+		UserUuid:      userUuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) CancelColumnCollectDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
+	_, err := r.data.cc.CancelColumnCollectDbAndCache(ctx, &creationV1.CancelColumnCollectDbAndCacheReq{
+		Id:       id,
+		Uuid:     uuid,
+		UserUuid: userUuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) AddColumnIncludesDbAndCache(ctx context.Context, id, articleId int32, uuid string) error {
+	_, err := r.data.cc.AddColumnIncludesDbAndCache(ctx, &creationV1.AddColumnIncludesDbAndCacheReq{
+		Id:        id,
+		ArticleId: articleId,
+		Uuid:      uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) DeleteColumnIncludesDbAndCache(ctx context.Context, id, articleId int32, uuid string) error {
+	_, err := r.data.cc.DeleteColumnIncludesDbAndCache(ctx, &creationV1.DeleteColumnIncludesDbAndCacheReq{
+		Id:        id,
+		ArticleId: articleId,
+		Uuid:      uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *creationRepo) AddCreationComment(ctx context.Context, createId, createType int32, uuid string) {
 	_, _ = r.data.cc.AddCreationComment(ctx, &creationV1.AddCreationCommentReq{
 		Uuid:         uuid,
@@ -310,4 +514,14 @@ func (r *creationRepo) ReduceCreationComment(ctx context.Context, createId, crea
 		CreationId:   createId,
 		CreationType: createType,
 	})
+}
+
+func (r *creationRepo) GetCreationUser(ctx context.Context, uuid string) (int32, int32, int32, error) {
+	reply, err := r.data.cc.GetCreationUser(ctx, &creationV1.GetCreationUserReq{
+		Uuid: uuid,
+	})
+	if err != nil {
+		return 0, 0, 0, err
+	}
+	return reply.Article, reply.Talk, reply.Collect, nil
 }
