@@ -503,6 +503,18 @@ func ErrorGetColumnSubscribesFailed(format string, args ...interface{}) *errors.
 	return errors.New(500, CreationErrorReason_GET_COLUMN_SUBSCRIBES_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsGetSubscribeColumnFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_GET_SUBSCRIBE_COLUMN_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetSubscribeColumnFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_GET_SUBSCRIBE_COLUMN_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsAddColumnIncludesFailed(err error) bool {
 	if err == nil {
 		return false
