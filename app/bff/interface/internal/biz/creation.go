@@ -91,16 +91,17 @@ type ColumnRepo interface {
 	GetColumnCountVisitor(ctx context.Context, uuid string) (int32, error)
 	GetColumnListStatistic(ctx context.Context, columnList []*Column) ([]*ColumnStatistic, error)
 	GetColumnStatistic(ctx context.Context, id int32) (*ColumnStatistic, error)
-	GetSubscribeList(ctx context.Context, page int32, uuid string) ([]*Subscribe, error)
+	GetSubscribeList(ctx context.Context, page int32, uuid string) ([]*Column, error)
 	GetSubscribeListCount(ctx context.Context, uuid string) (int32, error)
 	GetColumnSubscribes(ctx context.Context, uuid string, ids []int32) ([]*Subscribe, error)
 	GetColumnSearch(ctx context.Context, page int32, search, time string) ([]*ColumnSearch, int32, error)
 	GetUserColumnAgree(ctx context.Context, uuid string) (map[int32]bool, error)
 	GetUserColumnCollect(ctx context.Context, uuid string) (map[int32]bool, error)
+	GetUserSubscribeColumn(ctx context.Context, uuid string) (map[int32]bool, error)
 	SendColumn(ctx context.Context, id int32, uuid, ip string) error
 	SendColumnEdit(ctx context.Context, id int32, uuid, ip string) error
 	CreateColumnDraft(ctx context.Context, uuid string) (int32, error)
-	SubscribeColumn(ctx context.Context, id int32, author, uuid string) error
+	SubscribeColumn(ctx context.Context, id int32, uuid string) error
 	SubscribeJudge(ctx context.Context, id int32, uuid string) (bool, error)
 	DeleteColumn(ctx context.Context, id int32, uuid string) error
 	ColumnStatisticJudge(ctx context.Context, id int32, uuid string) (*ColumnStatisticJudge, error)
@@ -378,7 +379,10 @@ func (r *ArticleUseCase) GetUserArticleListSimple(ctx context.Context, page int3
 			}
 		}
 	}
-	return articleList[:2], nil
+	if len(articleList) > 2 {
+		return articleList[:2], nil
+	}
+	return articleList, nil
 }
 
 func (r *ArticleUseCase) GetUserArticleListVisitor(ctx context.Context, page int32, uuid string) ([]*Article, error) {
@@ -602,7 +606,10 @@ func (r *TalkUseCase) GetUserTalkListSimple(ctx context.Context, page int32) ([]
 			}
 		}
 	}
-	return talkList[:2], nil
+	if len(talkList) > 2 {
+		return talkList[:2], nil
+	}
+	return talkList, nil
 }
 
 func (r *TalkUseCase) GetUserTalkListVisitor(ctx context.Context, page int32, uuid string) ([]*Talk, error) {
@@ -726,9 +733,9 @@ func (r *ColumnUseCase) CreateColumnDraft(ctx context.Context) (int32, error) {
 	return r.repo.CreateColumnDraft(ctx, uuid)
 }
 
-func (r *ColumnUseCase) SubscribeColumn(ctx context.Context, id int32, author string) error {
+func (r *ColumnUseCase) SubscribeColumn(ctx context.Context, id int32) error {
 	uuid := ctx.Value("uuid").(string)
-	return r.repo.SubscribeColumn(ctx, id, author, uuid)
+	return r.repo.SubscribeColumn(ctx, id, uuid)
 }
 
 func (r *ColumnUseCase) CancelSubscribeColumn(ctx context.Context, id int32) error {
@@ -824,7 +831,10 @@ func (r *ColumnUseCase) GetUserColumnListSimple(ctx context.Context, page int32)
 			}
 		}
 	}
-	return columnList[:2], nil
+	if len(columnList) > 2 {
+		return columnList[:2], nil
+	}
+	return columnList, nil
 }
 
 func (r *ColumnUseCase) GetUserColumnListVisitor(ctx context.Context, page int32, uuid string) ([]*Column, error) {
@@ -889,8 +899,26 @@ func (r *ColumnUseCase) GetColumnStatistic(ctx context.Context, id int32) (*Colu
 	return r.repo.GetColumnStatistic(ctx, id)
 }
 
-func (r *ColumnUseCase) GetSubscribeList(ctx context.Context, page int32, uuid string) ([]*Subscribe, error) {
-	return r.repo.GetSubscribeList(ctx, page, uuid)
+func (r *ColumnUseCase) GetSubscribeList(ctx context.Context, page int32) ([]*Column, error) {
+	uuid := ctx.Value("uuid").(string)
+	subscribeList, err := r.repo.GetSubscribeList(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+	columnListStatistic, err := r.repo.GetColumnListStatistic(ctx, subscribeList)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range columnListStatistic {
+		for index, listItem := range subscribeList {
+			if listItem.Id == item.Id {
+				subscribeList[index].Agree = item.Agree
+				subscribeList[index].View = item.View
+				subscribeList[index].Collect = item.Collect
+			}
+		}
+	}
+	return subscribeList, nil
 }
 
 func (r *ColumnUseCase) GetSubscribeListCount(ctx context.Context, uuid string) (int32, error) {
@@ -914,6 +942,11 @@ func (r *ColumnUseCase) GetUserColumnAgree(ctx context.Context) (map[int32]bool,
 func (r *ColumnUseCase) GetUserColumnCollect(ctx context.Context) (map[int32]bool, error) {
 	uuid := ctx.Value("uuid").(string)
 	return r.repo.GetUserColumnCollect(ctx, uuid)
+}
+
+func (r *ColumnUseCase) GetUserSubscribeColumn(ctx context.Context) (map[int32]bool, error) {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.GetUserSubscribeColumn(ctx, uuid)
 }
 
 func (r *ColumnUseCase) SetColumnAgree(ctx context.Context, id int32, uuid string) error {
