@@ -114,8 +114,7 @@ func (r *achievementRepo) SetUserMedalToCache(ctx context.Context, medal, uuid s
                     local change = ARGV[1]
 					local value = redis.call("EXISTS", key)
 					if value == 1 then
-  						local result = redis.call("HSET", key, change, 1)
-						return result
+  						redis.call("HSET", key, change, 1)
 					end
 					return 0
 	`)
