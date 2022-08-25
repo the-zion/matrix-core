@@ -856,7 +856,7 @@ func (s *BffService) CreateColumnDraft(ctx context.Context, _ *emptypb.Empty) (*
 }
 
 func (s *BffService) SubscribeColumn(ctx context.Context, req *v1.SubscribeColumnReq) (*emptypb.Empty, error) {
-	err := s.coc.SubscribeColumn(ctx, req.Id, req.Author)
+	err := s.coc.SubscribeColumn(ctx, req.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -1023,14 +1023,17 @@ func (s *BffService) GetColumnStatistic(ctx context.Context, req *v1.GetColumnSt
 
 func (s *BffService) GetSubscribeList(ctx context.Context, req *v1.GetSubscribeListReq) (*v1.GetSubscribeListReply, error) {
 	reply := &v1.GetSubscribeListReply{Subscribe: make([]*v1.GetSubscribeListReply_Subscribe, 0)}
-	statisticList, err := s.coc.GetSubscribeList(ctx, req.Page, req.Uuid)
+	statisticList, err := s.coc.GetSubscribeList(ctx, req.Page)
 	if err != nil {
 		return nil, err
 	}
 	for _, item := range statisticList {
 		reply.Subscribe = append(reply.Subscribe, &v1.GetSubscribeListReply_Subscribe{
-			Id:   item.ColumnId,
-			Uuid: item.AuthorId,
+			Id:      item.Id,
+			Uuid:    item.Uuid,
+			Agree:   item.Agree,
+			Collect: item.Collect,
+			View:    item.View,
 		})
 	}
 	return reply, nil
@@ -1099,6 +1102,16 @@ func (s *BffService) GetUserColumnCollect(ctx context.Context, _ *emptypb.Empty)
 	}
 	return &v1.GetUserColumnCollectReply{
 		Collect: agreeMap,
+	}, nil
+}
+
+func (s *BffService) GetUserSubscribeColumn(ctx context.Context, _ *emptypb.Empty) (*v1.GetUserSubscribeColumnReply, error) {
+	collectMap, err := s.coc.GetUserSubscribeColumn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetUserSubscribeColumnReply{
+		Subscribe: collectMap,
 	}, nil
 }
 
