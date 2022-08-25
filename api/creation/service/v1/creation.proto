@@ -230,6 +230,8 @@ service Creation {
 
   rpc GetUserColumnCollect(GetUserColumnCollectReq)returns (GetUserColumnCollectReply){}
 
+  rpc GetUserSubscribeColumn(GetUserSubscribeColumnReq)returns (GetUserSubscribeColumnReply){}
+
   rpc SendColumnEdit(SendColumnEditReq) returns (google.protobuf.Empty){}
 
   rpc EditColumn(EditColumnReq) returns (google.protobuf.Empty){}
@@ -267,6 +269,10 @@ service Creation {
   rpc DeleteColumnIncludes(DeleteColumnIncludesReq) returns (google.protobuf.Empty){}
 
   rpc DeleteColumnIncludesDbAndCache(DeleteColumnIncludesDbAndCacheReq) returns (google.protobuf.Empty){}
+
+  rpc SetColumnSubscribeDbAndCache(SetColumnSubscribeDbAndCacheReq)returns (google.protobuf.Empty){}
+
+  rpc CancelColumnSubscribeDbAndCache(CancelColumnSubscribeDbAndCacheReq)returns (google.protobuf.Empty){}
 
   rpc GetNews(GetNewsReq) returns (GetNewsReply){}
 
@@ -959,8 +965,7 @@ message CreateColumnDbCacheAndSearchReq{
 
 message SubscribeColumnReq{
   int32 id = 1;
-  string author = 2 [(validate.rules).string.uuid = true];
-  string uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.uuid = true];
 }
 
 message CancelSubscribeColumnReq{
@@ -1108,6 +1113,14 @@ message GetUserColumnCollectReply{
   map<int32, bool> collect = 1;
 }
 
+message GetUserSubscribeColumnReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+message GetUserSubscribeColumnReply{
+  map<int32, bool> subscribe = 1;
+}
+
 message SendColumnEditReq{
   int32 id = 1;
   string uuid = 2 [(validate.rules).string.uuid = true];
@@ -1222,6 +1235,16 @@ message DeleteColumnIncludesDbAndCacheReq{
   int32 id = 1;
   int32 articleId = 2;
   string uuid = 3;
+}
+
+message SetColumnSubscribeDbAndCacheReq{
+  int32 id = 1;
+  string uuid = 2;
+}
+
+message CancelColumnSubscribeDbAndCacheReq{
+  int32 id = 1;
+  string uuid = 2;
 }
 
 message GetNewsReq{
