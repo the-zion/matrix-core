@@ -696,7 +696,8 @@ service Bff{
 
   rpc GetSubscribeList(GetSubscribeListReq) returns (GetSubscribeListReply){
     option (google.api.http) = {
-      get: "/v1/get/subscribe/list"
+      post: "/v1/get/subscribe/list",
+      body: "*"
     };
   }
 
@@ -799,6 +800,12 @@ service Bff{
   rpc GetUserColumnCollect(google.protobuf.Empty)returns (GetUserColumnCollectReply){
     option (google.api.http) = {
       get: "/v1/get/user/column/collect"
+    };
+  }
+
+  rpc GetUserSubscribeColumn(google.protobuf.Empty)returns (GetUserSubscribeColumnReply){
+    option (google.api.http) = {
+      get: "/v1/get/user/subscribe/column"
     };
   }
 
@@ -1726,7 +1733,6 @@ message CreateColumnDraftReply{
 
 message SubscribeColumnReq{
   int32 id = 1;
-  string author = 2;
 }
 
 message CancelSubscribeColumnReq{
@@ -1747,13 +1753,15 @@ message SendColumnReq{
 
 message GetSubscribeListReq{
   int32 page = 1;
-  string uuid = 2;
 }
 
 message GetSubscribeListReply{
   message Subscribe{
     int32 id = 1;
     string uuid = 2;
+    int32 agree = 3;
+    int32 collect = 4;
+    int32 view = 5;
   }
   repeated Subscribe subscribe = 1;
 }
@@ -1884,6 +1892,10 @@ message GetUserColumnAgreeReply{
 
 message GetUserColumnCollectReply{
   map<int32, bool> collect = 1;
+}
+
+message GetUserSubscribeColumnReply{
+  map<int32, bool> subscribe = 1;
 }
 
 message ColumnStatisticJudgeReq{
