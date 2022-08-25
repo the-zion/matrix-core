@@ -1730,8 +1730,7 @@ func (r *articleRepo) SetUserArticleAgreeToCache(ctx context.Context, id int32, 
                     local change = ARGV[1]
 					local value = redis.call("EXISTS", key)
 					if value == 1 then
-  						local result = redis.call("SADD", key, change)
-						return result
+  						redis.call("SADD", key, change)
 					end
 					return 0
 	`)
@@ -1750,8 +1749,7 @@ func (r *articleRepo) SetUserArticleCollectToCache(ctx context.Context, id int32
                     local change = ARGV[1]
 					local value = redis.call("EXISTS", key)
 					if value == 1 then
-  						local result = redis.call("SADD", key, change)
-						return result
+  						redis.call("SADD", key, change)
 					end
 					return 0
 	`)
@@ -1940,8 +1938,7 @@ func (r *articleRepo) CancelUserArticleAgreeFromCache(ctx context.Context, id in
                     local change = ARGV[1]
 					local value = redis.call("EXISTS", key)
 					if value == 1 then
-  						local result = redis.call("SREM", key, change)
-						return result
+						redis.call("SREM", key, change)
 					end
 					return 0
 	`)
@@ -1960,8 +1957,7 @@ func (r *articleRepo) CancelUserArticleCollectFromCache(ctx context.Context, id 
                     local change = ARGV[1]
 					local value = redis.call("EXISTS", key)
 					if value == 1 then
-  						local result = redis.call("SREM", key, change)
-						return result
+  						redis.call("SREM", key, change)
 					end
 					return 0
 	`)
