@@ -28,7 +28,15 @@ func (s *CreationService) CreateColumnDraft(ctx context.Context, req *v1.CreateC
 }
 
 func (s *CreationService) SubscribeColumn(ctx context.Context, req *v1.SubscribeColumnReq) (*emptypb.Empty, error) {
-	err := s.coc.SubscribeColumn(ctx, req.Id, req.Author, req.Uuid)
+	err := s.coc.SubscribeColumn(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) SetColumnSubscribeDbAndCache(ctx context.Context, req *v1.SetColumnSubscribeDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.coc.SetColumnSubscribeDbAndCache(ctx, req.Id, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -37,6 +45,14 @@ func (s *CreationService) SubscribeColumn(ctx context.Context, req *v1.Subscribe
 
 func (s *CreationService) CancelSubscribeColumn(ctx context.Context, req *v1.CancelSubscribeColumnReq) (*emptypb.Empty, error) {
 	err := s.coc.CancelSubscribeColumn(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) CancelColumnSubscribeDbAndCache(ctx context.Context, req *v1.CancelColumnSubscribeDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.coc.CancelColumnSubscribeDbAndCache(ctx, req.Id, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -316,6 +332,16 @@ func (s *CreationService) GetUserColumnCollect(ctx context.Context, req *v1.GetU
 	}
 	return &v1.GetUserColumnCollectReply{
 		Collect: collectMap,
+	}, nil
+}
+
+func (s *CreationService) GetUserSubscribeColumn(ctx context.Context, req *v1.GetUserSubscribeColumnReq) (*v1.GetUserSubscribeColumnReply, error) {
+	collectMap, err := s.coc.GetUserSubscribeColumn(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetUserSubscribeColumnReply{
+		Subscribe: collectMap,
 	}, nil
 }
 
