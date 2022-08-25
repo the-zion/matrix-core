@@ -16,9 +16,11 @@ type ColumnRepo interface {
 	CreateColumnStatistic(ctx context.Context, id, auth int32, uuid string) error
 	CreateColumnCache(ctx context.Context, id, auth int32, uuid string) error
 	CreateColumnSearch(ctx context.Context, id int32, uuid string) error
+
 	AddColumnIncludes(ctx context.Context, id, articleId int32, uuid string) error
 	AddColumnIncludesToCache(ctx context.Context, id, articleId int32, uuid string) error
 	AddCreationUserColumn(ctx context.Context, uuid string, auth int32) error
+	AddUserCreationSubscribe(ctx context.Context, uuid string) error
 	ReduceCreationUserColumn(ctx context.Context, auth int32, uuid string) error
 
 	UpdateColumnCache(ctx context.Context, id, auth int32, uuid string) error
@@ -54,12 +56,16 @@ type ColumnRepo interface {
 	GetCollectionsIdFromColumnCollect(ctx context.Context, id int32) (int32, error)
 	GetUserColumnAgree(ctx context.Context, uuid string) (map[int32]bool, error)
 	GetUserColumnCollect(ctx context.Context, uuid string) (map[int32]bool, error)
+	GetUserSubscribeColumn(ctx context.Context, uuid string) (map[int32]bool, error)
+	GetAuthorFromSubscribe(ctx context.Context, id int32) (string, error)
+
 	SendColumn(ctx context.Context, id int32, uuid string) (*ColumnDraft, error)
 	SendColumnToMq(ctx context.Context, column *Column, mode string) error
 	SendReviewToMq(ctx context.Context, review *ColumnReview) error
 	SendScoreToMq(ctx context.Context, score int32, uuid, mode string) error
 	SendStatisticToMq(ctx context.Context, id, collectionsId int32, uuid, userUuid, mode string) error
 	SendColumnIncludesToMq(ctx context.Context, id, articleId int32, uuid, mode string) error
+	SendColumnSubscribeToMq(ctx context.Context, id int32, uuid, mode string) error
 
 	FreezeColumnCos(ctx context.Context, id int32, uuid string) error
 
@@ -78,6 +84,8 @@ type ColumnRepo interface {
 	SetCollectionColumn(ctx context.Context, collectionsId int32, userUuid string) error
 	SetUserColumnCollect(ctx context.Context, id int32, userUuid string) error
 	SetCreationUserCollect(ctx context.Context, userUuid string) error
+	SetUserColumnSubscribeToCache(ctx context.Context, id int32, uuid string) error
+	SetColumnSubscribeToCache(ctx context.Context, id int32, author, uuid string) error
 
 	CancelColumnAgree(ctx context.Context, id int32, uuid string) error
 	CancelColumnAgreeFromCache(ctx context.Context, id int32, uuid, userUuid string) error
@@ -91,7 +99,11 @@ type ColumnRepo interface {
 	CancelCollectionsColumnCollect(ctx context.Context, id int32, userUuid string) error
 	CancelUserColumnCollect(ctx context.Context, id int32, userUuid string) error
 	CancelCollectionColumn(ctx context.Context, collectionsId int32, userUuid string) error
+	CancelUserColumnSubscribeFromCache(ctx context.Context, id int32, uuid string) error
+	CancelColumnSubscribeFromCache(ctx context.Context, id int32, author, uuid string) error
+
 	ReduceCreationUserCollect(ctx context.Context, userUuid string) error
+	ReduceUserCreationSubscribe(ctx context.Context, uuid string) error
 
 	SubscribeColumn(ctx context.Context, id int32, author, uuid string) error
 	SubscribeJudge(ctx context.Context, id int32, uuid string) (bool, error)
@@ -150,6 +162,14 @@ func (r *ColumnUseCase) GetUserColumnCollect(ctx context.Context, uuid string) (
 	return agreeMap, nil
 }
 
+func (r *ColumnUseCase) GetUserSubscribeColumn(ctx context.Context, uuid string) (map[int32]bool, error) {
+	agreeMap, err := r.repo.GetUserSubscribeColumn(ctx, uuid)
+	if err != nil {
+		return nil, v1.ErrorGetSubscribeColumnFailed("get user column subscribe failed: %s", err.Error())
+	}
+	return agreeMap, nil
+}
+
 func (r *ColumnUseCase) CreateColumnDraft(ctx context.Context, uuid string) (int32, error) {
 	var id int32
 	err := r.tm.ExecTx(ctx, func(ctx context.Context) error {
@@ -171,39 +191,95 @@ func (r *ColumnUseCase) CreateColumnDraft(ctx context.Context, uuid string) (int
 	return id, nil
 }
 
-func (r *ColumnUseCase) SubscribeColumn(ctx context.Context, id int32, author, uuid string) error {
-	if author == uuid {
-		return v1.ErrorSubscribeColumnFailed("author and uuid are the same")
-	}
+func (r *ColumnUseCase) SubscribeColumn(ctx context.Context, id int32, uuid string) error {
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		err := r.repo.SetUserColumnSubscribeToCache(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorSubscribeColumnFailed("set user column subscribe to cache failed: %s", err.Error())
+		}
+		return nil
+	}))
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		err := r.repo.SendColumnSubscribeToMq(ctx, id, uuid, "set_column_subscribe_db_and_cache")
+		if err != nil {
+			return v1.ErrorSubscribeColumnFailed("set column subscribe to mq failed: %s", err.Error())
+		}
+		return nil
+	}))
+	return g.Wait()
+}
 
-	err := r.repo.SubscribeColumn(ctx, id, author, uuid)
-	if err != nil {
-		return v1.ErrorSubscribeColumnFailed("subscribe column failed: %s", err.Error())
-	}
-	if err != nil {
-		return err
-	}
-	return nil
+func (r *ColumnUseCase) SetColumnSubscribeDbAndCache(ctx context.Context, id int32, uuid string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		author, err := r.repo.GetAuthorFromSubscribe(ctx, id)
+		if err != nil {
+			return v1.ErrorSubscribeColumnFailed("get column author failed: %s", err.Error())
+		}
+		if author == uuid {
+			return v1.ErrorSubscribeColumnFailed("author and uuid are the same")
+		}
+		err = r.repo.SubscribeColumn(ctx, id, author, uuid)
+		if err != nil {
+			return v1.ErrorSubscribeColumnFailed("subscribe column failed: %s", err.Error())
+		}
+		err = r.repo.AddUserCreationSubscribe(ctx, uuid)
+		if err != nil {
+			return v1.ErrorSubscribeColumnFailed("subscribe column failed: %s", err.Error())
+		}
+		err = r.repo.SetColumnSubscribeToCache(ctx, id, author, uuid)
+		if err != nil {
+			return v1.ErrorSubscribeColumnFailed("set user column subscribe to cache failed: %s", err.Error())
+		}
+		return nil
+	})
 }
 
 func (r *ColumnUseCase) CancelSubscribeColumn(ctx context.Context, id int32, uuid string) error {
-	err := r.repo.CancelSubscribeColumn(ctx, id, uuid)
-	if err != nil {
-		return v1.ErrorCancelSubscribeColumnFailed("cancel subscribe column failed: %s", err.Error())
-	}
-	if err != nil {
-		return err
-	}
-	return nil
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		err := r.repo.CancelUserColumnSubscribeFromCache(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorCancelSubscribeColumnFailed("cancel user column subscribe from cache failed: %s", err.Error())
+		}
+		return nil
+	}))
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		err := r.repo.SendColumnSubscribeToMq(ctx, id, uuid, "cancel_column_subscribe_db_and_cache")
+		if err != nil {
+			return v1.ErrorCancelSubscribeColumnFailed("cancel column subscribe to mq failed: %s", err.Error())
+		}
+		return nil
+	}))
+	return g.Wait()
+}
+
+func (r *ColumnUseCase) CancelColumnSubscribeDbAndCache(ctx context.Context, id int32, uuid string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		author, err := r.repo.GetAuthorFromSubscribe(ctx, id)
+		if err != nil {
+			return v1.ErrorCancelSubscribeColumnFailed("get column author failed: %s", err.Error())
+		}
+		err = r.repo.CancelSubscribeColumn(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorCancelSubscribeColumnFailed("cancel subscribe column failed: %s", err.Error())
+		}
+		err = r.repo.ReduceUserCreationSubscribe(ctx, uuid)
+		if err != nil {
+			return v1.ErrorSubscribeColumnFailed("reduce user creation subscribe failed: %s", err.Error())
+		}
+		err = r.repo.CancelColumnSubscribeFromCache(ctx, id, author, uuid)
+		if err != nil {
+			return v1.ErrorCancelSubscribeColumnFailed("cancel user column subscribe from cache failed: %s", err.Error())
+		}
+		return nil
+	})
 }
 
 func (r *ColumnUseCase) SubscribeJudge(ctx context.Context, id int32, uuid string) (bool, error) {
 	subscribe, err := r.repo.SubscribeJudge(ctx, id, uuid)
 	if err != nil {
 		return false, v1.ErrorSubscribeColumnJudgeFailed("get subscribe column judge failed: %s", err.Error())
-	}
-	if err != nil {
-		return false, err
 	}
 	return subscribe, nil
 }
