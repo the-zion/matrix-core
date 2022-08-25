@@ -1295,11 +1295,10 @@ func (r *columnRepo) CreateColumnDraft(ctx context.Context, uuid string) (int32,
 	return reply.Id, nil
 }
 
-func (r *columnRepo) SubscribeColumn(ctx context.Context, id int32, author, uuid string) error {
+func (r *columnRepo) SubscribeColumn(ctx context.Context, id int32, uuid string) error {
 	_, err := r.data.cc.SubscribeColumn(ctx, &creationV1.SubscribeColumnReq{
-		Id:     id,
-		Author: author,
-		Uuid:   uuid,
+		Id:   id,
+		Uuid: uuid,
 	})
 	if err != nil {
 		return err
@@ -1493,9 +1492,9 @@ func (r *columnRepo) GetColumnStatistic(ctx context.Context, id int32) (*biz.Col
 	return result.(*biz.ColumnStatistic), nil
 }
 
-func (r *columnRepo) GetSubscribeList(ctx context.Context, page int32, uuid string) ([]*biz.Subscribe, error) {
+func (r *columnRepo) GetSubscribeList(ctx context.Context, page int32, uuid string) ([]*biz.Column, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_subscribe_list_%s_%v", uuid, page), func() (interface{}, error) {
-		reply := make([]*biz.Subscribe, 0)
+		reply := make([]*biz.Column, 0)
 		subscribeList, err := r.data.cc.GetSubscribeList(ctx, &creationV1.GetSubscribeListReq{
 			Page: page,
 			Uuid: uuid,
@@ -1504,9 +1503,9 @@ func (r *columnRepo) GetSubscribeList(ctx context.Context, page int32, uuid stri
 			return nil, err
 		}
 		for _, item := range subscribeList.Subscribe {
-			reply = append(reply, &biz.Subscribe{
-				ColumnId: item.Id,
-				AuthorId: item.Uuid,
+			reply = append(reply, &biz.Column{
+				Id:   item.Id,
+				Uuid: item.Uuid,
 			})
 		}
 		return reply, nil
@@ -1514,7 +1513,7 @@ func (r *columnRepo) GetSubscribeList(ctx context.Context, page int32, uuid stri
 	if err != nil {
 		return nil, err
 	}
-	return result.([]*biz.Subscribe), nil
+	return result.([]*biz.Column), nil
 }
 
 func (r *columnRepo) GetSubscribeListCount(ctx context.Context, uuid string) (int32, error) {
@@ -1594,6 +1593,22 @@ func (r *columnRepo) GetUserColumnCollect(ctx context.Context, uuid string) (map
 			return nil, err
 		}
 		return reply.Collect, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(map[int32]bool), nil
+}
+
+func (r *columnRepo) GetUserSubscribeColumn(ctx context.Context, uuid string) (map[int32]bool, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("user_subscribe_column_"+uuid), func() (interface{}, error) {
+		reply, err := r.data.cc.GetUserSubscribeColumn(ctx, &creationV1.GetUserSubscribeColumnReq{
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return reply.Subscribe, nil
 	})
 	if err != nil {
 		return nil, err
