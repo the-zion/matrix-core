@@ -1612,8 +1612,7 @@ func (r *talkRepo) SetUserTalkAgreeToCache(ctx context.Context, id int32, userUu
                     local change = ARGV[1]
 					local value = redis.call("EXISTS", key)
 					if value == 1 then
-  						local result = redis.call("SADD", key, change)
-						return result
+						redis.call("SADD", key, change)
 					end
 					return 0
 	`)
@@ -1632,8 +1631,7 @@ func (r *talkRepo) SetUserTalkCollectToCache(ctx context.Context, id int32, user
                     local change = ARGV[1]
 					local value = redis.call("EXISTS", key)
 					if value == 1 then
-  						local result = redis.call("SADD", key, change)
-						return result
+  						redis.call("SADD", key, change)
 					end
 					return 0
 	`)
@@ -1781,8 +1779,7 @@ func (r *talkRepo) CancelUserTalkAgreeFromCache(ctx context.Context, id int32, u
                     local change = ARGV[1]
 					local value = redis.call("EXISTS", key)
 					if value == 1 then
-  						local result = redis.call("SREM", key, change)
-						return result
+  						redis.call("SREM", key, change)
 					end
 					return 0
 	`)
@@ -1801,8 +1798,7 @@ func (r *talkRepo) CancelUserTalkCollectFromCache(ctx context.Context, id int32,
                     local change = ARGV[1]
 					local value = redis.call("EXISTS", key)
 					if value == 1 then
-  						local result = redis.call("SREM", key, change)
-						return result
+						redis.call("SREM", key, change)
 					end
 					return 0
 	`)
