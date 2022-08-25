@@ -135,8 +135,7 @@ func (r *columnRepo) AddColumnIncludesToCache(ctx context.Context, id, articleId
                     local change = ARGV[1]
 					local value = redis.call("EXISTS", key)
 					if value == 1 then
-  						local result = redis.call("ZADD", change, member)
-						return result
+  						redis.call("ZADD", key, change, member)
 					end
 					return 0
 	`)
@@ -351,6 +350,28 @@ func (r *columnRepo) SendColumnIncludesToMq(ctx context.Context, id, articleId i
 	_, err = r.data.columnMqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to add column includes to mq: map(%v)", includesMap))
+	}
+	return nil
+}
+
+func (r *columnRepo) SendColumnSubscribeToMq(ctx context.Context, id int32, uuid, mode string) error {
+	subscribeMap := map[string]interface{}{}
+	subscribeMap["id"] = id
+	subscribeMap["uuid"] = uuid
+	subscribeMap["mode"] = mode
+
+	data, err := json.Marshal(subscribeMap)
+	if err != nil {
+		return err
+	}
+	msg := &primitive.Message{
+		Topic: "column",
+		Body:  data,
+	}
+	msg.WithKeys([]string{uuid})
+	_, err = r.data.columnMqPro.producer.SendSync(ctx, msg)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to set column subscribe to mq: map(%v)", subscribeMap))
 	}
 	return nil
 }
@@ -1173,12 +1194,60 @@ func (r *columnRepo) GetColumnCollectJudge(ctx context.Context, id int32, uuid s
 }
 
 func (r *columnRepo) GetSubscribeList(ctx context.Context, page int32, uuid string) ([]*biz.Subscribe, error) {
+	subscribe, err := r.getUserSubscribeListFromCache(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	size := len(subscribe)
+	if size != 0 {
+		return subscribe, nil
+	}
+
+	subscribe, err = r.getUserSubscribeListFromDB(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	size = len(subscribe)
+	if size != 0 {
+		go r.setUserSubscribeListToCache("user_column_subscribe_list_"+uuid, subscribe)
+	}
+	return subscribe, nil
+}
+
+func (r *columnRepo) getUserSubscribeListFromCache(ctx context.Context, page int32, uuid string) ([]*biz.Subscribe, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int64(page - 1)
+	list, err := r.data.redisCli.ZRevRange(ctx, "user_column_subscribe_list_"+uuid, index*10, index*10+9).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user column subscribe list from cache: key(%s), page(%v)", "user_column_subscribe_list_"+uuid, page))
+	}
+
+	subscribe := make([]*biz.Subscribe, 0)
+	for _, item := range list {
+		member := strings.Split(item, "%")
+		id, err := strconv.ParseInt(member[0], 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s)", member[0]))
+		}
+		subscribe = append(subscribe, &biz.Subscribe{
+			ColumnId: int32(id),
+			AuthorId: member[1],
+		})
+	}
+	return subscribe, nil
+}
+
+func (r *columnRepo) getUserSubscribeListFromDB(ctx context.Context, page int32, uuid string) ([]*biz.Subscribe, error) {
 	if page < 1 {
 		page = 1
 	}
 	index := int(page - 1)
 	list := make([]*Subscribe, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).Order("column_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Where("uuid = ? and status = ?", uuid, 1).Order("column_id desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get subscribe column from db: page(%v)", page))
 	}
@@ -1191,6 +1260,24 @@ func (r *columnRepo) GetSubscribeList(ctx context.Context, page int32, uuid stri
 		})
 	}
 	return subscribe, nil
+}
+
+func (r *columnRepo) setUserSubscribeListToCache(key string, subscribe []*biz.Subscribe) {
+	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
+		z := make([]*redis.Z, 0)
+		for _, item := range subscribe {
+			z = append(z, &redis.Z{
+				Score:  float64(item.ColumnId),
+				Member: strconv.Itoa(int(item.ColumnId)) + "%" + item.AuthorId,
+			})
+		}
+		pipe.ZAddNX(context.Background(), key, z...)
+		pipe.Expire(context.Background(), key, time.Hour*8)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to set column subscribe to cache: column(%v)", subscribe)
+	}
 }
 
 func (r *columnRepo) GetSubscribeListCount(ctx context.Context, uuid string) (int32, error) {
@@ -1630,8 +1717,7 @@ func (r *columnRepo) SetUserColumnAgreeToCache(ctx context.Context, id int32, us
                     local change = ARGV[1]
 					local value = redis.call("EXISTS", key)
 					if value == 1 then
-  						local result = redis.call("SADD", key, change)
-						return result
+  						redis.call("SADD", key, change)
 					end
 					return 0
 	`)
@@ -1650,8 +1736,7 @@ func (r *columnRepo) SetUserColumnCollectToCache(ctx context.Context, id int32, 
                     local change = ARGV[1]
 					local value = redis.call("EXISTS", key)
 					if value == 1 then
-  						local result = redis.call("SADD", key, change)
-						return result
+  						redis.call("SADD", key, change)
 					end
 					return 0
 	`)
@@ -1866,6 +1951,73 @@ func (r *columnRepo) SubscribeColumn(ctx context.Context, id int32, author, uuid
 	return nil
 }
 
+func (r *columnRepo) SetUserColumnSubscribeToCache(ctx context.Context, id int32, uuid string) error {
+	var script = redis.NewScript(`
+					local key = KEYS[1]
+                    local change = ARGV[1]
+					local value = redis.call("EXISTS", key)
+					if value == 1 then
+  						redis.call("SADD", key, change)
+					end
+					return 0
+	`)
+	keys := []string{"user_column_subscribe_" + uuid}
+	values := []interface{}{strconv.Itoa(int(id))}
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to set user column subscribe to cache: id(%v), uuid(%s)", id, uuid))
+	}
+	return nil
+}
+
+func (r *columnRepo) SetColumnSubscribeToCache(ctx context.Context, id int32, author, uuid string) error {
+	var script = redis.NewScript(`
+					local key = KEYS[1]
+                    local change = ARGV[1]
+					local value = redis.call("EXISTS", key)
+					if value == 1 then
+  						redis.call("SADD", key, change)
+					end
+
+					local key2 = KEYS[2]
+					local member = KEYS[3]
+					local value = redis.call("EXISTS", key2)
+					if value == 1 then
+  						redis.call("ZADD", key2, change, member)
+					end
+
+					local key3 = KEYS[4]
+					local value = redis.call("EXISTS", key3)
+					if value == 1 then
+  						redis.call("HINCRBY", key3, "subscribe", 1)
+					end
+
+					return 0
+	`)
+	keys := []string{"user_column_subscribe_" + uuid, "user_column_subscribe_list_" + uuid, fmt.Sprintf("%v%s%s", id, "%", author), "creation_user_" + uuid}
+	values := []interface{}{strconv.Itoa(int(id))}
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to set column subscribe to cache: id(%v), uuid(%s)", id, uuid))
+	}
+	return nil
+}
+
+func (r *columnRepo) AddUserCreationSubscribe(ctx context.Context, uuid string) error {
+	cu := &CreationUser{
+		Uuid:      uuid,
+		Subscribe: 1,
+	}
+	err := r.data.DB(ctx).Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "uuid"}},
+		DoUpdates: clause.Assignments(map[string]interface{}{"subscribe": gorm.Expr("subscribe + ?", 1)}),
+	}).Create(cu).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add creation subscribe: uuid(%v)", uuid))
+	}
+	return nil
+}
+
 func (r *columnRepo) CancelSubscribeColumn(ctx context.Context, id int32, uuid string) error {
 	sub := &Subscribe{}
 	err := r.data.DB(ctx).Model(sub).Where("column_id = ? and uuid = ?", id, uuid).Update("status", 2).Error
@@ -1881,8 +2033,7 @@ func (r *columnRepo) CancelUserColumnAgreeFromCache(ctx context.Context, id int3
                     local change = ARGV[1]
 					local value = redis.call("EXISTS", key)
 					if value == 1 then
-  						local result = redis.call("SREM", key, change)
-						return result
+  						redis.call("SREM", key, change)
 					end
 					return 0
 	`)
@@ -1910,8 +2061,7 @@ func (r *columnRepo) CancelUserColumnCollectFromCache(ctx context.Context, id in
                     local change = ARGV[1]
 					local value = redis.call("EXISTS", key)
 					if value == 1 then
-  						local result = redis.call("SREM", key, change)
-						return result
+  						redis.call("SREM", key, change)
 					end
 					return 0
 	`)
@@ -1944,11 +2094,66 @@ func (r *columnRepo) CancelCollectionColumn(ctx context.Context, id int32, uuid 
 	return nil
 }
 
+func (r *columnRepo) CancelUserColumnSubscribeFromCache(ctx context.Context, id int32, uuid string) error {
+	var script = redis.NewScript(`
+					local key = KEYS[1]
+                    local change = ARGV[1]
+					redis.call("SREM", key, change)
+
+					return 0
+	`)
+	keys := []string{"user_column_subscribe_" + uuid}
+	values := []interface{}{strconv.Itoa(int(id))}
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to cancel user column subscribe from cache: id(%v), uuid(%s)", id, uuid))
+	}
+	return nil
+}
+
+func (r *columnRepo) CancelColumnSubscribeFromCache(ctx context.Context, id int32, author, uuid string) error {
+	var script = redis.NewScript(`
+					local key = KEYS[1]
+                    local change = ARGV[1]
+					redis.call("SREM", key, change)
+
+					local key2 = KEYS[2]
+					local member = KEYS[3]
+					redis.call("ZREM", key2, member)
+
+					local key3 = KEYS[4]
+					local key3Exist = redis.call("EXISTS", key3)
+					if key3Exist == 1 then
+						local number = tonumber(redis.call("HGET", key3, "subscribe"))
+						if number > 0 then
+  							redis.call("HINCRBY", key3, "subscribe", -1)
+						end
+					end
+					return 0
+	`)
+	keys := []string{"user_column_subscribe_" + uuid, "user_column_subscribe_list_" + uuid, fmt.Sprintf("%v%s%s", id, "%", author), "creation_user_" + uuid}
+	values := []interface{}{strconv.Itoa(int(id))}
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to cancel column subscribe from cache: id(%v), author(%s), uuid(%s)", id, author, uuid))
+	}
+	return nil
+}
+
 func (r *columnRepo) ReduceCreationUserCollect(ctx context.Context, uuid string) error {
 	cu := &CreationUser{}
 	err := r.data.DB(ctx).Model(cu).Where("uuid = ? and collect > 0", uuid).Update("collect", gorm.Expr("collect - ?", 1)).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to reduce creation user collect: uuid(%v)", uuid))
+	}
+	return nil
+}
+
+func (r *columnRepo) ReduceUserCreationSubscribe(ctx context.Context, uuid string) error {
+	cu := &CreationUser{}
+	err := r.data.DB(ctx).Model(cu).Where("uuid = ? and subscribe > 0", uuid).Update("subscribe", gorm.Expr("subscribe - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to reduce user creation subscribe: uuid(%v)", uuid))
 	}
 	return nil
 }
@@ -2117,6 +2322,87 @@ func (r *columnRepo) setUserColumnCollectToCache(uuid string, collectList []*Col
 	if err != nil {
 		r.log.Errorf("fail to set user column collect to cache: uuid(%s), collectList(%v), error(%s) ", uuid, collectList, err.Error())
 	}
+}
+
+func (r *columnRepo) GetUserSubscribeColumn(ctx context.Context, uuid string) (map[int32]bool, error) {
+	exist, err := r.userSubscribeColumnExist(ctx, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	if exist == 1 {
+		return r.getUserColumnSubscribeFromCache(ctx, uuid)
+	} else {
+		return r.getUserColumnSubscribeFromDb(ctx, uuid)
+	}
+}
+
+func (r *columnRepo) userSubscribeColumnExist(ctx context.Context, uuid string) (int32, error) {
+	exist, err := r.data.redisCli.Exists(ctx, "user_column_subscribe_"+uuid).Result()
+	if err != nil {
+		return 0, errors.Wrapf(err, fmt.Sprintf("fail to check if user column subscribe exist from cache: uuid(%s)", uuid))
+	}
+	return int32(exist), nil
+}
+
+func (r *columnRepo) getUserColumnSubscribeFromCache(ctx context.Context, uuid string) (map[int32]bool, error) {
+	key := "user_column_subscribe_" + uuid
+	subscribeSet, err := r.data.redisCli.SMembers(ctx, key).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user column subscribe from cache: uuid(%s)", uuid))
+	}
+	subscribeMap := make(map[int32]bool, 0)
+	for _, item := range subscribeSet {
+		id, err := strconv.ParseInt(item, 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s), uuid(%s), key(%s)", id, uuid, key))
+		}
+		subscribeMap[int32(id)] = true
+	}
+	return subscribeMap, nil
+}
+
+func (r *columnRepo) getUserColumnSubscribeFromDb(ctx context.Context, uuid string) (map[int32]bool, error) {
+	list := make([]*Subscribe, 0)
+	err := r.data.db.WithContext(ctx).Where("uuid = ? and status = ?", uuid, 1).Find(&list).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user column subscribe from db: uuid(%s)", uuid))
+	}
+
+	subscribeMap := make(map[int32]bool, 0)
+	for _, item := range list {
+		subscribeMap[item.ColumnId] = true
+	}
+	if len(list) != 0 {
+		go r.setUserColumnSubscribeToCache(uuid, list)
+	}
+	return subscribeMap, nil
+}
+
+func (r *columnRepo) setUserColumnSubscribeToCache(uuid string, subscribeList []*Subscribe) {
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		set := make([]interface{}, 0)
+		key := "user_column_subscribe_" + uuid
+		for _, item := range subscribeList {
+			set = append(set, item.ColumnId)
+		}
+		pipe.SAdd(ctx, key, set...)
+		pipe.Expire(ctx, key, time.Hour*8)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to set user column subscribe to cache: uuid(%s), subscribeList(%v), error(%s) ", uuid, subscribeList, err.Error())
+	}
+}
+
+func (r *columnRepo) GetAuthorFromSubscribe(ctx context.Context, id int32) (string, error) {
+	c := &Column{}
+	err := r.data.db.WithContext(ctx).Where("column_id = ?", id).First(c).Error
+	if err != nil {
+		return "", errors.Wrapf(err, fmt.Sprintf("fail to get column author rom db: id(%v)", id))
+	}
+	return c.Uuid, nil
 }
 
 func (r *columnRepo) SubscribeJudge(ctx context.Context, id int32, uuid string) (bool, error) {
