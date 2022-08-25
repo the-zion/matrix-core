@@ -14563,18 +14563,6 @@ func (m *SubscribeColumnReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetAuthor()); err != nil {
-		err = SubscribeColumnReqValidationError{
-			field:  "Author",
-			reason: "value must be a valid UUID",
-			cause:  err,
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
 	if err := m._validateUuid(m.GetUuid()); err != nil {
 		err = SubscribeColumnReqValidationError{
 			field:  "Uuid",
@@ -17945,6 +17933,233 @@ var _ interface {
 	ErrorName() string
 } = GetUserColumnCollectReplyValidationError{}
 
+// Validate checks the field values on GetUserSubscribeColumnReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetUserSubscribeColumnReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserSubscribeColumnReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetUserSubscribeColumnReqMultiError, or nil if none found.
+func (m *GetUserSubscribeColumnReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserSubscribeColumnReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = GetUserSubscribeColumnReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return GetUserSubscribeColumnReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *GetUserSubscribeColumnReq) _validateUuid(uuid string) error {
+	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// GetUserSubscribeColumnReqMultiError is an error wrapping multiple validation
+// errors returned by GetUserSubscribeColumnReq.ValidateAll() if the
+// designated constraints aren't met.
+type GetUserSubscribeColumnReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserSubscribeColumnReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserSubscribeColumnReqMultiError) AllErrors() []error { return m }
+
+// GetUserSubscribeColumnReqValidationError is the validation error returned by
+// GetUserSubscribeColumnReq.Validate if the designated constraints aren't met.
+type GetUserSubscribeColumnReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserSubscribeColumnReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserSubscribeColumnReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserSubscribeColumnReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserSubscribeColumnReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserSubscribeColumnReqValidationError) ErrorName() string {
+	return "GetUserSubscribeColumnReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetUserSubscribeColumnReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserSubscribeColumnReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserSubscribeColumnReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserSubscribeColumnReqValidationError{}
+
+// Validate checks the field values on GetUserSubscribeColumnReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetUserSubscribeColumnReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserSubscribeColumnReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetUserSubscribeColumnReplyMultiError, or nil if none found.
+func (m *GetUserSubscribeColumnReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserSubscribeColumnReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Subscribe
+
+	if len(errors) > 0 {
+		return GetUserSubscribeColumnReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetUserSubscribeColumnReplyMultiError is an error wrapping multiple
+// validation errors returned by GetUserSubscribeColumnReply.ValidateAll() if
+// the designated constraints aren't met.
+type GetUserSubscribeColumnReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserSubscribeColumnReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserSubscribeColumnReplyMultiError) AllErrors() []error { return m }
+
+// GetUserSubscribeColumnReplyValidationError is the validation error returned
+// by GetUserSubscribeColumnReply.Validate if the designated constraints
+// aren't met.
+type GetUserSubscribeColumnReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserSubscribeColumnReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserSubscribeColumnReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserSubscribeColumnReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserSubscribeColumnReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserSubscribeColumnReplyValidationError) ErrorName() string {
+	return "GetUserSubscribeColumnReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetUserSubscribeColumnReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserSubscribeColumnReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserSubscribeColumnReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserSubscribeColumnReplyValidationError{}
+
 // Validate checks the field values on SendColumnEditReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -20366,6 +20581,222 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = DeleteColumnIncludesDbAndCacheReqValidationError{}
+
+// Validate checks the field values on SetColumnSubscribeDbAndCacheReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SetColumnSubscribeDbAndCacheReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SetColumnSubscribeDbAndCacheReq with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// SetColumnSubscribeDbAndCacheReqMultiError, or nil if none found.
+func (m *SetColumnSubscribeDbAndCacheReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SetColumnSubscribeDbAndCacheReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Uuid
+
+	if len(errors) > 0 {
+		return SetColumnSubscribeDbAndCacheReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// SetColumnSubscribeDbAndCacheReqMultiError is an error wrapping multiple
+// validation errors returned by SetColumnSubscribeDbAndCacheReq.ValidateAll()
+// if the designated constraints aren't met.
+type SetColumnSubscribeDbAndCacheReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SetColumnSubscribeDbAndCacheReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SetColumnSubscribeDbAndCacheReqMultiError) AllErrors() []error { return m }
+
+// SetColumnSubscribeDbAndCacheReqValidationError is the validation error
+// returned by SetColumnSubscribeDbAndCacheReq.Validate if the designated
+// constraints aren't met.
+type SetColumnSubscribeDbAndCacheReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SetColumnSubscribeDbAndCacheReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SetColumnSubscribeDbAndCacheReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SetColumnSubscribeDbAndCacheReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SetColumnSubscribeDbAndCacheReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SetColumnSubscribeDbAndCacheReqValidationError) ErrorName() string {
+	return "SetColumnSubscribeDbAndCacheReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SetColumnSubscribeDbAndCacheReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSetColumnSubscribeDbAndCacheReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SetColumnSubscribeDbAndCacheReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SetColumnSubscribeDbAndCacheReqValidationError{}
+
+// Validate checks the field values on CancelColumnSubscribeDbAndCacheReq with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *CancelColumnSubscribeDbAndCacheReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CancelColumnSubscribeDbAndCacheReq
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the result is a list of violation errors wrapped in
+// CancelColumnSubscribeDbAndCacheReqMultiError, or nil if none found.
+func (m *CancelColumnSubscribeDbAndCacheReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CancelColumnSubscribeDbAndCacheReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Uuid
+
+	if len(errors) > 0 {
+		return CancelColumnSubscribeDbAndCacheReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// CancelColumnSubscribeDbAndCacheReqMultiError is an error wrapping multiple
+// validation errors returned by
+// CancelColumnSubscribeDbAndCacheReq.ValidateAll() if the designated
+// constraints aren't met.
+type CancelColumnSubscribeDbAndCacheReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CancelColumnSubscribeDbAndCacheReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CancelColumnSubscribeDbAndCacheReqMultiError) AllErrors() []error { return m }
+
+// CancelColumnSubscribeDbAndCacheReqValidationError is the validation error
+// returned by CancelColumnSubscribeDbAndCacheReq.Validate if the designated
+// constraints aren't met.
+type CancelColumnSubscribeDbAndCacheReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CancelColumnSubscribeDbAndCacheReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CancelColumnSubscribeDbAndCacheReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CancelColumnSubscribeDbAndCacheReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CancelColumnSubscribeDbAndCacheReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CancelColumnSubscribeDbAndCacheReqValidationError) ErrorName() string {
+	return "CancelColumnSubscribeDbAndCacheReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CancelColumnSubscribeDbAndCacheReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCancelColumnSubscribeDbAndCacheReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CancelColumnSubscribeDbAndCacheReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CancelColumnSubscribeDbAndCacheReqValidationError{}
 
 // Validate checks the field values on GetNewsReq with the rules defined in the
 // proto definition for this message. If any rules are violated, the first

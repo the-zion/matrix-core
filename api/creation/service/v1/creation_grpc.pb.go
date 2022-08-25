@@ -133,6 +133,7 @@ type CreationClient interface {
 	GetColumnSubscribes(ctx context.Context, in *GetColumnSubscribesReq, opts ...grpc.CallOption) (*GetColumnSubscribesReply, error)
 	GetUserColumnAgree(ctx context.Context, in *GetUserColumnAgreeReq, opts ...grpc.CallOption) (*GetUserColumnAgreeReply, error)
 	GetUserColumnCollect(ctx context.Context, in *GetUserColumnCollectReq, opts ...grpc.CallOption) (*GetUserColumnCollectReply, error)
+	GetUserSubscribeColumn(ctx context.Context, in *GetUserSubscribeColumnReq, opts ...grpc.CallOption) (*GetUserSubscribeColumnReply, error)
 	SendColumnEdit(ctx context.Context, in *SendColumnEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	EditColumn(ctx context.Context, in *EditColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteColumn(ctx context.Context, in *DeleteColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -152,6 +153,8 @@ type CreationClient interface {
 	AddColumnIncludesDbAndCache(ctx context.Context, in *AddColumnIncludesDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteColumnIncludes(ctx context.Context, in *DeleteColumnIncludesReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteColumnIncludesDbAndCache(ctx context.Context, in *DeleteColumnIncludesDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetColumnSubscribeDbAndCache(ctx context.Context, in *SetColumnSubscribeDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CancelColumnSubscribeDbAndCache(ctx context.Context, in *CancelColumnSubscribeDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetNews(ctx context.Context, in *GetNewsReq, opts ...grpc.CallOption) (*GetNewsReply, error)
 	AddCreationComment(ctx context.Context, in *AddCreationCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ReduceCreationComment(ctx context.Context, in *ReduceCreationCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -1155,6 +1158,15 @@ func (c *creationClient) GetUserColumnCollect(ctx context.Context, in *GetUserCo
 	return out, nil
 }
 
+func (c *creationClient) GetUserSubscribeColumn(ctx context.Context, in *GetUserSubscribeColumnReq, opts ...grpc.CallOption) (*GetUserSubscribeColumnReply, error) {
+	out := new(GetUserSubscribeColumnReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetUserSubscribeColumn", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *creationClient) SendColumnEdit(ctx context.Context, in *SendColumnEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/SendColumnEdit", in, out, opts...)
@@ -1326,6 +1338,24 @@ func (c *creationClient) DeleteColumnIncludesDbAndCache(ctx context.Context, in 
 	return out, nil
 }
 
+func (c *creationClient) SetColumnSubscribeDbAndCache(ctx context.Context, in *SetColumnSubscribeDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/SetColumnSubscribeDbAndCache", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) CancelColumnSubscribeDbAndCache(ctx context.Context, in *CancelColumnSubscribeDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/CancelColumnSubscribeDbAndCache", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *creationClient) GetNews(ctx context.Context, in *GetNewsReq, opts ...grpc.CallOption) (*GetNewsReply, error) {
 	out := new(GetNewsReply)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetNews", in, out, opts...)
@@ -1467,6 +1497,7 @@ type CreationServer interface {
 	GetColumnSubscribes(context.Context, *GetColumnSubscribesReq) (*GetColumnSubscribesReply, error)
 	GetUserColumnAgree(context.Context, *GetUserColumnAgreeReq) (*GetUserColumnAgreeReply, error)
 	GetUserColumnCollect(context.Context, *GetUserColumnCollectReq) (*GetUserColumnCollectReply, error)
+	GetUserSubscribeColumn(context.Context, *GetUserSubscribeColumnReq) (*GetUserSubscribeColumnReply, error)
 	SendColumnEdit(context.Context, *SendColumnEditReq) (*emptypb.Empty, error)
 	EditColumn(context.Context, *EditColumnReq) (*emptypb.Empty, error)
 	DeleteColumn(context.Context, *DeleteColumnReq) (*emptypb.Empty, error)
@@ -1486,6 +1517,8 @@ type CreationServer interface {
 	AddColumnIncludesDbAndCache(context.Context, *AddColumnIncludesDbAndCacheReq) (*emptypb.Empty, error)
 	DeleteColumnIncludes(context.Context, *DeleteColumnIncludesReq) (*emptypb.Empty, error)
 	DeleteColumnIncludesDbAndCache(context.Context, *DeleteColumnIncludesDbAndCacheReq) (*emptypb.Empty, error)
+	SetColumnSubscribeDbAndCache(context.Context, *SetColumnSubscribeDbAndCacheReq) (*emptypb.Empty, error)
+	CancelColumnSubscribeDbAndCache(context.Context, *CancelColumnSubscribeDbAndCacheReq) (*emptypb.Empty, error)
 	GetNews(context.Context, *GetNewsReq) (*GetNewsReply, error)
 	AddCreationComment(context.Context, *AddCreationCommentReq) (*emptypb.Empty, error)
 	ReduceCreationComment(context.Context, *ReduceCreationCommentReq) (*emptypb.Empty, error)
@@ -1826,6 +1859,9 @@ func (UnimplementedCreationServer) GetUserColumnAgree(context.Context, *GetUserC
 func (UnimplementedCreationServer) GetUserColumnCollect(context.Context, *GetUserColumnCollectReq) (*GetUserColumnCollectReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserColumnCollect not implemented")
 }
+func (UnimplementedCreationServer) GetUserSubscribeColumn(context.Context, *GetUserSubscribeColumnReq) (*GetUserSubscribeColumnReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserSubscribeColumn not implemented")
+}
 func (UnimplementedCreationServer) SendColumnEdit(context.Context, *SendColumnEditReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendColumnEdit not implemented")
 }
@@ -1882,6 +1918,12 @@ func (UnimplementedCreationServer) DeleteColumnIncludes(context.Context, *Delete
 }
 func (UnimplementedCreationServer) DeleteColumnIncludesDbAndCache(context.Context, *DeleteColumnIncludesDbAndCacheReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteColumnIncludesDbAndCache not implemented")
+}
+func (UnimplementedCreationServer) SetColumnSubscribeDbAndCache(context.Context, *SetColumnSubscribeDbAndCacheReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetColumnSubscribeDbAndCache not implemented")
+}
+func (UnimplementedCreationServer) CancelColumnSubscribeDbAndCache(context.Context, *CancelColumnSubscribeDbAndCacheReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelColumnSubscribeDbAndCache not implemented")
 }
 func (UnimplementedCreationServer) GetNews(context.Context, *GetNewsReq) (*GetNewsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetNews not implemented")
@@ -3885,6 +3927,24 @@ func _Creation_GetUserColumnCollect_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Creation_GetUserSubscribeColumn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserSubscribeColumnReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetUserSubscribeColumn(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetUserSubscribeColumn",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetUserSubscribeColumn(ctx, req.(*GetUserSubscribeColumnReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Creation_SendColumnEdit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SendColumnEditReq)
 	if err := dec(in); err != nil {
@@ -4223,6 +4283,42 @@ func _Creation_DeleteColumnIncludesDbAndCache_Handler(srv interface{}, ctx conte
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CreationServer).DeleteColumnIncludesDbAndCache(ctx, req.(*DeleteColumnIncludesDbAndCacheReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_SetColumnSubscribeDbAndCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetColumnSubscribeDbAndCacheReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).SetColumnSubscribeDbAndCache(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/SetColumnSubscribeDbAndCache",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).SetColumnSubscribeDbAndCache(ctx, req.(*SetColumnSubscribeDbAndCacheReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_CancelColumnSubscribeDbAndCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelColumnSubscribeDbAndCacheReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).CancelColumnSubscribeDbAndCache(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/CancelColumnSubscribeDbAndCache",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).CancelColumnSubscribeDbAndCache(ctx, req.(*CancelColumnSubscribeDbAndCacheReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -4729,6 +4825,10 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Creation_GetUserColumnCollect_Handler,
 		},
 		{
+			MethodName: "GetUserSubscribeColumn",
+			Handler:    _Creation_GetUserSubscribeColumn_Handler,
+		},
+		{
 			MethodName: "SendColumnEdit",
 			Handler:    _Creation_SendColumnEdit_Handler,
 		},
@@ -4803,6 +4903,14 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteColumnIncludesDbAndCache",
 			Handler:    _Creation_DeleteColumnIncludesDbAndCache_Handler,
+		},
+		{
+			MethodName: "SetColumnSubscribeDbAndCache",
+			Handler:    _Creation_SetColumnSubscribeDbAndCache_Handler,
+		},
+		{
+			MethodName: "CancelColumnSubscribeDbAndCache",
+			Handler:    _Creation_CancelColumnSubscribeDbAndCache_Handler,
 		},
 		{
 			MethodName: "GetNews",
