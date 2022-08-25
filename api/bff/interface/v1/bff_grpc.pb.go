@@ -144,6 +144,7 @@ type BffClient interface {
 	GetColumnStatistic(ctx context.Context, in *GetColumnStatisticReq, opts ...grpc.CallOption) (*GetColumnStatisticReply, error)
 	GetUserColumnAgree(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserColumnAgreeReply, error)
 	GetUserColumnCollect(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserColumnCollectReply, error)
+	GetUserSubscribeColumn(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserSubscribeColumnReply, error)
 	ColumnStatisticJudge(ctx context.Context, in *ColumnStatisticJudgeReq, opts ...grpc.CallOption) (*ColumnStatisticJudgeReply, error)
 	SetColumnAgree(ctx context.Context, in *SetColumnAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelColumnAgree(ctx context.Context, in *CancelColumnAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -1264,6 +1265,15 @@ func (c *bffClient) GetUserColumnCollect(ctx context.Context, in *emptypb.Empty,
 	return out, nil
 }
 
+func (c *bffClient) GetUserSubscribeColumn(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserSubscribeColumnReply, error) {
+	out := new(GetUserSubscribeColumnReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserSubscribeColumn", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) ColumnStatisticJudge(ctx context.Context, in *ColumnStatisticJudgeReq, opts ...grpc.CallOption) (*ColumnStatisticJudgeReply, error) {
 	out := new(ColumnStatisticJudgeReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/ColumnStatisticJudge", in, out, opts...)
@@ -1659,6 +1669,7 @@ type BffServer interface {
 	GetColumnStatistic(context.Context, *GetColumnStatisticReq) (*GetColumnStatisticReply, error)
 	GetUserColumnAgree(context.Context, *emptypb.Empty) (*GetUserColumnAgreeReply, error)
 	GetUserColumnCollect(context.Context, *emptypb.Empty) (*GetUserColumnCollectReply, error)
+	GetUserSubscribeColumn(context.Context, *emptypb.Empty) (*GetUserSubscribeColumnReply, error)
 	ColumnStatisticJudge(context.Context, *ColumnStatisticJudgeReq) (*ColumnStatisticJudgeReply, error)
 	SetColumnAgree(context.Context, *SetColumnAgreeReq) (*emptypb.Empty, error)
 	CancelColumnAgree(context.Context, *CancelColumnAgreeReq) (*emptypb.Empty, error)
@@ -2055,6 +2066,9 @@ func (UnimplementedBffServer) GetUserColumnAgree(context.Context, *emptypb.Empty
 }
 func (UnimplementedBffServer) GetUserColumnCollect(context.Context, *emptypb.Empty) (*GetUserColumnCollectReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserColumnCollect not implemented")
+}
+func (UnimplementedBffServer) GetUserSubscribeColumn(context.Context, *emptypb.Empty) (*GetUserSubscribeColumnReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserSubscribeColumn not implemented")
 }
 func (UnimplementedBffServer) ColumnStatisticJudge(context.Context, *ColumnStatisticJudgeReq) (*ColumnStatisticJudgeReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ColumnStatisticJudge not implemented")
@@ -4319,6 +4333,24 @@ func _Bff_GetUserColumnCollect_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_GetUserSubscribeColumn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetUserSubscribeColumn(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetUserSubscribeColumn",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetUserSubscribeColumn(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_ColumnStatisticJudge_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ColumnStatisticJudgeReq)
 	if err := dec(in); err != nil {
@@ -5345,6 +5377,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserColumnCollect",
 			Handler:    _Bff_GetUserColumnCollect_Handler,
+		},
+		{
+			MethodName: "GetUserSubscribeColumn",
+			Handler:    _Bff_GetUserSubscribeColumn_Handler,
 		},
 		{
 			MethodName: "ColumnStatisticJudge",

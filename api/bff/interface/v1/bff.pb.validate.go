@@ -13424,8 +13424,6 @@ func (m *SubscribeColumnReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	// no validation rules for Author
-
 	if len(errors) > 0 {
 		return SubscribeColumnReqMultiError(errors)
 	}
@@ -13943,8 +13941,6 @@ func (m *GetSubscribeListReq) validate(all bool) error {
 	var errors []error
 
 	// no validation rules for Page
-
-	// no validation rules for Uuid
 
 	if len(errors) > 0 {
 		return GetSubscribeListReqMultiError(errors)
@@ -16691,6 +16687,111 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetUserColumnCollectReplyValidationError{}
+
+// Validate checks the field values on GetUserSubscribeColumnReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetUserSubscribeColumnReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserSubscribeColumnReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetUserSubscribeColumnReplyMultiError, or nil if none found.
+func (m *GetUserSubscribeColumnReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserSubscribeColumnReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Subscribe
+
+	if len(errors) > 0 {
+		return GetUserSubscribeColumnReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetUserSubscribeColumnReplyMultiError is an error wrapping multiple
+// validation errors returned by GetUserSubscribeColumnReply.ValidateAll() if
+// the designated constraints aren't met.
+type GetUserSubscribeColumnReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserSubscribeColumnReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserSubscribeColumnReplyMultiError) AllErrors() []error { return m }
+
+// GetUserSubscribeColumnReplyValidationError is the validation error returned
+// by GetUserSubscribeColumnReply.Validate if the designated constraints
+// aren't met.
+type GetUserSubscribeColumnReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserSubscribeColumnReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserSubscribeColumnReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserSubscribeColumnReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserSubscribeColumnReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserSubscribeColumnReplyValidationError) ErrorName() string {
+	return "GetUserSubscribeColumnReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetUserSubscribeColumnReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserSubscribeColumnReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserSubscribeColumnReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserSubscribeColumnReplyValidationError{}
 
 // Validate checks the field values on ColumnStatisticJudgeReq with the rules
 // defined in the proto definition for this message. If any rules are
@@ -22484,6 +22585,12 @@ func (m *GetSubscribeListReply_Subscribe) validate(all bool) error {
 	// no validation rules for Id
 
 	// no validation rules for Uuid
+
+	// no validation rules for Agree
+
+	// no validation rules for Collect
+
+	// no validation rules for View
 
 	if len(errors) > 0 {
 		return GetSubscribeListReply_SubscribeMultiError(errors)

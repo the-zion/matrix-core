@@ -125,6 +125,7 @@ const OperationBffGetUserInfoVisitor = "/bff.v1.Bff/GetUserInfoVisitor"
 const OperationBffGetUserMedal = "/bff.v1.Bff/GetUserMedal"
 const OperationBffGetUserMedalProgress = "/bff.v1.Bff/GetUserMedalProgress"
 const OperationBffGetUserSearch = "/bff.v1.Bff/GetUserSearch"
+const OperationBffGetUserSubscribeColumn = "/bff.v1.Bff/GetUserSubscribeColumn"
 const OperationBffGetUserTalkAgree = "/bff.v1.Bff/GetUserTalkAgree"
 const OperationBffGetUserTalkCollect = "/bff.v1.Bff/GetUserTalkCollect"
 const OperationBffGetUserTalkList = "/bff.v1.Bff/GetUserTalkList"
@@ -277,6 +278,7 @@ type BffHTTPServer interface {
 	GetUserMedal(context.Context, *GetUserMedalReq) (*GetUserMedalReply, error)
 	GetUserMedalProgress(context.Context, *emptypb.Empty) (*GetUserMedalProgressReply, error)
 	GetUserSearch(context.Context, *GetUserSearchReq) (*GetUserSearchReply, error)
+	GetUserSubscribeColumn(context.Context, *emptypb.Empty) (*GetUserSubscribeColumnReply, error)
 	GetUserTalkAgree(context.Context, *emptypb.Empty) (*GetUserTalkAgreeReply, error)
 	GetUserTalkCollect(context.Context, *emptypb.Empty) (*GetUserTalkCollectReply, error)
 	GetUserTalkList(context.Context, *GetUserTalkListReq) (*GetTalkListReply, error)
@@ -429,7 +431,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.POST("/v1/cancel/subscribe/column", _Bff_CancelSubscribeColumn0_HTTP_Handler(srv))
 	r.POST("/v1/subscribe/column/judge", _Bff_SubscribeJudge0_HTTP_Handler(srv))
 	r.POST("/v1/send/column", _Bff_SendColumn0_HTTP_Handler(srv))
-	r.GET("/v1/get/subscribe/list", _Bff_GetSubscribeList0_HTTP_Handler(srv))
+	r.POST("/v1/get/subscribe/list", _Bff_GetSubscribeList0_HTTP_Handler(srv))
 	r.GET("/v1/get/subscribe/list/count", _Bff_GetSubscribeListCount0_HTTP_Handler(srv))
 	r.POST("/v1/get/column/subscribes", _Bff_GetColumnSubscribes0_HTTP_Handler(srv))
 	r.GET("/v1/get/column/list", _Bff_GetColumnList0_HTTP_Handler(srv))
@@ -446,6 +448,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.GET("/v1/get/column/statistic", _Bff_GetColumnStatistic0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/column/agree", _Bff_GetUserColumnAgree0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/column/collect", _Bff_GetUserColumnCollect0_HTTP_Handler(srv))
+	r.GET("/v1/get/user/subscribe/column", _Bff_GetUserSubscribeColumn0_HTTP_Handler(srv))
 	r.POST("/v1/column/statistic/judge", _Bff_ColumnStatisticJudge0_HTTP_Handler(srv))
 	r.POST("/v1/set/column/agree", _Bff_SetColumnAgree0_HTTP_Handler(srv))
 	r.POST("/v1/cancel/column/agree", _Bff_CancelColumnAgree0_HTTP_Handler(srv))
@@ -2438,7 +2441,7 @@ func _Bff_SendColumn0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) err
 func _Bff_GetSubscribeList0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in GetSubscribeListReq
-		if err := ctx.BindQuery(&in); err != nil {
+		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, OperationBffGetSubscribeList)
@@ -2754,6 +2757,25 @@ func _Bff_GetUserColumnCollect0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Co
 			return err
 		}
 		reply := out.(*GetUserColumnCollectReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_GetUserSubscribeColumn0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in emptypb.Empty
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetUserSubscribeColumn)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetUserSubscribeColumn(ctx, req.(*emptypb.Empty))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetUserSubscribeColumnReply)
 		return ctx.Result(200, reply)
 	}
 }
@@ -3434,6 +3456,7 @@ type BffHTTPClient interface {
 	GetUserMedal(ctx context.Context, req *GetUserMedalReq, opts ...http.CallOption) (rsp *GetUserMedalReply, err error)
 	GetUserMedalProgress(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetUserMedalProgressReply, err error)
 	GetUserSearch(ctx context.Context, req *GetUserSearchReq, opts ...http.CallOption) (rsp *GetUserSearchReply, err error)
+	GetUserSubscribeColumn(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetUserSubscribeColumnReply, err error)
 	GetUserTalkAgree(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetUserTalkAgreeReply, err error)
 	GetUserTalkCollect(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetUserTalkCollectReply, err error)
 	GetUserTalkList(ctx context.Context, req *GetUserTalkListReq, opts ...http.CallOption) (rsp *GetTalkListReply, err error)
@@ -4480,10 +4503,10 @@ func (c *BffHTTPClientImpl) GetSubCommentList(ctx context.Context, in *GetSubCom
 func (c *BffHTTPClientImpl) GetSubscribeList(ctx context.Context, in *GetSubscribeListReq, opts ...http.CallOption) (*GetSubscribeListReply, error) {
 	var out GetSubscribeListReply
 	pattern := "/v1/get/subscribe/list"
-	path := binding.EncodeURL(pattern, in, true)
+	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationBffGetSubscribeList))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -4846,6 +4869,19 @@ func (c *BffHTTPClientImpl) GetUserSearch(ctx context.Context, in *GetUserSearch
 	pattern := "/v1/get/user/search"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationBffGetUserSearch))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetUserSubscribeColumn(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*GetUserSubscribeColumnReply, error) {
+	var out GetUserSubscribeColumnReply
+	pattern := "/v1/get/user/subscribe/column"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationBffGetUserSubscribeColumn))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
