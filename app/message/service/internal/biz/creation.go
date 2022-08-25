@@ -49,6 +49,8 @@ type CreationRepo interface {
 	CancelColumnCollectDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error
 	AddColumnIncludesDbAndCache(ctx context.Context, id, articleId int32, uuid string) error
 	DeleteColumnIncludesDbAndCache(ctx context.Context, id, articleId int32, uuid string) error
+	SetColumnSubscribeDbAndCache(ctx context.Context, id int32, uuid string) error
+	CancelColumnSubscribeDbAndCache(ctx context.Context, id int32, uuid string) error
 
 	AddCreationComment(ctx context.Context, createId, createType int32, uuid string)
 	ReduceCreationComment(ctx context.Context, createId, createType int32, uuid string)
@@ -501,6 +503,14 @@ func (r *CreationUseCase) AddColumnIncludesDbAndCache(ctx context.Context, id, a
 
 func (r *CreationUseCase) DeleteColumnIncludesDbAndCache(ctx context.Context, id, articleId int32, uuid string) error {
 	return r.repo.DeleteColumnIncludesDbAndCache(ctx, id, articleId, uuid)
+}
+
+func (r *CreationUseCase) SetColumnSubscribeDbAndCache(ctx context.Context, id int32, uuid string) error {
+	return r.repo.SetColumnSubscribeDbAndCache(ctx, id, uuid)
+}
+
+func (r *CreationUseCase) CancelColumnSubscribeDbAndCache(ctx context.Context, id int32, uuid string) error {
+	return r.repo.CancelColumnSubscribeDbAndCache(ctx, id, uuid)
 }
 
 func (r *CreationUseCase) AddCreationComment(ctx context.Context, createId, createType int32, uuid string) {
