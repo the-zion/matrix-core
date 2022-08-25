@@ -759,8 +759,7 @@ func (r *commentRepo) SetUserCommentAgreeToCache(ctx context.Context, id int32, 
                     local change = ARGV[1]
 					local value = redis.call("EXISTS", key)
 					if value == 1 then
-  						local result = redis.call("SADD", key, change)
-						return result
+  						redis.call("SADD", key, change)
 					end
 					return 0
 	`)
