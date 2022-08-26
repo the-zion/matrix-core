@@ -20,7 +20,7 @@ import (
 	"time"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewTransaction, NewRocketmqArticleProducer, NewRocketmqArticleReviewProducer, NewRocketmqAchievementProducer, NewRocketmqTalkReviewProducer, NewRocketmqTalkProducer, NewRocketmqColumnReviewProducer, NewRocketmqColumnProducer, NewCosServiceClient, NewElasticsearch, NewNewsClient, NewArticleRepo, NewTalkRepo, NewCreationRepo, NewColumnRepo, NewNewsRepo, NewRecovery)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewTransaction, NewRocketmqArticleProducer, NewRocketmqArticleReviewProducer, NewRocketmqAchievementProducer, NewRocketmqTalkReviewProducer, NewRocketmqTalkProducer, NewRocketmqColumnReviewProducer, NewRocketmqColumnProducer, NewRocketmqCollectionsReviewProducer, NewRocketmqCollectionsProducer, NewCosServiceClient, NewElasticsearch, NewNewsClient, NewArticleRepo, NewTalkRepo, NewCreationRepo, NewColumnRepo, NewNewsRepo, NewRecovery)
 
 type ArticleReviewMqPro struct {
 	producer rocketmq.Producer
@@ -46,6 +46,14 @@ type ColumnMqPro struct {
 	producer rocketmq.Producer
 }
 
+type CollectionsReviewMqPro struct {
+	producer rocketmq.Producer
+}
+
+type CollectionsMqPro struct {
+	producer rocketmq.Producer
+}
+
 type AchievementMqPro struct {
 	producer rocketmq.Producer
 }
@@ -59,19 +67,21 @@ type News struct {
 }
 
 type Data struct {
-	db                 *gorm.DB
-	log                *log.Helper
-	redisCli           redis.Cmdable
-	articleMqPro       *ArticleMqPro
-	articleReviewMqPro *ArticleReviewMqPro
-	talkMqPro          *TalkMqPro
-	talkReviewMqPro    *TalkReviewMqPro
-	columnReviewMqPro  *ColumnReviewMqPro
-	columnMqPro        *ColumnMqPro
-	achievementMqPro   *AchievementMqPro
-	cosCli             *cos.Client
-	elasticSearch      *ElasticSearch
-	newsCli            *News
+	db                     *gorm.DB
+	log                    *log.Helper
+	redisCli               redis.Cmdable
+	articleMqPro           *ArticleMqPro
+	articleReviewMqPro     *ArticleReviewMqPro
+	talkMqPro              *TalkMqPro
+	talkReviewMqPro        *TalkReviewMqPro
+	columnReviewMqPro      *ColumnReviewMqPro
+	columnMqPro            *ColumnMqPro
+	collectionsReviewMqPro *CollectionsReviewMqPro
+	collectionsMqPro       *CollectionsMqPro
+	achievementMqPro       *AchievementMqPro
+	cosCli                 *cos.Client
+	elasticSearch          *ElasticSearch
+	newsCli                *News
 }
 
 type contextTxKey struct{}
@@ -316,6 +326,58 @@ func NewRocketmqColumnProducer(conf *conf.Data, logger log.Logger) *ColumnMqPro 
 	}
 }
 
+func NewRocketmqCollectionsReviewProducer(conf *conf.Data, logger log.Logger) *CollectionsReviewMqPro {
+	l := log.NewHelper(log.With(logger, "module", "creation/data/rocketmq-collections-review-producer"))
+	p, err := rocketmq.NewProducer(
+		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.CreationMq.ServerAddress})),
+		producer.WithCredentials(primitive.Credentials{
+			SecretKey: conf.CreationMq.SecretKey,
+			AccessKey: conf.CreationMq.AccessKey,
+		}),
+		producer.WithInstanceName("creation"),
+		producer.WithGroupName(conf.CreationMq.CollectionsReview.GroupName),
+		producer.WithNamespace(conf.CreationMq.NameSpace),
+	)
+
+	if err != nil {
+		l.Fatalf("init producer error: %v", err)
+	}
+
+	err = p.Start()
+	if err != nil {
+		l.Fatalf("start producer error: %v", err)
+	}
+	return &CollectionsReviewMqPro{
+		producer: p,
+	}
+}
+
+func NewRocketmqCollectionsProducer(conf *conf.Data, logger log.Logger) *CollectionsMqPro {
+	l := log.NewHelper(log.With(logger, "module", "creation/data/rocketmq-collections-producer"))
+	p, err := rocketmq.NewProducer(
+		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.CreationMq.ServerAddress})),
+		producer.WithCredentials(primitive.Credentials{
+			SecretKey: conf.CreationMq.SecretKey,
+			AccessKey: conf.CreationMq.AccessKey,
+		}),
+		producer.WithInstanceName("creation"),
+		producer.WithGroupName(conf.CreationMq.Collections.GroupName),
+		producer.WithNamespace(conf.CreationMq.NameSpace),
+	)
+
+	if err != nil {
+		l.Fatalf("init producer error: %v", err)
+	}
+
+	err = p.Start()
+	if err != nil {
+		l.Fatalf("start producer error: %v", err)
+	}
+	return &CollectionsMqPro{
+		producer: p,
+	}
+}
+
 func NewRocketmqAchievementProducer(conf *conf.Data, logger log.Logger) *AchievementMqPro {
 	l := log.NewHelper(log.With(logger, "module", "creation/data/rocketmq-achievement-producer"))
 	p, err := rocketmq.NewProducer(
@@ -378,22 +440,24 @@ func NewNewsClient(conf *conf.Data) *News {
 	}
 }
 
-func NewData(db *gorm.DB, redisCmd redis.Cmdable, cos *cos.Client, es *ElasticSearch, amp *ArticleMqPro, arp *ArticleReviewMqPro, tmp *TalkMqPro, trp *TalkReviewMqPro, cmp *ColumnMqPro, crq *ColumnReviewMqPro, ap *AchievementMqPro, news *News, logger log.Logger) (*Data, func(), error) {
+func NewData(db *gorm.DB, redisCmd redis.Cmdable, cos *cos.Client, es *ElasticSearch, amp *ArticleMqPro, arp *ArticleReviewMqPro, tmp *TalkMqPro, trp *TalkReviewMqPro, cmp *ColumnMqPro, crq *ColumnReviewMqPro, cormq *CollectionsReviewMqPro, cmq *CollectionsMqPro, ap *AchievementMqPro, news *News, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(logger, "module", "creation/data/new-data"))
 
 	d := &Data{
-		db:                 db,
-		cosCli:             cos,
-		redisCli:           redisCmd,
-		articleMqPro:       amp,
-		articleReviewMqPro: arp,
-		talkMqPro:          tmp,
-		talkReviewMqPro:    trp,
-		columnMqPro:        cmp,
-		columnReviewMqPro:  crq,
-		achievementMqPro:   ap,
-		elasticSearch:      es,
-		newsCli:            news,
+		db:                     db,
+		cosCli:                 cos,
+		redisCli:               redisCmd,
+		articleMqPro:           amp,
+		articleReviewMqPro:     arp,
+		talkMqPro:              tmp,
+		talkReviewMqPro:        trp,
+		columnMqPro:            cmp,
+		columnReviewMqPro:      crq,
+		collectionsReviewMqPro: cormq,
+		collectionsMqPro:       cmq,
+		achievementMqPro:       ap,
+		elasticSearch:          es,
+		newsCli:                news,
 	}
 	return d, func() {
 		l.Info("closing the data resources")
@@ -425,7 +489,17 @@ func NewData(db *gorm.DB, redisCmd redis.Cmdable, cos *cos.Client, es *ElasticSe
 
 		err = d.columnReviewMqPro.producer.Shutdown()
 		if err != nil {
-			l.Errorf("shutdown column producer error: %v", err.Error())
+			l.Errorf("shutdown column review producer error: %v", err.Error())
+		}
+
+		err = d.collectionsMqPro.producer.Shutdown()
+		if err != nil {
+			l.Errorf("shutdown collections producer error: %v", err.Error())
+		}
+
+		err = d.collectionsReviewMqPro.producer.Shutdown()
+		if err != nil {
+			l.Errorf("shutdown collections review producer error: %v", err.Error())
 		}
 
 		err = d.achievementMqPro.producer.Shutdown()
