@@ -63,13 +63,15 @@ type BffClient interface {
 	GetCollectColumn(ctx context.Context, in *GetCollectColumnReq, opts ...grpc.CallOption) (*GetColumnListReply, error)
 	GetCollectColumnCount(ctx context.Context, in *GetCollectColumnCountReq, opts ...grpc.CallOption) (*GetCollectColumnCountReply, error)
 	GetCollection(ctx context.Context, in *GetCollectionReq, opts ...grpc.CallOption) (*GetCollectionReply, error)
-	GetCollections(ctx context.Context, in *GetCollectionsReq, opts ...grpc.CallOption) (*GetCollectionsReply, error)
-	GetCollectionsAll(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCollectionsReply, error)
+	GetCollectionsList(ctx context.Context, in *GetCollectionsListReq, opts ...grpc.CallOption) (*GetCollectionsListReply, error)
+	GetCollectionsListAll(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCollectionsListReply, error)
 	GetCollectionsCount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCollectionsCountReply, error)
-	GetCollectionsByVisitor(ctx context.Context, in *GetCollectionsByVisitorReq, opts ...grpc.CallOption) (*GetCollectionsReply, error)
+	GetCollectionsListByVisitor(ctx context.Context, in *GetCollectionsListByVisitorReq, opts ...grpc.CallOption) (*GetCollectionsListReply, error)
 	GetCollectionsVisitorCount(ctx context.Context, in *GetCollectionsVisitorCountReq, opts ...grpc.CallOption) (*GetCollectionsCountReply, error)
-	CreateCollections(ctx context.Context, in *CreateCollectionsReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	EditCollections(ctx context.Context, in *EditCollectionsReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetLastCollectionsDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLastCollectionsDraftReply, error)
+	CreateCollectionsDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateCollectionsDraftReply, error)
+	SendCollections(ctx context.Context, in *SendCollectionsReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SendCollectionsEdit(ctx context.Context, in *SendCollectionsEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteCollections(ctx context.Context, in *DeleteCollectionsReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetArticleList(ctx context.Context, in *GetArticleListReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
 	GetArticleListHot(ctx context.Context, in *GetArticleListHotReq, opts ...grpc.CallOption) (*GetArticleListHotReply, error)
@@ -536,18 +538,18 @@ func (c *bffClient) GetCollection(ctx context.Context, in *GetCollectionReq, opt
 	return out, nil
 }
 
-func (c *bffClient) GetCollections(ctx context.Context, in *GetCollectionsReq, opts ...grpc.CallOption) (*GetCollectionsReply, error) {
-	out := new(GetCollectionsReply)
-	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCollections", in, out, opts...)
+func (c *bffClient) GetCollectionsList(ctx context.Context, in *GetCollectionsListReq, opts ...grpc.CallOption) (*GetCollectionsListReply, error) {
+	out := new(GetCollectionsListReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCollectionsList", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *bffClient) GetCollectionsAll(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCollectionsReply, error) {
-	out := new(GetCollectionsReply)
-	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCollectionsAll", in, out, opts...)
+func (c *bffClient) GetCollectionsListAll(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCollectionsListReply, error) {
+	out := new(GetCollectionsListReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCollectionsListAll", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -563,9 +565,9 @@ func (c *bffClient) GetCollectionsCount(ctx context.Context, in *emptypb.Empty, 
 	return out, nil
 }
 
-func (c *bffClient) GetCollectionsByVisitor(ctx context.Context, in *GetCollectionsByVisitorReq, opts ...grpc.CallOption) (*GetCollectionsReply, error) {
-	out := new(GetCollectionsReply)
-	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCollectionsByVisitor", in, out, opts...)
+func (c *bffClient) GetCollectionsListByVisitor(ctx context.Context, in *GetCollectionsListByVisitorReq, opts ...grpc.CallOption) (*GetCollectionsListReply, error) {
+	out := new(GetCollectionsListReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCollectionsListByVisitor", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -581,18 +583,36 @@ func (c *bffClient) GetCollectionsVisitorCount(ctx context.Context, in *GetColle
 	return out, nil
 }
 
-func (c *bffClient) CreateCollections(ctx context.Context, in *CreateCollectionsReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/bff.v1.Bff/CreateCollections", in, out, opts...)
+func (c *bffClient) GetLastCollectionsDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLastCollectionsDraftReply, error) {
+	out := new(GetLastCollectionsDraftReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetLastCollectionsDraft", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *bffClient) EditCollections(ctx context.Context, in *EditCollectionsReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *bffClient) CreateCollectionsDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateCollectionsDraftReply, error) {
+	out := new(CreateCollectionsDraftReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/CreateCollectionsDraft", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) SendCollections(ctx context.Context, in *SendCollectionsReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/bff.v1.Bff/EditCollections", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SendCollections", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) SendCollectionsEdit(ctx context.Context, in *SendCollectionsEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SendCollectionsEdit", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1588,13 +1608,15 @@ type BffServer interface {
 	GetCollectColumn(context.Context, *GetCollectColumnReq) (*GetColumnListReply, error)
 	GetCollectColumnCount(context.Context, *GetCollectColumnCountReq) (*GetCollectColumnCountReply, error)
 	GetCollection(context.Context, *GetCollectionReq) (*GetCollectionReply, error)
-	GetCollections(context.Context, *GetCollectionsReq) (*GetCollectionsReply, error)
-	GetCollectionsAll(context.Context, *emptypb.Empty) (*GetCollectionsReply, error)
+	GetCollectionsList(context.Context, *GetCollectionsListReq) (*GetCollectionsListReply, error)
+	GetCollectionsListAll(context.Context, *emptypb.Empty) (*GetCollectionsListReply, error)
 	GetCollectionsCount(context.Context, *emptypb.Empty) (*GetCollectionsCountReply, error)
-	GetCollectionsByVisitor(context.Context, *GetCollectionsByVisitorReq) (*GetCollectionsReply, error)
+	GetCollectionsListByVisitor(context.Context, *GetCollectionsListByVisitorReq) (*GetCollectionsListReply, error)
 	GetCollectionsVisitorCount(context.Context, *GetCollectionsVisitorCountReq) (*GetCollectionsCountReply, error)
-	CreateCollections(context.Context, *CreateCollectionsReq) (*emptypb.Empty, error)
-	EditCollections(context.Context, *EditCollectionsReq) (*emptypb.Empty, error)
+	GetLastCollectionsDraft(context.Context, *emptypb.Empty) (*GetLastCollectionsDraftReply, error)
+	CreateCollectionsDraft(context.Context, *emptypb.Empty) (*CreateCollectionsDraftReply, error)
+	SendCollections(context.Context, *SendCollectionsReq) (*emptypb.Empty, error)
+	SendCollectionsEdit(context.Context, *SendCollectionsEditReq) (*emptypb.Empty, error)
 	DeleteCollections(context.Context, *DeleteCollectionsReq) (*emptypb.Empty, error)
 	GetArticleList(context.Context, *GetArticleListReq) (*GetArticleListReply, error)
 	GetArticleListHot(context.Context, *GetArticleListHotReq) (*GetArticleListHotReply, error)
@@ -1824,26 +1846,32 @@ func (UnimplementedBffServer) GetCollectColumnCount(context.Context, *GetCollect
 func (UnimplementedBffServer) GetCollection(context.Context, *GetCollectionReq) (*GetCollectionReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCollection not implemented")
 }
-func (UnimplementedBffServer) GetCollections(context.Context, *GetCollectionsReq) (*GetCollectionsReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetCollections not implemented")
+func (UnimplementedBffServer) GetCollectionsList(context.Context, *GetCollectionsListReq) (*GetCollectionsListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCollectionsList not implemented")
 }
-func (UnimplementedBffServer) GetCollectionsAll(context.Context, *emptypb.Empty) (*GetCollectionsReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetCollectionsAll not implemented")
+func (UnimplementedBffServer) GetCollectionsListAll(context.Context, *emptypb.Empty) (*GetCollectionsListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCollectionsListAll not implemented")
 }
 func (UnimplementedBffServer) GetCollectionsCount(context.Context, *emptypb.Empty) (*GetCollectionsCountReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCollectionsCount not implemented")
 }
-func (UnimplementedBffServer) GetCollectionsByVisitor(context.Context, *GetCollectionsByVisitorReq) (*GetCollectionsReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetCollectionsByVisitor not implemented")
+func (UnimplementedBffServer) GetCollectionsListByVisitor(context.Context, *GetCollectionsListByVisitorReq) (*GetCollectionsListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCollectionsListByVisitor not implemented")
 }
 func (UnimplementedBffServer) GetCollectionsVisitorCount(context.Context, *GetCollectionsVisitorCountReq) (*GetCollectionsCountReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCollectionsVisitorCount not implemented")
 }
-func (UnimplementedBffServer) CreateCollections(context.Context, *CreateCollectionsReq) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateCollections not implemented")
+func (UnimplementedBffServer) GetLastCollectionsDraft(context.Context, *emptypb.Empty) (*GetLastCollectionsDraftReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetLastCollectionsDraft not implemented")
 }
-func (UnimplementedBffServer) EditCollections(context.Context, *EditCollectionsReq) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method EditCollections not implemented")
+func (UnimplementedBffServer) CreateCollectionsDraft(context.Context, *emptypb.Empty) (*CreateCollectionsDraftReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateCollectionsDraft not implemented")
+}
+func (UnimplementedBffServer) SendCollections(context.Context, *SendCollectionsReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendCollections not implemented")
+}
+func (UnimplementedBffServer) SendCollectionsEdit(context.Context, *SendCollectionsEditReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendCollectionsEdit not implemented")
 }
 func (UnimplementedBffServer) DeleteCollections(context.Context, *DeleteCollectionsReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteCollections not implemented")
@@ -2875,38 +2903,38 @@ func _Bff_GetCollection_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Bff_GetCollections_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetCollectionsReq)
+func _Bff_GetCollectionsList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCollectionsListReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BffServer).GetCollections(ctx, in)
+		return srv.(BffServer).GetCollectionsList(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/bff.v1.Bff/GetCollections",
+		FullMethod: "/bff.v1.Bff/GetCollectionsList",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BffServer).GetCollections(ctx, req.(*GetCollectionsReq))
+		return srv.(BffServer).GetCollectionsList(ctx, req.(*GetCollectionsListReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Bff_GetCollectionsAll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Bff_GetCollectionsListAll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BffServer).GetCollectionsAll(ctx, in)
+		return srv.(BffServer).GetCollectionsListAll(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/bff.v1.Bff/GetCollectionsAll",
+		FullMethod: "/bff.v1.Bff/GetCollectionsListAll",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BffServer).GetCollectionsAll(ctx, req.(*emptypb.Empty))
+		return srv.(BffServer).GetCollectionsListAll(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2929,20 +2957,20 @@ func _Bff_GetCollectionsCount_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Bff_GetCollectionsByVisitor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetCollectionsByVisitorReq)
+func _Bff_GetCollectionsListByVisitor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCollectionsListByVisitorReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BffServer).GetCollectionsByVisitor(ctx, in)
+		return srv.(BffServer).GetCollectionsListByVisitor(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/bff.v1.Bff/GetCollectionsByVisitor",
+		FullMethod: "/bff.v1.Bff/GetCollectionsListByVisitor",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BffServer).GetCollectionsByVisitor(ctx, req.(*GetCollectionsByVisitorReq))
+		return srv.(BffServer).GetCollectionsListByVisitor(ctx, req.(*GetCollectionsListByVisitorReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2965,38 +2993,74 @@ func _Bff_GetCollectionsVisitorCount_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Bff_CreateCollections_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateCollectionsReq)
+func _Bff_GetLastCollectionsDraft_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BffServer).CreateCollections(ctx, in)
+		return srv.(BffServer).GetLastCollectionsDraft(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/bff.v1.Bff/CreateCollections",
+		FullMethod: "/bff.v1.Bff/GetLastCollectionsDraft",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BffServer).CreateCollections(ctx, req.(*CreateCollectionsReq))
+		return srv.(BffServer).GetLastCollectionsDraft(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Bff_EditCollections_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(EditCollectionsReq)
+func _Bff_CreateCollectionsDraft_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BffServer).EditCollections(ctx, in)
+		return srv.(BffServer).CreateCollectionsDraft(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/bff.v1.Bff/EditCollections",
+		FullMethod: "/bff.v1.Bff/CreateCollectionsDraft",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BffServer).EditCollections(ctx, req.(*EditCollectionsReq))
+		return srv.(BffServer).CreateCollectionsDraft(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_SendCollections_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendCollectionsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).SendCollections(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/SendCollections",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).SendCollections(ctx, req.(*SendCollectionsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_SendCollectionsEdit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendCollectionsEditReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).SendCollectionsEdit(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/SendCollectionsEdit",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).SendCollectionsEdit(ctx, req.(*SendCollectionsEditReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -5055,32 +5119,40 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Bff_GetCollection_Handler,
 		},
 		{
-			MethodName: "GetCollections",
-			Handler:    _Bff_GetCollections_Handler,
+			MethodName: "GetCollectionsList",
+			Handler:    _Bff_GetCollectionsList_Handler,
 		},
 		{
-			MethodName: "GetCollectionsAll",
-			Handler:    _Bff_GetCollectionsAll_Handler,
+			MethodName: "GetCollectionsListAll",
+			Handler:    _Bff_GetCollectionsListAll_Handler,
 		},
 		{
 			MethodName: "GetCollectionsCount",
 			Handler:    _Bff_GetCollectionsCount_Handler,
 		},
 		{
-			MethodName: "GetCollectionsByVisitor",
-			Handler:    _Bff_GetCollectionsByVisitor_Handler,
+			MethodName: "GetCollectionsListByVisitor",
+			Handler:    _Bff_GetCollectionsListByVisitor_Handler,
 		},
 		{
 			MethodName: "GetCollectionsVisitorCount",
 			Handler:    _Bff_GetCollectionsVisitorCount_Handler,
 		},
 		{
-			MethodName: "CreateCollections",
-			Handler:    _Bff_CreateCollections_Handler,
+			MethodName: "GetLastCollectionsDraft",
+			Handler:    _Bff_GetLastCollectionsDraft_Handler,
 		},
 		{
-			MethodName: "EditCollections",
-			Handler:    _Bff_EditCollections_Handler,
+			MethodName: "CreateCollectionsDraft",
+			Handler:    _Bff_CreateCollectionsDraft_Handler,
+		},
+		{
+			MethodName: "SendCollections",
+			Handler:    _Bff_SendCollections_Handler,
+		},
+		{
+			MethodName: "SendCollectionsEdit",
+			Handler:    _Bff_SendCollectionsEdit_Handler,
 		},
 		{
 			MethodName: "DeleteCollections",
