@@ -2,13 +2,17 @@ package data
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"github.com/apache/rocketmq-client-go/v2/primitive"
+	kerrors "github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-redis/redis/v8"
 	"github.com/pkg/errors"
 	"github.com/the-zion/matrix-core/app/creation/service/internal/biz"
 	"golang.org/x/sync/errgroup"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"strconv"
 	"strings"
 	"time"
@@ -52,6 +56,21 @@ func (r *creationRepo) getLeaderBoardFromCache(ctx context.Context) ([]*biz.Lead
 		})
 	}
 	return board, nil
+}
+
+func (r *creationRepo) GetLastCollectionsDraft(ctx context.Context, uuid string) (*biz.CollectionsDraft, error) {
+	draft := &CollectionsDraft{}
+	err := r.data.db.WithContext(ctx).Where("uuid = ? and status = ?", uuid, 1).Last(draft).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, kerrors.NotFound("collections draft not found from db", fmt.Sprintf("uuid(%s)", uuid))
+	}
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("db query system error: uuid(%s)", uuid))
+	}
+	return &biz.CollectionsDraft{
+		Id:     int32(draft.ID),
+		Status: draft.Status,
+	}, nil
 }
 
 func (r *creationRepo) GetCollectArticle(ctx context.Context, id, page int32) ([]*biz.Article, error) {
@@ -154,10 +173,8 @@ func (r *creationRepo) GetCollection(ctx context.Context, id int32, uuid string)
 		return nil, errors.Errorf("fail to get collection: no auth")
 	}
 	return &biz.Collections{
-		Uuid:      collections.Uuid,
-		Name:      collections.Name,
-		Introduce: collections.Introduce,
-		Auth:      collections.Auth,
+		Uuid: collections.Uuid,
+		Auth: collections.Auth,
 	}, nil
 }
 
@@ -234,9 +251,9 @@ func (r *creationRepo) getCollectionsListInfoFromCache(ctx context.Context, exis
 			val[_index] = info.(string)
 		}
 		*collectionsListInfo = append(*collectionsListInfo, &biz.Collections{
-			Id:        exists[index],
-			Name:      val[0],
-			Introduce: val[1],
+			CollectionsId: exists[index],
+			Name:          val[0],
+			Introduce:     val[1],
 		})
 	}
 	return nil
@@ -251,11 +268,9 @@ func (r *creationRepo) getCollectionsListInfoFromDb(ctx context.Context, unExist
 
 	for _, item := range list {
 		*collectionsListInfo = append(*collectionsListInfo, &biz.Collections{
-			Id:        int32(item.ID),
-			Uuid:      item.Uuid,
-			Auth:      item.Auth,
-			Name:      item.Name,
-			Introduce: item.Introduce,
+			CollectionsId: item.CollectionsId,
+			Uuid:          item.Uuid,
+			Auth:          item.Auth,
 		})
 	}
 
@@ -269,11 +284,9 @@ func (r *creationRepo) setCollectionsListInfoToCache(collectionsList []*Collecti
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		for _, item := range collectionsList {
-			key := "collection_" + strconv.Itoa(int(item.ID))
+			key := "collection_" + strconv.Itoa(int(item.CollectionsId))
 			pipe.HSetNX(ctx, key, "uuid", item.Uuid)
 			pipe.HSetNX(ctx, key, "auth", item.Auth)
-			pipe.HSetNX(ctx, key, "name", item.Name)
-			pipe.HSetNX(ctx, key, "introduce", item.Introduce)
 			pipe.Expire(ctx, key, time.Hour*8)
 		}
 		return nil
@@ -293,7 +306,7 @@ func (r *creationRepo) GetCollectCount(ctx context.Context, id int32) (int64, er
 	return count, nil
 }
 
-func (r *creationRepo) GetCollections(ctx context.Context, uuid string, page int32) ([]*biz.Collections, error) {
+func (r *creationRepo) GetCollectionsList(ctx context.Context, uuid string, page int32) ([]*biz.Collections, error) {
 	collections, err := r.getUserCollectionsListFromCache(ctx, page, uuid)
 	if err != nil {
 		return nil, err
@@ -333,7 +346,7 @@ func (r *creationRepo) getUserCollectionsListFromCache(ctx context.Context, page
 			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s)", item))
 		}
 		collections = append(collections, &biz.Collections{
-			Id: int32(id),
+			CollectionsId: int32(id),
 		})
 	}
 	return collections, nil
@@ -353,13 +366,13 @@ func (r *creationRepo) getUserCollectionsListFromDB(ctx context.Context, page in
 	collections := make([]*biz.Collections, 0)
 	for _, item := range list {
 		collections = append(collections, &biz.Collections{
-			Id: int32(item.ID),
+			CollectionsId: item.CollectionsId,
 		})
 	}
 	return collections, nil
 }
 
-func (r *creationRepo) GetCollectionsByVisitor(ctx context.Context, uuid string, page int32) ([]*biz.Collections, error) {
+func (r *creationRepo) GetCollectionsListByVisitor(ctx context.Context, uuid string, page int32) ([]*biz.Collections, error) {
 	collections, err := r.getUserCollectionsListVisitorFromCache(ctx, page, uuid)
 	if err != nil {
 		return nil, err
@@ -399,7 +412,7 @@ func (r *creationRepo) getUserCollectionsListVisitorFromCache(ctx context.Contex
 			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s)", item))
 		}
 		collections = append(collections, &biz.Collections{
-			Id: int32(id),
+			CollectionsId: int32(id),
 		})
 	}
 	return collections, nil
@@ -419,7 +432,7 @@ func (r *creationRepo) getUserCollectionsListVisitorFromDB(ctx context.Context, 
 	collections := make([]*biz.Collections, 0)
 	for _, item := range list {
 		collections = append(collections, &biz.Collections{
-			Id: int32(item.ID),
+			CollectionsId: item.CollectionsId,
 		})
 	}
 	return collections, nil
@@ -431,8 +444,8 @@ func (r *creationRepo) setUserCollectionsListToCache(key string, collections []*
 		z := make([]*redis.Z, 0)
 		for _, item := range collections {
 			z = append(z, &redis.Z{
-				Score:  float64(item.Id),
-				Member: strconv.Itoa(int(item.Id)),
+				Score:  float64(item.CollectionsId),
+				Member: strconv.Itoa(int(item.CollectionsId)),
 			})
 		}
 		pipe.ZAddNX(ctx, key, z...)
@@ -444,7 +457,7 @@ func (r *creationRepo) setUserCollectionsListToCache(key string, collections []*
 	}
 }
 
-func (r *creationRepo) GetCollectionsAll(ctx context.Context, uuid string) ([]*biz.Collections, error) {
+func (r *creationRepo) GetCollectionsListAll(ctx context.Context, uuid string) ([]*biz.Collections, error) {
 	collections, err := r.getUserCollectionsListAllFromCache(ctx, uuid)
 	if err != nil {
 		return nil, err
@@ -480,7 +493,7 @@ func (r *creationRepo) getUserCollectionsListAllFromCache(ctx context.Context, u
 			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s)", item))
 		}
 		collections = append(collections, &biz.Collections{
-			Id: int32(id),
+			CollectionsId: int32(id),
 		})
 	}
 	return collections, nil
@@ -496,7 +509,7 @@ func (r *creationRepo) getUserCollectionsListAllFromDB(ctx context.Context, uuid
 	collections := make([]*biz.Collections, 0)
 	for _, item := range list {
 		collections = append(collections, &biz.Collections{
-			Id: int32(item.ID),
+			CollectionsId: item.CollectionsId,
 		})
 	}
 	return collections, nil
@@ -626,6 +639,27 @@ func (r *creationRepo) GetCreationUserVisitor(ctx context.Context, uuid string) 
 	return creationUser, nil
 }
 
+func (r *creationRepo) GetCollections(ctx context.Context, id int32) (*biz.Collections, error) {
+	collections := &Collections{}
+	err := r.data.db.WithContext(ctx).Where("collections_id = ?", id).First(collections).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get collections from db: id(%v)", id))
+	}
+	return &biz.Collections{
+		CollectionsId: id,
+		Uuid:          collections.Uuid,
+	}, nil
+}
+
+func (r *creationRepo) GetCollectionsAuth(ctx context.Context, id int32) (int32, error) {
+	collections := &Collections{}
+	err := r.data.db.WithContext(ctx).Where("collections_id = ?", id).First(collections).Error
+	if err != nil {
+		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get collections auth from db: id(%v)", id))
+	}
+	return collections.Auth, nil
+}
+
 func (r *creationRepo) getCreationUserVisitorFromCache(ctx context.Context, key string) (*biz.CreationUser, error) {
 	statistic, err := r.data.redisCli.HMGet(ctx, key, "article", "column", "talk", "collections").Result()
 	if err != nil {
@@ -676,38 +710,260 @@ func (r *creationRepo) setCreationUserVisitorToCache(key string, creationUser *b
 	}
 }
 
-func (r *creationRepo) CreateCollections(ctx context.Context, uuid, name, introduce string, auth int32) error {
-	collect := &Collections{
-		Uuid:      uuid,
-		Name:      name,
-		Introduce: introduce,
-		Auth:      auth,
+func (r *creationRepo) SendCollections(ctx context.Context, id int32, uuid string) (*biz.CollectionsDraft, error) {
+	cd := &CollectionsDraft{
+		Status: 2,
 	}
-	err := r.data.DB(ctx).Create(collect).Error
+	err := r.data.DB(ctx).Model(&CollectionsDraft{}).Where("id = ? and uuid = ? and status = ?", id, uuid, 1).Updates(cd).Error
 	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to create an collection from db: uuid(%v)", uuid))
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to mark draft to 2: uuid(%s), id(%v)", uuid, id))
+	}
+	return &biz.CollectionsDraft{
+		Uuid: uuid,
+		Id:   id,
+	}, nil
+}
+
+func (r *creationRepo) CreateCollectionsDraft(ctx context.Context, uuid string) (int32, error) {
+	draft := &CollectionsDraft{
+		Uuid: uuid,
+	}
+	err := r.data.DB(ctx).Select("Uuid").Create(draft).Error
+	if err != nil {
+		return 0, errors.Wrapf(err, fmt.Sprintf("fail to create a collections draft: uuid(%s)", uuid))
+	}
+	return int32(draft.ID), nil
+}
+
+func (r *creationRepo) CreateCollectionsFolder(ctx context.Context, id int32, uuid string) error {
+	name := "collections/" + uuid + "/" + strconv.Itoa(int(id)) + "/"
+	_, err := r.data.cosCli.Object.Put(ctx, name, strings.NewReader(""), nil)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to create a collections folder: id(%v)", id))
 	}
 	return nil
 }
 
-func (r *creationRepo) EditCollections(ctx context.Context, id int32, uuid, name, introduce string, auth int32) error {
-	collect := &Collections{
-		Name:      name,
-		Introduce: introduce,
-		Auth:      auth,
+func (r *creationRepo) CreateCollections(ctx context.Context, id, auth int32, uuid string) error {
+	collections := &Collections{
+		CollectionsId: id,
+		Uuid:          uuid,
+		Auth:          auth,
 	}
-	err := r.data.db.WithContext(ctx).Model(&Collections{}).Where("id = ? and uuid = ?", id, uuid).Updates(collect).Error
+	err := r.data.DB(ctx).Select("CollectionsId", "Uuid", "Auth").Create(collections).Error
 	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to edit an collection from db: id(%v), uuid(%v)", id, uuid))
+		return errors.Wrapf(err, fmt.Sprintf("fail to create a collections: uuid(%s), id(%v)", uuid, id))
 	}
 	return nil
+}
+
+func (r *creationRepo) CreateCollectionsCache(ctx context.Context, id, auth int32, uuid string) error {
+	exists := make([]int32, 0)
+	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.Exists(ctx, "user_collections_list_"+uuid)
+		pipe.Exists(ctx, "user_collections_list_visitor_"+uuid)
+		pipe.Exists(ctx, "creation_user_"+uuid)
+		pipe.Exists(ctx, "creation_user_visitor_"+uuid)
+		pipe.Exists(ctx, "user_collections_list_all_"+uuid)
+		return nil
+	})
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to check if collections exist from cache: id(%v),uuid(%s)", id, uuid))
+	}
+
+	for _, item := range cmd {
+		exist := item.(*redis.IntCmd).Val()
+		exists = append(exists, int32(exist))
+	}
+
+	ids := strconv.Itoa(int(id))
+	_, err = r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		if exists[0] == 1 {
+			pipe.ZAddNX(ctx, "user_collections_list_"+uuid, &redis.Z{
+				Score:  float64(id),
+				Member: ids,
+			})
+		}
+
+		if exists[4] == 1 {
+			pipe.ZAddNX(ctx, "user_collections_list_all_"+uuid, &redis.Z{
+				Score:  float64(id),
+				Member: ids,
+			})
+		}
+
+		if exists[2] == 1 {
+			pipe.HIncrBy(ctx, "creation_user_"+uuid, "collections", 1)
+		}
+
+		if auth == 2 {
+			return nil
+		}
+
+		if exists[1] == 1 {
+			pipe.ZAddNX(ctx, "user_collections_list_visitor_", &redis.Z{
+				Score:  float64(id),
+				Member: ids,
+			})
+		}
+
+		if exists[3] == 1 {
+			pipe.HIncrBy(ctx, "creation_user_visitor_"+uuid, "collections", 1)
+		}
+		return nil
+	})
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to create(update) collections cache: uuid(%s), id(%v)", uuid, id))
+	}
+	return nil
+}
+
+func (r *creationRepo) AddCreationUserCollections(ctx context.Context, uuid string, auth int32) error {
+	cu := &CreationUser{
+		Uuid:        uuid,
+		Collections: 1,
+	}
+	err := r.data.DB(ctx).Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "uuid"}},
+		DoUpdates: clause.Assignments(map[string]interface{}{"collections": gorm.Expr("collections + ?", 1)}),
+	}).Create(cu).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add creation collections: uuid(%v)", uuid))
+	}
+
+	if auth == 2 {
+		return nil
+	}
+
+	cuv := &CreationUserVisitor{
+		Uuid:        uuid,
+		Collections: 1,
+	}
+	err = r.data.DB(ctx).Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "uuid"}},
+		DoUpdates: clause.Assignments(map[string]interface{}{"collections": gorm.Expr("collections + ?", 1)}),
+	}).Create(cuv).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add creation collections visitor: uuid(%v)", uuid))
+	}
+
+	return nil
+}
+
+func (r *creationRepo) EditCollectionsCos(ctx context.Context, id int32, uuid string) error {
+	err := r.EditCollectionsCosContent(ctx, id, uuid)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) EditCollectionsCosContent(ctx context.Context, id int32, uuid string) error {
+	ids := strconv.Itoa(int(id))
+	name := "collections/" + uuid + "/" + ids + "/content-edit"
+	dest := "collections/" + uuid + "/" + ids + "/content"
+	sourceURL := fmt.Sprintf("%s/%s", r.data.cosCli.BaseURL.BucketURL.Host, name)
+	_, _, err := r.data.cosCli.Object.Copy(ctx, dest, sourceURL, nil)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to copy collections from edit to content: uuid(%s), id(%v)", uuid, id))
+	}
+	return nil
+}
+
+func (r *creationRepo) UpdateCollectionsCache(ctx context.Context, id, auth int32, uuid string) error {
+	return r.CreateCollectionsCache(ctx, id, auth, uuid)
 }
 
 func (r *creationRepo) DeleteCollections(ctx context.Context, id int32, uuid string) error {
-	collect := &Collections{}
-	err := r.data.DB(ctx).Where("id = ? and uuid = ?", id, uuid).Delete(collect).Error
+	collections := &Collections{}
+	err := r.data.DB(ctx).Where("collections_id = ? and uuid = ?", id, uuid).Delete(collections).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to delete an collection from db: id(%v), uuid(%v)", id, uuid))
+	}
+	return nil
+}
+
+func (r *creationRepo) DeleteCollect(ctx context.Context, id int32) error {
+	collect := &Collect{}
+	err := r.data.DB(ctx).Where("collections_id = ?", id).Delete(collect).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to delete an collection from db: id(%v)", id))
+	}
+	return nil
+}
+
+func (r *creationRepo) DeleteCollectionsDraft(ctx context.Context, id int32, uuid string) error {
+	cd := &CollectionsDraft{}
+	cd.ID = uint(id)
+	err := r.data.DB(ctx).Where("uuid = ?", uuid).Delete(cd).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to delete collections draft: uuid(%s), id(%v)", uuid, id))
+	}
+	return nil
+}
+
+func (r *creationRepo) DeleteCreationCache(ctx context.Context, id, auth int32, uuid string) error {
+	ids := strconv.Itoa(int(id))
+	var script = redis.NewScript(`
+					local key1 = KEYS[1]
+					local key2 = KEYS[2]
+					local key3 = KEYS[3]
+					local key4 = KEYS[4]
+					local key5 = KEYS[5]
+
+					local member = ARGV[1]
+					local auth = ARGV[2]
+
+                    redis.call("ZREM", key1, member)
+					redis.call("ZREM", key5, member)
+
+                    local exist = redis.call("EXISTS", key3)
+					if exist == 1 then
+						local number = tonumber(redis.call("HGET", key3, "collections"))
+						if number > 0 then
+  							redis.call("HINCRBY", key3, "collections", -1)
+						end
+					end
+
+                    if auth == 2 then
+						return 0
+					end
+
+					redis.call("ZREM", key2, member)
+
+					local exist = redis.call("EXISTS", key4)
+					if exist == 1 then
+						local number = tonumber(redis.call("HGET", key4, "collections"))
+						if number > 0 then
+  							redis.call("HINCRBY", key4, "collections", -1)
+						end
+					end
+					return 0
+	`)
+	keys := []string{"user_collections_list_" + uuid, "user_collections_list_visitor_" + uuid, "creation_user_" + uuid, "creation_user_visitor_" + uuid, "user_collections_list_all_" + uuid}
+	values := []interface{}{ids, auth}
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to delete collections cache: id(%v), uuid(%s)", id, uuid))
+	}
+	return nil
+}
+
+func (r *creationRepo) ReduceCreationUserCollections(ctx context.Context, auth int32, uuid string) error {
+	cu := CreationUser{}
+	err := r.data.DB(ctx).Model(&cu).Where("uuid = ? and collections > 0", uuid).Update("collections", gorm.Expr("collections - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to reduce creation user collections: uuid(%s)", uuid))
+	}
+
+	if auth == 2 {
+		return nil
+	}
+
+	cuv := CreationUserVisitor{}
+	err = r.data.DB(ctx).Model(&cuv).Where("uuid = ? and collections > 0", uuid).Update("collections", gorm.Expr("collections - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to reduce creation user collections visitor: uuid(%s)", uuid))
 	}
 	return nil
 }
@@ -742,4 +998,44 @@ func (r *creationRepo) SetLeaderBoardToCache(ctx context.Context, boardList []*b
 	if err != nil {
 		r.log.Errorf("fail to set LeaderBoard to cache: LeaderBoard(%v)", boardList)
 	}
+}
+
+func (r *creationRepo) SendReviewToMq(ctx context.Context, review *biz.CollectionsReview) error {
+	data, err := json.Marshal(review)
+	if err != nil {
+		return err
+	}
+	msg := &primitive.Message{
+		Topic: "collections_review",
+		Body:  data,
+	}
+	msg.WithKeys([]string{review.Uuid})
+	_, err = r.data.collectionsReviewMqPro.producer.SendSync(ctx, msg)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to send review to mq: %v", err))
+	}
+	return nil
+}
+
+func (r *creationRepo) SendCollectionsToMq(ctx context.Context, collections *biz.Collections, mode string) error {
+	collectionsMap := map[string]interface{}{}
+	collectionsMap["uuid"] = collections.Uuid
+	collectionsMap["id"] = collections.CollectionsId
+	collectionsMap["auth"] = collections.Auth
+	collectionsMap["mode"] = mode
+
+	data, err := json.Marshal(collectionsMap)
+	if err != nil {
+		return err
+	}
+	msg := &primitive.Message{
+		Topic: "collections",
+		Body:  data,
+	}
+	msg.WithKeys([]string{collections.Uuid})
+	_, err = r.data.collectionsMqPro.producer.SendSync(ctx, msg)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to send collections to mq: %v", collections))
+	}
+	return nil
 }
