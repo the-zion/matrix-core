@@ -12,6 +12,8 @@ service Creation {
 
   rpc GetLeaderBoard(google.protobuf.Empty) returns (GetLeaderBoardReply){}
 
+  rpc GetLastCollectionsDraft(GetLastCollectionsDraftReq) returns (GetLastCollectionsDraftReply){}
+
   rpc GetCollectArticle(GetCollectArticleReq) returns (GetArticleListReply){}
 
   rpc GetCollectArticleCount(GetCollectArticleCountReq) returns (GetCollectArticleCountReply){}
@@ -26,15 +28,15 @@ service Creation {
 
   rpc GetCollection(GetCollectionReq) returns (GetCollectionReply){}
 
-  rpc GetCollectionListInfo(GetCollectionListInfoReq) returns (GetCollectionsReply){}
+  rpc GetCollectionListInfo(GetCollectionListInfoReq) returns (GetCollectionsListReply){}
 
-  rpc GetCollections(GetCollectionsReq) returns (GetCollectionsReply){}
+  rpc GetCollectionsList(GetCollectionsListReq) returns (GetCollectionsListReply){}
 
-  rpc GetCollectionsAll(GetCollectionsAllReq) returns (GetCollectionsReply){}
+  rpc GetCollectionsListAll(GetCollectionsListAllReq) returns (GetCollectionsListReply){}
 
   rpc GetCollectionsCount(GetCollectionsCountReq) returns (GetCollectionsCountReply){}
 
-  rpc GetCollectionsByVisitor(GetCollectionsReq) returns (GetCollectionsReply){}
+  rpc GetCollectionsListByVisitor(GetCollectionsListReq) returns (GetCollectionsListReply){}
 
   rpc GetCollectionsVisitorCount(GetCollectionsCountReq) returns (GetCollectionsCountReply){}
 
@@ -42,11 +44,23 @@ service Creation {
 
   rpc GetCreationUserVisitor(GetCreationUserReq) returns (GetCreationUserReply){}
 
+  rpc SendCollections(SendCollectionsReq) returns (google.protobuf.Empty){}
+
+  rpc CreateCollectionsDraft(CreateCollectionsDraftReq) returns (CreateCollectionsDraftReply){}
+
   rpc CreateCollections(CreateCollectionsReq) returns (google.protobuf.Empty){}
+
+  rpc CreateCollectionsDbAndCache(CreateCollectionsDbAndCacheReq) returns (google.protobuf.Empty){}
+
+  rpc SendCollectionsEdit(SendCollectionsEditReq) returns (google.protobuf.Empty){}
 
   rpc EditCollections(EditCollectionsReq) returns (google.protobuf.Empty){}
 
+  rpc EditCollectionsCos(EditCollectionsCosReq) returns (google.protobuf.Empty){}
+
   rpc DeleteCollections(DeleteCollectionsReq) returns (google.protobuf.Empty){}
+
+  rpc DeleteCollectionsCache(DeleteCollectionsCacheReq)returns (google.protobuf.Empty){}
 
   rpc GetArticleList(GetArticleListReq) returns (GetArticleListReply){}
 
@@ -290,6 +304,15 @@ message GetLeaderBoardReply{
   repeated Board board = 1;
 }
 
+message GetLastCollectionsDraftReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+message GetLastCollectionsDraftReply{
+  int32 id = 1;
+  int32 status = 2;
+}
+
 message GetCollectArticleReq{
   int32 id = 1;
   int32 page = 2;
@@ -345,21 +368,19 @@ message GetCollectionListInfoReq{
   repeated int32 ids = 1;
 }
 
-message GetCollectionsReq{
+message GetCollectionsListReq{
   int32 page = 1;
   string uuid = 2 [(validate.rules).string.uuid = true];
 }
 
-message GetCollectionsReply{
+message GetCollectionsListReply{
   message Collections {
     int32 id = 1;
-    string name = 2;
-    string introduce = 3;
   }
   repeated Collections collections = 1;
 }
 
-message GetCollectionsAllReq{
+message GetCollectionsListAllReq{
   string uuid = 1 [(validate.rules).string.uuid = true];
 }
 
@@ -384,24 +405,58 @@ message GetCreationUserReply{
   int32 subscribe = 6;
 }
 
-message CreateCollectionsReq{
+message SendCollectionsReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+  string ip = 3 [(validate.rules).string.ip = true];
+}
+
+message CreateCollectionsDraftReq{
   string uuid = 1 [(validate.rules).string.uuid = true];
-  string name = 2 [(validate.rules).string = {min_len:1, max_len: 50}];
-  string introduce = 3 [(validate.rules).string = {min_len:1, max_len: 100}];
-  int32 auth = 4;
+}
+
+message CreateCollectionsDraftReply{
+  int32 id = 1;
+}
+
+message CreateCollectionsReq{
+  int32 id = 1;
+  int32 auth = 2;
+  string uuid = 3;
+}
+
+message CreateCollectionsDbAndCacheReq{
+  int32 id = 1;
+  int32 auth = 2;
+  string uuid = 3;
+}
+
+message SendCollectionsEditReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+  string ip = 3 [(validate.rules).string.ip = true];
 }
 
 message EditCollectionsReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
-  string name = 3 [(validate.rules).string = {min_len:1, max_len: 50}];
-  string introduce = 4 [(validate.rules).string = {min_len:1, max_len: 100}];
-  int32 auth = 5;
+  int32 auth = 2;
+  string uuid = 3;
+}
+
+message EditCollectionsCosReq{
+  int32 id = 1;
+  int32 auth = 2;
+  string uuid = 3;
 }
 
 message DeleteCollectionsReq{
   int32 id = 1;
   string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message DeleteCollectionsCacheReq{
+  int32 id = 1;
+  string uuid = 2;
 }
 
 message GetArticleListReq{
@@ -824,18 +879,18 @@ message DeleteTalkReq{
 message CreateTalkDbCacheAndSearchReq{
   int32 id = 1;
   int32 auth = 2;
-  string uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 3;
 }
 
 message EditTalkCosAndSearchReq{
   int32 id = 1;
   int32 auth = 2;
-  string uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 3;
 }
 
 message DeleteTalkCacheAndSearchReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2;
 }
 
 message SetTalkViewReq{
@@ -960,7 +1015,7 @@ message CreateColumnReq{
 message CreateColumnDbCacheAndSearchReq{
   int32 id = 1;
   int32 auth = 2;
-  string uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 3;
 }
 
 message SubscribeColumnReq{
@@ -1140,7 +1195,7 @@ message DeleteColumnReq{
 
 message DeleteColumnCacheAndSearchReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2;
 }
 
 message ColumnStatisticJudgeReq{
