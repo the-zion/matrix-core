@@ -71,16 +71,24 @@ message Data {
     message Column{
       string groupName = 1;
     }
+    message CollectionsReview{
+      string groupName = 1;
+    }
+    message Collections{
+      string groupName = 1;
+    }
     ArticleReview articleReview = 1;
     Article article = 2;
     TalkReview talkReview = 3;
     Talk talk = 4;
     ColumnReview columnReview = 5;
     Column column = 6;
-    string serverAddress = 7;
-    string secretKey = 8;
-    string accessKey = 9;
-    string nameSpace = 10;
+    CollectionsReview collectionsReview = 7;
+    Collections collections = 8;
+    string serverAddress = 9;
+    string secretKey = 10;
+    string accessKey = 11;
+    string nameSpace = 12;
   }
   message ElasticSearch{
     string endpoint = 1;
