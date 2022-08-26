@@ -31,9 +31,11 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, re
 	talkReviewMqPro := data.NewRocketmqTalkReviewProducer(confData, logger)
 	columnMqPro := data.NewRocketmqColumnProducer(confData, logger)
 	columnReviewMqPro := data.NewRocketmqColumnReviewProducer(confData, logger)
+	collectionsReviewMqPro := data.NewRocketmqCollectionsReviewProducer(confData, logger)
+	collectionsMqPro := data.NewRocketmqCollectionsProducer(confData, logger)
 	achievementMqPro := data.NewRocketmqAchievementProducer(confData, logger)
 	news := data.NewNewsClient(confData)
-	dataData, cleanup, err := data.NewData(db, cmdable, client, elasticSearch, articleMqPro, articleReviewMqPro, talkMqPro, talkReviewMqPro, columnMqPro, columnReviewMqPro, achievementMqPro, news, logger)
+	dataData, cleanup, err := data.NewData(db, cmdable, client, elasticSearch, articleMqPro, articleReviewMqPro, talkMqPro, talkReviewMqPro, columnMqPro, columnReviewMqPro, collectionsReviewMqPro, collectionsMqPro, achievementMqPro, news, logger)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -45,7 +47,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, re
 	talkRepo := data.NewTalkRepo(dataData, logger)
 	talkUseCase := biz.NewTalkUseCase(talkRepo, recovery, creationRepo, transaction, logger)
 	columnRepo := data.NewColumnRepo(dataData, logger)
-	creationUseCase := biz.NewCreationUseCase(creationRepo, articleRepo, talkRepo, columnRepo, recovery, logger)
+	creationUseCase := biz.NewCreationUseCase(creationRepo, articleRepo, talkRepo, columnRepo, transaction, recovery, logger)
 	columnUseCase := biz.NewColumnUseCase(columnRepo, recovery, creationRepo, transaction, logger)
 	newsRepo := data.NewNewsRepo(dataData, logger)
 	newsUseCase := biz.NewNewsUseCase(newsRepo, transaction, logger)
