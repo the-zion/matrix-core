@@ -32,6 +32,8 @@ type MessageClient interface {
 	TalkEditReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ColumnCreateReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ColumnEditReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CollectionsCreateReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CollectionsEditReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CommentCreateReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SubCommentCreateReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
@@ -125,6 +127,24 @@ func (c *messageClient) ColumnEditReview(ctx context.Context, in *TextReviewReq,
 	return out, nil
 }
 
+func (c *messageClient) CollectionsCreateReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/message.v1.Message/CollectionsCreateReview", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *messageClient) CollectionsEditReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/message.v1.Message/CollectionsEditReview", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *messageClient) CommentCreateReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/message.v1.Message/CommentCreateReview", in, out, opts...)
@@ -156,6 +176,8 @@ type MessageServer interface {
 	TalkEditReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	ColumnCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	ColumnEditReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
+	CollectionsCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
+	CollectionsEditReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	CommentCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	SubCommentCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedMessageServer()
@@ -191,6 +213,12 @@ func (UnimplementedMessageServer) ColumnCreateReview(context.Context, *TextRevie
 }
 func (UnimplementedMessageServer) ColumnEditReview(context.Context, *TextReviewReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ColumnEditReview not implemented")
+}
+func (UnimplementedMessageServer) CollectionsCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CollectionsCreateReview not implemented")
+}
+func (UnimplementedMessageServer) CollectionsEditReview(context.Context, *TextReviewReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CollectionsEditReview not implemented")
 }
 func (UnimplementedMessageServer) CommentCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CommentCreateReview not implemented")
@@ -373,6 +401,42 @@ func _Message_ColumnEditReview_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Message_CollectionsCreateReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TextReviewReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MessageServer).CollectionsCreateReview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/message.v1.Message/CollectionsCreateReview",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MessageServer).CollectionsCreateReview(ctx, req.(*TextReviewReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Message_CollectionsEditReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TextReviewReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MessageServer).CollectionsEditReview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/message.v1.Message/CollectionsEditReview",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MessageServer).CollectionsEditReview(ctx, req.(*TextReviewReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Message_CommentCreateReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(TextReviewReq)
 	if err := dec(in); err != nil {
@@ -451,6 +515,14 @@ var Message_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ColumnEditReview",
 			Handler:    _Message_ColumnEditReview_Handler,
+		},
+		{
+			MethodName: "CollectionsCreateReview",
+			Handler:    _Message_CollectionsCreateReview_Handler,
+		},
+		{
+			MethodName: "CollectionsEditReview",
+			Handler:    _Message_CollectionsEditReview_Handler,
 		},
 		{
 			MethodName: "CommentCreateReview",
