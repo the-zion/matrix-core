@@ -74,11 +74,21 @@ type LeaderBoard struct {
 }
 
 type Collections struct {
-	Id        int32
-	Uuid      string
-	Name      string
-	Introduce string
-	Auth      int32
+	CollectionsId int32
+	Uuid          string
+	Auth          int32
+}
+
+type CollectionsDraft struct {
+	Id     int32
+	Status int32
+	Uuid   string
+}
+
+type CollectionsReview struct {
+	Uuid string
+	Id   int32
+	Mode string
 }
 
 type Column struct {
