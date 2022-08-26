@@ -456,7 +456,7 @@ func (r *ColumnUseCase) DeleteColumnCacheAndSearch(ctx context.Context, id int32
 
 		err = r.repo.ReduceCreationUserColumn(ctx, auth, uuid)
 		if err != nil {
-			return v1.ErrorDeleteColumnFailed("delete column statistic failed: %s", err.Error())
+			return v1.ErrorDeleteColumnFailed("delete creation user column failed: %s", err.Error())
 		}
 
 		err = r.repo.DeleteColumnCache(ctx, id, auth, uuid)
