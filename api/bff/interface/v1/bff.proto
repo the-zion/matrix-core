@@ -265,16 +265,16 @@ service Bff{
     };
   }
 
-  rpc GetCollections(GetCollectionsReq) returns (GetCollectionsReply){
+  rpc GetCollectionsList(GetCollectionsListReq) returns (GetCollectionsListReply){
     option (google.api.http) = {
-      post: "/v1/get/collections"
+      post: "/v1/get/collections/list"
       body: "*"
     };
   }
 
-  rpc GetCollectionsAll(google.protobuf.Empty) returns (GetCollectionsReply){
+  rpc GetCollectionsListAll(google.protobuf.Empty) returns (GetCollectionsListReply){
     option (google.api.http) = {
-      get: "/v1/get/collections/all"
+      get: "/v1/get/collections/list/all"
     };
   }
 
@@ -285,9 +285,9 @@ service Bff{
     };
   }
 
-  rpc GetCollectionsByVisitor(GetCollectionsByVisitorReq) returns (GetCollectionsReply){
+  rpc GetCollectionsListByVisitor(GetCollectionsListByVisitorReq) returns (GetCollectionsListReply){
     option (google.api.http) = {
-      get: "/v1/get/collections/visitor"
+      get: "/v1/get/collections/list/visitor"
     };
   }
 
@@ -297,16 +297,29 @@ service Bff{
     };
   }
 
-  rpc CreateCollections(CreateCollectionsReq) returns (google.protobuf.Empty){
+  rpc GetLastCollectionsDraft(google.protobuf.Empty) returns (GetLastCollectionsDraftReply){
     option (google.api.http) = {
-      post: "/v1/create/collections"
+      get: "/v1/get/last/collections/draft"
+    };
+  }
+
+  rpc CreateCollectionsDraft(google.protobuf.Empty) returns (CreateCollectionsDraftReply){
+    option (google.api.http) = {
+      post: "/v1/create/collections/draft"
       body: "*"
     };
   }
 
-  rpc EditCollections(EditCollectionsReq) returns (google.protobuf.Empty){
+  rpc SendCollections(SendCollectionsReq) returns (google.protobuf.Empty){
     option (google.api.http) = {
-      post: "/v1/edit/collections"
+      post: "/v1/send/collections"
+      body: "*"
+    };
+  }
+
+  rpc SendCollectionsEdit(SendCollectionsEditReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/send/collections/edit"
       body: "*"
     };
   }
@@ -1457,15 +1470,13 @@ message CreateArticleDraftReply{
   int32 id = 1;
 }
 
-message GetCollectionsReq{
+message GetCollectionsListReq{
   int32 page = 1;
 }
 
-message GetCollectionsReply{
+message GetCollectionsListReply{
   message Collections {
     int32 id = 1;
-    string name = 2;
-    string introduce = 3;
   }
   repeated Collections collections = 1;
 }
@@ -1478,22 +1489,26 @@ message GetCollectionsCountReply{
   int32 count = 1;
 }
 
-message GetCollectionsByVisitorReq{
+message GetLastCollectionsDraftReply{
+  int32 id = 1;
+  int32 status = 2;
+}
+
+message GetCollectionsListByVisitorReq{
   string uuid = 1;
   int32 page = 2;
 }
 
-message CreateCollectionsReq{
-  string name = 1;
-  string introduce = 2;
-  int32 auth = 3;
+message SendCollectionsReq{
+  int32 id = 1;
 }
 
-message EditCollectionsReq{
+message SendCollectionsEditReq{
   int32 id = 1;
-  string name = 2;
-  string introduce = 3;
-  int32 auth = 4;
+}
+
+message CreateCollectionsDraftReply{
+  int32 id = 1;
 }
 
 message DeleteCollectionsReq{
