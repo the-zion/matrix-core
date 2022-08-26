@@ -273,10 +273,10 @@ func (r *creationRepo) GetCollectionListInfo(ctx context.Context, collectionsLis
 	return reply, nil
 }
 
-func (r *creationRepo) GetCollections(ctx context.Context, uuid string, page int32) ([]*biz.Collections, error) {
-	result, err, _ := r.sg.Do(fmt.Sprintf("get_collections_%s_%v", uuid, page), func() (interface{}, error) {
+func (r *creationRepo) GetCollectionsList(ctx context.Context, uuid string, page int32) ([]*biz.Collections, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_collections_list_%s_%v", uuid, page), func() (interface{}, error) {
 		collections := make([]*biz.Collections, 0)
-		reply, err := r.data.cc.GetCollections(ctx, &creationV1.GetCollectionsReq{
+		reply, err := r.data.cc.GetCollectionsList(ctx, &creationV1.GetCollectionsListReq{
 			Uuid: uuid,
 			Page: page,
 		})
@@ -298,10 +298,10 @@ func (r *creationRepo) GetCollections(ctx context.Context, uuid string, page int
 	return result.([]*biz.Collections), nil
 }
 
-func (r *creationRepo) GetCollectionsAll(ctx context.Context, uuid string) ([]*biz.Collections, error) {
-	result, err, _ := r.sg.Do(fmt.Sprintf("get_collections_all_%s", uuid), func() (interface{}, error) {
+func (r *creationRepo) GetCollectionsListAll(ctx context.Context, uuid string) ([]*biz.Collections, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_collections_list_all_%s", uuid), func() (interface{}, error) {
 		collections := make([]*biz.Collections, 0)
-		reply, err := r.data.cc.GetCollectionsAll(ctx, &creationV1.GetCollectionsAllReq{
+		reply, err := r.data.cc.GetCollectionsListAll(ctx, &creationV1.GetCollectionsListAllReq{
 			Uuid: uuid,
 		})
 		if err != nil {
@@ -322,10 +322,10 @@ func (r *creationRepo) GetCollectionsAll(ctx context.Context, uuid string) ([]*b
 	return result.([]*biz.Collections), nil
 }
 
-func (r *creationRepo) GetCollectionsByVisitor(ctx context.Context, uuid string, page int32) ([]*biz.Collections, error) {
-	result, err, _ := r.sg.Do(fmt.Sprintf("get_collections_by_visitor_%s_%v", uuid, page), func() (interface{}, error) {
+func (r *creationRepo) GetCollectionsListByVisitor(ctx context.Context, uuid string, page int32) ([]*biz.Collections, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_collections_list_by_visitor_%s_%v", uuid, page), func() (interface{}, error) {
 		collections := make([]*biz.Collections, 0)
-		reply, err := r.data.cc.GetCollectionsByVisitor(ctx, &creationV1.GetCollectionsReq{
+		reply, err := r.data.cc.GetCollectionsListByVisitor(ctx, &creationV1.GetCollectionsListReq{
 			Uuid: uuid,
 			Page: page,
 		})
@@ -334,9 +334,7 @@ func (r *creationRepo) GetCollectionsByVisitor(ctx context.Context, uuid string,
 		}
 		for _, item := range reply.Collections {
 			collections = append(collections, &biz.Collections{
-				Id:        item.Id,
-				Name:      item.Name,
-				Introduce: item.Introduce,
+				Id: item.Id,
 			})
 		}
 		return collections, nil
@@ -417,12 +415,11 @@ func (r *creationRepo) GetCreationUserVisitor(ctx context.Context, uuid string) 
 	return result.(*biz.CreationUser), nil
 }
 
-func (r *creationRepo) CreateCollections(ctx context.Context, uuid, name, introduce string, auth int32) error {
-	_, err := r.data.cc.CreateCollections(ctx, &creationV1.CreateCollectionsReq{
-		Uuid:      uuid,
-		Name:      name,
-		Introduce: introduce,
-		Auth:      auth,
+func (r *creationRepo) SendCollections(ctx context.Context, id int32, uuid, ip string) error {
+	_, err := r.data.cc.SendCollections(ctx, &creationV1.SendCollectionsReq{
+		Id:   id,
+		Uuid: uuid,
+		Ip:   ip,
 	})
 	if err != nil {
 		return err
@@ -430,13 +427,11 @@ func (r *creationRepo) CreateCollections(ctx context.Context, uuid, name, introd
 	return nil
 }
 
-func (r *creationRepo) EditCollections(ctx context.Context, id int32, uuid, name, introduce string, auth int32) error {
-	_, err := r.data.cc.EditCollections(ctx, &creationV1.EditCollectionsReq{
-		Id:        id,
-		Uuid:      uuid,
-		Name:      name,
-		Introduce: introduce,
-		Auth:      auth,
+func (r *creationRepo) SendCollectionsEdit(ctx context.Context, id int32, uuid, ip string) error {
+	_, err := r.data.cc.SendCollectionsEdit(ctx, &creationV1.SendCollectionsEditReq{
+		Id:   id,
+		Uuid: uuid,
+		Ip:   ip,
 	})
 	if err != nil {
 		return err
