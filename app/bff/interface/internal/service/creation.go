@@ -112,33 +112,29 @@ func (s *BffService) GetCollection(ctx context.Context, req *v1.GetCollectionReq
 	}, nil
 }
 
-func (s *BffService) GetCollections(ctx context.Context, req *v1.GetCollectionsReq) (*v1.GetCollectionsReply, error) {
-	reply := &v1.GetCollectionsReply{Collections: make([]*v1.GetCollectionsReply_Collections, 0)}
-	collections, err := s.cc.GetCollections(ctx, req.Page)
+func (s *BffService) GetCollectionsList(ctx context.Context, req *v1.GetCollectionsListReq) (*v1.GetCollectionsListReply, error) {
+	reply := &v1.GetCollectionsListReply{Collections: make([]*v1.GetCollectionsListReply_Collections, 0)}
+	collections, err := s.cc.GetCollectionsList(ctx, req.Page)
 	if err != nil {
 		return nil, err
 	}
 	for _, item := range collections {
-		reply.Collections = append(reply.Collections, &v1.GetCollectionsReply_Collections{
-			Id:        item.Id,
-			Name:      item.Name,
-			Introduce: item.Introduce,
+		reply.Collections = append(reply.Collections, &v1.GetCollectionsListReply_Collections{
+			Id: item.Id,
 		})
 	}
 	return reply, nil
 }
 
-func (s *BffService) GetCollectionsAll(ctx context.Context, _ *emptypb.Empty) (*v1.GetCollectionsReply, error) {
-	reply := &v1.GetCollectionsReply{Collections: make([]*v1.GetCollectionsReply_Collections, 0)}
-	collections, err := s.cc.GetCollectionsAll(ctx)
+func (s *BffService) GetCollectionsListAll(ctx context.Context, _ *emptypb.Empty) (*v1.GetCollectionsListReply, error) {
+	reply := &v1.GetCollectionsListReply{Collections: make([]*v1.GetCollectionsListReply_Collections, 0)}
+	collections, err := s.cc.GetCollectionsListAll(ctx)
 	if err != nil {
 		return nil, err
 	}
 	for _, item := range collections {
-		reply.Collections = append(reply.Collections, &v1.GetCollectionsReply_Collections{
-			Id:        item.Id,
-			Name:      item.Name,
-			Introduce: item.Introduce,
+		reply.Collections = append(reply.Collections, &v1.GetCollectionsListReply_Collections{
+			Id: item.Id,
 		})
 	}
 	return reply, nil
@@ -154,17 +150,15 @@ func (s *BffService) GetCollectionsCount(ctx context.Context, _ *emptypb.Empty) 
 	}, nil
 }
 
-func (s *BffService) GetCollectionsByVisitor(ctx context.Context, req *v1.GetCollectionsByVisitorReq) (*v1.GetCollectionsReply, error) {
-	reply := &v1.GetCollectionsReply{Collections: make([]*v1.GetCollectionsReply_Collections, 0)}
-	collections, err := s.cc.GetCollectionsByVisitor(ctx, req.Page, req.Uuid)
+func (s *BffService) GetCollectionsListByVisitor(ctx context.Context, req *v1.GetCollectionsListByVisitorReq) (*v1.GetCollectionsListReply, error) {
+	reply := &v1.GetCollectionsListReply{Collections: make([]*v1.GetCollectionsListReply_Collections, 0)}
+	collections, err := s.cc.GetCollectionsListByVisitor(ctx, req.Page, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
 	for _, item := range collections {
-		reply.Collections = append(reply.Collections, &v1.GetCollectionsReply_Collections{
-			Id:        item.Id,
-			Name:      item.Name,
-			Introduce: item.Introduce,
+		reply.Collections = append(reply.Collections, &v1.GetCollectionsListReply_Collections{
+			Id: item.Id,
 		})
 	}
 	return reply, nil
@@ -180,16 +174,16 @@ func (s *BffService) GetCollectionsVisitorCount(ctx context.Context, req *v1.Get
 	}, nil
 }
 
-func (s *BffService) CreateCollections(ctx context.Context, req *v1.CreateCollectionsReq) (*emptypb.Empty, error) {
-	err := s.cc.CreateCollections(ctx, req.Name, req.Introduce, req.Auth)
+func (s *BffService) SendCollections(ctx context.Context, req *v1.SendCollectionsReq) (*emptypb.Empty, error) {
+	err := s.cc.SendCollections(ctx, req.Id)
 	if err != nil {
 		return nil, err
 	}
 	return &emptypb.Empty{}, nil
 }
 
-func (s *BffService) EditCollections(ctx context.Context, req *v1.EditCollectionsReq) (*emptypb.Empty, error) {
-	err := s.cc.EditCollections(ctx, req.Id, req.Name, req.Introduce, req.Auth)
+func (s *BffService) SendCollectionsEdit(ctx context.Context, req *v1.SendCollectionsEditReq) (*emptypb.Empty, error) {
+	err := s.cc.SendCollectionsEdit(ctx, req.Id)
 	if err != nil {
 		return nil, err
 	}
