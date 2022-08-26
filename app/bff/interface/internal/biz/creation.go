@@ -13,14 +13,14 @@ type CreationRepo interface {
 	GetCollectTalkCount(ctx context.Context, id int32) (int32, error)
 	GetCollectColumn(ctx context.Context, id, page int32) ([]*Column, error)
 	GetCollectColumnCount(ctx context.Context, id int32) (int32, error)
-	CreateCollections(ctx context.Context, uuid, name, introduce string, auth int32) error
-	EditCollections(ctx context.Context, id int32, uuid, name, introduce string, auth int32) error
+	SendCollections(ctx context.Context, id int32, uuid, ip string) error
+	SendCollectionsEdit(ctx context.Context, id int32, uuid, ip string) error
 	DeleteCollections(ctx context.Context, id int32, uuid string) error
 	GetCollection(ctx context.Context, id int32, uuid string) (*Collections, error)
 	GetCollectionListInfo(ctx context.Context, collectionsList []*Collections) ([]*Collections, error)
-	GetCollections(ctx context.Context, uuid string, page int32) ([]*Collections, error)
-	GetCollectionsAll(ctx context.Context, uuid string) ([]*Collections, error)
-	GetCollectionsByVisitor(ctx context.Context, uuid string, page int32) ([]*Collections, error)
+	GetCollectionsList(ctx context.Context, uuid string, page int32) ([]*Collections, error)
+	GetCollectionsListAll(ctx context.Context, uuid string) ([]*Collections, error)
+	GetCollectionsListByVisitor(ctx context.Context, uuid string, page int32) ([]*Collections, error)
 	GetCollectionsCount(ctx context.Context, uuid string) (int32, error)
 	GetCollectionsVisitorCount(ctx context.Context, uuid string) (int32, error)
 	GetCreationUser(ctx context.Context, uuid string) (*CreationUser, error)
@@ -221,18 +221,18 @@ func (r *CreationUseCase) GetCollection(ctx context.Context, id int32, uuid stri
 	return r.repo.GetCollection(ctx, id, uuid)
 }
 
-func (r *CreationUseCase) GetCollections(ctx context.Context, page int32) ([]*Collections, error) {
+func (r *CreationUseCase) GetCollectionsList(ctx context.Context, page int32) ([]*Collections, error) {
 	uuid := ctx.Value("uuid").(string)
-	collectionsList, err := r.repo.GetCollections(ctx, uuid, page)
+	collectionsList, err := r.repo.GetCollectionsList(ctx, uuid, page)
 	if err != nil {
 		return nil, err
 	}
 	return r.repo.GetCollectionListInfo(ctx, collectionsList)
 }
 
-func (r *CreationUseCase) GetCollectionsAll(ctx context.Context) ([]*Collections, error) {
+func (r *CreationUseCase) GetCollectionsListAll(ctx context.Context) ([]*Collections, error) {
 	uuid := ctx.Value("uuid").(string)
-	collectionsList, err := r.repo.GetCollectionsAll(ctx, uuid)
+	collectionsList, err := r.repo.GetCollectionsListAll(ctx, uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -244,8 +244,8 @@ func (r *CreationUseCase) GetCollectionsCount(ctx context.Context) (int32, error
 	return r.repo.GetCollectionsCount(ctx, uuid)
 }
 
-func (r *CreationUseCase) GetCollectionsByVisitor(ctx context.Context, page int32, uuid string) ([]*Collections, error) {
-	collectionsList, err := r.repo.GetCollectionsByVisitor(ctx, uuid, page)
+func (r *CreationUseCase) GetCollectionsListByVisitor(ctx context.Context, page int32, uuid string) ([]*Collections, error) {
+	collectionsList, err := r.repo.GetCollectionsListByVisitor(ctx, uuid, page)
 	if err != nil {
 		return nil, err
 	}
@@ -264,14 +264,16 @@ func (r *CreationUseCase) GetCreationUserVisitor(ctx context.Context, uuid strin
 	return r.repo.GetCreationUserVisitor(ctx, uuid)
 }
 
-func (r *CreationUseCase) CreateCollections(ctx context.Context, name, introduce string, auth int32) error {
+func (r *CreationUseCase) SendCollections(ctx context.Context, id int32) error {
 	uuid := ctx.Value("uuid").(string)
-	return r.repo.CreateCollections(ctx, uuid, name, introduce, auth)
+	ip := ctx.Value("realIp").(string)
+	return r.repo.SendCollections(ctx, id, uuid, ip)
 }
 
-func (r *CreationUseCase) EditCollections(ctx context.Context, id int32, name, introduce string, auth int32) error {
+func (r *CreationUseCase) SendCollectionsEdit(ctx context.Context, id int32) error {
 	uuid := ctx.Value("uuid").(string)
-	return r.repo.EditCollections(ctx, id, uuid, name, introduce, auth)
+	ip := ctx.Value("realIp").(string)
+	return r.repo.SendCollectionsEdit(ctx, id, uuid, ip)
 }
 
 func (r *CreationUseCase) DeleteCollections(ctx context.Context, id int32) error {
