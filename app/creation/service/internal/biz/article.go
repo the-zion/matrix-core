@@ -249,7 +249,7 @@ func (r *ArticleUseCase) DeleteArticleCacheAndSearch(ctx context.Context, id int
 
 		err = r.repo.ReduceCreationUserArticle(ctx, auth, uuid)
 		if err != nil {
-			return v1.ErrorDeleteArticleFailed("delete article statistic failed: %s", err.Error())
+			return v1.ErrorDeleteArticleFailed("delete creation user article failed: %s", err.Error())
 		}
 
 		err = r.repo.DeleteArticleCache(ctx, id, auth, uuid)
