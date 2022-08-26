@@ -22,6 +22,17 @@ func (s *CreationService) GetLeaderBoard(ctx context.Context, _ *emptypb.Empty) 
 	return reply, nil
 }
 
+func (s *CreationService) GetLastCollectionsDraft(ctx context.Context, req *v1.GetLastCollectionsDraftReq) (*v1.GetLastCollectionsDraftReply, error) {
+	draft, err := s.cc.GetLastCollectionsDraft(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetLastCollectionsDraftReply{
+		Id:     draft.Id,
+		Status: draft.Status,
+	}, nil
+}
+
 func (s *CreationService) GetCollectArticle(ctx context.Context, req *v1.GetCollectArticleReq) (*v1.GetArticleListReply, error) {
 	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0)}
 	articleList, err := s.cc.GetCollectArticle(ctx, req.Id, req.Page)
@@ -103,72 +114,62 @@ func (s *CreationService) GetCollection(ctx context.Context, req *v1.GetCollecti
 		return nil, err
 	}
 	return &v1.GetCollectionReply{
-		Uuid:      collection.Uuid,
-		Name:      collection.Name,
-		Introduce: collection.Introduce,
-		Auth:      collection.Auth,
+		Uuid: collection.Uuid,
+		Auth: collection.Auth,
 	}, nil
 }
 
-func (s *CreationService) GetCollectionListInfo(ctx context.Context, req *v1.GetCollectionListInfoReq) (*v1.GetCollectionsReply, error) {
-	reply := &v1.GetCollectionsReply{Collections: make([]*v1.GetCollectionsReply_Collections, 0)}
+func (s *CreationService) GetCollectionListInfo(ctx context.Context, req *v1.GetCollectionListInfoReq) (*v1.GetCollectionsListReply, error) {
+	reply := &v1.GetCollectionsListReply{Collections: make([]*v1.GetCollectionsListReply_Collections, 0)}
 	collectionsListInfo, err := s.cc.GetCollectionListInfo(ctx, req.Ids)
 	if err != nil {
 		return nil, err
 	}
 	for _, item := range collectionsListInfo {
-		reply.Collections = append(reply.Collections, &v1.GetCollectionsReply_Collections{
-			Id:        item.Id,
-			Name:      item.Name,
-			Introduce: item.Introduce,
+		reply.Collections = append(reply.Collections, &v1.GetCollectionsListReply_Collections{
+			Id: item.CollectionsId,
 		})
 	}
 	return reply, nil
 }
 
-func (s *CreationService) GetCollections(ctx context.Context, req *v1.GetCollectionsReq) (*v1.GetCollectionsReply, error) {
-	reply := &v1.GetCollectionsReply{Collections: make([]*v1.GetCollectionsReply_Collections, 0)}
-	collections, err := s.cc.GetCollections(ctx, req.Uuid, req.Page)
+func (s *CreationService) GetCollectionsList(ctx context.Context, req *v1.GetCollectionsListReq) (*v1.GetCollectionsListReply, error) {
+	reply := &v1.GetCollectionsListReply{Collections: make([]*v1.GetCollectionsListReply_Collections, 0)}
+	collections, err := s.cc.GetCollectionsList(ctx, req.Uuid, req.Page)
 	if err != nil {
 		return nil, err
 	}
 	for _, item := range collections {
-		reply.Collections = append(reply.Collections, &v1.GetCollectionsReply_Collections{
-			Id:        item.Id,
-			Name:      item.Name,
-			Introduce: item.Introduce,
+		reply.Collections = append(reply.Collections, &v1.GetCollectionsListReply_Collections{
+			Id: item.CollectionsId,
 		})
 	}
 	return reply, nil
 }
 
-func (s *CreationService) GetCollectionsAll(ctx context.Context, req *v1.GetCollectionsAllReq) (*v1.GetCollectionsReply, error) {
-	reply := &v1.GetCollectionsReply{Collections: make([]*v1.GetCollectionsReply_Collections, 0)}
-	collections, err := s.cc.GetCollectionsAll(ctx, req.Uuid)
+func (s *CreationService) GetCollectionsListAll(ctx context.Context, req *v1.GetCollectionsListAllReq) (*v1.GetCollectionsListReply, error) {
+	reply := &v1.GetCollectionsListReply{Collections: make([]*v1.GetCollectionsListReply_Collections, 0)}
+	collections, err := s.cc.GetCollectionsListAll(ctx, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
 	for _, item := range collections {
-		reply.Collections = append(reply.Collections, &v1.GetCollectionsReply_Collections{
-			Id:        item.Id,
-			Name:      item.Name,
-			Introduce: item.Introduce,
+		reply.Collections = append(reply.Collections, &v1.GetCollectionsListReply_Collections{
+			Id: item.CollectionsId,
 		})
 	}
 	return reply, nil
 }
 
-func (s *CreationService) GetCollectionsByVisitor(ctx context.Context, req *v1.GetCollectionsReq) (*v1.GetCollectionsReply, error) {
-	reply := &v1.GetCollectionsReply{Collections: make([]*v1.GetCollectionsReply_Collections, 0)}
-	collections, err := s.cc.GetCollectionsByVisitor(ctx, req.Uuid, req.Page)
+func (s *CreationService) GetCollectionsListByVisitor(ctx context.Context, req *v1.GetCollectionsListReq) (*v1.GetCollectionsListReply, error) {
+	reply := &v1.GetCollectionsListReply{Collections: make([]*v1.GetCollectionsListReply_Collections, 0)}
+	collections, err := s.cc.GetCollectionsListByVisitor(ctx, req.Uuid, req.Page)
 	if err != nil {
 		return nil, err
 	}
 	for _, item := range collections {
-		reply.Collections = append(reply.Collections, &v1.GetCollectionsReply_Collections{
-			Id:        item.Id,
-			Name:      item.Name,
-			Introduce: item.Introduce,
+		reply.Collections = append(reply.Collections, &v1.GetCollectionsListReply_Collections{
+			Id: item.CollectionsId,
 		})
 	}
 	return reply, nil
@@ -222,8 +223,42 @@ func (s *CreationService) GetCreationUserVisitor(ctx context.Context, req *v1.Ge
 	}, nil
 }
 
+func (s *CreationService) CreateCollectionsDraft(ctx context.Context, req *v1.CreateCollectionsDraftReq) (*v1.CreateCollectionsDraftReply, error) {
+	id, err := s.cc.CreateCollectionsDraft(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.CreateCollectionsDraftReply{
+		Id: id,
+	}, nil
+}
+
+func (s *CreationService) SendCollections(ctx context.Context, req *v1.SendCollectionsReq) (*emptypb.Empty, error) {
+	err := s.cc.SendCollections(ctx, req.Id, req.Uuid, req.Ip)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *CreationService) CreateCollections(ctx context.Context, req *v1.CreateCollectionsReq) (*emptypb.Empty, error) {
-	err := s.cc.CreateCollections(ctx, req.Uuid, req.Name, req.Introduce, req.Auth)
+	err := s.cc.CreateCollections(ctx, req.Id, req.Auth, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) CreateCollectionsDbAndCache(ctx context.Context, req *v1.CreateCollectionsDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.cc.CreateCollectionsDbAndCache(ctx, req.Id, req.Auth, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) SendCollectionsEdit(ctx context.Context, req *v1.SendCollectionsEditReq) (*emptypb.Empty, error) {
+	err := s.cc.SendCollectionsEdit(ctx, req.Id, req.Uuid, req.Ip)
 	if err != nil {
 		return nil, err
 	}
@@ -231,7 +266,15 @@ func (s *CreationService) CreateCollections(ctx context.Context, req *v1.CreateC
 }
 
 func (s *CreationService) EditCollections(ctx context.Context, req *v1.EditCollectionsReq) (*emptypb.Empty, error) {
-	err := s.cc.EditCollections(ctx, req.Id, req.Uuid, req.Name, req.Introduce, req.Auth)
+	err := s.cc.EditCollections(ctx, req.Id, req.Auth, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) EditCollectionsCos(ctx context.Context, req *v1.EditCollectionsCosReq) (*emptypb.Empty, error) {
+	err := s.cc.EditCollectionsCos(ctx, req.Id, req.Auth, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -240,6 +283,14 @@ func (s *CreationService) EditCollections(ctx context.Context, req *v1.EditColle
 
 func (s *CreationService) DeleteCollections(ctx context.Context, req *v1.DeleteCollectionsReq) (*emptypb.Empty, error) {
 	err := s.cc.DeleteCollections(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) DeleteCollectionsCache(ctx context.Context, req *v1.DeleteCollectionsCacheReq) (*emptypb.Empty, error) {
+	err := s.cc.DeleteCollectionsCache(ctx, req.Id, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
