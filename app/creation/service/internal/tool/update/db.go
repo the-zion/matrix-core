@@ -30,6 +30,7 @@ func NewDB(logger log.Logger) *gorm.DB {
 		&data.ArticleCollect{},
 		&data.Collections{},
 		&data.Collect{},
+		&data.CollectionsDraft{},
 		&data.Talk{},
 		&data.TalkDraft{},
 		&data.TalkStatistic{},
