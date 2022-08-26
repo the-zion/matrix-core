@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	kerrors "github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	v1 "github.com/the-zion/matrix-core/api/creation/service/v1"
 	"golang.org/x/sync/errgroup"
@@ -10,6 +11,7 @@ import (
 
 type CreationRepo interface {
 	GetLeaderBoard(ctx context.Context) ([]*LeaderBoard, error)
+	GetLastCollectionsDraft(ctx context.Context, uuid string) (*CollectionsDraft, error)
 	GetCollectArticle(ctx context.Context, id, page int32) ([]*Article, error)
 	GetCollectArticleCount(ctx context.Context, id int32) (int32, error)
 	GetCollectTalk(ctx context.Context, id, page int32) ([]*Talk, error)
@@ -19,18 +21,40 @@ type CreationRepo interface {
 	GetCollectCount(ctx context.Context, id int32) (int64, error)
 	GetCollection(ctx context.Context, id int32, uuid string) (*Collections, error)
 	GetCollectionListInfo(ctx context.Context, ids []int32) ([]*Collections, error)
-	GetCollections(ctx context.Context, uuid string, page int32) ([]*Collections, error)
-	GetCollectionsAll(ctx context.Context, uuid string) ([]*Collections, error)
-	GetCollectionsByVisitor(ctx context.Context, uuid string, page int32) ([]*Collections, error)
+	GetCollectionsList(ctx context.Context, uuid string, page int32) ([]*Collections, error)
+	GetCollectionsListAll(ctx context.Context, uuid string) ([]*Collections, error)
+	GetCollectionsListByVisitor(ctx context.Context, uuid string, page int32) ([]*Collections, error)
 	GetCollectionsCount(ctx context.Context, uuid string) (int32, error)
 	GetCollectionsVisitorCount(ctx context.Context, uuid string) (int32, error)
 	GetCreationUser(ctx context.Context, uuid string) (*CreationUser, error)
 	GetCreationUserVisitor(ctx context.Context, uuid string) (*CreationUser, error)
-	CreateCollections(ctx context.Context, uuid, name, introduce string, auth int32) error
-	EditCollections(ctx context.Context, id int32, uuid, name, introduce string, auth int32) error
+	GetCollections(ctx context.Context, id int32) (*Collections, error)
+	GetCollectionsAuth(ctx context.Context, id int32) (int32, error)
+
+	CreateCollectionsDraft(ctx context.Context, uuid string) (int32, error)
+	CreateCollectionsFolder(ctx context.Context, id int32, uuid string) error
+	CreateCollections(ctx context.Context, id, auth int32, uuid string) error
+	CreateCollectionsCache(ctx context.Context, id, auth int32, uuid string) error
+
+	AddCreationUserCollections(ctx context.Context, uuid string, auth int32) error
+
+	EditCollectionsCos(ctx context.Context, id int32, uuid string) error
+
+	UpdateCollectionsCache(ctx context.Context, id, auth int32, uuid string) error
+
 	DeleteCollections(ctx context.Context, id int32, uuid string) error
+	DeleteCollect(ctx context.Context, id int32) error
+	DeleteCollectionsDraft(ctx context.Context, id int32, uuid string) error
+	DeleteCreationCache(ctx context.Context, id, auth int32, uuid string) error
+
+	ReduceCreationUserCollections(ctx context.Context, auth int32, uuid string) error
+
 	SetRecord(ctx context.Context, id, mode int32, uuid, operation, ip string) error
 	SetLeaderBoardToCache(ctx context.Context, boardList []*LeaderBoard)
+
+	SendReviewToMq(ctx context.Context, review *CollectionsReview) error
+	SendCollectionsToMq(ctx context.Context, collections *Collections, mode string) error
+	SendCollections(ctx context.Context, id int32, uuid string) (*CollectionsDraft, error)
 }
 
 type CreationUseCase struct {
@@ -38,17 +62,19 @@ type CreationUseCase struct {
 	articleRepo ArticleRepo
 	talkRepo    TalkRepo
 	columnRepo  ColumnRepo
+	tm          Transaction
 	re          Recovery
 	log         *log.Helper
 }
 
-func NewCreationUseCase(repo CreationRepo, articleRepo ArticleRepo, talkRepo TalkRepo, columnRepo ColumnRepo, re Recovery, logger log.Logger) *CreationUseCase {
+func NewCreationUseCase(repo CreationRepo, articleRepo ArticleRepo, talkRepo TalkRepo, columnRepo ColumnRepo, tm Transaction, re Recovery, logger log.Logger) *CreationUseCase {
 	return &CreationUseCase{
 		repo:        repo,
 		articleRepo: articleRepo,
 		talkRepo:    talkRepo,
 		columnRepo:  columnRepo,
 		re:          re,
+		tm:          tm,
 		log:         log.NewHelper(log.With(logger, "module", "creation/biz/creationUseCase")),
 	}
 }
@@ -83,6 +109,17 @@ func (r *CreationUseCase) GetLeaderBoard(ctx context.Context) ([]*LeaderBoard, e
 		return boardList[i].Agree > boardList[j].Agree
 	})
 	return boardList, nil
+}
+
+func (r *CreationUseCase) GetLastCollectionsDraft(ctx context.Context, uuid string) (*CollectionsDraft, error) {
+	draft, err := r.repo.GetLastCollectionsDraft(ctx, uuid)
+	if kerrors.IsNotFound(err) {
+		return nil, v1.ErrorRecordNotFound("last draft not found: %s", err.Error())
+	}
+	if err != nil {
+		return nil, v1.ErrorGetTalkDraftFailed("get last draft failed: %s", err.Error())
+	}
+	return draft, nil
 }
 
 func (r *CreationUseCase) getLeaderBoardFromArticle(ctx context.Context, boardList *[]*LeaderBoard) error {
@@ -197,26 +234,26 @@ func (r *CreationUseCase) GetCollectionListInfo(ctx context.Context, ids []int32
 	return collectionListInfo, nil
 }
 
-func (r *CreationUseCase) GetCollections(ctx context.Context, uuid string, page int32) ([]*Collections, error) {
-	collections, err := r.repo.GetCollections(ctx, uuid, page)
+func (r *CreationUseCase) GetCollectionsList(ctx context.Context, uuid string, page int32) ([]*Collections, error) {
+	collections, err := r.repo.GetCollectionsList(ctx, uuid, page)
 	if err != nil {
-		return nil, v1.ErrorGetCollectionsFailed("get collections failed: %s", err.Error())
+		return nil, v1.ErrorGetCollectionsListFailed("get collections failed: %s", err.Error())
 	}
 	return collections, nil
 }
 
-func (r *CreationUseCase) GetCollectionsAll(ctx context.Context, uuid string) ([]*Collections, error) {
-	collections, err := r.repo.GetCollectionsAll(ctx, uuid)
+func (r *CreationUseCase) GetCollectionsListAll(ctx context.Context, uuid string) ([]*Collections, error) {
+	collections, err := r.repo.GetCollectionsListAll(ctx, uuid)
 	if err != nil {
-		return nil, v1.ErrorGetCollectionsFailed("get collections all failed: %s", err.Error())
+		return nil, v1.ErrorGetCollectionsListFailed("get collections all failed: %s", err.Error())
 	}
 	return collections, nil
 }
 
-func (r *CreationUseCase) GetCollectionsByVisitor(ctx context.Context, uuid string, page int32) ([]*Collections, error) {
-	collections, err := r.repo.GetCollectionsByVisitor(ctx, uuid, page)
+func (r *CreationUseCase) GetCollectionsListByVisitor(ctx context.Context, uuid string, page int32) ([]*Collections, error) {
+	collections, err := r.repo.GetCollectionsListByVisitor(ctx, uuid, page)
 	if err != nil {
-		return nil, v1.ErrorGetCollectionsFailed("get collections failed: %s", err.Error())
+		return nil, v1.ErrorGetCollectionsListFailed("get collections failed: %s", err.Error())
 	}
 	return collections, nil
 }
@@ -253,35 +290,178 @@ func (r *CreationUseCase) GetCreationUserVisitor(ctx context.Context, uuid strin
 	return creationUser, nil
 }
 
-func (r *CreationUseCase) CreateCollections(ctx context.Context, uuid, name, introduce string, auth int32) error {
-	err := r.repo.CreateCollections(ctx, uuid, name, introduce, auth)
+func (r *CreationUseCase) SendCollections(ctx context.Context, id int32, uuid, ip string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		draft, err := r.repo.SendCollections(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorCreateCollectionsFailed("create collections failed: %s", err.Error())
+		}
+
+		err = r.repo.SetRecord(ctx, id, 4, uuid, "create", ip)
+		if err != nil {
+			return v1.ErrorSetRecordFailed("set record failed: %s", err.Error())
+		}
+
+		err = r.repo.SendReviewToMq(ctx, &CollectionsReview{
+			Uuid: draft.Uuid,
+			Id:   draft.Id,
+			Mode: "create",
+		})
+		if err != nil {
+			return v1.ErrorCreateCollectionsFailed("send create review to mq failed: %s", err.Error())
+		}
+		return nil
+	})
+}
+
+func (r *CreationUseCase) CreateCollectionsDraft(ctx context.Context, uuid string) (int32, error) {
+	var id int32
+	err := r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		var err error
+		id, err = r.repo.CreateCollectionsDraft(ctx, uuid)
+		if err != nil {
+			return v1.ErrorCreateDraftFailed("create collections draft failed: %s", err.Error())
+		}
+
+		err = r.repo.CreateCollectionsFolder(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorCreateDraftFailed("create collections folder failed: %s", err.Error())
+		}
+		return nil
+	})
 	if err != nil {
-		return v1.ErrorCreateCollectionsFailed("create collections failed: %s", err.Error())
+		return 0, err
+	}
+	return id, nil
+}
+
+func (r *CreationUseCase) CreateCollections(ctx context.Context, id, auth int32, uuid string) error {
+	err := r.repo.SendCollectionsToMq(ctx, &Collections{
+		CollectionsId: id,
+		Uuid:          uuid,
+		Auth:          auth,
+	}, "create_collections_db_cache_and_search")
+	if err != nil {
+		return v1.ErrorCreateCollectionsFailed("create collections to mq failed: %s", err.Error())
 	}
 	return nil
 }
 
-func (r *CreationUseCase) EditCollections(ctx context.Context, id int32, uuid, name, introduce string, auth int32) error {
-	err := r.repo.EditCollections(ctx, id, uuid, name, introduce, auth)
+func (r *CreationUseCase) CreateCollectionsDbAndCache(ctx context.Context, id, auth int32, uuid string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		var err error
+		err = r.repo.DeleteCollectionsDraft(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorCreateCollectionsFailed("delete collections draft failed: %s", err.Error())
+		}
+
+		err = r.repo.CreateCollections(ctx, id, auth, uuid)
+		if err != nil {
+			return v1.ErrorCreateCollectionsFailed("create collections failed: %s", err.Error())
+		}
+
+		err = r.repo.AddCreationUserCollections(ctx, uuid, auth)
+		if err != nil {
+			return v1.ErrorCreateCollectionsFailed("add creation collections failed: %s", err.Error())
+		}
+
+		err = r.repo.CreateCollectionsCache(ctx, id, auth, uuid)
+		if err != nil {
+			return v1.ErrorCreateCollectionsFailed("create collections cache failed: %s", err.Error())
+		}
+		return nil
+	})
+}
+
+func (r *CreationUseCase) SendCollectionsEdit(ctx context.Context, id int32, uuid, ip string) error {
+	collections, err := r.repo.GetCollections(ctx, id)
 	if err != nil {
-		return v1.ErrorEditCollectionsFailed("edit collections failed: %s", err.Error())
+		return v1.ErrorGetCollectionFailed("get collections failed: %s", err.Error())
+	}
+
+	if collections.Uuid != uuid {
+		return v1.ErrorEditCollectionsFailed("send collections edit failed: no auth")
+	}
+
+	err = r.repo.SetRecord(ctx, id, 4, uuid, "edit", ip)
+	if err != nil {
+		return v1.ErrorSetRecordFailed("set record failed: %s", err.Error())
+	}
+
+	err = r.repo.SendReviewToMq(ctx, &CollectionsReview{
+		Uuid: collections.Uuid,
+		Id:   collections.CollectionsId,
+		Mode: "edit",
+	})
+	if err != nil {
+		return v1.ErrorEditCollectionsFailed("send edit review to mq failed: %s", err.Error())
+	}
+	return nil
+}
+
+func (r *CreationUseCase) EditCollections(ctx context.Context, id, auth int32, uuid string) error {
+	err := r.repo.SendCollectionsToMq(ctx, &Collections{
+		CollectionsId: id,
+		Auth:          auth,
+		Uuid:          uuid,
+	}, "edit_collections_cos")
+	if err != nil {
+		return v1.ErrorEditTalkFailed("edit collections to mq failed: %s", err.Error())
+	}
+	return nil
+}
+
+func (r *CreationUseCase) EditCollectionsCos(ctx context.Context, id, auth int32, uuid string) error {
+	err := r.repo.UpdateCollectionsCache(ctx, id, auth, uuid)
+	if err != nil {
+		return v1.ErrorEditTalkFailed("edit collections cache failed: %s", err.Error())
+	}
+
+	err = r.repo.EditCollectionsCos(ctx, id, uuid)
+	if err != nil {
+		return v1.ErrorEditTalkFailed("edit collections cache failed: %s", err.Error())
 	}
 	return nil
 }
 
 func (r *CreationUseCase) DeleteCollections(ctx context.Context, id int32, uuid string) error {
-	count, err := r.repo.GetCollectCount(ctx, id)
+	err := r.repo.SendCollectionsToMq(ctx, &Collections{
+		CollectionsId: id,
+		Uuid:          uuid,
+	}, "delete_collections_cache")
 	if err != nil {
-		return v1.ErrorGetCountFailed("get collection count failed: %s", err.Error())
-	}
-
-	if count == 1 {
-		return v1.ErrorNotEmpty("collections is not empty")
-	}
-
-	err = r.repo.DeleteCollections(ctx, id, uuid)
-	if err != nil {
-		return v1.ErrorDeleteCollectionsFailed("delete collections failed: %s", err.Error())
+		return v1.ErrorDeleteCollectionsFailed("delete collections to mq failed: %s", err.Error())
 	}
 	return nil
+}
+
+func (r *CreationUseCase) DeleteCollectionsCache(ctx context.Context, id int32, uuid string) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		var err error
+		auth, err := r.repo.GetCollectionsAuth(ctx, id)
+		if err != nil {
+			return v1.ErrorDeleteCollectionsFailed("get collections auth failed: %s", err.Error())
+		}
+
+		err = r.repo.DeleteCollections(ctx, id, uuid)
+		if err != nil {
+			return v1.ErrorDeleteCollectionsFailed("delete collections failed: %s", err.Error())
+		}
+
+		err = r.repo.DeleteCollect(ctx, id)
+		if err != nil {
+			return v1.ErrorDeleteCollectionsFailed("delete collect failed: %s", err.Error())
+		}
+
+		err = r.repo.ReduceCreationUserCollections(ctx, auth, uuid)
+		if err != nil {
+			return v1.ErrorDeleteCollectionsFailed("delete creation user collections failed: %s", err.Error())
+		}
+
+		err = r.repo.DeleteCreationCache(ctx, id, auth, uuid)
+		if err != nil {
+			return v1.ErrorDeleteCollectionsFailed("delete creation cache failed: %s", err.Error())
+		}
+		return nil
+	})
 }
