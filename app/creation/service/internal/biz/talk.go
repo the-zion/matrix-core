@@ -258,7 +258,7 @@ func (r *TalkUseCase) SendTalkEdit(ctx context.Context, id int32, uuid, ip strin
 	}
 
 	if talk.Uuid != uuid {
-		return v1.ErrorGetTalkFailed("send talk edit failed: no auth")
+		return v1.ErrorEditTalkFailed("send talk edit failed: no auth")
 	}
 
 	err = r.creationRepo.SetRecord(ctx, id, 3, uuid, "edit", ip)
@@ -272,7 +272,7 @@ func (r *TalkUseCase) SendTalkEdit(ctx context.Context, id int32, uuid, ip strin
 		Mode: "edit",
 	})
 	if err != nil {
-		return v1.ErrorGetTalkFailed("send edit review to mq failed: %s", err.Error())
+		return v1.ErrorEditTalkFailed("send edit review to mq failed: %s", err.Error())
 	}
 	return nil
 }
@@ -399,7 +399,7 @@ func (r *TalkUseCase) DeleteTalkCacheAndSearch(ctx context.Context, id int32, uu
 
 		err = r.repo.ReduceCreationUserTalk(ctx, auth, uuid)
 		if err != nil {
-			return v1.ErrorDeleteTalkFailed("delete talk statistic failed: %s", err.Error())
+			return v1.ErrorDeleteTalkFailed("delete creation user talk failed: %s", err.Error())
 		}
 
 		err = r.repo.DeleteTalkCache(ctx, id, auth, uuid)
