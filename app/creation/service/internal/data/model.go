@@ -106,24 +106,32 @@ type ColumnCollect struct {
 }
 
 type Collections struct {
-	gorm.Model
-	Uuid      string `gorm:"index;size:36"`
-	Name      string `gorm:"size:50"`
-	Introduce string `gorm:"size:100"`
-	Auth      int32  `gorm:"default:1"`
-	Article   int32  `gorm:"type:int unsigned;default:0"`
-	Column    int32  `gorm:"type:int unsigned;default:0"`
-	Talk      int32  `gorm:"type:int unsigned;default:0"`
+	CollectionsId int32 `gorm:"primarykey"`
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	DeletedAt     gorm.DeletedAt `gorm:"index"`
+	Uuid          string         `gorm:"index;size:36"`
+	Auth          int32          `gorm:"default:1"`
+	Article       int32          `gorm:"type:int unsigned;default:0"`
+	Column        int32          `gorm:"type:int unsigned;default:0"`
+	Talk          int32          `gorm:"type:int unsigned;default:0"`
 }
 
 type Collect struct {
 	CollectionsId int32 `gorm:"primarykey"`
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
-	Uuid          string `gorm:"size:36"`
-	CreationsId   int32  `gorm:"primarykey"`
-	Mode          int32  `gorm:"primarykey;default:1"`
-	Status        int32  `gorm:"default:1"`
+	DeletedAt     gorm.DeletedAt `gorm:"index"`
+	Uuid          string         `gorm:"size:36"`
+	CreationsId   int32          `gorm:"primarykey"`
+	Mode          int32          `gorm:"primarykey;default:1"`
+	Status        int32          `gorm:"default:1"`
+}
+
+type CollectionsDraft struct {
+	gorm.Model
+	Uuid   string `gorm:"index;size:36"`
+	Status int32  `gorm:"default:1"`
 }
 
 type Column struct {
