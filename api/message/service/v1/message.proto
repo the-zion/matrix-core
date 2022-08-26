@@ -73,6 +73,20 @@ service Message {
     };
   }
 
+  rpc CollectionsCreateReview(TextReviewReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/tx/message/collections/create/review"
+      body: "*"
+    };
+  }
+
+  rpc CollectionsEditReview(TextReviewReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/tx/message/collections/edit/review"
+      body: "*"
+    };
+  }
+
   rpc CommentCreateReview(TextReviewReq) returns (google.protobuf.Empty){
     option (google.api.http) = {
       post: "/tx/message/comment/create/review"
