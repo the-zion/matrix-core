@@ -32,7 +32,7 @@ type TalkRepo interface {
 	CreateTalkFolder(ctx context.Context, id int32, uuid string) error
 	CreateTalk(ctx context.Context, id, auth int32, uuid string) error
 	CreateTalkStatistic(ctx context.Context, id, auth int32, uuid string) error
-	CreateTalkCache(ctx context.Context, id, auth int32, uuid string) error
+	CreateTalkCache(ctx context.Context, id, auth int32, uuid, mode string) error
 	CreateTalkSearch(ctx context.Context, id int32, uuid string) error
 	AddCreationUserTalk(ctx context.Context, uuid string, auth int32) error
 	AddTalkComment(ctx context.Context, id int32) error
@@ -84,7 +84,7 @@ type TalkRepo interface {
 
 	FreezeTalkCos(ctx context.Context, id int32, uuid string) error
 
-	UpdateTalkCache(ctx context.Context, id, auth int32, uuid string) error
+	UpdateTalkCache(ctx context.Context, id, auth int32, uuid, mode string) error
 	EditTalkCos(ctx context.Context, id int32, uuid string) error
 	EditTalkSearch(ctx context.Context, id int32, uuid string) error
 }
@@ -335,7 +335,7 @@ func (r *TalkUseCase) CreateTalkDbCacheAndSearch(ctx context.Context, id, auth i
 			return v1.ErrorCreateTalkFailed("add creation talk failed: %s", err.Error())
 		}
 
-		err = r.repo.CreateTalkCache(ctx, id, auth, uuid)
+		err = r.repo.CreateTalkCache(ctx, id, auth, uuid, "create")
 		if err != nil {
 			return v1.ErrorCreateTalkFailed("create talk cache failed: %s", err.Error())
 		}
@@ -358,7 +358,7 @@ func (r *TalkUseCase) CreateTalkDbCacheAndSearch(ctx context.Context, id, auth i
 }
 
 func (r *TalkUseCase) EditTalkCosAndSearch(ctx context.Context, id, auth int32, uuid string) error {
-	err := r.repo.UpdateTalkCache(ctx, id, auth, uuid)
+	err := r.repo.UpdateTalkCache(ctx, id, auth, uuid, "edit")
 	if err != nil {
 		return v1.ErrorEditTalkFailed("edit talk cache failed: %s", err.Error())
 	}
