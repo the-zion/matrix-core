@@ -12,14 +12,14 @@ import (
 type CreationRepo interface {
 	GetLeaderBoard(ctx context.Context) ([]*LeaderBoard, error)
 	GetLastCollectionsDraft(ctx context.Context, uuid string) (*CollectionsDraft, error)
-	GetCollectArticle(ctx context.Context, id, page int32) ([]*Article, error)
+	GetCollectArticleList(ctx context.Context, id, page int32) ([]*Article, error)
 	GetCollectArticleCount(ctx context.Context, id int32) (int32, error)
-	GetCollectTalk(ctx context.Context, id, page int32) ([]*Talk, error)
+	GetCollectTalkList(ctx context.Context, id, page int32) ([]*Talk, error)
 	GetCollectTalkCount(ctx context.Context, id int32) (int32, error)
-	GetCollectColumn(ctx context.Context, id, page int32) ([]*Column, error)
+	GetCollectColumnList(ctx context.Context, id, page int32) ([]*Column, error)
 	GetCollectColumnCount(ctx context.Context, id int32) (int32, error)
 	GetCollectCount(ctx context.Context, id int32) (int64, error)
-	GetCollection(ctx context.Context, id int32, uuid string) (*Collections, error)
+	GetCollections(ctx context.Context, id int32, uuid string) (*Collections, error)
 	GetCollectionListInfo(ctx context.Context, ids []int32) ([]*Collections, error)
 	GetCollectionsList(ctx context.Context, uuid string, page int32) ([]*Collections, error)
 	GetCollectionsListAll(ctx context.Context, uuid string) ([]*Collections, error)
@@ -28,19 +28,18 @@ type CreationRepo interface {
 	GetCollectionsVisitorCount(ctx context.Context, uuid string) (int32, error)
 	GetCreationUser(ctx context.Context, uuid string) (*CreationUser, error)
 	GetCreationUserVisitor(ctx context.Context, uuid string) (*CreationUser, error)
-	GetCollections(ctx context.Context, id int32) (*Collections, error)
 	GetCollectionsAuth(ctx context.Context, id int32) (int32, error)
 
 	CreateCollectionsDraft(ctx context.Context, uuid string) (int32, error)
 	CreateCollectionsFolder(ctx context.Context, id int32, uuid string) error
 	CreateCollections(ctx context.Context, id, auth int32, uuid string) error
-	CreateCollectionsCache(ctx context.Context, id, auth int32, uuid string) error
+	CreateCollectionsCache(ctx context.Context, id, auth int32, uuid, mode string) error
 
 	AddCreationUserCollections(ctx context.Context, uuid string, auth int32) error
 
 	EditCollectionsCos(ctx context.Context, id int32, uuid string) error
 
-	UpdateCollectionsCache(ctx context.Context, id, auth int32, uuid string) error
+	UpdateCollectionsCache(ctx context.Context, id, auth int32, uuid, mode string) error
 
 	DeleteCollections(ctx context.Context, id int32, uuid string) error
 	DeleteCollect(ctx context.Context, id int32) error
@@ -170,8 +169,8 @@ func (r *CreationUseCase) getLeaderBoardFromColumn(ctx context.Context, boardLis
 	return nil
 }
 
-func (r *CreationUseCase) GetCollectArticle(ctx context.Context, id, page int32) ([]*Article, error) {
-	articleList, err := r.repo.GetCollectArticle(ctx, id, page)
+func (r *CreationUseCase) GetCollectArticleList(ctx context.Context, id, page int32) ([]*Article, error) {
+	articleList, err := r.repo.GetCollectArticleList(ctx, id, page)
 	if err != nil {
 		return nil, v1.ErrorGetCollectArticleFailed("get collect article list failed: %s", err.Error())
 	}
@@ -186,8 +185,8 @@ func (r *CreationUseCase) GetCollectArticleCount(ctx context.Context, id int32) 
 	return count, nil
 }
 
-func (r *CreationUseCase) GetCollectTalk(ctx context.Context, id, page int32) ([]*Talk, error) {
-	talkList, err := r.repo.GetCollectTalk(ctx, id, page)
+func (r *CreationUseCase) GetCollectTalkList(ctx context.Context, id, page int32) ([]*Talk, error) {
+	talkList, err := r.repo.GetCollectTalkList(ctx, id, page)
 	if err != nil {
 		return nil, v1.ErrorGetTalkListFailed("get collect talk list failed: %s", err.Error())
 	}
@@ -202,8 +201,8 @@ func (r *CreationUseCase) GetCollectTalkCount(ctx context.Context, id int32) (in
 	return count, nil
 }
 
-func (r *CreationUseCase) GetCollectColumn(ctx context.Context, id, page int32) ([]*Column, error) {
-	columnList, err := r.repo.GetCollectColumn(ctx, id, page)
+func (r *CreationUseCase) GetCollectColumnList(ctx context.Context, id, page int32) ([]*Column, error) {
+	columnList, err := r.repo.GetCollectColumnList(ctx, id, page)
 	if err != nil {
 		return nil, v1.ErrorGetColumnListFailed("get collect column list failed: %s", err.Error())
 	}
@@ -218,8 +217,8 @@ func (r *CreationUseCase) GetCollectColumnCount(ctx context.Context, id int32) (
 	return count, nil
 }
 
-func (r *CreationUseCase) GetCollection(ctx context.Context, id int32, uuid string) (*Collections, error) {
-	collection, err := r.repo.GetCollection(ctx, id, uuid)
+func (r *CreationUseCase) GetCollections(ctx context.Context, id int32, uuid string) (*Collections, error) {
+	collection, err := r.repo.GetCollections(ctx, id, uuid)
 	if err != nil {
 		return nil, v1.ErrorGetCollectionFailed("get collection failed: %s", err.Error())
 	}
@@ -340,7 +339,7 @@ func (r *CreationUseCase) CreateCollections(ctx context.Context, id, auth int32,
 		CollectionsId: id,
 		Uuid:          uuid,
 		Auth:          auth,
-	}, "create_collections_db_cache_and_search")
+	}, "create_collections_db_and_cache")
 	if err != nil {
 		return v1.ErrorCreateCollectionsFailed("create collections to mq failed: %s", err.Error())
 	}
@@ -365,7 +364,7 @@ func (r *CreationUseCase) CreateCollectionsDbAndCache(ctx context.Context, id, a
 			return v1.ErrorCreateCollectionsFailed("add creation collections failed: %s", err.Error())
 		}
 
-		err = r.repo.CreateCollectionsCache(ctx, id, auth, uuid)
+		err = r.repo.CreateCollectionsCache(ctx, id, auth, uuid, "create")
 		if err != nil {
 			return v1.ErrorCreateCollectionsFailed("create collections cache failed: %s", err.Error())
 		}
@@ -374,7 +373,7 @@ func (r *CreationUseCase) CreateCollectionsDbAndCache(ctx context.Context, id, a
 }
 
 func (r *CreationUseCase) SendCollectionsEdit(ctx context.Context, id int32, uuid, ip string) error {
-	collections, err := r.repo.GetCollections(ctx, id)
+	collections, err := r.repo.GetCollections(ctx, id, uuid)
 	if err != nil {
 		return v1.ErrorGetCollectionFailed("get collections failed: %s", err.Error())
 	}
@@ -412,7 +411,7 @@ func (r *CreationUseCase) EditCollections(ctx context.Context, id, auth int32, u
 }
 
 func (r *CreationUseCase) EditCollectionsCos(ctx context.Context, id, auth int32, uuid string) error {
-	err := r.repo.UpdateCollectionsCache(ctx, id, auth, uuid)
+	err := r.repo.UpdateCollectionsCache(ctx, id, auth, uuid, "edit")
 	if err != nil {
 		return v1.ErrorEditTalkFailed("edit collections cache failed: %s", err.Error())
 	}
