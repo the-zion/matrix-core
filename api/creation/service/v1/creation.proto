@@ -14,19 +14,19 @@ service Creation {
 
   rpc GetLastCollectionsDraft(GetLastCollectionsDraftReq) returns (GetLastCollectionsDraftReply){}
 
-  rpc GetCollectArticle(GetCollectArticleReq) returns (GetArticleListReply){}
+  rpc GetCollectArticleList(GetCollectArticleListReq) returns (GetArticleListReply){}
 
   rpc GetCollectArticleCount(GetCollectArticleCountReq) returns (GetCollectArticleCountReply){}
 
-  rpc GetCollectTalk(GetCollectTalkReq) returns (GetTalkListReply){}
+  rpc GetCollectTalkList(GetCollectTalkListReq) returns (GetTalkListReply){}
 
   rpc GetCollectTalkCount(GetCollectTalkCountReq) returns (GetCollectTalkCountReply){}
 
-  rpc GetCollectColumn(GetCollectColumnReq) returns (GetColumnListReply){}
+  rpc GetCollectColumnList(GetCollectColumnListReq) returns (GetColumnListReply){}
 
   rpc GetCollectColumnCount(GetCollectColumnCountReq) returns (GetCollectColumnCountReply){}
 
-  rpc GetCollection(GetCollectionReq) returns (GetCollectionReply){}
+  rpc GetCollections(GetCollectionsReq) returns (GetCollectionsReply){}
 
   rpc GetCollectionListInfo(GetCollectionListInfoReq) returns (GetCollectionsListReply){}
 
@@ -313,7 +313,7 @@ message GetLastCollectionsDraftReply{
   int32 status = 2;
 }
 
-message GetCollectArticleReq{
+message GetCollectArticleListReq{
   int32 id = 1;
   int32 page = 2;
 }
@@ -326,7 +326,7 @@ message GetCollectArticleCountReply{
   int32 count = 1;
 }
 
-message GetCollectTalkReq{
+message GetCollectTalkListReq{
   int32 id = 1;
   int32 page = 2;
 }
@@ -339,7 +339,7 @@ message GetCollectTalkCountReply{
   int32 count = 1;
 }
 
-message GetCollectColumnReq{
+message GetCollectColumnListReq{
   int32 id = 1;
   int32 page = 2;
 }
@@ -352,16 +352,17 @@ message GetCollectColumnCountReply{
   int32 count = 1;
 }
 
-message GetCollectionReq{
+message GetCollectionsReq{
   int32 id = 1;
   string uuid = 2 [(validate.rules).string.uuid = true];
 }
 
-message GetCollectionReply{
+message GetCollectionsReply{
   string uuid = 1;
-  string name = 2;
-  string introduce = 3;
-  int32 auth = 4;
+  int32 auth = 2;
+  int32 article = 3;
+  int32 column = 4;
+  int32 talk = 5;
 }
 
 message GetCollectionListInfoReq{
