@@ -24,16 +24,20 @@ func (s *BffService) GetLeaderBoard(ctx context.Context, _ *emptypb.Empty) (*v1.
 	return reply, nil
 }
 
-func (s *BffService) GetCollectArticle(ctx context.Context, req *v1.GetCollectArticleReq) (*v1.GetArticleListReply, error) {
+func (s *BffService) GetCollectArticleList(ctx context.Context, req *v1.GetCollectArticleListReq) (*v1.GetArticleListReply, error) {
 	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0)}
-	articleList, err := s.cc.GetCollectArticle(ctx, req.Id, req.Page)
+	articleList, err := s.cc.GetCollectArticleList(ctx, req.Id, req.Page)
 	if err != nil {
 		return nil, err
 	}
 	for _, item := range articleList {
 		reply.Article = append(reply.Article, &v1.GetArticleListReply_Article{
-			Id:   item.Id,
-			Uuid: item.Uuid,
+			Id:      item.Id,
+			Uuid:    item.Uuid,
+			Agree:   item.Agree,
+			Collect: item.Collect,
+			View:    item.View,
+			Comment: item.Comment,
 		})
 	}
 	return reply, nil
@@ -49,9 +53,9 @@ func (s *BffService) GetCollectArticleCount(ctx context.Context, req *v1.GetColl
 	}, nil
 }
 
-func (s *BffService) GetCollectTalk(ctx context.Context, req *v1.GetCollectTalkReq) (*v1.GetTalkListReply, error) {
+func (s *BffService) GetCollectTalkList(ctx context.Context, req *v1.GetCollectTalkListReq) (*v1.GetTalkListReply, error) {
 	reply := &v1.GetTalkListReply{Talk: make([]*v1.GetTalkListReply_Talk, 0)}
-	talkList, err := s.cc.GetCollectTalk(ctx, req.Id, req.Page)
+	talkList, err := s.cc.GetCollectTalkList(ctx, req.Id, req.Page)
 	if err != nil {
 		return nil, err
 	}
@@ -74,9 +78,9 @@ func (s *BffService) GetCollectTalkCount(ctx context.Context, req *v1.GetCollect
 	}, nil
 }
 
-func (s *BffService) GetCollectColumn(ctx context.Context, req *v1.GetCollectColumnReq) (*v1.GetColumnListReply, error) {
+func (s *BffService) GetCollectColumnList(ctx context.Context, req *v1.GetCollectColumnListReq) (*v1.GetColumnListReply, error) {
 	reply := &v1.GetColumnListReply{Column: make([]*v1.GetColumnListReply_Column, 0)}
-	columnList, err := s.cc.GetCollectColumn(ctx, req.Id, req.Page)
+	columnList, err := s.cc.GetCollectColumnList(ctx, req.Id, req.Page)
 	if err != nil {
 		return nil, err
 	}
@@ -99,16 +103,28 @@ func (s *BffService) GetCollectColumnCount(ctx context.Context, req *v1.GetColle
 	}, nil
 }
 
-func (s *BffService) GetCollection(ctx context.Context, req *v1.GetCollectionReq) (*v1.GetCollectionReply, error) {
-	collection, err := s.cc.GetCollection(ctx, req.Id, req.Uuid)
+func (s *BffService) GetLastCollectionsDraft(ctx context.Context, _ *emptypb.Empty) (*v1.GetLastCollectionsDraftReply, error) {
+	draft, err := s.cc.GetLastCollectionsDraft(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return &v1.GetCollectionReply{
-		Uuid:      collection.Uuid,
-		Name:      collection.Name,
-		Introduce: collection.Introduce,
-		Auth:      collection.Auth,
+	return &v1.GetLastCollectionsDraftReply{
+		Id:     draft.Id,
+		Status: draft.Status,
+	}, nil
+}
+
+func (s *BffService) GetCollections(ctx context.Context, req *v1.GetCollectionsReq) (*v1.GetCollectionsReply, error) {
+	collection, err := s.cc.GetCollections(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetCollectionsReply{
+		Uuid:    collection.Uuid,
+		Auth:    collection.Auth,
+		Article: collection.Article,
+		Column:  collection.Column,
+		Talk:    collection.Talk,
 	}, nil
 }
 
@@ -171,6 +187,16 @@ func (s *BffService) GetCollectionsVisitorCount(ctx context.Context, req *v1.Get
 	}
 	return &v1.GetCollectionsCountReply{
 		Count: count,
+	}, nil
+}
+
+func (s *BffService) CreateCollectionsDraft(ctx context.Context, _ *emptypb.Empty) (*v1.CreateCollectionsDraftReply, error) {
+	id, err := s.cc.CreateCollectionsDraft(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.CreateCollectionsDraftReply{
+		Id: id,
 	}, nil
 }
 
