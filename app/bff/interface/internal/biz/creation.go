@@ -7,16 +7,14 @@ import (
 
 type CreationRepo interface {
 	GetLeaderBoard(ctx context.Context) ([]*LeaderBoard, error)
-	GetCollectArticle(ctx context.Context, id, page int32) ([]*Article, error)
+	GetCollectArticleList(ctx context.Context, id, page int32) ([]*Article, error)
 	GetCollectArticleCount(ctx context.Context, id int32) (int32, error)
-	GetCollectTalk(ctx context.Context, id, page int32) ([]*Talk, error)
+	GetCollectTalkList(ctx context.Context, id, page int32) ([]*Talk, error)
 	GetCollectTalkCount(ctx context.Context, id int32) (int32, error)
-	GetCollectColumn(ctx context.Context, id, page int32) ([]*Column, error)
+	GetCollectColumnList(ctx context.Context, id, page int32) ([]*Column, error)
 	GetCollectColumnCount(ctx context.Context, id int32) (int32, error)
-	SendCollections(ctx context.Context, id int32, uuid, ip string) error
-	SendCollectionsEdit(ctx context.Context, id int32, uuid, ip string) error
-	DeleteCollections(ctx context.Context, id int32, uuid string) error
-	GetCollection(ctx context.Context, id int32, uuid string) (*Collections, error)
+	GetLastCollectionsDraft(ctx context.Context, uuid string) (*CollectionsDraft, error)
+	GetCollections(ctx context.Context, id int32, uuid string) (*Collections, error)
 	GetCollectionListInfo(ctx context.Context, collectionsList []*Collections) ([]*Collections, error)
 	GetCollectionsList(ctx context.Context, uuid string, page int32) ([]*Collections, error)
 	GetCollectionsListAll(ctx context.Context, uuid string) ([]*Collections, error)
@@ -25,6 +23,10 @@ type CreationRepo interface {
 	GetCollectionsVisitorCount(ctx context.Context, uuid string) (int32, error)
 	GetCreationUser(ctx context.Context, uuid string) (*CreationUser, error)
 	GetCreationUserVisitor(ctx context.Context, uuid string) (*CreationUser, error)
+	CreateCollectionsDraft(ctx context.Context, uuid string) (int32, error)
+	SendCollections(ctx context.Context, id int32, uuid, ip string) error
+	SendCollectionsEdit(ctx context.Context, id int32, uuid, ip string) error
+	DeleteCollections(ctx context.Context, id int32, uuid string) error
 }
 
 type ArticleRepo interface {
@@ -120,9 +122,12 @@ type NewsRepo interface {
 }
 
 type CreationUseCase struct {
-	repo CreationRepo
-	re   Recovery
-	log  *log.Helper
+	repo        CreationRepo
+	articleRepo ArticleRepo
+	columnRepo  ColumnRepo
+	talkRepo    TalkRepo
+	re          Recovery
+	log         *log.Helper
 }
 
 type ArticleUseCase struct {
@@ -149,11 +154,14 @@ type NewsUseCase struct {
 	log  *log.Helper
 }
 
-func NewCreationUseCase(repo CreationRepo, re Recovery, logger log.Logger) *CreationUseCase {
+func NewCreationUseCase(repo CreationRepo, articleRepo ArticleRepo, columnRepo ColumnRepo, talkRepo TalkRepo, re Recovery, logger log.Logger) *CreationUseCase {
 	return &CreationUseCase{
-		repo: repo,
-		re:   re,
-		log:  log.NewHelper(log.With(logger, "module", "bff/biz/CreationUseCase")),
+		repo:        repo,
+		articleRepo: articleRepo,
+		columnRepo:  columnRepo,
+		talkRepo:    talkRepo,
+		re:          re,
+		log:         log.NewHelper(log.With(logger, "module", "bff/biz/CreationUseCase")),
 	}
 }
 
@@ -193,32 +201,55 @@ func (r *CreationUseCase) GetLeaderBoard(ctx context.Context) ([]*LeaderBoard, e
 	return r.repo.GetLeaderBoard(ctx)
 }
 
-func (r *CreationUseCase) GetCollectArticle(ctx context.Context, id, page int32) ([]*Article, error) {
-	return r.repo.GetCollectArticle(ctx, id, page)
+func (r *CreationUseCase) GetCollectArticleList(ctx context.Context, id, page int32) ([]*Article, error) {
+	articleList, err := r.repo.GetCollectArticleList(ctx, id, page)
+	if err != nil {
+		return nil, err
+	}
+	articleListStatistic, err := r.articleRepo.GetArticleListStatistic(ctx, articleList)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range articleListStatistic {
+		for index, listItem := range articleList {
+			if listItem.Id == item.Id {
+				articleList[index].Agree = item.Agree
+				articleList[index].View = item.View
+				articleList[index].Collect = item.Collect
+				articleList[index].Comment = item.Comment
+			}
+		}
+	}
+	return articleList, nil
 }
 
 func (r *CreationUseCase) GetCollectArticleCount(ctx context.Context, id int32) (int32, error) {
 	return r.repo.GetCollectArticleCount(ctx, id)
 }
 
-func (r *CreationUseCase) GetCollectTalk(ctx context.Context, id, page int32) ([]*Talk, error) {
-	return r.repo.GetCollectTalk(ctx, id, page)
+func (r *CreationUseCase) GetCollectTalkList(ctx context.Context, id, page int32) ([]*Talk, error) {
+	return r.repo.GetCollectTalkList(ctx, id, page)
 }
 
 func (r *CreationUseCase) GetCollectTalkCount(ctx context.Context, id int32) (int32, error) {
 	return r.repo.GetCollectTalkCount(ctx, id)
 }
 
-func (r *CreationUseCase) GetCollectColumn(ctx context.Context, id, page int32) ([]*Column, error) {
-	return r.repo.GetCollectColumn(ctx, id, page)
+func (r *CreationUseCase) GetCollectColumnList(ctx context.Context, id, page int32) ([]*Column, error) {
+	return r.repo.GetCollectColumnList(ctx, id, page)
 }
 
 func (r *CreationUseCase) GetCollectColumnCount(ctx context.Context, id int32) (int32, error) {
 	return r.repo.GetCollectColumnCount(ctx, id)
 }
 
-func (r *CreationUseCase) GetCollection(ctx context.Context, id int32, uuid string) (*Collections, error) {
-	return r.repo.GetCollection(ctx, id, uuid)
+func (r *CreationUseCase) GetLastCollectionsDraft(ctx context.Context) (*CollectionsDraft, error) {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.GetLastCollectionsDraft(ctx, uuid)
+}
+
+func (r *CreationUseCase) GetCollections(ctx context.Context, id int32, uuid string) (*Collections, error) {
+	return r.repo.GetCollections(ctx, id, uuid)
 }
 
 func (r *CreationUseCase) GetCollectionsList(ctx context.Context, page int32) ([]*Collections, error) {
@@ -227,7 +258,7 @@ func (r *CreationUseCase) GetCollectionsList(ctx context.Context, page int32) ([
 	if err != nil {
 		return nil, err
 	}
-	return r.repo.GetCollectionListInfo(ctx, collectionsList)
+	return collectionsList, nil
 }
 
 func (r *CreationUseCase) GetCollectionsListAll(ctx context.Context) ([]*Collections, error) {
@@ -236,7 +267,7 @@ func (r *CreationUseCase) GetCollectionsListAll(ctx context.Context) ([]*Collect
 	if err != nil {
 		return nil, err
 	}
-	return r.repo.GetCollectionListInfo(ctx, collectionsList)
+	return collectionsList, nil
 }
 
 func (r *CreationUseCase) GetCollectionsCount(ctx context.Context) (int32, error) {
@@ -249,11 +280,16 @@ func (r *CreationUseCase) GetCollectionsListByVisitor(ctx context.Context, page 
 	if err != nil {
 		return nil, err
 	}
-	return r.repo.GetCollectionListInfo(ctx, collectionsList)
+	return collectionsList, nil
 }
 
 func (r *CreationUseCase) GetCollectionsVisitorCount(ctx context.Context, uuid string) (int32, error) {
 	return r.repo.GetCollectionsVisitorCount(ctx, uuid)
+}
+
+func (r *CreationUseCase) CreateCollectionsDraft(ctx context.Context) (int32, error) {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.CreateCollectionsDraft(ctx, uuid)
 }
 
 func (r *CreationUseCase) GetCreationUser(ctx context.Context, uuid string) (*CreationUser, error) {
