@@ -1163,7 +1163,7 @@ func (r *talkRepo) SendTalkToMq(ctx context.Context, talk *biz.Talk, mode string
 	return nil
 }
 
-func (r *talkRepo) CreateTalkCache(ctx context.Context, id, auth int32, uuid string) error {
+func (r *talkRepo) CreateTalkCache(ctx context.Context, id, auth int32, uuid, mode string) error {
 	exists := make([]int32, 0)
 	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		pipe.Exists(ctx, "talk")
@@ -1199,7 +1199,7 @@ func (r *talkRepo) CreateTalkCache(ctx context.Context, id, auth int32, uuid str
 			})
 		}
 
-		if exists[5] == 1 {
+		if exists[5] == 1 && mode == "create" {
 			pipe.HIncrBy(ctx, "creation_user_"+uuid, "talk", 1)
 		}
 
@@ -1235,7 +1235,7 @@ func (r *talkRepo) CreateTalkCache(ctx context.Context, id, auth int32, uuid str
 			})
 		}
 
-		if exists[6] == 1 {
+		if exists[6] == 1 && mode == "create" {
 			pipe.HIncrBy(ctx, "creation_user_visitor_"+uuid, "talk", 1)
 		}
 		return nil
@@ -1246,8 +1246,8 @@ func (r *talkRepo) CreateTalkCache(ctx context.Context, id, auth int32, uuid str
 	return nil
 }
 
-func (r *talkRepo) UpdateTalkCache(ctx context.Context, id, auth int32, uuid string) error {
-	return r.CreateTalkCache(ctx, id, auth, uuid)
+func (r *talkRepo) UpdateTalkCache(ctx context.Context, id, auth int32, uuid, mode string) error {
+	return r.CreateTalkCache(ctx, id, auth, uuid, mode)
 }
 
 func (r *talkRepo) EditTalkCos(ctx context.Context, id int32, uuid string) error {
