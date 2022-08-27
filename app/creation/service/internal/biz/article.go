@@ -35,7 +35,7 @@ type ArticleRepo interface {
 	CreateArticleStatistic(ctx context.Context, id, auth int32, uuid string) error
 	CreateArticleDraft(ctx context.Context, uuid string) (int32, error)
 	CreateArticleFolder(ctx context.Context, id int32, uuid string) error
-	CreateArticleCache(ctx context.Context, id, auth int32, uuid string) error
+	CreateArticleCache(ctx context.Context, id, auth int32, uuid, mode string) error
 	CreateArticleSearch(ctx context.Context, id int32, uuid string) error
 	AddArticleComment(ctx context.Context, id int32) error
 	AddArticleCommentToCache(ctx context.Context, id int32, uuid string) error
@@ -46,7 +46,7 @@ type ArticleRepo interface {
 
 	EditArticleCos(ctx context.Context, id int32, uuid string) error
 	EditArticleSearch(ctx context.Context, id int32, uuid string) error
-	UpdateArticleCache(ctx context.Context, id, auth int32, uuid string) error
+	UpdateArticleCache(ctx context.Context, id, auth int32, uuid, mode string) error
 
 	DeleteArticle(ctx context.Context, id int32, uuid string) error
 	DeleteArticleStatistic(ctx context.Context, id int32, uuid string) error
@@ -185,7 +185,7 @@ func (r *ArticleUseCase) CreateArticleDbCacheAndSearch(ctx context.Context, id, 
 			return v1.ErrorCreateArticleFailed("add creation article failed: %s", err.Error())
 		}
 
-		err = r.repo.CreateArticleCache(ctx, id, auth, uuid)
+		err = r.repo.CreateArticleCache(ctx, id, auth, uuid, "create")
 		if err != nil {
 			return v1.ErrorCreateArticleFailed("create article cache failed: %s", err.Error())
 		}
@@ -208,7 +208,7 @@ func (r *ArticleUseCase) CreateArticleDbCacheAndSearch(ctx context.Context, id, 
 }
 
 func (r *ArticleUseCase) EditArticleCosAndSearch(ctx context.Context, id, auth int32, uuid string) error {
-	err := r.repo.UpdateArticleCache(ctx, id, auth, uuid)
+	err := r.repo.UpdateArticleCache(ctx, id, auth, uuid, "edit")
 	if err != nil {
 		return v1.ErrorEditArticleFailed("edit article cache failed: %s", err.Error())
 	}
