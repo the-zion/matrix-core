@@ -376,7 +376,7 @@ func (r *columnRepo) SendColumnSubscribeToMq(ctx context.Context, id int32, uuid
 	return nil
 }
 
-func (r *columnRepo) CreateColumnCache(ctx context.Context, id, auth int32, uuid string) error {
+func (r *columnRepo) CreateColumnCache(ctx context.Context, id, auth int32, uuid, mode string) error {
 	exists := make([]int32, 0)
 	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		pipe.Exists(ctx, "column")
@@ -411,7 +411,7 @@ func (r *columnRepo) CreateColumnCache(ctx context.Context, id, auth int32, uuid
 			})
 		}
 
-		if exists[5] == 1 {
+		if exists[5] == 1 && mode == "create" {
 			pipe.HIncrBy(ctx, "creation_user_"+uuid, "column", 1)
 		}
 
@@ -447,7 +447,7 @@ func (r *columnRepo) CreateColumnCache(ctx context.Context, id, auth int32, uuid
 			})
 		}
 
-		if exists[6] == 1 {
+		if exists[6] == 1 && mode == "create" {
 			pipe.HIncrBy(ctx, "creation_user_visitor_"+uuid, "column", 1)
 		}
 		return nil
@@ -458,8 +458,8 @@ func (r *columnRepo) CreateColumnCache(ctx context.Context, id, auth int32, uuid
 	return nil
 }
 
-func (r *columnRepo) UpdateColumnCache(ctx context.Context, id, auth int32, uuid string) error {
-	return r.CreateColumnCache(ctx, id, auth, uuid)
+func (r *columnRepo) UpdateColumnCache(ctx context.Context, id, auth int32, uuid, mode string) error {
+	return r.CreateColumnCache(ctx, id, auth, uuid, mode)
 }
 
 func (r *columnRepo) EditColumnCos(ctx context.Context, id int32, uuid string) error {
