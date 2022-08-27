@@ -14,7 +14,7 @@ type ColumnRepo interface {
 	CreateColumnFolder(ctx context.Context, id int32, uuid string) error
 	CreateColumn(ctx context.Context, id, auth int32, uuid string) error
 	CreateColumnStatistic(ctx context.Context, id, auth int32, uuid string) error
-	CreateColumnCache(ctx context.Context, id, auth int32, uuid string) error
+	CreateColumnCache(ctx context.Context, id, auth int32, uuid, mode string) error
 	CreateColumnSearch(ctx context.Context, id int32, uuid string) error
 
 	AddColumnIncludes(ctx context.Context, id, articleId int32, uuid string) error
@@ -23,7 +23,7 @@ type ColumnRepo interface {
 	AddUserCreationSubscribe(ctx context.Context, uuid string) error
 	ReduceCreationUserColumn(ctx context.Context, auth int32, uuid string) error
 
-	UpdateColumnCache(ctx context.Context, id, auth int32, uuid string) error
+	UpdateColumnCache(ctx context.Context, id, auth int32, uuid, mode string) error
 	EditColumnCos(ctx context.Context, id int32, uuid string) error
 	EditColumnSearch(ctx context.Context, id int32, uuid string) error
 
@@ -392,7 +392,7 @@ func (r *ColumnUseCase) CreateColumnDbCacheAndSearch(ctx context.Context, id, au
 			return v1.ErrorCreateColumnFailed("add creation column failed: %s", err.Error())
 		}
 
-		err = r.repo.CreateColumnCache(ctx, id, auth, uuid)
+		err = r.repo.CreateColumnCache(ctx, id, auth, uuid, "create")
 		if err != nil {
 			return v1.ErrorCreateColumnFailed("create column cache failed: %s", err.Error())
 		}
@@ -415,7 +415,7 @@ func (r *ColumnUseCase) CreateColumnDbCacheAndSearch(ctx context.Context, id, au
 }
 
 func (r *ColumnUseCase) EditColumnCosAndSearch(ctx context.Context, id, auth int32, uuid string) error {
-	err := r.repo.UpdateColumnCache(ctx, id, auth, uuid)
+	err := r.repo.UpdateColumnCache(ctx, id, auth, uuid, "edit")
 	if err != nil {
 		return v1.ErrorEditColumnFailed("edit column cache failed: %s", err.Error())
 	}
