@@ -109,10 +109,10 @@ func (r *creationRepo) GetLeaderBoard(ctx context.Context) ([]*biz.LeaderBoard, 
 	return result.([]*biz.LeaderBoard), nil
 }
 
-func (r *creationRepo) GetCollectArticle(ctx context.Context, id, page int32) ([]*biz.Article, error) {
-	result, err, _ := r.sg.Do(fmt.Sprintf("collect_article_page_%v_%v", id, page), func() (interface{}, error) {
+func (r *creationRepo) GetCollectArticleList(ctx context.Context, id, page int32) ([]*biz.Article, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("collect_article_list_page_%v_%v", id, page), func() (interface{}, error) {
 		reply := make([]*biz.Article, 0)
-		articleList, err := r.data.cc.GetCollectArticle(ctx, &creationV1.GetCollectArticleReq{
+		articleList, err := r.data.cc.GetCollectArticleList(ctx, &creationV1.GetCollectArticleListReq{
 			Id:   id,
 			Page: page,
 		})
@@ -149,10 +149,10 @@ func (r *creationRepo) GetCollectArticleCount(ctx context.Context, id int32) (in
 	return result.(int32), nil
 }
 
-func (r *creationRepo) GetCollectTalk(ctx context.Context, id, page int32) ([]*biz.Talk, error) {
-	result, err, _ := r.sg.Do(fmt.Sprintf("collect_talk_page_%v_%v", id, page), func() (interface{}, error) {
+func (r *creationRepo) GetCollectTalkList(ctx context.Context, id, page int32) ([]*biz.Talk, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("collect_talk_list_page_%v_%v", id, page), func() (interface{}, error) {
 		reply := make([]*biz.Talk, 0)
-		talkList, err := r.data.cc.GetCollectTalk(ctx, &creationV1.GetCollectTalkReq{
+		talkList, err := r.data.cc.GetCollectTalkList(ctx, &creationV1.GetCollectTalkListReq{
 			Id:   id,
 			Page: page,
 		})
@@ -189,10 +189,10 @@ func (r *creationRepo) GetCollectTalkCount(ctx context.Context, id int32) (int32
 	return result.(int32), nil
 }
 
-func (r *creationRepo) GetCollectColumn(ctx context.Context, id, page int32) ([]*biz.Column, error) {
-	result, err, _ := r.sg.Do(fmt.Sprintf("collect_column_page_%v_%v", id, page), func() (interface{}, error) {
+func (r *creationRepo) GetCollectColumnList(ctx context.Context, id, page int32) ([]*biz.Column, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("collect_column_list_page_%v_%v", id, page), func() (interface{}, error) {
 		reply := make([]*biz.Column, 0)
-		columnList, err := r.data.cc.GetCollectColumn(ctx, &creationV1.GetCollectColumnReq{
+		columnList, err := r.data.cc.GetCollectColumnList(ctx, &creationV1.GetCollectColumnListReq{
 			Id:   id,
 			Page: page,
 		})
@@ -229,9 +229,28 @@ func (r *creationRepo) GetCollectColumnCount(ctx context.Context, id int32) (int
 	return result.(int32), nil
 }
 
-func (r *creationRepo) GetCollection(ctx context.Context, id int32, uuid string) (*biz.Collections, error) {
-	result, err, _ := r.sg.Do(fmt.Sprintf("get_collection_%v", id), func() (interface{}, error) {
-		reply, err := r.data.cc.GetCollection(ctx, &creationV1.GetCollectionReq{
+func (r *creationRepo) GetLastCollectionsDraft(ctx context.Context, uuid string) (*biz.CollectionsDraft, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_last_collections_draft_%s", uuid), func() (interface{}, error) {
+		reply, err := r.data.cc.GetLastCollectionsDraft(ctx, &creationV1.GetLastCollectionsDraftReq{
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return &biz.CollectionsDraft{
+			Id:     reply.Id,
+			Status: reply.Status,
+		}, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*biz.CollectionsDraft), nil
+}
+
+func (r *creationRepo) GetCollections(ctx context.Context, id int32, uuid string) (*biz.Collections, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_collections_%v", id), func() (interface{}, error) {
+		reply, err := r.data.cc.GetCollections(ctx, &creationV1.GetCollectionsReq{
 			Id:   id,
 			Uuid: uuid,
 		})
@@ -239,10 +258,11 @@ func (r *creationRepo) GetCollection(ctx context.Context, id int32, uuid string)
 			return nil, err
 		}
 		return &biz.Collections{
-			Uuid:      reply.Uuid,
-			Name:      reply.Name,
-			Introduce: reply.Introduce,
-			Auth:      reply.Auth,
+			Uuid:    reply.Uuid,
+			Auth:    reply.Auth,
+			Article: reply.Article,
+			Column:  reply.Column,
+			Talk:    reply.Talk,
 		}, nil
 	})
 	if err != nil {
@@ -265,9 +285,7 @@ func (r *creationRepo) GetCollectionListInfo(ctx context.Context, collectionsLis
 	}
 	for _, item := range collectionsListInfo.Collections {
 		reply = append(reply, &biz.Collections{
-			Id:        item.Id,
-			Name:      item.Name,
-			Introduce: item.Introduce,
+			Id: item.Id,
 		})
 	}
 	return reply, nil
@@ -285,9 +303,7 @@ func (r *creationRepo) GetCollectionsList(ctx context.Context, uuid string, page
 		}
 		for _, item := range reply.Collections {
 			collections = append(collections, &biz.Collections{
-				Id:        item.Id,
-				Name:      item.Name,
-				Introduce: item.Introduce,
+				Id: item.Id,
 			})
 		}
 		return collections, nil
@@ -309,9 +325,7 @@ func (r *creationRepo) GetCollectionsListAll(ctx context.Context, uuid string) (
 		}
 		for _, item := range reply.Collections {
 			collections = append(collections, &biz.Collections{
-				Id:        item.Id,
-				Name:      item.Name,
-				Introduce: item.Introduce,
+				Id: item.Id,
 			})
 		}
 		return collections, nil
@@ -413,6 +427,16 @@ func (r *creationRepo) GetCreationUserVisitor(ctx context.Context, uuid string) 
 		return nil, err
 	}
 	return result.(*biz.CreationUser), nil
+}
+
+func (r *creationRepo) CreateCollectionsDraft(ctx context.Context, uuid string) (int32, error) {
+	reply, err := r.data.cc.CreateCollectionsDraft(ctx, &creationV1.CreateCollectionsDraftReq{
+		Uuid: uuid,
+	})
+	if err != nil {
+		return 0, err
+	}
+	return reply.Id, nil
 }
 
 func (r *creationRepo) SendCollections(ctx context.Context, id int32, uuid, ip string) error {
