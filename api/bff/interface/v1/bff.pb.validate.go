@@ -4586,22 +4586,22 @@ var _ interface {
 	ErrorName() string
 } = GetLeaderBoardReplyValidationError{}
 
-// Validate checks the field values on GetCollectArticleReq with the rules
+// Validate checks the field values on GetCollectArticleListReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *GetCollectArticleReq) Validate() error {
+func (m *GetCollectArticleListReq) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on GetCollectArticleReq with the rules
-// defined in the proto definition for this message. If any rules are
+// ValidateAll checks the field values on GetCollectArticleListReq with the
+// rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// GetCollectArticleReqMultiError, or nil if none found.
-func (m *GetCollectArticleReq) ValidateAll() error {
+// GetCollectArticleListReqMultiError, or nil if none found.
+func (m *GetCollectArticleListReq) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *GetCollectArticleReq) validate(all bool) error {
+func (m *GetCollectArticleListReq) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -4613,19 +4613,19 @@ func (m *GetCollectArticleReq) validate(all bool) error {
 	// no validation rules for Page
 
 	if len(errors) > 0 {
-		return GetCollectArticleReqMultiError(errors)
+		return GetCollectArticleListReqMultiError(errors)
 	}
 
 	return nil
 }
 
-// GetCollectArticleReqMultiError is an error wrapping multiple validation
-// errors returned by GetCollectArticleReq.ValidateAll() if the designated
+// GetCollectArticleListReqMultiError is an error wrapping multiple validation
+// errors returned by GetCollectArticleListReq.ValidateAll() if the designated
 // constraints aren't met.
-type GetCollectArticleReqMultiError []error
+type GetCollectArticleListReqMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m GetCollectArticleReqMultiError) Error() string {
+func (m GetCollectArticleListReqMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -4634,11 +4634,11 @@ func (m GetCollectArticleReqMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m GetCollectArticleReqMultiError) AllErrors() []error { return m }
+func (m GetCollectArticleListReqMultiError) AllErrors() []error { return m }
 
-// GetCollectArticleReqValidationError is the validation error returned by
-// GetCollectArticleReq.Validate if the designated constraints aren't met.
-type GetCollectArticleReqValidationError struct {
+// GetCollectArticleListReqValidationError is the validation error returned by
+// GetCollectArticleListReq.Validate if the designated constraints aren't met.
+type GetCollectArticleListReqValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -4646,24 +4646,24 @@ type GetCollectArticleReqValidationError struct {
 }
 
 // Field function returns field value.
-func (e GetCollectArticleReqValidationError) Field() string { return e.field }
+func (e GetCollectArticleListReqValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e GetCollectArticleReqValidationError) Reason() string { return e.reason }
+func (e GetCollectArticleListReqValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e GetCollectArticleReqValidationError) Cause() error { return e.cause }
+func (e GetCollectArticleListReqValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e GetCollectArticleReqValidationError) Key() bool { return e.key }
+func (e GetCollectArticleListReqValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e GetCollectArticleReqValidationError) ErrorName() string {
-	return "GetCollectArticleReqValidationError"
+func (e GetCollectArticleListReqValidationError) ErrorName() string {
+	return "GetCollectArticleListReqValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e GetCollectArticleReqValidationError) Error() string {
+func (e GetCollectArticleListReqValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -4675,14 +4675,14 @@ func (e GetCollectArticleReqValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sGetCollectArticleReq.%s: %s%s",
+		"invalid %sGetCollectArticleListReq.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = GetCollectArticleReqValidationError{}
+var _ error = GetCollectArticleListReqValidationError{}
 
 var _ interface {
 	Field() string
@@ -4690,7 +4690,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = GetCollectArticleReqValidationError{}
+} = GetCollectArticleListReqValidationError{}
 
 // Validate checks the field values on GetCollectArticleCountReq with the rules
 // defined in the proto definition for this message. If any rules are
@@ -4901,22 +4901,22 @@ var _ interface {
 	ErrorName() string
 } = GetCollectArticleCountReplyValidationError{}
 
-// Validate checks the field values on GetCollectTalkReq with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// first error encountered is returned, or nil if there are no violations.
-func (m *GetCollectTalkReq) Validate() error {
+// Validate checks the field values on GetCollectTalkListReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetCollectTalkListReq) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on GetCollectTalkReq with the rules
+// ValidateAll checks the field values on GetCollectTalkListReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// GetCollectTalkReqMultiError, or nil if none found.
-func (m *GetCollectTalkReq) ValidateAll() error {
+// GetCollectTalkListReqMultiError, or nil if none found.
+func (m *GetCollectTalkListReq) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *GetCollectTalkReq) validate(all bool) error {
+func (m *GetCollectTalkListReq) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -4928,19 +4928,19 @@ func (m *GetCollectTalkReq) validate(all bool) error {
 	// no validation rules for Page
 
 	if len(errors) > 0 {
-		return GetCollectTalkReqMultiError(errors)
+		return GetCollectTalkListReqMultiError(errors)
 	}
 
 	return nil
 }
 
-// GetCollectTalkReqMultiError is an error wrapping multiple validation errors
-// returned by GetCollectTalkReq.ValidateAll() if the designated constraints
-// aren't met.
-type GetCollectTalkReqMultiError []error
+// GetCollectTalkListReqMultiError is an error wrapping multiple validation
+// errors returned by GetCollectTalkListReq.ValidateAll() if the designated
+// constraints aren't met.
+type GetCollectTalkListReqMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m GetCollectTalkReqMultiError) Error() string {
+func (m GetCollectTalkListReqMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -4949,11 +4949,11 @@ func (m GetCollectTalkReqMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m GetCollectTalkReqMultiError) AllErrors() []error { return m }
+func (m GetCollectTalkListReqMultiError) AllErrors() []error { return m }
 
-// GetCollectTalkReqValidationError is the validation error returned by
-// GetCollectTalkReq.Validate if the designated constraints aren't met.
-type GetCollectTalkReqValidationError struct {
+// GetCollectTalkListReqValidationError is the validation error returned by
+// GetCollectTalkListReq.Validate if the designated constraints aren't met.
+type GetCollectTalkListReqValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -4961,24 +4961,24 @@ type GetCollectTalkReqValidationError struct {
 }
 
 // Field function returns field value.
-func (e GetCollectTalkReqValidationError) Field() string { return e.field }
+func (e GetCollectTalkListReqValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e GetCollectTalkReqValidationError) Reason() string { return e.reason }
+func (e GetCollectTalkListReqValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e GetCollectTalkReqValidationError) Cause() error { return e.cause }
+func (e GetCollectTalkListReqValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e GetCollectTalkReqValidationError) Key() bool { return e.key }
+func (e GetCollectTalkListReqValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e GetCollectTalkReqValidationError) ErrorName() string {
-	return "GetCollectTalkReqValidationError"
+func (e GetCollectTalkListReqValidationError) ErrorName() string {
+	return "GetCollectTalkListReqValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e GetCollectTalkReqValidationError) Error() string {
+func (e GetCollectTalkListReqValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -4990,14 +4990,14 @@ func (e GetCollectTalkReqValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sGetCollectTalkReq.%s: %s%s",
+		"invalid %sGetCollectTalkListReq.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = GetCollectTalkReqValidationError{}
+var _ error = GetCollectTalkListReqValidationError{}
 
 var _ interface {
 	Field() string
@@ -5005,7 +5005,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = GetCollectTalkReqValidationError{}
+} = GetCollectTalkListReqValidationError{}
 
 // Validate checks the field values on GetCollectTalkCountReq with the rules
 // defined in the proto definition for this message. If any rules are
@@ -5215,22 +5215,22 @@ var _ interface {
 	ErrorName() string
 } = GetCollectTalkCountReplyValidationError{}
 
-// Validate checks the field values on GetCollectColumnReq with the rules
+// Validate checks the field values on GetCollectColumnListReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *GetCollectColumnReq) Validate() error {
+func (m *GetCollectColumnListReq) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on GetCollectColumnReq with the rules
-// defined in the proto definition for this message. If any rules are
+// ValidateAll checks the field values on GetCollectColumnListReq with the
+// rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// GetCollectColumnReqMultiError, or nil if none found.
-func (m *GetCollectColumnReq) ValidateAll() error {
+// GetCollectColumnListReqMultiError, or nil if none found.
+func (m *GetCollectColumnListReq) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *GetCollectColumnReq) validate(all bool) error {
+func (m *GetCollectColumnListReq) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -5242,19 +5242,19 @@ func (m *GetCollectColumnReq) validate(all bool) error {
 	// no validation rules for Page
 
 	if len(errors) > 0 {
-		return GetCollectColumnReqMultiError(errors)
+		return GetCollectColumnListReqMultiError(errors)
 	}
 
 	return nil
 }
 
-// GetCollectColumnReqMultiError is an error wrapping multiple validation
-// errors returned by GetCollectColumnReq.ValidateAll() if the designated
+// GetCollectColumnListReqMultiError is an error wrapping multiple validation
+// errors returned by GetCollectColumnListReq.ValidateAll() if the designated
 // constraints aren't met.
-type GetCollectColumnReqMultiError []error
+type GetCollectColumnListReqMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m GetCollectColumnReqMultiError) Error() string {
+func (m GetCollectColumnListReqMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -5263,11 +5263,11 @@ func (m GetCollectColumnReqMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m GetCollectColumnReqMultiError) AllErrors() []error { return m }
+func (m GetCollectColumnListReqMultiError) AllErrors() []error { return m }
 
-// GetCollectColumnReqValidationError is the validation error returned by
-// GetCollectColumnReq.Validate if the designated constraints aren't met.
-type GetCollectColumnReqValidationError struct {
+// GetCollectColumnListReqValidationError is the validation error returned by
+// GetCollectColumnListReq.Validate if the designated constraints aren't met.
+type GetCollectColumnListReqValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -5275,24 +5275,24 @@ type GetCollectColumnReqValidationError struct {
 }
 
 // Field function returns field value.
-func (e GetCollectColumnReqValidationError) Field() string { return e.field }
+func (e GetCollectColumnListReqValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e GetCollectColumnReqValidationError) Reason() string { return e.reason }
+func (e GetCollectColumnListReqValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e GetCollectColumnReqValidationError) Cause() error { return e.cause }
+func (e GetCollectColumnListReqValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e GetCollectColumnReqValidationError) Key() bool { return e.key }
+func (e GetCollectColumnListReqValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e GetCollectColumnReqValidationError) ErrorName() string {
-	return "GetCollectColumnReqValidationError"
+func (e GetCollectColumnListReqValidationError) ErrorName() string {
+	return "GetCollectColumnListReqValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e GetCollectColumnReqValidationError) Error() string {
+func (e GetCollectColumnListReqValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -5304,14 +5304,14 @@ func (e GetCollectColumnReqValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sGetCollectColumnReq.%s: %s%s",
+		"invalid %sGetCollectColumnListReq.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = GetCollectColumnReqValidationError{}
+var _ error = GetCollectColumnListReqValidationError{}
 
 var _ interface {
 	Field() string
@@ -5319,7 +5319,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = GetCollectColumnReqValidationError{}
+} = GetCollectColumnListReqValidationError{}
 
 // Validate checks the field values on GetCollectColumnCountReq with the rules
 // defined in the proto definition for this message. If any rules are
@@ -5529,22 +5529,22 @@ var _ interface {
 	ErrorName() string
 } = GetCollectColumnCountReplyValidationError{}
 
-// Validate checks the field values on GetCollectionReq with the rules defined
+// Validate checks the field values on GetCollectionsReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
-func (m *GetCollectionReq) Validate() error {
+func (m *GetCollectionsReq) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on GetCollectionReq with the rules
+// ValidateAll checks the field values on GetCollectionsReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// GetCollectionReqMultiError, or nil if none found.
-func (m *GetCollectionReq) ValidateAll() error {
+// GetCollectionsReqMultiError, or nil if none found.
+func (m *GetCollectionsReq) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *GetCollectionReq) validate(all bool) error {
+func (m *GetCollectionsReq) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -5556,19 +5556,19 @@ func (m *GetCollectionReq) validate(all bool) error {
 	// no validation rules for Uuid
 
 	if len(errors) > 0 {
-		return GetCollectionReqMultiError(errors)
+		return GetCollectionsReqMultiError(errors)
 	}
 
 	return nil
 }
 
-// GetCollectionReqMultiError is an error wrapping multiple validation errors
-// returned by GetCollectionReq.ValidateAll() if the designated constraints
+// GetCollectionsReqMultiError is an error wrapping multiple validation errors
+// returned by GetCollectionsReq.ValidateAll() if the designated constraints
 // aren't met.
-type GetCollectionReqMultiError []error
+type GetCollectionsReqMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m GetCollectionReqMultiError) Error() string {
+func (m GetCollectionsReqMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -5577,11 +5577,11 @@ func (m GetCollectionReqMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m GetCollectionReqMultiError) AllErrors() []error { return m }
+func (m GetCollectionsReqMultiError) AllErrors() []error { return m }
 
-// GetCollectionReqValidationError is the validation error returned by
-// GetCollectionReq.Validate if the designated constraints aren't met.
-type GetCollectionReqValidationError struct {
+// GetCollectionsReqValidationError is the validation error returned by
+// GetCollectionsReq.Validate if the designated constraints aren't met.
+type GetCollectionsReqValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -5589,22 +5589,24 @@ type GetCollectionReqValidationError struct {
 }
 
 // Field function returns field value.
-func (e GetCollectionReqValidationError) Field() string { return e.field }
+func (e GetCollectionsReqValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e GetCollectionReqValidationError) Reason() string { return e.reason }
+func (e GetCollectionsReqValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e GetCollectionReqValidationError) Cause() error { return e.cause }
+func (e GetCollectionsReqValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e GetCollectionReqValidationError) Key() bool { return e.key }
+func (e GetCollectionsReqValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e GetCollectionReqValidationError) ErrorName() string { return "GetCollectionReqValidationError" }
+func (e GetCollectionsReqValidationError) ErrorName() string {
+	return "GetCollectionsReqValidationError"
+}
 
 // Error satisfies the builtin error interface
-func (e GetCollectionReqValidationError) Error() string {
+func (e GetCollectionsReqValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -5616,14 +5618,14 @@ func (e GetCollectionReqValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sGetCollectionReq.%s: %s%s",
+		"invalid %sGetCollectionsReq.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = GetCollectionReqValidationError{}
+var _ error = GetCollectionsReqValidationError{}
 
 var _ interface {
 	Field() string
@@ -5631,24 +5633,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = GetCollectionReqValidationError{}
+} = GetCollectionsReqValidationError{}
 
-// Validate checks the field values on GetCollectionReply with the rules
+// Validate checks the field values on GetCollectionsReply with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *GetCollectionReply) Validate() error {
+func (m *GetCollectionsReply) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on GetCollectionReply with the rules
+// ValidateAll checks the field values on GetCollectionsReply with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// GetCollectionReplyMultiError, or nil if none found.
-func (m *GetCollectionReply) ValidateAll() error {
+// GetCollectionsReplyMultiError, or nil if none found.
+func (m *GetCollectionsReply) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *GetCollectionReply) validate(all bool) error {
+func (m *GetCollectionsReply) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -5657,26 +5659,28 @@ func (m *GetCollectionReply) validate(all bool) error {
 
 	// no validation rules for Uuid
 
-	// no validation rules for Name
-
-	// no validation rules for Introduce
-
 	// no validation rules for Auth
 
+	// no validation rules for Article
+
+	// no validation rules for Column
+
+	// no validation rules for Talk
+
 	if len(errors) > 0 {
-		return GetCollectionReplyMultiError(errors)
+		return GetCollectionsReplyMultiError(errors)
 	}
 
 	return nil
 }
 
-// GetCollectionReplyMultiError is an error wrapping multiple validation errors
-// returned by GetCollectionReply.ValidateAll() if the designated constraints
-// aren't met.
-type GetCollectionReplyMultiError []error
+// GetCollectionsReplyMultiError is an error wrapping multiple validation
+// errors returned by GetCollectionsReply.ValidateAll() if the designated
+// constraints aren't met.
+type GetCollectionsReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m GetCollectionReplyMultiError) Error() string {
+func (m GetCollectionsReplyMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -5685,11 +5689,11 @@ func (m GetCollectionReplyMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m GetCollectionReplyMultiError) AllErrors() []error { return m }
+func (m GetCollectionsReplyMultiError) AllErrors() []error { return m }
 
-// GetCollectionReplyValidationError is the validation error returned by
-// GetCollectionReply.Validate if the designated constraints aren't met.
-type GetCollectionReplyValidationError struct {
+// GetCollectionsReplyValidationError is the validation error returned by
+// GetCollectionsReply.Validate if the designated constraints aren't met.
+type GetCollectionsReplyValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -5697,24 +5701,24 @@ type GetCollectionReplyValidationError struct {
 }
 
 // Field function returns field value.
-func (e GetCollectionReplyValidationError) Field() string { return e.field }
+func (e GetCollectionsReplyValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e GetCollectionReplyValidationError) Reason() string { return e.reason }
+func (e GetCollectionsReplyValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e GetCollectionReplyValidationError) Cause() error { return e.cause }
+func (e GetCollectionsReplyValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e GetCollectionReplyValidationError) Key() bool { return e.key }
+func (e GetCollectionsReplyValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e GetCollectionReplyValidationError) ErrorName() string {
-	return "GetCollectionReplyValidationError"
+func (e GetCollectionsReplyValidationError) ErrorName() string {
+	return "GetCollectionsReplyValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e GetCollectionReplyValidationError) Error() string {
+func (e GetCollectionsReplyValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -5726,14 +5730,14 @@ func (e GetCollectionReplyValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sGetCollectionReply.%s: %s%s",
+		"invalid %sGetCollectionsReply.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = GetCollectionReplyValidationError{}
+var _ error = GetCollectionsReplyValidationError{}
 
 var _ interface {
 	Field() string
@@ -5741,7 +5745,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = GetCollectionReplyValidationError{}
+} = GetCollectionsReplyValidationError{}
 
 // Validate checks the field values on GetArticleListReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the

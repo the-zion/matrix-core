@@ -56,13 +56,13 @@ type BffClient interface {
 	UnbindUserEmail(ctx context.Context, in *UnbindUserEmailReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// -------------------------creation----------------------------
 	GetLeaderBoard(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLeaderBoardReply, error)
-	GetCollectArticle(ctx context.Context, in *GetCollectArticleReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
+	GetCollectArticleList(ctx context.Context, in *GetCollectArticleListReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
 	GetCollectArticleCount(ctx context.Context, in *GetCollectArticleCountReq, opts ...grpc.CallOption) (*GetCollectArticleCountReply, error)
-	GetCollectTalk(ctx context.Context, in *GetCollectTalkReq, opts ...grpc.CallOption) (*GetTalkListReply, error)
+	GetCollectTalkList(ctx context.Context, in *GetCollectTalkListReq, opts ...grpc.CallOption) (*GetTalkListReply, error)
 	GetCollectTalkCount(ctx context.Context, in *GetCollectTalkCountReq, opts ...grpc.CallOption) (*GetCollectTalkCountReply, error)
-	GetCollectColumn(ctx context.Context, in *GetCollectColumnReq, opts ...grpc.CallOption) (*GetColumnListReply, error)
+	GetCollectColumnList(ctx context.Context, in *GetCollectColumnListReq, opts ...grpc.CallOption) (*GetColumnListReply, error)
 	GetCollectColumnCount(ctx context.Context, in *GetCollectColumnCountReq, opts ...grpc.CallOption) (*GetCollectColumnCountReply, error)
-	GetCollection(ctx context.Context, in *GetCollectionReq, opts ...grpc.CallOption) (*GetCollectionReply, error)
+	GetCollections(ctx context.Context, in *GetCollectionsReq, opts ...grpc.CallOption) (*GetCollectionsReply, error)
 	GetCollectionsList(ctx context.Context, in *GetCollectionsListReq, opts ...grpc.CallOption) (*GetCollectionsListReply, error)
 	GetCollectionsListAll(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCollectionsListReply, error)
 	GetCollectionsCount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCollectionsCountReply, error)
@@ -475,9 +475,9 @@ func (c *bffClient) GetLeaderBoard(ctx context.Context, in *emptypb.Empty, opts 
 	return out, nil
 }
 
-func (c *bffClient) GetCollectArticle(ctx context.Context, in *GetCollectArticleReq, opts ...grpc.CallOption) (*GetArticleListReply, error) {
+func (c *bffClient) GetCollectArticleList(ctx context.Context, in *GetCollectArticleListReq, opts ...grpc.CallOption) (*GetArticleListReply, error) {
 	out := new(GetArticleListReply)
-	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCollectArticle", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCollectArticleList", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -493,9 +493,9 @@ func (c *bffClient) GetCollectArticleCount(ctx context.Context, in *GetCollectAr
 	return out, nil
 }
 
-func (c *bffClient) GetCollectTalk(ctx context.Context, in *GetCollectTalkReq, opts ...grpc.CallOption) (*GetTalkListReply, error) {
+func (c *bffClient) GetCollectTalkList(ctx context.Context, in *GetCollectTalkListReq, opts ...grpc.CallOption) (*GetTalkListReply, error) {
 	out := new(GetTalkListReply)
-	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCollectTalk", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCollectTalkList", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -511,9 +511,9 @@ func (c *bffClient) GetCollectTalkCount(ctx context.Context, in *GetCollectTalkC
 	return out, nil
 }
 
-func (c *bffClient) GetCollectColumn(ctx context.Context, in *GetCollectColumnReq, opts ...grpc.CallOption) (*GetColumnListReply, error) {
+func (c *bffClient) GetCollectColumnList(ctx context.Context, in *GetCollectColumnListReq, opts ...grpc.CallOption) (*GetColumnListReply, error) {
 	out := new(GetColumnListReply)
-	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCollectColumn", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCollectColumnList", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -529,9 +529,9 @@ func (c *bffClient) GetCollectColumnCount(ctx context.Context, in *GetCollectCol
 	return out, nil
 }
 
-func (c *bffClient) GetCollection(ctx context.Context, in *GetCollectionReq, opts ...grpc.CallOption) (*GetCollectionReply, error) {
-	out := new(GetCollectionReply)
-	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCollection", in, out, opts...)
+func (c *bffClient) GetCollections(ctx context.Context, in *GetCollectionsReq, opts ...grpc.CallOption) (*GetCollectionsReply, error) {
+	out := new(GetCollectionsReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCollections", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1601,13 +1601,13 @@ type BffServer interface {
 	UnbindUserEmail(context.Context, *UnbindUserEmailReq) (*emptypb.Empty, error)
 	// -------------------------creation----------------------------
 	GetLeaderBoard(context.Context, *emptypb.Empty) (*GetLeaderBoardReply, error)
-	GetCollectArticle(context.Context, *GetCollectArticleReq) (*GetArticleListReply, error)
+	GetCollectArticleList(context.Context, *GetCollectArticleListReq) (*GetArticleListReply, error)
 	GetCollectArticleCount(context.Context, *GetCollectArticleCountReq) (*GetCollectArticleCountReply, error)
-	GetCollectTalk(context.Context, *GetCollectTalkReq) (*GetTalkListReply, error)
+	GetCollectTalkList(context.Context, *GetCollectTalkListReq) (*GetTalkListReply, error)
 	GetCollectTalkCount(context.Context, *GetCollectTalkCountReq) (*GetCollectTalkCountReply, error)
-	GetCollectColumn(context.Context, *GetCollectColumnReq) (*GetColumnListReply, error)
+	GetCollectColumnList(context.Context, *GetCollectColumnListReq) (*GetColumnListReply, error)
 	GetCollectColumnCount(context.Context, *GetCollectColumnCountReq) (*GetCollectColumnCountReply, error)
-	GetCollection(context.Context, *GetCollectionReq) (*GetCollectionReply, error)
+	GetCollections(context.Context, *GetCollectionsReq) (*GetCollectionsReply, error)
 	GetCollectionsList(context.Context, *GetCollectionsListReq) (*GetCollectionsListReply, error)
 	GetCollectionsListAll(context.Context, *emptypb.Empty) (*GetCollectionsListReply, error)
 	GetCollectionsCount(context.Context, *emptypb.Empty) (*GetCollectionsCountReply, error)
@@ -1825,26 +1825,26 @@ func (UnimplementedBffServer) UnbindUserEmail(context.Context, *UnbindUserEmailR
 func (UnimplementedBffServer) GetLeaderBoard(context.Context, *emptypb.Empty) (*GetLeaderBoardReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLeaderBoard not implemented")
 }
-func (UnimplementedBffServer) GetCollectArticle(context.Context, *GetCollectArticleReq) (*GetArticleListReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetCollectArticle not implemented")
+func (UnimplementedBffServer) GetCollectArticleList(context.Context, *GetCollectArticleListReq) (*GetArticleListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCollectArticleList not implemented")
 }
 func (UnimplementedBffServer) GetCollectArticleCount(context.Context, *GetCollectArticleCountReq) (*GetCollectArticleCountReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCollectArticleCount not implemented")
 }
-func (UnimplementedBffServer) GetCollectTalk(context.Context, *GetCollectTalkReq) (*GetTalkListReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetCollectTalk not implemented")
+func (UnimplementedBffServer) GetCollectTalkList(context.Context, *GetCollectTalkListReq) (*GetTalkListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCollectTalkList not implemented")
 }
 func (UnimplementedBffServer) GetCollectTalkCount(context.Context, *GetCollectTalkCountReq) (*GetCollectTalkCountReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCollectTalkCount not implemented")
 }
-func (UnimplementedBffServer) GetCollectColumn(context.Context, *GetCollectColumnReq) (*GetColumnListReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetCollectColumn not implemented")
+func (UnimplementedBffServer) GetCollectColumnList(context.Context, *GetCollectColumnListReq) (*GetColumnListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCollectColumnList not implemented")
 }
 func (UnimplementedBffServer) GetCollectColumnCount(context.Context, *GetCollectColumnCountReq) (*GetCollectColumnCountReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCollectColumnCount not implemented")
 }
-func (UnimplementedBffServer) GetCollection(context.Context, *GetCollectionReq) (*GetCollectionReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetCollection not implemented")
+func (UnimplementedBffServer) GetCollections(context.Context, *GetCollectionsReq) (*GetCollectionsReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCollections not implemented")
 }
 func (UnimplementedBffServer) GetCollectionsList(context.Context, *GetCollectionsListReq) (*GetCollectionsListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCollectionsList not implemented")
@@ -2777,20 +2777,20 @@ func _Bff_GetLeaderBoard_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Bff_GetCollectArticle_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetCollectArticleReq)
+func _Bff_GetCollectArticleList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCollectArticleListReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BffServer).GetCollectArticle(ctx, in)
+		return srv.(BffServer).GetCollectArticleList(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/bff.v1.Bff/GetCollectArticle",
+		FullMethod: "/bff.v1.Bff/GetCollectArticleList",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BffServer).GetCollectArticle(ctx, req.(*GetCollectArticleReq))
+		return srv.(BffServer).GetCollectArticleList(ctx, req.(*GetCollectArticleListReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2813,20 +2813,20 @@ func _Bff_GetCollectArticleCount_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Bff_GetCollectTalk_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetCollectTalkReq)
+func _Bff_GetCollectTalkList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCollectTalkListReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BffServer).GetCollectTalk(ctx, in)
+		return srv.(BffServer).GetCollectTalkList(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/bff.v1.Bff/GetCollectTalk",
+		FullMethod: "/bff.v1.Bff/GetCollectTalkList",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BffServer).GetCollectTalk(ctx, req.(*GetCollectTalkReq))
+		return srv.(BffServer).GetCollectTalkList(ctx, req.(*GetCollectTalkListReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2849,20 +2849,20 @@ func _Bff_GetCollectTalkCount_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Bff_GetCollectColumn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetCollectColumnReq)
+func _Bff_GetCollectColumnList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCollectColumnListReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BffServer).GetCollectColumn(ctx, in)
+		return srv.(BffServer).GetCollectColumnList(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/bff.v1.Bff/GetCollectColumn",
+		FullMethod: "/bff.v1.Bff/GetCollectColumnList",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BffServer).GetCollectColumn(ctx, req.(*GetCollectColumnReq))
+		return srv.(BffServer).GetCollectColumnList(ctx, req.(*GetCollectColumnListReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2885,20 +2885,20 @@ func _Bff_GetCollectColumnCount_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Bff_GetCollection_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetCollectionReq)
+func _Bff_GetCollections_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCollectionsReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BffServer).GetCollection(ctx, in)
+		return srv.(BffServer).GetCollections(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/bff.v1.Bff/GetCollection",
+		FullMethod: "/bff.v1.Bff/GetCollections",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BffServer).GetCollection(ctx, req.(*GetCollectionReq))
+		return srv.(BffServer).GetCollections(ctx, req.(*GetCollectionsReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -5091,32 +5091,32 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Bff_GetLeaderBoard_Handler,
 		},
 		{
-			MethodName: "GetCollectArticle",
-			Handler:    _Bff_GetCollectArticle_Handler,
+			MethodName: "GetCollectArticleList",
+			Handler:    _Bff_GetCollectArticleList_Handler,
 		},
 		{
 			MethodName: "GetCollectArticleCount",
 			Handler:    _Bff_GetCollectArticleCount_Handler,
 		},
 		{
-			MethodName: "GetCollectTalk",
-			Handler:    _Bff_GetCollectTalk_Handler,
+			MethodName: "GetCollectTalkList",
+			Handler:    _Bff_GetCollectTalkList_Handler,
 		},
 		{
 			MethodName: "GetCollectTalkCount",
 			Handler:    _Bff_GetCollectTalkCount_Handler,
 		},
 		{
-			MethodName: "GetCollectColumn",
-			Handler:    _Bff_GetCollectColumn_Handler,
+			MethodName: "GetCollectColumnList",
+			Handler:    _Bff_GetCollectColumnList_Handler,
 		},
 		{
 			MethodName: "GetCollectColumnCount",
 			Handler:    _Bff_GetCollectColumnCount_Handler,
 		},
 		{
-			MethodName: "GetCollection",
-			Handler:    _Bff_GetCollection_Handler,
+			MethodName: "GetCollections",
+			Handler:    _Bff_GetCollections_Handler,
 		},
 		{
 			MethodName: "GetCollectionsList",

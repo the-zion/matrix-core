@@ -57,13 +57,13 @@ const OperationBffGetArticleListHot = "/bff.v1.Bff/GetArticleListHot"
 const OperationBffGetArticleListStatistic = "/bff.v1.Bff/GetArticleListStatistic"
 const OperationBffGetArticleSearch = "/bff.v1.Bff/GetArticleSearch"
 const OperationBffGetArticleStatistic = "/bff.v1.Bff/GetArticleStatistic"
-const OperationBffGetCollectArticle = "/bff.v1.Bff/GetCollectArticle"
 const OperationBffGetCollectArticleCount = "/bff.v1.Bff/GetCollectArticleCount"
-const OperationBffGetCollectColumn = "/bff.v1.Bff/GetCollectColumn"
+const OperationBffGetCollectArticleList = "/bff.v1.Bff/GetCollectArticleList"
 const OperationBffGetCollectColumnCount = "/bff.v1.Bff/GetCollectColumnCount"
-const OperationBffGetCollectTalk = "/bff.v1.Bff/GetCollectTalk"
+const OperationBffGetCollectColumnList = "/bff.v1.Bff/GetCollectColumnList"
 const OperationBffGetCollectTalkCount = "/bff.v1.Bff/GetCollectTalkCount"
-const OperationBffGetCollection = "/bff.v1.Bff/GetCollection"
+const OperationBffGetCollectTalkList = "/bff.v1.Bff/GetCollectTalkList"
+const OperationBffGetCollections = "/bff.v1.Bff/GetCollections"
 const OperationBffGetCollectionsCount = "/bff.v1.Bff/GetCollectionsCount"
 const OperationBffGetCollectionsList = "/bff.v1.Bff/GetCollectionsList"
 const OperationBffGetCollectionsListAll = "/bff.v1.Bff/GetCollectionsListAll"
@@ -212,13 +212,13 @@ type BffHTTPServer interface {
 	GetArticleListStatistic(context.Context, *GetArticleListStatisticReq) (*GetArticleListStatisticReply, error)
 	GetArticleSearch(context.Context, *GetArticleSearchReq) (*GetArticleSearchReply, error)
 	GetArticleStatistic(context.Context, *GetArticleStatisticReq) (*GetArticleStatisticReply, error)
-	GetCollectArticle(context.Context, *GetCollectArticleReq) (*GetArticleListReply, error)
 	GetCollectArticleCount(context.Context, *GetCollectArticleCountReq) (*GetCollectArticleCountReply, error)
-	GetCollectColumn(context.Context, *GetCollectColumnReq) (*GetColumnListReply, error)
+	GetCollectArticleList(context.Context, *GetCollectArticleListReq) (*GetArticleListReply, error)
 	GetCollectColumnCount(context.Context, *GetCollectColumnCountReq) (*GetCollectColumnCountReply, error)
-	GetCollectTalk(context.Context, *GetCollectTalkReq) (*GetTalkListReply, error)
+	GetCollectColumnList(context.Context, *GetCollectColumnListReq) (*GetColumnListReply, error)
 	GetCollectTalkCount(context.Context, *GetCollectTalkCountReq) (*GetCollectTalkCountReply, error)
-	GetCollection(context.Context, *GetCollectionReq) (*GetCollectionReply, error)
+	GetCollectTalkList(context.Context, *GetCollectTalkListReq) (*GetTalkListReply, error)
+	GetCollections(context.Context, *GetCollectionsReq) (*GetCollectionsReply, error)
 	GetCollectionsCount(context.Context, *emptypb.Empty) (*GetCollectionsCountReply, error)
 	GetCollectionsList(context.Context, *GetCollectionsListReq) (*GetCollectionsListReply, error)
 	GetCollectionsListAll(context.Context, *emptypb.Empty) (*GetCollectionsListReply, error)
@@ -364,13 +364,13 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.POST("/v1/unbind/user/phone", _Bff_UnbindUserPhone0_HTTP_Handler(srv))
 	r.POST("/v1/unbind/user/email", _Bff_UnbindUserEmail0_HTTP_Handler(srv))
 	r.GET("/v1/get/leaderboard", _Bff_GetLeaderBoard0_HTTP_Handler(srv))
-	r.GET("/v1/get/collect/article", _Bff_GetCollectArticle0_HTTP_Handler(srv))
+	r.GET("/v1/get/collect/article/list", _Bff_GetCollectArticleList0_HTTP_Handler(srv))
 	r.GET("/v1/get/collect/article/count", _Bff_GetCollectArticleCount0_HTTP_Handler(srv))
-	r.GET("/v1/get/collect/talk", _Bff_GetCollectTalk0_HTTP_Handler(srv))
+	r.GET("/v1/get/collect/talk/list", _Bff_GetCollectTalkList0_HTTP_Handler(srv))
 	r.GET("/v1/get/collect/talk/count", _Bff_GetCollectTalkCount0_HTTP_Handler(srv))
-	r.GET("/v1/get/collect/column", _Bff_GetCollectColumn0_HTTP_Handler(srv))
+	r.GET("/v1/get/collect/column/list", _Bff_GetCollectColumnList0_HTTP_Handler(srv))
 	r.GET("/v1/get/collect/column/count", _Bff_GetCollectColumnCount0_HTTP_Handler(srv))
-	r.GET("/v1/get/collection", _Bff_GetCollection0_HTTP_Handler(srv))
+	r.GET("/v1/get/collections", _Bff_GetCollections0_HTTP_Handler(srv))
 	r.POST("/v1/get/collections/list", _Bff_GetCollectionsList0_HTTP_Handler(srv))
 	r.GET("/v1/get/collections/list/all", _Bff_GetCollectionsListAll0_HTTP_Handler(srv))
 	r.POST("/v1/get/collections/count", _Bff_GetCollectionsCount0_HTTP_Handler(srv))
@@ -1095,15 +1095,15 @@ func _Bff_GetLeaderBoard0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context)
 	}
 }
 
-func _Bff_GetCollectArticle0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+func _Bff_GetCollectArticleList0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in GetCollectArticleReq
+		var in GetCollectArticleListReq
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationBffGetCollectArticle)
+		http.SetOperation(ctx, OperationBffGetCollectArticleList)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetCollectArticle(ctx, req.(*GetCollectArticleReq))
+			return srv.GetCollectArticleList(ctx, req.(*GetCollectArticleListReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -1133,15 +1133,15 @@ func _Bff_GetCollectArticleCount0_HTTP_Handler(srv BffHTTPServer) func(ctx http.
 	}
 }
 
-func _Bff_GetCollectTalk0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+func _Bff_GetCollectTalkList0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in GetCollectTalkReq
+		var in GetCollectTalkListReq
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationBffGetCollectTalk)
+		http.SetOperation(ctx, OperationBffGetCollectTalkList)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetCollectTalk(ctx, req.(*GetCollectTalkReq))
+			return srv.GetCollectTalkList(ctx, req.(*GetCollectTalkListReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -1171,15 +1171,15 @@ func _Bff_GetCollectTalkCount0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Con
 	}
 }
 
-func _Bff_GetCollectColumn0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+func _Bff_GetCollectColumnList0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in GetCollectColumnReq
+		var in GetCollectColumnListReq
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationBffGetCollectColumn)
+		http.SetOperation(ctx, OperationBffGetCollectColumnList)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetCollectColumn(ctx, req.(*GetCollectColumnReq))
+			return srv.GetCollectColumnList(ctx, req.(*GetCollectColumnListReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -1209,21 +1209,21 @@ func _Bff_GetCollectColumnCount0_HTTP_Handler(srv BffHTTPServer) func(ctx http.C
 	}
 }
 
-func _Bff_GetCollection0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+func _Bff_GetCollections0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in GetCollectionReq
+		var in GetCollectionsReq
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationBffGetCollection)
+		http.SetOperation(ctx, OperationBffGetCollections)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetCollection(ctx, req.(*GetCollectionReq))
+			return srv.GetCollections(ctx, req.(*GetCollectionsReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*GetCollectionReply)
+		reply := out.(*GetCollectionsReply)
 		return ctx.Result(200, reply)
 	}
 }
@@ -3432,13 +3432,13 @@ type BffHTTPClient interface {
 	GetArticleListStatistic(ctx context.Context, req *GetArticleListStatisticReq, opts ...http.CallOption) (rsp *GetArticleListStatisticReply, err error)
 	GetArticleSearch(ctx context.Context, req *GetArticleSearchReq, opts ...http.CallOption) (rsp *GetArticleSearchReply, err error)
 	GetArticleStatistic(ctx context.Context, req *GetArticleStatisticReq, opts ...http.CallOption) (rsp *GetArticleStatisticReply, err error)
-	GetCollectArticle(ctx context.Context, req *GetCollectArticleReq, opts ...http.CallOption) (rsp *GetArticleListReply, err error)
 	GetCollectArticleCount(ctx context.Context, req *GetCollectArticleCountReq, opts ...http.CallOption) (rsp *GetCollectArticleCountReply, err error)
-	GetCollectColumn(ctx context.Context, req *GetCollectColumnReq, opts ...http.CallOption) (rsp *GetColumnListReply, err error)
+	GetCollectArticleList(ctx context.Context, req *GetCollectArticleListReq, opts ...http.CallOption) (rsp *GetArticleListReply, err error)
 	GetCollectColumnCount(ctx context.Context, req *GetCollectColumnCountReq, opts ...http.CallOption) (rsp *GetCollectColumnCountReply, err error)
-	GetCollectTalk(ctx context.Context, req *GetCollectTalkReq, opts ...http.CallOption) (rsp *GetTalkListReply, err error)
+	GetCollectColumnList(ctx context.Context, req *GetCollectColumnListReq, opts ...http.CallOption) (rsp *GetColumnListReply, err error)
 	GetCollectTalkCount(ctx context.Context, req *GetCollectTalkCountReq, opts ...http.CallOption) (rsp *GetCollectTalkCountReply, err error)
-	GetCollection(ctx context.Context, req *GetCollectionReq, opts ...http.CallOption) (rsp *GetCollectionReply, err error)
+	GetCollectTalkList(ctx context.Context, req *GetCollectTalkListReq, opts ...http.CallOption) (rsp *GetTalkListReply, err error)
+	GetCollections(ctx context.Context, req *GetCollectionsReq, opts ...http.CallOption) (rsp *GetCollectionsReply, err error)
 	GetCollectionsCount(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetCollectionsCountReply, err error)
 	GetCollectionsList(ctx context.Context, req *GetCollectionsListReq, opts ...http.CallOption) (rsp *GetCollectionsListReply, err error)
 	GetCollectionsListAll(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetCollectionsListReply, err error)
@@ -4039,19 +4039,6 @@ func (c *BffHTTPClientImpl) GetArticleStatistic(ctx context.Context, in *GetArti
 	return &out, err
 }
 
-func (c *BffHTTPClientImpl) GetCollectArticle(ctx context.Context, in *GetCollectArticleReq, opts ...http.CallOption) (*GetArticleListReply, error) {
-	var out GetArticleListReply
-	pattern := "/v1/get/collect/article"
-	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationBffGetCollectArticle))
-	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, err
-}
-
 func (c *BffHTTPClientImpl) GetCollectArticleCount(ctx context.Context, in *GetCollectArticleCountReq, opts ...http.CallOption) (*GetCollectArticleCountReply, error) {
 	var out GetCollectArticleCountReply
 	pattern := "/v1/get/collect/article/count"
@@ -4065,11 +4052,11 @@ func (c *BffHTTPClientImpl) GetCollectArticleCount(ctx context.Context, in *GetC
 	return &out, err
 }
 
-func (c *BffHTTPClientImpl) GetCollectColumn(ctx context.Context, in *GetCollectColumnReq, opts ...http.CallOption) (*GetColumnListReply, error) {
-	var out GetColumnListReply
-	pattern := "/v1/get/collect/column"
+func (c *BffHTTPClientImpl) GetCollectArticleList(ctx context.Context, in *GetCollectArticleListReq, opts ...http.CallOption) (*GetArticleListReply, error) {
+	var out GetArticleListReply
+	pattern := "/v1/get/collect/article/list"
 	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationBffGetCollectColumn))
+	opts = append(opts, http.Operation(OperationBffGetCollectArticleList))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
@@ -4091,11 +4078,11 @@ func (c *BffHTTPClientImpl) GetCollectColumnCount(ctx context.Context, in *GetCo
 	return &out, err
 }
 
-func (c *BffHTTPClientImpl) GetCollectTalk(ctx context.Context, in *GetCollectTalkReq, opts ...http.CallOption) (*GetTalkListReply, error) {
-	var out GetTalkListReply
-	pattern := "/v1/get/collect/talk"
+func (c *BffHTTPClientImpl) GetCollectColumnList(ctx context.Context, in *GetCollectColumnListReq, opts ...http.CallOption) (*GetColumnListReply, error) {
+	var out GetColumnListReply
+	pattern := "/v1/get/collect/column/list"
 	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationBffGetCollectTalk))
+	opts = append(opts, http.Operation(OperationBffGetCollectColumnList))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
@@ -4117,11 +4104,24 @@ func (c *BffHTTPClientImpl) GetCollectTalkCount(ctx context.Context, in *GetColl
 	return &out, err
 }
 
-func (c *BffHTTPClientImpl) GetCollection(ctx context.Context, in *GetCollectionReq, opts ...http.CallOption) (*GetCollectionReply, error) {
-	var out GetCollectionReply
-	pattern := "/v1/get/collection"
+func (c *BffHTTPClientImpl) GetCollectTalkList(ctx context.Context, in *GetCollectTalkListReq, opts ...http.CallOption) (*GetTalkListReply, error) {
+	var out GetTalkListReply
+	pattern := "/v1/get/collect/talk/list"
 	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationBffGetCollection))
+	opts = append(opts, http.Operation(OperationBffGetCollectTalkList))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetCollections(ctx context.Context, in *GetCollectionsReq, opts ...http.CallOption) (*GetCollectionsReply, error) {
+	var out GetCollectionsReply
+	pattern := "/v1/get/collections"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationBffGetCollections))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
