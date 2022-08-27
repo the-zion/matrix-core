@@ -76,6 +76,9 @@ type LeaderBoard struct {
 type Collections struct {
 	CollectionsId int32
 	Uuid          string
+	Article       int32
+	Column        int32
+	Talk          int32
 	Auth          int32
 }
 
