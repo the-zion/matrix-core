@@ -993,7 +993,7 @@ func (r *articleRepo) CreateArticleStatistic(ctx context.Context, id, auth int32
 	return nil
 }
 
-func (r *articleRepo) CreateArticleCache(ctx context.Context, id, auth int32, uuid string) error {
+func (r *articleRepo) CreateArticleCache(ctx context.Context, id, auth int32, uuid, mode string) error {
 	exists := make([]int32, 0)
 	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		pipe.Exists(ctx, "article")
@@ -1029,7 +1029,7 @@ func (r *articleRepo) CreateArticleCache(ctx context.Context, id, auth int32, uu
 			})
 		}
 
-		if exists[5] == 1 {
+		if exists[5] == 1 && mode == "create" {
 			pipe.HIncrBy(ctx, "creation_user_"+uuid, "article", 1)
 		}
 
@@ -1065,7 +1065,7 @@ func (r *articleRepo) CreateArticleCache(ctx context.Context, id, auth int32, uu
 			})
 		}
 
-		if exists[6] == 1 {
+		if exists[6] == 1 && mode == "create" {
 			pipe.HIncrBy(ctx, "creation_user_visitor_"+uuid, "article", 1)
 		}
 
@@ -1077,8 +1077,8 @@ func (r *articleRepo) CreateArticleCache(ctx context.Context, id, auth int32, uu
 	return nil
 }
 
-func (r *articleRepo) UpdateArticleCache(ctx context.Context, id, auth int32, uuid string) error {
-	return r.CreateArticleCache(ctx, id, auth, uuid)
+func (r *articleRepo) UpdateArticleCache(ctx context.Context, id, auth int32, uuid, mode string) error {
+	return r.CreateArticleCache(ctx, id, auth, uuid, mode)
 }
 
 func (r *articleRepo) DeleteArticleCache(ctx context.Context, id, auth int32, uuid string) error {
