@@ -223,9 +223,9 @@ service Bff{
     };
   }
 
-  rpc GetCollectArticle(GetCollectArticleReq) returns (GetArticleListReply){
+  rpc GetCollectArticleList(GetCollectArticleListReq) returns (GetArticleListReply){
     option (google.api.http) = {
-      get: "/v1/get/collect/article"
+      get: "/v1/get/collect/article/list"
     };
   }
 
@@ -235,9 +235,9 @@ service Bff{
     };
   }
 
-  rpc GetCollectTalk(GetCollectTalkReq) returns (GetTalkListReply){
+  rpc GetCollectTalkList(GetCollectTalkListReq) returns (GetTalkListReply){
     option (google.api.http) = {
-      get: "/v1/get/collect/talk"
+      get: "/v1/get/collect/talk/list"
     };
   }
 
@@ -247,9 +247,9 @@ service Bff{
     };
   }
 
-  rpc GetCollectColumn(GetCollectColumnReq) returns (GetColumnListReply){
+  rpc GetCollectColumnList(GetCollectColumnListReq) returns (GetColumnListReply){
     option (google.api.http) = {
-      get: "/v1/get/collect/column"
+      get: "/v1/get/collect/column/list"
     };
   }
 
@@ -259,9 +259,9 @@ service Bff{
     };
   }
 
-  rpc GetCollection(GetCollectionReq) returns (GetCollectionReply){
+  rpc GetCollections(GetCollectionsReq) returns (GetCollectionsReply){
     option (google.api.http) = {
-      get: "/v1/get/collection"
+      get: "/v1/get/collections"
     };
   }
 
@@ -1301,7 +1301,7 @@ message GetLeaderBoardReply{
   repeated Board board = 1;
 }
 
-message GetCollectArticleReq{
+message GetCollectArticleListReq{
   int32 id = 1;
   int32 page = 2;
 }
@@ -1314,7 +1314,7 @@ message GetCollectArticleCountReply{
   int32 count = 1;
 }
 
-message GetCollectTalkReq{
+message GetCollectTalkListReq{
   int32 id = 1;
   int32 page = 2;
 }
@@ -1327,7 +1327,7 @@ message GetCollectTalkCountReply{
   int32 count = 1;
 }
 
-message GetCollectColumnReq{
+message GetCollectColumnListReq{
   int32 id = 1;
   int32 page = 2;
 }
@@ -1341,16 +1341,17 @@ message GetCollectColumnCountReply{
 }
 
 
-message GetCollectionReq{
+message GetCollectionsReq{
   int32 id = 1;
   string uuid = 2;
 }
 
-message GetCollectionReply{
+message GetCollectionsReply{
   string uuid = 1;
-  string name = 2;
-  string introduce = 3;
-  int32 auth = 4;
+  int32 auth = 2;
+  int32 article = 3;
+  int32 column = 4;
+  int32 talk = 5;
 }
 
 message GetArticleListReq{
