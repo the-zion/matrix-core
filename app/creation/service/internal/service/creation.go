@@ -33,9 +33,9 @@ func (s *CreationService) GetLastCollectionsDraft(ctx context.Context, req *v1.G
 	}, nil
 }
 
-func (s *CreationService) GetCollectArticle(ctx context.Context, req *v1.GetCollectArticleReq) (*v1.GetArticleListReply, error) {
+func (s *CreationService) GetCollectArticleList(ctx context.Context, req *v1.GetCollectArticleListReq) (*v1.GetArticleListReply, error) {
 	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0)}
-	articleList, err := s.cc.GetCollectArticle(ctx, req.Id, req.Page)
+	articleList, err := s.cc.GetCollectArticleList(ctx, req.Id, req.Page)
 	if err != nil {
 		return nil, err
 	}
@@ -58,9 +58,9 @@ func (s *CreationService) GetCollectArticleCount(ctx context.Context, req *v1.Ge
 	}, nil
 }
 
-func (s *CreationService) GetCollectTalk(ctx context.Context, req *v1.GetCollectTalkReq) (*v1.GetTalkListReply, error) {
+func (s *CreationService) GetCollectTalkList(ctx context.Context, req *v1.GetCollectTalkListReq) (*v1.GetTalkListReply, error) {
 	reply := &v1.GetTalkListReply{Talk: make([]*v1.GetTalkListReply_Talk, 0)}
-	talkList, err := s.cc.GetCollectTalk(ctx, req.Id, req.Page)
+	talkList, err := s.cc.GetCollectTalkList(ctx, req.Id, req.Page)
 	if err != nil {
 		return nil, err
 	}
@@ -83,9 +83,9 @@ func (s *CreationService) GetCollectTalkCount(ctx context.Context, req *v1.GetCo
 	}, nil
 }
 
-func (s *CreationService) GetCollectColumn(ctx context.Context, req *v1.GetCollectColumnReq) (*v1.GetColumnListReply, error) {
+func (s *CreationService) GetCollectColumnList(ctx context.Context, req *v1.GetCollectColumnListReq) (*v1.GetColumnListReply, error) {
 	reply := &v1.GetColumnListReply{Column: make([]*v1.GetColumnListReply_Column, 0)}
-	columnList, err := s.cc.GetCollectColumn(ctx, req.Id, req.Page)
+	columnList, err := s.cc.GetCollectColumnList(ctx, req.Id, req.Page)
 	if err != nil {
 		return nil, err
 	}
@@ -108,14 +108,17 @@ func (s *CreationService) GetCollectColumnCount(ctx context.Context, req *v1.Get
 	}, nil
 }
 
-func (s *CreationService) GetCollection(ctx context.Context, req *v1.GetCollectionReq) (*v1.GetCollectionReply, error) {
-	collection, err := s.cc.GetCollection(ctx, req.Id, req.Uuid)
+func (s *CreationService) GetCollections(ctx context.Context, req *v1.GetCollectionsReq) (*v1.GetCollectionsReply, error) {
+	collection, err := s.cc.GetCollections(ctx, req.Id, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
-	return &v1.GetCollectionReply{
-		Uuid: collection.Uuid,
-		Auth: collection.Auth,
+	return &v1.GetCollectionsReply{
+		Uuid:    collection.Uuid,
+		Auth:    collection.Auth,
+		Article: collection.Article,
+		Column:  collection.Column,
+		Talk:    collection.Talk,
 	}, nil
 }
 
