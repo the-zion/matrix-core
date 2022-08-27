@@ -242,11 +242,17 @@ type TalkSearch struct {
 }
 
 type Collections struct {
-	Id        int32
-	Uuid      string
-	Name      string
-	Introduce string
-	Auth      int32
+	Id      int32
+	Uuid    string
+	Auth    int32
+	Article int32
+	Column  int32
+	Talk    int32
+}
+
+type CollectionsDraft struct {
+	Id     int32
+	Status int32
 }
 
 type Column struct {
