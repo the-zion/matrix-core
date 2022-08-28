@@ -500,6 +500,7 @@ func (r *talkRepo) getTalkListStatisticFromDb(ctx context.Context, unExists []in
 			Comment: item.Comment,
 			Collect: item.Collect,
 			View:    item.View,
+			Auth:    item.Auth,
 		})
 	}
 
@@ -520,6 +521,7 @@ func (r *talkRepo) setTalkListStatisticToCache(commentList []*TalkStatistic) {
 			pipe.HSetNX(ctx, key, "comment", item.Comment)
 			pipe.HSetNX(ctx, key, "collect", item.Collect)
 			pipe.HSetNX(ctx, key, "view", item.View)
+			pipe.HSetNX(ctx, key, "auth", item.Auth)
 			pipe.Expire(ctx, key, time.Hour*8)
 		}
 		return nil
@@ -530,7 +532,7 @@ func (r *talkRepo) setTalkListStatisticToCache(commentList []*TalkStatistic) {
 	}
 }
 
-func (r *talkRepo) GetTalkStatistic(ctx context.Context, id int32) (*biz.TalkStatistic, error) {
+func (r *talkRepo) GetTalkStatistic(ctx context.Context, id int32, uuid string) (*biz.TalkStatistic, error) {
 	var statistic *biz.TalkStatistic
 	key := "talk_" + strconv.Itoa(int(id))
 	exist, err := r.data.redisCli.Exists(ctx, key).Result()
@@ -539,7 +541,7 @@ func (r *talkRepo) GetTalkStatistic(ctx context.Context, id int32) (*biz.TalkSta
 	}
 
 	if exist == 1 {
-		statistic, err = r.getTalkStatisticFromCache(ctx, key)
+		statistic, err = r.getTalkStatisticFromCache(ctx, key, uuid)
 		if err != nil {
 			return nil, err
 		}
@@ -553,15 +555,19 @@ func (r *talkRepo) GetTalkStatistic(ctx context.Context, id int32) (*biz.TalkSta
 
 	go r.setTalkStatisticToCache(key, statistic)
 
+	if statistic.Auth == 2 && statistic.Uuid != uuid {
+		return nil, errors.Errorf("fail to get talk statistic from cache: no auth")
+	}
+
 	return statistic, nil
 }
 
-func (r *talkRepo) getTalkStatisticFromCache(ctx context.Context, key string) (*biz.TalkStatistic, error) {
-	statistic, err := r.data.redisCli.HMGet(ctx, key, "uuid", "agree", "collect", "view", "comment").Result()
+func (r *talkRepo) getTalkStatisticFromCache(ctx context.Context, key, uuid string) (*biz.TalkStatistic, error) {
+	statistic, err := r.data.redisCli.HMGet(ctx, key, "uuid", "agree", "collect", "view", "comment", "auth").Result()
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get talk statistic form cache: key(%s)", key))
 	}
-	val := []int32{0, 0, 0, 0}
+	val := []int32{0, 0, 0, 0, 0}
 	for _index, count := range statistic[1:] {
 		if count == nil {
 			break
@@ -571,6 +577,9 @@ func (r *talkRepo) getTalkStatisticFromCache(ctx context.Context, key string) (*
 			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: count(%v)", count))
 		}
 		val[_index] = int32(num)
+	}
+	if val[4] == 2 && statistic[0].(string) != uuid {
+		return nil, errors.Errorf("fail to get talk statistic from cache: no auth")
 	}
 	return &biz.TalkStatistic{
 		Uuid:    statistic[0].(string),
@@ -929,7 +938,7 @@ func (r *talkRepo) GetTalkAuth(ctx context.Context, id int32) (int32, error) {
 func (r *talkRepo) GetCollectionsIdFromTalkCollect(ctx context.Context, id int32) (int32, error) {
 	collect := &Collect{}
 	err := r.data.db.WithContext(ctx).Where("creations_id = ? and mode = ?", id, 3).First(collect).Error
-	if err != nil {
+	if !errors.Is(err, gorm.ErrRecordNotFound) && err != nil {
 		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get collections id  from db: creationsId(%v)", id))
 	}
 	return collect.CollectionsId, nil
@@ -1191,6 +1200,7 @@ func (r *talkRepo) CreateTalkCache(ctx context.Context, id, auth int32, uuid, mo
 		pipe.HSetNX(ctx, "talk_"+ids, "collect", 0)
 		pipe.HSetNX(ctx, "talk_"+ids, "view", 0)
 		pipe.HSetNX(ctx, "talk_"+ids, "comment", 0)
+		pipe.HSetNX(ctx, "talk_"+ids, "auth", auth)
 
 		if exists[3] == 1 {
 			pipe.ZAddNX(ctx, "user_talk_list_"+uuid, &redis.Z{
@@ -1663,7 +1673,7 @@ func (r *talkRepo) SetCollectionsTalkCollect(ctx context.Context, id, collection
 
 func (r *talkRepo) SetCollectionTalk(ctx context.Context, collectionsId int32, userUuid string) error {
 	c := Collections{}
-	err := r.data.DB(ctx).Model(&c).Where("id = ? and uuid = ?", collectionsId, userUuid).Update("talk", gorm.Expr("talk + ?", 1)).Error
+	err := r.data.DB(ctx).Model(&c).Where("collections_id = ? and uuid = ?", collectionsId, userUuid).Update("talk", gorm.Expr("talk + ?", 1)).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to add collection talk collect: collectionsId(%v), userUuid(%s)", collectionsId, userUuid))
 	}
@@ -1816,7 +1826,7 @@ func (r *talkRepo) CancelCollectionsTalkCollect(ctx context.Context, id int32, u
 		Status: 2,
 	}
 	err := r.data.DB(ctx).Model(&Collect{}).Where("creations_id = ? and mode = ? and uuid = ?", id, 3, userUuid).Updates(collect).Error
-	if err != nil {
+	if !errors.Is(err, gorm.ErrRecordNotFound) && err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel talk collect: talk_id(%v), userUuid(%s)", id, userUuid))
 	}
 	return nil
@@ -1835,8 +1845,8 @@ func (r *talkRepo) CancelUserTalkCollect(ctx context.Context, id int32, userUuid
 
 func (r *talkRepo) CancelCollectionTalk(ctx context.Context, id int32, uuid string) error {
 	collections := &Collections{}
-	err := r.data.DB(ctx).Model(collections).Where("id = ? and uuid = ? and talk > 0", id, uuid).Update("talk", gorm.Expr("talk - ?", 1)).Error
-	if err != nil {
+	err := r.data.DB(ctx).Model(collections).Where("collections_id = ? and uuid = ? and talk > 0", id, uuid).Update("talk", gorm.Expr("talk - ?", 1)).Error
+	if !errors.Is(err, gorm.ErrRecordNotFound) && err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel collections talk: id(%v)", id))
 	}
 	return nil
