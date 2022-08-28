@@ -1370,16 +1370,20 @@ func (m *GetCollectionsReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetCollectionsReqValidationError{
-			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+	if m.GetUuid() != "" {
+
+		if err := m._validateUuid(m.GetUuid()); err != nil {
+			err = GetCollectionsReqValidationError{
+				field:  "Uuid",
+				reason: "value must be a valid UUID",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
 		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
+
 	}
 
 	if len(errors) > 0 {
@@ -4911,8 +4915,32 @@ func (m *GetArticleStatisticReq) validate(all bool) error {
 
 	// no validation rules for Id
 
+	if m.GetUuid() != "" {
+
+		if err := m._validateUuid(m.GetUuid()); err != nil {
+			err = GetArticleStatisticReqValidationError{
+				field:  "Uuid",
+				reason: "value must be a valid UUID",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	}
+
 	if len(errors) > 0 {
 		return GetArticleStatisticReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *GetArticleStatisticReq) _validateUuid(uuid string) error {
+	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -10637,8 +10665,32 @@ func (m *GetTalkStatisticReq) validate(all bool) error {
 
 	// no validation rules for Id
 
+	if m.GetUuid() != "" {
+
+		if err := m._validateUuid(m.GetUuid()); err != nil {
+			err = GetTalkStatisticReqValidationError{
+				field:  "Uuid",
+				reason: "value must be a valid UUID",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	}
+
 	if len(errors) > 0 {
 		return GetTalkStatisticReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *GetTalkStatisticReq) _validateUuid(uuid string) error {
+	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -16785,8 +16837,32 @@ func (m *GetColumnStatisticReq) validate(all bool) error {
 
 	// no validation rules for Id
 
+	if m.GetUuid() != "" {
+
+		if err := m._validateUuid(m.GetUuid()); err != nil {
+			err = GetColumnStatisticReqValidationError{
+				field:  "Uuid",
+				reason: "value must be a valid UUID",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	}
+
 	if len(errors) > 0 {
 		return GetColumnStatisticReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *GetColumnStatisticReq) _validateUuid(uuid string) error {
+	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
