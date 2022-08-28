@@ -231,7 +231,7 @@ func (s *CreationService) GetColumnListStatistic(ctx context.Context, req *v1.Ge
 }
 
 func (s *CreationService) GetColumnStatistic(ctx context.Context, req *v1.GetColumnStatisticReq) (*v1.GetColumnStatisticReply, error) {
-	columnStatistic, err := s.coc.GetColumnStatistic(ctx, req.Id)
+	columnStatistic, err := s.coc.GetColumnStatistic(ctx, req.Id, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
