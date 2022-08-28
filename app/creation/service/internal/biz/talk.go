@@ -18,7 +18,7 @@ type TalkRepo interface {
 	GetTalkCount(ctx context.Context, uuid string) (int32, error)
 	GetTalkCountVisitor(ctx context.Context, uuid string) (int32, error)
 	GetTalkListStatistic(ctx context.Context, ids []int32) ([]*TalkStatistic, error)
-	GetTalkStatistic(ctx context.Context, id int32) (*TalkStatistic, error)
+	GetTalkStatistic(ctx context.Context, id int32, uuid string) (*TalkStatistic, error)
 	GetLastTalkDraft(ctx context.Context, uuid string) (*TalkDraft, error)
 	GetTalkAgreeJudge(ctx context.Context, id int32, uuid string) (bool, error)
 	GetTalkCollectJudge(ctx context.Context, id int32, uuid string) (bool, error)
@@ -174,8 +174,8 @@ func (r *TalkUseCase) GetTalkListStatistic(ctx context.Context, ids []int32) ([]
 	return statisticList, nil
 }
 
-func (r *TalkUseCase) GetTalkStatistic(ctx context.Context, id int32) (*TalkStatistic, error) {
-	statistic, err := r.repo.GetTalkStatistic(ctx, id)
+func (r *TalkUseCase) GetTalkStatistic(ctx context.Context, id int32, uuid string) (*TalkStatistic, error) {
+	statistic, err := r.repo.GetTalkStatistic(ctx, id, uuid)
 	if err != nil {
 		return nil, v1.ErrorGetStatisticFailed("get talk statistic failed: %s", err.Error())
 	}
