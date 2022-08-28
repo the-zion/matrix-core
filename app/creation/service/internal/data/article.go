@@ -429,7 +429,7 @@ func (r *articleRepo) GetArticleHotFromDB(ctx context.Context, page int32) ([]*b
 	return article, nil
 }
 
-func (r *articleRepo) GetArticleStatistic(ctx context.Context, id int32) (*biz.ArticleStatistic, error) {
+func (r *articleRepo) GetArticleStatistic(ctx context.Context, id int32, uuid string) (*biz.ArticleStatistic, error) {
 	var statistic *biz.ArticleStatistic
 	key := "article_" + strconv.Itoa(int(id))
 	exist, err := r.data.redisCli.Exists(ctx, key).Result()
@@ -438,7 +438,7 @@ func (r *articleRepo) GetArticleStatistic(ctx context.Context, id int32) (*biz.A
 	}
 
 	if exist == 1 {
-		statistic, err = r.getArticleStatisticFromCache(ctx, key)
+		statistic, err = r.getArticleStatisticFromCache(ctx, key, uuid)
 		if err != nil {
 			return nil, err
 		}
@@ -451,6 +451,10 @@ func (r *articleRepo) GetArticleStatistic(ctx context.Context, id int32) (*biz.A
 	}
 
 	go r.setArticleStatisticToCache(key, statistic)
+
+	if statistic.Auth == 2 && statistic.Uuid != uuid {
+		return nil, errors.Errorf("fail to get article statistic from cache: no auth")
+	}
 
 	return statistic, nil
 }
@@ -467,6 +471,7 @@ func (r *articleRepo) getArticleStatisticFromDB(ctx context.Context, id int32) (
 		Collect: as.Collect,
 		View:    as.View,
 		Comment: as.Comment,
+		Auth:    as.Auth,
 	}, nil
 }
 
@@ -572,6 +577,7 @@ func (r *articleRepo) getArticleListStatisticFromDb(ctx context.Context, unExist
 			Comment:   item.Comment,
 			Collect:   item.Collect,
 			View:      item.View,
+			Auth:      item.Auth,
 		})
 	}
 
@@ -592,6 +598,7 @@ func (r *articleRepo) setArticleListStatisticToCache(commentList []*ArticleStati
 			pipe.HSetNX(ctx, key, "comment", item.Comment)
 			pipe.HSetNX(ctx, key, "collect", item.Collect)
 			pipe.HSetNX(ctx, key, "view", item.View)
+			pipe.HSetNX(ctx, key, "auth", item.Auth)
 			pipe.Expire(ctx, key, time.Hour*8)
 		}
 		return nil
@@ -923,7 +930,7 @@ func (r *articleRepo) setUserArticleCollectToCache(uuid string, collectList []*A
 func (r *articleRepo) GetCollectionsIdFromArticleCollect(ctx context.Context, id int32) (int32, error) {
 	collect := &Collect{}
 	err := r.data.db.WithContext(ctx).Where("creations_id = ? and mode = ?", id, 1).First(collect).Error
-	if err != nil {
+	if !errors.Is(err, gorm.ErrRecordNotFound) && err != nil {
 		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get collections id  from db: creationsId(%v)", id))
 	}
 	return collect.CollectionsId, nil
@@ -1021,6 +1028,7 @@ func (r *articleRepo) CreateArticleCache(ctx context.Context, id, auth int32, uu
 		pipe.HSetNX(ctx, "article_"+ids, "collect", 0)
 		pipe.HSetNX(ctx, "article_"+ids, "view", 0)
 		pipe.HSetNX(ctx, "article_"+ids, "comment", 0)
+		pipe.HSetNX(ctx, "article_"+ids, "auth", auth)
 
 		if exists[3] == 1 {
 			pipe.ZAddNX(ctx, "user_article_list_"+uuid, &redis.Z{
@@ -1627,7 +1635,7 @@ func (r *articleRepo) SetCollectionsArticleCollect(ctx context.Context, id, coll
 
 func (r *articleRepo) SetCollectionArticle(ctx context.Context, collectionsId int32, userUuid string) error {
 	c := Collections{}
-	err := r.data.DB(ctx).Model(&c).Where("id = ? and uuid = ?", collectionsId, userUuid).Update("article", gorm.Expr("article + ?", 1)).Error
+	err := r.data.DB(ctx).Model(&c).Where("collections_id = ? and uuid = ?", collectionsId, userUuid).Update("article", gorm.Expr("article + ?", 1)).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to add collection article collect: collectionsId(%v), userUuid(%s)", collectionsId, userUuid))
 	}
@@ -1835,7 +1843,7 @@ func (r *articleRepo) CancelCollectionsArticleCollect(ctx context.Context, id in
 		Status: 2,
 	}
 	err := r.data.DB(ctx).Model(&Collect{}).Where("creations_id = ? and mode = ? and uuid = ?", id, 1, userUuid).Updates(collect).Error
-	if err != nil {
+	if !errors.Is(err, gorm.ErrRecordNotFound) && err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel article collect: article_id(%v), userUuid(%s)", id, userUuid))
 	}
 	return nil
@@ -1854,8 +1862,8 @@ func (r *articleRepo) CancelUserArticleCollect(ctx context.Context, id int32, us
 
 func (r *articleRepo) CancelCollectionArticle(ctx context.Context, id int32, uuid string) error {
 	collections := &Collections{}
-	err := r.data.DB(ctx).Model(collections).Where("id = ? and uuid = ? and article > 0", id, uuid).Update("article", gorm.Expr("article - ?", 1)).Error
-	if err != nil {
+	err := r.data.DB(ctx).Model(collections).Where("collections_id = ? and uuid = ? and article > 0", id, uuid).Update("article", gorm.Expr("article - ?", 1)).Error
+	if !errors.Is(err, gorm.ErrRecordNotFound) && err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel collections article: id(%v)", id))
 	}
 	return nil
@@ -2138,12 +2146,12 @@ func (r *articleRepo) setColumnArticleToCache(id int32, article []*biz.Article) 
 	}
 }
 
-func (r *articleRepo) getArticleStatisticFromCache(ctx context.Context, key string) (*biz.ArticleStatistic, error) {
-	statistic, err := r.data.redisCli.HMGet(ctx, key, "uuid", "agree", "collect", "view", "comment").Result()
+func (r *articleRepo) getArticleStatisticFromCache(ctx context.Context, key, uuid string) (*biz.ArticleStatistic, error) {
+	statistic, err := r.data.redisCli.HMGet(ctx, key, "uuid", "agree", "collect", "view", "comment", "auth").Result()
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get article statistic form cache: key(%s)", key))
 	}
-	val := []int32{0, 0, 0, 0}
+	val := []int32{0, 0, 0, 0, 0}
 	for _index, count := range statistic[1:] {
 		if count == nil {
 			break
@@ -2153,6 +2161,9 @@ func (r *articleRepo) getArticleStatisticFromCache(ctx context.Context, key stri
 			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: count(%v)", count))
 		}
 		val[_index] = int32(num)
+	}
+	if val[4] == 2 && statistic[0].(string) != uuid {
+		return nil, errors.Errorf("fail to get article statistic from cache: no auth")
 	}
 	return &biz.ArticleStatistic{
 		Uuid:    statistic[0].(string),
