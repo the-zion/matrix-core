@@ -21,6 +21,7 @@ type ArticleStatistic struct {
 	View      int32
 	Collect   int32
 	Comment   int32
+	Auth      int32
 }
 
 type TalkStatistic struct {
@@ -30,6 +31,7 @@ type TalkStatistic struct {
 	View    int32
 	Collect int32
 	Comment int32
+	Auth    int32
 }
 
 type ArticleStatisticJudge struct {
