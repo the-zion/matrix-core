@@ -23,7 +23,7 @@ type ArticleRepo interface {
 	GetUserArticleList(ctx context.Context, page int32, uuid string) ([]*Article, error)
 	GetUserArticleListAll(ctx context.Context, uuid string) ([]*Article, error)
 	GetUserArticleListVisitor(ctx context.Context, page int32, uuid string) ([]*Article, error)
-	GetArticleStatistic(ctx context.Context, id int32) (*ArticleStatistic, error)
+	GetArticleStatistic(ctx context.Context, id int32, uuid string) (*ArticleStatistic, error)
 	GetArticleListStatistic(ctx context.Context, ids []int32) ([]*ArticleStatistic, error)
 	GetArticleSearch(ctx context.Context, page int32, search, time string) ([]*ArticleSearch, int32, error)
 	GetArticleAuth(ctx context.Context, id int32) (int32, error)
@@ -368,8 +368,8 @@ func (r *ArticleUseCase) GetUserArticleListVisitor(ctx context.Context, page int
 	return articleList, nil
 }
 
-func (r *ArticleUseCase) GetArticleStatistic(ctx context.Context, id int32) (*ArticleStatistic, error) {
-	statistic, err := r.repo.GetArticleStatistic(ctx, id)
+func (r *ArticleUseCase) GetArticleStatistic(ctx context.Context, id int32, uuid string) (*ArticleStatistic, error) {
+	statistic, err := r.repo.GetArticleStatistic(ctx, id, uuid)
 	if err != nil {
 		return nil, v1.ErrorGetStatisticFailed("get article statistic failed: %s", err.Error())
 	}
