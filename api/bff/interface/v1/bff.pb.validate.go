@@ -6775,6 +6775,8 @@ func (m *GetArticleStatisticReq) validate(all bool) error {
 
 	// no validation rules for Id
 
+	// no validation rules for Uuid
+
 	if len(errors) > 0 {
 		return GetArticleStatisticReqMultiError(errors)
 	}
@@ -11499,6 +11501,8 @@ func (m *GetTalkStatisticReq) validate(all bool) error {
 	var errors []error
 
 	// no validation rules for Id
+
+	// no validation rules for Uuid
 
 	if len(errors) > 0 {
 		return GetTalkStatisticReqMultiError(errors)
@@ -16496,6 +16500,8 @@ func (m *GetColumnStatisticReq) validate(all bool) error {
 	var errors []error
 
 	// no validation rules for Id
+
+	// no validation rules for Uuid
 
 	if len(errors) > 0 {
 		return GetColumnStatisticReqMultiError(errors)
