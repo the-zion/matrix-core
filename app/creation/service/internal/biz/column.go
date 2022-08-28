@@ -44,7 +44,7 @@ type ColumnRepo interface {
 	GetUserColumnListVisitor(ctx context.Context, page int32, uuid string) ([]*Column, error)
 	GetColumnCount(ctx context.Context, uuid string) (int32, error)
 	GetColumnCountVisitor(ctx context.Context, uuid string) (int32, error)
-	GetColumnStatistic(ctx context.Context, id int32) (*ColumnStatistic, error)
+	GetColumnStatistic(ctx context.Context, id int32, uuid string) (*ColumnStatistic, error)
 	GetColumnListStatistic(ctx context.Context, ids []int32) ([]*ColumnStatistic, error)
 	GetColumnAgreeJudge(ctx context.Context, id int32, uuid string) (bool, error)
 	GetColumnCollectJudge(ctx context.Context, id int32, uuid string) (bool, error)
@@ -537,8 +537,8 @@ func (r *ColumnUseCase) GetColumnListStatistic(ctx context.Context, ids []int32)
 	return statisticList, nil
 }
 
-func (r *ColumnUseCase) GetColumnStatistic(ctx context.Context, id int32) (*ColumnStatistic, error) {
-	statistic, err := r.repo.GetColumnStatistic(ctx, id)
+func (r *ColumnUseCase) GetColumnStatistic(ctx context.Context, id int32, uuid string) (*ColumnStatistic, error) {
+	statistic, err := r.repo.GetColumnStatistic(ctx, id, uuid)
 	if err != nil {
 		return nil, v1.ErrorGetStatisticFailed("get column statistic failed: %s", err.Error())
 	}
