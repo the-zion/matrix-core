@@ -403,6 +403,7 @@ func (r *columnRepo) CreateColumnCache(ctx context.Context, id, auth int32, uuid
 		pipe.HSetNX(ctx, "column_"+ids, "agree", 0)
 		pipe.HSetNX(ctx, "column_"+ids, "collect", 0)
 		pipe.HSetNX(ctx, "column_"+ids, "view", 0)
+		pipe.HSetNX(ctx, "column_"+ids, "auth", auth)
 
 		if exists[3] == 1 {
 			pipe.ZAddNX(ctx, "user_column_list_"+uuid, &redis.Z{
@@ -985,6 +986,7 @@ func (r *columnRepo) getColumnListStatisticFromDb(ctx context.Context, unExists 
 			Agree:    item.Agree,
 			Collect:  item.Collect,
 			View:     item.View,
+			Auth:     item.Auth,
 		})
 	}
 
@@ -1003,6 +1005,7 @@ func (r *columnRepo) setColumnListStatisticToCache(commentList []*ColumnStatisti
 			pipe.HSetNX(context.Background(), key, "agree", item.Agree)
 			pipe.HSetNX(context.Background(), key, "collect", item.Collect)
 			pipe.HSetNX(context.Background(), key, "view", item.View)
+			pipe.HSetNX(context.Background(), key, "auth", item.Auth)
 			pipe.Expire(context.Background(), key, time.Hour*8)
 		}
 		return nil
@@ -1013,7 +1016,7 @@ func (r *columnRepo) setColumnListStatisticToCache(commentList []*ColumnStatisti
 	}
 }
 
-func (r *columnRepo) GetColumnStatistic(ctx context.Context, id int32) (*biz.ColumnStatistic, error) {
+func (r *columnRepo) GetColumnStatistic(ctx context.Context, id int32, uuid string) (*biz.ColumnStatistic, error) {
 	var statistic *biz.ColumnStatistic
 	key := "column_" + strconv.Itoa(int(id))
 	exist, err := r.data.redisCli.Exists(ctx, key).Result()
@@ -1022,7 +1025,7 @@ func (r *columnRepo) GetColumnStatistic(ctx context.Context, id int32) (*biz.Col
 	}
 
 	if exist == 1 {
-		statistic, err = r.getColumnStatisticFromCache(ctx, key)
+		statistic, err = r.getColumnStatisticFromCache(ctx, key, uuid)
 		if err != nil {
 			return nil, err
 		}
@@ -1036,15 +1039,19 @@ func (r *columnRepo) GetColumnStatistic(ctx context.Context, id int32) (*biz.Col
 
 	go r.setColumnStatisticToCache(key, statistic)
 
+	if statistic.Auth == 2 && statistic.Uuid != uuid {
+		return nil, errors.Errorf("fail to get column statistic from cache: no auth")
+	}
+
 	return statistic, nil
 }
 
-func (r *columnRepo) getColumnStatisticFromCache(ctx context.Context, key string) (*biz.ColumnStatistic, error) {
-	statistic, err := r.data.redisCli.HMGet(ctx, key, "uuid", "agree", "collect", "view").Result()
+func (r *columnRepo) getColumnStatisticFromCache(ctx context.Context, key, uuid string) (*biz.ColumnStatistic, error) {
+	statistic, err := r.data.redisCli.HMGet(ctx, key, "uuid", "agree", "collect", "view", "auth").Result()
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get column statistic form cache: key(%s)", key))
 	}
-	val := []int32{0, 0, 0}
+	val := []int32{0, 0, 0, 0}
 	for _index, count := range statistic[1:] {
 		if count == nil {
 			break
@@ -1054,6 +1061,9 @@ func (r *columnRepo) getColumnStatisticFromCache(ctx context.Context, key string
 			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: count(%v)", count))
 		}
 		val[_index] = int32(num)
+	}
+	if val[3] == 2 && statistic[0].(string) != uuid {
+		return nil, errors.Errorf("fail to get collection from cache: no auth")
 	}
 	return &biz.ColumnStatistic{
 		Uuid:    statistic[0].(string),
@@ -1768,7 +1778,7 @@ func (r *columnRepo) SetCollectionsColumnCollect(ctx context.Context, id, collec
 
 func (r *columnRepo) SetCollectionColumn(ctx context.Context, collectionsId int32, userUuid string) error {
 	c := Collections{}
-	err := r.data.DB(ctx).Model(&c).Where("id = ? and uuid = ?", collectionsId, userUuid).Update("`column`", gorm.Expr("`column` + ?", 1)).Error
+	err := r.data.DB(ctx).Model(&c).Where("collections_id = ? and uuid = ?", collectionsId, userUuid).Update("`column`", gorm.Expr("`column` + ?", 1)).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to add collection column collect: collectionsId(%v), userUuid(%s)", collectionsId, userUuid))
 	}
@@ -2079,7 +2089,7 @@ func (r *columnRepo) CancelCollectionsColumnCollect(ctx context.Context, id int3
 		Status: 2,
 	}
 	err := r.data.DB(ctx).Model(&Collect{}).Where("creations_id = ? and mode = ? and uuid = ?", id, 2, userUuid).Updates(collect).Error
-	if err != nil {
+	if !errors.Is(err, gorm.ErrRecordNotFound) && err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel column collect: column_id(%v), userUuid(%s)", id, userUuid))
 	}
 	return nil
@@ -2087,8 +2097,8 @@ func (r *columnRepo) CancelCollectionsColumnCollect(ctx context.Context, id int3
 
 func (r *columnRepo) CancelCollectionColumn(ctx context.Context, id int32, uuid string) error {
 	collections := &Collections{}
-	err := r.data.DB(ctx).Model(collections).Where("id = ? and uuid = ? and `column` > 0", id, uuid).Update("`column`", gorm.Expr("`column` - ?", 1)).Error
-	if err != nil {
+	err := r.data.DB(ctx).Model(collections).Where("collections_id = ? and uuid = ? and `column` > 0", id, uuid).Update("`column`", gorm.Expr("`column` - ?", 1)).Error
+	if !errors.Is(err, gorm.ErrRecordNotFound) && err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel collections column: id(%v)", id))
 	}
 	return nil
@@ -2172,7 +2182,7 @@ func (r *columnRepo) CancelUserColumnCollect(ctx context.Context, id int32, user
 func (r *columnRepo) GetCollectionsIdFromColumnCollect(ctx context.Context, id int32) (int32, error) {
 	collect := &Collect{}
 	err := r.data.db.WithContext(ctx).Where("creations_id = ? and mode = ?", id, 2).First(collect).Error
-	if err != nil {
+	if !errors.Is(err, gorm.ErrRecordNotFound) && err != nil {
 		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get collections id  from db: creationsId(%v)", id))
 	}
 	return collect.CollectionsId, nil
