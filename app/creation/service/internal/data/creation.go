@@ -226,7 +226,7 @@ func (r *creationRepo) getCollectTalkListFromDB(ctx context.Context, id, page in
 	}
 	index := int(page - 1)
 	list := make([]*Collect, 0)
-	err := r.data.db.WithContext(ctx).Where("collections_id = ? and mode = ? and status = ?", id, 2, 1).Order("updated_at desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Where("collections_id = ? and mode = ? and status = ?", id, 3, 1).Order("updated_at desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user collect talk from db: id(%v), page(%v)", id, page))
 	}
@@ -324,7 +324,7 @@ func (r *creationRepo) getCollectColumnListFromDB(ctx context.Context, id, page 
 	}
 	index := int(page - 1)
 	list := make([]*Collect, 0)
-	err := r.data.db.WithContext(ctx).Where("collections_id = ? and mode = ? and status = ?", id, 3, 1).Order("updated_at desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Where("collections_id = ? and mode = ? and status = ?", id, 2, 1).Order("updated_at desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user collect column list from db: id(%v), page(%v)", id, page))
 	}
@@ -390,6 +390,10 @@ func (r *creationRepo) GetCollections(ctx context.Context, id int32, uuid string
 
 	go r.setCollectionsToCache(key, collections)
 
+	if collections.Auth == 2 && collections.Uuid != uuid {
+		return nil, errors.Errorf("fail to get collection: no auth")
+	}
+
 	return collections, nil
 }
 
@@ -426,9 +430,6 @@ func (r *creationRepo) getCollectionsFromDB(ctx context.Context, id int32, uuid 
 	err := r.data.db.WithContext(ctx).Where("collections_id = ?", id).First(collections).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("faile to get collections from db: id(%v)", id))
-	}
-	if collections.Auth == 2 && collections.Uuid != uuid {
-		return nil, errors.Errorf("fail to get collection: no auth")
 	}
 	return &biz.Collections{
 		Uuid:    collections.Uuid,
@@ -1066,7 +1067,7 @@ func (r *creationRepo) CreateCollectionsCache(ctx context.Context, id, auth int3
 		}
 
 		if exists[1] == 1 {
-			pipe.ZAddNX(ctx, "user_collections_list_visitor_", &redis.Z{
+			pipe.ZAddNX(ctx, "user_collections_list_visitor_"+uuid, &redis.Z{
 				Score:  float64(id),
 				Member: ids,
 			})
