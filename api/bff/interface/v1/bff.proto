@@ -1409,6 +1409,7 @@ message GetUserArticleListVisitorReq{
 
 message GetArticleStatisticReq{
   int32 id = 1;
+  string uuid = 2;
 }
 
 message GetArticleStatisticReply{
@@ -1644,6 +1645,7 @@ message GetUserTalkListVisitorReq{
 
 message GetTalkStatisticReq{
   int32 id = 1;
+  string uuid = 2;
 }
 
 message GetTalkStatisticReply{
@@ -1893,6 +1895,7 @@ message DeleteColumnReq{
 
 message GetColumnStatisticReq{
   int32 id = 1;
+  string uuid = 2;
 }
 
 message GetColumnStatisticReply{
