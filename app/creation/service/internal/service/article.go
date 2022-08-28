@@ -117,7 +117,7 @@ func (s *CreationService) GetUserArticleListAll(ctx context.Context, req *v1.Get
 }
 
 func (s *CreationService) GetArticleStatistic(ctx context.Context, req *v1.GetArticleStatisticReq) (*v1.GetArticleStatisticReply, error) {
-	articleStatistic, err := s.ac.GetArticleStatistic(ctx, req.Id)
+	articleStatistic, err := s.ac.GetArticleStatistic(ctx, req.Id, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
