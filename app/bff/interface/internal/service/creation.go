@@ -61,8 +61,12 @@ func (s *BffService) GetCollectTalkList(ctx context.Context, req *v1.GetCollectT
 	}
 	for _, item := range talkList {
 		reply.Talk = append(reply.Talk, &v1.GetTalkListReply_Talk{
-			Id:   item.Id,
-			Uuid: item.Uuid,
+			Id:      item.Id,
+			Uuid:    item.Uuid,
+			Agree:   item.Agree,
+			Collect: item.Collect,
+			View:    item.View,
+			Comment: item.Comment,
 		})
 	}
 	return reply, nil
@@ -86,8 +90,11 @@ func (s *BffService) GetCollectColumnList(ctx context.Context, req *v1.GetCollec
 	}
 	for _, item := range columnList {
 		reply.Column = append(reply.Column, &v1.GetColumnListReply_Column{
-			Id:   item.Id,
-			Uuid: item.Uuid,
+			Id:      item.Id,
+			Uuid:    item.Uuid,
+			Agree:   item.Agree,
+			Collect: item.Collect,
+			View:    item.View,
 		})
 	}
 	return reply, nil
@@ -376,7 +383,7 @@ func (s *BffService) GetUserArticleListAll(ctx context.Context, _ *emptypb.Empty
 }
 
 func (s *BffService) GetArticleStatistic(ctx context.Context, req *v1.GetArticleStatisticReq) (*v1.GetArticleStatisticReply, error) {
-	articleStatistic, err := s.ac.GetArticleStatistic(ctx, req.Id)
+	articleStatistic, err := s.ac.GetArticleStatistic(ctx, req.Id, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -702,7 +709,7 @@ func (s *BffService) GetTalkListStatistic(ctx context.Context, req *v1.GetTalkLi
 }
 
 func (s *BffService) GetTalkStatistic(ctx context.Context, req *v1.GetTalkStatisticReq) (*v1.GetTalkStatisticReply, error) {
-	talkStatistic, err := s.tc.GetTalkStatistic(ctx, req.Id)
+	talkStatistic, err := s.tc.GetTalkStatistic(ctx, req.Id, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -1029,7 +1036,7 @@ func (s *BffService) GetColumnListStatistic(ctx context.Context, req *v1.GetColu
 }
 
 func (s *BffService) GetColumnStatistic(ctx context.Context, req *v1.GetColumnStatisticReq) (*v1.GetColumnStatisticReply, error) {
-	columnStatistic, err := s.coc.GetColumnStatistic(ctx, req.Id)
+	columnStatistic, err := s.coc.GetColumnStatistic(ctx, req.Id, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
