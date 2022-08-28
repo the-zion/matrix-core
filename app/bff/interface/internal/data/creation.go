@@ -659,10 +659,11 @@ func (r *articleRepo) GetUserArticleListVisitor(ctx context.Context, page int32,
 	return result.([]*biz.Article), nil
 }
 
-func (r *articleRepo) GetArticleStatistic(ctx context.Context, id int32) (*biz.ArticleStatistic, error) {
+func (r *articleRepo) GetArticleStatistic(ctx context.Context, id int32, uuid string) (*biz.ArticleStatistic, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("article_statistic_%v", id), func() (interface{}, error) {
 		statistic, err := r.data.cc.GetArticleStatistic(ctx, &creationV1.GetArticleStatisticReq{
-			Id: id,
+			Id:   id,
+			Uuid: uuid,
 		})
 		if err != nil {
 			return nil, err
@@ -1063,10 +1064,11 @@ func (r *talkRepo) GetTalkListStatistic(ctx context.Context, talkList []*biz.Tal
 	return reply, nil
 }
 
-func (r *talkRepo) GetTalkStatistic(ctx context.Context, id int32) (*biz.TalkStatistic, error) {
+func (r *talkRepo) GetTalkStatistic(ctx context.Context, id int32, uuid string) (*biz.TalkStatistic, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("talk_statistic_%v", id), func() (interface{}, error) {
 		statistic, err := r.data.cc.GetTalkStatistic(ctx, &creationV1.GetTalkStatisticReq{
-			Id: id,
+			Id:   id,
+			Uuid: uuid,
 		})
 		if err != nil {
 			return nil, err
@@ -1490,10 +1492,11 @@ func (r *columnRepo) GetColumnListStatistic(ctx context.Context, columnList []*b
 	return reply, nil
 }
 
-func (r *columnRepo) GetColumnStatistic(ctx context.Context, id int32) (*biz.ColumnStatistic, error) {
+func (r *columnRepo) GetColumnStatistic(ctx context.Context, id int32, uuid string) (*biz.ColumnStatistic, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("column_statistic_%v", id), func() (interface{}, error) {
 		statistic, err := r.data.cc.GetColumnStatistic(ctx, &creationV1.GetColumnStatisticReq{
-			Id: id,
+			Id:   id,
+			Uuid: uuid,
 		})
 		if err != nil {
 			return nil, err
