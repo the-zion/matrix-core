@@ -116,7 +116,7 @@ func (s *CreationService) GetTalkListStatistic(ctx context.Context, req *v1.GetT
 }
 
 func (s *CreationService) GetTalkStatistic(ctx context.Context, req *v1.GetTalkStatisticReq) (*v1.GetTalkStatisticReply, error) {
-	talkStatistic, err := s.tc.GetTalkStatistic(ctx, req.Id)
+	talkStatistic, err := s.tc.GetTalkStatistic(ctx, req.Id, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
