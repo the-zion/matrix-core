@@ -21453,6 +21453,14 @@ func (m *GetUserSearchReply_List) validate(all bool) error {
 
 	// no validation rules for Introduce
 
+	// no validation rules for Agree
+
+	// no validation rules for View
+
+	// no validation rules for Follow
+
+	// no validation rules for Followed
+
 	if len(errors) > 0 {
 		return GetUserSearchReply_ListMultiError(errors)
 	}
@@ -22021,6 +22029,14 @@ func (m *GetArticleSearchReply_List) validate(all bool) error {
 	// no validation rules for Update
 
 	// no validation rules for Uuid
+
+	// no validation rules for Agree
+
+	// no validation rules for Collect
+
+	// no validation rules for View
+
+	// no validation rules for Comment
 
 	if len(errors) > 0 {
 		return GetArticleSearchReply_ListMultiError(errors)
@@ -22691,6 +22707,14 @@ func (m *GetTalkSearchReply_List) validate(all bool) error {
 
 	// no validation rules for Uuid
 
+	// no validation rules for Agree
+
+	// no validation rules for Collect
+
+	// no validation rules for View
+
+	// no validation rules for Comment
+
 	if len(errors) > 0 {
 		return GetTalkSearchReply_ListMultiError(errors)
 	}
@@ -23257,6 +23281,12 @@ func (m *GetColumnSearchReply_List) validate(all bool) error {
 	// no validation rules for Update
 
 	// no validation rules for Uuid
+
+	// no validation rules for Agree
+
+	// no validation rules for Collect
+
+	// no validation rules for View
 
 	if len(errors) > 0 {
 		return GetColumnSearchReply_ListMultiError(errors)
