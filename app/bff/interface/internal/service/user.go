@@ -139,6 +139,8 @@ func (s *BffService) GetUserInfo(ctx context.Context, _ *emptypb.Empty) (*v1.Get
 		Agree:       userProfile.Agree,
 		Collect:     userProfile.Collect,
 		View:        userProfile.View,
+		Follow:      userProfile.Follow,
+		Followed:    userProfile.Followed,
 		Article:     userProfile.Article,
 		Column:      userProfile.Column,
 		Talk:        userProfile.Talk,
@@ -281,6 +283,10 @@ func (s *BffService) GetUserSearch(ctx context.Context, req *v1.GetUserSearchReq
 			Uuid:      item.Uuid,
 			Username:  item.Username,
 			Introduce: item.Introduce,
+			Agree:     item.Agree,
+			View:      item.View,
+			Follow:    item.FollowNum,
+			Followed:  item.FollowedNum,
 		})
 	}
 	reply.Total = total
