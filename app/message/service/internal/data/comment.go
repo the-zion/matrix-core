@@ -183,3 +183,13 @@ func (r *commentRepo) CancelSubCommentAgreeDbAndCache(ctx context.Context, id in
 	}
 	return nil
 }
+
+func (r *commentRepo) GetCommentUser(ctx context.Context, uuid string) (int32, error) {
+	reply, err := r.data.commc.GetCommentUser(ctx, &commentV1.GetCommentUserReq{
+		Uuid: uuid,
+	})
+	if err != nil {
+		return 0, err
+	}
+	return reply.Comment, nil
+}
