@@ -52,6 +52,14 @@ type CreationRepo interface {
 	SetColumnSubscribeDbAndCache(ctx context.Context, id int32, uuid string) error
 	CancelColumnSubscribeDbAndCache(ctx context.Context, id int32, uuid string) error
 
+	ToReviewCreateCollections(id int32, uuid string) error
+	ToReviewEditCollections(id int32, uuid string) error
+	CollectionsCreateReviewPass(ctx context.Context, id, auth int32, uuid string) error
+	CollectionsEditReviewPass(ctx context.Context, id, auth int32, uuid string) error
+	CreateCollectionsDbAndCache(ctx context.Context, id, auth int32, uuid string) error
+	EditCollectionsCos(ctx context.Context, id, auth int32, uuid string) error
+	DeleteCollectionsCache(ctx context.Context, id int32, uuid string) error
+
 	AddCreationComment(ctx context.Context, createId, createType int32, uuid string)
 	ReduceCreationComment(ctx context.Context, createId, createType int32, uuid string)
 	GetCreationUser(ctx context.Context, uuid string) (int32, int32, int32, error)
@@ -513,10 +521,132 @@ func (r *CreationUseCase) CancelColumnSubscribeDbAndCache(ctx context.Context, i
 	return r.repo.CancelColumnSubscribeDbAndCache(ctx, id, uuid)
 }
 
+func (r *CreationUseCase) CollectionsCreateReview(ctx context.Context, tr *TextReview) error {
+	var err error
+	var token, id, auths string
+	var ok bool
+
+	if token, ok = tr.CosHeaders["X-Cos-Meta-Token"]; !ok || token == "" {
+		r.log.Info("token not exist，%v", tr)
+		return nil
+	}
+
+	if id, ok = tr.CosHeaders["X-Cos-Meta-Id"]; !ok || id == "" {
+		r.log.Info("id not exist，%v", tr)
+		return nil
+	}
+
+	if auths, ok = tr.CosHeaders["X-Cos-Meta-Auth"]; !ok || auths == "" {
+		r.log.Info("auth not exist，%v", tr)
+		return nil
+	}
+
+	uuid, err := r.jwt.JwtCheck(token)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to get uuid from token: %s", token))
+	}
+
+	aid, err := strconv.ParseInt(id, 10, 32)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: %v", tr))
+	}
+
+	auth, err := strconv.ParseInt(auths, 10, 32)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: %v", tr))
+	}
+
+	if tr.State != "Success" {
+		r.log.Info("collections create review failed，%v", tr)
+		return nil
+	}
+
+	if tr.Result == 0 {
+		err = r.repo.CollectionsCreateReviewPass(ctx, int32(aid), int32(auth), uuid)
+	} else {
+		r.log.Info("collections create review not pass，%v", tr)
+	}
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *CreationUseCase) CollectionsEditReview(ctx context.Context, tr *TextReview) error {
+	var err error
+	var token, id, auths string
+	var ok bool
+
+	if token, ok = tr.CosHeaders["X-Cos-Meta-Token"]; !ok || token == "" {
+		r.log.Info("token not exist，%v", tr)
+		return nil
+	}
+
+	if id, ok = tr.CosHeaders["X-Cos-Meta-Id"]; !ok || id == "" {
+		r.log.Info("id not exist，%v", tr)
+		return nil
+	}
+
+	if auths, ok = tr.CosHeaders["X-Cos-Meta-Auth"]; !ok || auths == "" {
+		r.log.Info("auth not exist，%v", tr)
+		return nil
+	}
+
+	uuid, err := r.jwt.JwtCheck(token)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to get uuid from token: %s", token))
+	}
+
+	aid, err := strconv.ParseInt(id, 10, 32)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: %v", tr))
+	}
+
+	auth, err := strconv.ParseInt(auths, 10, 32)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: %v", tr))
+	}
+
+	if tr.State != "Success" {
+		r.log.Info("collections edit review failed，%v", tr)
+		return nil
+	}
+
+	if tr.Result == 0 {
+		err = r.repo.CollectionsEditReviewPass(ctx, int32(aid), int32(auth), uuid)
+	} else {
+		r.log.Info("collections edit review not pass，%v", tr)
+	}
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *CreationUseCase) CreateCollectionsDbAndCache(ctx context.Context, id, auth int32, uuid string) error {
+	return r.repo.CreateCollectionsDbAndCache(ctx, id, auth, uuid)
+}
+
+func (r *CreationUseCase) EditCollectionsCos(ctx context.Context, id, auth int32, uuid string) error {
+	return r.repo.EditCollectionsCos(ctx, id, auth, uuid)
+}
+
+func (r *CreationUseCase) DeleteCollectionsCache(ctx context.Context, id int32, uuid string) error {
+	return r.repo.DeleteCollectionsCache(ctx, id, uuid)
+}
+
 func (r *CreationUseCase) AddCreationComment(ctx context.Context, createId, createType int32, uuid string) {
 	r.repo.AddCreationComment(ctx, createId, createType, uuid)
 }
 
 func (r *CreationUseCase) ReduceCreationComment(ctx context.Context, createId, createType int32, uuid string) {
 	r.repo.ReduceCreationComment(ctx, createId, createType, uuid)
+}
+
+func (r *CreationUseCase) ToReviewCreateCollections(id int32, uuid string) error {
+	return r.repo.ToReviewCreateCollections(id, uuid)
+}
+
+func (r *CreationUseCase) ToReviewEditCollections(id int32, uuid string) error {
+	return r.repo.ToReviewEditCollections(id, uuid)
 }
