@@ -1238,6 +1238,10 @@ message GetUserSearchReply{
     string uuid = 1;
     string username = 2;
     string introduce = 3;
+    int32 agree = 4;
+    int32 view = 5;
+    int32 follow = 6;
+    int32 followed = 7;
   }
   repeated List list = 1;
   int32 total = 2;
@@ -1463,6 +1467,10 @@ message GetArticleSearchReply{
     string cover = 5;
     string update = 6;
     string uuid = 7;
+    int32 agree = 8;
+    int32 collect = 9;
+    int32 view = 10;
+    int32 comment = 11;
   }
   repeated List list = 1;
   int32 total = 2;
@@ -1676,6 +1684,10 @@ message GetTalkSearchReply{
     string cover = 5;
     string update = 6;
     string uuid = 7;
+    int32 agree = 9;
+    int32 collect = 10;
+    int32 view = 11;
+    int32 comment = 12;
   }
   repeated List list = 1;
   int32 total = 2;
@@ -1880,6 +1892,9 @@ message GetColumnSearchReply{
     string cover = 5;
     string update = 6;
     string uuid = 7;
+    int32 agree = 8;
+    int32 collect = 9;
+    int32 view = 10;
   }
   repeated List list = 1;
   int32 total = 2;
