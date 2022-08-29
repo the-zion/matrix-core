@@ -378,6 +378,31 @@ func (r *userRepo) GetFollowedAchievementList(ctx context.Context, page int32, u
 	return result.([]*biz.Achievement), nil
 }
 
+func (r *userRepo) GetSearchAchievementList(ctx context.Context, searchList []*biz.UserSearch) ([]*biz.Achievement, error) {
+	uuids := make([]string, 0)
+	for _, item := range searchList {
+		uuids = append(uuids, item.Uuid)
+	}
+	reply := make([]*biz.Achievement, 0)
+	achievementList, err := r.data.ac.GetAchievementList(ctx, &achievementV1.GetAchievementListReq{
+		Uuids: uuids,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	for _, item := range achievementList.Achievement {
+		reply = append(reply, &biz.Achievement{
+			Uuid:     item.Uuid,
+			Agree:    item.Agree,
+			View:     item.View,
+			Followed: item.Followed,
+			Follow:   item.Follow,
+		})
+	}
+	return reply, nil
+}
+
 func (r *userRepo) GetFollowListCount(ctx context.Context, uuid string) (int32, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_follow_count_%s", uuid), func() (interface{}, error) {
 		reply, err := r.data.uc.GetFollowListCount(ctx, &userV1.GetFollowListCountReq{
