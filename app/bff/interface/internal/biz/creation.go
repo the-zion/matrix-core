@@ -45,7 +45,7 @@ type ArticleRepo interface {
 	GetUserArticleCollect(ctx context.Context, uuid string) (map[int32]bool, error)
 	GetArticleListStatistic(ctx context.Context, articleList []*Article) ([]*ArticleStatistic, error)
 	GetArticleDraftList(ctx context.Context, uuid string) ([]*ArticleDraft, error)
-	GetArticleSearch(ctx context.Context, page int32, search, time string) ([]*ArticleSearch, int32, error)
+	GetArticleSearch(ctx context.Context, page int32, search, time string) ([]*Article, int32, error)
 	ArticleDraftMark(ctx context.Context, id int32, uuid string) error
 	SendArticle(ctx context.Context, id int32, uuid, ip string) error
 	SendArticleEdit(ctx context.Context, id int32, uuid, ip string) error
@@ -68,7 +68,7 @@ type TalkRepo interface {
 	GetTalkListStatistic(ctx context.Context, talkList []*Talk) ([]*TalkStatistic, error)
 	GetTalkStatistic(ctx context.Context, id int32, uuid string) (*TalkStatistic, error)
 	GetLastTalkDraft(ctx context.Context, uuid string) (*TalkDraft, error)
-	GetTalkSearch(ctx context.Context, page int32, search, time string) ([]*TalkSearch, int32, error)
+	GetTalkSearch(ctx context.Context, page int32, search, time string) ([]*Talk, int32, error)
 	GetUserTalkAgree(ctx context.Context, uuid string) (map[int32]bool, error)
 	GetUserTalkCollect(ctx context.Context, uuid string) (map[int32]bool, error)
 	CreateTalkDraft(ctx context.Context, uuid string) (int32, error)
@@ -96,7 +96,7 @@ type ColumnRepo interface {
 	GetSubscribeList(ctx context.Context, page int32, uuid string) ([]*Column, error)
 	GetSubscribeListCount(ctx context.Context, uuid string) (int32, error)
 	GetColumnSubscribes(ctx context.Context, uuid string, ids []int32) ([]*Subscribe, error)
-	GetColumnSearch(ctx context.Context, page int32, search, time string) ([]*ColumnSearch, int32, error)
+	GetColumnSearch(ctx context.Context, page int32, search, time string) ([]*Column, int32, error)
 	GetUserColumnAgree(ctx context.Context, uuid string) (map[int32]bool, error)
 	GetUserColumnCollect(ctx context.Context, uuid string) (map[int32]bool, error)
 	GetUserSubscribeColumn(ctx context.Context, uuid string) (map[int32]bool, error)
@@ -542,8 +542,26 @@ func (r *ArticleUseCase) GetArticleDraftList(ctx context.Context) ([]*ArticleDra
 	return r.repo.GetArticleDraftList(ctx, uuid)
 }
 
-func (r *ArticleUseCase) GetArticleSearch(ctx context.Context, page int32, search, time string) ([]*ArticleSearch, int32, error) {
-	return r.repo.GetArticleSearch(ctx, page, search, time)
+func (r *ArticleUseCase) GetArticleSearch(ctx context.Context, page int32, search, time string) ([]*Article, int32, error) {
+	articleList, total, err := r.repo.GetArticleSearch(ctx, page, search, time)
+	if err != nil {
+		return nil, 0, err
+	}
+	articleListStatistic, err := r.repo.GetArticleListStatistic(ctx, articleList)
+	if err != nil {
+		return nil, 0, err
+	}
+	for _, item := range articleListStatistic {
+		for index, listItem := range articleList {
+			if listItem.Id == item.Id {
+				articleList[index].Agree = item.Agree
+				articleList[index].View = item.View
+				articleList[index].Collect = item.Collect
+				articleList[index].Comment = item.Comment
+			}
+		}
+	}
+	return articleList, total, nil
 }
 
 func (r *ArticleUseCase) SendArticle(ctx context.Context, id int32) error {
@@ -731,8 +749,26 @@ func (r *TalkUseCase) GetLastTalkDraft(ctx context.Context) (*TalkDraft, error) 
 	return r.repo.GetLastTalkDraft(ctx, uuid)
 }
 
-func (r *TalkUseCase) GetTalkSearch(ctx context.Context, page int32, search, time string) ([]*TalkSearch, int32, error) {
-	return r.repo.GetTalkSearch(ctx, page, search, time)
+func (r *TalkUseCase) GetTalkSearch(ctx context.Context, page int32, search, time string) ([]*Talk, int32, error) {
+	talkList, total, err := r.repo.GetTalkSearch(ctx, page, search, time)
+	if err != nil {
+		return nil, 0, err
+	}
+	talkListStatistic, err := r.repo.GetTalkListStatistic(ctx, talkList)
+	if err != nil {
+		return nil, 0, err
+	}
+	for _, item := range talkListStatistic {
+		for index, listItem := range talkList {
+			if listItem.Id == item.Id {
+				talkList[index].Agree = item.Agree
+				talkList[index].View = item.View
+				talkList[index].Collect = item.Collect
+				talkList[index].Comment = item.Comment
+			}
+		}
+	}
+	return talkList, total, nil
 }
 
 func (r *TalkUseCase) GetUserTalkAgree(ctx context.Context) (map[int32]bool, error) {
@@ -1003,8 +1039,25 @@ func (r *ColumnUseCase) GetColumnSubscribes(ctx context.Context, ids []int32) ([
 	return r.repo.GetColumnSubscribes(ctx, uuid, ids)
 }
 
-func (r *ColumnUseCase) GetColumnSearch(ctx context.Context, page int32, search, time string) ([]*ColumnSearch, int32, error) {
-	return r.repo.GetColumnSearch(ctx, page, search, time)
+func (r *ColumnUseCase) GetColumnSearch(ctx context.Context, page int32, search, time string) ([]*Column, int32, error) {
+	columnList, total, err := r.repo.GetColumnSearch(ctx, page, search, time)
+	if err != nil {
+		return nil, 0, err
+	}
+	columnListStatistic, err := r.repo.GetColumnListStatistic(ctx, columnList)
+	if err != nil {
+		return nil, 0, err
+	}
+	for _, item := range columnListStatistic {
+		for index, listItem := range columnList {
+			if listItem.Id == item.Id {
+				columnList[index].Agree = item.Agree
+				columnList[index].View = item.View
+				columnList[index].Collect = item.Collect
+			}
+		}
+	}
+	return columnList, total, nil
 }
 
 func (r *ColumnUseCase) GetUserColumnAgree(ctx context.Context) (map[int32]bool, error) {
