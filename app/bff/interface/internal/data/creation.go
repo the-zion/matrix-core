@@ -760,8 +760,8 @@ func (r *articleRepo) GetArticleDraftList(ctx context.Context, uuid string) ([]*
 	return result.([]*biz.ArticleDraft), nil
 }
 
-func (r *articleRepo) GetArticleSearch(ctx context.Context, page int32, search, time string) ([]*biz.ArticleSearch, int32, error) {
-	reply := make([]*biz.ArticleSearch, 0)
+func (r *articleRepo) GetArticleSearch(ctx context.Context, page int32, search, time string) ([]*biz.Article, int32, error) {
+	reply := make([]*biz.Article, 0)
 	searchReply, err := r.data.cc.GetArticleSearch(ctx, &creationV1.GetArticleSearchReq{
 		Page:   page,
 		Search: search,
@@ -771,7 +771,7 @@ func (r *articleRepo) GetArticleSearch(ctx context.Context, page int32, search, 
 		return nil, 0, err
 	}
 	for _, item := range searchReply.List {
-		reply = append(reply, &biz.ArticleSearch{
+		reply = append(reply, &biz.Article{
 			Id:     item.Id,
 			Tags:   item.Tags,
 			Title:  item.Title,
@@ -1106,8 +1106,8 @@ func (r *talkRepo) GetLastTalkDraft(ctx context.Context, uuid string) (*biz.Talk
 	return result.(*biz.TalkDraft), nil
 }
 
-func (r *talkRepo) GetTalkSearch(ctx context.Context, page int32, search, time string) ([]*biz.TalkSearch, int32, error) {
-	reply := make([]*biz.TalkSearch, 0)
+func (r *talkRepo) GetTalkSearch(ctx context.Context, page int32, search, time string) ([]*biz.Talk, int32, error) {
+	reply := make([]*biz.Talk, 0)
 	searchReply, err := r.data.cc.GetTalkSearch(ctx, &creationV1.GetTalkSearchReq{
 		Page:   page,
 		Search: search,
@@ -1117,7 +1117,7 @@ func (r *talkRepo) GetTalkSearch(ctx context.Context, page int32, search, time s
 		return nil, 0, err
 	}
 	for _, item := range searchReply.List {
-		reply = append(reply, &biz.TalkSearch{
+		reply = append(reply, &biz.Talk{
 			Id:     item.Id,
 			Tags:   item.Tags,
 			Title:  item.Title,
@@ -1566,8 +1566,8 @@ func (r *columnRepo) GetColumnSubscribes(ctx context.Context, uuid string, ids [
 	return reply, nil
 }
 
-func (r *columnRepo) GetColumnSearch(ctx context.Context, page int32, search, time string) ([]*biz.ColumnSearch, int32, error) {
-	reply := make([]*biz.ColumnSearch, 0)
+func (r *columnRepo) GetColumnSearch(ctx context.Context, page int32, search, time string) ([]*biz.Column, int32, error) {
+	reply := make([]*biz.Column, 0)
 	searchReply, err := r.data.cc.GetColumnSearch(ctx, &creationV1.GetColumnSearchReq{
 		Page:   page,
 		Search: search,
@@ -1577,7 +1577,7 @@ func (r *columnRepo) GetColumnSearch(ctx context.Context, page int32, search, ti
 		return nil, 0, err
 	}
 	for _, item := range searchReply.List {
-		reply = append(reply, &biz.ColumnSearch{
+		reply = append(reply, &biz.Column{
 			Id:        item.Id,
 			Tags:      item.Tags,
 			Name:      item.Name,
