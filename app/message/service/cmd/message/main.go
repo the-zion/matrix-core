@@ -34,7 +34,7 @@ func init() {
 	flag.StringVar(&flagconf, "conf", "../../configs", "config path, eg: -conf config.yaml")
 }
 
-func newApp(logger log.Logger, r *nacos.Registry, hs *http.Server, gs *grpc.Server, cmcs *server.CodeMqConsumerServer, pmcs *server.ProfileMqConsumerServer, fmcs *server.FollowMqConsumerServer, arms *server.ArticleReviewMqConsumerServer, amcs *server.ArticleMqConsumerServer, trcs *server.TalkReviewMqConsumerServer, tmcs *server.TalkMqConsumerServer, crmcs *server.ColumnReviewMqConsumerServer, comcs *server.ColumnMqConsumerServer, achcs *server.AchievementMqConsumerServer, commrcs *server.CommentReviewMqConsumerServer, commcs *server.CommentMqConsumerServer) *kratos.App {
+func newApp(logger log.Logger, r *nacos.Registry, hs *http.Server, gs *grpc.Server, cmcs *server.CodeMqConsumerServer, pmcs *server.ProfileMqConsumerServer, fmcs *server.FollowMqConsumerServer, arms *server.ArticleReviewMqConsumerServer, amcs *server.ArticleMqConsumerServer, trcs *server.TalkReviewMqConsumerServer, tmcs *server.TalkMqConsumerServer, crmcs *server.ColumnReviewMqConsumerServer, comcs *server.ColumnMqConsumerServer, achcs *server.AchievementMqConsumerServer, commrcs *server.CommentReviewMqConsumerServer, commcs *server.CommentMqConsumerServer, corms *server.CollectionsReviewMqConsumerServer, coms *server.CollectionsMqConsumerServer) *kratos.App {
 	return kratos.New(
 		kratos.ID(id),
 		kratos.Name(Name),
@@ -57,6 +57,8 @@ func newApp(logger log.Logger, r *nacos.Registry, hs *http.Server, gs *grpc.Serv
 			tmcs,
 			commrcs,
 			commcs,
+			corms,
+			coms,
 		),
 	)
 }
