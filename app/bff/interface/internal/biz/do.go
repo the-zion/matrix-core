@@ -34,9 +34,14 @@ type UserProfile struct {
 }
 
 type UserSearch struct {
-	Uuid      string
-	Username  string
-	Introduce string
+	Uuid        string
+	Username    string
+	Introduce   string
+	Agree       int32
+	View        int32
+	Collect     int32
+	FollowNum   int32
+	FollowedNum int32
 }
 
 type UserProfileUpdate struct {
@@ -165,11 +170,17 @@ type LeaderBoard struct {
 
 type Article struct {
 	Id      int32
-	Uuid    string
 	Agree   int32
 	View    int32
 	Collect int32
 	Comment int32
+	Total   int32
+	Title   string
+	Tags    string
+	Uuid    string
+	Text    string
+	Cover   string
+	Update  string
 }
 
 type ArticleStatistic struct {
@@ -191,24 +202,19 @@ type ArticleDraft struct {
 	Status int32
 }
 
-type ArticleSearch struct {
-	Id     int32
-	Total  int32
-	Title  string
-	Tags   string
-	Uuid   string
-	Text   string
-	Cover  string
-	Update string
-}
-
 type Talk struct {
 	Id      int32
 	Agree   int32
 	View    int32
 	Collect int32
 	Comment int32
+	Total   int32
+	Title   string
+	Tags    string
 	Uuid    string
+	Text    string
+	Cover   string
+	Update  string
 }
 
 type TalkDraft struct {
@@ -230,17 +236,6 @@ type TalkStatisticJudge struct {
 	Collect bool
 }
 
-type TalkSearch struct {
-	Id     int32
-	Total  int32
-	Title  string
-	Tags   string
-	Uuid   string
-	Text   string
-	Cover  string
-	Update string
-}
-
 type Collections struct {
 	Id      int32
 	Uuid    string
@@ -256,11 +251,17 @@ type CollectionsDraft struct {
 }
 
 type Column struct {
-	Id      int32
-	Agree   int32
-	View    int32
-	Collect int32
-	Uuid    string
+	Id        int32
+	Agree     int32
+	View      int32
+	Collect   int32
+	Total     int32
+	Name      string
+	Tags      string
+	Uuid      string
+	Introduce string
+	Cover     string
+	Update    string
 }
 
 type ColumnDraft struct {
@@ -279,17 +280,6 @@ type ColumnStatistic struct {
 type ColumnStatisticJudge struct {
 	Agree   bool
 	Collect bool
-}
-
-type ColumnSearch struct {
-	Id        int32
-	Total     int32
-	Name      string
-	Tags      string
-	Uuid      string
-	Introduce string
-	Cover     string
-	Update    string
 }
 
 type CreationUser struct {
