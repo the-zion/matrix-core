@@ -24,6 +24,7 @@ type UserRepo interface {
 	GetFollowAchievementList(ctx context.Context, page int32, uuid string, followList []*Follow) ([]*Achievement, error)
 	GetFollowedProfileList(ctx context.Context, page int32, uuid string, followedList []*Follow) ([]*UserProfile, error)
 	GetFollowedAchievementList(ctx context.Context, page int32, uuid string, followedList []*Follow) ([]*Achievement, error)
+	GetSearchAchievementList(ctx context.Context, searchList []*UserSearch) ([]*Achievement, error)
 	GetFollowListCount(ctx context.Context, uuid string) (int32, error)
 	GetFollowedList(ctx context.Context, page int32, uuid string) ([]*Follow, error)
 	GetFollowedListCount(ctx context.Context, uuid string) (int32, error)
@@ -130,6 +131,8 @@ func (r *UserUseCase) GetUserInfo(ctx context.Context) (*UserProfile, error) {
 		userProfile.Agree = ach.Agree
 		userProfile.Collect = ach.Collect
 		userProfile.View = ach.View
+		userProfile.Follow = ach.Follow
+		userProfile.Followed = ach.Followed
 		return nil
 	}))
 	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
@@ -314,7 +317,25 @@ func (r *UserUseCase) GetUserFollows(ctx context.Context) (map[string]bool, erro
 }
 
 func (r *UserUseCase) GetUserSearch(ctx context.Context, page int32, search string) ([]*UserSearch, int32, error) {
-	return r.repo.GetUserSearch(ctx, page, search)
+	searchList, total, err := r.repo.GetUserSearch(ctx, page, search)
+	if err != nil {
+		return nil, 0, err
+	}
+	userAchievementList, err := r.repo.GetSearchAchievementList(ctx, searchList)
+	if err != nil {
+		return nil, 0, err
+	}
+	for _, item := range userAchievementList {
+		for index, listItem := range searchList {
+			if listItem.Uuid == item.Uuid {
+				searchList[index].Agree = item.Agree
+				searchList[index].View = item.View
+				searchList[index].FollowNum = item.Follow
+				searchList[index].FollowedNum = item.Followed
+			}
+		}
+	}
+	return searchList, total, nil
 }
 
 func (r *UserUseCase) SetUserProfile(ctx context.Context, profile *UserProfileUpdate) error {
