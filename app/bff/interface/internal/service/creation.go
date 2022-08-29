@@ -485,13 +485,17 @@ func (s *BffService) GetArticleSearch(ctx context.Context, req *v1.GetArticleSea
 	}
 	for _, item := range articleList {
 		reply.List = append(reply.List, &v1.GetArticleSearchReply_List{
-			Id:     item.Id,
-			Tags:   item.Tags,
-			Title:  item.Title,
-			Uuid:   item.Uuid,
-			Text:   item.Text,
-			Cover:  item.Cover,
-			Update: item.Update,
+			Id:      item.Id,
+			Tags:    item.Tags,
+			Title:   item.Title,
+			Uuid:    item.Uuid,
+			Text:    item.Text,
+			Cover:   item.Cover,
+			Update:  item.Update,
+			Agree:   item.Agree,
+			Collect: item.Collect,
+			Comment: item.Comment,
+			View:    item.View,
 		})
 	}
 	reply.Total = total
@@ -741,13 +745,17 @@ func (s *BffService) GetTalkSearch(ctx context.Context, req *v1.GetTalkSearchReq
 	}
 	for _, item := range talkList {
 		reply.List = append(reply.List, &v1.GetTalkSearchReply_List{
-			Id:     item.Id,
-			Tags:   item.Tags,
-			Title:  item.Title,
-			Uuid:   item.Uuid,
-			Text:   item.Text,
-			Cover:  item.Cover,
-			Update: item.Update,
+			Id:      item.Id,
+			Tags:    item.Tags,
+			Title:   item.Title,
+			Uuid:    item.Uuid,
+			Text:    item.Text,
+			Cover:   item.Cover,
+			Update:  item.Update,
+			Agree:   item.Agree,
+			Collect: item.Collect,
+			View:    item.View,
+			Comment: item.Comment,
 		})
 	}
 	reply.Total = total
@@ -1106,6 +1114,9 @@ func (s *BffService) GetColumnSearch(ctx context.Context, req *v1.GetColumnSearc
 			Introduce: item.Introduce,
 			Cover:     item.Cover,
 			Update:    item.Update,
+			Agree:     item.Agree,
+			Collect:   item.Collect,
+			View:      item.View,
 		})
 	}
 	reply.Total = total
