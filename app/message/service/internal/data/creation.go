@@ -500,6 +500,119 @@ func (r *creationRepo) DeleteColumnIncludesDbAndCache(ctx context.Context, id, a
 	return nil
 }
 
+func (r *creationRepo) SetColumnSubscribeDbAndCache(ctx context.Context, id int32, uuid string) error {
+	_, err := r.data.cc.SetColumnSubscribeDbAndCache(ctx, &creationV1.SetColumnSubscribeDbAndCacheReq{
+		Id:   id,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) CancelColumnSubscribeDbAndCache(ctx context.Context, id int32, uuid string) error {
+	_, err := r.data.cc.CancelColumnSubscribeDbAndCache(ctx, &creationV1.CancelColumnSubscribeDbAndCacheReq{
+		Id:   id,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) ToReviewCreateCollections(id int32, uuid string) error {
+	opt := &cos.PutTextAuditingJobOptions{
+		InputObject: "collections/" + uuid + "/" + strconv.Itoa(int(id)) + "/content",
+		Conf: &cos.TextAuditingJobConf{
+			CallbackVersion: "Detail",
+			Callback:        r.data.cosCreationCli.callback["collections_create"],
+		},
+	}
+
+	_, _, err := r.data.cosCreationCli.cos.CI.PutTextAuditingJob(context.Background(), opt)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to send collections create review request to cos: id(%v) uuid(%s)", id, uuid))
+	}
+	return nil
+}
+
+func (r *creationRepo) ToReviewEditCollections(id int32, uuid string) error {
+	opt := &cos.PutTextAuditingJobOptions{
+		InputObject: "collections/" + uuid + "/" + strconv.Itoa(int(id)) + "/content-edit",
+		Conf: &cos.TextAuditingJobConf{
+			CallbackVersion: "Detail",
+			Callback:        r.data.cosCreationCli.callback["collections_edit"],
+		},
+	}
+
+	_, _, err := r.data.cosCreationCli.cos.CI.PutTextAuditingJob(context.Background(), opt)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to send collections edit review request to cos: id(%v) uuid(%s)", id, uuid))
+	}
+	return nil
+}
+
+func (r *creationRepo) CollectionsCreateReviewPass(ctx context.Context, id, auth int32, uuid string) error {
+	_, err := r.data.cc.CreateCollections(ctx, &creationV1.CreateCollectionsReq{
+		Id:   id,
+		Auth: auth,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) CreateCollectionsDbAndCache(ctx context.Context, id, auth int32, uuid string) error {
+	_, err := r.data.cc.CreateCollectionsDbAndCache(ctx, &creationV1.CreateCollectionsDbAndCacheReq{
+		Id:   id,
+		Auth: auth,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) EditCollectionsCos(ctx context.Context, id, auth int32, uuid string) error {
+	_, err := r.data.cc.EditCollectionsCos(ctx, &creationV1.EditCollectionsCosReq{
+		Id:   id,
+		Auth: auth,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) DeleteCollectionsCache(ctx context.Context, id int32, uuid string) error {
+	_, err := r.data.cc.DeleteCollectionsCache(ctx, &creationV1.DeleteCollectionsCacheReq{
+		Id:   id,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) CollectionsEditReviewPass(ctx context.Context, id, auth int32, uuid string) error {
+	_, err := r.data.cc.EditCollections(ctx, &creationV1.EditCollectionsReq{
+		Id:   id,
+		Auth: auth,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *creationRepo) AddCreationComment(ctx context.Context, createId, createType int32, uuid string) {
 	_, _ = r.data.cc.AddCreationComment(ctx, &creationV1.AddCreationCommentReq{
 		Uuid:         uuid,
