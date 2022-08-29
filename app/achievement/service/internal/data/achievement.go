@@ -265,7 +265,7 @@ func (r *achievementRepo) SetAchievementFollowToCache(ctx context.Context, follo
 						redis.call("HINCRBY", follow, "followed", 1)
 					end
 
-					local followed = KEYS[1]
+					local followed = KEYS[2]
 					local exist = redis.call("EXISTS", followed)
 					if exist == 1 then
 						redis.call("HINCRBY", followed, "follow", 1)
@@ -309,7 +309,7 @@ func (r *achievementRepo) CancelAchievementFollowFromCache(ctx context.Context, 
 						end
 					end
 
-					local followed = KEYS[1]
+					local followed = KEYS[2]
 					local exist = redis.call("EXISTS", followed)
 					if exist == 1 then
 						local number = tonumber(redis.call("HGET", followed, "follow"))
