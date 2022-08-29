@@ -60,7 +60,9 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, re
 	achievementMqConsumerServer := server.NewAchievementMqConsumerServer(confServer, messageService, logger)
 	commentReviewMqConsumerServer := server.NewCommentReviewMqConsumerServer(confServer, messageService, logger)
 	commentMqConsumerServer := server.NewCommentMqConsumerServer(confServer, messageService, logger)
-	app := newApp(logger, registry, httpServer, grpcServer, codeMqConsumerServer, profileMqConsumerServer, followMqConsumerServer, articleReviewMqConsumerServer, articleMqConsumerServer, talkReviewMqConsumerServer, talkMqConsumerServer, columnReviewMqConsumerServer, columnMqConsumerServer, achievementMqConsumerServer, commentReviewMqConsumerServer, commentMqConsumerServer)
+	collectionsReviewMqConsumerServer := server.NewCollectionsReviewMqConsumerServer(confServer, messageService, logger)
+	collectionsMqConsumerServer := server.NewCollectionsMqConsumerServer(confServer, messageService, logger)
+	app := newApp(logger, registry, httpServer, grpcServer, codeMqConsumerServer, profileMqConsumerServer, followMqConsumerServer, articleReviewMqConsumerServer, articleMqConsumerServer, talkReviewMqConsumerServer, talkMqConsumerServer, columnReviewMqConsumerServer, columnMqConsumerServer, achievementMqConsumerServer, commentReviewMqConsumerServer, commentMqConsumerServer, collectionsReviewMqConsumerServer, collectionsMqConsumerServer)
 	return app, func() {
 	}, nil
 }
