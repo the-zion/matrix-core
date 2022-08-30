@@ -118,6 +118,38 @@ func (s *CommentService) GetSubCommentListStatistic(ctx context.Context, req *v1
 	return reply, nil
 }
 
+func (s *CommentService) GetUserCommentArticleReplyList(ctx context.Context, req *v1.GetUserCommentArticleReplyListReq) (*v1.GetUserCommentArticleReplyListReply, error) {
+	reply := &v1.GetUserCommentArticleReplyListReply{List: make([]*v1.GetUserCommentArticleReplyListReply_List, 0)}
+	commentList, err := s.cc.GetUserCommentArticleReplyList(ctx, req.Page, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range commentList {
+		reply.List = append(reply.List, &v1.GetUserCommentArticleReplyListReply_List{
+			Id:             item.CommentId,
+			CreationId:     item.CreationId,
+			CreationAuthor: item.CreationAuthor,
+		})
+	}
+	return reply, nil
+}
+
+func (s *CommentService) GetUserCommentTalkReplyList(ctx context.Context, req *v1.GetUserCommentTalkReplyListReq) (*v1.GetUserCommentTalkReplyListReply, error) {
+	reply := &v1.GetUserCommentTalkReplyListReply{List: make([]*v1.GetUserCommentTalkReplyListReply_List, 0)}
+	commentList, err := s.cc.GetUserCommentTalkReplyList(ctx, req.Page, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range commentList {
+		reply.List = append(reply.List, &v1.GetUserCommentTalkReplyListReply_List{
+			Id:             item.CommentId,
+			CreationId:     item.CreationId,
+			CreationAuthor: item.CreationAuthor,
+		})
+	}
+	return reply, nil
+}
+
 func (s *CommentService) CreateCommentDraft(ctx context.Context, req *v1.CreateCommentDraftReq) (*v1.CreateCommentDraftReply, error) {
 	id, err := s.cc.CreateCommentDraft(ctx, req.Uuid)
 	if err != nil {
