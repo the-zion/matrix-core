@@ -364,11 +364,13 @@ type CommentDraft struct {
 }
 
 type Comment struct {
-	Id       int32
-	Uuid     string
-	UserName string
-	Agree    int32
-	Comment  int32
+	Id             int32
+	Uuid           string
+	UserName       string
+	CreationAuthor string
+	CreationId     int32
+	Agree          int32
+	Comment        int32
 }
 
 type SubComment struct {
