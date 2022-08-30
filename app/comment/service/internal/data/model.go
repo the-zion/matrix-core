@@ -12,15 +12,16 @@ type CommentDraft struct {
 }
 
 type Comment struct {
-	CommentId    int32 `gorm:"primarykey"`
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
-	DeletedAt    gorm.DeletedAt `gorm:"index"`
-	CreationId   int32          `gorm:"index:creation"`
-	CreationType int32          `gorm:"index:creation"`
-	Uuid         string         `gorm:"index;size:36"`
-	Agree        int32          `gorm:"index;type:int unsigned;default:0"`
-	Comment      int32          `gorm:"type:int unsigned;default:0"`
+	CommentId      int32 `gorm:"primarykey"`
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	DeletedAt      gorm.DeletedAt `gorm:"index"`
+	CreationId     int32          `gorm:"index:creation"`
+	CreationType   int32          `gorm:"index:creation"`
+	CreationAuthor string         `gorm:"index;size:36"`
+	Uuid           string         `gorm:"index;size:36"`
+	Agree          int32          `gorm:"index;type:int unsigned;default:0"`
+	Comment        int32          `gorm:"type:int unsigned;default:0"`
 }
 
 type CommentAgree struct {
@@ -31,22 +32,34 @@ type CommentAgree struct {
 }
 
 type SubComment struct {
-	CommentId int32 `gorm:"primarykey"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `gorm:"index"`
-	RootId    int32          `gorm:"index"`
-	ParentId  int32          `gorm:"index"`
-	Uuid      string         `gorm:"index;size:36"`
-	Reply     string         `gorm:"index;size:36"`
-	Agree     int32          `gorm:"type:int unsigned;default:0"`
+	CommentId      int32 `gorm:"primarykey"`
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	DeletedAt      gorm.DeletedAt `gorm:"index"`
+	CreationId     int32          `gorm:"index:creation"`
+	CreationType   int32          `gorm:"index:creation"`
+	CreationAuthor string         `gorm:"size:36"`
+	RootId         int32          `gorm:"index"`
+	RootUser       string         `gorm:"index;size:36"`
+	ParentId       int32          `gorm:"index"`
+	Uuid           string         `gorm:"index;size:36"`
+	Reply          string         `gorm:"index;size:36"`
+	Agree          int32          `gorm:"type:int unsigned;default:0"`
 }
 
 type CommentUser struct {
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	Uuid      string `gorm:"primarykey;size:36"`
-	Comment   int32  `gorm:"type:int unsigned;default:0"`
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+	Uuid              string `gorm:"primarykey;size:36"`
+	Comment           int32  `gorm:"type:int unsigned;default:0"`
+	ArticleReply      int32  `gorm:"type:int unsigned;default:0"`
+	ArticleReplySub   int32  `gorm:"type:int unsigned;default:0"`
+	TalkReply         int32  `gorm:"type:int unsigned;default:0"`
+	TalkReplySub      int32  `gorm:"type:int unsigned;default:0"`
+	ArticleReplied    int32  `gorm:"type:int unsigned;default:0"`
+	ArticleRepliedSub int32  `gorm:"type:int unsigned;default:0"`
+	TalkReplied       int32  `gorm:"type:int unsigned;default:0"`
+	TalkRepliedSub    int32  `gorm:"type:int unsigned;default:0"`
 }
 
 type Record struct {
