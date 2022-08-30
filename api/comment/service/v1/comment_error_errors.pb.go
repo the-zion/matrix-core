@@ -83,6 +83,30 @@ func ErrorGetUserCommentAgreeFailed(format string, args ...interface{}) *errors.
 	return errors.New(500, CommentErrorReason_GET_USER_COMMENT_AGREE_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsGetUserCommentCreationReplyListFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CommentErrorReason_GET_USER_COMMENT_CREATION_REPLY_LIST_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetUserCommentCreationReplyListFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CommentErrorReason_GET_USER_COMMENT_CREATION_REPLY_LIST_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsGetUserCommentCreationRepliedListFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CommentErrorReason_GET_USER_COMMENT_CREATION_REPLIED_LIST_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetUserCommentCreationRepliedListFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CommentErrorReason_GET_USER_COMMENT_CREATION_REPLIED_LIST_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsCreateDraftFailed(err error) bool {
 	if err == nil {
 		return false
