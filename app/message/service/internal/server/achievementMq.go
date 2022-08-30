@@ -53,9 +53,9 @@ func NewAchievementMqConsumerServer(conf *conf.Server, messageService *service.M
 		mode := m["mode"].(string)
 		switch mode {
 		case "agree":
-			err = messageService.SetAchievementAgree(ctx, m["uuid"].(string))
+			err = messageService.SetAchievementAgree(ctx, m["uuid"].(string), m["userUuid"].(string))
 		case "agree_cancel":
-			err = messageService.CancelAchievementAgree(ctx, m["uuid"].(string))
+			err = messageService.CancelAchievementAgree(ctx, m["uuid"].(string), m["userUuid"].(string))
 		case "view":
 			err = messageService.SetAchievementView(ctx, m["uuid"].(string))
 		case "collect":
@@ -68,6 +68,12 @@ func NewAchievementMqConsumerServer(conf *conf.Server, messageService *service.M
 			err = messageService.CancelAchievementFollow(ctx, m["follow"].(string), m["followed"].(string))
 		case "add_score":
 			err = messageService.AddAchievementScore(ctx, m["uuid"].(string), int32(m["score"].(float64)))
+		case "set_user_medal_db_and_cache":
+			err = messageService.SetUserMedalDbAndCache(ctx, m["medal"].(string), m["uuid"].(string))
+		case "cancel_user_medal_db_and_cache":
+			err = messageService.CancelUserMedalDbAndCache(ctx, m["medal"].(string), m["uuid"].(string))
+		case "access_user_medal_db_and_cache":
+			err = messageService.AccessUserMedalDbAndCache(ctx, m["medal"].(string), m["uuid"].(string))
 		}
 
 		if err != nil {
