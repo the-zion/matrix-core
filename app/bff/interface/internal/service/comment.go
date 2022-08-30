@@ -92,6 +92,54 @@ func (s *BffService) GetCommentListHot(ctx context.Context, req *v1.GetCommentLi
 	return reply, nil
 }
 
+func (s *BffService) GetUserCommentArticleReplyList(ctx context.Context, req *v1.GetUserCommentArticleReplyListReq) (*v1.GetUserCommentArticleReplyListReply, error) {
+	reply := &v1.GetUserCommentArticleReplyListReply{List: make([]*v1.GetUserCommentArticleReplyListReply_List, 0)}
+	commentList, err := s.commc.GetUserCommentArticleReplyList(ctx, req.Page)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range commentList {
+		reply.List = append(reply.List, &v1.GetUserCommentArticleReplyListReply_List{
+			Id:             item.Id,
+			CreationId:     item.CreationId,
+			CreationAuthor: item.CreationAuthor,
+		})
+	}
+	return reply, nil
+}
+
+func (s *BffService) GetUserSubCommentArticleReplyList(ctx context.Context, req *v1.GetUserSubCommentArticleReplyListReq) (*v1.GetUserSubCommentArticleReplyListReply, error) {
+	reply := &v1.GetUserSubCommentArticleReplyListReply{List: make([]*v1.GetUserSubCommentArticleReplyListReply_List, 0)}
+	commentList, err := s.commc.GetUserSubCommentArticleReplyList(ctx, req.Page)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range commentList {
+		reply.List = append(reply.List, &v1.GetUserSubCommentArticleReplyListReply_List{
+			Id:             item.Id,
+			CreationId:     item.CreationId,
+			CreationAuthor: item.CreationAuthor,
+		})
+	}
+	return reply, nil
+}
+
+func (s *BffService) GetUserCommentTalkReplyList(ctx context.Context, req *v1.GetUserCommentTalkReplyListReq) (*v1.GetUserCommentTalkReplyListReply, error) {
+	reply := &v1.GetUserCommentTalkReplyListReply{List: make([]*v1.GetUserCommentTalkReplyListReply_List, 0)}
+	commentList, err := s.commc.GetUserCommentTalkReplyList(ctx, req.Page)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range commentList {
+		reply.List = append(reply.List, &v1.GetUserCommentTalkReplyListReply_List{
+			Id:             item.Id,
+			CreationId:     item.CreationId,
+			CreationAuthor: item.CreationAuthor,
+		})
+	}
+	return reply, nil
+}
+
 func (s *BffService) SendComment(ctx context.Context, req *v1.SendCommentReq) (*emptypb.Empty, error) {
 	err := s.commc.SendComment(ctx, req.Id)
 	if err != nil {
