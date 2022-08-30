@@ -16,13 +16,15 @@ import (
 	commentv1 "github.com/the-zion/matrix-core/api/comment/service/v1"
 	creationv1 "github.com/the-zion/matrix-core/api/creation/service/v1"
 	userv1 "github.com/the-zion/matrix-core/api/user/service/v1"
+	"github.com/the-zion/matrix-core/app/message/service/internal/biz"
 	"github.com/the-zion/matrix-core/app/message/service/internal/conf"
 	"gopkg.in/gomail.v2"
 	"net/http"
 	"net/url"
+	"runtime"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewCreationRepo, NewCommentRepo, NewAchievementRepo, NewPhoneCode, NewGoMail, NewUserServiceClient, NewCreationServiceClient, NewAchievementServiceClient, NewCommentServiceClient, NewCosUserClient, NewCosCreationClient, NewCosCommentClient, NewJwtClient, NewJwt)
+var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewCreationRepo, NewCommentRepo, NewAchievementRepo, NewPhoneCode, NewGoMail, NewUserServiceClient, NewCreationServiceClient, NewAchievementServiceClient, NewCommentServiceClient, NewCosUserClient, NewCosCreationClient, NewCosCommentClient, NewJwtClient, NewJwt, NewRecovery)
 
 type TxCode struct {
 	client  *sms.Client
@@ -64,6 +66,24 @@ type Data struct {
 	cosUserCli     *CosUser
 	cosCreationCli *CosCreation
 	cosCommentCli  *CosComment
+}
+
+func (d *Data) GroupRecover(ctx context.Context, fn func(ctx context.Context) error) func() error {
+	return func() error {
+		defer func() {
+			if rerr := recover(); rerr != nil {
+				buf := make([]byte, 64<<10)
+				n := runtime.Stack(buf, false)
+				buf = buf[:n]
+				log.Context(ctx).Errorf("%v: %s\n", rerr, buf)
+			}
+		}()
+		return fn(ctx)
+	}
+}
+
+func NewRecovery(d *Data) biz.Recovery {
+	return d
 }
 
 func NewPhoneCode(conf *conf.Data) *TxCode {
