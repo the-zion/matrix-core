@@ -31,6 +31,12 @@ service Comment {
 
   rpc GetSubCommentListStatistic(GetCommentListStatisticReq)returns (GetCommentListStatisticReply){}
 
+  rpc GetUserCommentArticleReplyList(GetUserCommentArticleReplyListReq) returns (GetUserCommentArticleReplyListReply){}
+
+  rpc GetUserSubCommentArticleReplyList(GetUserSubCommentArticleReplyListReq) returns (GetUserSubCommentArticleReplyListReply){}
+
+  rpc GetUserCommentTalkReplyList(GetUserCommentTalkReplyListReq) returns (GetUserCommentTalkReplyListReply){}
+
   rpc CreateCommentDraft(CreateCommentDraftReq) returns (CreateCommentDraftReply){}
 
   rpc CreateComment(CreateCommentReq) returns (google.protobuf.Empty){}
@@ -192,6 +198,55 @@ message RemoveSubCommentDbAndCacheReq{
 
 message GetCommentListStatisticReq{
   repeated int32 ids = 1;
+}
+
+message GetUserCommentArticleReplyListReq{
+  int32 page = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message GetUserSubCommentArticleReplyListReq{
+  int32 page = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message GetUserSubCommentArticleReplyListReply{
+  message List{
+    int32 id = 1;
+    int32 creation_id = 2;
+    string creation_author = 3;
+    int32 root_id = 4;
+    string root_user = 5;
+    int32 parent_id = 6;
+    string reply = 7;
+    string user_name = 8;
+    string reply_name = 9;
+    string root_name = 10;
+  }
+  repeated List list = 1;
+}
+
+message GetUserCommentArticleReplyListReply{
+  message List{
+    int32 id = 1;
+    int32 creation_id = 2;
+    string creation_author = 3;
+  }
+  repeated List list = 1;
+}
+
+message GetUserCommentTalkReplyListReq{
+  int32 page = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message GetUserCommentTalkReplyListReply{
+  message List{
+    int32 id = 1;
+    int32 creation_id = 2;
+    string creation_author = 3;
+  }
+  repeated List list = 1;
 }
 
 message GetCommentListStatisticReply{
