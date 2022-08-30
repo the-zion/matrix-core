@@ -32,6 +32,9 @@ type CommentClient interface {
 	GetCommentListHot(ctx context.Context, in *GetCommentListReq, opts ...grpc.CallOption) (*GetCommentListReply, error)
 	GetCommentListStatistic(ctx context.Context, in *GetCommentListStatisticReq, opts ...grpc.CallOption) (*GetCommentListStatisticReply, error)
 	GetSubCommentListStatistic(ctx context.Context, in *GetCommentListStatisticReq, opts ...grpc.CallOption) (*GetCommentListStatisticReply, error)
+	GetUserCommentArticleReplyList(ctx context.Context, in *GetUserCommentArticleReplyListReq, opts ...grpc.CallOption) (*GetUserCommentArticleReplyListReply, error)
+	GetUserSubCommentArticleReplyList(ctx context.Context, in *GetUserSubCommentArticleReplyListReq, opts ...grpc.CallOption) (*GetUserSubCommentArticleReplyListReply, error)
+	GetUserCommentTalkReplyList(ctx context.Context, in *GetUserCommentTalkReplyListReq, opts ...grpc.CallOption) (*GetUserCommentTalkReplyListReply, error)
 	CreateCommentDraft(ctx context.Context, in *CreateCommentDraftReq, opts ...grpc.CallOption) (*CreateCommentDraftReply, error)
 	CreateComment(ctx context.Context, in *CreateCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateSubComment(ctx context.Context, in *CreateSubCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -136,6 +139,33 @@ func (c *commentClient) GetCommentListStatistic(ctx context.Context, in *GetComm
 func (c *commentClient) GetSubCommentListStatistic(ctx context.Context, in *GetCommentListStatisticReq, opts ...grpc.CallOption) (*GetCommentListStatisticReply, error) {
 	out := new(GetCommentListStatisticReply)
 	err := c.cc.Invoke(ctx, "/comment.v1.Comment/GetSubCommentListStatistic", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *commentClient) GetUserCommentArticleReplyList(ctx context.Context, in *GetUserCommentArticleReplyListReq, opts ...grpc.CallOption) (*GetUserCommentArticleReplyListReply, error) {
+	out := new(GetUserCommentArticleReplyListReply)
+	err := c.cc.Invoke(ctx, "/comment.v1.Comment/GetUserCommentArticleReplyList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *commentClient) GetUserSubCommentArticleReplyList(ctx context.Context, in *GetUserSubCommentArticleReplyListReq, opts ...grpc.CallOption) (*GetUserSubCommentArticleReplyListReply, error) {
+	out := new(GetUserSubCommentArticleReplyListReply)
+	err := c.cc.Invoke(ctx, "/comment.v1.Comment/GetUserSubCommentArticleReplyList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *commentClient) GetUserCommentTalkReplyList(ctx context.Context, in *GetUserCommentTalkReplyListReq, opts ...grpc.CallOption) (*GetUserCommentTalkReplyListReply, error) {
+	out := new(GetUserCommentTalkReplyListReply)
+	err := c.cc.Invoke(ctx, "/comment.v1.Comment/GetUserCommentTalkReplyList", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -326,6 +356,9 @@ type CommentServer interface {
 	GetCommentListHot(context.Context, *GetCommentListReq) (*GetCommentListReply, error)
 	GetCommentListStatistic(context.Context, *GetCommentListStatisticReq) (*GetCommentListStatisticReply, error)
 	GetSubCommentListStatistic(context.Context, *GetCommentListStatisticReq) (*GetCommentListStatisticReply, error)
+	GetUserCommentArticleReplyList(context.Context, *GetUserCommentArticleReplyListReq) (*GetUserCommentArticleReplyListReply, error)
+	GetUserSubCommentArticleReplyList(context.Context, *GetUserSubCommentArticleReplyListReq) (*GetUserSubCommentArticleReplyListReply, error)
+	GetUserCommentTalkReplyList(context.Context, *GetUserCommentTalkReplyListReq) (*GetUserCommentTalkReplyListReply, error)
 	CreateCommentDraft(context.Context, *CreateCommentDraftReq) (*CreateCommentDraftReply, error)
 	CreateComment(context.Context, *CreateCommentReq) (*emptypb.Empty, error)
 	CreateSubComment(context.Context, *CreateSubCommentReq) (*emptypb.Empty, error)
@@ -378,6 +411,15 @@ func (UnimplementedCommentServer) GetCommentListStatistic(context.Context, *GetC
 }
 func (UnimplementedCommentServer) GetSubCommentListStatistic(context.Context, *GetCommentListStatisticReq) (*GetCommentListStatisticReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSubCommentListStatistic not implemented")
+}
+func (UnimplementedCommentServer) GetUserCommentArticleReplyList(context.Context, *GetUserCommentArticleReplyListReq) (*GetUserCommentArticleReplyListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserCommentArticleReplyList not implemented")
+}
+func (UnimplementedCommentServer) GetUserSubCommentArticleReplyList(context.Context, *GetUserSubCommentArticleReplyListReq) (*GetUserSubCommentArticleReplyListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserSubCommentArticleReplyList not implemented")
+}
+func (UnimplementedCommentServer) GetUserCommentTalkReplyList(context.Context, *GetUserCommentTalkReplyListReq) (*GetUserCommentTalkReplyListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserCommentTalkReplyList not implemented")
 }
 func (UnimplementedCommentServer) CreateCommentDraft(context.Context, *CreateCommentDraftReq) (*CreateCommentDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateCommentDraft not implemented")
@@ -607,6 +649,60 @@ func _Comment_GetSubCommentListStatistic_Handler(srv interface{}, ctx context.Co
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CommentServer).GetSubCommentListStatistic(ctx, req.(*GetCommentListStatisticReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Comment_GetUserCommentArticleReplyList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserCommentArticleReplyListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommentServer).GetUserCommentArticleReplyList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/comment.v1.Comment/GetUserCommentArticleReplyList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommentServer).GetUserCommentArticleReplyList(ctx, req.(*GetUserCommentArticleReplyListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Comment_GetUserSubCommentArticleReplyList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserSubCommentArticleReplyListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommentServer).GetUserSubCommentArticleReplyList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/comment.v1.Comment/GetUserSubCommentArticleReplyList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommentServer).GetUserSubCommentArticleReplyList(ctx, req.(*GetUserSubCommentArticleReplyListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Comment_GetUserCommentTalkReplyList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserCommentTalkReplyListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommentServer).GetUserCommentTalkReplyList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/comment.v1.Comment/GetUserCommentTalkReplyList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommentServer).GetUserCommentTalkReplyList(ctx, req.(*GetUserCommentTalkReplyListReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -995,6 +1091,18 @@ var Comment_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetSubCommentListStatistic",
 			Handler:    _Comment_GetSubCommentListStatistic_Handler,
+		},
+		{
+			MethodName: "GetUserCommentArticleReplyList",
+			Handler:    _Comment_GetUserCommentArticleReplyList_Handler,
+		},
+		{
+			MethodName: "GetUserSubCommentArticleReplyList",
+			Handler:    _Comment_GetUserSubCommentArticleReplyList_Handler,
+		},
+		{
+			MethodName: "GetUserCommentTalkReplyList",
+			Handler:    _Comment_GetUserCommentTalkReplyList_Handler,
 		},
 		{
 			MethodName: "CreateCommentDraft",
