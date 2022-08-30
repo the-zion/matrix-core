@@ -965,6 +965,24 @@ service Bff{
     };
   }
 
+  rpc GetUserCommentArticleReplyList(GetUserCommentArticleReplyListReq) returns (GetUserCommentArticleReplyListReply){
+    option (google.api.http) = {
+      get: "/v1/get/user/comment/article/reply/list"
+    };
+  }
+
+  rpc GetUserSubCommentArticleReplyList(GetUserSubCommentArticleReplyListReq) returns (GetUserSubCommentArticleReplyListReply){
+    option (google.api.http) = {
+      get: "/v1/get/user/subcomment/article/reply/list"
+    };
+  }
+
+  rpc GetUserCommentTalkReplyList(GetUserCommentTalkReplyListReq) returns (GetUserCommentTalkReplyListReply){
+    option (google.api.http) = {
+      get: "/v1/get/user/comment/talk/reply/list"
+    };
+  }
+
   rpc CreateCommentDraft(google.protobuf.Empty) returns (CreateCommentDraftReply){
     option (google.api.http) = {
       post: "/v1/create/comment/draft"
@@ -2126,6 +2144,53 @@ message GetCommentListReply{
     string username = 5;
   }
   repeated Comment comment = 1;
+}
+
+message GetUserCommentArticleReplyListReq{
+  int32 page = 1;
+}
+
+message GetUserCommentArticleReplyListReply{
+  message List{
+    int32 id = 1;
+    int32 creation_id = 2;
+    string creation_author = 3;
+  }
+  repeated List list = 1;
+}
+
+message GetUserSubCommentArticleReplyListReq{
+  int32 page = 1;
+}
+
+message GetUserSubCommentArticleReplyListReply{
+  message List{
+    int32 id = 1;
+    int32 creation_id = 2;
+    string creation_author = 3;
+    int32 root_id = 4;
+    string root_user = 5;
+    int32 parent_id = 6;
+    string reply = 7;
+    string user_name = 8;
+    string reply_name = 9;
+    string root_name = 10;
+  }
+  repeated List list = 1;
+}
+
+
+message GetUserCommentTalkReplyListReq{
+  int32 page = 1;
+}
+
+message GetUserCommentTalkReplyListReply{
+  message List{
+    int32 id = 1;
+    int32 creation_id = 2;
+    string creation_author = 3;
+  }
+  repeated List list = 1;
 }
 
 message GetSubCommentListReq{
