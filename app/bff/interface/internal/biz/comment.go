@@ -17,6 +17,9 @@ type CommentRepo interface {
 	GetSubCommentListStatistic(ctx context.Context, page, id int32, commentList []*SubComment) ([]*CommentStatistic, error)
 	GetUserProfileList(ctx context.Context, page, creationId, creationType int32, key string, commentList []*Comment) ([]*UserProfile, error)
 	GetSubUserProfileList(ctx context.Context, page, id int32, commentList []*SubComment) ([]*UserProfile, error)
+	GetUserCommentArticleReplyList(ctx context.Context, page int32, uuid string) ([]*Comment, error)
+	GetUserSubCommentArticleReplyList(ctx context.Context, page int32, uuid string) ([]*SubComment, error)
+	GetUserCommentTalkReplyList(ctx context.Context, page int32, uuid string) ([]*Comment, error)
 	CreateCommentDraft(ctx context.Context, uuid string) (int32, error)
 	SendComment(ctx context.Context, id int32, uuid, ip string) error
 	SendSubComment(ctx context.Context, id int32, uuid, ip string) error
@@ -184,6 +187,21 @@ func (r *CommentUseCase) GetCommentListHot(ctx context.Context, page, creationId
 		return nil, err
 	}
 	return commentList, nil
+}
+
+func (r *CommentUseCase) GetUserCommentArticleReplyList(ctx context.Context, page int32) ([]*Comment, error) {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.GetUserCommentArticleReplyList(ctx, page, uuid)
+}
+
+func (r *CommentUseCase) GetUserSubCommentArticleReplyList(ctx context.Context, page int32) ([]*SubComment, error) {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.GetUserSubCommentArticleReplyList(ctx, page, uuid)
+}
+
+func (r *CommentUseCase) GetUserCommentTalkReplyList(ctx context.Context, page int32) ([]*Comment, error) {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.GetUserCommentTalkReplyList(ctx, page, uuid)
 }
 
 func (r *CommentUseCase) SendComment(ctx context.Context, id int32) error {
