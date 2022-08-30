@@ -2,8 +2,10 @@ package biz
 
 import (
 	"context"
+	"fmt"
 	kerrors "github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/pkg/errors"
 	v1 "github.com/the-zion/matrix-core/api/comment/service/v1"
 	"golang.org/x/sync/errgroup"
 )
@@ -17,15 +19,21 @@ type CommentRepo interface {
 	GetCommentListHot(ctx context.Context, page, creationId, creationType int32) ([]*Comment, error)
 	GetCommentListStatistic(ctx context.Context, ids []int32) ([]*CommentStatistic, error)
 	GetSubCommentListStatistic(ctx context.Context, ids []int32) ([]*CommentStatistic, error)
-	GetRootCommentUserId(ctx context.Context, id int32) (string, error)
-	GetParentCommentUserId(ctx context.Context, id int32) (string, error)
+	GetUserCommentArticleReplyList(ctx context.Context, page int32, uuid string) ([]*Comment, error)
+	GetUserCommentTalkReplyList(ctx context.Context, page int32, uuid string) ([]*Comment, error)
+	GetRootComment(ctx context.Context, id int32) (*Comment, error)
+	GetParentCommentUserId(ctx context.Context, id, rootId int32) (string, error)
 	GetSubCommentReply(ctx context.Context, id int32, uuid string) (string, error)
+	GetArticleAuthor(ctx context.Context, id int32) (string, error)
+	GetTalkAuthor(ctx context.Context, id int32) (string, error)
 	CreateCommentDraft(ctx context.Context, uuid string) (int32, error)
 	CreateCommentFolder(ctx context.Context, id int32, uuid string) error
-	CreateComment(ctx context.Context, id, creationId, creationType int32, uuid string) error
-	CreateSubComment(ctx context.Context, id, rootId, parentId int32, uuid, reply string) error
+	CreateComment(ctx context.Context, id, creationId, creationType int32, creationAuthor, uuid string) error
+	CreateSubComment(ctx context.Context, id, rootId, parentId, creationId, creationType int32, creationAuthor, rootUser, uuid, reply string) error
 	CreateCommentCache(ctx context.Context, id, creationId, creationType int32, uuid string) error
 	CreateSubCommentCache(ctx context.Context, id, rootId int32, uuid, reply string) error
+	AddArticleCommentUser(ctx context.Context, creationAuthor, uuid string) error
+	AddTalkCommentUser(ctx context.Context, creationAuthor, uuid string) error
 	SendComment(ctx context.Context, id int32, uuid string) (*CommentDraft, error)
 	SendCommentAgreeToMq(ctx context.Context, id, creationId, creationType int32, uuid, userUuid, mode string) error
 	SendSubCommentAgreeToMq(ctx context.Context, id int32, uuid, userUuid, mode string) error
@@ -137,6 +145,22 @@ func (r *CommentUseCase) GetSubCommentListStatistic(ctx context.Context, ids []i
 		return nil, v1.ErrorGetCommentStatisticFailed("get sub comment statistic list failed: %s", err.Error())
 	}
 	return commentListStatistic, nil
+}
+
+func (r *CommentUseCase) GetUserCommentArticleReplyList(ctx context.Context, page int32, uuid string) ([]*Comment, error) {
+	commentList, err := r.repo.GetUserCommentArticleReplyList(ctx, page, uuid)
+	if err != nil {
+		return nil, v1.ErrorGetUserCommentCreationReplyListFailed("get user comment article reply list failed: %s", err.Error())
+	}
+	return commentList, nil
+}
+
+func (r *CommentUseCase) GetUserCommentTalkReplyList(ctx context.Context, page int32, uuid string) ([]*Comment, error) {
+	commentList, err := r.repo.GetUserCommentTalkReplyList(ctx, page, uuid)
+	if err != nil {
+		return nil, v1.ErrorGetUserCommentCreationReplyListFailed("get user comment talk reply list failed: %s", err.Error())
+	}
+	return commentList, nil
 }
 
 func (r *CommentUseCase) CreateCommentDraft(ctx context.Context, uuid string) (int32, error) {
@@ -456,9 +480,19 @@ func (r *CommentUseCase) CreateCommentDbAndCache(ctx context.Context, id, creati
 			return v1.ErrorCreateCommentFailed("delete comment draft failed: %s", err.Error())
 		}
 
-		err = r.repo.CreateComment(ctx, id, creationId, creationType, uuid)
+		creationAuthor, err := r.getCreationAuthor(ctx, creationId, creationType)
+		if err != nil {
+			return v1.ErrorCreateCommentFailed("get creation author failed: %s", err.Error())
+		}
+
+		err = r.repo.CreateComment(ctx, id, creationId, creationType, creationAuthor, uuid)
 		if err != nil {
 			return v1.ErrorCreateCommentFailed("create comment failed: %s", err.Error())
+		}
+
+		err = r.addCommentUser(ctx, creationType, creationAuthor, uuid)
+		if err != nil {
+			return v1.ErrorCreateCommentFailed("create comment user failed: %s", err.Error())
 		}
 
 		err = r.repo.CreateCommentCache(ctx, id, creationId, creationType, uuid)
@@ -474,12 +508,32 @@ func (r *CommentUseCase) CreateCommentDbAndCache(ctx context.Context, id, creati
 	})
 }
 
+func (r *CommentUseCase) getCreationAuthor(ctx context.Context, creationId, creationType int32) (string, error) {
+	if creationType == 1 {
+		return r.repo.GetArticleAuthor(ctx, creationId)
+	} else if creationType == 3 {
+		return r.repo.GetTalkAuthor(ctx, creationId)
+	} else {
+		return "", errors.Errorf(fmt.Sprintf("fail to get creation author: reason(%v), creationId(%v), creationType(%v)", "creationType not correct ", creationId, creationType))
+	}
+}
+
+func (r *CommentUseCase) addCommentUser(ctx context.Context, creationType int32, creationAuthor, uuid string) error {
+	switch creationType {
+	case 1:
+		return r.repo.AddArticleCommentUser(ctx, creationAuthor, uuid)
+	case 3:
+		return r.repo.AddTalkCommentUser(ctx, creationAuthor, uuid)
+	}
+	return nil
+}
+
 func (r *CommentUseCase) CreateSubCommentDbAndCache(ctx context.Context, id, rootId, parentId int32, uuid string) error {
 	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		var err error
 		var parentUserId string
 		if parentId != 0 {
-			parentUserId, err = r.repo.GetParentCommentUserId(ctx, parentId)
+			parentUserId, err = r.repo.GetParentCommentUserId(ctx, parentId, rootId)
 			if err != nil {
 				return v1.ErrorCreateCommentFailed("get sub comment parent id failed: %s", err.Error())
 			}
@@ -489,12 +543,12 @@ func (r *CommentUseCase) CreateSubCommentDbAndCache(ctx context.Context, id, roo
 			return v1.ErrorCreateCommentFailed("delete sub comment draft failed: %s", err.Error())
 		}
 
-		//rootUserId, err = r.repo.GetRootCommentUserId(ctx, rootId)
-		//if err != nil {
-		//	return v1.ErrorCreateCommentFailed("get sub comment parent id failed: %s", err.Error())
-		//}
+		rootComment, err := r.repo.GetRootComment(ctx, rootId)
+		if err != nil {
+			return v1.ErrorCreateCommentFailed("get sub comment parent id failed: %s", err.Error())
+		}
 
-		err = r.repo.CreateSubComment(ctx, id, rootId, parentId, uuid, parentUserId)
+		err = r.repo.CreateSubComment(ctx, id, rootId, parentId, rootComment.CreationId, rootComment.CreationType, rootComment.CreationAuthor, rootComment.Uuid, uuid, parentUserId)
 		if err != nil {
 			return v1.ErrorCreateCommentFailed("create sub comment failed: %s", err.Error())
 		}
