@@ -967,19 +967,57 @@ service Bff{
 
   rpc GetUserCommentArticleReplyList(GetUserCommentArticleReplyListReq) returns (GetUserCommentArticleReplyListReply){
     option (google.api.http) = {
-      get: "/v1/get/user/comment/article/reply/list"
+      post: "/v1/get/user/comment/article/reply/list",
+      body: "*"
     };
   }
 
   rpc GetUserSubCommentArticleReplyList(GetUserSubCommentArticleReplyListReq) returns (GetUserSubCommentArticleReplyListReply){
     option (google.api.http) = {
-      get: "/v1/get/user/subcomment/article/reply/list"
+      post: "/v1/get/user/subcomment/article/reply/list",
+      body: "*"
     };
   }
 
   rpc GetUserCommentTalkReplyList(GetUserCommentTalkReplyListReq) returns (GetUserCommentTalkReplyListReply){
     option (google.api.http) = {
-      get: "/v1/get/user/comment/talk/reply/list"
+      post: "/v1/get/user/comment/talk/reply/list",
+      body: "*"
+    };
+  }
+
+  rpc GetUserSubCommentTalkReplyList(GetUserSubCommentTalkReplyListReq) returns (GetUserSubCommentTalkReplyListReply){
+    option (google.api.http) = {
+      post: "/v1/get/user/subcomment/talk/reply/list",
+      body: "*"
+    };
+  }
+
+  rpc GetUserCommentArticleRepliedList(GetUserCommentArticleRepliedListReq) returns (GetUserCommentArticleRepliedListReply){
+    option (google.api.http) = {
+      post: "/v1/get/user/comment/article/replied/list",
+      body: "*"
+    };
+  }
+
+  rpc GetUserSubCommentArticleRepliedList(GetUserSubCommentArticleRepliedListReq) returns (GetUserSubCommentArticleRepliedListReply){
+    option (google.api.http) = {
+      post: "/v1/get/user/subcomment/article/replied/list",
+      body: "*"
+    };
+  }
+
+  rpc GetUserCommentTalkRepliedList(GetUserCommentTalkRepliedListReq) returns (GetUserCommentTalkRepliedListReply){
+    option (google.api.http) = {
+      post: "/v1/get/user/comment/talk/replied/list",
+      body: "*"
+    };
+  }
+
+  rpc GetUserSubCommentTalkRepliedList(GetUserSubCommentTalkRepliedListReq) returns (GetUserSubCommentTalkRepliedListReply){
+    option (google.api.http) = {
+      post: "/v1/get/user/subcomment/talk/replied/list",
+      body: "*"
     };
   }
 
@@ -2189,6 +2227,94 @@ message GetUserCommentTalkReplyListReply{
     int32 id = 1;
     int32 creation_id = 2;
     string creation_author = 3;
+  }
+  repeated List list = 1;
+}
+
+message GetUserSubCommentTalkReplyListReq{
+  int32 page = 1;
+}
+
+message GetUserSubCommentTalkReplyListReply{
+  message List{
+    int32 id = 1;
+    int32 creation_id = 2;
+    string creation_author = 3;
+    int32 root_id = 4;
+    string root_user = 5;
+    int32 parent_id = 6;
+    string reply = 7;
+    string user_name = 8;
+    string reply_name = 9;
+    string root_name = 10;
+  }
+  repeated List list = 1;
+}
+
+message GetUserCommentArticleRepliedListReq{
+  int32 page = 1;
+}
+
+message GetUserCommentArticleRepliedListReply{
+  message List{
+    int32 id = 1;
+    int32 creation_id = 2;
+    string uuid = 3;
+  }
+  repeated List list = 1;
+}
+
+message GetUserSubCommentArticleRepliedListReq{
+  int32 page = 1;
+}
+
+message GetUserSubCommentArticleRepliedListReply{
+  message List{
+    int32 id = 1;
+    string uuid = 2;
+    int32 creation_id = 3;
+    string creation_author = 4;
+    int32 root_id = 5;
+    string root_user = 6;
+    int32 parent_id = 7;
+    string reply = 8;
+    string user_name = 9;
+    string reply_name = 10;
+    string root_name = 11;
+  }
+  repeated List list = 1;
+}
+
+message GetUserCommentTalkRepliedListReq{
+  int32 page = 1;
+}
+
+message GetUserCommentTalkRepliedListReply{
+  message List{
+    int32 id = 1;
+    int32 creation_id = 2;
+    string uuid = 3;
+  }
+  repeated List list = 1;
+}
+
+message GetUserSubCommentTalkRepliedListReq{
+  int32 page = 1;
+}
+
+message GetUserSubCommentTalkRepliedListReply{
+  message List{
+    int32 id = 1;
+    string uuid = 2;
+    int32 creation_id = 3;
+    string creation_author = 4;
+    int32 root_id = 5;
+    string root_user = 6;
+    int32 parent_id = 7;
+    string reply = 8;
+    string user_name = 9;
+    string reply_name = 10;
+    string root_name = 11;
   }
   repeated List list = 1;
 }
