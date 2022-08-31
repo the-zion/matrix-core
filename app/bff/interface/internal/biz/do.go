@@ -374,12 +374,18 @@ type Comment struct {
 }
 
 type SubComment struct {
-	Id        int32
-	Uuid      string
-	Reply     string
-	UserName  string
-	ReplyName string
-	Agree     int32
+	Id             int32
+	CreationId     int32
+	RootId         int32
+	ParentId       int32
+	CreationAuthor string
+	RootUser       string
+	Uuid           string
+	Reply          string
+	UserName       string
+	ReplyName      string
+	RootName       string
+	Agree          int32
 }
 
 type CommentUser struct {
