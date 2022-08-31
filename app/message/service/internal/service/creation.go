@@ -130,6 +130,14 @@ func (s *MessageService) ToReviewEditColumn(id int32, uuid string) error {
 	return s.cc.ToReviewEditColumn(id, uuid)
 }
 
+func (s *MessageService) ToReviewCreateCollections(id int32, uuid string) error {
+	return s.cc.ToReviewCreateCollections(id, uuid)
+}
+
+func (s *MessageService) ToReviewEditCollections(id int32, uuid string) error {
+	return s.cc.ToReviewEditCollections(id, uuid)
+}
+
 func (s *MessageService) ColumnCreateReview(ctx context.Context, req *v1.TextReviewReq) (*emptypb.Empty, error) {
 	tr := s.TextReview(req)
 	err := s.cc.ColumnCreateReview(ctx, tr)
@@ -186,6 +194,44 @@ func (s *MessageService) AddColumnIncludesDbAndCache(ctx context.Context, id, ar
 
 func (s *MessageService) DeleteColumnIncludesDbAndCache(ctx context.Context, id, articleId int32, uuid string) error {
 	return s.cc.DeleteColumnIncludesDbAndCache(ctx, id, articleId, uuid)
+}
+
+func (s *MessageService) SetColumnSubscribeDbAndCache(ctx context.Context, id int32, uuid string) error {
+	return s.cc.SetColumnSubscribeDbAndCache(ctx, id, uuid)
+}
+
+func (s *MessageService) CancelColumnSubscribeDbAndCache(ctx context.Context, id int32, uuid string) error {
+	return s.cc.CancelColumnSubscribeDbAndCache(ctx, id, uuid)
+}
+
+func (s *MessageService) CollectionsCreateReview(ctx context.Context, req *v1.TextReviewReq) (*emptypb.Empty, error) {
+	tr := s.TextReview(req)
+	err := s.cc.CollectionsCreateReview(ctx, tr)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *MessageService) CollectionsEditReview(ctx context.Context, req *v1.TextReviewReq) (*emptypb.Empty, error) {
+	tr := s.TextReview(req)
+	err := s.cc.CollectionsEditReview(ctx, tr)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *MessageService) CreateCollectionsDbAndCache(ctx context.Context, id, auth int32, uuid string) error {
+	return s.cc.CreateCollectionsDbAndCache(ctx, id, auth, uuid)
+}
+
+func (s *MessageService) EditCollectionsCos(ctx context.Context, id, auth int32, uuid string) error {
+	return s.cc.EditCollectionsCos(ctx, id, auth, uuid)
+}
+
+func (s *MessageService) DeleteCollectionsCache(ctx context.Context, id int32, uuid string) error {
+	return s.cc.DeleteCollectionsCache(ctx, id, uuid)
 }
 
 func (s *MessageService) AddCreationComment(ctx context.Context, createId, createType int32, uuid string) {
