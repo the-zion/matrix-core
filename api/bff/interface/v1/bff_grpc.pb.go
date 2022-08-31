@@ -171,6 +171,11 @@ type BffClient interface {
 	GetUserCommentArticleReplyList(ctx context.Context, in *GetUserCommentArticleReplyListReq, opts ...grpc.CallOption) (*GetUserCommentArticleReplyListReply, error)
 	GetUserSubCommentArticleReplyList(ctx context.Context, in *GetUserSubCommentArticleReplyListReq, opts ...grpc.CallOption) (*GetUserSubCommentArticleReplyListReply, error)
 	GetUserCommentTalkReplyList(ctx context.Context, in *GetUserCommentTalkReplyListReq, opts ...grpc.CallOption) (*GetUserCommentTalkReplyListReply, error)
+	GetUserSubCommentTalkReplyList(ctx context.Context, in *GetUserSubCommentTalkReplyListReq, opts ...grpc.CallOption) (*GetUserSubCommentTalkReplyListReply, error)
+	GetUserCommentArticleRepliedList(ctx context.Context, in *GetUserCommentArticleRepliedListReq, opts ...grpc.CallOption) (*GetUserCommentArticleRepliedListReply, error)
+	GetUserSubCommentArticleRepliedList(ctx context.Context, in *GetUserSubCommentArticleRepliedListReq, opts ...grpc.CallOption) (*GetUserSubCommentArticleRepliedListReply, error)
+	GetUserCommentTalkRepliedList(ctx context.Context, in *GetUserCommentTalkRepliedListReq, opts ...grpc.CallOption) (*GetUserCommentTalkRepliedListReply, error)
+	GetUserSubCommentTalkRepliedList(ctx context.Context, in *GetUserSubCommentTalkRepliedListReq, opts ...grpc.CallOption) (*GetUserSubCommentTalkRepliedListReply, error)
 	CreateCommentDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateCommentDraftReply, error)
 	SendComment(ctx context.Context, in *SendCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SendSubComment(ctx context.Context, in *SendSubCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -1513,6 +1518,51 @@ func (c *bffClient) GetUserCommentTalkReplyList(ctx context.Context, in *GetUser
 	return out, nil
 }
 
+func (c *bffClient) GetUserSubCommentTalkReplyList(ctx context.Context, in *GetUserSubCommentTalkReplyListReq, opts ...grpc.CallOption) (*GetUserSubCommentTalkReplyListReply, error) {
+	out := new(GetUserSubCommentTalkReplyListReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserSubCommentTalkReplyList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetUserCommentArticleRepliedList(ctx context.Context, in *GetUserCommentArticleRepliedListReq, opts ...grpc.CallOption) (*GetUserCommentArticleRepliedListReply, error) {
+	out := new(GetUserCommentArticleRepliedListReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserCommentArticleRepliedList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetUserSubCommentArticleRepliedList(ctx context.Context, in *GetUserSubCommentArticleRepliedListReq, opts ...grpc.CallOption) (*GetUserSubCommentArticleRepliedListReply, error) {
+	out := new(GetUserSubCommentArticleRepliedListReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserSubCommentArticleRepliedList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetUserCommentTalkRepliedList(ctx context.Context, in *GetUserCommentTalkRepliedListReq, opts ...grpc.CallOption) (*GetUserCommentTalkRepliedListReply, error) {
+	out := new(GetUserCommentTalkRepliedListReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserCommentTalkRepliedList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetUserSubCommentTalkRepliedList(ctx context.Context, in *GetUserSubCommentTalkRepliedListReq, opts ...grpc.CallOption) (*GetUserSubCommentTalkRepliedListReply, error) {
+	out := new(GetUserSubCommentTalkRepliedListReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserSubCommentTalkRepliedList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) CreateCommentDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateCommentDraftReply, error) {
 	out := new(CreateCommentDraftReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/CreateCommentDraft", in, out, opts...)
@@ -1746,6 +1796,11 @@ type BffServer interface {
 	GetUserCommentArticleReplyList(context.Context, *GetUserCommentArticleReplyListReq) (*GetUserCommentArticleReplyListReply, error)
 	GetUserSubCommentArticleReplyList(context.Context, *GetUserSubCommentArticleReplyListReq) (*GetUserSubCommentArticleReplyListReply, error)
 	GetUserCommentTalkReplyList(context.Context, *GetUserCommentTalkReplyListReq) (*GetUserCommentTalkReplyListReply, error)
+	GetUserSubCommentTalkReplyList(context.Context, *GetUserSubCommentTalkReplyListReq) (*GetUserSubCommentTalkReplyListReply, error)
+	GetUserCommentArticleRepliedList(context.Context, *GetUserCommentArticleRepliedListReq) (*GetUserCommentArticleRepliedListReply, error)
+	GetUserSubCommentArticleRepliedList(context.Context, *GetUserSubCommentArticleRepliedListReq) (*GetUserSubCommentArticleRepliedListReply, error)
+	GetUserCommentTalkRepliedList(context.Context, *GetUserCommentTalkRepliedListReq) (*GetUserCommentTalkRepliedListReply, error)
+	GetUserSubCommentTalkRepliedList(context.Context, *GetUserSubCommentTalkRepliedListReq) (*GetUserSubCommentTalkRepliedListReply, error)
 	CreateCommentDraft(context.Context, *emptypb.Empty) (*CreateCommentDraftReply, error)
 	SendComment(context.Context, *SendCommentReq) (*emptypb.Empty, error)
 	SendSubComment(context.Context, *SendSubCommentReq) (*emptypb.Empty, error)
@@ -2202,6 +2257,21 @@ func (UnimplementedBffServer) GetUserSubCommentArticleReplyList(context.Context,
 }
 func (UnimplementedBffServer) GetUserCommentTalkReplyList(context.Context, *GetUserCommentTalkReplyListReq) (*GetUserCommentTalkReplyListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserCommentTalkReplyList not implemented")
+}
+func (UnimplementedBffServer) GetUserSubCommentTalkReplyList(context.Context, *GetUserSubCommentTalkReplyListReq) (*GetUserSubCommentTalkReplyListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserSubCommentTalkReplyList not implemented")
+}
+func (UnimplementedBffServer) GetUserCommentArticleRepliedList(context.Context, *GetUserCommentArticleRepliedListReq) (*GetUserCommentArticleRepliedListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserCommentArticleRepliedList not implemented")
+}
+func (UnimplementedBffServer) GetUserSubCommentArticleRepliedList(context.Context, *GetUserSubCommentArticleRepliedListReq) (*GetUserSubCommentArticleRepliedListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserSubCommentArticleRepliedList not implemented")
+}
+func (UnimplementedBffServer) GetUserCommentTalkRepliedList(context.Context, *GetUserCommentTalkRepliedListReq) (*GetUserCommentTalkRepliedListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserCommentTalkRepliedList not implemented")
+}
+func (UnimplementedBffServer) GetUserSubCommentTalkRepliedList(context.Context, *GetUserSubCommentTalkRepliedListReq) (*GetUserSubCommentTalkRepliedListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserSubCommentTalkRepliedList not implemented")
 }
 func (UnimplementedBffServer) CreateCommentDraft(context.Context, *emptypb.Empty) (*CreateCommentDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateCommentDraft not implemented")
@@ -4889,6 +4959,96 @@ func _Bff_GetUserCommentTalkReplyList_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_GetUserSubCommentTalkReplyList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserSubCommentTalkReplyListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetUserSubCommentTalkReplyList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetUserSubCommentTalkReplyList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetUserSubCommentTalkReplyList(ctx, req.(*GetUserSubCommentTalkReplyListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetUserCommentArticleRepliedList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserCommentArticleRepliedListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetUserCommentArticleRepliedList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetUserCommentArticleRepliedList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetUserCommentArticleRepliedList(ctx, req.(*GetUserCommentArticleRepliedListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetUserSubCommentArticleRepliedList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserSubCommentArticleRepliedListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetUserSubCommentArticleRepliedList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetUserSubCommentArticleRepliedList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetUserSubCommentArticleRepliedList(ctx, req.(*GetUserSubCommentArticleRepliedListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetUserCommentTalkRepliedList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserCommentTalkRepliedListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetUserCommentTalkRepliedList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetUserCommentTalkRepliedList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetUserCommentTalkRepliedList(ctx, req.(*GetUserCommentTalkRepliedListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetUserSubCommentTalkRepliedList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserSubCommentTalkRepliedListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetUserSubCommentTalkRepliedList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetUserSubCommentTalkRepliedList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetUserSubCommentTalkRepliedList(ctx, req.(*GetUserSubCommentTalkRepliedListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_CreateCommentDraft_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
@@ -5645,6 +5805,26 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserCommentTalkReplyList",
 			Handler:    _Bff_GetUserCommentTalkReplyList_Handler,
+		},
+		{
+			MethodName: "GetUserSubCommentTalkReplyList",
+			Handler:    _Bff_GetUserSubCommentTalkReplyList_Handler,
+		},
+		{
+			MethodName: "GetUserCommentArticleRepliedList",
+			Handler:    _Bff_GetUserCommentArticleRepliedList_Handler,
+		},
+		{
+			MethodName: "GetUserSubCommentArticleRepliedList",
+			Handler:    _Bff_GetUserSubCommentArticleRepliedList_Handler,
+		},
+		{
+			MethodName: "GetUserCommentTalkRepliedList",
+			Handler:    _Bff_GetUserCommentTalkRepliedList_Handler,
+		},
+		{
+			MethodName: "GetUserSubCommentTalkRepliedList",
+			Handler:    _Bff_GetUserSubCommentTalkRepliedList_Handler,
 		},
 		{
 			MethodName: "CreateCommentDraft",
