@@ -37,6 +37,16 @@ service Comment {
 
   rpc GetUserCommentTalkReplyList(GetUserCommentTalkReplyListReq) returns (GetUserCommentTalkReplyListReply){}
 
+  rpc GetUserSubCommentTalkReplyList(GetUserSubCommentTalkReplyListReq) returns (GetUserSubCommentTalkReplyListReply){}
+
+  rpc GetUserCommentArticleRepliedList(GetUserCommentArticleRepliedListReq) returns (GetUserCommentArticleRepliedListReply){}
+
+  rpc GetUserSubCommentArticleRepliedList(GetUserSubCommentArticleRepliedListReq) returns (GetUserSubCommentArticleRepliedListReply){}
+
+  rpc GetUserCommentTalkRepliedList(GetUserCommentTalkRepliedListReq) returns (GetUserCommentTalkRepliedListReply){}
+
+  rpc GetUserSubCommentTalkRepliedList(GetUserSubCommentTalkRepliedListReq) returns (GetUserSubCommentTalkRepliedListReply){}
+
   rpc CreateCommentDraft(CreateCommentDraftReq) returns (CreateCommentDraftReply){}
 
   rpc CreateComment(CreateCommentReq) returns (google.protobuf.Empty){}
@@ -205,6 +215,16 @@ message GetUserCommentArticleReplyListReq{
   string uuid = 2 [(validate.rules).string.uuid = true];
 }
 
+
+message GetUserCommentArticleReplyListReply{
+  message List{
+    int32 id = 1;
+    int32 creation_id = 2;
+    string creation_author = 3;
+  }
+  repeated List list = 1;
+}
+
 message GetUserSubCommentArticleReplyListReq{
   int32 page = 1;
   string uuid = 2 [(validate.rules).string.uuid = true];
@@ -226,15 +246,6 @@ message GetUserSubCommentArticleReplyListReply{
   repeated List list = 1;
 }
 
-message GetUserCommentArticleReplyListReply{
-  message List{
-    int32 id = 1;
-    int32 creation_id = 2;
-    string creation_author = 3;
-  }
-  repeated List list = 1;
-}
-
 message GetUserCommentTalkReplyListReq{
   int32 page = 1;
   string uuid = 2 [(validate.rules).string.uuid = true];
@@ -245,6 +256,99 @@ message GetUserCommentTalkReplyListReply{
     int32 id = 1;
     int32 creation_id = 2;
     string creation_author = 3;
+  }
+  repeated List list = 1;
+}
+
+message GetUserSubCommentTalkReplyListReq{
+  int32 page = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message GetUserSubCommentTalkReplyListReply{
+  message List{
+    int32 id = 1;
+    int32 creation_id = 2;
+    string creation_author = 3;
+    int32 root_id = 4;
+    string root_user = 5;
+    int32 parent_id = 6;
+    string reply = 7;
+    string user_name = 8;
+    string reply_name = 9;
+    string root_name = 10;
+  }
+  repeated List list = 1;
+}
+
+message GetUserCommentArticleRepliedListReq{
+  int32 page = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message GetUserCommentArticleRepliedListReply{
+  message List{
+    int32 id = 1;
+    int32 creation_id = 2;
+    string uuid = 3;
+  }
+  repeated List list = 1;
+}
+
+message GetUserSubCommentArticleRepliedListReq{
+  int32 page = 1;
+  string uuid = 2;
+}
+
+message GetUserSubCommentArticleRepliedListReply{
+  message List{
+    int32 id = 1;
+    string uuid = 2;
+    int32 creation_id = 3;
+    string creation_author = 4;
+    int32 root_id = 5;
+    string root_user = 6;
+    int32 parent_id = 7;
+    string reply = 8;
+    string user_name = 9;
+    string reply_name = 10;
+    string root_name = 11;
+  }
+  repeated List list = 1;
+}
+
+message GetUserCommentTalkRepliedListReq{
+  int32 page = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message GetUserCommentTalkRepliedListReply{
+  message List{
+    int32 id = 1;
+    int32 creation_id = 2;
+    string uuid = 3;
+  }
+  repeated List list = 1;
+}
+
+message GetUserSubCommentTalkRepliedListReq{
+  int32 page = 1;
+  string uuid = 2;
+}
+
+message GetUserSubCommentTalkRepliedListReply{
+  message List{
+    int32 id = 1;
+    string uuid = 2;
+    int32 creation_id = 3;
+    string creation_author = 4;
+    int32 root_id = 5;
+    string root_user = 6;
+    int32 parent_id = 7;
+    string reply = 8;
+    string user_name = 9;
+    string reply_name = 10;
+    string root_name = 11;
   }
   repeated List list = 1;
 }
