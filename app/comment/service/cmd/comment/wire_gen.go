@@ -27,7 +27,8 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, re
 	reviewMqPro := data.NewRocketmqReviewProducer(confData, logger)
 	commentMqPro := data.NewRocketmqCommentProducer(confData, logger)
 	achievementMqPro := data.NewRocketmqAchievementProducer(confData, logger)
-	dataData, cleanup, err := data.NewData(db, client, cmdable, reviewMqPro, commentMqPro, achievementMqPro, logger)
+	creationClient := data.NewCreationServiceClient(registry, logger)
+	dataData, cleanup, err := data.NewData(db, client, cmdable, reviewMqPro, commentMqPro, achievementMqPro, creationClient, logger)
 	if err != nil {
 		return nil, nil, err
 	}
