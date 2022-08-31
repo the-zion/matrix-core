@@ -118,7 +118,13 @@ func (s *BffService) GetUserSubCommentArticleReplyList(ctx context.Context, req 
 		reply.List = append(reply.List, &v1.GetUserSubCommentArticleReplyListReply_List{
 			Id:             item.Id,
 			CreationId:     item.CreationId,
+			RootId:         item.RootId,
+			ParentId:       item.ParentId,
 			CreationAuthor: item.CreationAuthor,
+			RootUser:       item.RootUser,
+			Reply:          item.Reply,
+			ReplyName:      item.ReplyName,
+			RootName:       item.RootName,
 		})
 	}
 	return reply, nil
@@ -135,6 +141,108 @@ func (s *BffService) GetUserCommentTalkReplyList(ctx context.Context, req *v1.Ge
 			Id:             item.Id,
 			CreationId:     item.CreationId,
 			CreationAuthor: item.CreationAuthor,
+		})
+	}
+	return reply, nil
+}
+
+func (s *BffService) GetUserSubCommentTalkReplyList(ctx context.Context, req *v1.GetUserSubCommentTalkReplyListReq) (*v1.GetUserSubCommentTalkReplyListReply, error) {
+	reply := &v1.GetUserSubCommentTalkReplyListReply{List: make([]*v1.GetUserSubCommentTalkReplyListReply_List, 0)}
+	commentList, err := s.commc.GetUserSubCommentTalkReplyList(ctx, req.Page)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range commentList {
+		reply.List = append(reply.List, &v1.GetUserSubCommentTalkReplyListReply_List{
+			Id:             item.Id,
+			CreationId:     item.CreationId,
+			RootId:         item.RootId,
+			ParentId:       item.ParentId,
+			CreationAuthor: item.CreationAuthor,
+			RootUser:       item.RootUser,
+			Reply:          item.Reply,
+			ReplyName:      item.ReplyName,
+			RootName:       item.RootName,
+		})
+	}
+	return reply, nil
+}
+
+func (s *BffService) GetUserCommentArticleRepliedList(ctx context.Context, req *v1.GetUserCommentArticleRepliedListReq) (*v1.GetUserCommentArticleRepliedListReply, error) {
+	reply := &v1.GetUserCommentArticleRepliedListReply{List: make([]*v1.GetUserCommentArticleRepliedListReply_List, 0)}
+	commentList, err := s.commc.GetUserCommentArticleRepliedList(ctx, req.Page)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range commentList {
+		reply.List = append(reply.List, &v1.GetUserCommentArticleRepliedListReply_List{
+			Id:         item.Id,
+			CreationId: item.CreationId,
+			Uuid:       item.Uuid,
+		})
+	}
+	return reply, nil
+}
+
+func (s *BffService) GetUserSubCommentArticleRepliedList(ctx context.Context, req *v1.GetUserSubCommentArticleRepliedListReq) (*v1.GetUserSubCommentArticleRepliedListReply, error) {
+	reply := &v1.GetUserSubCommentArticleRepliedListReply{List: make([]*v1.GetUserSubCommentArticleRepliedListReply_List, 0)}
+	commentList, err := s.commc.GetUserSubCommentArticleRepliedList(ctx, req.Page)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range commentList {
+		reply.List = append(reply.List, &v1.GetUserSubCommentArticleRepliedListReply_List{
+			Id:             item.Id,
+			Uuid:           item.Uuid,
+			CreationId:     item.CreationId,
+			RootId:         item.RootId,
+			ParentId:       item.ParentId,
+			CreationAuthor: item.CreationAuthor,
+			RootUser:       item.RootUser,
+			Reply:          item.Reply,
+			ReplyName:      item.ReplyName,
+			RootName:       item.RootName,
+			UserName:       item.UserName,
+		})
+	}
+	return reply, nil
+}
+
+func (s *BffService) GetUserCommentTalkRepliedList(ctx context.Context, req *v1.GetUserCommentTalkRepliedListReq) (*v1.GetUserCommentTalkRepliedListReply, error) {
+	reply := &v1.GetUserCommentTalkRepliedListReply{List: make([]*v1.GetUserCommentTalkRepliedListReply_List, 0)}
+	commentList, err := s.commc.GetUserCommentTalkRepliedList(ctx, req.Page)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range commentList {
+		reply.List = append(reply.List, &v1.GetUserCommentTalkRepliedListReply_List{
+			Id:         item.Id,
+			CreationId: item.CreationId,
+			Uuid:       item.Uuid,
+		})
+	}
+	return reply, nil
+}
+
+func (s *BffService) GetUserSubCommentTalkRepliedList(ctx context.Context, req *v1.GetUserSubCommentTalkRepliedListReq) (*v1.GetUserSubCommentTalkRepliedListReply, error) {
+	reply := &v1.GetUserSubCommentTalkRepliedListReply{List: make([]*v1.GetUserSubCommentTalkRepliedListReply_List, 0)}
+	commentList, err := s.commc.GetUserSubCommentTalkRepliedList(ctx, req.Page)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range commentList {
+		reply.List = append(reply.List, &v1.GetUserSubCommentTalkRepliedListReply_List{
+			Id:             item.Id,
+			Uuid:           item.Uuid,
+			CreationId:     item.CreationId,
+			RootId:         item.RootId,
+			ParentId:       item.ParentId,
+			CreationAuthor: item.CreationAuthor,
+			RootUser:       item.RootUser,
+			Reply:          item.Reply,
+			ReplyName:      item.ReplyName,
+			RootName:       item.RootName,
+			UserName:       item.UserName,
 		})
 	}
 	return reply, nil
