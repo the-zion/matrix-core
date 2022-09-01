@@ -864,6 +864,22 @@ func (m *GetCommentUserReply) validate(all bool) error {
 
 	// no validation rules for Comment
 
+	// no validation rules for ArticleReply
+
+	// no validation rules for ArticleReplySub
+
+	// no validation rules for TalkReply
+
+	// no validation rules for TalkReplySub
+
+	// no validation rules for ArticleReplied
+
+	// no validation rules for ArticleRepliedSub
+
+	// no validation rules for TalkReplied
+
+	// no validation rules for TalkRepliedSub
+
 	if len(errors) > 0 {
 		return GetCommentUserReplyMultiError(errors)
 	}
