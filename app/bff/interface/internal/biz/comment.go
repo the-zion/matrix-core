@@ -9,7 +9,7 @@ import (
 type CommentRepo interface {
 	GetLastCommentDraft(ctx context.Context, uuid string) (*CommentDraft, error)
 	GetUserCommentAgree(ctx context.Context, uuid string) (map[int32]bool, error)
-	GetCommentUser(ctx context.Context, uuid string) (int32, error)
+	GetCommentUser(ctx context.Context, uuid string) (*CommentUser, error)
 	GetCommentList(ctx context.Context, page, creationId, creationType int32) ([]*Comment, error)
 	GetSubCommentList(ctx context.Context, page, id int32) ([]*SubComment, error)
 	GetCommentListHot(ctx context.Context, page, creationId, creationType int32) ([]*Comment, error)
@@ -20,6 +20,7 @@ type CommentRepo interface {
 	GetUserCommentArticleReplyList(ctx context.Context, page int32, uuid string) ([]*Comment, error)
 	GetUserSubCommentArticleReplyList(ctx context.Context, page int32, uuid string) ([]*SubComment, error)
 	GetUserSubCommentProfileList(ctx context.Context, page int32, key, uuid string, commentList []*SubComment) (map[string]string, error)
+	GetUserCommentProfileList(ctx context.Context, page int32, key, uuid string, commentList []*Comment) (map[string]string, error)
 	GetUserCommentTalkReplyList(ctx context.Context, page int32, uuid string) ([]*Comment, error)
 	GetUserSubCommentTalkReplyList(ctx context.Context, page int32, uuid string) ([]*SubComment, error)
 	GetUserCommentArticleRepliedList(ctx context.Context, page int32, uuid string) ([]*Comment, error)
@@ -59,6 +60,11 @@ func (r *CommentUseCase) CreateCommentDraft(ctx context.Context) (int32, error) 
 func (r *CommentUseCase) GetUserCommentAgree(ctx context.Context) (map[int32]bool, error) {
 	uuid := ctx.Value("uuid").(string)
 	return r.repo.GetUserCommentAgree(ctx, uuid)
+}
+
+func (r *CommentUseCase) GetCommentUser(ctx context.Context) (*CommentUser, error) {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.GetCommentUser(ctx, uuid)
 }
 
 func (r *CommentUseCase) GetLastCommentDraft(ctx context.Context) (*CommentDraft, error) {
@@ -248,7 +254,22 @@ func (r *CommentUseCase) GetUserSubCommentTalkReplyList(ctx context.Context, pag
 
 func (r *CommentUseCase) GetUserCommentArticleRepliedList(ctx context.Context, page int32) ([]*Comment, error) {
 	uuid := ctx.Value("uuid").(string)
-	return r.repo.GetUserCommentArticleRepliedList(ctx, page, uuid)
+	commentList, err := r.repo.GetUserCommentArticleRepliedList(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	userProfileMap, err := r.repo.GetUserCommentProfileList(ctx, page, "get_comment_article_replied_profile_list_", uuid, commentList)
+	if err != nil {
+		return nil, err
+	}
+
+	for index, listItem := range commentList {
+		if value, ok := userProfileMap[listItem.Uuid]; ok {
+			commentList[index].UserName = value
+		}
+	}
+	return commentList, nil
 }
 
 func (r *CommentUseCase) GetUserSubCommentArticleRepliedList(ctx context.Context, page int32) ([]*SubComment, error) {
