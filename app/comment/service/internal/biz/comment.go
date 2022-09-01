@@ -39,9 +39,9 @@ type CommentRepo interface {
 	CreateCommentCache(ctx context.Context, id, creationId, creationType int32, creationAuthor, uuid string) error
 	CreateSubCommentCache(ctx context.Context, id, rootId, parentId, creationId, creationType int32, creationAuthor, rootUser, uuid, reply string) error
 	AddArticleCommentUser(ctx context.Context, creationAuthor, uuid string) error
-	AddArticleSubCommentUser(ctx context.Context, creationAuthor, uuid string) error
+	AddArticleSubCommentUser(ctx context.Context, parentId int32, rootUser, parentUser, uuid string) error
 	AddTalkCommentUser(ctx context.Context, creationAuthor, uuid string) error
-	AddTalkSubCommentUser(ctx context.Context, creationAuthor, uuid string) error
+	AddTalkSubCommentUser(ctx context.Context, parentId int32, rootUser, parentUser, uuid string) error
 	SendComment(ctx context.Context, id int32, uuid string) (*CommentDraft, error)
 	SendCommentAgreeToMq(ctx context.Context, id, creationId, creationType int32, uuid, userUuid, mode string) error
 	SendSubCommentAgreeToMq(ctx context.Context, id int32, uuid, userUuid, mode string) error
@@ -614,7 +614,7 @@ func (r *CommentUseCase) CreateSubCommentDbAndCache(ctx context.Context, id, roo
 			return v1.ErrorCreateCommentFailed("create sub comment failed: %s", err.Error())
 		}
 
-		err = r.addSubCommentUser(ctx, rootComment.CreationType, rootComment.CreationAuthor, uuid)
+		err = r.addSubCommentUser(ctx, rootComment.CreationType, parentId, rootComment.Uuid, parentUserId, uuid)
 		if err != nil {
 			return v1.ErrorCreateCommentFailed("create comment user failed: %s", err.Error())
 		}
@@ -632,12 +632,12 @@ func (r *CommentUseCase) CreateSubCommentDbAndCache(ctx context.Context, id, roo
 	})
 }
 
-func (r *CommentUseCase) addSubCommentUser(ctx context.Context, creationType int32, creationAuthor, uuid string) error {
+func (r *CommentUseCase) addSubCommentUser(ctx context.Context, creationType, parentId int32, rootUser, parentUser, uuid string) error {
 	switch creationType {
 	case 1:
-		return r.repo.AddArticleSubCommentUser(ctx, creationAuthor, uuid)
+		return r.repo.AddArticleSubCommentUser(ctx, parentId, rootUser, parentUser, uuid)
 	case 3:
-		return r.repo.AddTalkSubCommentUser(ctx, creationAuthor, uuid)
+		return r.repo.AddTalkSubCommentUser(ctx, parentId, rootUser, parentUser, uuid)
 	}
 	return nil
 }
