@@ -26,6 +26,24 @@ func (s *BffService) GetUserCommentAgree(ctx context.Context, _ *emptypb.Empty) 
 	}, nil
 }
 
+func (s *BffService) GetCommentUser(ctx context.Context, _ *emptypb.Empty) (*v1.GetCommentUserReply, error) {
+	commentUser, err := s.commc.GetCommentUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetCommentUserReply{
+		Comment:           commentUser.Comment,
+		ArticleReply:      commentUser.ArticleReply,
+		ArticleReplySub:   commentUser.ArticleReplySub,
+		TalkReply:         commentUser.TalkReply,
+		TalkReplySub:      commentUser.TalkReplySub,
+		ArticleReplied:    commentUser.ArticleReplied,
+		ArticleRepliedSub: commentUser.ArticleRepliedSub,
+		TalkReplied:       commentUser.TalkReplied,
+		TalkRepliedSub:    commentUser.TalkRepliedSub,
+	}, nil
+}
+
 func (s *BffService) GetLastCommentDraft(ctx context.Context, _ *emptypb.Empty) (*v1.GetLastCommentDraftReply, error) {
 	draft, err := s.commc.GetLastCommentDraft(ctx)
 	if err != nil {
@@ -179,6 +197,7 @@ func (s *BffService) GetUserCommentArticleRepliedList(ctx context.Context, req *
 			Id:         item.Id,
 			CreationId: item.CreationId,
 			Uuid:       item.Uuid,
+			Username:   item.UserName,
 		})
 	}
 	return reply, nil
