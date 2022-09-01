@@ -61,7 +61,7 @@ func (r *commentRepo) GetUserCommentAgree(ctx context.Context, uuid string) (map
 	return result.(map[int32]bool), nil
 }
 
-func (r *commentRepo) GetCommentUser(ctx context.Context, uuid string) (int32, error) {
+func (r *commentRepo) GetCommentUser(ctx context.Context, uuid string) (*biz.CommentUser, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_comment_user_"+uuid), func() (interface{}, error) {
 		reply, err := r.data.commc.GetCommentUser(ctx, &commentV1.GetCommentUserReq{
 			Uuid: uuid,
@@ -69,12 +69,22 @@ func (r *commentRepo) GetCommentUser(ctx context.Context, uuid string) (int32, e
 		if err != nil {
 			return nil, err
 		}
-		return reply.Comment, nil
+		return &biz.CommentUser{
+			Comment:           reply.Comment,
+			ArticleReply:      reply.ArticleReply,
+			ArticleReplySub:   reply.ArticleReplySub,
+			TalkReply:         reply.TalkReply,
+			TalkReplySub:      reply.TalkReplySub,
+			ArticleReplied:    reply.ArticleReplied,
+			ArticleRepliedSub: reply.ArticleRepliedSub,
+			TalkReplied:       reply.TalkReplied,
+			TalkRepliedSub:    reply.TalkRepliedSub,
+		}, nil
 	})
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	return result.(int32), nil
+	return result.(*biz.CommentUser), nil
 }
 
 func (r *commentRepo) GetCommentList(ctx context.Context, page, creationId, creationType int32) ([]*biz.Comment, error) {
@@ -339,6 +349,34 @@ func (r *commentRepo) GetUserSubCommentProfileList(ctx context.Context, page int
 		if _, ok := set[item.Reply]; item.Reply != "" && !ok {
 			uuids = append(uuids, item.Reply)
 			set[item.Reply] = true
+		}
+	}
+	result, err, _ := r.sg.Do(fmt.Sprintf(key+"%s_%v", uuid, page), func() (interface{}, error) {
+		reply := make(map[string]string, 0)
+		userProfileList, err := r.data.uc.GetProfileList(ctx, &userV1.GetProfileListReq{
+			Uuids: uuids,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range userProfileList.Profile {
+			reply[item.Uuid] = item.Username
+		}
+		return reply, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(map[string]string), nil
+}
+
+func (r *commentRepo) GetUserCommentProfileList(ctx context.Context, page int32, key, uuid string, commentList []*biz.Comment) (map[string]string, error) {
+	uuids := make([]string, 0)
+	set := make(map[string]bool, 0)
+	for _, item := range commentList {
+		if _, ok := set[item.Uuid]; item.Uuid != "" && !ok {
+			uuids = append(uuids, item.Uuid)
+			set[item.Uuid] = true
 		}
 	}
 	result, err, _ := r.sg.Do(fmt.Sprintf(key+"%s_%v", uuid, page), func() (interface{}, error) {
