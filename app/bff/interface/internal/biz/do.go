@@ -389,7 +389,15 @@ type SubComment struct {
 }
 
 type CommentUser struct {
-	Comment int32
+	Comment           int32
+	ArticleReply      int32
+	ArticleReplySub   int32
+	TalkReply         int32
+	TalkReplySub      int32
+	ArticleReplied    int32
+	ArticleRepliedSub int32
+	TalkReplied       int32
+	TalkRepliedSub    int32
 }
 
 type CommentStatistic struct {
