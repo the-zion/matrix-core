@@ -206,14 +206,15 @@ func (r *userRepo) getProfileListFromDb(ctx context.Context, unExists []string, 
 }
 
 func (r *userRepo) setProfileListToCache(profileList []*Profile) {
-	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		for _, item := range profileList {
 			key := "profile_" + item.Uuid
 			marshal, err := json.Marshal(item)
 			if err != nil {
 				r.log.Errorf("fail to set user profile to json: json.Marshal(%v), error(%v)", item, err)
 			}
-			pipe.SetNX(context.Background(), key, marshal, time.Hour*8)
+			pipe.SetNX(ctx, key, marshal, time.Hour*8)
 		}
 		return nil
 	})
@@ -311,7 +312,8 @@ func (r *userRepo) getFollowFromDB(ctx context.Context, page int32, uuid string)
 }
 
 func (r *userRepo) setFollowToCache(uuid string, follow []*biz.Follow) {
-	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		z := make([]*redis.Z, 0)
 		for _, item := range follow {
 			z = append(z, &redis.Z{
@@ -320,8 +322,8 @@ func (r *userRepo) setFollowToCache(uuid string, follow []*biz.Follow) {
 				Member: item.Follow,
 			})
 		}
-		pipe.ZAddNX(context.Background(), "follow_"+uuid, z...)
-		pipe.Expire(context.Background(), "follow_"+uuid, time.Hour*8)
+		pipe.ZAddNX(ctx, "follow_"+uuid, z...)
+		pipe.Expire(ctx, "follow_"+uuid, time.Hour*8)
 		return nil
 	})
 	if err != nil {
@@ -403,7 +405,8 @@ func (r *userRepo) getFollowedFromDB(ctx context.Context, page int32, uuid strin
 }
 
 func (r *userRepo) setFollowedToCache(uuid string, followed []*biz.Follow) {
-	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		z := make([]*redis.Z, 0)
 		for _, item := range followed {
 			z = append(z, &redis.Z{
@@ -411,8 +414,8 @@ func (r *userRepo) setFollowedToCache(uuid string, followed []*biz.Follow) {
 				Member: item.Followed,
 			})
 		}
-		pipe.ZAddNX(context.Background(), "followed_"+uuid, z...)
-		pipe.Expire(context.Background(), "followed_"+uuid, time.Hour*8)
+		pipe.ZAddNX(ctx, "followed_"+uuid, z...)
+		pipe.Expire(ctx, "followed_"+uuid, time.Hour*8)
 		return nil
 	})
 	if err != nil {
@@ -730,12 +733,13 @@ func (r *userRepo) getUserFollowsFromDB(ctx context.Context, uuid string) ([]str
 
 func (r *userRepo) setUserFollowsToCache(uuid string, follows []string) {
 	members := make([]interface{}, 0)
+	ctx := context.Background()
 	for _, item := range follows {
 		members = append(members, item)
 	}
-	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
-		pipe.SAdd(context.Background(), "user_follows_"+uuid, members)
-		pipe.Expire(context.Background(), "user_follows_"+uuid, time.Hour*8)
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.SAdd(ctx, "user_follows_"+uuid, members)
+		pipe.Expire(ctx, "user_follows_"+uuid, time.Hour*8)
 		return nil
 	})
 	if err != nil {
