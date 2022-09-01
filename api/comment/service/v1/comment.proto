@@ -123,6 +123,14 @@ message GetCommentUserReq{
 
 message GetCommentUserReply{
   int32 comment = 1;
+  int32 article_reply = 2;
+  int32 article_reply_sub = 3;
+  int32 talk_reply = 4;
+  int32 talk_reply_sub = 5;
+  int32 article_replied = 6;
+  int32 article_replied_sub = 7;
+  int32 talk_replied = 8;
+  int32 talk_replied_sub = 9;
 }
 
 message SendCommentReq{
