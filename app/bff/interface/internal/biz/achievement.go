@@ -78,11 +78,11 @@ func (r *AchievementUseCase) GetUserMedalProgress(ctx context.Context) (*MedalPr
 		return nil
 	}))
 	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
-		comment, err := r.commentRepo.GetCommentUser(ctx, uuid)
+		commentUser, err := r.commentRepo.GetCommentUser(ctx, uuid)
 		if err != nil {
 			return err
 		}
-		mp.Comment = comment
+		mp.Comment = commentUser.Comment
 		return nil
 	}))
 	err := g.Wait()
