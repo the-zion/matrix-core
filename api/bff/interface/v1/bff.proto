@@ -947,6 +947,12 @@ service Bff{
     };
   }
 
+  rpc GetCommentUser(google.protobuf.Empty) returns (GetCommentUserReply){
+    option (google.api.http) = {
+      get: "/v1/get/comment/user"
+    };
+  }
+
   rpc GetCommentList(GetCommentListReq) returns (GetCommentListReply){
     option (google.api.http) = {
       get: "/v1/get/comment/list"
@@ -2145,6 +2151,18 @@ message GetUserCommentAgreeReply{
   map<int32, bool> agree = 1;
 }
 
+message GetCommentUserReply{
+  int32 comment = 1;
+  int32 article_reply = 2;
+  int32 article_reply_sub = 3;
+  int32 talk_reply = 4;
+  int32 talk_reply_sub = 5;
+  int32 article_replied = 6;
+  int32 article_replied_sub = 7;
+  int32 talk_replied = 8;
+  int32 talk_replied_sub = 9;
+}
+
 message SendCommentReq{
   int32 id = 1;
 }
@@ -2260,6 +2278,7 @@ message GetUserCommentArticleRepliedListReply{
     int32 id = 1;
     int32 creation_id = 2;
     string uuid = 3;
+    string username = 4;
   }
   repeated List list = 1;
 }
