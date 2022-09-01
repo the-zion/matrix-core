@@ -37,7 +37,15 @@ func (s *CommentService) GetCommentUser(ctx context.Context, req *v1.GetCommentU
 		return nil, err
 	}
 	return &v1.GetCommentUserReply{
-		Comment: commentUser.Comment,
+		Comment:           commentUser.Comment,
+		ArticleReply:      commentUser.ArticleReply,
+		ArticleReplySub:   commentUser.ArticleReplySub,
+		TalkReply:         commentUser.TalkReply,
+		TalkReplySub:      commentUser.TalkReplySub,
+		ArticleReplied:    commentUser.ArticleReplied,
+		ArticleRepliedSub: commentUser.ArticleRepliedSub,
+		TalkReplied:       commentUser.TalkReplied,
+		TalkRepliedSub:    commentUser.TalkRepliedSub,
 	}, nil
 }
 
