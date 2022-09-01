@@ -165,6 +165,7 @@ type BffClient interface {
 	CancelUserMedalSet(ctx context.Context, in *CancelUserMedalSetReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetLastCommentDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLastCommentDraftReply, error)
 	GetUserCommentAgree(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserCommentAgreeReply, error)
+	GetCommentUser(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCommentUserReply, error)
 	GetCommentList(ctx context.Context, in *GetCommentListReq, opts ...grpc.CallOption) (*GetCommentListReply, error)
 	GetSubCommentList(ctx context.Context, in *GetSubCommentListReq, opts ...grpc.CallOption) (*GetSubCommentListReply, error)
 	GetCommentListHot(ctx context.Context, in *GetCommentListReq, opts ...grpc.CallOption) (*GetCommentListReply, error)
@@ -1464,6 +1465,15 @@ func (c *bffClient) GetUserCommentAgree(ctx context.Context, in *emptypb.Empty, 
 	return out, nil
 }
 
+func (c *bffClient) GetCommentUser(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCommentUserReply, error) {
+	out := new(GetCommentUserReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCommentUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) GetCommentList(ctx context.Context, in *GetCommentListReq, opts ...grpc.CallOption) (*GetCommentListReply, error) {
 	out := new(GetCommentListReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCommentList", in, out, opts...)
@@ -1790,6 +1800,7 @@ type BffServer interface {
 	CancelUserMedalSet(context.Context, *CancelUserMedalSetReq) (*emptypb.Empty, error)
 	GetLastCommentDraft(context.Context, *emptypb.Empty) (*GetLastCommentDraftReply, error)
 	GetUserCommentAgree(context.Context, *emptypb.Empty) (*GetUserCommentAgreeReply, error)
+	GetCommentUser(context.Context, *emptypb.Empty) (*GetCommentUserReply, error)
 	GetCommentList(context.Context, *GetCommentListReq) (*GetCommentListReply, error)
 	GetSubCommentList(context.Context, *GetSubCommentListReq) (*GetSubCommentListReply, error)
 	GetCommentListHot(context.Context, *GetCommentListReq) (*GetCommentListReply, error)
@@ -2239,6 +2250,9 @@ func (UnimplementedBffServer) GetLastCommentDraft(context.Context, *emptypb.Empt
 }
 func (UnimplementedBffServer) GetUserCommentAgree(context.Context, *emptypb.Empty) (*GetUserCommentAgreeReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserCommentAgree not implemented")
+}
+func (UnimplementedBffServer) GetCommentUser(context.Context, *emptypb.Empty) (*GetCommentUserReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCommentUser not implemented")
 }
 func (UnimplementedBffServer) GetCommentList(context.Context, *GetCommentListReq) (*GetCommentListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCommentList not implemented")
@@ -4851,6 +4865,24 @@ func _Bff_GetUserCommentAgree_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_GetCommentUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetCommentUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetCommentUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetCommentUser(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_GetCommentList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetCommentListReq)
 	if err := dec(in); err != nil {
@@ -5781,6 +5813,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserCommentAgree",
 			Handler:    _Bff_GetUserCommentAgree_Handler,
+		},
+		{
+			MethodName: "GetCommentUser",
+			Handler:    _Bff_GetCommentUser_Handler,
 		},
 		{
 			MethodName: "GetCommentList",

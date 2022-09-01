@@ -19632,6 +19632,126 @@ var _ interface {
 	ErrorName() string
 } = GetUserCommentAgreeReplyValidationError{}
 
+// Validate checks the field values on GetCommentUserReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetCommentUserReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetCommentUserReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetCommentUserReplyMultiError, or nil if none found.
+func (m *GetCommentUserReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetCommentUserReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Comment
+
+	// no validation rules for ArticleReply
+
+	// no validation rules for ArticleReplySub
+
+	// no validation rules for TalkReply
+
+	// no validation rules for TalkReplySub
+
+	// no validation rules for ArticleReplied
+
+	// no validation rules for ArticleRepliedSub
+
+	// no validation rules for TalkReplied
+
+	// no validation rules for TalkRepliedSub
+
+	if len(errors) > 0 {
+		return GetCommentUserReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetCommentUserReplyMultiError is an error wrapping multiple validation
+// errors returned by GetCommentUserReply.ValidateAll() if the designated
+// constraints aren't met.
+type GetCommentUserReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetCommentUserReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetCommentUserReplyMultiError) AllErrors() []error { return m }
+
+// GetCommentUserReplyValidationError is the validation error returned by
+// GetCommentUserReply.Validate if the designated constraints aren't met.
+type GetCommentUserReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetCommentUserReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetCommentUserReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetCommentUserReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetCommentUserReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetCommentUserReplyValidationError) ErrorName() string {
+	return "GetCommentUserReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetCommentUserReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetCommentUserReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetCommentUserReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetCommentUserReplyValidationError{}
+
 // Validate checks the field values on SendCommentReq with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
@@ -26187,6 +26307,8 @@ func (m *GetUserCommentArticleRepliedListReply_List) validate(all bool) error {
 	// no validation rules for CreationId
 
 	// no validation rules for Uuid
+
+	// no validation rules for Username
 
 	if len(errors) > 0 {
 		return GetUserCommentArticleRepliedListReply_ListMultiError(errors)
