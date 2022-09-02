@@ -19982,12 +19982,6 @@ func (m *RemoveCommentReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	// no validation rules for Uuid
-
-	// no validation rules for CreationId
-
-	// no validation rules for CreationType
-
 	if len(errors) > 0 {
 		return RemoveCommentReqMultiError(errors)
 	}
@@ -20089,12 +20083,6 @@ func (m *RemoveSubCommentReq) validate(all bool) error {
 	var errors []error
 
 	// no validation rules for Id
-
-	// no validation rules for RootId
-
-	// no validation rules for Uuid
-
-	// no validation rules for Reply
 
 	if len(errors) > 0 {
 		return RemoveSubCommentReqMultiError(errors)
@@ -26552,6 +26540,8 @@ func (m *GetUserCommentTalkRepliedListReply_List) validate(all bool) error {
 	// no validation rules for CreationId
 
 	// no validation rules for Uuid
+
+	// no validation rules for Username
 
 	if len(errors) > 0 {
 		return GetUserCommentTalkRepliedListReply_ListMultiError(errors)
