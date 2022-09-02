@@ -40,6 +40,7 @@ type SubComment struct {
 	CreationId     int32
 	RootId         int32
 	ParentId       int32
+	CreationType   int32
 	CreationAuthor string
 	RootUser       string
 	Uuid           string
