@@ -83,12 +83,7 @@ service Comment {
 
   rpc RemoveCommentDbAndCache(RemoveCommentDbAndCacheReq) returns (google.protobuf.Empty){}
 
-  rpc RemoveSubCommentDbAndCache(RemoveSubCommentDbAndCacheReq) returns (google.protobuf.Empty){
-    option (google.api.http) = {
-      post: "/v1/text"
-      body: "*"
-    };
-  }
+  rpc RemoveSubCommentDbAndCache(RemoveSubCommentDbAndCacheReq) returns (google.protobuf.Empty){}
 
 }
 
@@ -210,8 +205,7 @@ message RemoveCommentDbAndCacheReq{
 
 message RemoveSubCommentDbAndCacheReq{
   int32 id = 1;
-  int32 rootId = 2;
-  string uuid = 4 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.uuid = true];
 }
 
 message GetCommentListStatisticReq{
@@ -401,15 +395,9 @@ message CancelSubCommentAgreeReq{
 message RemoveCommentReq{
   int32 id = 1;
   string uuid = 2 [(validate.rules).string.uuid = true];
-  string user_uuid = 3 [(validate.rules).string.uuid = true];
-  int32 creationId = 4;
-  int32 creationType = 5;
 }
 
 message RemoveSubCommentReq{
   int32 id = 1;
-  int32 rootId = 2;
   string uuid = 3 [(validate.rules).string.uuid = true];
-  string user_uuid = 4 [(validate.rules).string.uuid = true];
-  string reply = 5 [(validate.rules).string = {ignore_empty:true, uuid:true}];
 }
