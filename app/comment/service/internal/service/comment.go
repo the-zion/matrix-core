@@ -337,7 +337,7 @@ func (s *CommentService) SendSubComment(ctx context.Context, req *v1.SendSubComm
 }
 
 func (s *CommentService) RemoveComment(ctx context.Context, req *v1.RemoveCommentReq) (*emptypb.Empty, error) {
-	err := s.cc.RemoveComment(ctx, req.Id, req.CreationId, req.CreationType, req.Uuid, req.UserUuid)
+	err := s.cc.RemoveComment(ctx, req.Id, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -345,7 +345,7 @@ func (s *CommentService) RemoveComment(ctx context.Context, req *v1.RemoveCommen
 }
 
 func (s *CommentService) RemoveSubComment(ctx context.Context, req *v1.RemoveSubCommentReq) (*emptypb.Empty, error) {
-	err := s.cc.RemoveSubComment(ctx, req.Id, req.RootId, req.Uuid, req.UserUuid, req.Reply)
+	err := s.cc.RemoveSubComment(ctx, req.Id, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -353,7 +353,7 @@ func (s *CommentService) RemoveSubComment(ctx context.Context, req *v1.RemoveSub
 }
 
 func (s *CommentService) RemoveCommentDbAndCache(ctx context.Context, req *v1.RemoveCommentDbAndCacheReq) (*emptypb.Empty, error) {
-	err := s.cc.RemoveCommentDbAndCache(ctx, req.Id, req.CreationId, req.CreationType, req.Uuid)
+	err := s.cc.RemoveCommentDbAndCache(ctx, req.Id, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -361,7 +361,7 @@ func (s *CommentService) RemoveCommentDbAndCache(ctx context.Context, req *v1.Re
 }
 
 func (s *CommentService) RemoveSubCommentDbAndCache(ctx context.Context, req *v1.RemoveSubCommentDbAndCacheReq) (*emptypb.Empty, error) {
-	err := s.cc.RemoveSubCommentDbAndCache(ctx, req.Id, req.RootId, req.Uuid)
+	err := s.cc.RemoveSubCommentDbAndCache(ctx, req.Id, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
