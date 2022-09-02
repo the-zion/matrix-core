@@ -40,12 +40,12 @@ func (s *MessageService) CreateSubCommentDbAndCache(ctx context.Context, id, roo
 	return s.commc.CreateSubCommentDbAndCache(ctx, id, rootId, parentId, uuid)
 }
 
-func (s *MessageService) RemoveCommentDbAndCache(ctx context.Context, id, createId, createType int32, uuid string) error {
-	return s.commc.RemoveCommentDbAndCache(ctx, id, createId, createType, uuid)
+func (s *MessageService) RemoveCommentDbAndCache(ctx context.Context, id int32, uuid string) error {
+	return s.commc.RemoveCommentDbAndCache(ctx, id, uuid)
 }
 
-func (s *MessageService) RemoveSubCommentDbAndCache(ctx context.Context, id, rootId int32, uuid string) error {
-	return s.commc.RemoveSubCommentDbAndCache(ctx, id, rootId, uuid)
+func (s *MessageService) RemoveSubCommentDbAndCache(ctx context.Context, id int32, uuid string) error {
+	return s.commc.RemoveSubCommentDbAndCache(ctx, id, uuid)
 }
 
 func (s *MessageService) SetCommentAgreeDbAndCache(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error {
