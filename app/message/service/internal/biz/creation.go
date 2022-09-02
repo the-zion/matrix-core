@@ -61,7 +61,6 @@ type CreationRepo interface {
 	DeleteCollectionsCache(ctx context.Context, id int32, uuid string) error
 
 	AddCreationComment(ctx context.Context, createId, createType int32, uuid string)
-	ReduceCreationComment(ctx context.Context, createId, createType int32, uuid string)
 	GetCreationUser(ctx context.Context, uuid string) (int32, int32, int32, error)
 }
 
@@ -637,10 +636,6 @@ func (r *CreationUseCase) DeleteCollectionsCache(ctx context.Context, id int32, 
 
 func (r *CreationUseCase) AddCreationComment(ctx context.Context, createId, createType int32, uuid string) {
 	r.repo.AddCreationComment(ctx, createId, createType, uuid)
-}
-
-func (r *CreationUseCase) ReduceCreationComment(ctx context.Context, createId, createType int32, uuid string) {
-	r.repo.ReduceCreationComment(ctx, createId, createType, uuid)
 }
 
 func (r *CreationUseCase) ToReviewCreateCollections(id int32, uuid string) error {
