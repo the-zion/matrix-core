@@ -2173,16 +2173,10 @@ message SendSubCommentReq{
 
 message RemoveCommentReq{
   int32 id = 1;
-  string uuid = 2;
-  int32 creationId = 3;
-  int32 creationType = 4;
 }
 
 message RemoveSubCommentReq{
   int32 id = 1;
-  int32 rootId = 2;
-  string uuid = 3;
-  string reply = 4;
 }
 
 message GetCommentListReq{
@@ -2313,6 +2307,7 @@ message GetUserCommentTalkRepliedListReply{
     int32 id = 1;
     int32 creation_id = 2;
     string uuid = 3;
+    string username = 4;
   }
   repeated List list = 1;
 }
