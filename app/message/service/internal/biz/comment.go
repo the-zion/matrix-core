@@ -15,8 +15,8 @@ type CommentRepo interface {
 	SubCommentCreateReviewPass(ctx context.Context, id, rootId, parentId int32, uuid string) error
 	CreateCommentDbAndCache(ctx context.Context, id, createId, createType int32, uuid string) error
 	CreateSubCommentDbAndCache(ctx context.Context, id, rootId, parentId int32, uuid string) error
-	RemoveCommentDbAndCache(ctx context.Context, id, createId, createType int32, uuid string) error
-	RemoveSubCommentDbAndCache(ctx context.Context, id, rootId int32, uuid string) error
+	RemoveCommentDbAndCache(ctx context.Context, id int32, uuid string) error
+	RemoveSubCommentDbAndCache(ctx context.Context, id int32, uuid string) error
 	SetCommentAgreeDbAndCache(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error
 	SetSubCommentAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error
 	CancelCommentAgreeDbAndCache(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error
@@ -180,12 +180,12 @@ func (r *CommentUseCase) CreateSubCommentDbAndCache(ctx context.Context, id, roo
 	return r.repo.CreateSubCommentDbAndCache(ctx, id, rootId, parentId, uuid)
 }
 
-func (r *CommentUseCase) RemoveCommentDbAndCache(ctx context.Context, id, createId, createType int32, uuid string) error {
-	return r.repo.RemoveCommentDbAndCache(ctx, id, createId, createType, uuid)
+func (r *CommentUseCase) RemoveCommentDbAndCache(ctx context.Context, id int32, uuid string) error {
+	return r.repo.RemoveCommentDbAndCache(ctx, id, uuid)
 }
 
-func (r *CommentUseCase) RemoveSubCommentDbAndCache(ctx context.Context, id, rootId int32, uuid string) error {
-	return r.repo.RemoveSubCommentDbAndCache(ctx, id, rootId, uuid)
+func (r *CommentUseCase) RemoveSubCommentDbAndCache(ctx context.Context, id int32, uuid string) error {
+	return r.repo.RemoveSubCommentDbAndCache(ctx, id, uuid)
 }
 
 func (r *CommentUseCase) SetCommentAgreeDbAndCache(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error {
