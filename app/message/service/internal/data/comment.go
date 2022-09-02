@@ -107,12 +107,10 @@ func (r *commentRepo) CreateSubCommentDbAndCache(ctx context.Context, id, rootId
 	return nil
 }
 
-func (r *commentRepo) RemoveCommentDbAndCache(ctx context.Context, id, createId, createType int32, uuid string) error {
+func (r *commentRepo) RemoveCommentDbAndCache(ctx context.Context, id int32, uuid string) error {
 	_, err := r.data.commc.RemoveCommentDbAndCache(ctx, &commentV1.RemoveCommentDbAndCacheReq{
-		Id:           id,
-		CreationId:   createId,
-		CreationType: createType,
-		Uuid:         uuid,
+		Id:   id,
+		Uuid: uuid,
 	})
 	if err != nil {
 		return err
@@ -120,11 +118,10 @@ func (r *commentRepo) RemoveCommentDbAndCache(ctx context.Context, id, createId,
 	return nil
 }
 
-func (r *commentRepo) RemoveSubCommentDbAndCache(ctx context.Context, id, rootId int32, uuid string) error {
+func (r *commentRepo) RemoveSubCommentDbAndCache(ctx context.Context, id int32, uuid string) error {
 	_, err := r.data.commc.RemoveSubCommentDbAndCache(ctx, &commentV1.RemoveSubCommentDbAndCacheReq{
-		Id:     id,
-		RootId: rootId,
-		Uuid:   uuid,
+		Id:   id,
+		Uuid: uuid,
 	})
 	if err != nil {
 		return err
