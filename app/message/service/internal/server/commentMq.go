@@ -130,10 +130,9 @@ func NewCommentMqConsumerServer(conf *conf.Server, messageService *service.Messa
 		case "create_sub_comment_db_and_cache":
 			err = messageService.CreateSubCommentDbAndCache(ctx, int32(m["id"].(float64)), int32(m["rootId"].(float64)), int32(m["parentId"].(float64)), m["uuid"].(string))
 		case "remove_comment_db_and_cache":
-			err = messageService.RemoveCommentDbAndCache(ctx, int32(m["id"].(float64)), int32(m["creationId"].(float64)), int32(m["creationType"].(float64)), m["uuid"].(string))
-			go messageService.ReduceCreationComment(ctx, int32(m["creationId"].(float64)), int32(m["creationType"].(float64)), m["uuid"].(string))
+			err = messageService.RemoveCommentDbAndCache(ctx, int32(m["id"].(float64)), m["uuid"].(string))
 		case "remove_sub_comment_db_and_cache":
-			err = messageService.RemoveSubCommentDbAndCache(ctx, int32(m["id"].(float64)), int32(m["rootId"].(float64)), m["uuid"].(string))
+			err = messageService.RemoveSubCommentDbAndCache(ctx, int32(m["id"].(float64)), m["uuid"].(string))
 		case "set_comment_agree_db_and_cache":
 			err = messageService.SetCommentAgreeDbAndCache(ctx, int32(m["id"].(float64)), int32(m["creationId"].(float64)), int32(m["creationType"].(float64)), m["uuid"].(string), m["userUuid"].(string))
 		case "set_sub_comment_agree_db_and_cache":
