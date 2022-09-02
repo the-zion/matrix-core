@@ -21,17 +21,14 @@ var _ = binding.EncodeURL
 const _ = http.SupportPackageIsVersion1
 
 const OperationCommentGetHealth = "/comment.v1.Comment/GetHealth"
-const OperationCommentRemoveSubCommentDbAndCache = "/comment.v1.Comment/RemoveSubCommentDbAndCache"
 
 type CommentHTTPServer interface {
 	GetHealth(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
-	RemoveSubCommentDbAndCache(context.Context, *RemoveSubCommentDbAndCacheReq) (*emptypb.Empty, error)
 }
 
 func RegisterCommentHTTPServer(s *http.Server, srv CommentHTTPServer) {
 	r := s.Route("/")
 	r.GET("/v1/get/comment/health", _Comment_GetHealth1_HTTP_Handler(srv))
-	r.POST("/v1/text", _Comment_RemoveSubCommentDbAndCache0_HTTP_Handler(srv))
 }
 
 func _Comment_GetHealth1_HTTP_Handler(srv CommentHTTPServer) func(ctx http.Context) error {
@@ -53,28 +50,8 @@ func _Comment_GetHealth1_HTTP_Handler(srv CommentHTTPServer) func(ctx http.Conte
 	}
 }
 
-func _Comment_RemoveSubCommentDbAndCache0_HTTP_Handler(srv CommentHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in RemoveSubCommentDbAndCacheReq
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationCommentRemoveSubCommentDbAndCache)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.RemoveSubCommentDbAndCache(ctx, req.(*RemoveSubCommentDbAndCacheReq))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
-	}
-}
-
 type CommentHTTPClient interface {
 	GetHealth(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
-	RemoveSubCommentDbAndCache(ctx context.Context, req *RemoveSubCommentDbAndCacheReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
 
 type CommentHTTPClientImpl struct {
@@ -92,19 +69,6 @@ func (c *CommentHTTPClientImpl) GetHealth(ctx context.Context, in *emptypb.Empty
 	opts = append(opts, http.Operation(OperationCommentGetHealth))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, err
-}
-
-func (c *CommentHTTPClientImpl) RemoveSubCommentDbAndCache(ctx context.Context, in *RemoveSubCommentDbAndCacheReq, opts ...http.CallOption) (*emptypb.Empty, error) {
-	var out emptypb.Empty
-	pattern := "/v1/text"
-	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationCommentRemoveSubCommentDbAndCache))
-	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

@@ -2377,8 +2377,6 @@ func (m *RemoveSubCommentDbAndCacheReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	// no validation rules for RootId
-
 	if err := m._validateUuid(m.GetUuid()); err != nil {
 		err = RemoveSubCommentDbAndCacheReqValidationError{
 			field:  "Uuid",
@@ -5400,22 +5398,6 @@ func (m *RemoveCommentReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if err := m._validateUuid(m.GetUserUuid()); err != nil {
-		err = RemoveCommentReqValidationError{
-			field:  "UserUuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	// no validation rules for CreationId
-
-	// no validation rules for CreationType
-
 	if len(errors) > 0 {
 		return RemoveCommentReqMultiError(errors)
 	}
@@ -5526,8 +5508,6 @@ func (m *RemoveSubCommentReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	// no validation rules for RootId
-
 	if err := m._validateUuid(m.GetUuid()); err != nil {
 		err = RemoveSubCommentReqValidationError{
 			field:  "Uuid",
@@ -5538,34 +5518,6 @@ func (m *RemoveSubCommentReq) validate(all bool) error {
 			return err
 		}
 		errors = append(errors, err)
-	}
-
-	if err := m._validateUuid(m.GetUserUuid()); err != nil {
-		err = RemoveSubCommentReqValidationError{
-			field:  "UserUuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if m.GetReply() != "" {
-
-		if err := m._validateUuid(m.GetReply()); err != nil {
-			err = RemoveSubCommentReqValidationError{
-				field:  "Reply",
-				reason: "value must be a valid UUID",
-				cause:  err,
-			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
-		}
-
 	}
 
 	if len(errors) > 0 {
