@@ -1405,6 +1405,24 @@ func (r *commentRepo) GetRootComment(ctx context.Context, id int32) (*biz.Commen
 	}, nil
 }
 
+func (r *commentRepo) GetSubComment(ctx context.Context, id int32) (*biz.SubComment, error) {
+	sc := &SubComment{}
+	err := r.data.DB(ctx).Where("comment_id = ?", id).First(sc).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("db query system error: rootId(%v)", id))
+	}
+	return &biz.SubComment{
+		CreationId:     sc.CreationId,
+		RootId:         sc.RootId,
+		ParentId:       sc.ParentId,
+		CreationType:   sc.CreationType,
+		CreationAuthor: sc.CreationAuthor,
+		RootUser:       sc.RootUser,
+		Uuid:           sc.Uuid,
+		Reply:          sc.Reply,
+	}, nil
+}
+
 func (r *commentRepo) GetParentCommentUserId(ctx context.Context, id, rootId int32) (string, error) {
 	sc := &SubComment{}
 	err := r.data.DB(ctx).Where("comment_id = ? and root_id = ?", id, rootId).First(sc).Error
@@ -2264,17 +2282,17 @@ func (r *commentRepo) CreateSubCommentCache(ctx context.Context, id, rootId, par
 
 					if userSubCommentCreationReplyListExist == 1 then
 						redis.call("ZADD", userSubCommentCreationReplyList, commentId, memberReply)
-						redis.call("EXPIRE", newKey, 28800)
+						redis.call("EXPIRE", userSubCommentCreationReplyList, 28800)
 					end
 
 					if userSubCommentCreationRepliedListForRootExist == 1 then
 						redis.call("ZADD", userSubCommentCreationRepliedListForRoot, commentId, memberReplied)
-						redis.call("EXPIRE", newKey, 28800)
+						redis.call("EXPIRE", userSubCommentCreationRepliedListForRoot, 28800)
 					end
 
 					if userSubCommentCreationRepliedListForParentExist == 1 then
 						redis.call("ZADD", userSubCommentCreationRepliedListForParent, commentId, memberReplied)
-						redis.call("EXPIRE", newKey, 28800)
+						redis.call("EXPIRE", userSubCommentCreationRepliedListForParent, 28800)
 					end
 					return 0
 	`)
@@ -2308,7 +2326,7 @@ func (r *commentRepo) CreateSubCommentCache(ctx context.Context, id, rootId, par
 }
 
 func (r *commentRepo) AddArticleCommentUser(ctx context.Context, creationAuthor, uuid string) error {
-	ach1 := &CommentUser{
+	cu1 := &CommentUser{
 		Uuid:         uuid,
 		Comment:      1,
 		ArticleReply: 1,
@@ -2316,21 +2334,133 @@ func (r *commentRepo) AddArticleCommentUser(ctx context.Context, creationAuthor,
 	err := r.data.DB(ctx).Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "uuid"}},
 		DoUpdates: clause.Assignments(map[string]interface{}{"comment": gorm.Expr("comment + ?", 1), "article_reply": gorm.Expr("article_reply + ?", 1)}),
-	}).Create(ach1).Error
+	}).Create(cu1).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to add article comment user reply: uuid(%v)", uuid))
 	}
 
-	ach2 := &CommentUser{
+	cu2 := &CommentUser{
 		Uuid:           creationAuthor,
 		ArticleReplied: 1,
 	}
 	err = r.data.DB(ctx).Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "uuid"}},
 		DoUpdates: clause.Assignments(map[string]interface{}{"article_replied": gorm.Expr("article_replied + ?", 1)}),
-	}).Create(ach2).Error
+	}).Create(cu2).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to add article comment user replied: uuid(%v)", creationAuthor))
+	}
+	return nil
+}
+
+func (r *commentRepo) ReduceArticleCommentUser(ctx context.Context, creationAuthor, uuid string) error {
+	cu1 := &CommentUser{}
+	err := r.data.DB(ctx).Model(cu1).Where("uuid = ? and comment > 0", uuid).Update("comment", gorm.Expr("comment - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to reduce article comment user reply: uuid(%v)", uuid))
+	}
+
+	err = r.data.DB(ctx).Model(cu1).Where("uuid = ? and article_reply > 0", uuid).Update("article_reply", gorm.Expr("article_reply - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to reduce article comment user reply: uuid(%v)", uuid))
+	}
+
+	err = r.data.DB(ctx).Model(cu1).Where("uuid = ? and article_replied > 0", creationAuthor).Update("article_replied", gorm.Expr("article_replied - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to reduce article comment user replied: uuid(%v)", uuid))
+	}
+	return nil
+}
+
+func (r *commentRepo) ReduceTalkCommentUser(ctx context.Context, creationAuthor, uuid string) error {
+	cu1 := &CommentUser{}
+	err := r.data.DB(ctx).Model(cu1).Where("uuid = ? and comment > 0", uuid).Update("comment", gorm.Expr("comment - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to reduce talk comment user reply: uuid(%v)", uuid))
+	}
+
+	err = r.data.DB(ctx).Model(cu1).Where("uuid = ? and talk_reply > 0", uuid).Update("talk_reply", gorm.Expr("talk_reply - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to reduce talk comment user reply: uuid(%v)", uuid))
+	}
+
+	err = r.data.DB(ctx).Model(cu1).Where("uuid = ? and talk_replied > 0", creationAuthor).Update("talk_replied", gorm.Expr("talk_replied - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to reduce talk comment user replied: uuid(%v)", uuid))
+	}
+	return nil
+}
+
+func (r *commentRepo) ReduceCreationComment(ctx context.Context, createId, createType int32, uuid string) error {
+	_, err := r.data.cc.ReduceCreationComment(ctx, &creationV1.ReduceCreationCommentReq{
+		Uuid:         uuid,
+		CreationId:   createId,
+		CreationType: createType,
+	})
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to reduce creation comment: createId(%v), createType(%v), uuid(%s)", createId, createType, uuid))
+	}
+	return nil
+}
+
+func (r *commentRepo) ReduceArticleSubCommentUser(ctx context.Context, parentId int32, rootUser, parentUser, uuid string) error {
+	cu1 := &CommentUser{}
+	err := r.data.DB(ctx).Model(cu1).Where("uuid = ? and comment > 0", uuid).Update("comment", gorm.Expr("comment - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to reduce article sub comment user comment: uuid(%v)", uuid))
+	}
+
+	cu2 := &CommentUser{}
+	err = r.data.DB(ctx).Model(cu2).Where("uuid = ? and article_reply_sub > 0", uuid).Update("article_reply_sub", gorm.Expr("article_reply_sub - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to reduce article sun comment user reply: uuid(%v)", uuid))
+	}
+
+	cu3 := &CommentUser{}
+	err = r.data.DB(ctx).Model(cu3).Where("uuid = ? and article_replied_sub > 0", rootUser).Update("article_replied_sub", gorm.Expr("article_replied_sub - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to reduce article sub comment user replied: uuid(%v)", rootUser))
+	}
+
+	if parentId == 0 || rootUser == parentUser {
+		return nil
+	}
+
+	cu4 := &CommentUser{}
+	err = r.data.DB(ctx).Model(cu4).Where("uuid = ? and article_replied_sub > 0", parentUser).Update("article_replied_sub", gorm.Expr("article_replied_sub - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to reduce article sub comment user replied: uuid(%v)", parentUser))
+	}
+	return nil
+}
+
+func (r *commentRepo) ReduceTalkSubCommentUser(ctx context.Context, parentId int32, rootUser, parentUser, uuid string) error {
+	cu1 := &CommentUser{}
+	err := r.data.DB(ctx).Model(cu1).Where("uuid = ? and comment > 0", uuid).Update("comment", gorm.Expr("comment - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to reduce talk sub comment user comment: uuid(%v)", uuid))
+	}
+
+	cu2 := &CommentUser{}
+	err = r.data.DB(ctx).Model(cu2).Where("uuid = ? and talk_reply_sub > 0", uuid).Update("talk_reply_sub", gorm.Expr("talk_reply_sub - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to reduce talk sun comment user reply: uuid(%v)", uuid))
+	}
+
+	cu3 := &CommentUser{}
+	err = r.data.DB(ctx).Model(cu3).Where("uuid = ? and talk_replied_sub > 0", rootUser).Update("talk_replied_sub", gorm.Expr("talk_replied_sub - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to reduce talk sub comment user replied: uuid(%v)", rootUser))
+	}
+
+	if parentId == 0 || rootUser == parentUser {
+		return nil
+	}
+
+	cu4 := &CommentUser{}
+	err = r.data.DB(ctx).Model(cu4).Where("uuid = ? and talk_replied_sub > 0", parentUser).Update("talk_replied_sub", gorm.Expr("talk_replied_sub - ?", 1)).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to reduce talk sub comment user replied: uuid(%v)", parentUser))
 	}
 	return nil
 }
@@ -2481,15 +2611,9 @@ func (r *commentRepo) DeleteCommentDraft(ctx context.Context, id int32, uuid str
 
 func (r *commentRepo) RemoveComment(ctx context.Context, id int32, uuid string) error {
 	c := &Comment{}
-	err := r.data.DB(ctx).Where("comment_id = ? and uuid = ?", id, uuid).Delete(c).Error
+	err := r.data.DB(ctx).Where("comment_id = ? and (uuid = ? or creation_author = ?)", id, uuid, uuid).Delete(c).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to delete a comment: id(%v), uuid(%s)", id, uuid))
-	}
-
-	sc := &SubComment{}
-	err = r.data.DB(ctx).Where("root_id = ?", id).Delete(sc).Error
-	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to delete subcomment: id(%v), uuid(%s)", id, uuid))
 	}
 	return nil
 }
@@ -2502,7 +2626,7 @@ func (r *commentRepo) RemoveSubComment(ctx context.Context, id, rootId int32, uu
 	}
 
 	sc := &SubComment{}
-	err = r.data.DB(ctx).Where("comment_id = ? and uuid = ?", id, uuid).Delete(sc).Error
+	err = r.data.DB(ctx).Where("comment_id = ? and (uuid = ? or root_user = ?)", id, uuid, uuid).Delete(sc).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to delete a comment: id(%v), uuid(%s)", id, uuid))
 	}
@@ -2519,54 +2643,217 @@ func (r *commentRepo) RemoveCommentAgree(ctx context.Context, id int32, uuid str
 	return nil
 }
 
-func (r *commentRepo) RemoveCommentCache(ctx context.Context, id, creationId, creationType int32, uuid string) error {
+func (r *commentRepo) RemoveCommentCache(ctx context.Context, id, creationId, creationType int32, creationAuthor, uuid string) error {
 	ids := strconv.Itoa(int(id))
 	creationIds := strconv.Itoa(int(creationId))
 	creationTypes := strconv.Itoa(int(creationType))
+	commentUserReplyField := ""
+	commentUserRepliedField := ""
+	userCommentCreationReplyList := ""
+	userCommentCreationRepliedList := ""
+	switch creationType {
+	case 1:
+		commentUserReplyField = "article_reply"
+		commentUserRepliedField = "article_replied"
+		userCommentCreationReplyList = "user_comment_article_reply_list_" + uuid
+		userCommentCreationRepliedList = "user_comment_article_replied_list_" + creationAuthor
+	case 3:
+		commentUserReplyField = "talk_reply"
+		commentUserRepliedField = "talk_replied"
+		userCommentCreationReplyList = "user_comment_talk_reply_list_" + uuid
+		userCommentCreationRepliedList = "user_comment_talk_replied_list_" + creationAuthor
+	}
 
-	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.Del(ctx, "comment_"+ids)
-		pipe.ZRem(ctx, "comment_"+creationIds+"_"+creationTypes, ids+"%"+uuid)
-		pipe.ZRem(ctx, "comment_"+creationIds+"_"+creationTypes+"_hot", ids+"%"+uuid)
-		return nil
-	})
+	var script = redis.NewScript(`
+					local newKey = KEYS[1]
+					local newMember = ARGV[2]
+					local hotKey = KEYS[2]
+					local hotMember = ARGV[2]
+					local commentKey = KEYS[3]
+					local commentUserKey1 = KEYS[4]
+					local commentUserKey2 = KEYS[5]
+					local commentUserReplyField = KEYS[6]
+					local commentUserRepliedField = KEYS[7]
+					local userCommentCreationReplyList = KEYS[8]
+					local userCommentCreationRepliedList = KEYS[9]
+					local memberReply = ARGV[3]
+					local memberReplied = ARGV[4]
+
+
+					local commentUserKey1Exist = redis.call("EXISTS", commentUserKey1)
+					local commentUserKey2Exist = redis.call("EXISTS", commentUserKey2)
+
+					redis.call("DEL", commentKey)
+
+					redis.call("ZREM", newKey, newMember)
+					redis.call("ZREM", hotKey, hotMember)
+
+					if commentUserKey1Exist == 1 then
+						local number = tonumber(redis.call("HGET", commentUserKey1, "comment"))
+						if number > 0 then
+  							redis.call("HINCRBY", commentUserKey1, "comment", -1)
+						end
+
+						local number = tonumber(redis.call("HGET", commentUserKey1, commentUserReplyField))
+						if number > 0 then
+  							redis.call("HINCRBY", commentUserKey1, commentUserReplyField, -1)
+						end
+					end
+
+					if commentUserKey2Exist == 1 then
+						local number = tonumber(redis.call("HGET", commentUserKey2, commentUserRepliedField))
+						if number > 0 then
+  							redis.call("HINCRBY", commentUserKey2, commentUserRepliedField, -1)
+						end
+					end
+
+					redis.call("ZREM", userCommentCreationReplyList, memberReply)
+					redis.call("ZREM", userCommentCreationRepliedList, memberReplied)
+					return 0
+	`)
+	keys := []string{
+		"comment_" + creationIds + "_" + creationTypes,
+		"comment_" + creationIds + "_" + creationTypes + "_hot",
+		"comment_" + ids,
+		"comment_user_" + uuid,
+		"comment_user_" + creationAuthor,
+		commentUserReplyField,
+		commentUserRepliedField,
+		userCommentCreationReplyList,
+		userCommentCreationRepliedList,
+	}
+	values := []interface{}{
+		id,
+		ids + "%" + uuid,
+		ids + "%" + creationIds + "%" + creationAuthor,
+		ids + "%" + creationIds + "%" + uuid,
+	}
+
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to remove comment cache: id(%v), uuid(%s), creationId(%v), creationType(%v)", id, uuid, creationId, creationType))
+		return errors.Wrapf(err, fmt.Sprintf("fail to remove comment cache: id(%v), uuid(%s), creationId(%v), creationType(%v), creationAuthor(%v)", id, uuid, creationId, creationType, creationAuthor))
 	}
 	return nil
 }
 
-func (r *commentRepo) RemoveSubCommentCache(ctx context.Context, id, rootId int32, uuid, reply, mode string) error {
+func (r *commentRepo) RemoveSubCommentCache(ctx context.Context, id, rootId, parentId, creationId, creationType int32, creationAuthor, rootUser, uuid, reply string) error {
 	ids := strconv.Itoa(int(id))
 	rootIds := strconv.Itoa(int(rootId))
+	parentIds := strconv.Itoa(int(parentId))
+	creationIds := strconv.Itoa(int(creationId))
+	commentUserReplyField := ""
+	commentUserRepliedField := ""
+	userSubCommentCreationReplyList := ""
+	userSubCommentCreationRepliedListForRoot := ""
+	userSubCommentCreationRepliedListForParent := ""
+	switch creationType {
+	case 1:
+		commentUserReplyField = "article_reply_sub"
+		commentUserRepliedField = "article_replied_sub"
+		userSubCommentCreationReplyList = "user_sub_comment_article_reply_list_" + uuid
+		userSubCommentCreationRepliedListForRoot = "user_sub_comment_article_replied_list_" + rootUser
+		userSubCommentCreationRepliedListForParent = "user_sub_comment_article_replied_list_" + reply
+	case 3:
+		commentUserReplyField = "talk_reply_sub"
+		commentUserRepliedField = "talk_replied_sub"
+		userSubCommentCreationReplyList = "user_sub_comment_talk_reply_list_" + uuid
+		userSubCommentCreationRepliedListForRoot = "user_sub_comment_talk_replied_list_" + rootUser
+		userSubCommentCreationRepliedListForParent = "user_sub_comment_talk_replied_list_" + reply
+	}
 
-	commetkey := "comment_" + ids
-	subCommentKey := "sub_comment_" + rootIds
-	rootKey := "comment_" + rootIds
 	var script = redis.NewScript(`
-					local commetkey = KEYS[1]
-					redis.call("DEL", commetkey)
+					local comment = KEYS[1]
+					local commentRoot = KEYS[2]
+					local subCommentList = KEYS[3]
+					local commentUserKey1 = KEYS[4]
+					local commentUserKey2 = KEYS[5]
+					local commentUserKey3 = KEYS[6]
+					local commentUserReplyField = KEYS[7]
+					local commentUserRepliedField = KEYS[8]
+					local userSubCommentCreationReplyList = KEYS[9]
+					local userSubCommentCreationRepliedListForRoot = KEYS[10]
+					local userSubCommentCreationRepliedListForParent = KEYS[11]
 
-					local subCommentKey = KEYS[2]
-                    local member = ARGV[1]
-					redis.call("ZREM", subCommentKey, member)
+					local commentId = ARGV[1]
+					local subCommentListMember = ARGV[2]
+					local memberReply = ARGV[3]
+					local memberReplied = ARGV[4]
+					local parentId = ARGV[5]
+					local rootUser = ARGV[6]
+					local reply = ARGV[7]
 
-					local rootKey = KEYS[3]
-					local mode = ARGV[2]
-					local value = redis.call("EXISTS", rootKey)
-					if (mode == "final" and value == 1) then
-						local number = tonumber(redis.call("HGET", rootKey, "comment"))
+					local commentRootExist = redis.call("EXISTS", commentRoot)
+					local commentUserKey1Exist = redis.call("EXISTS", commentUserKey1)
+					local commentUserKey2Exist = redis.call("EXISTS", commentUserKey2)
+					local commentUserKey3Exist = redis.call("EXISTS", commentUserKey3)
+
+					redis.call("DEL", comment)
+
+					if commentRootExist == 1 then
+						local number = tonumber(redis.call("HGET", commentRoot, "comment"))
 						if number > 0 then
-  							redis.call("HINCRBY", rootKey, "comment", -1)
+  							redis.call("HINCRBY", commentRoot, "comment", -1)
 						end
 					end
+
+					redis.call("ZREM", subCommentList, subCommentListMember)
+
+					if commentUserKey1Exist == 1 then
+						local number = tonumber(redis.call("HGET", commentUserKey1, "comment"))
+						if number > 0 then
+  							redis.call("HINCRBY", commentUserKey1, "comment", -1)
+						end
+
+						local number = tonumber(redis.call("HGET", commentUserKey1, commentUserReplyField))
+						if number > 0 then
+  							redis.call("HINCRBY", commentUserKey1, commentUserReplyField, -1)
+						end
+					end
+
+					if commentUserKey2Exist == 1 then
+						local number = tonumber(redis.call("HGET", commentUserKey2, commentUserRepliedField))
+						if number > 0 then
+  							redis.call("HINCRBY", commentUserKey2, commentUserRepliedField, -1)
+						end
+					end
+
+					if (parentId ~= 0) and (rootUser ~= reply) and (commentUserKey3Exist == 1) then
+						local number = tonumber(redis.call("HGET", commentUserKey3, commentUserRepliedField))
+						if number > 0 then
+  							redis.call("HINCRBY", commentUserKey3, commentUserRepliedField, -1)
+						end
+					end
+
+					redis.call("ZREM", userSubCommentCreationReplyList, memberReply)
+					redis.call("ZREM", userSubCommentCreationRepliedListForRoot, memberReplied)
+					redis.call("ZREM", userSubCommentCreationRepliedListForParent, memberReplied)
 					return 0
 	`)
-	keys := []string{commetkey, subCommentKey, rootKey, mode}
-	values := []interface{}{ids + "%" + uuid + "%" + reply, mode}
+	keys := []string{
+		"comment_" + ids,
+		"comment_" + rootIds,
+		"sub_comment_" + rootIds,
+		"comment_user_" + uuid,
+		"comment_user_" + rootUser,
+		"comment_user_" + reply,
+		commentUserReplyField,
+		commentUserRepliedField,
+		userSubCommentCreationReplyList,
+		userSubCommentCreationRepliedListForRoot,
+		userSubCommentCreationRepliedListForParent,
+	}
+	values := []interface{}{
+		id,
+		ids + "%" + uuid + "%" + reply,
+		ids + "%" + creationIds + "%" + rootIds + "%" + parentIds + "%" + creationAuthor + "%" + rootUser + "%" + reply,
+		ids + "%" + creationIds + "%" + rootIds + "%" + parentIds + "%" + uuid + "%" + creationAuthor + "%" + rootUser + "%" + reply,
+		parentId,
+		rootUser,
+		reply,
+	}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to remove comment cache: id(%v), uuid(%s), rootId(%v), reply(%s)", id, uuid, rootId, reply))
+		return errors.Wrapf(err, fmt.Sprintf("fail to remove sub comment cache: id(%v), rootId(%v), parentId(%v), creationId(%v), creationType(%v), creationAuthor(%s), rootUser(%s),uuid(%s), reply(%s)", id, rootId, parentId, creationId, creationType, creationAuthor, rootUser, uuid, reply))
 	}
 	return nil
 }
