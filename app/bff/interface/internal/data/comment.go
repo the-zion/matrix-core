@@ -596,13 +596,10 @@ func (r *commentRepo) SendSubComment(ctx context.Context, id int32, uuid, ip str
 	return nil
 }
 
-func (r *commentRepo) RemoveComment(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error {
+func (r *commentRepo) RemoveComment(ctx context.Context, id int32, uuid string) error {
 	_, err := r.data.commc.RemoveComment(ctx, &commentV1.RemoveCommentReq{
-		Id:           id,
-		CreationId:   creationId,
-		CreationType: creationType,
-		Uuid:         uuid,
-		UserUuid:     userUuid,
+		Id:   id,
+		Uuid: uuid,
 	})
 	if err != nil {
 		return err
@@ -610,13 +607,10 @@ func (r *commentRepo) RemoveComment(ctx context.Context, id, creationId, creatio
 	return nil
 }
 
-func (r *commentRepo) RemoveSubComment(ctx context.Context, id, rootId int32, uuid, userUuid, reply string) error {
+func (r *commentRepo) RemoveSubComment(ctx context.Context, id int32, uuid string) error {
 	_, err := r.data.commc.RemoveSubComment(ctx, &commentV1.RemoveSubCommentReq{
-		Id:       id,
-		RootId:   rootId,
-		Uuid:     uuid,
-		UserUuid: userUuid,
-		Reply:    reply,
+		Id:   id,
+		Uuid: uuid,
 	})
 	if err != nil {
 		return err
