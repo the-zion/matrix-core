@@ -30,8 +30,8 @@ type CommentRepo interface {
 	CreateCommentDraft(ctx context.Context, uuid string) (int32, error)
 	SendComment(ctx context.Context, id int32, uuid, ip string) error
 	SendSubComment(ctx context.Context, id int32, uuid, ip string) error
-	RemoveComment(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error
-	RemoveSubComment(ctx context.Context, id, rootId int32, uuid, userUuid, reply string) error
+	RemoveComment(ctx context.Context, id int32, uuid string) error
+	RemoveSubComment(ctx context.Context, id int32, uuid string) error
 	SetCommentAgree(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error
 	SetSubCommentAgree(ctx context.Context, id int32, uuid, userUuid string) error
 	CancelCommentAgree(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error
@@ -302,7 +302,22 @@ func (r *CommentUseCase) GetUserSubCommentArticleRepliedList(ctx context.Context
 
 func (r *CommentUseCase) GetUserCommentTalkRepliedList(ctx context.Context, page int32) ([]*Comment, error) {
 	uuid := ctx.Value("uuid").(string)
-	return r.repo.GetUserCommentTalkRepliedList(ctx, page, uuid)
+	commentList, err := r.repo.GetUserCommentTalkRepliedList(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	userProfileMap, err := r.repo.GetUserCommentProfileList(ctx, page, "get_comment_talk_replied_profile_list_", uuid, commentList)
+	if err != nil {
+		return nil, err
+	}
+
+	for index, listItem := range commentList {
+		if value, ok := userProfileMap[listItem.Uuid]; ok {
+			commentList[index].UserName = value
+		}
+	}
+	return commentList, nil
 }
 
 func (r *CommentUseCase) GetUserSubCommentTalkRepliedList(ctx context.Context, page int32) ([]*SubComment, error) {
@@ -345,14 +360,14 @@ func (r *CommentUseCase) SendSubComment(ctx context.Context, id int32) error {
 	return r.repo.SendSubComment(ctx, id, uuid, ip)
 }
 
-func (r *CommentUseCase) RemoveComment(ctx context.Context, id, creationId, creationType int32, uuid string) error {
-	userUuid := ctx.Value("uuid").(string)
-	return r.repo.RemoveComment(ctx, id, creationId, creationType, uuid, userUuid)
+func (r *CommentUseCase) RemoveComment(ctx context.Context, id int32) error {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.RemoveComment(ctx, id, uuid)
 }
 
-func (r *CommentUseCase) RemoveSubComment(ctx context.Context, id, rootId int32, uuid, reply string) error {
-	userUuid := ctx.Value("uuid").(string)
-	return r.repo.RemoveSubComment(ctx, id, rootId, uuid, userUuid, reply)
+func (r *CommentUseCase) RemoveSubComment(ctx context.Context, id int32) error {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.RemoveSubComment(ctx, id, uuid)
 }
 
 func (r *CommentUseCase) SetCommentAgree(ctx context.Context, id, creationId, creationType int32, uuid string) error {
