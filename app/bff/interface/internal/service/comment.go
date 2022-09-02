@@ -238,6 +238,7 @@ func (s *BffService) GetUserCommentTalkRepliedList(ctx context.Context, req *v1.
 			Id:         item.Id,
 			CreationId: item.CreationId,
 			Uuid:       item.Uuid,
+			Username:   item.UserName,
 		})
 	}
 	return reply, nil
@@ -284,7 +285,7 @@ func (s *BffService) SendSubComment(ctx context.Context, req *v1.SendSubCommentR
 }
 
 func (s *BffService) RemoveComment(ctx context.Context, req *v1.RemoveCommentReq) (*emptypb.Empty, error) {
-	err := s.commc.RemoveComment(ctx, req.Id, req.CreationId, req.CreationType, req.Uuid)
+	err := s.commc.RemoveComment(ctx, req.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -292,7 +293,7 @@ func (s *BffService) RemoveComment(ctx context.Context, req *v1.RemoveCommentReq
 }
 
 func (s *BffService) RemoveSubComment(ctx context.Context, req *v1.RemoveSubCommentReq) (*emptypb.Empty, error) {
-	err := s.commc.RemoveSubComment(ctx, req.Id, req.RootId, req.Uuid, req.Reply)
+	err := s.commc.RemoveSubComment(ctx, req.Id)
 	if err != nil {
 		return nil, err
 	}
