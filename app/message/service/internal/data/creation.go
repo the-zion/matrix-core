@@ -621,14 +621,6 @@ func (r *creationRepo) AddCreationComment(ctx context.Context, createId, createT
 	})
 }
 
-func (r *creationRepo) ReduceCreationComment(ctx context.Context, createId, createType int32, uuid string) {
-	_, _ = r.data.cc.ReduceCreationComment(ctx, &creationV1.ReduceCreationCommentReq{
-		Uuid:         uuid,
-		CreationId:   createId,
-		CreationType: createType,
-	})
-}
-
 func (r *creationRepo) GetCreationUser(ctx context.Context, uuid string) (int32, int32, int32, error) {
 	reply, err := r.data.cc.GetCreationUser(ctx, &creationV1.GetCreationUserReq{
 		Uuid: uuid,
