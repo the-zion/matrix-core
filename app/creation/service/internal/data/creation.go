@@ -92,7 +92,9 @@ func (r *creationRepo) GetCollectArticleList(ctx context.Context, id, page int32
 
 	size = len(articleList)
 	if size != 0 {
-		go r.setCollectArticleListToCache(key, articleList)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setCollectArticleListToCache(key, articleList)
+		})()
 	}
 	return articleList, nil
 }
@@ -190,7 +192,9 @@ func (r *creationRepo) GetCollectTalkList(ctx context.Context, id, page int32) (
 
 	size = len(talkList)
 	if size != 0 {
-		go r.setCollectTalkListToCache(key, talkList)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setCollectTalkListToCache(key, talkList)
+		})()
 	}
 	return talkList, nil
 }
@@ -288,7 +292,9 @@ func (r *creationRepo) GetCollectColumnList(ctx context.Context, id, page int32)
 
 	size = len(columnList)
 	if size != 0 {
-		go r.setCollectColumnListToCache(key, columnList)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setCollectColumnListToCache(key, columnList)
+		})()
 	}
 	return columnList, nil
 }
@@ -388,7 +394,9 @@ func (r *creationRepo) GetCollections(ctx context.Context, id int32, uuid string
 		return nil, err
 	}
 
-	go r.setCollectionsToCache(key, collections)
+	go r.data.Recover(context.Background(), func(ctx context.Context) {
+		r.setCollectionsToCache(key, collections)
+	})()
 
 	if collections.Auth == 2 && collections.Uuid != uuid {
 		return nil, errors.Errorf("fail to get collection: no auth")
@@ -547,7 +555,9 @@ func (r *creationRepo) getCollectionsListInfoFromDb(ctx context.Context, unExist
 	}
 
 	if len(list) != 0 {
-		go r.setCollectionsListInfoToCache(list)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setCollectionsListInfoToCache(list)
+		})()
 	}
 	return nil
 }
@@ -596,7 +606,9 @@ func (r *creationRepo) GetCollectionsList(ctx context.Context, uuid string, page
 
 	size = len(collections)
 	if size != 0 {
-		go r.setUserCollectionsListToCache("user_collections_list_"+uuid, collections)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setUserCollectionsListToCache("user_collections_list_"+uuid, collections)
+		})()
 	}
 	return collections, nil
 }
@@ -662,7 +674,9 @@ func (r *creationRepo) GetCollectionsListByVisitor(ctx context.Context, uuid str
 
 	size = len(collections)
 	if size != 0 {
-		go r.setUserCollectionsListToCache("user_collections_list_visitor_"+uuid, collections)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setUserCollectionsListToCache("user_collections_list_visitor_"+uuid, collections)
+		})()
 	}
 	return collections, nil
 }
@@ -747,7 +761,9 @@ func (r *creationRepo) GetCollectionsListAll(ctx context.Context, uuid string) (
 
 	size = len(collections)
 	if size != 0 {
-		go r.setUserCollectionsListToCache("user_collections_list_all_"+uuid, collections)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setUserCollectionsListToCache("user_collections_list_all_"+uuid, collections)
+		})()
 	}
 	return collections, nil
 }
@@ -826,7 +842,9 @@ func (r *creationRepo) GetCreationUser(ctx context.Context, uuid string) (*biz.C
 		return nil, err
 	}
 
-	go r.setCreationUserToCache(key, creationUser)
+	go r.data.Recover(context.Background(), func(ctx context.Context) {
+		r.setCreationUserToCache(key, creationUser)
+	})()
 
 	return creationUser, nil
 }
@@ -906,7 +924,9 @@ func (r *creationRepo) GetCreationUserVisitor(ctx context.Context, uuid string) 
 		return nil, err
 	}
 
-	go r.setCreationUserVisitorToCache(key, creationUser)
+	go r.data.Recover(context.Background(), func(ctx context.Context) {
+		r.setCreationUserVisitorToCache(key, creationUser)
+	})()
 
 	return creationUser, nil
 }
@@ -1018,66 +1038,67 @@ func (r *creationRepo) CreateCollections(ctx context.Context, id, auth int32, uu
 }
 
 func (r *creationRepo) CreateCollectionsCache(ctx context.Context, id, auth int32, uuid, mode string) error {
-	exists := make([]int32, 0)
-	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.Exists(ctx, "user_collections_list_"+uuid)
-		pipe.Exists(ctx, "user_collections_list_visitor_"+uuid)
-		pipe.Exists(ctx, "creation_user_"+uuid)
-		pipe.Exists(ctx, "creation_user_visitor_"+uuid)
-		pipe.Exists(ctx, "user_collections_list_all_"+uuid)
-		return nil
-	})
-	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to check if collections exist from cache: id(%v),uuid(%s)", id, uuid))
-	}
-
-	for _, item := range cmd {
-		exist := item.(*redis.IntCmd).Val()
-		exists = append(exists, int32(exist))
-	}
-
 	ids := strconv.Itoa(int(id))
-	_, err = r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.HSetNX(ctx, "collections_"+ids, "uuid", uuid)
-		pipe.HSetNX(ctx, "collections_"+ids, "auth", auth)
-		pipe.HSetNX(ctx, "collections_"+ids, "article", 0)
-		pipe.HSetNX(ctx, "collections_"+ids, "column", 0)
-		pipe.HSetNX(ctx, "collections_"+ids, "talk", 0)
+	userCollectionsList := "user_collections_list_" + uuid
+	userCollectionsListVisitor := "user_collections_list_visitor_" + uuid
+	creationUser := "creation_user_" + uuid
+	creationUserVisitor := "creation_user_visitor_" + uuid
+	userCollectionsListAll := "user_collections_list_all_" + uuid
+	collectionsStatistic := "collections_" + ids
+	var script = redis.NewScript(`
+					local collectionsStatistic = KEYS[1]
+					local userCollectionsList = KEYS[2]
+					local userCollectionsListVisitor = KEYS[3]
+					local creationUser = KEYS[4]
+					local creationUserVisitor = KEYS[5]
+					local userCollectionsListAll = KEYS[6]
 
-		if exists[0] == 1 {
-			pipe.ZAddNX(ctx, "user_collections_list_"+uuid, &redis.Z{
-				Score:  float64(id),
-				Member: ids,
-			})
-		}
+					local uuid = ARGV[1]
+					local auth = ARGV[2]
+					local id = ARGV[3]
+					local ids = ARGV[4]
+					local mode = ARGV[5]
 
-		if exists[4] == 1 {
-			pipe.ZAddNX(ctx, "user_collections_list_all_"+uuid, &redis.Z{
-				Score:  float64(id),
-				Member: ids,
-			})
-		}
+					local userCollectionsListExist = redis.call("EXISTS", userCollectionsList)
+					local userCollectionsListVisitorExist = redis.call("EXISTS", userCollectionsListVisitor)
+					local creationUserExist = redis.call("EXISTS", creationUser)
+					local creationUserVisitorExist = redis.call("EXISTS", creationUserVisitor)
+					local userCollectionsListAllExist = redis.call("EXISTS", userCollectionsListAll)
 
-		if exists[2] == 1 && mode == "create" {
-			pipe.HIncrBy(ctx, "creation_user_"+uuid, "collections", 1)
-		}
+					redis.call("HSETNX", collectionsStatistic, "uuid", uuid)
+					redis.call("HSETNX", collectionsStatistic, "auth", auth)
+					redis.call("HSETNX", collectionsStatistic, "article", 0)
+					redis.call("HSETNX", collectionsStatistic, "column", 0)
+					redis.call("HSETNX", collectionsStatistic, "talk", 0)
 
-		if auth == 2 {
-			return nil
-		}
+					if userCollectionsListExist == 1 then
+						redis.call("ZADD", userCollectionsList, id, ids)
+					end
 
-		if exists[1] == 1 {
-			pipe.ZAddNX(ctx, "user_collections_list_visitor_"+uuid, &redis.Z{
-				Score:  float64(id),
-				Member: ids,
-			})
-		}
+					if userCollectionsListAllExist == 1 then
+						redis.call("ZADD", userCollectionsListAll, id, ids)
+					end
 
-		if exists[3] == 1 && mode == "create" {
-			pipe.HIncrBy(ctx, "creation_user_visitor_"+uuid, "collections", 1)
-		}
-		return nil
-	})
+					if (creationUserExist == 1) and (mode == "create") then
+						redis.call("HINCRBY", creationUser, "collections", 1)
+					end
+
+					if auth == "2" then
+						return 0
+					end
+
+					if userCollectionsListVisitorExist == 1 then
+						redis.call("ZADD", userCollectionsListVisitor, id, ids)
+					end
+
+					if (creationUserVisitorExist == 1) and (mode == "create") then
+						redis.call("HINCRBY", creationUserVisitor, "collections", 1)
+					end
+					return 0
+	`)
+	keys := []string{collectionsStatistic, userCollectionsList, userCollectionsListVisitor, creationUser, creationUserVisitor, userCollectionsListAll}
+	values := []interface{}{uuid, auth, id, ids, mode}
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to create(update) collections cache: uuid(%s), id(%v)", uuid, id))
 	}
@@ -1193,7 +1214,7 @@ func (r *creationRepo) DeleteCreationCache(ctx context.Context, id, auth int32, 
 						end
 					end
 
-                    if auth == 2 then
+                    if auth == "2" then
 						return 0
 					end
 
