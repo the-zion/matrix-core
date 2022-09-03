@@ -81,7 +81,9 @@ func (r *articleRepo) GetArticleList(ctx context.Context, page int32) ([]*biz.Ar
 
 	size = len(article)
 	if size != 0 {
-		go r.setArticleToCache("article", article)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setArticleToCache("article", article)
+		})()
 	}
 	return article, nil
 }
@@ -143,7 +145,9 @@ func (r *articleRepo) GetArticleListHot(ctx context.Context, page int32) ([]*biz
 
 	size = len(article)
 	if size != 0 {
-		go r.setArticleHotToCache("article_hot", article)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setArticleHotToCache("article_hot", article)
+		})()
 	}
 	return article, nil
 }
@@ -166,7 +170,9 @@ func (r *articleRepo) GetColumnArticleList(ctx context.Context, id int32) ([]*bi
 
 	size = len(article)
 	if size != 0 {
-		go r.setColumnArticleToCache(id, article)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setColumnArticleToCache(id, article)
+		})()
 	}
 	return article, nil
 }
@@ -207,7 +213,9 @@ func (r *articleRepo) GetUserArticleList(ctx context.Context, page int32, uuid s
 
 	size = len(article)
 	if size != 0 {
-		go r.setUserArticleListToCache("user_article_list_"+uuid, article)
+		r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setUserArticleListToCache("user_article_list_"+uuid, article)
+		})()
 	}
 	return article, nil
 }
@@ -276,7 +284,9 @@ func (r *articleRepo) GetUserArticleListAll(ctx context.Context, uuid string) ([
 
 	size = len(article)
 	if size != 0 {
-		go r.setUserArticleListToCache("user_article_list_all_"+uuid, article)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setUserArticleListToCache("user_article_list_all_"+uuid, article)
+		})()
 	}
 	return article, nil
 }
@@ -337,7 +347,9 @@ func (r *articleRepo) GetUserArticleListVisitor(ctx context.Context, page int32,
 
 	size = len(article)
 	if size != 0 {
-		go r.setUserArticleListToCache("user_article_list_visitor_"+uuid, article)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setUserArticleListToCache("user_article_list_visitor_"+uuid, article)
+		})()
 	}
 	return article, nil
 }
@@ -450,7 +462,9 @@ func (r *articleRepo) GetArticleStatistic(ctx context.Context, id int32, uuid st
 		return nil, err
 	}
 
-	go r.setArticleStatisticToCache(key, statistic)
+	go r.data.Recover(context.Background(), func(ctx context.Context) {
+		r.setArticleStatisticToCache(key, statistic)
+	})()
 
 	if statistic.Auth == 2 && statistic.Uuid != uuid {
 		return nil, errors.Errorf("fail to get article statistic from cache: no auth")
@@ -582,7 +596,9 @@ func (r *articleRepo) getArticleListStatisticFromDb(ctx context.Context, unExist
 	}
 
 	if len(list) != 0 {
-		go r.setArticleListStatisticToCache(list)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setArticleListStatisticToCache(list)
+		})()
 	}
 
 	return nil
@@ -832,7 +848,9 @@ func (r *articleRepo) getUserArticleAgreeFromDb(ctx context.Context, uuid string
 		agreeMap[item.ArticleId] = true
 	}
 	if len(list) != 0 {
-		go r.setUserArticleAgreeToCache(uuid, list)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setUserArticleAgreeToCache(uuid, list)
+		})()
 	}
 	return agreeMap, nil
 }
@@ -905,7 +923,9 @@ func (r *articleRepo) getUserArticleCollectFromDb(ctx context.Context, uuid stri
 		collectMap[item.ArticleId] = true
 	}
 	if len(list) != 0 {
-		go r.setUserArticleCollectToCache(uuid, list)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setUserArticleCollectToCache(uuid, list)
+		})()
 	}
 	return collectMap, nil
 }
@@ -1001,84 +1021,83 @@ func (r *articleRepo) CreateArticleStatistic(ctx context.Context, id, auth int32
 }
 
 func (r *articleRepo) CreateArticleCache(ctx context.Context, id, auth int32, uuid, mode string) error {
-	exists := make([]int32, 0)
-	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.Exists(ctx, "article")
-		pipe.Exists(ctx, "article_hot")
-		pipe.Exists(ctx, "leaderboard")
-		pipe.Exists(ctx, "user_article_list_"+uuid)
-		pipe.Exists(ctx, "user_article_list_visitor_"+uuid)
-		pipe.Exists(ctx, "creation_user_"+uuid)
-		pipe.Exists(ctx, "creation_user_visitor_"+uuid)
-		return nil
-	})
-	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to check if article exist from cache: id(%v),uuid(%s)", id, uuid))
-	}
-
-	for _, item := range cmd {
-		exist := item.(*redis.IntCmd).Val()
-		exists = append(exists, int32(exist))
-	}
-
 	ids := strconv.Itoa(int(id))
-	_, err = r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.HSetNX(ctx, "article_"+ids, "uuid", uuid)
-		pipe.HSetNX(ctx, "article_"+ids, "agree", 0)
-		pipe.HSetNX(ctx, "article_"+ids, "collect", 0)
-		pipe.HSetNX(ctx, "article_"+ids, "view", 0)
-		pipe.HSetNX(ctx, "article_"+ids, "comment", 0)
-		pipe.HSetNX(ctx, "article_"+ids, "auth", auth)
+	articleStatistic := "article_" + ids
+	article := "article"
+	articleHot := "article_hot"
+	leaderboard := "leaderboard"
+	userArticleList := "user_article_list_" + uuid
+	userArticleListVisitor := "user_article_list_visitor_" + uuid
+	creationUser := "creation_user_" + uuid
+	creationUserVisitor := "creation_user_visitor_" + uuid
+	var script = redis.NewScript(`
+					local articleStatistic = KEYS[1]
+					local article = KEYS[2]
+					local articleHot = KEYS[3]
+					local leaderboard = KEYS[4]
+					local userArticleList = KEYS[5]
+					local userArticleListVisitor = KEYS[6]
+					local creationUser = KEYS[7]
+					local creationUserVisitor = KEYS[8]
 
-		if exists[3] == 1 {
-			pipe.ZAddNX(ctx, "user_article_list_"+uuid, &redis.Z{
-				Score:  float64(id),
-				Member: ids + "%" + uuid,
-			})
-		}
+					local uuid = ARGV[1]
+					local auth = ARGV[2]
+					local id = ARGV[3]
+					local member = ARGV[4]
+					local mode = ARGV[5]
+					local member2 = ARGV[6]
 
-		if exists[5] == 1 && mode == "create" {
-			pipe.HIncrBy(ctx, "creation_user_"+uuid, "article", 1)
-		}
+					local userArticleListExist = redis.call("EXISTS", userArticleList)
+					local creationUserExist = redis.call("EXISTS", creationUser)
+					local articleExist = redis.call("EXISTS", article)
+					local articleHotExist = redis.call("EXISTS", articleHot)
+					local leaderboardExist = redis.call("EXISTS", leaderboard)
+					local userArticleListVisitorExist = redis.call("EXISTS", userArticleListVisitor)
+					local creationUserVisitorExist = redis.call("EXISTS", creationUserVisitor)
 
-		if auth == 2 {
-			return nil
-		}
+					redis.call("HSETNX", articleStatistic, "uuid", uuid)
+					redis.call("HSETNX", articleStatistic, "agree", 0)
+					redis.call("HSETNX", articleStatistic, "collect", 0)
+					redis.call("HSETNX", articleStatistic, "view", 0)
+					redis.call("HSETNX", articleStatistic, "comment", 0)
+					redis.call("HSETNX", articleStatistic, "auth", auth)
 
-		if exists[0] == 1 {
-			pipe.ZAddNX(ctx, "article", &redis.Z{
-				Score:  float64(id),
-				Member: ids + "%" + uuid,
-			})
-		}
+					if userArticleListExist == 1 then
+						redis.call("ZADD", userArticleList, id, member)
+					end
 
-		if exists[1] == 1 {
-			pipe.ZAddNX(ctx, "article_hot", &redis.Z{
-				Score:  0,
-				Member: ids + "%" + uuid,
-			})
-		}
+					if (creationUserExist == 1) and (mode == "create") then
+						redis.call("HINCRBY", creationUser, "article", 1)
+					end
 
-		if exists[2] == 1 {
-			pipe.ZAddNX(ctx, "leaderboard", &redis.Z{
-				Score:  0,
-				Member: ids + "%" + uuid + "%article",
-			})
-		}
+					if auth == "2" then
+						return 0
+					end
 
-		if exists[4] == 1 {
-			pipe.ZAddNX(ctx, "user_article_list_visitor_"+uuid, &redis.Z{
-				Score:  0,
-				Member: ids + "%" + uuid + "%article",
-			})
-		}
+					if articleExist == 1 then
+						redis.call("ZADD", article, id, member)
+					end
 
-		if exists[6] == 1 && mode == "create" {
-			pipe.HIncrBy(ctx, "creation_user_visitor_"+uuid, "article", 1)
-		}
+					if articleHotExist == 1 then
+						redis.call("ZADD", articleHot, id, member)
+					end
 
-		return nil
-	})
+					if leaderboardExist == 1 then
+						redis.call("ZADD", leaderboard, 0, member2)
+					end
+
+					if userArticleListVisitorExist == 1 then
+						redis.call("ZADD", userArticleListVisitor, id, member)
+					end
+
+					if (creationUserVisitorExist == 1) and (mode == "create") then
+						redis.call("HINCRBY", creationUserVisitor, "article", 1)
+					end
+					return 0
+	`)
+	keys := []string{articleStatistic, article, articleHot, leaderboard, userArticleList, userArticleListVisitor, creationUser, creationUserVisitor}
+	values := []interface{}{uuid, auth, id, ids + "%" + uuid, mode, ids + "%" + uuid + "%article"}
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to create(update) article cache: uuid(%s), id(%v)", uuid, id))
 	}
@@ -1206,16 +1225,17 @@ func (r *articleRepo) AddArticleComment(ctx context.Context, id int32) error {
 
 func (r *articleRepo) AddArticleCommentToCache(ctx context.Context, id int32, uuid string) error {
 	key := "article_" + strconv.Itoa(int(id))
-	exist, err := r.data.redisCli.Exists(ctx, key).Result()
-	if err != nil {
-		r.log.Errorf("fail to check if article statistic exist from cache: id(%v), uuid(%s)", id, uuid)
-	}
-
-	if exist == 0 {
-		return nil
-	}
-
-	_, err = r.data.redisCli.HIncrBy(ctx, key, "comment", 1).Result()
+	var script = redis.NewScript(`
+					local key = KEYS[1]
+					local keyExist = redis.call("EXISTS", key)
+					if keyExist == 1 then
+						redis.call("HINCRBY", key, "comment", 1)
+					end
+					return 0
+	`)
+	keys := []string{key}
+	var values []interface{}
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
 		r.log.Errorf("fail to add article comment to cache: id(%v), uuid(%s)", id, uuid)
 	}
@@ -1548,38 +1568,41 @@ func (r *articleRepo) SetArticleAgreeToCache(ctx context.Context, id int32, uuid
 	statisticKey := fmt.Sprintf("article_%v", id)
 	boardKey := fmt.Sprintf("leaderboard")
 	userKey := fmt.Sprintf("user_article_agree_%s", userUuid)
-	exists := make([]int64, 0)
-	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.Exists(ctx, hotKey)
-		pipe.Exists(ctx, statisticKey)
-		pipe.Exists(ctx, boardKey)
-		pipe.Exists(ctx, userKey)
-		return nil
-	})
-	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to check if cache about user article agree exist: id(%v), uuid(%s), userUuid(%s) ", id, uuid, userUuid))
-	}
+	var script = redis.NewScript(`
+					local hotKey = KEYS[1]
+					local statisticKey = KEYS[2]
+					local boardKey = KEYS[3]
+					local userKey = KEYS[4]
 
-	for _, item := range cmd {
-		exist := item.(*redis.IntCmd).Val()
-		exists = append(exists, exist)
-	}
+					local member1 = ARGV[1]
+					local member2 = ARGV[2]
+					local id = ARGV[3]
 
-	_, err = r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		if exists[0] == 1 {
-			pipe.ZIncrBy(ctx, hotKey, 1, fmt.Sprintf("%v%s%s", id, "%", uuid))
-		}
-		if exists[1] == 1 {
-			pipe.HIncrBy(ctx, statisticKey, "agree", 1)
-		}
-		if exists[2] == 1 {
-			pipe.ZIncrBy(ctx, boardKey, 1, fmt.Sprintf("%v%s%s%s", id, "%", uuid, "%article"))
-		}
-		if exists[3] == 1 {
-			pipe.SAdd(ctx, userKey, id)
-		}
-		return nil
-	})
+					local hotKeyExist = redis.call("EXISTS", hotKey)
+					local statisticKeyExist = redis.call("EXISTS", statisticKey)
+					local boardKeyExist = redis.call("EXISTS", boardKey)
+					local userKeyExist = redis.call("EXISTS", userKey)
+
+					if hotKeyExist == 1 then
+						redis.call("ZINCRBY", hotKey, 1, member1)
+					end
+
+					if statisticKeyExist == 1 then
+						redis.call("HINCRBY", statisticKey, "agree", 1)
+					end
+
+					if boardKeyExist == 1 then
+						redis.call("ZINCRBY", boardKey, 1, member2)
+					end
+
+					if userKeyExist == 1 then
+						redis.call("SADD", userKey, id)
+					end
+					return 0
+	`)
+	keys := []string{hotKey, statisticKey, boardKey, userKey}
+	values := []interface{}{fmt.Sprintf("%v%s%s", id, "%", uuid), fmt.Sprintf("%v%s%s%s", id, "%", uuid, "%article"), id}
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to add user article agree to cache: id(%v), uuid(%s), userUuid(%s)", id, uuid, userUuid))
 	}
@@ -1687,45 +1710,45 @@ func (r *articleRepo) SetArticleCollectToCache(ctx context.Context, id, collecti
 	collectionsKey := fmt.Sprintf("collections_%v", collectionsId)
 	creationKey := fmt.Sprintf("creation_user_%s", userUuid)
 	userKey := fmt.Sprintf("user_article_collect_%s", userUuid)
-	exists := make([]int64, 0)
-	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.Exists(ctx, statisticKey)
-		pipe.Exists(ctx, collectKey)
-		pipe.Exists(ctx, collectionsKey)
-		pipe.Exists(ctx, creationKey)
-		pipe.Exists(ctx, userKey)
-		return nil
-	})
-	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to check if cache about user article collect exist: id(%v), collectionsId(%v), uuid(%s), userUuid(%s) ", id, collectionsId, uuid, userUuid))
-	}
+	var script = redis.NewScript(`
+					local statisticKey = KEYS[1]
+					local collectKey = KEYS[2]
+					local collectionsKey = KEYS[3]
+					local creationKey = KEYS[4]
+					local userKey = KEYS[5]
 
-	for _, item := range cmd {
-		exist := item.(*redis.IntCmd).Val()
-		exists = append(exists, exist)
-	}
+					local member = ARGV[1]
 
-	_, err = r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		if exists[0] == 1 {
-			pipe.HIncrBy(ctx, statisticKey, "collect", 1)
-		}
-		if exists[1] == 1 {
-			pipe.ZAddNX(ctx, collectKey, &redis.Z{
-				Score:  0,
-				Member: fmt.Sprintf("%v%s%s", id, "%", uuid),
-			})
-		}
-		if exists[2] == 1 {
-			pipe.HIncrBy(ctx, collectionsKey, "article", 1)
-		}
-		if exists[3] == 1 {
-			pipe.HIncrBy(ctx, creationKey, "collect", 1)
-		}
-		if exists[4] == 1 {
-			pipe.SAdd(ctx, userKey, id)
-		}
-		return nil
-	})
+					local statisticKeyExist = redis.call("EXISTS", statisticKey)
+					local collectKeyExist = redis.call("EXISTS", collectKey)
+					local collectionsKeyExist = redis.call("EXISTS", collectionsKey)
+					local creationKeyExist = redis.call("EXISTS", creationKey)
+					local userKeyExist = redis.call("EXISTS", userKey)
+					
+					if statisticKeyExist == 1 then
+						redis.call("HINCRBY", statisticKey, "collect", 1)
+					end
+
+					if collectKeyExist == 1 then
+						redis.call("ZADD", collectKey, 0, member)
+					end
+
+					if collectionsKeyExist == 1 then
+						redis.call("HINCRBY", collectionsKey, "article", 1)
+					end
+
+					if creationKeyExist == 1 then
+						redis.call("HINCRBY", creationKey, "collect", 1)
+					end
+
+					if userKeyExist == 1 then
+						redis.call("SADD", userKey, id)
+					end
+					return 0
+	`)
+	keys := []string{statisticKey, collectKey, collectionsKey, creationKey, userKey}
+	values := []interface{}{fmt.Sprintf("%v%s%s", id, "%", uuid)}
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to add article collect to cache: id(%v), collectionsId(%v), uuid(%s), userUuid(%s)", id, collectionsId, uuid, userUuid))
 	}
