@@ -377,82 +377,83 @@ func (r *columnRepo) SendColumnSubscribeToMq(ctx context.Context, id int32, uuid
 }
 
 func (r *columnRepo) CreateColumnCache(ctx context.Context, id, auth int32, uuid, mode string) error {
-	exists := make([]int32, 0)
-	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.Exists(ctx, "column")
-		pipe.Exists(ctx, "column_hot")
-		pipe.Exists(ctx, "leaderboard")
-		pipe.Exists(ctx, "user_column_list_"+uuid)
-		pipe.Exists(ctx, "user_column_list_visitor_"+uuid)
-		pipe.Exists(ctx, "creation_user_"+uuid)
-		pipe.Exists(ctx, "creation_user_visitor_"+uuid)
-		return nil
-	})
-	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to check if column exist from cache: id(%v),uuid(%s)", id, uuid))
-	}
-
-	for _, item := range cmd {
-		exist := item.(*redis.IntCmd).Val()
-		exists = append(exists, int32(exist))
-	}
-
 	ids := strconv.Itoa(int(id))
-	_, err = r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.HSetNX(ctx, "column_"+ids, "uuid", uuid)
-		pipe.HSetNX(ctx, "column_"+ids, "agree", 0)
-		pipe.HSetNX(ctx, "column_"+ids, "collect", 0)
-		pipe.HSetNX(ctx, "column_"+ids, "view", 0)
-		pipe.HSetNX(ctx, "column_"+ids, "auth", auth)
+	columnStatistic := "column_" + ids
+	column := "column"
+	columnHot := "column_hot"
+	leaderboard := "leaderboard"
+	userColumnList := "user_column_list_" + uuid
+	userColumnListVisitor := "user_column_list_visitor_" + uuid
+	creationUser := "creation_user_" + uuid
+	creationUserVisitor := "creation_user_visitor_" + uuid
+	var script = redis.NewScript(`
+					local columnStatistic = KEYS[1]
+					local column = KEYS[2]
+					local columnHot = KEYS[3]
+					local leaderboard = KEYS[4]
+					local userColumnList = KEYS[5]
+					local userColumnListVisitor = KEYS[6]
+					local creationUser = KEYS[7]
+					local creationUserVisitor = KEYS[8]
 
-		if exists[3] == 1 {
-			pipe.ZAddNX(ctx, "user_column_list_"+uuid, &redis.Z{
-				Score:  float64(id),
-				Member: ids + "%" + uuid,
-			})
-		}
+					local uuid = ARGV[1]
+					local auth = ARGV[2]
+					local id = ARGV[3]
+					local member = ARGV[4]
+					local mode = ARGV[5]
+					local member2 = ARGV[6]
 
-		if exists[5] == 1 && mode == "create" {
-			pipe.HIncrBy(ctx, "creation_user_"+uuid, "column", 1)
-		}
+					local userColumnListExist = redis.call("EXISTS", userColumnList)
+					local creationUserExist = redis.call("EXISTS", creationUser)
+					local columnExist = redis.call("EXISTS", column)
+					local columnHotExist = redis.call("EXISTS", columnHot)
+					local leaderboardExist = redis.call("EXISTS", leaderboard)
+					local userColumnListVisitorExist = redis.call("EXISTS", userColumnListVisitor)
+					local creationUserVisitorExist = redis.call("EXISTS", creationUserVisitor)
 
-		if auth == 2 {
-			return nil
-		}
+					redis.call("HSETNX", columnStatistic, "uuid", uuid)
+					redis.call("HSETNX", columnStatistic, "agree", 0)
+					redis.call("HSETNX", columnStatistic, "collect", 0)
+					redis.call("HSETNX", columnStatistic, "view", 0)
+					redis.call("HSETNX", columnStatistic, "comment", 0)
+					redis.call("HSETNX", columnStatistic, "auth", auth)
 
-		if exists[0] == 1 {
-			pipe.ZAddNX(ctx, "column", &redis.Z{
-				Score:  float64(id),
-				Member: ids + "%" + uuid,
-			})
-		}
+					if userColumnListExist == 1 then
+						redis.call("ZADD", userColumnList, id, member)
+					end
 
-		if exists[1] == 1 {
-			pipe.ZAddNX(ctx, "column_hot", &redis.Z{
-				Score:  0,
-				Member: ids + "%" + uuid,
-			})
-		}
+					if (creationUserExist == 1) and (mode == "create") then
+						redis.call("HINCRBY", creationUser, "column", 1)
+					end
 
-		if exists[2] == 1 {
-			pipe.ZAddNX(ctx, "leaderboard", &redis.Z{
-				Score:  0,
-				Member: ids + "%" + uuid + "%column",
-			})
-		}
+					if auth == "2" then
+						return 0
+					end
 
-		if exists[4] == 1 {
-			pipe.ZAddNX(ctx, "user_column_list_visitor_"+uuid, &redis.Z{
-				Score:  0,
-				Member: ids + "%" + uuid + "%column",
-			})
-		}
+					if columnExist == 1 then
+						redis.call("ZADD", column, id, member)
+					end
 
-		if exists[6] == 1 && mode == "create" {
-			pipe.HIncrBy(ctx, "creation_user_visitor_"+uuid, "column", 1)
-		}
-		return nil
-	})
+					if columnHotExist == 1 then
+						redis.call("ZADD", columnHot, id, member)
+					end
+
+					if leaderboardExist == 1 then
+						redis.call("ZADD", leaderboard, 0, member2)
+					end
+
+					if userColumnListVisitorExist == 1 then
+						redis.call("ZADD", userColumnListVisitor, id, member)
+					end
+
+					if (creationUserVisitorExist == 1) and (mode == "create") then
+						redis.call("HINCRBY", creationUserVisitor, "column", 1)
+					end
+					return 0
+	`)
+	keys := []string{columnStatistic, column, columnHot, leaderboard, userColumnList, userColumnListVisitor, creationUser, creationUserVisitor}
+	values := []interface{}{uuid, auth, id, ids + "%" + uuid, mode, ids + "%" + uuid + "%column"}
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to create(update) column cache: uuid(%s), id(%v)", uuid, id))
 	}
@@ -556,7 +557,9 @@ func (r *columnRepo) GetColumnList(ctx context.Context, page int32) ([]*biz.Colu
 
 	size = len(column)
 	if size != 0 {
-		go r.setColumnToCache("column", column)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setColumnToCache("column", column)
+		})()
 	}
 	return column, nil
 }
@@ -643,7 +646,9 @@ func (r *columnRepo) GetColumnListHot(ctx context.Context, page int32) ([]*biz.C
 
 	size = len(column)
 	if size != 0 {
-		go r.setColumnHotToCache("column_hot", column)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setColumnHotToCache("column_hot", column)
+		})()
 	}
 	return column, nil
 }
@@ -666,7 +671,9 @@ func (r *columnRepo) GetUserColumnList(ctx context.Context, page int32, uuid str
 
 	size = len(column)
 	if size != 0 {
-		go r.setUserColumnListToCache("user_column_list_"+uuid, column)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setUserColumnListToCache("user_column_list_"+uuid, column)
+		})()
 	}
 	return column, nil
 }
@@ -735,7 +742,9 @@ func (r *columnRepo) GetUserColumnListVisitor(ctx context.Context, page int32, u
 
 	size = len(column)
 	if size != 0 {
-		go r.setUserColumnListToCache("user_column_list_visitor_"+uuid, column)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setUserColumnListToCache("user_column_list_visitor_"+uuid, column)
+		})()
 	}
 	return column, nil
 }
@@ -991,7 +1000,9 @@ func (r *columnRepo) getColumnListStatisticFromDb(ctx context.Context, unExists 
 	}
 
 	if len(list) != 0 {
-		go r.setColumnListStatisticToCache(list)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setColumnListStatisticToCache(list)
+		})()
 	}
 
 	return nil
@@ -1037,7 +1048,9 @@ func (r *columnRepo) GetColumnStatistic(ctx context.Context, id int32, uuid stri
 		return nil, err
 	}
 
-	go r.setColumnStatisticToCache(key, statistic)
+	go r.data.Recover(context.Background(), func(ctx context.Context) {
+		r.setColumnStatisticToCache(key, statistic)
+	})()
 
 	if statistic.Auth == 2 && statistic.Uuid != uuid {
 		return nil, errors.Errorf("fail to get column statistic from cache: no auth")
@@ -1150,7 +1163,7 @@ func (r *columnRepo) DeleteColumnCache(ctx context.Context, id, auth int32, uuid
 						end
 					end
 
-                    if auth == 2 then
+                    if auth == "2" then
 						return 0
 					end
 
@@ -1221,7 +1234,9 @@ func (r *columnRepo) GetSubscribeList(ctx context.Context, page int32, uuid stri
 
 	size = len(subscribe)
 	if size != 0 {
-		go r.setUserSubscribeListToCache("user_column_subscribe_list_"+uuid, subscribe)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setUserSubscribeListToCache("user_column_subscribe_list_"+uuid, subscribe)
+		})()
 	}
 	return subscribe, nil
 }
@@ -1584,38 +1599,41 @@ func (r *columnRepo) SetColumnAgreeToCache(ctx context.Context, id int32, uuid, 
 	statisticKey := fmt.Sprintf("column_%v", id)
 	boardKey := fmt.Sprintf("leaderboard")
 	userKey := fmt.Sprintf("user_column_agree_%s", userUuid)
-	exists := make([]int64, 0)
-	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.Exists(ctx, hotKey)
-		pipe.Exists(ctx, statisticKey)
-		pipe.Exists(ctx, boardKey)
-		pipe.Exists(ctx, userKey)
-		return nil
-	})
-	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to check if cache about user column agree exist: id(%v), uuid(%s), userUuid(%s) ", id, uuid, userUuid))
-	}
+	var script = redis.NewScript(`
+					local hotKey = KEYS[1]
+					local statisticKey = KEYS[2]
+					local boardKey = KEYS[3]
+					local userKey = KEYS[4]
 
-	for _, item := range cmd {
-		exist := item.(*redis.IntCmd).Val()
-		exists = append(exists, exist)
-	}
+					local member1 = ARGV[1]
+					local member2 = ARGV[2]
+					local id = ARGV[3]
 
-	_, err = r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		if exists[0] == 1 {
-			pipe.ZIncrBy(ctx, hotKey, 1, fmt.Sprintf("%v%s%s", id, "%", uuid))
-		}
-		if exists[1] == 1 {
-			pipe.HIncrBy(ctx, statisticKey, "agree", 1)
-		}
-		if exists[2] == 1 {
-			pipe.ZIncrBy(ctx, boardKey, 1, fmt.Sprintf("%v%s%s%s", id, "%", uuid, "%column"))
-		}
-		if exists[3] == 1 {
-			pipe.SAdd(ctx, userKey, id)
-		}
-		return nil
-	})
+					local hotKeyExist = redis.call("EXISTS", hotKey)
+					local statisticKeyExist = redis.call("EXISTS", statisticKey)
+					local boardKeyExist = redis.call("EXISTS", boardKey)
+					local userKeyExist = redis.call("EXISTS", userKey)
+
+					if hotKeyExist == 1 then
+						redis.call("ZINCRBY", hotKey, 1, member1)
+					end
+
+					if statisticKeyExist == 1 then
+						redis.call("HINCRBY", statisticKey, "agree", 1)
+					end
+
+					if boardKeyExist == 1 then
+						redis.call("ZINCRBY", boardKey, 1, member2)
+					end
+
+					if userKeyExist == 1 then
+						redis.call("SADD", userKey, id)
+					end
+					return 0
+	`)
+	keys := []string{hotKey, statisticKey, boardKey, userKey}
+	values := []interface{}{fmt.Sprintf("%v%s%s", id, "%", uuid), fmt.Sprintf("%v%s%s%s", id, "%", uuid, "%column"), id}
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to add user column agree to cache: id(%v), uuid(%s), userUuid(%s)", id, uuid, userUuid))
 	}
@@ -1676,45 +1694,45 @@ func (r *columnRepo) SetColumnCollectToCache(ctx context.Context, id, collection
 	collectionsKey := fmt.Sprintf("collections_%v", collectionsId)
 	creationKey := fmt.Sprintf("creation_user_%s", userUuid)
 	userKey := fmt.Sprintf("user_column_collect_%s", userUuid)
-	exists := make([]int64, 0)
-	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.Exists(ctx, statisticKey)
-		pipe.Exists(ctx, collectKey)
-		pipe.Exists(ctx, collectionsKey)
-		pipe.Exists(ctx, creationKey)
-		pipe.Exists(ctx, userKey)
-		return nil
-	})
-	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to check if cache about user column collect exist: id(%v), collectionsId(%v), uuid(%s), userUuid(%s) ", id, collectionsId, uuid, userUuid))
-	}
+	var script = redis.NewScript(`
+					local statisticKey = KEYS[1]
+					local collectKey = KEYS[2]
+					local collectionsKey = KEYS[3]
+					local creationKey = KEYS[4]
+					local userKey = KEYS[5]
 
-	for _, item := range cmd {
-		exist := item.(*redis.IntCmd).Val()
-		exists = append(exists, exist)
-	}
+					local member = ARGV[1]
 
-	_, err = r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		if exists[0] == 1 {
-			pipe.HIncrBy(ctx, statisticKey, "collect", 1)
-		}
-		if exists[1] == 1 {
-			pipe.ZAddNX(ctx, collectKey, &redis.Z{
-				Score:  0,
-				Member: fmt.Sprintf("%v%s%s", id, "%", uuid),
-			})
-		}
-		if exists[2] == 1 {
-			pipe.HIncrBy(ctx, collectionsKey, "column", 1)
-		}
-		if exists[3] == 1 {
-			pipe.HIncrBy(ctx, creationKey, "collect", 1)
-		}
-		if exists[4] == 1 {
-			pipe.SAdd(ctx, userKey, id)
-		}
-		return nil
-	})
+					local statisticKeyExist = redis.call("EXISTS", statisticKey)
+					local collectKeyExist = redis.call("EXISTS", collectKey)
+					local collectionsKeyExist = redis.call("EXISTS", collectionsKey)
+					local creationKeyExist = redis.call("EXISTS", creationKey)
+					local userKeyExist = redis.call("EXISTS", userKey)
+					
+					if statisticKeyExist == 1 then
+						redis.call("HINCRBY", statisticKey, "collect", 1)
+					end
+
+					if collectKeyExist == 1 then
+						redis.call("ZADD", collectKey, 0, member)
+					end
+
+					if collectionsKeyExist == 1 then
+						redis.call("HINCRBY", collectionsKey, "column", 1)
+					end
+
+					if creationKeyExist == 1 then
+						redis.call("HINCRBY", creationKey, "collect", 1)
+					end
+
+					if userKeyExist == 1 then
+						redis.call("SADD", userKey, id)
+					end
+					return 0
+	`)
+	keys := []string{statisticKey, collectKey, collectionsKey, creationKey, userKey}
+	values := []interface{}{fmt.Sprintf("%v%s%s", id, "%", uuid)}
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to add column collect to cache: id(%v), collectionsId(%v), uuid(%s), userUuid(%s)", id, collectionsId, uuid, userUuid))
 	}
@@ -2239,7 +2257,9 @@ func (r *columnRepo) getUserColumnAgreeFromDb(ctx context.Context, uuid string) 
 		agreeMap[item.ColumnId] = true
 	}
 	if len(list) != 0 {
-		go r.setUserColumnAgreeToCache(uuid, list)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setUserColumnAgreeToCache(uuid, list)
+		})()
 	}
 	return agreeMap, nil
 }
@@ -2312,7 +2332,9 @@ func (r *columnRepo) getUserColumnCollectFromDb(ctx context.Context, uuid string
 		collectMap[item.ColumnId] = true
 	}
 	if len(list) != 0 {
-		go r.setUserColumnCollectToCache(uuid, list)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setUserColumnCollectToCache(uuid, list)
+		})()
 	}
 	return collectMap, nil
 }
@@ -2384,7 +2406,9 @@ func (r *columnRepo) getUserColumnSubscribeFromDb(ctx context.Context, uuid stri
 		subscribeMap[item.ColumnId] = true
 	}
 	if len(list) != 0 {
-		go r.setUserColumnSubscribeToCache(uuid, list)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setUserColumnSubscribeToCache(uuid, list)
+		})()
 	}
 	return subscribeMap, nil
 }
