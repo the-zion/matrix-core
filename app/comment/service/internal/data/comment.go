@@ -99,7 +99,9 @@ func (r *commentRepo) getUserCommentAgreeFromDb(ctx context.Context, uuid string
 		agreeMap[item.CommentId] = true
 	}
 	if len(list) != 0 {
-		go r.setUserCommentAgreeToCache(uuid, list)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setUserCommentAgreeToCache(uuid, list)
+		})()
 	}
 	return agreeMap, nil
 }
@@ -142,7 +144,9 @@ func (r *commentRepo) GetCommentUser(ctx context.Context, uuid string) (*biz.Com
 		return nil, err
 	}
 
-	go r.setCommentUserToCache(key, commentUser)
+	go r.data.Recover(context.Background(), func(ctx context.Context) {
+		r.setCommentUserToCache(key, commentUser)
+	})()
 
 	return commentUser, nil
 }
@@ -225,7 +229,9 @@ func (r *commentRepo) GetCommentList(ctx context.Context, page, creationId, crea
 
 	size = len(comment)
 	if size != 0 {
-		go r.setCommentToCache(creationId, creationType, comment)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setCommentToCache(creationId, creationType, comment)
+		})()
 	}
 	return comment, nil
 }
@@ -248,7 +254,9 @@ func (r *commentRepo) GetSubCommentList(ctx context.Context, page, id int32) ([]
 
 	size = len(subComment)
 	if size != 0 {
-		go r.setSubCommentToCache(id, subComment)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setSubCommentToCache(id, subComment)
+		})()
 	}
 	return subComment, nil
 }
@@ -407,7 +415,9 @@ func (r *commentRepo) GetCommentListHot(ctx context.Context, page, creationId, c
 
 	size = len(comment)
 	if size != 0 {
-		go r.setCommentHotToCache(creationId, creationType, comment)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setCommentHotToCache(creationId, creationType, comment)
+		})()
 	}
 	return comment, nil
 }
@@ -1562,7 +1572,9 @@ func (r *commentRepo) getCommentStatisticFromDb(ctx context.Context, unExists []
 	}
 
 	if len(list) != 0 {
-		go r.setCommentStatisticToCache(list)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setCommentStatisticToCache(list)
+		})()
 	}
 
 	return nil
@@ -1583,7 +1595,9 @@ func (r *commentRepo) getSubCommentStatisticFromDb(ctx context.Context, unExists
 	}
 
 	if len(list) != 0 {
-		go r.setSubCommentStatisticToCache(list)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setSubCommentStatisticToCache(list)
+		})()
 	}
 
 	return nil
@@ -1740,34 +1754,29 @@ func (r *commentRepo) SetCommentAgreeToCache(ctx context.Context, id, creationId
 	hotKey := fmt.Sprintf("comment_%v_%v_hot", creationId, creationType)
 	statisticKey := fmt.Sprintf("comment_%v", id)
 	userKey := fmt.Sprintf("user_comment_agree_%s", userUuid)
-	exists := make([]int64, 0)
-	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.Exists(ctx, hotKey)
-		pipe.Exists(ctx, statisticKey)
-		pipe.Exists(ctx, userKey)
-		return nil
-	})
-	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to check if cache about comment exist: id(%v), creationId(%v), creationType(%v), uuid(%s), userUuid(%s) ", id, creationId, creationType, uuid, userUuid))
-	}
 
-	for _, item := range cmd {
-		exist := item.(*redis.IntCmd).Val()
-		exists = append(exists, exist)
-	}
+	var script = redis.NewScript(`
+					local hotKey = KEYS[1]
+                    local member = ARGV[1]
+					local hotKeyExist = redis.call("EXISTS", hotKey)
+					if hotKeyExist == 1 then
+						redis.call("ZINCRBY", hotKey, 1, member)
+					end
 
-	_, err = r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		if exists[0] == 1 {
-			pipe.ZIncrBy(ctx, hotKey, 1, fmt.Sprintf("%v%s%s", id, "%", uuid))
-		}
-		if exists[1] == 1 {
-			pipe.HIncrBy(ctx, statisticKey, "agree", 1)
-		}
-		if exists[2] == 1 {
-			pipe.SAdd(ctx, userKey, id)
-		}
-		return nil
-	})
+					local statisticKey = KEYS[2]
+					local statisticKeyExist = redis.call("EXISTS", statisticKey)
+					if statisticKeyExist == 1 then
+						redis.call("HINCRBY", statisticKey, "agree", 1)
+					end
+
+					local userKey = KEYS[3]
+					local commentId = ARGV[2]
+					redis.call("SADD", userKey, commentId)
+					return 0
+	`)
+	keys := []string{hotKey, statisticKey, userKey}
+	values := []interface{}{fmt.Sprintf("%v%s%s", id, "%", uuid), id}
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to update(add) comment cache: id(%v), creationId(%v), creationType(%v), uuid(%s), userUuid(%s) ", id, creationId, creationType, uuid, userUuid))
 	}
@@ -1777,30 +1786,22 @@ func (r *commentRepo) SetCommentAgreeToCache(ctx context.Context, id, creationId
 func (r *commentRepo) SetSubCommentAgreeToCache(ctx context.Context, id int32, uuid, userUuid string) error {
 	statisticKey := fmt.Sprintf("comment_%v", id)
 	userKey := fmt.Sprintf("user_comment_agree_%s", userUuid)
-	exists := make([]int64, 0)
-	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.Exists(ctx, statisticKey)
-		pipe.Exists(ctx, userKey)
-		return nil
-	})
-	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to check if cache about sub comment exist: id(%v), uuid(%s), userUuid(%s) ", id, uuid, userUuid))
-	}
 
-	for _, item := range cmd {
-		exist := item.(*redis.IntCmd).Val()
-		exists = append(exists, exist)
-	}
+	var script = redis.NewScript(`
+					local statisticKey = KEYS[1]
+					local statisticKeyExist = redis.call("EXISTS", statisticKey)
+					if statisticKeyExist == 1 then
+						redis.call("HINCRBY", statisticKey, "agree", 1)
+					end
 
-	_, err = r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		if exists[0] == 1 {
-			pipe.HIncrBy(ctx, statisticKey, "agree", 1)
-		}
-		if exists[1] == 1 {
-			pipe.SAdd(ctx, userKey, id)
-		}
-		return nil
-	})
+					local userKey = KEYS[2]
+					local commentId = ARGV[1]
+					redis.call("SADD", userKey, commentId)
+					return 0
+	`)
+	keys := []string{statisticKey, userKey}
+	values := []interface{}{id}
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to update(add) sub comment cache: id(%v), uuid(%s), userUuid(%s) ", id, uuid, userUuid))
 	}
