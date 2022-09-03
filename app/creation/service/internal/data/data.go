@@ -115,6 +115,20 @@ func (d *Data) GroupRecover(ctx context.Context, fn func(ctx context.Context) er
 	}
 }
 
+func (d *Data) Recover(ctx context.Context, fn func(ctx context.Context)) func() {
+	return func() {
+		defer func() {
+			if rerr := recover(); rerr != nil {
+				buf := make([]byte, 64<<10)
+				n := runtime.Stack(buf, false)
+				buf = buf[:n]
+				log.Context(ctx).Errorf("%v: %s\n", rerr, buf)
+			}
+		}()
+		fn(ctx)
+	}
+}
+
 func NewRecovery(d *Data) biz.Recovery {
 	return d
 }
