@@ -461,7 +461,9 @@ func (r *achievementRepo) getAchievementListFromDb(ctx context.Context, unExists
 	}
 
 	if len(list) != 0 {
-		go r.setAchievementListToCache(list)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setAchievementListToCache(list)
+		})()
 	}
 	return nil
 }
@@ -507,7 +509,9 @@ func (r *achievementRepo) GetUserAchievement(ctx context.Context, uuid string) (
 		return nil, err
 	}
 
-	go r.setAchievementToCache(key, achievement)
+	go r.data.Recover(context.Background(), func(ctx context.Context) {
+		r.setAchievementToCache(key, achievement)
+	})()
 
 	return achievement, nil
 }
@@ -594,7 +598,9 @@ func (r *achievementRepo) GetUserMedal(ctx context.Context, uuid string) (*biz.M
 		return nil, err
 	}
 
-	go r.setMedalToCache(key, medal)
+	go r.data.Recover(context.Background(), func(ctx context.Context) {
+		r.setMedalToCache(key, medal)
+	})()
 
 	return medal, nil
 }
@@ -732,7 +738,9 @@ func (r *achievementRepo) GetUserActive(ctx context.Context, uuid string) (*biz.
 		return nil, err
 	}
 
-	go r.setActiveToCache(key, active)
+	go r.data.Recover(context.Background(), func(ctx context.Context) {
+		r.setActiveToCache(key, active)
+	})()
 
 	return active, nil
 }
