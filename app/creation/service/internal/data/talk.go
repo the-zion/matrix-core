@@ -66,7 +66,9 @@ func (r *talkRepo) GetTalkList(ctx context.Context, page int32) ([]*biz.Talk, er
 
 	size = len(talk)
 	if size != 0 {
-		go r.setTalkToCache("talk", talk)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setTalkToCache("talk", talk)
+		})()
 	}
 	return talk, nil
 }
@@ -89,7 +91,9 @@ func (r *talkRepo) GetTalkListHot(ctx context.Context, page int32) ([]*biz.TalkS
 
 	size = len(talk)
 	if size != 0 {
-		go r.setTalkHotToCache("talk_hot", talk)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setTalkHotToCache("talk_hot", talk)
+		})()
 	}
 	return talk, nil
 }
@@ -112,7 +116,9 @@ func (r *talkRepo) GetUserTalkList(ctx context.Context, page int32, uuid string)
 
 	size = len(talk)
 	if size != 0 {
-		go r.setUserTalkListToCache("user_talk_list_"+uuid, talk)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setUserTalkListToCache("user_talk_list_"+uuid, talk)
+		})()
 	}
 	return talk, nil
 }
@@ -181,7 +187,9 @@ func (r *talkRepo) GetUserTalkListVisitor(ctx context.Context, page int32, uuid 
 
 	size = len(talk)
 	if size != 0 {
-		go r.setUserTalkListToCache("user_talk_list_visitor_"+uuid, talk)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setUserTalkListToCache("user_talk_list_visitor_"+uuid, talk)
+		})()
 	}
 	return talk, nil
 }
@@ -505,7 +513,9 @@ func (r *talkRepo) getTalkListStatisticFromDb(ctx context.Context, unExists []in
 	}
 
 	if len(list) != 0 {
-		go r.setTalkListStatisticToCache(list)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setTalkListStatisticToCache(list)
+		})()
 	}
 
 	return nil
@@ -553,7 +563,9 @@ func (r *talkRepo) GetTalkStatistic(ctx context.Context, id int32, uuid string) 
 		return nil, err
 	}
 
-	go r.setTalkStatisticToCache(key, statistic)
+	go r.data.Recover(context.Background(), func(ctx context.Context) {
+		r.setTalkStatisticToCache(key, statistic)
+	})()
 
 	if statistic.Auth == 2 && statistic.Uuid != uuid {
 		return nil, errors.Errorf("fail to get talk statistic from cache: no auth")
@@ -831,7 +843,9 @@ func (r *talkRepo) getUserTalkAgreeFromDb(ctx context.Context, uuid string) (map
 		agreeMap[item.TalkId] = true
 	}
 	if len(list) != 0 {
-		go r.setUserTalkAgreeToCache(uuid, list)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setUserTalkAgreeToCache(uuid, list)
+		})()
 	}
 	return agreeMap, nil
 }
@@ -904,7 +918,9 @@ func (r *talkRepo) getUserTalkCollectFromDb(ctx context.Context, uuid string) (m
 		collectMap[item.TalkId] = true
 	}
 	if len(list) != 0 {
-		go r.setUserTalkCollectToCache(uuid, list)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setUserTalkCollectToCache(uuid, list)
+		})()
 	}
 	return collectMap, nil
 }
@@ -1069,7 +1085,7 @@ func (r *talkRepo) DeleteTalkCache(ctx context.Context, id, auth int32, uuid str
 						end
 					end
 
-                    if auth == 2 then
+                    if auth == "2" then
 						return 0
 					end
 
@@ -1173,83 +1189,83 @@ func (r *talkRepo) SendTalkToMq(ctx context.Context, talk *biz.Talk, mode string
 }
 
 func (r *talkRepo) CreateTalkCache(ctx context.Context, id, auth int32, uuid, mode string) error {
-	exists := make([]int32, 0)
-	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.Exists(ctx, "talk")
-		pipe.Exists(ctx, "talk_hot")
-		pipe.Exists(ctx, "leaderboard")
-		pipe.Exists(ctx, "user_talk_list_"+uuid)
-		pipe.Exists(ctx, "user_talk_list_visitor_"+uuid)
-		pipe.Exists(ctx, "creation_user_"+uuid)
-		pipe.Exists(ctx, "creation_user_visitor_"+uuid)
-		return nil
-	})
-	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to check if talk exist from cache: id(%v),uuid(%s)", id, uuid))
-	}
-
-	for _, item := range cmd {
-		exist := item.(*redis.IntCmd).Val()
-		exists = append(exists, int32(exist))
-	}
-
 	ids := strconv.Itoa(int(id))
-	_, err = r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.HSetNX(ctx, "talk_"+ids, "uuid", uuid)
-		pipe.HSetNX(ctx, "talk_"+ids, "agree", 0)
-		pipe.HSetNX(ctx, "talk_"+ids, "collect", 0)
-		pipe.HSetNX(ctx, "talk_"+ids, "view", 0)
-		pipe.HSetNX(ctx, "talk_"+ids, "comment", 0)
-		pipe.HSetNX(ctx, "talk_"+ids, "auth", auth)
+	talkStatistic := "talk_" + ids
+	talk := "talk"
+	talkHot := "talk_hot"
+	leaderboard := "leaderboard"
+	userTalkList := "user_talk_list_" + uuid
+	userTalkListVisitor := "user_talk_list_visitor_" + uuid
+	creationUser := "creation_user_" + uuid
+	creationUserVisitor := "creation_user_visitor_" + uuid
+	var script = redis.NewScript(`
+					local talkStatistic = KEYS[1]
+					local talk = KEYS[2]
+					local talkHot = KEYS[3]
+					local leaderboard = KEYS[4]
+					local userTalkList = KEYS[5]
+					local userTalkListVisitor = KEYS[6]
+					local creationUser = KEYS[7]
+					local creationUserVisitor = KEYS[8]
 
-		if exists[3] == 1 {
-			pipe.ZAddNX(ctx, "user_talk_list_"+uuid, &redis.Z{
-				Score:  float64(id),
-				Member: ids + "%" + uuid,
-			})
-		}
+					local uuid = ARGV[1]
+					local auth = ARGV[2]
+					local id = ARGV[3]
+					local member = ARGV[4]
+					local mode = ARGV[5]
+					local member2 = ARGV[6]
 
-		if exists[5] == 1 && mode == "create" {
-			pipe.HIncrBy(ctx, "creation_user_"+uuid, "talk", 1)
-		}
+					local userTalkListExist = redis.call("EXISTS", userTalkList)
+					local creationUserExist = redis.call("EXISTS", creationUser)
+					local talkExist = redis.call("EXISTS", talk)
+					local talkHotExist = redis.call("EXISTS", talkHot)
+					local leaderboardExist = redis.call("EXISTS", leaderboard)
+					local userTalkListVisitorExist = redis.call("EXISTS", userTalkListVisitor)
+					local creationUserVisitorExist = redis.call("EXISTS", creationUserVisitor)
 
-		if auth == 2 {
-			return nil
-		}
+					redis.call("HSETNX", talkStatistic, "uuid", uuid)
+					redis.call("HSETNX", talkStatistic, "agree", 0)
+					redis.call("HSETNX", talkStatistic, "collect", 0)
+					redis.call("HSETNX", talkStatistic, "view", 0)
+					redis.call("HSETNX", talkStatistic, "comment", 0)
+					redis.call("HSETNX", talkStatistic, "auth", auth)
 
-		if exists[0] == 1 {
-			pipe.ZAddNX(ctx, "talk", &redis.Z{
-				Score:  float64(id),
-				Member: ids + "%" + uuid,
-			})
-		}
+					if userTalkListExist == 1 then
+						redis.call("ZADD", userTalkList, id, member)
+					end
 
-		if exists[1] == 1 {
-			pipe.ZAddNX(ctx, "talk_hot", &redis.Z{
-				Score:  0,
-				Member: ids + "%" + uuid,
-			})
-		}
+					if (creationUserExist == 1) and (mode == "create") then
+						redis.call("HINCRBY", creationUser, "talk", 1)
+					end
 
-		if exists[2] == 1 {
-			pipe.ZAddNX(ctx, "leaderboard", &redis.Z{
-				Score:  0,
-				Member: ids + "%" + uuid + "%talk",
-			})
-		}
+					if auth == "2" then
+						return 0
+					end
 
-		if exists[4] == 1 {
-			pipe.ZAddNX(ctx, "user_talk_list_visitor_"+uuid, &redis.Z{
-				Score:  0,
-				Member: ids + "%" + uuid + "%talk",
-			})
-		}
+					if talkExist == 1 then
+						redis.call("ZADD", talk, id, member)
+					end
 
-		if exists[6] == 1 && mode == "create" {
-			pipe.HIncrBy(ctx, "creation_user_visitor_"+uuid, "talk", 1)
-		}
-		return nil
-	})
+					if talkHotExist == 1 then
+						redis.call("ZADD", talkHot, id, member)
+					end
+
+					if leaderboardExist == 1 then
+						redis.call("ZADD", leaderboard, 0, member2)
+					end
+
+					if userTalkListVisitorExist == 1 then
+						redis.call("ZADD", userTalkListVisitor, id, member)
+					end
+
+					if (creationUserVisitorExist == 1) and (mode == "create") then
+						redis.call("HINCRBY", creationUserVisitor, "talk", 1)
+					end
+					return 0
+	`)
+	keys := []string{talkStatistic, talk, talkHot, leaderboard, userTalkList, userTalkListVisitor, creationUser, creationUserVisitor}
+	values := []interface{}{uuid, auth, id, ids + "%" + uuid, mode, ids + "%" + uuid + "%talk"}
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to create(update) talk cache: uuid(%s), id(%v)", uuid, id))
 	}
@@ -1302,38 +1318,41 @@ func (r *talkRepo) SetTalkAgreeToCache(ctx context.Context, id int32, uuid, user
 	statisticKey := fmt.Sprintf("talk_%v", id)
 	boardKey := fmt.Sprintf("leaderboard")
 	userKey := fmt.Sprintf("user_talk_agree_%s", userUuid)
-	exists := make([]int64, 0)
-	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.Exists(ctx, hotKey)
-		pipe.Exists(ctx, statisticKey)
-		pipe.Exists(ctx, boardKey)
-		pipe.Exists(ctx, userKey)
-		return nil
-	})
-	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to check if cache about user talk agree exist: id(%v), uuid(%s), userUuid(%s) ", id, uuid, userUuid))
-	}
+	var script = redis.NewScript(`
+					local hotKey = KEYS[1]
+					local statisticKey = KEYS[2]
+					local boardKey = KEYS[3]
+					local userKey = KEYS[4]
 
-	for _, item := range cmd {
-		exist := item.(*redis.IntCmd).Val()
-		exists = append(exists, exist)
-	}
+					local member1 = ARGV[1]
+					local member2 = ARGV[2]
+					local id = ARGV[3]
 
-	_, err = r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		if exists[0] == 1 {
-			pipe.ZIncrBy(ctx, hotKey, 1, fmt.Sprintf("%v%s%s", id, "%", uuid))
-		}
-		if exists[1] == 1 {
-			pipe.HIncrBy(ctx, statisticKey, "agree", 1)
-		}
-		if exists[2] == 1 {
-			pipe.ZIncrBy(ctx, boardKey, 1, fmt.Sprintf("%v%s%s%s", id, "%", uuid, "%talk"))
-		}
-		if exists[3] == 1 {
-			pipe.SAdd(ctx, userKey, id)
-		}
-		return nil
-	})
+					local hotKeyExist = redis.call("EXISTS", hotKey)
+					local statisticKeyExist = redis.call("EXISTS", statisticKey)
+					local boardKeyExist = redis.call("EXISTS", boardKey)
+					local userKeyExist = redis.call("EXISTS", userKey)
+
+					if hotKeyExist == 1 then
+						redis.call("ZINCRBY", hotKey, 1, member1)
+					end
+
+					if statisticKeyExist == 1 then
+						redis.call("HINCRBY", statisticKey, "talk", 1)
+					end
+
+					if boardKeyExist == 1 then
+						redis.call("ZINCRBY", boardKey, 1, member2)
+					end
+
+					if userKeyExist == 1 then
+						redis.call("SADD", userKey, id)
+					end
+					return 0
+	`)
+	keys := []string{hotKey, statisticKey, boardKey, userKey}
+	values := []interface{}{fmt.Sprintf("%v%s%s", id, "%", uuid), fmt.Sprintf("%v%s%s%s", id, "%", uuid, "%talk"), id}
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to add user talk agree to cache: id(%v), uuid(%s), userUuid(%s)", id, uuid, userUuid))
 	}
@@ -1562,45 +1581,45 @@ func (r *talkRepo) SetTalkCollectToCache(ctx context.Context, id, collectionsId 
 	collectionsKey := fmt.Sprintf("collections_%v", collectionsId)
 	creationKey := fmt.Sprintf("creation_user_%s", userUuid)
 	userKey := fmt.Sprintf("user_talk_collect_%s", userUuid)
-	exists := make([]int64, 0)
-	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.Exists(ctx, statisticKey)
-		pipe.Exists(ctx, collectKey)
-		pipe.Exists(ctx, collectionsKey)
-		pipe.Exists(ctx, creationKey)
-		pipe.Exists(ctx, userKey)
-		return nil
-	})
-	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to check if cache about user talk collect exist: id(%v), collectionsId(%v), uuid(%s), userUuid(%s) ", id, collectionsId, uuid, userUuid))
-	}
+	var script = redis.NewScript(`
+					local statisticKey = KEYS[1]
+					local collectKey = KEYS[2]
+					local collectionsKey = KEYS[3]
+					local creationKey = KEYS[4]
+					local userKey = KEYS[5]
 
-	for _, item := range cmd {
-		exist := item.(*redis.IntCmd).Val()
-		exists = append(exists, exist)
-	}
+					local member = ARGV[1]
 
-	_, err = r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		if exists[0] == 1 {
-			pipe.HIncrBy(ctx, statisticKey, "collect", 1)
-		}
-		if exists[1] == 1 {
-			pipe.ZAddNX(ctx, collectKey, &redis.Z{
-				Score:  0,
-				Member: fmt.Sprintf("%v%s%s", id, "%", uuid),
-			})
-		}
-		if exists[2] == 1 {
-			pipe.HIncrBy(ctx, collectionsKey, "talk", 1)
-		}
-		if exists[3] == 1 {
-			pipe.HIncrBy(ctx, creationKey, "collect", 1)
-		}
-		if exists[4] == 1 {
-			pipe.SAdd(ctx, userKey, id)
-		}
-		return nil
-	})
+					local statisticKeyExist = redis.call("EXISTS", statisticKey)
+					local collectKeyExist = redis.call("EXISTS", collectKey)
+					local collectionsKeyExist = redis.call("EXISTS", collectionsKey)
+					local creationKeyExist = redis.call("EXISTS", creationKey)
+					local userKeyExist = redis.call("EXISTS", userKey)
+					
+					if statisticKeyExist == 1 then
+						redis.call("HINCRBY", statisticKey, "collect", 1)
+					end
+
+					if collectKeyExist == 1 then
+						redis.call("ZADD", collectKey, 0, member)
+					end
+
+					if collectionsKeyExist == 1 then
+						redis.call("HINCRBY", collectionsKey, "talk", 1)
+					end
+
+					if creationKeyExist == 1 then
+						redis.call("HINCRBY", creationKey, "collect", 1)
+					end
+
+					if userKeyExist == 1 then
+						redis.call("SADD", userKey, id)
+					end
+					return 0
+	`)
+	keys := []string{statisticKey, collectKey, collectionsKey, creationKey, userKey}
+	values := []interface{}{fmt.Sprintf("%v%s%s", id, "%", uuid)}
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to add talk collect to cache: id(%v), collectionsId(%v), uuid(%s), userUuid(%s)", id, collectionsId, uuid, userUuid))
 	}
@@ -1910,16 +1929,17 @@ func (r *talkRepo) AddTalkComment(ctx context.Context, id int32) error {
 
 func (r *talkRepo) AddTalkCommentToCache(ctx context.Context, id int32, uuid string) error {
 	key := "talk_" + strconv.Itoa(int(id))
-	exist, err := r.data.redisCli.Exists(ctx, key).Result()
-	if err != nil {
-		r.log.Errorf("fail to check if talk statistic exist from cache: id(%v), uuid(%s)", id, uuid)
-	}
-
-	if exist == 0 {
-		return nil
-	}
-
-	_, err = r.data.redisCli.HIncrBy(ctx, key, "comment", 1).Result()
+	var script = redis.NewScript(`
+					local key = KEYS[1]
+					local keyExist = redis.call("EXISTS", key)
+					if keyExist == 1 then
+						redis.call("HINCRBY", key, "comment", 1)
+					end
+					return 0
+	`)
+	keys := []string{key}
+	var values []interface{}
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
 		r.log.Errorf("fail to add talk comment to cache: id(%v), uuid(%s)", id, uuid)
 	}
