@@ -200,7 +200,9 @@ func (r *userRepo) getProfileListFromDb(ctx context.Context, unExists []string, 
 	}
 
 	if len(list) != 0 {
-		go r.setProfileListToCache(list)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setProfileListToCache(list)
+		})()
 	}
 	return nil
 }
@@ -265,7 +267,9 @@ func (r *userRepo) GetFollowList(ctx context.Context, page int32, uuid string) (
 
 	size = len(follow)
 	if size != 0 {
-		go r.setFollowToCache(uuid, follow)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setFollowToCache(uuid, follow)
+		})()
 	}
 	return follow, nil
 }
@@ -358,7 +362,9 @@ func (r *userRepo) GetFollowedList(ctx context.Context, page int32, uuid string)
 
 	size = len(followed)
 	if size != 0 {
-		go r.setFollowedToCache(uuid, followed)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setFollowedToCache(uuid, followed)
+		})()
 	}
 	return followed, nil
 }
@@ -704,7 +710,9 @@ func (r *userRepo) GetUserFollows(ctx context.Context, uuid string) ([]string, e
 
 	size = len(follows)
 	if size != 0 {
-		go r.setUserFollowsToCache(uuid, follows)
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setUserFollowsToCache(uuid, follows)
+		})()
 	}
 	return follows, nil
 }
