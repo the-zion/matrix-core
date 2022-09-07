@@ -36,9 +36,9 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, re
 		return nil, nil, err
 	}
 	userRepo := data.NewUserRepo(dataData, logger)
-	userUseCase := biz.NewUserUseCase(userRepo, logger)
-	creationRepo := data.NewCreationRepo(dataData, logger)
 	bizJwt := data.NewJwt(dataData)
+	userUseCase := biz.NewUserUseCase(userRepo, bizJwt, logger)
+	creationRepo := data.NewCreationRepo(dataData, logger)
 	creationUseCase := biz.NewCreationUseCase(creationRepo, bizJwt, logger)
 	achievementRepo := data.NewAchievementRepo(dataData, logger)
 	commentRepo := data.NewCommentRepo(dataData, logger)
