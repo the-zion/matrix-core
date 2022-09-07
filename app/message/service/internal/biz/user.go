@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"github.com/apache/rocketmq-client-go/v2/primitive"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/pkg/errors"
 )
 
 type UserRepo interface {
 	SendCode(msgs ...*primitive.MessageExt)
+	AvatarIrregular(ctx context.Context, review *AvatarReview, uuid string) error
 	UploadProfileToCos(msg *primitive.MessageExt) error
 	ProfileReviewPass(ctx context.Context, uuid, update string) error
 	ProfileReviewNotPass(ctx context.Context, uuid string) error
@@ -18,12 +20,14 @@ type UserRepo interface {
 
 type UserUseCase struct {
 	repo UserRepo
+	jwt  Jwt
 	log  *log.Helper
 }
 
-func NewUserUseCase(repo UserRepo, logger log.Logger) *UserUseCase {
+func NewUserUseCase(repo UserRepo, jwt Jwt, logger log.Logger) *UserUseCase {
 	return &UserUseCase{
 		repo: repo,
+		jwt:  jwt,
 		log:  log.NewHelper(log.With(logger, "module", "message/biz/userUseCase")),
 	}
 }
@@ -37,7 +41,33 @@ func (r *UserUseCase) UploadProfileToCos(msg *primitive.MessageExt) error {
 }
 
 func (r *UserUseCase) AvatarReview(ctx context.Context, ar *AvatarReview) error {
-	fmt.Println(ar)
+	var err error
+	var token string
+	var ok bool
+
+	if token, ok = ar.CosHeaders["x-cos-meta-token"]; !ok || token == "" {
+		r.log.Info("token not exist，%v", ar)
+		return nil
+	}
+
+	uuid, err := r.jwt.JwtCheck(token)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to get uuid from token: %s", token))
+	}
+
+	if ar.State != "Success" {
+		r.log.Info("avatar upload review failed，%v", ar)
+		return nil
+	}
+
+	if ar.Result == 0 {
+		return nil
+	} else {
+		err = r.repo.AvatarIrregular(ctx, ar, uuid)
+	}
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
