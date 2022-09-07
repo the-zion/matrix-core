@@ -6,9 +6,12 @@ type AvatarReview struct {
 	JobId      string
 	State      string
 	Object     string
+	Url        string
 	Label      string
 	Result     int32
+	Score      int32
 	Category   string
+	SubLabel   string
 	BucketId   string
 	Region     string
 	CosHeaders map[string]string
@@ -21,9 +24,12 @@ type CoverReview struct {
 	JobId      string
 	State      string
 	Object     string
+	Url        string
 	Label      string
 	Result     int32
+	Score      int32
 	Category   string
+	SubLabel   string
 	BucketId   string
 	Region     string
 	CosHeaders map[string]string
