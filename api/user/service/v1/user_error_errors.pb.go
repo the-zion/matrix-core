@@ -311,6 +311,18 @@ func ErrorSetImageFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, UserErrorReason_SET_IMAGE_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsSetAvatarIrregularFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_SET_AVATAR_IRREGULAR_FAILED.String() && e.Code == 500
+}
+
+func ErrorSetAvatarIrregularFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, UserErrorReason_SET_AVATAR_IRREGULAR_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsCancelFollowFailed(err error) bool {
 	if err == nil {
 		return false
