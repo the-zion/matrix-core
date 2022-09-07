@@ -1513,6 +1513,17 @@ func (m *AvatarReviewReq_JobsDetailStruct) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
+	if utf8.RuneCountInString(m.GetUrl()) > 1000 {
+		err := AvatarReviewReq_JobsDetailStructValidationError{
+			field:  "Url",
+			reason: "value length must be at most 1000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
 	if utf8.RuneCountInString(m.GetLabel()) > 1000 {
 		err := AvatarReviewReq_JobsDetailStructValidationError{
 			field:  "Label",
@@ -1526,9 +1537,22 @@ func (m *AvatarReviewReq_JobsDetailStruct) validate(all bool) error {
 
 	// no validation rules for Result
 
+	// no validation rules for Score
+
 	if utf8.RuneCountInString(m.GetCategory()) > 1000 {
 		err := AvatarReviewReq_JobsDetailStructValidationError{
 			field:  "Category",
+			reason: "value length must be at most 1000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetSubLabel()) > 1000 {
+		err := AvatarReviewReq_JobsDetailStructValidationError{
+			field:  "SubLabel",
 			reason: "value length must be at most 1000 runes",
 		}
 		if !all {
@@ -1755,6 +1779,17 @@ func (m *CoverReviewReq_JobsDetailStruct) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
+	if utf8.RuneCountInString(m.GetUrl()) > 1000 {
+		err := CoverReviewReq_JobsDetailStructValidationError{
+			field:  "Url",
+			reason: "value length must be at most 1000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
 	if utf8.RuneCountInString(m.GetLabel()) > 1000 {
 		err := CoverReviewReq_JobsDetailStructValidationError{
 			field:  "Label",
@@ -1768,9 +1803,22 @@ func (m *CoverReviewReq_JobsDetailStruct) validate(all bool) error {
 
 	// no validation rules for Result
 
+	// no validation rules for Score
+
 	if utf8.RuneCountInString(m.GetCategory()) > 1000 {
 		err := CoverReviewReq_JobsDetailStructValidationError{
 			field:  "Category",
+			reason: "value length must be at most 1000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetSubLabel()) > 1000 {
+		err := CoverReviewReq_JobsDetailStructValidationError{
+			field:  "SubLabel",
 			reason: "value length must be at most 1000 runes",
 		}
 		if !all {
