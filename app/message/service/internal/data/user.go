@@ -108,6 +108,23 @@ func (r *userRepo) SendCode(msgs ...*primitive.MessageExt) {
 	}
 }
 
+func (r *userRepo) AvatarIrregular(ctx context.Context, review *biz.AvatarReview, uuid string) error {
+	_, err := r.data.uc.AvatarIrregular(ctx, &userV1.AvatarIrregularReq{
+		Uuid:     uuid,
+		JobId:    review.JobId,
+		Url:      review.Url,
+		Label:    review.Label,
+		Result:   review.Result,
+		Score:    review.Score,
+		Category: review.Category,
+		SubLabel: review.SubLabel,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *userRepo) SetFollowDbAndCache(ctx context.Context, uuid, userId string) error {
 	_, err := r.data.uc.SetFollowDbAndCache(ctx, &userV1.SetFollowDbAndCacheReq{
 		Uuid:     uuid,
