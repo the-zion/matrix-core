@@ -109,12 +109,15 @@ message AvatarReviewReq{
     string JobId = 3 [(validate.rules).string = {max_len: 1000}];
     string State = 4 [(validate.rules).string = {max_len: 1000}];
     string Object = 5 [(validate.rules).string = {max_len: 1000}];
-    string Label = 6 [(validate.rules).string = {max_len: 1000}];
-    int32 Result = 7;
-    string Category = 8 [(validate.rules).string = {max_len: 1000}];
-    string BucketId = 9 [(validate.rules).string = {max_len: 1000}];
-    string Region = 10 [(validate.rules).string = {max_len: 1000}];
-    map<string, string> CosHeaders = 11 [(validate.rules).map.values.string.max_len = 1000, (validate.rules).map.keys.string.max_len = 1000];
+    string Url = 6 [(validate.rules).string = {max_len: 1000}];
+    string Label = 7 [(validate.rules).string = {max_len: 1000}];
+    int32 Result = 8;
+    int32 Score = 9;
+    string Category = 10 [(validate.rules).string = {max_len: 1000}];
+    string SubLabel = 11 [(validate.rules).string = {max_len: 1000}];
+    string BucketId = 12 [(validate.rules).string = {max_len: 1000}];
+    string Region = 13 [(validate.rules).string = {max_len: 1000}];
+    map<string, string> CosHeaders = 14 [(validate.rules).map.values.string.max_len = 1000, (validate.rules).map.keys.string.max_len = 1000];
   }
   JobsDetailStruct JobsDetail = 1;
   string EventName = 2 [(validate.rules).string = {max_len: 1000}];
@@ -127,12 +130,15 @@ message CoverReviewReq{
     string JobId = 3 [(validate.rules).string = {max_len: 1000}];
     string State = 4 [(validate.rules).string = {max_len: 1000}];
     string Object = 5 [(validate.rules).string = {max_len: 1000}];
-    string Label = 6 [(validate.rules).string = {max_len: 1000}];
-    int32 Result = 7;
-    string Category = 8 [(validate.rules).string = {max_len: 1000}];
-    string BucketId = 9 [(validate.rules).string = {max_len: 1000}];
-    string Region = 10 [(validate.rules).string = {max_len: 1000}];
-    map<string, string> CosHeaders = 11 [(validate.rules).map.values.string.max_len = 1000, (validate.rules).map.keys.string.max_len = 1000];
+    string Url = 6 [(validate.rules).string = {max_len: 1000}];
+    string Label = 7 [(validate.rules).string = {max_len: 1000}];
+    int32 Result = 8;
+    int32 Score = 9;
+    string Category = 10 [(validate.rules).string = {max_len: 1000}];
+    string SubLabel = 11 [(validate.rules).string = {max_len: 1000}];
+    string BucketId = 12 [(validate.rules).string = {max_len: 1000}];
+    string Region = 13 [(validate.rules).string = {max_len: 1000}];
+    map<string, string> CosHeaders = 14 [(validate.rules).map.values.string.max_len = 1000, (validate.rules).map.keys.string.max_len = 1000];
   }
   JobsDetailStruct JobsDetail = 1;
   string EventName = 2 [(validate.rules).string = {max_len: 1000}];
