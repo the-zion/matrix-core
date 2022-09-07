@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserClient interface {
 	UserRegister(ctx context.Context, in *UserRegisterReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AvatarIrregular(ctx context.Context, in *AvatarIrregularReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	LoginByPassword(ctx context.Context, in *LoginByPasswordReq, opts ...grpc.CallOption) (*LoginReply, error)
 	LoginByCode(ctx context.Context, in *LoginByCodeReq, opts ...grpc.CallOption) (*LoginReply, error)
 	LoginByWeChat(ctx context.Context, in *LoginByWeChatReq, opts ...grpc.CallOption) (*LoginReply, error)
@@ -69,6 +70,15 @@ func NewUserClient(cc grpc.ClientConnInterface) UserClient {
 func (c *userClient) UserRegister(ctx context.Context, in *UserRegisterReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/user.v1.User/UserRegister", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) AvatarIrregular(ctx context.Context, in *AvatarIrregularReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/user.v1.User/AvatarIrregular", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -368,6 +378,7 @@ func (c *userClient) UnbindUserEmail(ctx context.Context, in *UnbindUserEmailReq
 // for forward compatibility
 type UserServer interface {
 	UserRegister(context.Context, *UserRegisterReq) (*emptypb.Empty, error)
+	AvatarIrregular(context.Context, *AvatarIrregularReq) (*emptypb.Empty, error)
 	LoginByPassword(context.Context, *LoginByPasswordReq) (*LoginReply, error)
 	LoginByCode(context.Context, *LoginByCodeReq) (*LoginReply, error)
 	LoginByWeChat(context.Context, *LoginByWeChatReq) (*LoginReply, error)
@@ -409,6 +420,9 @@ type UnimplementedUserServer struct {
 
 func (UnimplementedUserServer) UserRegister(context.Context, *UserRegisterReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UserRegister not implemented")
+}
+func (UnimplementedUserServer) AvatarIrregular(context.Context, *AvatarIrregularReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AvatarIrregular not implemented")
 }
 func (UnimplementedUserServer) LoginByPassword(context.Context, *LoginByPasswordReq) (*LoginReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoginByPassword not implemented")
@@ -533,6 +547,24 @@ func _User_UserRegister_Handler(srv interface{}, ctx context.Context, dec func(i
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServer).UserRegister(ctx, req.(*UserRegisterReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_AvatarIrregular_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AvatarIrregularReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).AvatarIrregular(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/AvatarIrregular",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).AvatarIrregular(ctx, req.(*AvatarIrregularReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1123,6 +1155,10 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UserRegister",
 			Handler:    _User_UserRegister_Handler,
+		},
+		{
+			MethodName: "AvatarIrregular",
+			Handler:    _User_AvatarIrregular_Handler,
 		},
 		{
 			MethodName: "LoginByPassword",

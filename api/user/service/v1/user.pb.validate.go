@@ -186,6 +186,187 @@ var _UserRegisterReq_Email_Pattern = regexp.MustCompile("\\w+([-+.]\\w+)*@\\w+([
 
 var _UserRegisterReq_Code_Pattern = regexp.MustCompile("^[0-9]+$")
 
+// Validate checks the field values on AvatarIrregularReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AvatarIrregularReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AvatarIrregularReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AvatarIrregularReqMultiError, or nil if none found.
+func (m *AvatarIrregularReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AvatarIrregularReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = AvatarIrregularReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetJobId()) > 1000 {
+		err := AvatarIrregularReqValidationError{
+			field:  "JobId",
+			reason: "value length must be at most 1000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetUrl()) > 1000 {
+		err := AvatarIrregularReqValidationError{
+			field:  "Url",
+			reason: "value length must be at most 1000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetLabel()) > 1000 {
+		err := AvatarIrregularReqValidationError{
+			field:  "Label",
+			reason: "value length must be at most 1000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for Result
+
+	// no validation rules for Score
+
+	if utf8.RuneCountInString(m.GetCategory()) > 1000 {
+		err := AvatarIrregularReqValidationError{
+			field:  "Category",
+			reason: "value length must be at most 1000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetSubLabel()) > 1000 {
+		err := AvatarIrregularReqValidationError{
+			field:  "SubLabel",
+			reason: "value length must be at most 1000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return AvatarIrregularReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *AvatarIrregularReq) _validateUuid(uuid string) error {
+	if matched := _user_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// AvatarIrregularReqMultiError is an error wrapping multiple validation errors
+// returned by AvatarIrregularReq.ValidateAll() if the designated constraints
+// aren't met.
+type AvatarIrregularReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AvatarIrregularReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AvatarIrregularReqMultiError) AllErrors() []error { return m }
+
+// AvatarIrregularReqValidationError is the validation error returned by
+// AvatarIrregularReq.Validate if the designated constraints aren't met.
+type AvatarIrregularReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AvatarIrregularReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AvatarIrregularReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AvatarIrregularReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AvatarIrregularReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AvatarIrregularReqValidationError) ErrorName() string {
+	return "AvatarIrregularReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AvatarIrregularReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAvatarIrregularReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AvatarIrregularReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AvatarIrregularReqValidationError{}
+
 // Validate checks the field values on LoginByPasswordReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
