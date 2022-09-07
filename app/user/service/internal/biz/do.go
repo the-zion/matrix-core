@@ -1,6 +1,8 @@
 package biz
 
-import "time"
+import (
+	"time"
+)
 
 type User struct {
 	Uuid     string
@@ -56,4 +58,16 @@ type Follow struct {
 type Follows struct {
 	Uuid   string
 	Follow int32
+}
+
+type AvatarReview struct {
+	Id       int32
+	Uuid     string
+	JobId    string
+	Url      string
+	Label    string
+	Result   int32
+	Category string
+	SubLabel string
+	Score    int32
 }
