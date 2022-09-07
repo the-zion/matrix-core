@@ -739,6 +739,48 @@ func (r *userRepo) getUserFollowsFromDB(ctx context.Context, uuid string) ([]str
 	return follows, nil
 }
 
+func (r *userRepo) SetAvatarIrregular(ctx context.Context, review *biz.AvatarReview) (*biz.AvatarReview, error) {
+	ar := &AvatarReview{
+		Uuid:     review.Uuid,
+		JobId:    review.JobId,
+		Url:      review.Url,
+		Label:    review.Label,
+		Result:   review.Result,
+		Category: review.Category,
+		SubLabel: review.SubLabel,
+		Score:    review.Score,
+	}
+	err := r.data.DB(ctx).Select("Uuid", "JobId", "Url", "Label", "Result", "Category", "SubLabel", "Score").Create(ar).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to add avatar review record: review(%v)", review))
+	}
+	review.Id = int32(ar.ID)
+	return review, nil
+}
+
+func (r *userRepo) SetAvatarIrregularToCache(ctx context.Context, review *biz.AvatarReview) error {
+	marshal, err := json.Marshal(review)
+	if err != nil {
+		r.log.Errorf("fail to set avatar irregular to json: json.Marshal(%v), error(%v)", review, err)
+	}
+	var script = redis.NewScript(`
+					local key = KEYS[1]
+					local value = ARGV[1]
+					local exist = redis.call("EXISTS", key)
+					if exist == 1 then
+						redis.call("LPUSH", key, value)
+					end
+					return 0
+	`)
+	keys := []string{"avatar_irregular" + review.Uuid}
+	values := []interface{}{marshal}
+	_, err = script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to set avatar irregular to cache: review(%v)", review))
+	}
+	return nil
+}
+
 func (r *userRepo) setUserFollowsToCache(uuid string, follows []string) {
 	members := make([]interface{}, 0)
 	ctx := context.Background()
