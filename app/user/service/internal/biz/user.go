@@ -21,6 +21,8 @@ type UserRepo interface {
 	GetFollowedListCount(ctx context.Context, uuid string) (int32, error)
 	GetUserSearch(ctx context.Context, page int32, search string) ([]*UserSearch, int32, error)
 	EditUserSearch(ctx context.Context, uuid string, profile *ProfileUpdate) error
+	SetAvatarIrregular(ctx context.Context, review *AvatarReview) (*AvatarReview, error)
+	SetAvatarIrregularToCache(ctx context.Context, review *AvatarReview) error
 	SetProfile(ctx context.Context, profile *ProfileUpdate) error
 	SetProfileUpdate(ctx context.Context, profile *ProfileUpdate, status int32) (*ProfileUpdate, error)
 	SetUserFollow(ctx context.Context, uuid, userId string) error
@@ -163,6 +165,22 @@ func (r *UserUseCase) SetProfileUpdate(ctx context.Context, profile *ProfileUpda
 		return v1.ErrorSetProfileUpdateFailed("user profile update failed: %s", err.Error())
 	}
 	return nil
+}
+
+func (r *UserUseCase) AvatarIrregular(ctx context.Context, review *AvatarReview) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		review, err := r.repo.SetAvatarIrregular(ctx, review)
+		if err != nil {
+			return v1.ErrorSetAvatarIrregularFailed("set avatar irregular failed: %s", err.Error())
+		}
+
+		err = r.repo.SetAvatarIrregularToCache(ctx, review)
+		if err != nil {
+			return v1.ErrorSetAvatarIrregularFailed("set avatar irregular to cache failed: %s", err.Error())
+		}
+
+		return nil
+	})
 }
 
 func (r *UserUseCase) SetUserFollow(ctx context.Context, uuid, userId string) error {
