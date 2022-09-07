@@ -35,6 +35,18 @@ type ProfileUpdate struct {
 	Status int32 `gorm:"default:1"`
 }
 
+type AvatarReview struct {
+	gorm.Model
+	Uuid     string `gorm:"index;size:36"`
+	JobId    string `gorm:"size:100"`
+	Url      string `gorm:"size:1000"`
+	Label    string `gorm:"size:100"`
+	Result   int32
+	Category string `gorm:"size:100"`
+	SubLabel string `gorm:"size:100"`
+	Score    int32
+}
+
 type Follow struct {
 	gorm.Model
 	Follow   string `gorm:"uniqueIndex:idx_follow;size:36"`
