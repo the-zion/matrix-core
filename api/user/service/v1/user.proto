@@ -11,6 +11,8 @@ option go_package = "api/user/service/v1;v1";
 service User {
   rpc UserRegister(UserRegisterReq) returns (google.protobuf.Empty){}
 
+  rpc AvatarIrregular(AvatarIrregularReq) returns (google.protobuf.Empty){}
+
   rpc LoginByPassword (LoginByPasswordReq) returns (LoginReply) {}
 
   rpc LoginByCode (LoginByCodeReq) returns (LoginReply) {}
@@ -80,6 +82,17 @@ message UserRegisterReq{
   string email = 1 [(validate.rules).string = {pattern: "\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*", max_len: 50}];
   string password = 2 [(validate.rules).string = {min_len:1, max_len: 20}];
   string code = 3 [(validate.rules).string.pattern = "^[0-9]+$"];
+}
+
+message AvatarIrregularReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+  string job_id = 2 [(validate.rules).string = {max_len: 1000}];
+  string url = 3 [(validate.rules).string = {max_len: 1000}];
+  string label = 4 [(validate.rules).string = {max_len: 1000}];
+  int32 result = 5;
+  int32 score = 6;
+  string category = 7 [(validate.rules).string = {max_len: 1000}];
+  string subLabel = 8 [(validate.rules).string = {max_len: 1000}];
 }
 
 message LoginByPasswordReq {
