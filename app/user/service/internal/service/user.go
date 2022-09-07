@@ -159,6 +159,23 @@ func (s *UserService) GetUserSearch(ctx context.Context, req *v1.GetUserSearchRe
 	return reply, nil
 }
 
+func (s *UserService) AvatarIrregular(ctx context.Context, req *v1.AvatarIrregularReq) (*emptypb.Empty, error) {
+	err := s.uc.AvatarIrregular(ctx, &biz.AvatarReview{
+		Uuid:     req.Uuid,
+		JobId:    req.JobId,
+		Url:      req.Url,
+		Label:    req.Label,
+		Result:   req.Result,
+		Score:    req.Score,
+		Category: req.Category,
+		SubLabel: req.SubLabel,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *UserService) SetProfileUpdate(ctx context.Context, req *v1.SetProfileUpdateReq) (*emptypb.Empty, error) {
 	profile := &biz.ProfileUpdate{}
 	profile.Uuid = req.Uuid
