@@ -159,8 +159,107 @@ func (s *UserService) GetUserSearch(ctx context.Context, req *v1.GetUserSearchRe
 	return reply, nil
 }
 
+func (s *UserService) GetAvatarReview(ctx context.Context, req *v1.GetAvatarReviewReq) (*v1.GetAvatarReviewReply, error) {
+	reply := &v1.GetAvatarReviewReply{Review: make([]*v1.GetAvatarReviewReply_Review, 0)}
+	reviewList, err := s.uc.GetAvatarReview(ctx, req.Page, req.Uuid)
+	if err != nil {
+		return reply, err
+	}
+	for _, item := range reviewList {
+		reply.Review = append(reply.Review, &v1.GetAvatarReviewReply_Review{
+			Id:       item.Id,
+			Uuid:     item.Uuid,
+			CreateAt: item.CreateAt,
+			JobId:    item.JobId,
+			Url:      item.Url,
+			Label:    item.Label,
+			Result:   item.Result,
+			Score:    item.Score,
+			Category: item.Category,
+			SubLabel: item.SubLabel,
+		})
+	}
+	return reply, nil
+}
+
+func (s *UserService) GetCoverReview(ctx context.Context, req *v1.GetCoverReviewReq) (*v1.GetCoverReviewReply, error) {
+	reply := &v1.GetCoverReviewReply{Review: make([]*v1.GetCoverReviewReply_Review, 0)}
+	reviewList, err := s.uc.GetCoverReview(ctx, req.Page, req.Uuid)
+	if err != nil {
+		return reply, err
+	}
+	for _, item := range reviewList {
+		reply.Review = append(reply.Review, &v1.GetCoverReviewReply_Review{
+			Id:       item.Id,
+			Uuid:     item.Uuid,
+			CreateAt: item.CreateAt,
+			JobId:    item.JobId,
+			Url:      item.Url,
+			Label:    item.Label,
+			Result:   item.Result,
+			Score:    item.Score,
+			Category: item.Category,
+			SubLabel: item.SubLabel,
+		})
+	}
+	return reply, nil
+}
+
 func (s *UserService) AvatarIrregular(ctx context.Context, req *v1.AvatarIrregularReq) (*emptypb.Empty, error) {
-	err := s.uc.AvatarIrregular(ctx, &biz.AvatarReview{
+	err := s.uc.AvatarIrregular(ctx, &biz.PictureReview{
+		Uuid:     req.Uuid,
+		JobId:    req.JobId,
+		Url:      req.Url,
+		Label:    req.Label,
+		Result:   req.Result,
+		Score:    req.Score,
+		Category: req.Category,
+		SubLabel: req.SubLabel,
+		Mode:     "add_avatar_db_and_cache",
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *UserService) AddAvatarDbAndCache(ctx context.Context, req *v1.AddAvatarDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.uc.AddAvatarDbAndCache(ctx, &biz.PictureReview{
+		Uuid:     req.Uuid,
+		JobId:    req.JobId,
+		Url:      req.Url,
+		Label:    req.Label,
+		Result:   req.Result,
+		Score:    req.Score,
+		Category: req.Category,
+		SubLabel: req.SubLabel,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *UserService) CoverIrregular(ctx context.Context, req *v1.CoverIrregularReq) (*emptypb.Empty, error) {
+	err := s.uc.CoverIrregular(ctx, &biz.PictureReview{
+		Uuid:     req.Uuid,
+		JobId:    req.JobId,
+		Url:      req.Url,
+		Label:    req.Label,
+		Result:   req.Result,
+		Score:    req.Score,
+		Category: req.Category,
+		SubLabel: req.SubLabel,
+		Mode:     "add_cover_db_and_cache",
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *UserService) AddCoverDbAndCache(ctx context.Context, req *v1.AddCoverDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.uc.AddCoverDbAndCache(ctx, &biz.PictureReview{
 		Uuid:     req.Uuid,
 		JobId:    req.JobId,
 		Url:      req.Url,
