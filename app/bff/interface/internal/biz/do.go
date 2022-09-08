@@ -58,18 +58,16 @@ type Credentials struct {
 }
 
 type AvatarReview struct {
-	Code       string
-	Message    string
-	JobId      string
-	State      string
-	Object     string
-	Label      string
-	Result     int32
-	Category   string
-	BucketId   string
-	Region     string
-	CosHeaders map[string]string
-	EventName  string
+	Id       int32
+	Uuid     string
+	CreateAt string
+	JobId    string
+	Url      string
+	Label    string
+	Result   int32
+	Score    int32
+	Category string
+	SubLabel string
 }
 
 type Follow struct {
