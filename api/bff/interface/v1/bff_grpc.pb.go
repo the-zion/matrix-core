@@ -32,6 +32,8 @@ type BffClient interface {
 	SendPhoneCode(ctx context.Context, in *SendPhoneCodeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SendEmailCode(ctx context.Context, in *SendEmailCodeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetCosSessionKey(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCosSessionKeyReply, error)
+	GetAvatarReview(ctx context.Context, in *GetAvatarReviewReq, opts ...grpc.CallOption) (*GetAvatarReviewReply, error)
+	GetCoverReview(ctx context.Context, in *GetCoverReviewReq, opts ...grpc.CallOption) (*GetCoverReviewReply, error)
 	GetAccount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetAccountReply, error)
 	GetProfile(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetProfileReply, error)
 	GetProfileList(ctx context.Context, in *GetProfileListReq, opts ...grpc.CallOption) (*GetProfileListReply, error)
@@ -271,6 +273,24 @@ func (c *bffClient) SendEmailCode(ctx context.Context, in *SendEmailCodeReq, opt
 func (c *bffClient) GetCosSessionKey(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCosSessionKeyReply, error) {
 	out := new(GetCosSessionKeyReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCosSessionKey", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetAvatarReview(ctx context.Context, in *GetAvatarReviewReq, opts ...grpc.CallOption) (*GetAvatarReviewReply, error) {
+	out := new(GetAvatarReviewReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetAvatarReview", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetCoverReview(ctx context.Context, in *GetCoverReviewReq, opts ...grpc.CallOption) (*GetCoverReviewReply, error) {
+	out := new(GetCoverReviewReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCoverReview", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1667,6 +1687,8 @@ type BffServer interface {
 	SendPhoneCode(context.Context, *SendPhoneCodeReq) (*emptypb.Empty, error)
 	SendEmailCode(context.Context, *SendEmailCodeReq) (*emptypb.Empty, error)
 	GetCosSessionKey(context.Context, *emptypb.Empty) (*GetCosSessionKeyReply, error)
+	GetAvatarReview(context.Context, *GetAvatarReviewReq) (*GetAvatarReviewReply, error)
+	GetCoverReview(context.Context, *GetCoverReviewReq) (*GetCoverReviewReply, error)
 	GetAccount(context.Context, *emptypb.Empty) (*GetAccountReply, error)
 	GetProfile(context.Context, *emptypb.Empty) (*GetProfileReply, error)
 	GetProfileList(context.Context, *GetProfileListReq) (*GetProfileListReply, error)
@@ -1854,6 +1876,12 @@ func (UnimplementedBffServer) SendEmailCode(context.Context, *SendEmailCodeReq) 
 }
 func (UnimplementedBffServer) GetCosSessionKey(context.Context, *emptypb.Empty) (*GetCosSessionKeyReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCosSessionKey not implemented")
+}
+func (UnimplementedBffServer) GetAvatarReview(context.Context, *GetAvatarReviewReq) (*GetAvatarReviewReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAvatarReview not implemented")
+}
+func (UnimplementedBffServer) GetCoverReview(context.Context, *GetCoverReviewReq) (*GetCoverReviewReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCoverReview not implemented")
 }
 func (UnimplementedBffServer) GetAccount(context.Context, *emptypb.Empty) (*GetAccountReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAccount not implemented")
@@ -2485,6 +2513,42 @@ func _Bff_GetCosSessionKey_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BffServer).GetCosSessionKey(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetAvatarReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAvatarReviewReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetAvatarReview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetAvatarReview",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetAvatarReview(ctx, req.(*GetAvatarReviewReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetCoverReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCoverReviewReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetCoverReview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetCoverReview",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetCoverReview(ctx, req.(*GetCoverReviewReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -5285,6 +5349,14 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetCosSessionKey",
 			Handler:    _Bff_GetCosSessionKey_Handler,
+		},
+		{
+			MethodName: "GetAvatarReview",
+			Handler:    _Bff_GetAvatarReview_Handler,
+		},
+		{
+			MethodName: "GetCoverReview",
+			Handler:    _Bff_GetCoverReview_Handler,
 		},
 		{
 			MethodName: "GetAccount",

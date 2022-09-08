@@ -57,6 +57,7 @@ const OperationBffGetArticleListHot = "/bff.v1.Bff/GetArticleListHot"
 const OperationBffGetArticleListStatistic = "/bff.v1.Bff/GetArticleListStatistic"
 const OperationBffGetArticleSearch = "/bff.v1.Bff/GetArticleSearch"
 const OperationBffGetArticleStatistic = "/bff.v1.Bff/GetArticleStatistic"
+const OperationBffGetAvatarReview = "/bff.v1.Bff/GetAvatarReview"
 const OperationBffGetCollectArticleCount = "/bff.v1.Bff/GetCollectArticleCount"
 const OperationBffGetCollectArticleList = "/bff.v1.Bff/GetCollectArticleList"
 const OperationBffGetCollectColumnCount = "/bff.v1.Bff/GetCollectColumnCount"
@@ -82,6 +83,7 @@ const OperationBffGetCommentList = "/bff.v1.Bff/GetCommentList"
 const OperationBffGetCommentListHot = "/bff.v1.Bff/GetCommentListHot"
 const OperationBffGetCommentUser = "/bff.v1.Bff/GetCommentUser"
 const OperationBffGetCosSessionKey = "/bff.v1.Bff/GetCosSessionKey"
+const OperationBffGetCoverReview = "/bff.v1.Bff/GetCoverReview"
 const OperationBffGetFollowList = "/bff.v1.Bff/GetFollowList"
 const OperationBffGetFollowListCount = "/bff.v1.Bff/GetFollowListCount"
 const OperationBffGetFollowedList = "/bff.v1.Bff/GetFollowedList"
@@ -221,6 +223,7 @@ type BffHTTPServer interface {
 	GetArticleListStatistic(context.Context, *GetArticleListStatisticReq) (*GetArticleListStatisticReply, error)
 	GetArticleSearch(context.Context, *GetArticleSearchReq) (*GetArticleSearchReply, error)
 	GetArticleStatistic(context.Context, *GetArticleStatisticReq) (*GetArticleStatisticReply, error)
+	GetAvatarReview(context.Context, *GetAvatarReviewReq) (*GetAvatarReviewReply, error)
 	GetCollectArticleCount(context.Context, *GetCollectArticleCountReq) (*GetCollectArticleCountReply, error)
 	GetCollectArticleList(context.Context, *GetCollectArticleListReq) (*GetArticleListReply, error)
 	GetCollectColumnCount(context.Context, *GetCollectColumnCountReq) (*GetCollectColumnCountReply, error)
@@ -246,6 +249,7 @@ type BffHTTPServer interface {
 	GetCommentListHot(context.Context, *GetCommentListReq) (*GetCommentListReply, error)
 	GetCommentUser(context.Context, *emptypb.Empty) (*GetCommentUserReply, error)
 	GetCosSessionKey(context.Context, *emptypb.Empty) (*GetCosSessionKeyReply, error)
+	GetCoverReview(context.Context, *GetCoverReviewReq) (*GetCoverReviewReply, error)
 	GetFollowList(context.Context, *GetFollowListReq) (*GetFollowListReply, error)
 	GetFollowListCount(context.Context, *GetFollowListCountReq) (*GetFollowListCountReply, error)
 	GetFollowedList(context.Context, *GetFollowedListReq) (*GetFollowedListReply, error)
@@ -359,6 +363,8 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.POST("/v1/user/code/phone", _Bff_SendPhoneCode0_HTTP_Handler(srv))
 	r.POST("/v1/user/code/email", _Bff_SendEmailCode0_HTTP_Handler(srv))
 	r.GET("/v1/get/cos/session/key", _Bff_GetCosSessionKey0_HTTP_Handler(srv))
+	r.POST("/v1/get/avatar/review", _Bff_GetAvatarReview0_HTTP_Handler(srv))
+	r.POST("/v1/get/cover/review", _Bff_GetCoverReview0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/account", _Bff_GetAccount0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/profile", _Bff_GetProfile0_HTTP_Handler(srv))
 	r.GET("/v1/get/profile/list", _Bff_GetProfileList0_HTTP_Handler(srv))
@@ -681,6 +687,44 @@ func _Bff_GetCosSessionKey0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Contex
 			return err
 		}
 		reply := out.(*GetCosSessionKeyReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_GetAvatarReview0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetAvatarReviewReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetAvatarReview)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetAvatarReview(ctx, req.(*GetAvatarReviewReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetAvatarReviewReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_GetCoverReview0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetCoverReviewReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetCoverReview)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetCoverReview(ctx, req.(*GetCoverReviewReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetCoverReviewReply)
 		return ctx.Result(200, reply)
 	}
 }
@@ -3630,6 +3674,7 @@ type BffHTTPClient interface {
 	GetArticleListStatistic(ctx context.Context, req *GetArticleListStatisticReq, opts ...http.CallOption) (rsp *GetArticleListStatisticReply, err error)
 	GetArticleSearch(ctx context.Context, req *GetArticleSearchReq, opts ...http.CallOption) (rsp *GetArticleSearchReply, err error)
 	GetArticleStatistic(ctx context.Context, req *GetArticleStatisticReq, opts ...http.CallOption) (rsp *GetArticleStatisticReply, err error)
+	GetAvatarReview(ctx context.Context, req *GetAvatarReviewReq, opts ...http.CallOption) (rsp *GetAvatarReviewReply, err error)
 	GetCollectArticleCount(ctx context.Context, req *GetCollectArticleCountReq, opts ...http.CallOption) (rsp *GetCollectArticleCountReply, err error)
 	GetCollectArticleList(ctx context.Context, req *GetCollectArticleListReq, opts ...http.CallOption) (rsp *GetArticleListReply, err error)
 	GetCollectColumnCount(ctx context.Context, req *GetCollectColumnCountReq, opts ...http.CallOption) (rsp *GetCollectColumnCountReply, err error)
@@ -3655,6 +3700,7 @@ type BffHTTPClient interface {
 	GetCommentListHot(ctx context.Context, req *GetCommentListReq, opts ...http.CallOption) (rsp *GetCommentListReply, err error)
 	GetCommentUser(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetCommentUserReply, err error)
 	GetCosSessionKey(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetCosSessionKeyReply, err error)
+	GetCoverReview(ctx context.Context, req *GetCoverReviewReq, opts ...http.CallOption) (rsp *GetCoverReviewReply, err error)
 	GetFollowList(ctx context.Context, req *GetFollowListReq, opts ...http.CallOption) (rsp *GetFollowListReply, err error)
 	GetFollowListCount(ctx context.Context, req *GetFollowListCountReq, opts ...http.CallOption) (rsp *GetFollowListCountReply, err error)
 	GetFollowedList(ctx context.Context, req *GetFollowedListReq, opts ...http.CallOption) (rsp *GetFollowedListReply, err error)
@@ -4246,6 +4292,19 @@ func (c *BffHTTPClientImpl) GetArticleStatistic(ctx context.Context, in *GetArti
 	return &out, err
 }
 
+func (c *BffHTTPClientImpl) GetAvatarReview(ctx context.Context, in *GetAvatarReviewReq, opts ...http.CallOption) (*GetAvatarReviewReply, error) {
+	var out GetAvatarReviewReply
+	pattern := "/v1/get/avatar/review"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffGetAvatarReview))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
 func (c *BffHTTPClientImpl) GetCollectArticleCount(ctx context.Context, in *GetCollectArticleCountReq, opts ...http.CallOption) (*GetCollectArticleCountReply, error) {
 	var out GetCollectArticleCountReply
 	pattern := "/v1/get/collect/article/count"
@@ -4565,6 +4624,19 @@ func (c *BffHTTPClientImpl) GetCosSessionKey(ctx context.Context, in *emptypb.Em
 	opts = append(opts, http.Operation(OperationBffGetCosSessionKey))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetCoverReview(ctx context.Context, in *GetCoverReviewReq, opts ...http.CallOption) (*GetCoverReviewReply, error) {
+	var out GetCoverReviewReply
+	pattern := "/v1/get/cover/review"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffGetCoverReview))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

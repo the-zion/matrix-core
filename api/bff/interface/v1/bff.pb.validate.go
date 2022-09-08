@@ -1088,6 +1088,486 @@ var _ interface {
 	ErrorName() string
 } = GetCosSessionKeyReplyValidationError{}
 
+// Validate checks the field values on GetAvatarReviewReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetAvatarReviewReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetAvatarReviewReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetAvatarReviewReqMultiError, or nil if none found.
+func (m *GetAvatarReviewReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetAvatarReviewReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Page
+
+	if len(errors) > 0 {
+		return GetAvatarReviewReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetAvatarReviewReqMultiError is an error wrapping multiple validation errors
+// returned by GetAvatarReviewReq.ValidateAll() if the designated constraints
+// aren't met.
+type GetAvatarReviewReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetAvatarReviewReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetAvatarReviewReqMultiError) AllErrors() []error { return m }
+
+// GetAvatarReviewReqValidationError is the validation error returned by
+// GetAvatarReviewReq.Validate if the designated constraints aren't met.
+type GetAvatarReviewReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetAvatarReviewReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetAvatarReviewReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetAvatarReviewReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetAvatarReviewReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetAvatarReviewReqValidationError) ErrorName() string {
+	return "GetAvatarReviewReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetAvatarReviewReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetAvatarReviewReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetAvatarReviewReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetAvatarReviewReqValidationError{}
+
+// Validate checks the field values on GetAvatarReviewReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetAvatarReviewReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetAvatarReviewReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetAvatarReviewReplyMultiError, or nil if none found.
+func (m *GetAvatarReviewReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetAvatarReviewReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetReview() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetAvatarReviewReplyValidationError{
+						field:  fmt.Sprintf("Review[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetAvatarReviewReplyValidationError{
+						field:  fmt.Sprintf("Review[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetAvatarReviewReplyValidationError{
+					field:  fmt.Sprintf("Review[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return GetAvatarReviewReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetAvatarReviewReplyMultiError is an error wrapping multiple validation
+// errors returned by GetAvatarReviewReply.ValidateAll() if the designated
+// constraints aren't met.
+type GetAvatarReviewReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetAvatarReviewReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetAvatarReviewReplyMultiError) AllErrors() []error { return m }
+
+// GetAvatarReviewReplyValidationError is the validation error returned by
+// GetAvatarReviewReply.Validate if the designated constraints aren't met.
+type GetAvatarReviewReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetAvatarReviewReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetAvatarReviewReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetAvatarReviewReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetAvatarReviewReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetAvatarReviewReplyValidationError) ErrorName() string {
+	return "GetAvatarReviewReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetAvatarReviewReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetAvatarReviewReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetAvatarReviewReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetAvatarReviewReplyValidationError{}
+
+// Validate checks the field values on GetCoverReviewReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *GetCoverReviewReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetCoverReviewReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetCoverReviewReqMultiError, or nil if none found.
+func (m *GetCoverReviewReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetCoverReviewReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Page
+
+	if len(errors) > 0 {
+		return GetCoverReviewReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetCoverReviewReqMultiError is an error wrapping multiple validation errors
+// returned by GetCoverReviewReq.ValidateAll() if the designated constraints
+// aren't met.
+type GetCoverReviewReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetCoverReviewReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetCoverReviewReqMultiError) AllErrors() []error { return m }
+
+// GetCoverReviewReqValidationError is the validation error returned by
+// GetCoverReviewReq.Validate if the designated constraints aren't met.
+type GetCoverReviewReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetCoverReviewReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetCoverReviewReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetCoverReviewReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetCoverReviewReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetCoverReviewReqValidationError) ErrorName() string {
+	return "GetCoverReviewReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetCoverReviewReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetCoverReviewReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetCoverReviewReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetCoverReviewReqValidationError{}
+
+// Validate checks the field values on GetCoverReviewReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetCoverReviewReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetCoverReviewReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetCoverReviewReplyMultiError, or nil if none found.
+func (m *GetCoverReviewReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetCoverReviewReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetReview() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetCoverReviewReplyValidationError{
+						field:  fmt.Sprintf("Review[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetCoverReviewReplyValidationError{
+						field:  fmt.Sprintf("Review[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetCoverReviewReplyValidationError{
+					field:  fmt.Sprintf("Review[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return GetCoverReviewReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetCoverReviewReplyMultiError is an error wrapping multiple validation
+// errors returned by GetCoverReviewReply.ValidateAll() if the designated
+// constraints aren't met.
+type GetCoverReviewReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetCoverReviewReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetCoverReviewReplyMultiError) AllErrors() []error { return m }
+
+// GetCoverReviewReplyValidationError is the validation error returned by
+// GetCoverReviewReply.Validate if the designated constraints aren't met.
+type GetCoverReviewReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetCoverReviewReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetCoverReviewReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetCoverReviewReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetCoverReviewReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetCoverReviewReplyValidationError) ErrorName() string {
+	return "GetCoverReviewReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetCoverReviewReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetCoverReviewReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetCoverReviewReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetCoverReviewReplyValidationError{}
+
 // Validate checks the field values on GetAccountReply with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -23050,6 +23530,251 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CancelSubCommentAgreeReqValidationError{}
+
+// Validate checks the field values on GetAvatarReviewReply_Review with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetAvatarReviewReply_Review) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetAvatarReviewReply_Review with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetAvatarReviewReply_ReviewMultiError, or nil if none found.
+func (m *GetAvatarReviewReply_Review) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetAvatarReviewReply_Review) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Uuid
+
+	// no validation rules for CreateAt
+
+	// no validation rules for JobId
+
+	// no validation rules for Url
+
+	// no validation rules for Label
+
+	// no validation rules for Result
+
+	// no validation rules for Score
+
+	// no validation rules for Category
+
+	// no validation rules for SubLabel
+
+	if len(errors) > 0 {
+		return GetAvatarReviewReply_ReviewMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetAvatarReviewReply_ReviewMultiError is an error wrapping multiple
+// validation errors returned by GetAvatarReviewReply_Review.ValidateAll() if
+// the designated constraints aren't met.
+type GetAvatarReviewReply_ReviewMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetAvatarReviewReply_ReviewMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetAvatarReviewReply_ReviewMultiError) AllErrors() []error { return m }
+
+// GetAvatarReviewReply_ReviewValidationError is the validation error returned
+// by GetAvatarReviewReply_Review.Validate if the designated constraints
+// aren't met.
+type GetAvatarReviewReply_ReviewValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetAvatarReviewReply_ReviewValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetAvatarReviewReply_ReviewValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetAvatarReviewReply_ReviewValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetAvatarReviewReply_ReviewValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetAvatarReviewReply_ReviewValidationError) ErrorName() string {
+	return "GetAvatarReviewReply_ReviewValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetAvatarReviewReply_ReviewValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetAvatarReviewReply_Review.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetAvatarReviewReply_ReviewValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetAvatarReviewReply_ReviewValidationError{}
+
+// Validate checks the field values on GetCoverReviewReply_Review with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetCoverReviewReply_Review) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetCoverReviewReply_Review with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetCoverReviewReply_ReviewMultiError, or nil if none found.
+func (m *GetCoverReviewReply_Review) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetCoverReviewReply_Review) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Uuid
+
+	// no validation rules for CreateAt
+
+	// no validation rules for JobId
+
+	// no validation rules for Url
+
+	// no validation rules for Label
+
+	// no validation rules for Result
+
+	// no validation rules for Score
+
+	// no validation rules for Category
+
+	// no validation rules for SubLabel
+
+	if len(errors) > 0 {
+		return GetCoverReviewReply_ReviewMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetCoverReviewReply_ReviewMultiError is an error wrapping multiple
+// validation errors returned by GetCoverReviewReply_Review.ValidateAll() if
+// the designated constraints aren't met.
+type GetCoverReviewReply_ReviewMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetCoverReviewReply_ReviewMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetCoverReviewReply_ReviewMultiError) AllErrors() []error { return m }
+
+// GetCoverReviewReply_ReviewValidationError is the validation error returned
+// by GetCoverReviewReply_Review.Validate if the designated constraints aren't met.
+type GetCoverReviewReply_ReviewValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetCoverReviewReply_ReviewValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetCoverReviewReply_ReviewValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetCoverReviewReply_ReviewValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetCoverReviewReply_ReviewValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetCoverReviewReply_ReviewValidationError) ErrorName() string {
+	return "GetCoverReviewReply_ReviewValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetCoverReviewReply_ReviewValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetCoverReviewReply_Review.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetCoverReviewReply_ReviewValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetCoverReviewReply_ReviewValidationError{}
 
 // Validate checks the field values on GetProfileListReply_Profile with the
 // rules defined in the proto definition for this message. If any rules are
