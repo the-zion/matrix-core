@@ -58,13 +58,17 @@ message Data {
     message Follow{
       string groupName = 1;
     }
+    message Picture{
+      string groupName = 1;
+    }
     Code code = 1;
     Profile profile = 2;
     Profile follow = 3;
-    string serverAddress = 4;
-    string secretKey = 5;
-    string accessKey = 6;
-    string nameSpace = 7;
+    Picture picture = 4;
+    string serverAddress = 5;
+    string secretKey = 6;
+    string accessKey = 7;
+    string nameSpace = 8;
   }
   message Cos{
     message Statement{
