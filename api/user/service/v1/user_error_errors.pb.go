@@ -203,6 +203,18 @@ func ErrorGetUserSearchFailed(format string, args ...interface{}) *errors.Error 
 	return errors.New(500, UserErrorReason_GET_USER_SEARCH_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsGetPictureReviewFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_GET_PICTURE_REVIEW_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetPictureReviewFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, UserErrorReason_GET_PICTURE_REVIEW_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsSendCodeFailed(err error) bool {
 	if err == nil {
 		return false
@@ -311,16 +323,16 @@ func ErrorSetImageFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, UserErrorReason_SET_IMAGE_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
-func IsSetAvatarIrregularFailed(err error) bool {
+func IsSetPictureIrregularFailed(err error) bool {
 	if err == nil {
 		return false
 	}
 	e := errors.FromError(err)
-	return e.Reason == UserErrorReason_SET_AVATAR_IRREGULAR_FAILED.String() && e.Code == 500
+	return e.Reason == UserErrorReason_SET_PICTURE_IRREGULAR_FAILED.String() && e.Code == 500
 }
 
-func ErrorSetAvatarIrregularFailed(format string, args ...interface{}) *errors.Error {
-	return errors.New(500, UserErrorReason_SET_AVATAR_IRREGULAR_FAILED.String(), fmt.Sprintf(format, args...))
+func ErrorSetPictureIrregularFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, UserErrorReason_SET_PICTURE_IRREGULAR_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
 func IsCancelFollowFailed(err error) bool {
