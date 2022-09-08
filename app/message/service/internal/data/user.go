@@ -125,6 +125,23 @@ func (r *userRepo) AvatarIrregular(ctx context.Context, review *biz.AvatarReview
 	return nil
 }
 
+func (r *userRepo) CoverIrregular(ctx context.Context, review *biz.CoverReview, uuid string) error {
+	_, err := r.data.uc.CoverIrregular(ctx, &userV1.CoverIrregularReq{
+		Uuid:     uuid,
+		JobId:    review.JobId,
+		Url:      review.Url,
+		Label:    review.Label,
+		Result:   review.Result,
+		Score:    review.Score,
+		Category: review.Category,
+		SubLabel: review.SubLabel,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *userRepo) SetFollowDbAndCache(ctx context.Context, uuid, userId string) error {
 	_, err := r.data.uc.SetFollowDbAndCache(ctx, &userV1.SetFollowDbAndCacheReq{
 		Uuid:     uuid,
@@ -140,6 +157,38 @@ func (r *userRepo) CancelFollowDbAndCache(ctx context.Context, uuid, userId stri
 	_, err := r.data.uc.CancelFollowDbAndCache(ctx, &userV1.CancelFollowDbAndCacheReq{
 		Uuid:     uuid,
 		UserUuid: userId,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *userRepo) AddAvatarDbAndCache(ctx context.Context, score, result int32, uuid, jobId, label, category, subLabel string) error {
+	_, err := r.data.uc.AddAvatarDbAndCache(ctx, &userV1.AddAvatarDbAndCacheReq{
+		Uuid:     uuid,
+		Score:    score,
+		JobId:    jobId,
+		Label:    label,
+		Result:   result,
+		Category: category,
+		SubLabel: subLabel,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *userRepo) AddCoverDbAndCache(ctx context.Context, score, result int32, uuid, jobId, label, category, subLabel string) error {
+	_, err := r.data.uc.AddCoverDbAndCache(ctx, &userV1.AddCoverDbAndCacheReq{
+		Uuid:     uuid,
+		Score:    score,
+		JobId:    jobId,
+		Label:    label,
+		Result:   result,
+		Category: category,
+		SubLabel: subLabel,
 	})
 	if err != nil {
 		return err
