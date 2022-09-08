@@ -18,7 +18,7 @@ import (
 	"time"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewDB, NewTransaction, NewRedis, NewRocketmqCodeProducer, NewRocketmqProfileProducer, NewRocketmqFollowProducer, NewRocketmqAchievementProducer, NewCosClient, NewUserRepo, NewAuthRepo, NewElasticsearch, NewRecovery)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewTransaction, NewRedis, NewRocketmqCodeProducer, NewRocketmqProfileProducer, NewRocketmqFollowProducer, NewRocketmqPictureProducer, NewRocketmqAchievementProducer, NewCosClient, NewUserRepo, NewAuthRepo, NewElasticsearch, NewRecovery)
 
 type Cos struct {
 	client *sts.Client
@@ -37,6 +37,10 @@ type FollowMqPro struct {
 	producer rocketmq.Producer
 }
 
+type PictureMqPro struct {
+	producer rocketmq.Producer
+}
+
 type AchievementMqPro struct {
 	producer rocketmq.Producer
 }
@@ -51,6 +55,7 @@ type Data struct {
 	codeMqPro        *CodeMqPro
 	profileMqPro     *ProfileMqPro
 	followMqPro      *FollowMqPro
+	pictureMqPro     *PictureMqPro
 	achievementMqPro *AchievementMqPro
 	elasticSearch    *ElasticSearch
 	cos              *Cos
@@ -217,6 +222,32 @@ func NewRocketmqFollowProducer(conf *conf.Data, logger log.Logger) *FollowMqPro 
 	}
 }
 
+func NewRocketmqPictureProducer(conf *conf.Data, logger log.Logger) *PictureMqPro {
+	l := log.NewHelper(log.With(logger, "module", "user/data/rocketmq-picture-producer"))
+	p, err := rocketmq.NewProducer(
+		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.Rocketmq.ServerAddress})),
+		producer.WithCredentials(primitive.Credentials{
+			SecretKey: conf.Rocketmq.SecretKey,
+			AccessKey: conf.Rocketmq.AccessKey,
+		}),
+		producer.WithInstanceName("user"),
+		producer.WithGroupName(conf.Rocketmq.Picture.GroupName),
+		producer.WithNamespace(conf.Rocketmq.NameSpace),
+	)
+
+	if err != nil {
+		l.Fatalf("init picture error: %v", err)
+	}
+
+	err = p.Start()
+	if err != nil {
+		l.Fatalf("start picture error: %v", err)
+	}
+	return &PictureMqPro{
+		producer: p,
+	}
+}
+
 func NewRocketmqAchievementProducer(conf *conf.Data, logger log.Logger) *AchievementMqPro {
 	l := log.NewHelper(log.With(logger, "module", "creation/data/rocketmq-achievement-producer"))
 	p, err := rocketmq.NewProducer(
@@ -299,7 +330,7 @@ func NewElasticsearch(conf *conf.Data, logger log.Logger) *ElasticSearch {
 	}
 }
 
-func NewData(db *gorm.DB, redisCmd redis.Cmdable, cp *CodeMqPro, es *ElasticSearch, pp *ProfileMqPro, fp *FollowMqPro, aq *AchievementMqPro, cos *Cos, logger log.Logger) (*Data, func(), error) {
+func NewData(db *gorm.DB, redisCmd redis.Cmdable, cp *CodeMqPro, es *ElasticSearch, pp *ProfileMqPro, fp *FollowMqPro, pip *PictureMqPro, aq *AchievementMqPro, cos *Cos, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(logger, "module", "user/data/new-data"))
 
 	d := &Data{
@@ -308,6 +339,7 @@ func NewData(db *gorm.DB, redisCmd redis.Cmdable, cp *CodeMqPro, es *ElasticSear
 		profileMqPro:     pp,
 		achievementMqPro: aq,
 		followMqPro:      fp,
+		pictureMqPro:     pip,
 		redisCli:         redisCmd,
 		elasticSearch:    es,
 		cos:              cos,
@@ -329,6 +361,11 @@ func NewData(db *gorm.DB, redisCmd redis.Cmdable, cp *CodeMqPro, es *ElasticSear
 		err = d.followMqPro.producer.Shutdown()
 		if err != nil {
 			l.Errorf("shutdown follow producer error: %v", err.Error())
+		}
+
+		err = d.pictureMqPro.producer.Shutdown()
+		if err != nil {
+			l.Errorf("shutdown picture producer error: %v", err.Error())
 		}
 
 		err = d.achievementMqPro.producer.Shutdown()
