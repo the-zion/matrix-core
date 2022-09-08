@@ -52,12 +52,12 @@ func NewCodeMqConsumerServer(conf *conf.Server, messageService *service.MessageS
 	}
 }
 
-func (s *CodeMqConsumerServer) Start(ctx context.Context) error {
+func (s *CodeMqConsumerServer) Start(_ context.Context) error {
 	log.Info("mq code consumer starting")
 	return s.c.Start()
 }
 
-func (s *CodeMqConsumerServer) Stop(ctx context.Context) error {
+func (s *CodeMqConsumerServer) Stop(_ context.Context) error {
 	log.Info("mq code consumer closing")
 	return s.c.Shutdown()
 }
@@ -110,12 +110,12 @@ func NewProfileMqConsumerServer(conf *conf.Server, messageService *service.Messa
 	}
 }
 
-func (s *ProfileMqConsumerServer) Start(ctx context.Context) error {
+func (s *ProfileMqConsumerServer) Start(_ context.Context) error {
 	log.Info("mq profile consumer starting")
 	return s.c.Start()
 }
 
-func (s *ProfileMqConsumerServer) Stop(ctx context.Context) error {
+func (s *ProfileMqConsumerServer) Stop(_ context.Context) error {
 	log.Info("mq profile consumer closing")
 	return s.c.Shutdown()
 }
@@ -183,12 +183,85 @@ func NewFollowMqConsumerServer(conf *conf.Server, messageService *service.Messag
 	}
 }
 
-func (s *FollowMqConsumerServer) Start(ctx context.Context) error {
+func (s *FollowMqConsumerServer) Start(_ context.Context) error {
 	log.Info("mq follow consumer starting")
 	return s.c.Start()
 }
 
-func (s *FollowMqConsumerServer) Stop(ctx context.Context) error {
+func (s *FollowMqConsumerServer) Stop(_ context.Context) error {
 	log.Info("mq follow consumer closing")
+	return s.c.Shutdown()
+}
+
+type PictureMqConsumerServer struct {
+	c  rocketmq.PushConsumer
+	ms *service.MessageService
+}
+
+func NewPictureMqConsumerServer(conf *conf.Server, messageService *service.MessageService, logger log.Logger) *PictureMqConsumerServer {
+	l := log.NewHelper(log.With(logger, "server", "message/server/rocketmq-picture-consumer"))
+	c, err := rocketmq.NewPushConsumer(
+		consumer.WithGroupName(conf.UserMq.Picture.GroupName),
+		consumer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.UserMq.ServerAddress})),
+		consumer.WithCredentials(primitive.Credentials{
+			SecretKey: conf.UserMq.SecretKey,
+			AccessKey: conf.UserMq.AccessKey,
+		}),
+		consumer.WithInstance("user"),
+		consumer.WithNamespace(conf.UserMq.NameSpace),
+		consumer.WithConsumeMessageBatchMaxSize(1),
+		consumer.WithConsumeFromWhere(consumer.ConsumeFromFirstOffset),
+		consumer.WithConsumerModel(consumer.Clustering),
+	)
+	if err != nil {
+		l.Fatalf("init consumer error: %v", err)
+	}
+
+	delayLevel := 3
+	err = c.Subscribe("picture", consumer.MessageSelector{},
+		MqRecovery(func(ctx context.Context,
+			msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
+
+			concurrentCtx, _ := primitive.GetConcurrentlyCtx(ctx)
+			concurrentCtx.DelayLevelWhenNextConsume = delayLevel
+
+			var err error
+			m := map[string]interface{}{}
+			err = json.Unmarshal(msgs[0].Body, &m)
+			if err != nil {
+				l.Errorf("fail to unmarshal msg: %s", err.Error())
+				return consumer.ConsumeRetryLater, nil
+			}
+
+			mode := m["mode"].(string)
+			switch mode {
+			case "add_avatar_db_and_cache":
+				err = messageService.AddAvatarDbAndCache(ctx, m["Score"].(int32), m["Result"].(int32), m["Uuid"].(string), m["JobId"].(string), m["Label"].(string), m["Category"].(string), m["SubLabel"].(string))
+			case "add_cover_db_and_cache":
+				err = messageService.AddCoverDbAndCache(ctx, m["Score"].(int32), m["Result"].(int32), m["Uuid"].(string), m["JobId"].(string), m["Label"].(string), m["Category"].(string), m["SubLabel"].(string))
+			}
+
+			if err != nil {
+				l.Error(err.Error())
+				return consumer.ConsumeRetryLater, nil
+			}
+			return consumer.ConsumeSuccess, nil
+		}))
+	if err != nil {
+		l.Fatalf("consumer subscribe error: %v", err)
+	}
+
+	return &PictureMqConsumerServer{
+		c: c,
+	}
+}
+
+func (s *PictureMqConsumerServer) Start(_ context.Context) error {
+	log.Info("mq picture consumer starting")
+	return s.c.Start()
+}
+
+func (s *PictureMqConsumerServer) Stop(_ context.Context) error {
+	log.Info("mq picture consumer closing")
 	return s.c.Shutdown()
 }
