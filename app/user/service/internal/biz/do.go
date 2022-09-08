@@ -60,8 +60,9 @@ type Follows struct {
 	Follow int32
 }
 
-type AvatarReview struct {
+type PictureReview struct {
 	Id       int32
+	CreateAt string
 	Uuid     string
 	JobId    string
 	Url      string
@@ -69,5 +70,6 @@ type AvatarReview struct {
 	Result   int32
 	Category string
 	SubLabel string
+	Mode     string
 	Score    int32
 }
