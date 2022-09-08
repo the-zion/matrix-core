@@ -11,11 +11,14 @@ import (
 type UserRepo interface {
 	SendCode(msgs ...*primitive.MessageExt)
 	AvatarIrregular(ctx context.Context, review *AvatarReview, uuid string) error
+	CoverIrregular(ctx context.Context, review *CoverReview, uuid string) error
 	UploadProfileToCos(msg *primitive.MessageExt) error
 	ProfileReviewPass(ctx context.Context, uuid, update string) error
 	ProfileReviewNotPass(ctx context.Context, uuid string) error
 	SetFollowDbAndCache(ctx context.Context, uuid, userId string) error
 	CancelFollowDbAndCache(ctx context.Context, uuid, userId string) error
+	AddAvatarDbAndCache(ctx context.Context, score, result int32, uuid, jobId, label, category, subLabel string) error
+	AddCoverDbAndCache(ctx context.Context, score, result int32, uuid, jobId, label, category, subLabel string) error
 }
 
 type UserUseCase struct {
@@ -72,7 +75,33 @@ func (r *UserUseCase) AvatarReview(ctx context.Context, ar *AvatarReview) error 
 }
 
 func (r *UserUseCase) CoverReview(ctx context.Context, cr *CoverReview) error {
-	fmt.Println(cr)
+	var err error
+	var token string
+	var ok bool
+
+	if token, ok = cr.CosHeaders["x-cos-meta-token"]; !ok || token == "" {
+		r.log.Info("token not exist，%v", cr)
+		return nil
+	}
+
+	uuid, err := r.jwt.JwtCheck(token)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to get uuid from token: %s", token))
+	}
+
+	if cr.State != "Success" {
+		r.log.Info("avatar upload review failed，%v", cr)
+		return nil
+	}
+
+	if cr.Result == 0 {
+		return nil
+	} else {
+		err = r.repo.CoverIrregular(ctx, cr, uuid)
+	}
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -114,4 +143,12 @@ func (r *UserUseCase) SetFollowDbAndCache(ctx context.Context, uuid, userId stri
 
 func (r *UserUseCase) CancelFollowDbAndCache(ctx context.Context, uuid, userId string) error {
 	return r.repo.CancelFollowDbAndCache(ctx, uuid, userId)
+}
+
+func (r *UserUseCase) AddAvatarDbAndCache(ctx context.Context, score, result int32, uuid, jobId, label, category, subLabel string) error {
+	return r.repo.AddAvatarDbAndCache(ctx, score, result, uuid, jobId, label, category, subLabel)
+}
+
+func (r *UserUseCase) AddCoverDbAndCache(ctx context.Context, score, result int32, uuid, jobId, label, category, subLabel string) error {
+	return r.repo.AddCoverDbAndCache(ctx, score, result, uuid, jobId, label, category, subLabel)
 }
