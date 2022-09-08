@@ -478,6 +478,32 @@ func (r *userRepo) GetUserSearch(ctx context.Context, page int32, search string)
 	return reply, searchReply.Total, nil
 }
 
+func (r *userRepo) GetAvatarReview(ctx context.Context, page int32, uuid string) ([]*biz.AvatarReview, error) {
+	reply := make([]*biz.AvatarReview, 0)
+	reviewReply, err := r.data.uc.GetAvatarReview(ctx, &userV1.GetAvatarReviewReq{
+		Page: page,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range reviewReply.Review {
+		reply = append(reply, &biz.AvatarReview{
+			Id:       item.Id,
+			Uuid:     item.Uuid,
+			CreateAt: item.CreateAt,
+			JobId:    item.JobId,
+			Url:      item.Url,
+			Label:    item.Label,
+			Result:   item.Result,
+			Score:    item.Score,
+			Category: item.Category,
+			SubLabel: item.SubLabel,
+		})
+	}
+	return reply, nil
+}
+
 func (r *userRepo) SetProfileUpdate(ctx context.Context, profile *biz.UserProfileUpdate) error {
 	_, err := r.data.uc.SetProfileUpdate(ctx, &userV1.SetProfileUpdateReq{
 		Uuid:      profile.Uuid,
