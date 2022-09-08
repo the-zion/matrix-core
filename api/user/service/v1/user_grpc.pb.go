@@ -25,6 +25,9 @@ const _ = grpc.SupportPackageIsVersion7
 type UserClient interface {
 	UserRegister(ctx context.Context, in *UserRegisterReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	AvatarIrregular(ctx context.Context, in *AvatarIrregularReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AddAvatarDbAndCache(ctx context.Context, in *AddAvatarDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CoverIrregular(ctx context.Context, in *CoverIrregularReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AddCoverDbAndCache(ctx context.Context, in *AddCoverDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	LoginByPassword(ctx context.Context, in *LoginByPasswordReq, opts ...grpc.CallOption) (*LoginReply, error)
 	LoginByCode(ctx context.Context, in *LoginByCodeReq, opts ...grpc.CallOption) (*LoginReply, error)
 	LoginByWeChat(ctx context.Context, in *LoginByWeChatReq, opts ...grpc.CallOption) (*LoginReply, error)
@@ -51,6 +54,8 @@ type UserClient interface {
 	GetFollowedListCount(ctx context.Context, in *GetFollowedListCountReq, opts ...grpc.CallOption) (*GetFollowedListCountReply, error)
 	GetUserFollows(ctx context.Context, in *GetUserFollowsReq, opts ...grpc.CallOption) (*GetUserFollowsReply, error)
 	GetUserSearch(ctx context.Context, in *GetUserSearchReq, opts ...grpc.CallOption) (*GetUserSearchReply, error)
+	GetAvatarReview(ctx context.Context, in *GetAvatarReviewReq, opts ...grpc.CallOption) (*GetAvatarReviewReply, error)
+	GetCoverReview(ctx context.Context, in *GetCoverReviewReq, opts ...grpc.CallOption) (*GetCoverReviewReply, error)
 	SetProfileUpdate(ctx context.Context, in *SetProfileUpdateReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ProfileReviewPass(ctx context.Context, in *ProfileReviewPassReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ProfileReviewNotPass(ctx context.Context, in *ProfileReviewNotPassReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -79,6 +84,33 @@ func (c *userClient) UserRegister(ctx context.Context, in *UserRegisterReq, opts
 func (c *userClient) AvatarIrregular(ctx context.Context, in *AvatarIrregularReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/user.v1.User/AvatarIrregular", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) AddAvatarDbAndCache(ctx context.Context, in *AddAvatarDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/user.v1.User/AddAvatarDbAndCache", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) CoverIrregular(ctx context.Context, in *CoverIrregularReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/user.v1.User/CoverIrregular", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) AddCoverDbAndCache(ctx context.Context, in *AddCoverDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/user.v1.User/AddCoverDbAndCache", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -319,6 +351,24 @@ func (c *userClient) GetUserSearch(ctx context.Context, in *GetUserSearchReq, op
 	return out, nil
 }
 
+func (c *userClient) GetAvatarReview(ctx context.Context, in *GetAvatarReviewReq, opts ...grpc.CallOption) (*GetAvatarReviewReply, error) {
+	out := new(GetAvatarReviewReply)
+	err := c.cc.Invoke(ctx, "/user.v1.User/GetAvatarReview", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) GetCoverReview(ctx context.Context, in *GetCoverReviewReq, opts ...grpc.CallOption) (*GetCoverReviewReply, error) {
+	out := new(GetCoverReviewReply)
+	err := c.cc.Invoke(ctx, "/user.v1.User/GetCoverReview", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *userClient) SetProfileUpdate(ctx context.Context, in *SetProfileUpdateReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/user.v1.User/SetProfileUpdate", in, out, opts...)
@@ -379,6 +429,9 @@ func (c *userClient) UnbindUserEmail(ctx context.Context, in *UnbindUserEmailReq
 type UserServer interface {
 	UserRegister(context.Context, *UserRegisterReq) (*emptypb.Empty, error)
 	AvatarIrregular(context.Context, *AvatarIrregularReq) (*emptypb.Empty, error)
+	AddAvatarDbAndCache(context.Context, *AddAvatarDbAndCacheReq) (*emptypb.Empty, error)
+	CoverIrregular(context.Context, *CoverIrregularReq) (*emptypb.Empty, error)
+	AddCoverDbAndCache(context.Context, *AddCoverDbAndCacheReq) (*emptypb.Empty, error)
 	LoginByPassword(context.Context, *LoginByPasswordReq) (*LoginReply, error)
 	LoginByCode(context.Context, *LoginByCodeReq) (*LoginReply, error)
 	LoginByWeChat(context.Context, *LoginByWeChatReq) (*LoginReply, error)
@@ -405,6 +458,8 @@ type UserServer interface {
 	GetFollowedListCount(context.Context, *GetFollowedListCountReq) (*GetFollowedListCountReply, error)
 	GetUserFollows(context.Context, *GetUserFollowsReq) (*GetUserFollowsReply, error)
 	GetUserSearch(context.Context, *GetUserSearchReq) (*GetUserSearchReply, error)
+	GetAvatarReview(context.Context, *GetAvatarReviewReq) (*GetAvatarReviewReply, error)
+	GetCoverReview(context.Context, *GetCoverReviewReq) (*GetCoverReviewReply, error)
 	SetProfileUpdate(context.Context, *SetProfileUpdateReq) (*emptypb.Empty, error)
 	ProfileReviewPass(context.Context, *ProfileReviewPassReq) (*emptypb.Empty, error)
 	ProfileReviewNotPass(context.Context, *ProfileReviewNotPassReq) (*emptypb.Empty, error)
@@ -423,6 +478,15 @@ func (UnimplementedUserServer) UserRegister(context.Context, *UserRegisterReq) (
 }
 func (UnimplementedUserServer) AvatarIrregular(context.Context, *AvatarIrregularReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AvatarIrregular not implemented")
+}
+func (UnimplementedUserServer) AddAvatarDbAndCache(context.Context, *AddAvatarDbAndCacheReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddAvatarDbAndCache not implemented")
+}
+func (UnimplementedUserServer) CoverIrregular(context.Context, *CoverIrregularReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CoverIrregular not implemented")
+}
+func (UnimplementedUserServer) AddCoverDbAndCache(context.Context, *AddCoverDbAndCacheReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddCoverDbAndCache not implemented")
 }
 func (UnimplementedUserServer) LoginByPassword(context.Context, *LoginByPasswordReq) (*LoginReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoginByPassword not implemented")
@@ -502,6 +566,12 @@ func (UnimplementedUserServer) GetUserFollows(context.Context, *GetUserFollowsRe
 func (UnimplementedUserServer) GetUserSearch(context.Context, *GetUserSearchReq) (*GetUserSearchReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserSearch not implemented")
 }
+func (UnimplementedUserServer) GetAvatarReview(context.Context, *GetAvatarReviewReq) (*GetAvatarReviewReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAvatarReview not implemented")
+}
+func (UnimplementedUserServer) GetCoverReview(context.Context, *GetCoverReviewReq) (*GetCoverReviewReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCoverReview not implemented")
+}
 func (UnimplementedUserServer) SetProfileUpdate(context.Context, *SetProfileUpdateReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetProfileUpdate not implemented")
 }
@@ -565,6 +635,60 @@ func _User_AvatarIrregular_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServer).AvatarIrregular(ctx, req.(*AvatarIrregularReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_AddAvatarDbAndCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddAvatarDbAndCacheReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).AddAvatarDbAndCache(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/AddAvatarDbAndCache",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).AddAvatarDbAndCache(ctx, req.(*AddAvatarDbAndCacheReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_CoverIrregular_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CoverIrregularReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).CoverIrregular(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/CoverIrregular",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).CoverIrregular(ctx, req.(*CoverIrregularReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_AddCoverDbAndCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddCoverDbAndCacheReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).AddCoverDbAndCache(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/AddCoverDbAndCache",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).AddCoverDbAndCache(ctx, req.(*AddCoverDbAndCacheReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1037,6 +1161,42 @@ func _User_GetUserSearch_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _User_GetAvatarReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAvatarReviewReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetAvatarReview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/GetAvatarReview",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetAvatarReview(ctx, req.(*GetAvatarReviewReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_GetCoverReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCoverReviewReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetCoverReview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/GetCoverReview",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetCoverReview(ctx, req.(*GetCoverReviewReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _User_SetProfileUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SetProfileUpdateReq)
 	if err := dec(in); err != nil {
@@ -1161,6 +1321,18 @@ var User_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _User_AvatarIrregular_Handler,
 		},
 		{
+			MethodName: "AddAvatarDbAndCache",
+			Handler:    _User_AddAvatarDbAndCache_Handler,
+		},
+		{
+			MethodName: "CoverIrregular",
+			Handler:    _User_CoverIrregular_Handler,
+		},
+		{
+			MethodName: "AddCoverDbAndCache",
+			Handler:    _User_AddCoverDbAndCache_Handler,
+		},
+		{
 			MethodName: "LoginByPassword",
 			Handler:    _User_LoginByPassword_Handler,
 		},
@@ -1263,6 +1435,14 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserSearch",
 			Handler:    _User_GetUserSearch_Handler,
+		},
+		{
+			MethodName: "GetAvatarReview",
+			Handler:    _User_GetAvatarReview_Handler,
+		},
+		{
+			MethodName: "GetCoverReview",
+			Handler:    _User_GetCoverReview_Handler,
 		},
 		{
 			MethodName: "SetProfileUpdate",
