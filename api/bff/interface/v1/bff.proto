@@ -72,6 +72,20 @@ service Bff{
     };
   }
 
+  rpc GetAvatarReview (GetAvatarReviewReq) returns (GetAvatarReviewReply) {
+    option (google.api.http) = {
+      post: "/v1/get/avatar/review",
+      body: "*"
+    };
+  }
+
+  rpc GetCoverReview (GetCoverReviewReq) returns (GetCoverReviewReply) {
+    option (google.api.http) = {
+      post: "/v1/get/cover/review",
+      body: "*"
+    };
+  }
+
   rpc GetAccount (google.protobuf.Empty) returns (GetAccountReply) {
     option (google.api.http) = {
       get: "/v1/get/user/account",
@@ -1145,6 +1159,46 @@ message GetCosSessionKeyReply{
   string session_token = 3;
   int64 start_time = 4;
   int64 expired_time = 5;
+}
+
+message GetAvatarReviewReq{
+  int32 page = 1;
+}
+
+message GetAvatarReviewReply{
+  message Review {
+    int32 id = 1;
+    string uuid = 2;
+    string create_at = 3;
+    string job_id = 4;
+    string url = 5;
+    string label = 6;
+    int32 result = 7;
+    int32 score = 8;
+    string category = 9;
+    string subLabel = 10;
+  }
+  repeated Review review = 1;
+}
+
+message GetCoverReviewReq{
+  int32 page = 1;
+}
+
+message GetCoverReviewReply{
+  message Review {
+    int32 id = 1;
+    string uuid = 2;
+    string create_at = 3;
+    string job_id = 4;
+    string url = 5;
+    string label = 6;
+    int32 result = 7;
+    int32 score = 8;
+    string category = 9;
+    string subLabel = 10;
+  }
+  repeated Review review = 1;
 }
 
 message GetAccountReply{
