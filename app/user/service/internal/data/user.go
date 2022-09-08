@@ -86,24 +86,6 @@ func (r *userRepo) GetProfile(ctx context.Context, uuid string) (*biz.Profile, e
 	}, nil
 }
 
-//func (r *userRepo) GetProfileList(ctx context.Context, uuids []string) ([]*biz.Profile, error) {
-//	list := make([]*Profile, 0)
-//	err := r.data.db.WithContext(ctx).Where("uuid IN ?", uuids).Find(&list).Error
-//	if err != nil {
-//		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get profile list from db: uuids(%v)", uuids))
-//	}
-//
-//	profiles := make([]*biz.Profile, 0)
-//	for _, item := range list {
-//		profiles = append(profiles, &biz.Profile{
-//			Uuid:      item.Uuid,
-//			Username:  item.Username,
-//			Introduce: item.Introduce,
-//		})
-//	}
-//	return profiles, nil
-//}
-
 func (r *userRepo) GetProfileList(ctx context.Context, uuids []string) ([]*biz.Profile, error) {
 	profileList := make([]*biz.Profile, 0)
 	exists, unExists, err := r.profileListExist(ctx, uuids)
@@ -630,6 +612,23 @@ func (r *userRepo) SendProfileToMq(ctx context.Context, profile *biz.ProfileUpda
 	return nil
 }
 
+func (r *userRepo) SendPictureIrregularToMq(ctx context.Context, review *biz.PictureReview) error {
+	data, err := json.Marshal(review)
+	if err != nil {
+		return err
+	}
+	msg := &primitive.Message{
+		Topic: "picture",
+		Body:  data,
+	}
+	msg.WithKeys([]string{review.Uuid})
+	_, err = r.data.profileMqPro.producer.SendSync(ctx, msg)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to send picture review to mq: %v", err))
+	}
+	return nil
+}
+
 func (r *userRepo) SendUserStatisticToMq(ctx context.Context, uuid, userUuid, mode string) error {
 	achievement := map[string]string{}
 	achievement["follow"] = uuid
@@ -739,7 +738,138 @@ func (r *userRepo) getUserFollowsFromDB(ctx context.Context, uuid string) ([]str
 	return follows, nil
 }
 
-func (r *userRepo) SetAvatarIrregular(ctx context.Context, review *biz.AvatarReview) (*biz.AvatarReview, error) {
+func (r *userRepo) GetAvatarReview(ctx context.Context, page int32, uuid string) ([]*biz.PictureReview, error) {
+	key := "avatar_irregular_" + uuid
+	review, err := r.getAvatarReviewFromCache(ctx, page, key)
+	if err != nil {
+		return nil, err
+	}
+
+	size := len(review)
+	if size != 0 {
+		return review, nil
+	}
+
+	review, err = r.getAvatarReviewFromDB(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	size = len(review)
+	if size != 0 {
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setAvatarReviewToCache(key, review)
+		})()
+	}
+	return review, nil
+}
+
+func (r *userRepo) getAvatarReviewFromCache(ctx context.Context, page int32, key string) ([]*biz.PictureReview, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int64(page - 1)
+	list, err := r.data.redisCli.LRange(ctx, key, index*20, index*20+19).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get avatar irregular list from cache: key(%s), page(%v)", key, page))
+	}
+
+	review := make([]*biz.PictureReview, 0)
+	for _index, item := range list {
+		var avatarReview = &biz.PictureReview{}
+		err = json.Unmarshal([]byte(item), avatarReview)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("json unmarshal error: avatarReview(%v)", item))
+		}
+		review = append(review, &biz.PictureReview{
+			Id:       int32(_index+1) + (page-1)*20,
+			Uuid:     avatarReview.Uuid,
+			CreateAt: avatarReview.CreateAt,
+			JobId:    avatarReview.JobId,
+			Url:      avatarReview.Url,
+			Label:    avatarReview.Label,
+			Result:   avatarReview.Result,
+			Category: avatarReview.Category,
+			SubLabel: avatarReview.SubLabel,
+			Score:    avatarReview.Score,
+		})
+	}
+	return review, nil
+}
+
+func (r *userRepo) getAvatarReviewFromDB(ctx context.Context, page int32, uuid string) ([]*biz.PictureReview, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int(page - 1)
+	list := make([]*AvatarReview, 0)
+	err := r.data.db.WithContext(ctx).Where("uuid", uuid).Order("id desc").Offset(index * 20).Limit(20).Find(&list).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get avatar review from db: page(%v), uuid(%s)", page, uuid))
+	}
+
+	review := make([]*biz.PictureReview, 0)
+	for _index, item := range list {
+		review = append(review, &biz.PictureReview{
+			Id:       int32(_index+1) + (page-1)*20,
+			Uuid:     item.Uuid,
+			JobId:    item.JobId,
+			CreateAt: item.CreatedAt.Format("2006-01-02"),
+			Url:      item.Url,
+			Label:    item.Label,
+			Result:   item.Result,
+			Category: item.Category,
+			SubLabel: item.SubLabel,
+			Score:    item.Score,
+		})
+	}
+	return review, nil
+}
+
+func (r *userRepo) setAvatarReviewToCache(key string, review []*biz.PictureReview) {
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		list := make([]interface{}, 0)
+		for _, item := range review {
+			m, err := json.Marshal(item)
+			if err != nil {
+				r.log.Errorf("fail to marshal avatar review: avatarReview(%v)", review)
+			}
+			list = append(list, m)
+		}
+		pipe.RPush(ctx, key, list...)
+		pipe.Expire(ctx, key, time.Hour*8)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to set avatar review to cache: avatarReview(%v)", review)
+	}
+}
+
+func (r *userRepo) SetAvatarIrregularToCache(ctx context.Context, review *biz.PictureReview) error {
+	marshal, err := json.Marshal(review)
+	if err != nil {
+		r.log.Errorf("fail to set avatar irregular to json: json.Marshal(%v), error(%v)", review, err)
+	}
+	var script = redis.NewScript(`
+					local key = KEYS[1]
+					local value = ARGV[1]
+					local exist = redis.call("EXISTS", key)
+					if exist == 1 then
+						redis.call("LPUSH", key, value)
+					end
+					return 0
+	`)
+	keys := []string{"avatar_irregular_" + review.Uuid}
+	values := []interface{}{marshal}
+	_, err = script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to set avatar irregular to cache: review(%v)", review))
+	}
+	return nil
+}
+
+func (r *userRepo) SetAvatarIrregular(ctx context.Context, review *biz.PictureReview) (*biz.PictureReview, error) {
 	ar := &AvatarReview{
 		Uuid:     review.Uuid,
 		JobId:    review.JobId,
@@ -755,13 +885,142 @@ func (r *userRepo) SetAvatarIrregular(ctx context.Context, review *biz.AvatarRev
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to add avatar review record: review(%v)", review))
 	}
 	review.Id = int32(ar.ID)
+	review.CreateAt = time.Now().Format("2006-01-02")
 	return review, nil
 }
 
-func (r *userRepo) SetAvatarIrregularToCache(ctx context.Context, review *biz.AvatarReview) error {
+func (r *userRepo) GetCoverReview(ctx context.Context, page int32, uuid string) ([]*biz.PictureReview, error) {
+	key := "cover_irregular_" + uuid
+	review, err := r.getCoverReviewFromCache(ctx, page, key)
+	if err != nil {
+		return nil, err
+	}
+
+	size := len(review)
+	if size != 0 {
+		return review, nil
+	}
+
+	review, err = r.getCoverReviewFromDB(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	size = len(review)
+	if size != 0 {
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setCoverReviewToCache(key, review)
+		})()
+	}
+	return review, nil
+}
+
+func (r *userRepo) getCoverReviewFromCache(ctx context.Context, page int32, key string) ([]*biz.PictureReview, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int64(page - 1)
+	list, err := r.data.redisCli.LRange(ctx, key, index*20, index*20+19).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get cover irregular list from cache: key(%s), page(%v)", key, page))
+	}
+
+	review := make([]*biz.PictureReview, 0)
+	for _index, item := range list {
+		var avatarReview = &biz.PictureReview{}
+		err = json.Unmarshal([]byte(item), avatarReview)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("json unmarshal error: coverReview(%v)", item))
+		}
+		review = append(review, &biz.PictureReview{
+			Id:       int32(_index+1) + (page-1)*20,
+			Uuid:     avatarReview.Uuid,
+			CreateAt: avatarReview.CreateAt,
+			JobId:    avatarReview.JobId,
+			Url:      avatarReview.Url,
+			Label:    avatarReview.Label,
+			Result:   avatarReview.Result,
+			Category: avatarReview.Category,
+			SubLabel: avatarReview.SubLabel,
+			Score:    avatarReview.Score,
+		})
+	}
+	return review, nil
+}
+
+func (r *userRepo) getCoverReviewFromDB(ctx context.Context, page int32, uuid string) ([]*biz.PictureReview, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int(page - 1)
+	list := make([]*CoverReview, 0)
+	err := r.data.db.WithContext(ctx).Where("uuid", uuid).Order("id desc").Offset(index * 20).Limit(20).Find(&list).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get cover review from db: page(%v), uuid(%s)", page, uuid))
+	}
+
+	review := make([]*biz.PictureReview, 0)
+	for _index, item := range list {
+		review = append(review, &biz.PictureReview{
+			Id:       int32(_index+1) + (page-1)*20,
+			Uuid:     item.Uuid,
+			JobId:    item.JobId,
+			CreateAt: item.CreatedAt.Format("2006-01-02"),
+			Url:      item.Url,
+			Label:    item.Label,
+			Result:   item.Result,
+			Category: item.Category,
+			SubLabel: item.SubLabel,
+			Score:    item.Score,
+		})
+	}
+	return review, nil
+}
+
+func (r *userRepo) setCoverReviewToCache(key string, review []*biz.PictureReview) {
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		list := make([]interface{}, 0)
+		for _, item := range review {
+			m, err := json.Marshal(item)
+			if err != nil {
+				r.log.Errorf("fail to marshal cover review: coverReview(%v)", review)
+			}
+			list = append(list, m)
+		}
+		pipe.RPush(ctx, key, list...)
+		pipe.Expire(ctx, key, time.Hour*8)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to set cover review to cache: coverReview(%v)", review)
+	}
+}
+
+func (r *userRepo) SetCoverIrregular(ctx context.Context, review *biz.PictureReview) (*biz.PictureReview, error) {
+	ar := &CoverReview{
+		Uuid:     review.Uuid,
+		JobId:    review.JobId,
+		Url:      review.Url,
+		Label:    review.Label,
+		Result:   review.Result,
+		Category: review.Category,
+		SubLabel: review.SubLabel,
+		Score:    review.Score,
+	}
+	err := r.data.DB(ctx).Select("Uuid", "JobId", "Url", "Label", "Result", "Category", "SubLabel", "Score").Create(ar).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to add cover review record: review(%v)", review))
+	}
+	review.Id = int32(ar.ID)
+	review.CreateAt = time.Now().Format("2006-01-02")
+	return review, nil
+}
+
+func (r *userRepo) SetCoverIrregularToCache(ctx context.Context, review *biz.PictureReview) error {
 	marshal, err := json.Marshal(review)
 	if err != nil {
-		r.log.Errorf("fail to set avatar irregular to json: json.Marshal(%v), error(%v)", review, err)
+		r.log.Errorf("fail to set cover irregular to json: json.Marshal(%v), error(%v)", review, err)
 	}
 	var script = redis.NewScript(`
 					local key = KEYS[1]
@@ -772,11 +1031,11 @@ func (r *userRepo) SetAvatarIrregularToCache(ctx context.Context, review *biz.Av
 					end
 					return 0
 	`)
-	keys := []string{"avatar_irregular" + review.Uuid}
+	keys := []string{"cover_irregular_" + review.Uuid}
 	values := []interface{}{marshal}
 	_, err = script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to set avatar irregular to cache: review(%v)", review))
+		return errors.Wrapf(err, fmt.Sprintf("fail to set cover irregular to cache: review(%v)", review))
 	}
 	return nil
 }
