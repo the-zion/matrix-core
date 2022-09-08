@@ -80,3 +80,11 @@ func (s *MessageService) SetFollowDbAndCache(ctx context.Context, uuid, userId s
 func (s *MessageService) CancelFollowDbAndCache(ctx context.Context, uuid, userId string) error {
 	return s.uc.CancelFollowDbAndCache(ctx, uuid, userId)
 }
+
+func (s *MessageService) AddAvatarDbAndCache(ctx context.Context, score, result int32, uuid, jobId, label, category, subLabel string) error {
+	return s.uc.AddAvatarDbAndCache(ctx, score, result, uuid, jobId, label, category, subLabel)
+}
+
+func (s *MessageService) AddCoverDbAndCache(ctx context.Context, score, result int32, uuid, jobId, label, category, subLabel string) error {
+	return s.uc.AddCoverDbAndCache(ctx, score, result, uuid, jobId, label, category, subLabel)
+}
