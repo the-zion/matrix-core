@@ -9,9 +9,15 @@ import "validate/validate.proto";
 option go_package = "api/user/service/v1;v1";
 
 service User {
-  rpc UserRegister(UserRegisterReq) returns (google.protobuf.Empty){}
+  rpc UserRegister (UserRegisterReq) returns (google.protobuf.Empty){}
 
-  rpc AvatarIrregular(AvatarIrregularReq) returns (google.protobuf.Empty){}
+  rpc AvatarIrregular (AvatarIrregularReq) returns (google.protobuf.Empty){}
+
+  rpc AddAvatarDbAndCache (AddAvatarDbAndCacheReq) returns (google.protobuf.Empty){}
+
+  rpc CoverIrregular (CoverIrregularReq) returns (google.protobuf.Empty){}
+
+  rpc AddCoverDbAndCache (AddCoverDbAndCacheReq) returns (google.protobuf.Empty){}
 
   rpc LoginByPassword (LoginByPasswordReq) returns (LoginReply) {}
 
@@ -63,7 +69,11 @@ service User {
 
   rpc GetUserFollows (GetUserFollowsReq) returns (GetUserFollowsReply) {}
 
-  rpc GetUserSearch(GetUserSearchReq)returns (GetUserSearchReply){}
+  rpc GetUserSearch (GetUserSearchReq)returns (GetUserSearchReply){}
+
+  rpc GetAvatarReview (GetAvatarReviewReq)returns (GetAvatarReviewReply){}
+
+  rpc GetCoverReview (GetCoverReviewReq) returns (GetCoverReviewReply) {}
 
   rpc SetProfileUpdate (SetProfileUpdateReq) returns (google.protobuf.Empty) {}
 
@@ -73,9 +83,9 @@ service User {
 
   rpc ChangeUserPassword (ChangeUserPasswordReq) returns (google.protobuf.Empty) {}
 
-  rpc UnbindUserPhone(UnbindUserPhoneReq) returns (google.protobuf.Empty){}
+  rpc UnbindUserPhone (UnbindUserPhoneReq) returns (google.protobuf.Empty){}
 
-  rpc UnbindUserEmail(UnbindUserEmailReq) returns (google.protobuf.Empty){}
+  rpc UnbindUserEmail (UnbindUserEmailReq) returns (google.protobuf.Empty){}
 }
 
 message UserRegisterReq{
@@ -93,6 +103,39 @@ message AvatarIrregularReq{
   int32 score = 6;
   string category = 7 [(validate.rules).string = {max_len: 1000}];
   string subLabel = 8 [(validate.rules).string = {max_len: 1000}];
+}
+
+message AddAvatarDbAndCacheReq{
+  string uuid = 1;
+  string job_id = 2;
+  string url = 3;
+  string label = 4;
+  int32 result = 5;
+  int32 score = 6;
+  string category = 7;
+  string subLabel = 8;
+}
+
+message CoverIrregularReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+  string job_id = 2 [(validate.rules).string = {max_len: 1000}];
+  string url = 3 [(validate.rules).string = {max_len: 1000}];
+  string label = 4 [(validate.rules).string = {max_len: 1000}];
+  int32 result = 5;
+  int32 score = 6;
+  string category = 7 [(validate.rules).string = {max_len: 1000}];
+  string subLabel = 8 [(validate.rules).string = {max_len: 1000}];
+}
+
+message AddCoverDbAndCacheReq{
+  string uuid = 1;
+  string job_id = 2;
+  string url = 3;
+  string label = 4;
+  int32 result = 5;
+  int32 score = 6;
+  string category = 7;
+  string subLabel = 8;
 }
 
 message LoginByPasswordReq {
@@ -330,6 +373,48 @@ message GetUserSearchReply{
   }
   repeated List list = 1;
   int32 total = 2;
+}
+
+message GetAvatarReviewReq{
+  int32 page = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message GetAvatarReviewReply{
+  message Review {
+    int32 id = 1;
+    string uuid = 2;
+    string create_at = 3;
+    string job_id = 4;
+    string url = 5;
+    string label = 6;
+    int32 result = 7;
+    int32 score = 8;
+    string category = 9;
+    string subLabel = 10;
+  }
+  repeated Review review = 1;
+}
+
+message GetCoverReviewReq{
+  int32 page = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message GetCoverReviewReply{
+  message Review {
+    int32 id = 1;
+    string uuid = 2;
+    string create_at = 3;
+    string job_id = 4;
+    string url = 5;
+    string label = 6;
+    int32 result = 7;
+    int32 score = 8;
+    string category = 9;
+    string subLabel = 10;
+  }
+  repeated Review review = 1;
 }
 
 message SetProfileUpdateReq{
