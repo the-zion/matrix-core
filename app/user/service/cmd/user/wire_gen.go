@@ -27,9 +27,10 @@ func wireApp(confServer *conf.Server, confData *conf.Data, auth *conf.Auth, logg
 	elasticSearch := data.NewElasticsearch(confData, logger)
 	profileMqPro := data.NewRocketmqProfileProducer(confData, logger)
 	followMqPro := data.NewRocketmqFollowProducer(confData, logger)
+	pictureMqPro := data.NewRocketmqPictureProducer(confData, logger)
 	achievementMqPro := data.NewRocketmqAchievementProducer(confData, logger)
 	cos := data.NewCosClient(confData)
-	dataData, cleanup, err := data.NewData(db, cmdable, codeMqPro, elasticSearch, profileMqPro, followMqPro, achievementMqPro, cos, logger)
+	dataData, cleanup, err := data.NewData(db, cmdable, codeMqPro, elasticSearch, profileMqPro, followMqPro, pictureMqPro, achievementMqPro, cos, logger)
 	if err != nil {
 		return nil, nil, err
 	}
