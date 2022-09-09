@@ -46,6 +46,7 @@ type ArticleRepo interface {
 	GetArticleListStatistic(ctx context.Context, articleList []*Article) ([]*ArticleStatistic, error)
 	GetArticleDraftList(ctx context.Context, uuid string) ([]*ArticleDraft, error)
 	GetArticleSearch(ctx context.Context, page int32, search, time string) ([]*Article, int32, error)
+	GetArticleImageReview(ctx context.Context, page int32, uuid string) ([]*CreationImageReview, error)
 	ArticleDraftMark(ctx context.Context, id int32, uuid string) error
 	SendArticle(ctx context.Context, id int32, uuid, ip string) error
 	SendArticleEdit(ctx context.Context, id int32, uuid, ip string) error
@@ -525,6 +526,15 @@ func (r *ArticleUseCase) GetArticleListStatistic(ctx context.Context, ids []int3
 func (r *ArticleUseCase) GetLastArticleDraft(ctx context.Context) (*ArticleDraft, error) {
 	uuid := ctx.Value("uuid").(string)
 	return r.repo.GetLastArticleDraft(ctx, uuid)
+}
+
+func (r *ArticleUseCase) GetArticleImageReview(ctx context.Context, page int32) ([]*CreationImageReview, error) {
+	uuid := ctx.Value("uuid").(string)
+	reviewList, err := r.repo.GetArticleImageReview(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+	return reviewList, nil
 }
 
 func (r *ArticleUseCase) CreateArticleDraft(ctx context.Context) (int32, error) {
