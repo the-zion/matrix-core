@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	v1 "github.com/the-zion/matrix-core/api/creation/service/v1"
+	"github.com/the-zion/matrix-core/app/creation/service/internal/biz"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -168,6 +169,27 @@ func (s *CreationService) GetUserTalkCollect(ctx context.Context, req *v1.GetUse
 	return &v1.GetUserTalkCollectReply{
 		Collect: collectMap,
 	}, nil
+}
+
+func (s *CreationService) TalkImageIrregular(ctx context.Context, req *v1.CreationImageIrregularReq) (*emptypb.Empty, error) {
+	err := s.tc.TalkImageIrregular(ctx, &biz.ImageReview{
+		CreationId: req.Id,
+		Kind:       req.Kind,
+		Uid:        req.Uid,
+		Uuid:       req.Uuid,
+		JobId:      req.JobId,
+		Url:        req.Url,
+		Label:      req.Label,
+		Result:     req.Result,
+		Score:      req.Score,
+		Category:   req.Category,
+		SubLabel:   req.SubLabel,
+		Mode:       "add_talk_image_review_db_and_cache",
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
 }
 
 func (s *CreationService) CreateTalkDraft(ctx context.Context, req *v1.CreateTalkDraftReq) (*v1.CreateTalkDraftReply, error) {

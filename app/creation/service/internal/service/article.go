@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	v1 "github.com/the-zion/matrix-core/api/creation/service/v1"
+	"github.com/the-zion/matrix-core/app/creation/service/internal/biz"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -198,6 +199,73 @@ func (s *CreationService) GetArticleSearch(ctx context.Context, req *v1.GetArtic
 	}
 	reply.Total = total
 	return reply, nil
+}
+
+func (s *CreationService) GetArticleImageReview(ctx context.Context, req *v1.GetArticleImageReviewReq) (*v1.GetArticleImageReviewReply, error) {
+	reply := &v1.GetArticleImageReviewReply{Review: make([]*v1.GetArticleImageReviewReply_Review, 0)}
+	reviewList, err := s.ac.GetArticleImageReview(ctx, req.Page, req.Uuid)
+	if err != nil {
+		return reply, err
+	}
+	for _, item := range reviewList {
+		reply.Review = append(reply.Review, &v1.GetArticleImageReviewReply_Review{
+			Id:         item.Id,
+			CreationId: item.CreationId,
+			Kind:       item.Kind,
+			Uid:        item.Uid,
+			Uuid:       item.Uuid,
+			CreateAt:   item.CreateAt,
+			JobId:      item.JobId,
+			Url:        item.Url,
+			Label:      item.Label,
+			Result:     item.Result,
+			Score:      item.Score,
+			Category:   item.Category,
+			SubLabel:   item.SubLabel,
+		})
+	}
+	return reply, nil
+}
+
+func (s *CreationService) ArticleImageIrregular(ctx context.Context, req *v1.CreationImageIrregularReq) (*emptypb.Empty, error) {
+	err := s.ac.ArticleImageIrregular(ctx, &biz.ImageReview{
+		CreationId: req.Id,
+		Kind:       req.Kind,
+		Uid:        req.Uid,
+		Uuid:       req.Uuid,
+		JobId:      req.JobId,
+		Url:        req.Url,
+		Label:      req.Label,
+		Result:     req.Result,
+		Score:      req.Score,
+		Category:   req.Category,
+		SubLabel:   req.SubLabel,
+		Mode:       "add_article_image_review_db_and_cache",
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) AddArticleImageReviewDbAndCache(ctx context.Context, req *v1.AddCreationImageReviewDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.ac.AddArticleImageReviewDbAndCache(ctx, &biz.ImageReview{
+		CreationId: req.CreationId,
+		Kind:       req.Kind,
+		Uid:        req.Uid,
+		Uuid:       req.Uuid,
+		JobId:      req.JobId,
+		Url:        req.Url,
+		Label:      req.Label,
+		Result:     req.Result,
+		Score:      req.Score,
+		Category:   req.Category,
+		SubLabel:   req.SubLabel,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
 }
 
 func (s *CreationService) CreateArticle(ctx context.Context, req *v1.CreateArticleReq) (*emptypb.Empty, error) {
