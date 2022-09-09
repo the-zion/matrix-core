@@ -15,6 +15,21 @@ type Article struct {
 	Auth      int32          `gorm:"default:1"`
 }
 
+type ArticleReview struct {
+	gorm.Model
+	ArticleId int32
+	Kind      string
+	Uid       string
+	Uuid      string `gorm:"index;size:36"`
+	JobId     string `gorm:"size:100"`
+	Url       string `gorm:"size:1000"`
+	Label     string `gorm:"size:100"`
+	Result    int32
+	Category  string `gorm:"size:100"`
+	SubLabel  string `gorm:"size:100"`
+	Score     int32
+}
+
 type Talk struct {
 	TalkId    int32 `gorm:"primarykey"`
 	CreatedAt time.Time
@@ -23,6 +38,21 @@ type Talk struct {
 	Uuid      string         `gorm:"index;size:36"`
 	Status    int32          `gorm:"default:1"`
 	Auth      int32          `gorm:"default:1"`
+}
+
+type TalkReview struct {
+	gorm.Model
+	TalkId   int32
+	Kind     string
+	Uid      string
+	Uuid     string `gorm:"index;size:36"`
+	JobId    string `gorm:"size:100"`
+	Url      string `gorm:"size:1000"`
+	Label    string `gorm:"size:100"`
+	Result   int32
+	Category string `gorm:"size:100"`
+	SubLabel string `gorm:"size:100"`
+	Score    int32
 }
 
 type ArticleStatistic struct {
@@ -142,6 +172,21 @@ type Column struct {
 	Uuid      string         `gorm:"index;size:36"`
 	Status    int32          `gorm:"default:1"`
 	Auth      int32          `gorm:"default:1"`
+}
+
+type ColumnReview struct {
+	gorm.Model
+	ColumnId int32
+	Kind     string
+	Uid      string
+	Uuid     string `gorm:"index;size:36"`
+	JobId    string `gorm:"size:100"`
+	Url      string `gorm:"size:1000"`
+	Label    string `gorm:"size:100"`
+	Result   int32
+	Category string `gorm:"size:100"`
+	SubLabel string `gorm:"size:100"`
+	Score    int32
 }
 
 type ColumnDraft struct {
