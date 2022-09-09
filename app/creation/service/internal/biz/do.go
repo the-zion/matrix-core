@@ -187,3 +187,20 @@ type CreationUser struct {
 	Collect     int32
 	Subscribe   int32
 }
+
+type ImageReview struct {
+	Id         int32
+	CreationId int32
+	Kind       string
+	Uid        string
+	CreateAt   string
+	Uuid       string
+	JobId      string
+	Url        string
+	Label      string
+	Result     int32
+	Category   string
+	SubLabel   string
+	Mode       string
+	Score      int32
+}
