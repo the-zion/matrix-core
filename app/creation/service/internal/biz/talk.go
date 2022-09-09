@@ -75,6 +75,7 @@ type TalkRepo interface {
 	SendTalkStatisticToMq(ctx context.Context, uuid, userUuid, mode string) error
 	SendScoreToMq(ctx context.Context, score int32, uuid, mode string) error
 	SendStatisticToMq(ctx context.Context, id, collectionsId int32, uuid, userUuid, mode string) error
+	SendTalkImageIrregularToMq(ctx context.Context, review *ImageReview) error
 
 	DeleteTalk(ctx context.Context, id int32, uuid string) error
 	DeleteTalkDraft(ctx context.Context, id int32, uuid string) error
@@ -697,4 +698,12 @@ func (r *TalkUseCase) ReduceTalkComment(ctx context.Context, id int32, uuid stri
 		}
 		return nil
 	})
+}
+
+func (r *TalkUseCase) TalkImageIrregular(ctx context.Context, review *ImageReview) error {
+	err := r.repo.SendTalkImageIrregularToMq(ctx, review)
+	if err != nil {
+		return v1.ErrorSetImageIrregularFailed("set talk image irregular to mq failed: %s", err.Error())
+	}
+	return nil
 }
