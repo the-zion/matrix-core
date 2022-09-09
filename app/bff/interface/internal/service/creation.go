@@ -445,6 +445,32 @@ func (s *BffService) GetLastArticleDraft(ctx context.Context, _ *emptypb.Empty) 
 	}, nil
 }
 
+func (s *BffService) GetArticleImageReview(ctx context.Context, req *v1.GetArticleImageReviewReq) (*v1.GetArticleImageReviewReply, error) {
+	reply := &v1.GetArticleImageReviewReply{Review: make([]*v1.GetArticleImageReviewReply_Review, 0)}
+	reviewList, err := s.ac.GetArticleImageReview(ctx, req.Page)
+	if err != nil {
+		return reply, err
+	}
+	for _, item := range reviewList {
+		reply.Review = append(reply.Review, &v1.GetArticleImageReviewReply_Review{
+			Id:         item.Id,
+			CreationId: item.CreationId,
+			Kind:       item.Kind,
+			Uid:        item.Uid,
+			Uuid:       item.Uuid,
+			CreateAt:   item.CreateAt,
+			JobId:      item.JobId,
+			Url:        item.Url,
+			Label:      item.Label,
+			Result:     item.Result,
+			Score:      item.Score,
+			Category:   item.Category,
+			SubLabel:   item.SubLabel,
+		})
+	}
+	return reply, nil
+}
+
 func (s *BffService) CreateArticleDraft(ctx context.Context, _ *emptypb.Empty) (*v1.CreateArticleDraftReply, error) {
 	id, err := s.ac.CreateArticleDraft(ctx)
 	if err != nil {
