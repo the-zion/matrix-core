@@ -623,6 +623,18 @@ func ErrorSetCollectFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, CreationErrorReason_SET_COLLECT_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsSetImageIrregularFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_SET_IMAGE_IRREGULAR_FAILED.String() && e.Code == 500
+}
+
+func ErrorSetImageIrregularFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_SET_IMAGE_IRREGULAR_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsCancelAgreeFailed(err error) bool {
 	if err == nil {
 		return false
@@ -705,6 +717,18 @@ func IsGetCreationUserFailed(err error) bool {
 
 func ErrorGetCreationUserFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, CreationErrorReason_GET_CREATION_USER_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsGetImageReviewFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_GET_IMAGE_REVIEW_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetImageReviewFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_GET_IMAGE_REVIEW_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
 func IsSetRecordFailed(err error) bool {
