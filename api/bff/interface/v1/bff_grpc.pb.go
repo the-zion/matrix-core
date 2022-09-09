@@ -90,6 +90,7 @@ type BffClient interface {
 	GetArticleListStatistic(ctx context.Context, in *GetArticleListStatisticReq, opts ...grpc.CallOption) (*GetArticleListStatisticReply, error)
 	GetLastArticleDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLastArticleDraftReply, error)
 	GetArticleSearch(ctx context.Context, in *GetArticleSearchReq, opts ...grpc.CallOption) (*GetArticleSearchReply, error)
+	GetArticleImageReview(ctx context.Context, in *GetArticleImageReviewReq, opts ...grpc.CallOption) (*GetArticleImageReviewReply, error)
 	CreateArticleDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateArticleDraftReply, error)
 	ArticleDraftMark(ctx context.Context, in *ArticleDraftMarkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetArticleDraftList(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetArticleDraftListReply, error)
@@ -786,6 +787,15 @@ func (c *bffClient) GetLastArticleDraft(ctx context.Context, in *emptypb.Empty, 
 func (c *bffClient) GetArticleSearch(ctx context.Context, in *GetArticleSearchReq, opts ...grpc.CallOption) (*GetArticleSearchReply, error) {
 	out := new(GetArticleSearchReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetArticleSearch", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetArticleImageReview(ctx context.Context, in *GetArticleImageReviewReq, opts ...grpc.CallOption) (*GetArticleImageReviewReply, error) {
+	out := new(GetArticleImageReviewReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetArticleImageReview", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1745,6 +1755,7 @@ type BffServer interface {
 	GetArticleListStatistic(context.Context, *GetArticleListStatisticReq) (*GetArticleListStatisticReply, error)
 	GetLastArticleDraft(context.Context, *emptypb.Empty) (*GetLastArticleDraftReply, error)
 	GetArticleSearch(context.Context, *GetArticleSearchReq) (*GetArticleSearchReply, error)
+	GetArticleImageReview(context.Context, *GetArticleImageReviewReq) (*GetArticleImageReviewReply, error)
 	CreateArticleDraft(context.Context, *emptypb.Empty) (*CreateArticleDraftReply, error)
 	ArticleDraftMark(context.Context, *ArticleDraftMarkReq) (*emptypb.Empty, error)
 	GetArticleDraftList(context.Context, *emptypb.Empty) (*GetArticleDraftListReply, error)
@@ -2047,6 +2058,9 @@ func (UnimplementedBffServer) GetLastArticleDraft(context.Context, *emptypb.Empt
 }
 func (UnimplementedBffServer) GetArticleSearch(context.Context, *GetArticleSearchReq) (*GetArticleSearchReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetArticleSearch not implemented")
+}
+func (UnimplementedBffServer) GetArticleImageReview(context.Context, *GetArticleImageReviewReq) (*GetArticleImageReviewReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetArticleImageReview not implemented")
 }
 func (UnimplementedBffServer) CreateArticleDraft(context.Context, *emptypb.Empty) (*CreateArticleDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateArticleDraft not implemented")
@@ -3539,6 +3553,24 @@ func _Bff_GetArticleSearch_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BffServer).GetArticleSearch(ctx, req.(*GetArticleSearchReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetArticleImageReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetArticleImageReviewReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetArticleImageReview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetArticleImageReview",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetArticleImageReview(ctx, req.(*GetArticleImageReviewReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -5577,6 +5609,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetArticleSearch",
 			Handler:    _Bff_GetArticleSearch_Handler,
+		},
+		{
+			MethodName: "GetArticleImageReview",
+			Handler:    _Bff_GetArticleImageReview_Handler,
 		},
 		{
 			MethodName: "CreateArticleDraft",

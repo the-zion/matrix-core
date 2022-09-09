@@ -52,6 +52,7 @@ const OperationBffGetAchievementList = "/bff.v1.Bff/GetAchievementList"
 const OperationBffGetArticleCount = "/bff.v1.Bff/GetArticleCount"
 const OperationBffGetArticleCountVisitor = "/bff.v1.Bff/GetArticleCountVisitor"
 const OperationBffGetArticleDraftList = "/bff.v1.Bff/GetArticleDraftList"
+const OperationBffGetArticleImageReview = "/bff.v1.Bff/GetArticleImageReview"
 const OperationBffGetArticleList = "/bff.v1.Bff/GetArticleList"
 const OperationBffGetArticleListHot = "/bff.v1.Bff/GetArticleListHot"
 const OperationBffGetArticleListStatistic = "/bff.v1.Bff/GetArticleListStatistic"
@@ -218,6 +219,7 @@ type BffHTTPServer interface {
 	GetArticleCount(context.Context, *emptypb.Empty) (*GetArticleCountReply, error)
 	GetArticleCountVisitor(context.Context, *GetArticleCountVisitorReq) (*GetArticleCountReply, error)
 	GetArticleDraftList(context.Context, *emptypb.Empty) (*GetArticleDraftListReply, error)
+	GetArticleImageReview(context.Context, *GetArticleImageReviewReq) (*GetArticleImageReviewReply, error)
 	GetArticleList(context.Context, *GetArticleListReq) (*GetArticleListReply, error)
 	GetArticleListHot(context.Context, *GetArticleListHotReq) (*GetArticleListHotReply, error)
 	GetArticleListStatistic(context.Context, *GetArticleListStatisticReq) (*GetArticleListStatisticReply, error)
@@ -420,6 +422,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.GET("/v1/get/article/list/statistic", _Bff_GetArticleListStatistic0_HTTP_Handler(srv))
 	r.GET("/v1/get/last/article/draft", _Bff_GetLastArticleDraft0_HTTP_Handler(srv))
 	r.GET("/v1/get/article/search", _Bff_GetArticleSearch0_HTTP_Handler(srv))
+	r.POST("/v1/get/article/image/review", _Bff_GetArticleImageReview0_HTTP_Handler(srv))
 	r.POST("/v1/create/article/draft", _Bff_CreateArticleDraft0_HTTP_Handler(srv))
 	r.POST("/v1/article/draft/mark", _Bff_ArticleDraftMark0_HTTP_Handler(srv))
 	r.GET("/v1/get/article/draft/list", _Bff_GetArticleDraftList0_HTTP_Handler(srv))
@@ -1770,6 +1773,25 @@ func _Bff_GetArticleSearch0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Contex
 			return err
 		}
 		reply := out.(*GetArticleSearchReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_GetArticleImageReview0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetArticleImageReviewReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetArticleImageReview)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetArticleImageReview(ctx, req.(*GetArticleImageReviewReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetArticleImageReviewReply)
 		return ctx.Result(200, reply)
 	}
 }
@@ -3669,6 +3691,7 @@ type BffHTTPClient interface {
 	GetArticleCount(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetArticleCountReply, err error)
 	GetArticleCountVisitor(ctx context.Context, req *GetArticleCountVisitorReq, opts ...http.CallOption) (rsp *GetArticleCountReply, err error)
 	GetArticleDraftList(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetArticleDraftListReply, err error)
+	GetArticleImageReview(ctx context.Context, req *GetArticleImageReviewReq, opts ...http.CallOption) (rsp *GetArticleImageReviewReply, err error)
 	GetArticleList(ctx context.Context, req *GetArticleListReq, opts ...http.CallOption) (rsp *GetArticleListReply, err error)
 	GetArticleListHot(ctx context.Context, req *GetArticleListHotReq, opts ...http.CallOption) (rsp *GetArticleListHotReply, err error)
 	GetArticleListStatistic(ctx context.Context, req *GetArticleListStatisticReq, opts ...http.CallOption) (rsp *GetArticleListStatisticReply, err error)
@@ -4221,6 +4244,19 @@ func (c *BffHTTPClientImpl) GetArticleDraftList(ctx context.Context, in *emptypb
 	opts = append(opts, http.Operation(OperationBffGetArticleDraftList))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetArticleImageReview(ctx context.Context, in *GetArticleImageReviewReq, opts ...http.CallOption) (*GetArticleImageReviewReply, error) {
+	var out GetArticleImageReviewReply
+	pattern := "/v1/get/article/image/review"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffGetArticleImageReview))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}
