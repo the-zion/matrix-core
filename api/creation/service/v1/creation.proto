@@ -62,6 +62,10 @@ service Creation {
 
   rpc DeleteCollectionsCache(DeleteCollectionsCacheReq)returns (google.protobuf.Empty){}
 
+  rpc ArticleImageIrregular(CreationImageIrregularReq)returns (google.protobuf.Empty){}
+
+  rpc AddArticleImageReviewDbAndCache(AddCreationImageReviewDbAndCacheReq)returns (google.protobuf.Empty){}
+
   rpc GetArticleList(GetArticleListReq) returns (GetArticleListReply){}
 
   rpc GetArticleListHot(GetArticleListHotReq) returns (GetArticleListHotReply){}
@@ -89,6 +93,8 @@ service Creation {
   rpc GetLastArticleDraft(GetLastArticleDraftReq) returns (GetLastArticleDraftReply){}
 
   rpc GetArticleSearch(GetArticleSearchReq)returns (GetArticleSearchReply){}
+
+  rpc GetArticleImageReview (GetArticleImageReviewReq) returns (GetArticleImageReviewReply) {}
 
   rpc CreateArticle(CreateArticleReq) returns (google.protobuf.Empty){}
 
@@ -158,11 +164,15 @@ service Creation {
 
   rpc GetUserTalkCollect(GetUserTalkCollectReq)returns (GetUserTalkCollectReply){}
 
+  rpc AddTalkImageReviewDbAndCache(AddCreationImageReviewDbAndCacheReq)returns(google.protobuf.Empty){}
+
   rpc CreateTalkDraft(CreateTalkDraftReq) returns (CreateTalkDraftReply){}
 
   rpc SendTalk(SendTalkReq) returns (google.protobuf.Empty){}
 
   rpc SendTalkEdit(SendTalkEditReq) returns (google.protobuf.Empty){}
+
+  rpc TalkImageIrregular(CreationImageIrregularReq)returns (google.protobuf.Empty){}
 
   rpc CreateTalk(CreateTalkReq) returns (google.protobuf.Empty){}
 
@@ -460,6 +470,34 @@ message DeleteCollectionsCacheReq{
   string uuid = 2;
 }
 
+message CreationImageIrregularReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+  string job_id = 2 [(validate.rules).string = {max_len: 1000}];
+  string url = 3 [(validate.rules).string = {max_len: 1000}];
+  string label = 4 [(validate.rules).string = {max_len: 1000}];
+  int32 result = 5;
+  int32 score = 6;
+  string category = 7 [(validate.rules).string = {max_len: 1000}];
+  string subLabel = 8 [(validate.rules).string = {max_len: 1000}];
+  int32 id = 9;
+  string kind = 10 [(validate.rules).string = {in: ["content", "cover"]}];
+  string uid = 11 [(validate.rules).string = {max_len: 1000}];
+}
+
+message AddCreationImageReviewDbAndCacheReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+  string job_id = 2 [(validate.rules).string = {max_len: 1000}];
+  string url = 3 [(validate.rules).string = {max_len: 1000}];
+  string label = 4 [(validate.rules).string = {max_len: 1000}];
+  int32 result = 5;
+  int32 score = 6;
+  string category = 7 [(validate.rules).string = {max_len: 1000}];
+  string subLabel = 8 [(validate.rules).string = {max_len: 1000}];
+  int32 creation_id = 9;
+  string kind = 10 [(validate.rules).string = {in: ["content", "cover"]}];
+  string uid = 11 [(validate.rules).string = {max_len: 1000}];
+}
+
 message GetArticleListReq{
   int32 page = 1;
 }
@@ -581,6 +619,30 @@ message GetArticleSearchReply{
   }
   repeated List list = 1;
   int32 total = 2;
+}
+
+message GetArticleImageReviewReq{
+  int32 page = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message GetArticleImageReviewReply{
+  message Review {
+    int32 id = 1;
+    int32 creation_id = 2;
+    string kind = 3;
+    string uid = 4;
+    string uuid = 5;
+    string create_at = 6;
+    string job_id = 7;
+    string url = 8;
+    string label = 9;
+    int32 result = 10;
+    int32 score = 11;
+    string category = 12;
+    string subLabel = 13;
+  }
+  repeated Review review = 1;
 }
 
 message CreateArticleReq{
