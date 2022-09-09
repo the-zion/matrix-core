@@ -1558,6 +1558,35 @@ func (r *talkRepo) SendStatisticToMq(ctx context.Context, id, collectionsId int3
 	return nil
 }
 
+func (r *talkRepo) SendTalkImageIrregularToMq(ctx context.Context, review *biz.ImageReview) error {
+	m := make(map[string]interface{}, 0)
+	m["creation_id"] = review.CreationId
+	m["score"] = review.Score
+	m["result"] = review.Result
+	m["kind"] = review.Kind
+	m["uid"] = review.Uid
+	m["uuid"] = review.Uuid
+	m["job_id"] = review.JobId
+	m["label"] = review.Label
+	m["category"] = review.Category
+	m["sub_label"] = review.SubLabel
+	m["mode"] = review.Mode
+	data, err := json.Marshal(m)
+	if err != nil {
+		return err
+	}
+	msg := &primitive.Message{
+		Topic: "talk",
+		Body:  data,
+	}
+	msg.WithKeys([]string{review.Uuid})
+	_, err = r.data.talkMqPro.producer.SendSync(ctx, msg)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to send talk image review to mq: %v", err))
+	}
+	return nil
+}
+
 func (r *talkRepo) SetTalkUserCollect(ctx context.Context, id, collectionsId int32, userUuid string) error {
 	collect := &Collect{
 		CollectionsId: collectionsId,
