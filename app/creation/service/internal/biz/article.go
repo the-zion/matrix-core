@@ -30,6 +30,7 @@ type ArticleRepo interface {
 	GetUserArticleAgree(ctx context.Context, uuid string) (map[int32]bool, error)
 	GetUserArticleCollect(ctx context.Context, uuid string) (map[int32]bool, error)
 	GetCollectionsIdFromArticleCollect(ctx context.Context, id int32) (int32, error)
+	GetArticleImageReview(ctx context.Context, page int32, uuid string) ([]*ImageReview, error)
 
 	CreateArticle(ctx context.Context, id, auth int32, uuid string) error
 	CreateArticleStatistic(ctx context.Context, id, auth int32, uuid string) error
@@ -63,6 +64,7 @@ type ArticleRepo interface {
 	SendArticleToMq(ctx context.Context, article *Article, mode string) error
 	SendStatisticToMq(ctx context.Context, id, collectionsId int32, uuid, userUuid, mode string) error
 	SendArticleStatisticToMq(ctx context.Context, uuid, userUuid, mode string) error
+	SendArticleImageIrregularToMq(ctx context.Context, review *ImageReview) error
 
 	SetArticleAgree(ctx context.Context, id int32, uuid string) error
 	SetUserArticleAgree(ctx context.Context, id int32, userUuid string) error
@@ -77,6 +79,8 @@ type ArticleRepo interface {
 	SetArticleCollectToCache(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error
 	SetUserArticleAgreeToCache(ctx context.Context, id int32, userUuid string) error
 	SetUserArticleCollectToCache(ctx context.Context, id int32, userUuid string) error
+	SetArticleImageIrregular(ctx context.Context, review *ImageReview) (*ImageReview, error)
+	SetArticleImageIrregularToCache(ctx context.Context, review *ImageReview) error
 
 	CancelArticleAgree(ctx context.Context, id int32, uuid string) error
 	CancelUserArticleAgree(ctx context.Context, id int32, userUuid string) error
@@ -125,6 +129,38 @@ func (r *ArticleUseCase) GetArticleSearch(ctx context.Context, page int32, searc
 		return nil, 0, v1.ErrorGetArticleSearchFailed("get article search failed: %s", err.Error())
 	}
 	return articleList, total, nil
+}
+
+func (r *ArticleUseCase) GetArticleImageReview(ctx context.Context, page int32, uuid string) ([]*ImageReview, error) {
+	reviewList, err := r.repo.GetArticleImageReview(ctx, page, uuid)
+	if err != nil {
+		return nil, v1.ErrorGetImageReviewFailed("get article image review failed: %s", err.Error())
+	}
+	return reviewList, nil
+}
+
+func (r *ArticleUseCase) ArticleImageIrregular(ctx context.Context, review *ImageReview) error {
+	err := r.repo.SendArticleImageIrregularToMq(ctx, review)
+	if err != nil {
+		return v1.ErrorSetImageIrregularFailed("set article image irregular to mq failed: %s", err.Error())
+	}
+	return nil
+}
+
+func (r *ArticleUseCase) AddArticleImageReviewDbAndCache(ctx context.Context, review *ImageReview) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		review, err := r.repo.SetArticleImageIrregular(ctx, review)
+		if err != nil {
+			return v1.ErrorSetImageIrregularFailed("set article image irregular failed: %s", err.Error())
+		}
+
+		err = r.repo.SetArticleImageIrregularToCache(ctx, review)
+		if err != nil {
+			return v1.ErrorSetImageIrregularFailed("set article image irregular to cache failed: %s", err.Error())
+		}
+
+		return nil
+	})
 }
 
 func (r *ArticleUseCase) CreateArticle(ctx context.Context, id, auth int32, uuid string) error {
