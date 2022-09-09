@@ -442,6 +442,13 @@ service Bff{
     };
   }
 
+  rpc GetArticleImageReview (GetArticleImageReviewReq) returns (GetArticleImageReviewReply) {
+    option (google.api.http) = {
+      post: "/v1/get/article/image/review",
+      body: "*"
+    };
+  }
+
   rpc CreateArticleDraft(google.protobuf.Empty) returns (CreateArticleDraftReply){
     option (google.api.http) = {
       post: "/v1/create/article/draft"
@@ -1590,6 +1597,29 @@ message GetArticleSearchReply{
   }
   repeated List list = 1;
   int32 total = 2;
+}
+
+message GetArticleImageReviewReq{
+  int32 page = 1;
+}
+
+message GetArticleImageReviewReply{
+  message Review {
+    int32 id = 1;
+    int32 creation_id = 2;
+    string kind = 3;
+    string uid = 4;
+    string uuid = 5;
+    string create_at = 6;
+    string job_id = 7;
+    string url = 8;
+    string label = 9;
+    int32 result = 10;
+    int32 score = 11;
+    string category = 12;
+    string subLabel = 13;
+  }
+  repeated Review review = 1;
 }
 
 message CreateArticleDraftReply{
