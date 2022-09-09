@@ -10,14 +10,14 @@ option go_package = "api/message/service/v1;v1";
 
 service Message {
 
-  rpc AvatarReview(AvatarReviewReq) returns (google.protobuf.Empty){
+  rpc AvatarReview(ImageReviewReq) returns (google.protobuf.Empty){
     option (google.api.http) = {
       post: "/tx/message/avatar/review"
       body: "*"
     };
   }
 
-  rpc CoverReview(CoverReviewReq) returns (google.protobuf.Empty){
+  rpc CoverReview(ImageReviewReq) returns (google.protobuf.Empty){
     option (google.api.http) = {
       post: "/tx/message/cover/review"
       body: "*"
@@ -45,6 +45,13 @@ service Message {
     };
   }
 
+  rpc ArticleImageReview(ImageReviewReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/tx/message/article/image/review"
+      body: "*"
+    };
+  }
+
   rpc TalkCreateReview(TextReviewReq) returns (google.protobuf.Empty){
     option (google.api.http) = {
       post: "/tx/message/talk/create/review"
@@ -55,6 +62,13 @@ service Message {
   rpc TalkEditReview(TextReviewReq) returns (google.protobuf.Empty){
     option (google.api.http) = {
       post: "/tx/message/talk/edit/review"
+      body: "*"
+    };
+  }
+
+  rpc TalkImageReview(ImageReviewReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/tx/message/talk/image/review"
       body: "*"
     };
   }
@@ -102,28 +116,7 @@ service Message {
   }
 }
 
-message AvatarReviewReq{
-  message JobsDetailStruct{
-    string Code = 1 [(validate.rules).string = {max_len: 1000}];
-    string Message = 2 [(validate.rules).string = {max_len: 1000}];
-    string JobId = 3 [(validate.rules).string = {max_len: 1000}];
-    string State = 4 [(validate.rules).string = {max_len: 1000}];
-    string Object = 5 [(validate.rules).string = {max_len: 1000}];
-    string Url = 6 [(validate.rules).string = {max_len: 1000}];
-    string Label = 7 [(validate.rules).string = {max_len: 1000}];
-    int32 Result = 8;
-    int32 Score = 9;
-    string Category = 10 [(validate.rules).string = {max_len: 1000}];
-    string SubLabel = 11 [(validate.rules).string = {max_len: 1000}];
-    string BucketId = 12 [(validate.rules).string = {max_len: 1000}];
-    string Region = 13 [(validate.rules).string = {max_len: 1000}];
-    map<string, string> CosHeaders = 14 [(validate.rules).map.values.string.max_len = 1000, (validate.rules).map.keys.string.max_len = 1000];
-  }
-  JobsDetailStruct JobsDetail = 1;
-  string EventName = 2 [(validate.rules).string = {max_len: 1000}];
-}
-
-message CoverReviewReq{
+message ImageReviewReq{
   message JobsDetailStruct{
     string Code = 1 [(validate.rules).string = {max_len: 1000}];
     string Message = 2 [(validate.rules).string = {max_len: 1000}];
