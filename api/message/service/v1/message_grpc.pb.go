@@ -23,13 +23,15 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MessageClient interface {
-	AvatarReview(ctx context.Context, in *AvatarReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	CoverReview(ctx context.Context, in *CoverReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AvatarReview(ctx context.Context, in *ImageReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CoverReview(ctx context.Context, in *ImageReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ProfileReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ArticleCreateReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ArticleEditReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	ArticleImageReview(ctx context.Context, in *ImageReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	TalkCreateReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	TalkEditReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	TalkImageReview(ctx context.Context, in *ImageReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ColumnCreateReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ColumnEditReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CollectionsCreateReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -46,7 +48,7 @@ func NewMessageClient(cc grpc.ClientConnInterface) MessageClient {
 	return &messageClient{cc}
 }
 
-func (c *messageClient) AvatarReview(ctx context.Context, in *AvatarReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *messageClient) AvatarReview(ctx context.Context, in *ImageReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/message.v1.Message/AvatarReview", in, out, opts...)
 	if err != nil {
@@ -55,7 +57,7 @@ func (c *messageClient) AvatarReview(ctx context.Context, in *AvatarReviewReq, o
 	return out, nil
 }
 
-func (c *messageClient) CoverReview(ctx context.Context, in *CoverReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *messageClient) CoverReview(ctx context.Context, in *ImageReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/message.v1.Message/CoverReview", in, out, opts...)
 	if err != nil {
@@ -91,6 +93,15 @@ func (c *messageClient) ArticleEditReview(ctx context.Context, in *TextReviewReq
 	return out, nil
 }
 
+func (c *messageClient) ArticleImageReview(ctx context.Context, in *ImageReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/message.v1.Message/ArticleImageReview", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *messageClient) TalkCreateReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/message.v1.Message/TalkCreateReview", in, out, opts...)
@@ -103,6 +114,15 @@ func (c *messageClient) TalkCreateReview(ctx context.Context, in *TextReviewReq,
 func (c *messageClient) TalkEditReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/message.v1.Message/TalkEditReview", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *messageClient) TalkImageReview(ctx context.Context, in *ImageReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/message.v1.Message/TalkImageReview", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -167,13 +187,15 @@ func (c *messageClient) SubCommentCreateReview(ctx context.Context, in *TextRevi
 // All implementations must embed UnimplementedMessageServer
 // for forward compatibility
 type MessageServer interface {
-	AvatarReview(context.Context, *AvatarReviewReq) (*emptypb.Empty, error)
-	CoverReview(context.Context, *CoverReviewReq) (*emptypb.Empty, error)
+	AvatarReview(context.Context, *ImageReviewReq) (*emptypb.Empty, error)
+	CoverReview(context.Context, *ImageReviewReq) (*emptypb.Empty, error)
 	ProfileReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	ArticleCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	ArticleEditReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
+	ArticleImageReview(context.Context, *ImageReviewReq) (*emptypb.Empty, error)
 	TalkCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	TalkEditReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
+	TalkImageReview(context.Context, *ImageReviewReq) (*emptypb.Empty, error)
 	ColumnCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	ColumnEditReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	CollectionsCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
@@ -187,10 +209,10 @@ type MessageServer interface {
 type UnimplementedMessageServer struct {
 }
 
-func (UnimplementedMessageServer) AvatarReview(context.Context, *AvatarReviewReq) (*emptypb.Empty, error) {
+func (UnimplementedMessageServer) AvatarReview(context.Context, *ImageReviewReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AvatarReview not implemented")
 }
-func (UnimplementedMessageServer) CoverReview(context.Context, *CoverReviewReq) (*emptypb.Empty, error) {
+func (UnimplementedMessageServer) CoverReview(context.Context, *ImageReviewReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CoverReview not implemented")
 }
 func (UnimplementedMessageServer) ProfileReview(context.Context, *TextReviewReq) (*emptypb.Empty, error) {
@@ -202,11 +224,17 @@ func (UnimplementedMessageServer) ArticleCreateReview(context.Context, *TextRevi
 func (UnimplementedMessageServer) ArticleEditReview(context.Context, *TextReviewReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ArticleEditReview not implemented")
 }
+func (UnimplementedMessageServer) ArticleImageReview(context.Context, *ImageReviewReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ArticleImageReview not implemented")
+}
 func (UnimplementedMessageServer) TalkCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method TalkCreateReview not implemented")
 }
 func (UnimplementedMessageServer) TalkEditReview(context.Context, *TextReviewReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method TalkEditReview not implemented")
+}
+func (UnimplementedMessageServer) TalkImageReview(context.Context, *ImageReviewReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TalkImageReview not implemented")
 }
 func (UnimplementedMessageServer) ColumnCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ColumnCreateReview not implemented")
@@ -240,7 +268,7 @@ func RegisterMessageServer(s grpc.ServiceRegistrar, srv MessageServer) {
 }
 
 func _Message_AvatarReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AvatarReviewReq)
+	in := new(ImageReviewReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -252,13 +280,13 @@ func _Message_AvatarReview_Handler(srv interface{}, ctx context.Context, dec fun
 		FullMethod: "/message.v1.Message/AvatarReview",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MessageServer).AvatarReview(ctx, req.(*AvatarReviewReq))
+		return srv.(MessageServer).AvatarReview(ctx, req.(*ImageReviewReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Message_CoverReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CoverReviewReq)
+	in := new(ImageReviewReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -270,7 +298,7 @@ func _Message_CoverReview_Handler(srv interface{}, ctx context.Context, dec func
 		FullMethod: "/message.v1.Message/CoverReview",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MessageServer).CoverReview(ctx, req.(*CoverReviewReq))
+		return srv.(MessageServer).CoverReview(ctx, req.(*ImageReviewReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -329,6 +357,24 @@ func _Message_ArticleEditReview_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Message_ArticleImageReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ImageReviewReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MessageServer).ArticleImageReview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/message.v1.Message/ArticleImageReview",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MessageServer).ArticleImageReview(ctx, req.(*ImageReviewReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Message_TalkCreateReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(TextReviewReq)
 	if err := dec(in); err != nil {
@@ -361,6 +407,24 @@ func _Message_TalkEditReview_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MessageServer).TalkEditReview(ctx, req.(*TextReviewReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Message_TalkImageReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ImageReviewReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MessageServer).TalkImageReview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/message.v1.Message/TalkImageReview",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MessageServer).TalkImageReview(ctx, req.(*ImageReviewReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -501,12 +565,20 @@ var Message_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Message_ArticleEditReview_Handler,
 		},
 		{
+			MethodName: "ArticleImageReview",
+			Handler:    _Message_ArticleImageReview_Handler,
+		},
+		{
 			MethodName: "TalkCreateReview",
 			Handler:    _Message_TalkCreateReview_Handler,
 		},
 		{
 			MethodName: "TalkEditReview",
 			Handler:    _Message_TalkEditReview_Handler,
+		},
+		{
+			MethodName: "TalkImageReview",
+			Handler:    _Message_TalkImageReview_Handler,
 		},
 		{
 			MethodName: "ColumnCreateReview",

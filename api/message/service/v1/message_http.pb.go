@@ -22,6 +22,7 @@ const _ = http.SupportPackageIsVersion1
 
 const OperationMessageArticleCreateReview = "/message.v1.Message/ArticleCreateReview"
 const OperationMessageArticleEditReview = "/message.v1.Message/ArticleEditReview"
+const OperationMessageArticleImageReview = "/message.v1.Message/ArticleImageReview"
 const OperationMessageAvatarReview = "/message.v1.Message/AvatarReview"
 const OperationMessageCollectionsCreateReview = "/message.v1.Message/CollectionsCreateReview"
 const OperationMessageCollectionsEditReview = "/message.v1.Message/CollectionsEditReview"
@@ -33,21 +34,24 @@ const OperationMessageProfileReview = "/message.v1.Message/ProfileReview"
 const OperationMessageSubCommentCreateReview = "/message.v1.Message/SubCommentCreateReview"
 const OperationMessageTalkCreateReview = "/message.v1.Message/TalkCreateReview"
 const OperationMessageTalkEditReview = "/message.v1.Message/TalkEditReview"
+const OperationMessageTalkImageReview = "/message.v1.Message/TalkImageReview"
 
 type MessageHTTPServer interface {
 	ArticleCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	ArticleEditReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
-	AvatarReview(context.Context, *AvatarReviewReq) (*emptypb.Empty, error)
+	ArticleImageReview(context.Context, *ImageReviewReq) (*emptypb.Empty, error)
+	AvatarReview(context.Context, *ImageReviewReq) (*emptypb.Empty, error)
 	CollectionsCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	CollectionsEditReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	ColumnCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	ColumnEditReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	CommentCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
-	CoverReview(context.Context, *CoverReviewReq) (*emptypb.Empty, error)
+	CoverReview(context.Context, *ImageReviewReq) (*emptypb.Empty, error)
 	ProfileReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	SubCommentCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	TalkCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	TalkEditReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
+	TalkImageReview(context.Context, *ImageReviewReq) (*emptypb.Empty, error)
 }
 
 func RegisterMessageHTTPServer(s *http.Server, srv MessageHTTPServer) {
@@ -57,8 +61,10 @@ func RegisterMessageHTTPServer(s *http.Server, srv MessageHTTPServer) {
 	r.POST("/tx/message/profile/review", _Message_ProfileReview0_HTTP_Handler(srv))
 	r.POST("/tx/message/article/create/review", _Message_ArticleCreateReview0_HTTP_Handler(srv))
 	r.POST("/tx/message/article/edit/review", _Message_ArticleEditReview0_HTTP_Handler(srv))
+	r.POST("/tx/message/article/image/review", _Message_ArticleImageReview0_HTTP_Handler(srv))
 	r.POST("/tx/message/talk/create/review", _Message_TalkCreateReview0_HTTP_Handler(srv))
 	r.POST("/tx/message/talk/edit/review", _Message_TalkEditReview0_HTTP_Handler(srv))
+	r.POST("/tx/message/talk/image/review", _Message_TalkImageReview0_HTTP_Handler(srv))
 	r.POST("/tx/message/column/create/review", _Message_ColumnCreateReview0_HTTP_Handler(srv))
 	r.POST("/tx/message/column/edit/review", _Message_ColumnEditReview0_HTTP_Handler(srv))
 	r.POST("/tx/message/collections/create/review", _Message_CollectionsCreateReview0_HTTP_Handler(srv))
@@ -69,13 +75,13 @@ func RegisterMessageHTTPServer(s *http.Server, srv MessageHTTPServer) {
 
 func _Message_AvatarReview0_HTTP_Handler(srv MessageHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in AvatarReviewReq
+		var in ImageReviewReq
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, OperationMessageAvatarReview)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.AvatarReview(ctx, req.(*AvatarReviewReq))
+			return srv.AvatarReview(ctx, req.(*ImageReviewReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -88,13 +94,13 @@ func _Message_AvatarReview0_HTTP_Handler(srv MessageHTTPServer) func(ctx http.Co
 
 func _Message_CoverReview0_HTTP_Handler(srv MessageHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in CoverReviewReq
+		var in ImageReviewReq
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, OperationMessageCoverReview)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.CoverReview(ctx, req.(*CoverReviewReq))
+			return srv.CoverReview(ctx, req.(*ImageReviewReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -162,6 +168,25 @@ func _Message_ArticleEditReview0_HTTP_Handler(srv MessageHTTPServer) func(ctx ht
 	}
 }
 
+func _Message_ArticleImageReview0_HTTP_Handler(srv MessageHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in ImageReviewReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationMessageArticleImageReview)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ArticleImageReview(ctx, req.(*ImageReviewReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _Message_TalkCreateReview0_HTTP_Handler(srv MessageHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in TextReviewReq
@@ -190,6 +215,25 @@ func _Message_TalkEditReview0_HTTP_Handler(srv MessageHTTPServer) func(ctx http.
 		http.SetOperation(ctx, OperationMessageTalkEditReview)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.TalkEditReview(ctx, req.(*TextReviewReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Message_TalkImageReview0_HTTP_Handler(srv MessageHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in ImageReviewReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationMessageTalkImageReview)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.TalkImageReview(ctx, req.(*ImageReviewReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -317,17 +361,19 @@ func _Message_SubCommentCreateReview0_HTTP_Handler(srv MessageHTTPServer) func(c
 type MessageHTTPClient interface {
 	ArticleCreateReview(ctx context.Context, req *TextReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	ArticleEditReview(ctx context.Context, req *TextReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
-	AvatarReview(ctx context.Context, req *AvatarReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	ArticleImageReview(ctx context.Context, req *ImageReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	AvatarReview(ctx context.Context, req *ImageReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	CollectionsCreateReview(ctx context.Context, req *TextReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	CollectionsEditReview(ctx context.Context, req *TextReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	ColumnCreateReview(ctx context.Context, req *TextReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	ColumnEditReview(ctx context.Context, req *TextReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	CommentCreateReview(ctx context.Context, req *TextReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
-	CoverReview(ctx context.Context, req *CoverReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	CoverReview(ctx context.Context, req *ImageReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	ProfileReview(ctx context.Context, req *TextReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SubCommentCreateReview(ctx context.Context, req *TextReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	TalkCreateReview(ctx context.Context, req *TextReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	TalkEditReview(ctx context.Context, req *TextReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	TalkImageReview(ctx context.Context, req *ImageReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
 
 type MessageHTTPClientImpl struct {
@@ -364,7 +410,20 @@ func (c *MessageHTTPClientImpl) ArticleEditReview(ctx context.Context, in *TextR
 	return &out, err
 }
 
-func (c *MessageHTTPClientImpl) AvatarReview(ctx context.Context, in *AvatarReviewReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+func (c *MessageHTTPClientImpl) ArticleImageReview(ctx context.Context, in *ImageReviewReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/tx/message/article/image/review"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationMessageArticleImageReview))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *MessageHTTPClientImpl) AvatarReview(ctx context.Context, in *ImageReviewReq, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
 	pattern := "/tx/message/avatar/review"
 	path := binding.EncodeURL(pattern, in, false)
@@ -442,7 +501,7 @@ func (c *MessageHTTPClientImpl) CommentCreateReview(ctx context.Context, in *Tex
 	return &out, err
 }
 
-func (c *MessageHTTPClientImpl) CoverReview(ctx context.Context, in *CoverReviewReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+func (c *MessageHTTPClientImpl) CoverReview(ctx context.Context, in *ImageReviewReq, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
 	pattern := "/tx/message/cover/review"
 	path := binding.EncodeURL(pattern, in, false)
@@ -499,6 +558,19 @@ func (c *MessageHTTPClientImpl) TalkEditReview(ctx context.Context, in *TextRevi
 	pattern := "/tx/message/talk/edit/review"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationMessageTalkEditReview))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *MessageHTTPClientImpl) TalkImageReview(ctx context.Context, in *ImageReviewReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/tx/message/talk/image/review"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationMessageTalkImageReview))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
