@@ -784,6 +784,35 @@ func (r *articleRepo) GetArticleSearch(ctx context.Context, page int32, search, 
 	return reply, searchReply.Total, nil
 }
 
+func (r *articleRepo) GetArticleImageReview(ctx context.Context, page int32, uuid string) ([]*biz.CreationImageReview, error) {
+	reply := make([]*biz.CreationImageReview, 0)
+	reviewReply, err := r.data.cc.GetArticleImageReview(ctx, &creationV1.GetArticleImageReviewReq{
+		Page: page,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range reviewReply.Review {
+		reply = append(reply, &biz.CreationImageReview{
+			Id:         item.Id,
+			CreationId: item.CreationId,
+			Kind:       item.Kind,
+			Uid:        item.Uid,
+			Uuid:       item.Uuid,
+			CreateAt:   item.CreateAt,
+			JobId:      item.JobId,
+			Url:        item.Url,
+			Label:      item.Label,
+			Result:     item.Result,
+			Score:      item.Score,
+			Category:   item.Category,
+			SubLabel:   item.SubLabel,
+		})
+	}
+	return reply, nil
+}
+
 func (r *articleRepo) CreateArticleDraft(ctx context.Context, uuid string) (int32, error) {
 	reply, err := r.data.cc.CreateArticleDraft(ctx, &creationV1.CreateArticleDraftReq{
 		Uuid: uuid,
