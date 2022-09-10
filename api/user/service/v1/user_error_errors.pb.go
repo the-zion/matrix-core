@@ -323,16 +323,16 @@ func ErrorSetImageFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, UserErrorReason_SET_IMAGE_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
-func IsSetPictureIrregularFailed(err error) bool {
+func IsSetImageIrregularFailed(err error) bool {
 	if err == nil {
 		return false
 	}
 	e := errors.FromError(err)
-	return e.Reason == UserErrorReason_SET_PICTURE_IRREGULAR_FAILED.String() && e.Code == 500
+	return e.Reason == UserErrorReason_SET_IMAGE_IRREGULAR_FAILED.String() && e.Code == 500
 }
 
-func ErrorSetPictureIrregularFailed(format string, args ...interface{}) *errors.Error {
-	return errors.New(500, UserErrorReason_SET_PICTURE_IRREGULAR_FAILED.String(), fmt.Sprintf(format, args...))
+func ErrorSetImageIrregularFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, UserErrorReason_SET_IMAGE_IRREGULAR_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
 func IsCancelFollowFailed(err error) bool {
