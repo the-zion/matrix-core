@@ -471,6 +471,29 @@ func (s *BffService) GetArticleImageReview(ctx context.Context, req *v1.GetArtic
 	return reply, nil
 }
 
+func (s *BffService) GetArticleContentReview(ctx context.Context, req *v1.GetArticleContentReviewReq) (*v1.GetArticleContentReviewReply, error) {
+	reply := &v1.GetArticleContentReviewReply{Review: make([]*v1.GetArticleContentReviewReply_Review, 0)}
+	reviewList, err := s.ac.GetArticleContentReview(ctx, req.Page)
+	if err != nil {
+		return reply, err
+	}
+	for _, item := range reviewList {
+		reply.Review = append(reply.Review, &v1.GetArticleContentReviewReply_Review{
+			Id:         item.Id,
+			CreationId: item.CreationId,
+			Title:      item.Title,
+			Kind:       item.Kind,
+			Uuid:       item.Uuid,
+			CreateAt:   item.CreateAt,
+			JobId:      item.JobId,
+			Label:      item.Label,
+			Result:     item.Result,
+			Section:    item.Section,
+		})
+	}
+	return reply, nil
+}
+
 func (s *BffService) CreateArticleDraft(ctx context.Context, _ *emptypb.Empty) (*v1.CreateArticleDraftReply, error) {
 	id, err := s.ac.CreateArticleDraft(ctx)
 	if err != nil {
@@ -806,6 +829,32 @@ func (s *BffService) GetUserTalkCollect(ctx context.Context, _ *emptypb.Empty) (
 	return &v1.GetUserTalkCollectReply{
 		Collect: collectMap,
 	}, nil
+}
+
+func (s *BffService) GetTalkImageReview(ctx context.Context, req *v1.GetTalkImageReviewReq) (*v1.GetTalkImageReviewReply, error) {
+	reply := &v1.GetTalkImageReviewReply{Review: make([]*v1.GetTalkImageReviewReply_Review, 0)}
+	reviewList, err := s.tc.GetTalkImageReview(ctx, req.Page)
+	if err != nil {
+		return reply, err
+	}
+	for _, item := range reviewList {
+		reply.Review = append(reply.Review, &v1.GetTalkImageReviewReply_Review{
+			Id:         item.Id,
+			CreationId: item.CreationId,
+			Kind:       item.Kind,
+			Uid:        item.Uid,
+			Uuid:       item.Uuid,
+			CreateAt:   item.CreateAt,
+			JobId:      item.JobId,
+			Url:        item.Url,
+			Label:      item.Label,
+			Result:     item.Result,
+			Score:      item.Score,
+			Category:   item.Category,
+			SubLabel:   item.SubLabel,
+		})
+	}
+	return reply, nil
 }
 
 func (s *BffService) CreateTalkDraft(ctx context.Context, _ *emptypb.Empty) (*v1.CreateTalkDraftReply, error) {
@@ -1177,6 +1226,32 @@ func (s *BffService) GetUserSubscribeColumn(ctx context.Context, _ *emptypb.Empt
 	return &v1.GetUserSubscribeColumnReply{
 		Subscribe: collectMap,
 	}, nil
+}
+
+func (s *BffService) GetColumnImageReview(ctx context.Context, req *v1.GetColumnImageReviewReq) (*v1.GetColumnImageReviewReply, error) {
+	reply := &v1.GetColumnImageReviewReply{Review: make([]*v1.GetColumnImageReviewReply_Review, 0)}
+	reviewList, err := s.coc.GetColumnImageReview(ctx, req.Page)
+	if err != nil {
+		return reply, err
+	}
+	for _, item := range reviewList {
+		reply.Review = append(reply.Review, &v1.GetColumnImageReviewReply_Review{
+			Id:         item.Id,
+			CreationId: item.CreationId,
+			Kind:       item.Kind,
+			Uid:        item.Uid,
+			Uuid:       item.Uuid,
+			CreateAt:   item.CreateAt,
+			JobId:      item.JobId,
+			Url:        item.Url,
+			Label:      item.Label,
+			Result:     item.Result,
+			Score:      item.Score,
+			Category:   item.Category,
+			SubLabel:   item.SubLabel,
+		})
+	}
+	return reply, nil
 }
 
 func (s *BffService) ColumnStatisticJudge(ctx context.Context, req *v1.ColumnStatisticJudgeReq) (*v1.ColumnStatisticJudgeReply, error) {
