@@ -30,6 +30,18 @@ type ArticleReview struct {
 	Score     int32
 }
 
+type ArticleContentReview struct {
+	gorm.Model
+	ArticleId int32
+	Kind      string
+	Title     string
+	Uuid      string `gorm:"index;size:36"`
+	JobId     string `gorm:"size:100"`
+	Label     string `gorm:"size:100"`
+	Result    int32
+	Section   string
+}
+
 type Talk struct {
 	TalkId    int32 `gorm:"primarykey"`
 	CreatedAt time.Time
@@ -53,6 +65,17 @@ type TalkReview struct {
 	Category string `gorm:"size:100"`
 	SubLabel string `gorm:"size:100"`
 	Score    int32
+}
+
+type TalkContentReview struct {
+	gorm.Model
+	ArticleId int32
+	Kind      string
+	Uuid      string `gorm:"index;size:36"`
+	JobId     string `gorm:"size:100"`
+	Label     string `gorm:"size:100"`
+	Result    int32
+	Section   string
 }
 
 type ArticleStatistic struct {
@@ -187,6 +210,17 @@ type ColumnReview struct {
 	Category string `gorm:"size:100"`
 	SubLabel string `gorm:"size:100"`
 	Score    int32
+}
+
+type ColumnContentReview struct {
+	gorm.Model
+	ArticleId int32
+	Kind      string
+	Uuid      string `gorm:"index;size:36"`
+	JobId     string `gorm:"size:100"`
+	Label     string `gorm:"size:100"`
+	Result    int32
+	Section   string
 }
 
 type ColumnDraft struct {

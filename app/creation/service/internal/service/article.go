@@ -227,6 +227,29 @@ func (s *CreationService) GetArticleImageReview(ctx context.Context, req *v1.Get
 	return reply, nil
 }
 
+func (s *CreationService) GetArticleContentReview(ctx context.Context, req *v1.GetArticleContentReviewReq) (*v1.GetArticleContentReviewReply, error) {
+	reply := &v1.GetArticleContentReviewReply{Review: make([]*v1.GetArticleContentReviewReply_Review, 0)}
+	reviewList, err := s.ac.GetArticleContentReview(ctx, req.Page, req.Uuid)
+	if err != nil {
+		return reply, err
+	}
+	for _, item := range reviewList {
+		reply.Review = append(reply.Review, &v1.GetArticleContentReviewReply_Review{
+			Id:         item.Id,
+			CreationId: item.CreationId,
+			Title:      item.Title,
+			Kind:       item.Kind,
+			Uuid:       item.Uuid,
+			CreateAt:   item.CreateAt,
+			JobId:      item.JobId,
+			Label:      item.Label,
+			Result:     item.Result,
+			Section:    item.Section,
+		})
+	}
+	return reply, nil
+}
+
 func (s *CreationService) ArticleImageIrregular(ctx context.Context, req *v1.CreationImageIrregularReq) (*emptypb.Empty, error) {
 	err := s.ac.ArticleImageIrregular(ctx, &biz.ImageReview{
 		CreationId: req.Id,
@@ -248,6 +271,24 @@ func (s *CreationService) ArticleImageIrregular(ctx context.Context, req *v1.Cre
 	return &emptypb.Empty{}, nil
 }
 
+func (s *CreationService) ArticleContentIrregular(ctx context.Context, req *v1.CreationContentIrregularReq) (*emptypb.Empty, error) {
+	err := s.ac.ArticleContentIrregular(ctx, &biz.TextReview{
+		CreationId: req.Id,
+		Uuid:       req.Uuid,
+		JobId:      req.JobId,
+		Title:      req.Title,
+		Kind:       req.Kind,
+		Label:      req.Label,
+		Result:     req.Result,
+		Section:    req.Section,
+		Mode:       "add_article_content_review_db_and_cache",
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *CreationService) AddArticleImageReviewDbAndCache(ctx context.Context, req *v1.AddCreationImageReviewDbAndCacheReq) (*emptypb.Empty, error) {
 	err := s.ac.AddArticleImageReviewDbAndCache(ctx, &biz.ImageReview{
 		CreationId: req.CreationId,
@@ -261,6 +302,23 @@ func (s *CreationService) AddArticleImageReviewDbAndCache(ctx context.Context, r
 		Score:      req.Score,
 		Category:   req.Category,
 		SubLabel:   req.SubLabel,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) AddArticleContentReviewDbAndCache(ctx context.Context, req *v1.AddCreationContentReviewDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.ac.AddArticleContentReviewDbAndCache(ctx, &biz.TextReview{
+		CreationId: req.CreationId,
+		Uuid:       req.Uuid,
+		JobId:      req.JobId,
+		Title:      req.Title,
+		Kind:       req.Kind,
+		Label:      req.Label,
+		Result:     req.Result,
+		Section:    req.Section,
 	})
 	if err != nil {
 		return nil, err

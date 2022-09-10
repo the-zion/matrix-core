@@ -171,6 +171,32 @@ func (s *CreationService) GetUserTalkCollect(ctx context.Context, req *v1.GetUse
 	}, nil
 }
 
+func (s *CreationService) GetTalkImageReview(ctx context.Context, req *v1.GetTalkImageReviewReq) (*v1.GetTalkImageReviewReply, error) {
+	reply := &v1.GetTalkImageReviewReply{Review: make([]*v1.GetTalkImageReviewReply_Review, 0)}
+	reviewList, err := s.tc.GetTalkImageReview(ctx, req.Page, req.Uuid)
+	if err != nil {
+		return reply, err
+	}
+	for _, item := range reviewList {
+		reply.Review = append(reply.Review, &v1.GetTalkImageReviewReply_Review{
+			Id:         item.Id,
+			CreationId: item.CreationId,
+			Kind:       item.Kind,
+			Uid:        item.Uid,
+			Uuid:       item.Uuid,
+			CreateAt:   item.CreateAt,
+			JobId:      item.JobId,
+			Url:        item.Url,
+			Label:      item.Label,
+			Result:     item.Result,
+			Score:      item.Score,
+			Category:   item.Category,
+			SubLabel:   item.SubLabel,
+		})
+	}
+	return reply, nil
+}
+
 func (s *CreationService) TalkImageIrregular(ctx context.Context, req *v1.CreationImageIrregularReq) (*emptypb.Empty, error) {
 	err := s.tc.TalkImageIrregular(ctx, &biz.ImageReview{
 		CreationId: req.Id,
@@ -185,6 +211,26 @@ func (s *CreationService) TalkImageIrregular(ctx context.Context, req *v1.Creati
 		Category:   req.Category,
 		SubLabel:   req.SubLabel,
 		Mode:       "add_talk_image_review_db_and_cache",
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) AddTalkImageReviewDbAndCache(ctx context.Context, req *v1.AddCreationImageReviewDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.tc.AddTalkImageReviewDbAndCache(ctx, &biz.ImageReview{
+		CreationId: req.CreationId,
+		Kind:       req.Kind,
+		Uid:        req.Uid,
+		Uuid:       req.Uuid,
+		JobId:      req.JobId,
+		Url:        req.Url,
+		Label:      req.Label,
+		Result:     req.Result,
+		Score:      req.Score,
+		Category:   req.Category,
+		SubLabel:   req.SubLabel,
 	})
 	if err != nil {
 		return nil, err

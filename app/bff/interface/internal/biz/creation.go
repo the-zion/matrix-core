@@ -47,6 +47,7 @@ type ArticleRepo interface {
 	GetArticleDraftList(ctx context.Context, uuid string) ([]*ArticleDraft, error)
 	GetArticleSearch(ctx context.Context, page int32, search, time string) ([]*Article, int32, error)
 	GetArticleImageReview(ctx context.Context, page int32, uuid string) ([]*CreationImageReview, error)
+	GetArticleContentReview(ctx context.Context, page int32, uuid string) ([]*CreationContentReview, error)
 	ArticleDraftMark(ctx context.Context, id int32, uuid string) error
 	SendArticle(ctx context.Context, id int32, uuid, ip string) error
 	SendArticleEdit(ctx context.Context, id int32, uuid, ip string) error
@@ -72,6 +73,7 @@ type TalkRepo interface {
 	GetTalkSearch(ctx context.Context, page int32, search, time string) ([]*Talk, int32, error)
 	GetUserTalkAgree(ctx context.Context, uuid string) (map[int32]bool, error)
 	GetUserTalkCollect(ctx context.Context, uuid string) (map[int32]bool, error)
+	GetTalkImageReview(ctx context.Context, page int32, uuid string) ([]*CreationImageReview, error)
 	CreateTalkDraft(ctx context.Context, uuid string) (int32, error)
 	SendTalk(ctx context.Context, id int32, uuid, ip string) error
 	SendTalkEdit(ctx context.Context, id int32, uuid, ip string) error
@@ -101,6 +103,7 @@ type ColumnRepo interface {
 	GetUserColumnAgree(ctx context.Context, uuid string) (map[int32]bool, error)
 	GetUserColumnCollect(ctx context.Context, uuid string) (map[int32]bool, error)
 	GetUserSubscribeColumn(ctx context.Context, uuid string) (map[int32]bool, error)
+	GetColumnImageReview(ctx context.Context, page int32, uuid string) ([]*CreationImageReview, error)
 	SendColumn(ctx context.Context, id int32, uuid, ip string) error
 	SendColumnEdit(ctx context.Context, id int32, uuid, ip string) error
 	CreateColumnDraft(ctx context.Context, uuid string) (int32, error)
@@ -537,6 +540,15 @@ func (r *ArticleUseCase) GetArticleImageReview(ctx context.Context, page int32) 
 	return reviewList, nil
 }
 
+func (r *ArticleUseCase) GetArticleContentReview(ctx context.Context, page int32) ([]*CreationContentReview, error) {
+	uuid := ctx.Value("uuid").(string)
+	reviewList, err := r.repo.GetArticleContentReview(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+	return reviewList, nil
+}
+
 func (r *ArticleUseCase) CreateArticleDraft(ctx context.Context) (int32, error) {
 	uuid := ctx.Value("uuid").(string)
 	return r.repo.CreateArticleDraft(ctx, uuid)
@@ -789,6 +801,15 @@ func (r *TalkUseCase) GetUserTalkAgree(ctx context.Context) (map[int32]bool, err
 func (r *TalkUseCase) GetUserTalkCollect(ctx context.Context) (map[int32]bool, error) {
 	uuid := ctx.Value("uuid").(string)
 	return r.repo.GetUserTalkCollect(ctx, uuid)
+}
+
+func (r *TalkUseCase) GetTalkImageReview(ctx context.Context, page int32) ([]*CreationImageReview, error) {
+	uuid := ctx.Value("uuid").(string)
+	reviewList, err := r.repo.GetTalkImageReview(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+	return reviewList, nil
 }
 
 func (r *TalkUseCase) CreateTalkDraft(ctx context.Context) (int32, error) {
@@ -1083,6 +1104,15 @@ func (r *ColumnUseCase) GetUserColumnCollect(ctx context.Context) (map[int32]boo
 func (r *ColumnUseCase) GetUserSubscribeColumn(ctx context.Context) (map[int32]bool, error) {
 	uuid := ctx.Value("uuid").(string)
 	return r.repo.GetUserSubscribeColumn(ctx, uuid)
+}
+
+func (r *ColumnUseCase) GetColumnImageReview(ctx context.Context, page int32) ([]*CreationImageReview, error) {
+	uuid := ctx.Value("uuid").(string)
+	reviewList, err := r.repo.GetColumnImageReview(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+	return reviewList, nil
 }
 
 func (r *ColumnUseCase) SetColumnAgree(ctx context.Context, id int32, uuid string) error {

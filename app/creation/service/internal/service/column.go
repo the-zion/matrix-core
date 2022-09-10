@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	v1 "github.com/the-zion/matrix-core/api/creation/service/v1"
+	"github.com/the-zion/matrix-core/app/creation/service/internal/biz"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -15,6 +16,47 @@ func (s *CreationService) GetLastColumnDraft(ctx context.Context, req *v1.GetLas
 		Id:     draft.Id,
 		Status: draft.Status,
 	}, nil
+}
+
+func (s *CreationService) ColumnImageIrregular(ctx context.Context, req *v1.CreationImageIrregularReq) (*emptypb.Empty, error) {
+	err := s.coc.ColumnImageIrregular(ctx, &biz.ImageReview{
+		CreationId: req.Id,
+		Kind:       req.Kind,
+		Uid:        req.Uid,
+		Uuid:       req.Uuid,
+		JobId:      req.JobId,
+		Url:        req.Url,
+		Label:      req.Label,
+		Result:     req.Result,
+		Score:      req.Score,
+		Category:   req.Category,
+		SubLabel:   req.SubLabel,
+		Mode:       "add_column_image_review_db_and_cache",
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) AddColumnImageReviewDbAndCache(ctx context.Context, req *v1.AddCreationImageReviewDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.coc.AddColumnImageReviewDbAndCache(ctx, &biz.ImageReview{
+		CreationId: req.CreationId,
+		Kind:       req.Kind,
+		Uid:        req.Uid,
+		Uuid:       req.Uuid,
+		JobId:      req.JobId,
+		Url:        req.Url,
+		Label:      req.Label,
+		Result:     req.Result,
+		Score:      req.Score,
+		Category:   req.Category,
+		SubLabel:   req.SubLabel,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
 }
 
 func (s *CreationService) CreateColumnDraft(ctx context.Context, req *v1.CreateColumnDraftReq) (*v1.CreateColumnDraftReply, error) {
@@ -343,6 +385,32 @@ func (s *CreationService) GetUserSubscribeColumn(ctx context.Context, req *v1.Ge
 	return &v1.GetUserSubscribeColumnReply{
 		Subscribe: collectMap,
 	}, nil
+}
+
+func (s *CreationService) GetColumnImageReview(ctx context.Context, req *v1.GetColumnImageReviewReq) (*v1.GetColumnImageReviewReply, error) {
+	reply := &v1.GetColumnImageReviewReply{Review: make([]*v1.GetColumnImageReviewReply_Review, 0)}
+	reviewList, err := s.coc.GetColumnImageReview(ctx, req.Page, req.Uuid)
+	if err != nil {
+		return reply, err
+	}
+	for _, item := range reviewList {
+		reply.Review = append(reply.Review, &v1.GetColumnImageReviewReply_Review{
+			Id:         item.Id,
+			CreationId: item.CreationId,
+			Kind:       item.Kind,
+			Uid:        item.Uid,
+			Uuid:       item.Uuid,
+			CreateAt:   item.CreateAt,
+			JobId:      item.JobId,
+			Url:        item.Url,
+			Label:      item.Label,
+			Result:     item.Result,
+			Score:      item.Score,
+			Category:   item.Category,
+			SubLabel:   item.SubLabel,
+		})
+	}
+	return reply, nil
 }
 
 func (s *CreationService) SetColumnAgree(ctx context.Context, req *v1.SetColumnAgreeReq) (*emptypb.Empty, error) {

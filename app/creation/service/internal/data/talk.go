@@ -960,6 +960,120 @@ func (r *talkRepo) GetCollectionsIdFromTalkCollect(ctx context.Context, id int32
 	return collect.CollectionsId, nil
 }
 
+func (r *talkRepo) GetTalkImageReview(ctx context.Context, page int32, uuid string) ([]*biz.ImageReview, error) {
+	key := "talk_image_irregular_" + uuid
+	review, err := r.getTalkImageReviewFromCache(ctx, page, key)
+	if err != nil {
+		return nil, err
+	}
+
+	size := len(review)
+	if size != 0 {
+		return review, nil
+	}
+
+	review, err = r.getTalkImageReviewFromDB(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	size = len(review)
+	if size != 0 {
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setTalkImageReviewToCache(key, review)
+		})()
+	}
+	return review, nil
+}
+
+func (r *talkRepo) getTalkImageReviewFromCache(ctx context.Context, page int32, key string) ([]*biz.ImageReview, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int64(page - 1)
+	list, err := r.data.redisCli.LRange(ctx, key, index*20, index*20+19).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get talk image irregular list from cache: key(%s), page(%v)", key, page))
+	}
+
+	review := make([]*biz.ImageReview, 0)
+	for _index, item := range list {
+		var imageReview = &biz.ImageReview{}
+		err = json.Unmarshal([]byte(item), imageReview)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("json unmarshal error: imageReview(%v)", item))
+		}
+		review = append(review, &biz.ImageReview{
+			Id:         int32(_index+1) + (page-1)*20,
+			CreationId: imageReview.CreationId,
+			Kind:       imageReview.Kind,
+			Uid:        imageReview.Uid,
+			Uuid:       imageReview.Uuid,
+			CreateAt:   imageReview.CreateAt,
+			JobId:      imageReview.JobId,
+			Url:        imageReview.Url,
+			Label:      imageReview.Label,
+			Result:     imageReview.Result,
+			Category:   imageReview.Category,
+			SubLabel:   imageReview.SubLabel,
+			Score:      imageReview.Score,
+		})
+	}
+	return review, nil
+}
+
+func (r *talkRepo) getTalkImageReviewFromDB(ctx context.Context, page int32, uuid string) ([]*biz.ImageReview, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int(page - 1)
+	list := make([]*TalkReview, 0)
+	err := r.data.db.WithContext(ctx).Where("uuid", uuid).Order("id desc").Offset(index * 20).Limit(20).Find(&list).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get talk image review from db: page(%v), uuid(%s)", page, uuid))
+	}
+
+	review := make([]*biz.ImageReview, 0)
+	for _index, item := range list {
+		review = append(review, &biz.ImageReview{
+			Id:         int32(_index+1) + (page-1)*20,
+			CreationId: item.TalkId,
+			Kind:       item.Kind,
+			Uid:        item.Uid,
+			Uuid:       item.Uuid,
+			JobId:      item.JobId,
+			CreateAt:   item.CreatedAt.Format("2006-01-02"),
+			Url:        item.Url,
+			Label:      item.Label,
+			Result:     item.Result,
+			Category:   item.Category,
+			SubLabel:   item.SubLabel,
+			Score:      item.Score,
+		})
+	}
+	return review, nil
+}
+
+func (r *talkRepo) setTalkImageReviewToCache(key string, review []*biz.ImageReview) {
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		list := make([]interface{}, 0)
+		for _, item := range review {
+			m, err := json.Marshal(item)
+			if err != nil {
+				r.log.Errorf("fail to marshal avatar review: imageReview(%v)", review)
+			}
+			list = append(list, m)
+		}
+		pipe.RPush(ctx, key, list...)
+		pipe.Expire(ctx, key, time.Hour*8)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to set talk image review to cache: imageReview(%v)", review)
+	}
+}
+
 func (r *talkRepo) CreateTalkDraft(ctx context.Context, uuid string) (int32, error) {
 	draft := &TalkDraft{
 		Uuid: uuid,
@@ -1754,6 +1868,52 @@ func (r *talkRepo) SetCreationUserCollect(ctx context.Context, userUuid string) 
 	}).Create(cu).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to add creation collect: uuid(%v)", userUuid))
+	}
+	return nil
+}
+
+func (r *talkRepo) SetTalkImageIrregular(ctx context.Context, review *biz.ImageReview) (*biz.ImageReview, error) {
+	ar := &TalkReview{
+		TalkId:   review.CreationId,
+		Kind:     review.Kind,
+		Uid:      review.Uid,
+		Uuid:     review.Uuid,
+		JobId:    review.JobId,
+		Url:      review.Url,
+		Label:    review.Label,
+		Result:   review.Result,
+		Category: review.Category,
+		SubLabel: review.SubLabel,
+		Score:    review.Score,
+	}
+	err := r.data.DB(ctx).Select("TalkId", "Kind", "Uid", "Uuid", "JobId", "Url", "Label", "Result", "Category", "SubLabel", "Score").Create(ar).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to add talk image review record: review(%v)", review))
+	}
+	review.Id = int32(ar.ID)
+	review.CreateAt = time.Now().Format("2006-01-02")
+	return review, nil
+}
+
+func (r *talkRepo) SetTalkImageIrregularToCache(ctx context.Context, review *biz.ImageReview) error {
+	marshal, err := json.Marshal(review)
+	if err != nil {
+		r.log.Errorf("fail to set talk image irregular to json: json.Marshal(%v), error(%v)", review, err)
+	}
+	var script = redis.NewScript(`
+					local key = KEYS[1]
+					local value = ARGV[1]
+					local exist = redis.call("EXISTS", key)
+					if exist == 1 then
+						redis.call("LPUSH", key, value)
+					end
+					return 0
+	`)
+	keys := []string{"talk_image_irregular_" + review.Uuid}
+	values := []interface{}{marshal}
+	_, err = script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to set talk image irregular to cache: review(%v)", review))
 	}
 	return nil
 }

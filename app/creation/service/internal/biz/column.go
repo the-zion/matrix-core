@@ -58,6 +58,7 @@ type ColumnRepo interface {
 	GetUserColumnCollect(ctx context.Context, uuid string) (map[int32]bool, error)
 	GetUserSubscribeColumn(ctx context.Context, uuid string) (map[int32]bool, error)
 	GetAuthorFromSubscribe(ctx context.Context, id int32) (string, error)
+	GetColumnImageReview(ctx context.Context, page int32, uuid string) ([]*ImageReview, error)
 
 	SendColumn(ctx context.Context, id int32, uuid string) (*ColumnDraft, error)
 	SendColumnToMq(ctx context.Context, column *Column, mode string) error
@@ -66,6 +67,7 @@ type ColumnRepo interface {
 	SendStatisticToMq(ctx context.Context, id, collectionsId int32, uuid, userUuid, mode string) error
 	SendColumnIncludesToMq(ctx context.Context, id, articleId int32, uuid, mode string) error
 	SendColumnSubscribeToMq(ctx context.Context, id int32, uuid, mode string) error
+	SendColumnImageIrregularToMq(ctx context.Context, review *ImageReview) error
 
 	FreezeColumnCos(ctx context.Context, id int32, uuid string) error
 
@@ -86,6 +88,8 @@ type ColumnRepo interface {
 	SetCreationUserCollect(ctx context.Context, userUuid string) error
 	SetUserColumnSubscribeToCache(ctx context.Context, id int32, uuid string) error
 	SetColumnSubscribeToCache(ctx context.Context, id int32, author, uuid string) error
+	SetColumnImageIrregular(ctx context.Context, review *ImageReview) (*ImageReview, error)
+	SetColumnImageIrregularToCache(ctx context.Context, review *ImageReview) error
 
 	CancelColumnAgree(ctx context.Context, id int32, uuid string) error
 	CancelColumnAgreeFromCache(ctx context.Context, id int32, uuid, userUuid string) error
@@ -138,6 +142,30 @@ func (r *ColumnUseCase) GetLastColumnDraft(ctx context.Context, uuid string) (*C
 	return draft, nil
 }
 
+func (r *ColumnUseCase) ColumnImageIrregular(ctx context.Context, review *ImageReview) error {
+	err := r.repo.SendColumnImageIrregularToMq(ctx, review)
+	if err != nil {
+		return v1.ErrorSetImageIrregularFailed("set column image irregular to mq failed: %s", err.Error())
+	}
+	return nil
+}
+
+func (r *ColumnUseCase) AddColumnImageReviewDbAndCache(ctx context.Context, review *ImageReview) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		review, err := r.repo.SetColumnImageIrregular(ctx, review)
+		if err != nil {
+			return v1.ErrorSetImageIrregularFailed("set column image irregular failed: %s", err.Error())
+		}
+
+		err = r.repo.SetColumnImageIrregularToCache(ctx, review)
+		if err != nil {
+			return v1.ErrorSetImageIrregularFailed("set column image irregular to cache failed: %s", err.Error())
+		}
+
+		return nil
+	})
+}
+
 func (r *ColumnUseCase) GetColumnSearch(ctx context.Context, page int32, search, time string) ([]*ColumnSearch, int32, error) {
 	columnList, total, err := r.repo.GetColumnSearch(ctx, page, search, time)
 	if err != nil {
@@ -168,6 +196,14 @@ func (r *ColumnUseCase) GetUserSubscribeColumn(ctx context.Context, uuid string)
 		return nil, v1.ErrorGetSubscribeColumnFailed("get user column subscribe failed: %s", err.Error())
 	}
 	return agreeMap, nil
+}
+
+func (r *ColumnUseCase) GetColumnImageReview(ctx context.Context, page int32, uuid string) ([]*ImageReview, error) {
+	reviewList, err := r.repo.GetColumnImageReview(ctx, page, uuid)
+	if err != nil {
+		return nil, v1.ErrorGetImageReviewFailed("get column image review failed: %s", err.Error())
+	}
+	return reviewList, nil
 }
 
 func (r *ColumnUseCase) CreateColumnDraft(ctx context.Context, uuid string) (int32, error) {

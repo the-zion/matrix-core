@@ -204,3 +204,17 @@ type ImageReview struct {
 	Mode       string
 	Score      int32
 }
+
+type TextReview struct {
+	Id         int32
+	CreationId int32
+	CreateAt   string
+	Title      string
+	Kind       string
+	JobId      string
+	Label      string
+	Result     int32
+	Uuid       string
+	Mode       string
+	Section    string
+}
