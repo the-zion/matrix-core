@@ -28,6 +28,7 @@ const OperationMessageCollectionsCreateReview = "/message.v1.Message/Collections
 const OperationMessageCollectionsEditReview = "/message.v1.Message/CollectionsEditReview"
 const OperationMessageColumnCreateReview = "/message.v1.Message/ColumnCreateReview"
 const OperationMessageColumnEditReview = "/message.v1.Message/ColumnEditReview"
+const OperationMessageColumnImageReview = "/message.v1.Message/ColumnImageReview"
 const OperationMessageCommentCreateReview = "/message.v1.Message/CommentCreateReview"
 const OperationMessageCoverReview = "/message.v1.Message/CoverReview"
 const OperationMessageProfileReview = "/message.v1.Message/ProfileReview"
@@ -45,6 +46,7 @@ type MessageHTTPServer interface {
 	CollectionsEditReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	ColumnCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	ColumnEditReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
+	ColumnImageReview(context.Context, *ImageReviewReq) (*emptypb.Empty, error)
 	CommentCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	CoverReview(context.Context, *ImageReviewReq) (*emptypb.Empty, error)
 	ProfileReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
@@ -67,6 +69,7 @@ func RegisterMessageHTTPServer(s *http.Server, srv MessageHTTPServer) {
 	r.POST("/tx/message/talk/image/review", _Message_TalkImageReview0_HTTP_Handler(srv))
 	r.POST("/tx/message/column/create/review", _Message_ColumnCreateReview0_HTTP_Handler(srv))
 	r.POST("/tx/message/column/edit/review", _Message_ColumnEditReview0_HTTP_Handler(srv))
+	r.POST("/tx/message/column/image/review", _Message_ColumnImageReview0_HTTP_Handler(srv))
 	r.POST("/tx/message/collections/create/review", _Message_CollectionsCreateReview0_HTTP_Handler(srv))
 	r.POST("/tx/message/collections/edit/review", _Message_CollectionsEditReview0_HTTP_Handler(srv))
 	r.POST("/tx/message/comment/create/review", _Message_CommentCreateReview0_HTTP_Handler(srv))
@@ -282,6 +285,25 @@ func _Message_ColumnEditReview0_HTTP_Handler(srv MessageHTTPServer) func(ctx htt
 	}
 }
 
+func _Message_ColumnImageReview0_HTTP_Handler(srv MessageHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in ImageReviewReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationMessageColumnImageReview)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ColumnImageReview(ctx, req.(*ImageReviewReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _Message_CollectionsCreateReview0_HTTP_Handler(srv MessageHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in TextReviewReq
@@ -367,6 +389,7 @@ type MessageHTTPClient interface {
 	CollectionsEditReview(ctx context.Context, req *TextReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	ColumnCreateReview(ctx context.Context, req *TextReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	ColumnEditReview(ctx context.Context, req *TextReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	ColumnImageReview(ctx context.Context, req *ImageReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	CommentCreateReview(ctx context.Context, req *TextReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	CoverReview(ctx context.Context, req *ImageReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	ProfileReview(ctx context.Context, req *TextReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -480,6 +503,19 @@ func (c *MessageHTTPClientImpl) ColumnEditReview(ctx context.Context, in *TextRe
 	pattern := "/tx/message/column/edit/review"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationMessageColumnEditReview))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *MessageHTTPClientImpl) ColumnImageReview(ctx context.Context, in *ImageReviewReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/tx/message/column/image/review"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationMessageColumnImageReview))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
