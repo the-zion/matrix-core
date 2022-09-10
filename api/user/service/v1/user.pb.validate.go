@@ -367,22 +367,22 @@ var _ interface {
 	ErrorName() string
 } = AvatarIrregularReqValidationError{}
 
-// Validate checks the field values on AddAvatarDbAndCacheReq with the rules
-// defined in the proto definition for this message. If any rules are
+// Validate checks the field values on AddAvatarReviewDbAndCacheReq with the
+// rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddAvatarDbAndCacheReq) Validate() error {
+func (m *AddAvatarReviewDbAndCacheReq) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddAvatarDbAndCacheReq with the rules
-// defined in the proto definition for this message. If any rules are
+// ValidateAll checks the field values on AddAvatarReviewDbAndCacheReq with the
+// rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AddAvatarDbAndCacheReqMultiError, or nil if none found.
-func (m *AddAvatarDbAndCacheReq) ValidateAll() error {
+// AddAvatarReviewDbAndCacheReqMultiError, or nil if none found.
+func (m *AddAvatarReviewDbAndCacheReq) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddAvatarDbAndCacheReq) validate(all bool) error {
+func (m *AddAvatarReviewDbAndCacheReq) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -406,19 +406,19 @@ func (m *AddAvatarDbAndCacheReq) validate(all bool) error {
 	// no validation rules for SubLabel
 
 	if len(errors) > 0 {
-		return AddAvatarDbAndCacheReqMultiError(errors)
+		return AddAvatarReviewDbAndCacheReqMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddAvatarDbAndCacheReqMultiError is an error wrapping multiple validation
-// errors returned by AddAvatarDbAndCacheReq.ValidateAll() if the designated
-// constraints aren't met.
-type AddAvatarDbAndCacheReqMultiError []error
+// AddAvatarReviewDbAndCacheReqMultiError is an error wrapping multiple
+// validation errors returned by AddAvatarReviewDbAndCacheReq.ValidateAll() if
+// the designated constraints aren't met.
+type AddAvatarReviewDbAndCacheReqMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddAvatarDbAndCacheReqMultiError) Error() string {
+func (m AddAvatarReviewDbAndCacheReqMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -427,11 +427,12 @@ func (m AddAvatarDbAndCacheReqMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddAvatarDbAndCacheReqMultiError) AllErrors() []error { return m }
+func (m AddAvatarReviewDbAndCacheReqMultiError) AllErrors() []error { return m }
 
-// AddAvatarDbAndCacheReqValidationError is the validation error returned by
-// AddAvatarDbAndCacheReq.Validate if the designated constraints aren't met.
-type AddAvatarDbAndCacheReqValidationError struct {
+// AddAvatarReviewDbAndCacheReqValidationError is the validation error returned
+// by AddAvatarReviewDbAndCacheReq.Validate if the designated constraints
+// aren't met.
+type AddAvatarReviewDbAndCacheReqValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -439,24 +440,24 @@ type AddAvatarDbAndCacheReqValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddAvatarDbAndCacheReqValidationError) Field() string { return e.field }
+func (e AddAvatarReviewDbAndCacheReqValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddAvatarDbAndCacheReqValidationError) Reason() string { return e.reason }
+func (e AddAvatarReviewDbAndCacheReqValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddAvatarDbAndCacheReqValidationError) Cause() error { return e.cause }
+func (e AddAvatarReviewDbAndCacheReqValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddAvatarDbAndCacheReqValidationError) Key() bool { return e.key }
+func (e AddAvatarReviewDbAndCacheReqValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddAvatarDbAndCacheReqValidationError) ErrorName() string {
-	return "AddAvatarDbAndCacheReqValidationError"
+func (e AddAvatarReviewDbAndCacheReqValidationError) ErrorName() string {
+	return "AddAvatarReviewDbAndCacheReqValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AddAvatarDbAndCacheReqValidationError) Error() string {
+func (e AddAvatarReviewDbAndCacheReqValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -468,14 +469,14 @@ func (e AddAvatarDbAndCacheReqValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddAvatarDbAndCacheReq.%s: %s%s",
+		"invalid %sAddAvatarReviewDbAndCacheReq.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddAvatarDbAndCacheReqValidationError{}
+var _ error = AddAvatarReviewDbAndCacheReqValidationError{}
 
 var _ interface {
 	Field() string
@@ -483,7 +484,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddAvatarDbAndCacheReqValidationError{}
+} = AddAvatarReviewDbAndCacheReqValidationError{}
 
 // Validate checks the field values on CoverIrregularReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the
@@ -666,22 +667,22 @@ var _ interface {
 	ErrorName() string
 } = CoverIrregularReqValidationError{}
 
-// Validate checks the field values on AddCoverDbAndCacheReq with the rules
-// defined in the proto definition for this message. If any rules are
+// Validate checks the field values on AddCoverReviewDbAndCacheReq with the
+// rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddCoverDbAndCacheReq) Validate() error {
+func (m *AddCoverReviewDbAndCacheReq) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddCoverDbAndCacheReq with the rules
-// defined in the proto definition for this message. If any rules are
+// ValidateAll checks the field values on AddCoverReviewDbAndCacheReq with the
+// rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AddCoverDbAndCacheReqMultiError, or nil if none found.
-func (m *AddCoverDbAndCacheReq) ValidateAll() error {
+// AddCoverReviewDbAndCacheReqMultiError, or nil if none found.
+func (m *AddCoverReviewDbAndCacheReq) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddCoverDbAndCacheReq) validate(all bool) error {
+func (m *AddCoverReviewDbAndCacheReq) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -705,19 +706,19 @@ func (m *AddCoverDbAndCacheReq) validate(all bool) error {
 	// no validation rules for SubLabel
 
 	if len(errors) > 0 {
-		return AddCoverDbAndCacheReqMultiError(errors)
+		return AddCoverReviewDbAndCacheReqMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddCoverDbAndCacheReqMultiError is an error wrapping multiple validation
-// errors returned by AddCoverDbAndCacheReq.ValidateAll() if the designated
-// constraints aren't met.
-type AddCoverDbAndCacheReqMultiError []error
+// AddCoverReviewDbAndCacheReqMultiError is an error wrapping multiple
+// validation errors returned by AddCoverReviewDbAndCacheReq.ValidateAll() if
+// the designated constraints aren't met.
+type AddCoverReviewDbAndCacheReqMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddCoverDbAndCacheReqMultiError) Error() string {
+func (m AddCoverReviewDbAndCacheReqMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -726,11 +727,12 @@ func (m AddCoverDbAndCacheReqMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddCoverDbAndCacheReqMultiError) AllErrors() []error { return m }
+func (m AddCoverReviewDbAndCacheReqMultiError) AllErrors() []error { return m }
 
-// AddCoverDbAndCacheReqValidationError is the validation error returned by
-// AddCoverDbAndCacheReq.Validate if the designated constraints aren't met.
-type AddCoverDbAndCacheReqValidationError struct {
+// AddCoverReviewDbAndCacheReqValidationError is the validation error returned
+// by AddCoverReviewDbAndCacheReq.Validate if the designated constraints
+// aren't met.
+type AddCoverReviewDbAndCacheReqValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -738,24 +740,24 @@ type AddCoverDbAndCacheReqValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddCoverDbAndCacheReqValidationError) Field() string { return e.field }
+func (e AddCoverReviewDbAndCacheReqValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddCoverDbAndCacheReqValidationError) Reason() string { return e.reason }
+func (e AddCoverReviewDbAndCacheReqValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddCoverDbAndCacheReqValidationError) Cause() error { return e.cause }
+func (e AddCoverReviewDbAndCacheReqValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddCoverDbAndCacheReqValidationError) Key() bool { return e.key }
+func (e AddCoverReviewDbAndCacheReqValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddCoverDbAndCacheReqValidationError) ErrorName() string {
-	return "AddCoverDbAndCacheReqValidationError"
+func (e AddCoverReviewDbAndCacheReqValidationError) ErrorName() string {
+	return "AddCoverReviewDbAndCacheReqValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AddCoverDbAndCacheReqValidationError) Error() string {
+func (e AddCoverReviewDbAndCacheReqValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -767,14 +769,14 @@ func (e AddCoverDbAndCacheReqValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddCoverDbAndCacheReq.%s: %s%s",
+		"invalid %sAddCoverReviewDbAndCacheReq.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddCoverDbAndCacheReqValidationError{}
+var _ error = AddCoverReviewDbAndCacheReqValidationError{}
 
 var _ interface {
 	Field() string
@@ -782,7 +784,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddCoverDbAndCacheReqValidationError{}
+} = AddCoverReviewDbAndCacheReqValidationError{}
 
 // Validate checks the field values on LoginByPasswordReq with the rules
 // defined in the proto definition for this message. If any rules are

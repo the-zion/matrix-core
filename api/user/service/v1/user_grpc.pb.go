@@ -25,9 +25,9 @@ const _ = grpc.SupportPackageIsVersion7
 type UserClient interface {
 	UserRegister(ctx context.Context, in *UserRegisterReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	AvatarIrregular(ctx context.Context, in *AvatarIrregularReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	AddAvatarDbAndCache(ctx context.Context, in *AddAvatarDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AddAvatarReviewDbAndCache(ctx context.Context, in *AddAvatarReviewDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CoverIrregular(ctx context.Context, in *CoverIrregularReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	AddCoverDbAndCache(ctx context.Context, in *AddCoverDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AddCoverReviewDbAndCache(ctx context.Context, in *AddCoverReviewDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	LoginByPassword(ctx context.Context, in *LoginByPasswordReq, opts ...grpc.CallOption) (*LoginReply, error)
 	LoginByCode(ctx context.Context, in *LoginByCodeReq, opts ...grpc.CallOption) (*LoginReply, error)
 	LoginByWeChat(ctx context.Context, in *LoginByWeChatReq, opts ...grpc.CallOption) (*LoginReply, error)
@@ -90,9 +90,9 @@ func (c *userClient) AvatarIrregular(ctx context.Context, in *AvatarIrregularReq
 	return out, nil
 }
 
-func (c *userClient) AddAvatarDbAndCache(ctx context.Context, in *AddAvatarDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *userClient) AddAvatarReviewDbAndCache(ctx context.Context, in *AddAvatarReviewDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/user.v1.User/AddAvatarDbAndCache", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/user.v1.User/AddAvatarReviewDbAndCache", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -108,9 +108,9 @@ func (c *userClient) CoverIrregular(ctx context.Context, in *CoverIrregularReq, 
 	return out, nil
 }
 
-func (c *userClient) AddCoverDbAndCache(ctx context.Context, in *AddCoverDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *userClient) AddCoverReviewDbAndCache(ctx context.Context, in *AddCoverReviewDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/user.v1.User/AddCoverDbAndCache", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/user.v1.User/AddCoverReviewDbAndCache", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -429,9 +429,9 @@ func (c *userClient) UnbindUserEmail(ctx context.Context, in *UnbindUserEmailReq
 type UserServer interface {
 	UserRegister(context.Context, *UserRegisterReq) (*emptypb.Empty, error)
 	AvatarIrregular(context.Context, *AvatarIrregularReq) (*emptypb.Empty, error)
-	AddAvatarDbAndCache(context.Context, *AddAvatarDbAndCacheReq) (*emptypb.Empty, error)
+	AddAvatarReviewDbAndCache(context.Context, *AddAvatarReviewDbAndCacheReq) (*emptypb.Empty, error)
 	CoverIrregular(context.Context, *CoverIrregularReq) (*emptypb.Empty, error)
-	AddCoverDbAndCache(context.Context, *AddCoverDbAndCacheReq) (*emptypb.Empty, error)
+	AddCoverReviewDbAndCache(context.Context, *AddCoverReviewDbAndCacheReq) (*emptypb.Empty, error)
 	LoginByPassword(context.Context, *LoginByPasswordReq) (*LoginReply, error)
 	LoginByCode(context.Context, *LoginByCodeReq) (*LoginReply, error)
 	LoginByWeChat(context.Context, *LoginByWeChatReq) (*LoginReply, error)
@@ -479,14 +479,14 @@ func (UnimplementedUserServer) UserRegister(context.Context, *UserRegisterReq) (
 func (UnimplementedUserServer) AvatarIrregular(context.Context, *AvatarIrregularReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AvatarIrregular not implemented")
 }
-func (UnimplementedUserServer) AddAvatarDbAndCache(context.Context, *AddAvatarDbAndCacheReq) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddAvatarDbAndCache not implemented")
+func (UnimplementedUserServer) AddAvatarReviewDbAndCache(context.Context, *AddAvatarReviewDbAndCacheReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddAvatarReviewDbAndCache not implemented")
 }
 func (UnimplementedUserServer) CoverIrregular(context.Context, *CoverIrregularReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CoverIrregular not implemented")
 }
-func (UnimplementedUserServer) AddCoverDbAndCache(context.Context, *AddCoverDbAndCacheReq) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddCoverDbAndCache not implemented")
+func (UnimplementedUserServer) AddCoverReviewDbAndCache(context.Context, *AddCoverReviewDbAndCacheReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddCoverReviewDbAndCache not implemented")
 }
 func (UnimplementedUserServer) LoginByPassword(context.Context, *LoginByPasswordReq) (*LoginReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoginByPassword not implemented")
@@ -639,20 +639,20 @@ func _User_AvatarIrregular_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-func _User_AddAvatarDbAndCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddAvatarDbAndCacheReq)
+func _User_AddAvatarReviewDbAndCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddAvatarReviewDbAndCacheReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServer).AddAvatarDbAndCache(ctx, in)
+		return srv.(UserServer).AddAvatarReviewDbAndCache(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.v1.User/AddAvatarDbAndCache",
+		FullMethod: "/user.v1.User/AddAvatarReviewDbAndCache",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).AddAvatarDbAndCache(ctx, req.(*AddAvatarDbAndCacheReq))
+		return srv.(UserServer).AddAvatarReviewDbAndCache(ctx, req.(*AddAvatarReviewDbAndCacheReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -675,20 +675,20 @@ func _User_CoverIrregular_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
-func _User_AddCoverDbAndCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddCoverDbAndCacheReq)
+func _User_AddCoverReviewDbAndCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddCoverReviewDbAndCacheReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServer).AddCoverDbAndCache(ctx, in)
+		return srv.(UserServer).AddCoverReviewDbAndCache(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.v1.User/AddCoverDbAndCache",
+		FullMethod: "/user.v1.User/AddCoverReviewDbAndCache",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).AddCoverDbAndCache(ctx, req.(*AddCoverDbAndCacheReq))
+		return srv.(UserServer).AddCoverReviewDbAndCache(ctx, req.(*AddCoverReviewDbAndCacheReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1321,16 +1321,16 @@ var User_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _User_AvatarIrregular_Handler,
 		},
 		{
-			MethodName: "AddAvatarDbAndCache",
-			Handler:    _User_AddAvatarDbAndCache_Handler,
+			MethodName: "AddAvatarReviewDbAndCache",
+			Handler:    _User_AddAvatarReviewDbAndCache_Handler,
 		},
 		{
 			MethodName: "CoverIrregular",
 			Handler:    _User_CoverIrregular_Handler,
 		},
 		{
-			MethodName: "AddCoverDbAndCache",
-			Handler:    _User_AddCoverDbAndCache_Handler,
+			MethodName: "AddCoverReviewDbAndCache",
+			Handler:    _User_AddCoverReviewDbAndCache_Handler,
 		},
 		{
 			MethodName: "LoginByPassword",
