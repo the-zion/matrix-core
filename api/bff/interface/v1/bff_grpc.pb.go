@@ -91,6 +91,7 @@ type BffClient interface {
 	GetLastArticleDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLastArticleDraftReply, error)
 	GetArticleSearch(ctx context.Context, in *GetArticleSearchReq, opts ...grpc.CallOption) (*GetArticleSearchReply, error)
 	GetArticleImageReview(ctx context.Context, in *GetArticleImageReviewReq, opts ...grpc.CallOption) (*GetArticleImageReviewReply, error)
+	GetArticleContentReview(ctx context.Context, in *GetArticleContentReviewReq, opts ...grpc.CallOption) (*GetArticleContentReviewReply, error)
 	CreateArticleDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateArticleDraftReply, error)
 	ArticleDraftMark(ctx context.Context, in *ArticleDraftMarkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetArticleDraftList(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetArticleDraftListReply, error)
@@ -116,6 +117,7 @@ type BffClient interface {
 	GetTalkSearch(ctx context.Context, in *GetTalkSearchReq, opts ...grpc.CallOption) (*GetTalkSearchReply, error)
 	GetUserTalkAgree(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserTalkAgreeReply, error)
 	GetUserTalkCollect(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserTalkCollectReply, error)
+	GetTalkImageReview(ctx context.Context, in *GetTalkImageReviewReq, opts ...grpc.CallOption) (*GetTalkImageReviewReply, error)
 	CreateTalkDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateTalkDraftReply, error)
 	SendTalk(ctx context.Context, in *SendTalkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SendTalkEdit(ctx context.Context, in *SendTalkEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -150,6 +152,7 @@ type BffClient interface {
 	GetUserColumnAgree(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserColumnAgreeReply, error)
 	GetUserColumnCollect(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserColumnCollectReply, error)
 	GetUserSubscribeColumn(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserSubscribeColumnReply, error)
+	GetColumnImageReview(ctx context.Context, in *GetColumnImageReviewReq, opts ...grpc.CallOption) (*GetColumnImageReviewReply, error)
 	ColumnStatisticJudge(ctx context.Context, in *ColumnStatisticJudgeReq, opts ...grpc.CallOption) (*ColumnStatisticJudgeReply, error)
 	SetColumnAgree(ctx context.Context, in *SetColumnAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelColumnAgree(ctx context.Context, in *CancelColumnAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -802,6 +805,15 @@ func (c *bffClient) GetArticleImageReview(ctx context.Context, in *GetArticleIma
 	return out, nil
 }
 
+func (c *bffClient) GetArticleContentReview(ctx context.Context, in *GetArticleContentReviewReq, opts ...grpc.CallOption) (*GetArticleContentReviewReply, error) {
+	out := new(GetArticleContentReviewReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetArticleContentReview", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) CreateArticleDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateArticleDraftReply, error) {
 	out := new(CreateArticleDraftReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/CreateArticleDraft", in, out, opts...)
@@ -1021,6 +1033,15 @@ func (c *bffClient) GetUserTalkAgree(ctx context.Context, in *emptypb.Empty, opt
 func (c *bffClient) GetUserTalkCollect(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserTalkCollectReply, error) {
 	out := new(GetUserTalkCollectReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserTalkCollect", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetTalkImageReview(ctx context.Context, in *GetTalkImageReviewReq, opts ...grpc.CallOption) (*GetTalkImageReviewReply, error) {
+	out := new(GetTalkImageReviewReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetTalkImageReview", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1327,6 +1348,15 @@ func (c *bffClient) GetUserColumnCollect(ctx context.Context, in *emptypb.Empty,
 func (c *bffClient) GetUserSubscribeColumn(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserSubscribeColumnReply, error) {
 	out := new(GetUserSubscribeColumnReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserSubscribeColumn", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetColumnImageReview(ctx context.Context, in *GetColumnImageReviewReq, opts ...grpc.CallOption) (*GetColumnImageReviewReply, error) {
+	out := new(GetColumnImageReviewReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetColumnImageReview", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1756,6 +1786,7 @@ type BffServer interface {
 	GetLastArticleDraft(context.Context, *emptypb.Empty) (*GetLastArticleDraftReply, error)
 	GetArticleSearch(context.Context, *GetArticleSearchReq) (*GetArticleSearchReply, error)
 	GetArticleImageReview(context.Context, *GetArticleImageReviewReq) (*GetArticleImageReviewReply, error)
+	GetArticleContentReview(context.Context, *GetArticleContentReviewReq) (*GetArticleContentReviewReply, error)
 	CreateArticleDraft(context.Context, *emptypb.Empty) (*CreateArticleDraftReply, error)
 	ArticleDraftMark(context.Context, *ArticleDraftMarkReq) (*emptypb.Empty, error)
 	GetArticleDraftList(context.Context, *emptypb.Empty) (*GetArticleDraftListReply, error)
@@ -1781,6 +1812,7 @@ type BffServer interface {
 	GetTalkSearch(context.Context, *GetTalkSearchReq) (*GetTalkSearchReply, error)
 	GetUserTalkAgree(context.Context, *emptypb.Empty) (*GetUserTalkAgreeReply, error)
 	GetUserTalkCollect(context.Context, *emptypb.Empty) (*GetUserTalkCollectReply, error)
+	GetTalkImageReview(context.Context, *GetTalkImageReviewReq) (*GetTalkImageReviewReply, error)
 	CreateTalkDraft(context.Context, *emptypb.Empty) (*CreateTalkDraftReply, error)
 	SendTalk(context.Context, *SendTalkReq) (*emptypb.Empty, error)
 	SendTalkEdit(context.Context, *SendTalkEditReq) (*emptypb.Empty, error)
@@ -1815,6 +1847,7 @@ type BffServer interface {
 	GetUserColumnAgree(context.Context, *emptypb.Empty) (*GetUserColumnAgreeReply, error)
 	GetUserColumnCollect(context.Context, *emptypb.Empty) (*GetUserColumnCollectReply, error)
 	GetUserSubscribeColumn(context.Context, *emptypb.Empty) (*GetUserSubscribeColumnReply, error)
+	GetColumnImageReview(context.Context, *GetColumnImageReviewReq) (*GetColumnImageReviewReply, error)
 	ColumnStatisticJudge(context.Context, *ColumnStatisticJudgeReq) (*ColumnStatisticJudgeReply, error)
 	SetColumnAgree(context.Context, *SetColumnAgreeReq) (*emptypb.Empty, error)
 	CancelColumnAgree(context.Context, *CancelColumnAgreeReq) (*emptypb.Empty, error)
@@ -2062,6 +2095,9 @@ func (UnimplementedBffServer) GetArticleSearch(context.Context, *GetArticleSearc
 func (UnimplementedBffServer) GetArticleImageReview(context.Context, *GetArticleImageReviewReq) (*GetArticleImageReviewReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetArticleImageReview not implemented")
 }
+func (UnimplementedBffServer) GetArticleContentReview(context.Context, *GetArticleContentReviewReq) (*GetArticleContentReviewReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetArticleContentReview not implemented")
+}
 func (UnimplementedBffServer) CreateArticleDraft(context.Context, *emptypb.Empty) (*CreateArticleDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateArticleDraft not implemented")
 }
@@ -2136,6 +2172,9 @@ func (UnimplementedBffServer) GetUserTalkAgree(context.Context, *emptypb.Empty) 
 }
 func (UnimplementedBffServer) GetUserTalkCollect(context.Context, *emptypb.Empty) (*GetUserTalkCollectReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserTalkCollect not implemented")
+}
+func (UnimplementedBffServer) GetTalkImageReview(context.Context, *GetTalkImageReviewReq) (*GetTalkImageReviewReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTalkImageReview not implemented")
 }
 func (UnimplementedBffServer) CreateTalkDraft(context.Context, *emptypb.Empty) (*CreateTalkDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTalkDraft not implemented")
@@ -2238,6 +2277,9 @@ func (UnimplementedBffServer) GetUserColumnCollect(context.Context, *emptypb.Emp
 }
 func (UnimplementedBffServer) GetUserSubscribeColumn(context.Context, *emptypb.Empty) (*GetUserSubscribeColumnReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserSubscribeColumn not implemented")
+}
+func (UnimplementedBffServer) GetColumnImageReview(context.Context, *GetColumnImageReviewReq) (*GetColumnImageReviewReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetColumnImageReview not implemented")
 }
 func (UnimplementedBffServer) ColumnStatisticJudge(context.Context, *ColumnStatisticJudgeReq) (*ColumnStatisticJudgeReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ColumnStatisticJudge not implemented")
@@ -3575,6 +3617,24 @@ func _Bff_GetArticleImageReview_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_GetArticleContentReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetArticleContentReviewReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetArticleContentReview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetArticleContentReview",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetArticleContentReview(ctx, req.(*GetArticleContentReviewReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_CreateArticleDraft_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
@@ -4021,6 +4081,24 @@ func _Bff_GetUserTalkCollect_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BffServer).GetUserTalkCollect(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetTalkImageReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTalkImageReviewReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetTalkImageReview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetTalkImageReview",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetTalkImageReview(ctx, req.(*GetTalkImageReviewReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -4633,6 +4711,24 @@ func _Bff_GetUserSubscribeColumn_Handler(srv interface{}, ctx context.Context, d
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BffServer).GetUserSubscribeColumn(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetColumnImageReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetColumnImageReviewReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetColumnImageReview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetColumnImageReview",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetColumnImageReview(ctx, req.(*GetColumnImageReviewReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -5615,6 +5711,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Bff_GetArticleImageReview_Handler,
 		},
 		{
+			MethodName: "GetArticleContentReview",
+			Handler:    _Bff_GetArticleContentReview_Handler,
+		},
+		{
 			MethodName: "CreateArticleDraft",
 			Handler:    _Bff_CreateArticleDraft_Handler,
 		},
@@ -5713,6 +5813,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserTalkCollect",
 			Handler:    _Bff_GetUserTalkCollect_Handler,
+		},
+		{
+			MethodName: "GetTalkImageReview",
+			Handler:    _Bff_GetTalkImageReview_Handler,
 		},
 		{
 			MethodName: "CreateTalkDraft",
@@ -5849,6 +5953,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserSubscribeColumn",
 			Handler:    _Bff_GetUserSubscribeColumn_Handler,
+		},
+		{
+			MethodName: "GetColumnImageReview",
+			Handler:    _Bff_GetColumnImageReview_Handler,
 		},
 		{
 			MethodName: "ColumnStatisticJudge",
