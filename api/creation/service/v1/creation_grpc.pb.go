@@ -50,7 +50,9 @@ type CreationClient interface {
 	DeleteCollections(ctx context.Context, in *DeleteCollectionsReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteCollectionsCache(ctx context.Context, in *DeleteCollectionsCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ArticleImageIrregular(ctx context.Context, in *CreationImageIrregularReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	ArticleContentIrregular(ctx context.Context, in *CreationContentIrregularReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	AddArticleImageReviewDbAndCache(ctx context.Context, in *AddCreationImageReviewDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AddArticleContentReviewDbAndCache(ctx context.Context, in *AddCreationContentReviewDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetArticleList(ctx context.Context, in *GetArticleListReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
 	GetArticleListHot(ctx context.Context, in *GetArticleListHotReq, opts ...grpc.CallOption) (*GetArticleListHotReply, error)
 	GetColumnArticleList(ctx context.Context, in *GetColumnArticleListReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
@@ -66,6 +68,7 @@ type CreationClient interface {
 	GetLastArticleDraft(ctx context.Context, in *GetLastArticleDraftReq, opts ...grpc.CallOption) (*GetLastArticleDraftReply, error)
 	GetArticleSearch(ctx context.Context, in *GetArticleSearchReq, opts ...grpc.CallOption) (*GetArticleSearchReply, error)
 	GetArticleImageReview(ctx context.Context, in *GetArticleImageReviewReq, opts ...grpc.CallOption) (*GetArticleImageReviewReply, error)
+	GetArticleContentReview(ctx context.Context, in *GetArticleContentReviewReq, opts ...grpc.CallOption) (*GetArticleContentReviewReply, error)
 	CreateArticle(ctx context.Context, in *CreateArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	EditArticle(ctx context.Context, in *EditArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateArticleDbCacheAndSearch(ctx context.Context, in *CreateArticleDbCacheAndSearchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -100,6 +103,7 @@ type CreationClient interface {
 	GetTalkSearch(ctx context.Context, in *GetTalkSearchReq, opts ...grpc.CallOption) (*GetTalkSearchReply, error)
 	GetUserTalkAgree(ctx context.Context, in *GetUserTalkAgreeReq, opts ...grpc.CallOption) (*GetUserTalkAgreeReply, error)
 	GetUserTalkCollect(ctx context.Context, in *GetUserTalkCollectReq, opts ...grpc.CallOption) (*GetUserTalkCollectReply, error)
+	GetTalkImageReview(ctx context.Context, in *GetTalkImageReviewReq, opts ...grpc.CallOption) (*GetTalkImageReviewReply, error)
 	AddTalkImageReviewDbAndCache(ctx context.Context, in *AddCreationImageReviewDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateTalkDraft(ctx context.Context, in *CreateTalkDraftReq, opts ...grpc.CallOption) (*CreateTalkDraftReply, error)
 	SendTalk(ctx context.Context, in *SendTalkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -124,6 +128,9 @@ type CreationClient interface {
 	CancelTalkCollectDbAndCache(ctx context.Context, in *CancelTalkCollectDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetLastColumnDraft(ctx context.Context, in *GetLastColumnDraftReq, opts ...grpc.CallOption) (*GetLastColumnDraftReply, error)
 	GetColumnSearch(ctx context.Context, in *GetColumnSearchReq, opts ...grpc.CallOption) (*GetColumnSearchReply, error)
+	GetColumnImageReview(ctx context.Context, in *GetColumnImageReviewReq, opts ...grpc.CallOption) (*GetColumnImageReviewReply, error)
+	ColumnImageIrregular(ctx context.Context, in *CreationImageIrregularReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AddColumnImageReviewDbAndCache(ctx context.Context, in *AddCreationImageReviewDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateColumnDraft(ctx context.Context, in *CreateColumnDraftReq, opts ...grpc.CallOption) (*CreateColumnDraftReply, error)
 	SendColumn(ctx context.Context, in *SendColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateColumn(ctx context.Context, in *CreateColumnReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -423,9 +430,27 @@ func (c *creationClient) ArticleImageIrregular(ctx context.Context, in *Creation
 	return out, nil
 }
 
+func (c *creationClient) ArticleContentIrregular(ctx context.Context, in *CreationContentIrregularReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/ArticleContentIrregular", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *creationClient) AddArticleImageReviewDbAndCache(ctx context.Context, in *AddCreationImageReviewDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/AddArticleImageReviewDbAndCache", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) AddArticleContentReviewDbAndCache(ctx context.Context, in *AddCreationContentReviewDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/AddArticleContentReviewDbAndCache", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -561,6 +586,15 @@ func (c *creationClient) GetArticleSearch(ctx context.Context, in *GetArticleSea
 func (c *creationClient) GetArticleImageReview(ctx context.Context, in *GetArticleImageReviewReq, opts ...grpc.CallOption) (*GetArticleImageReviewReply, error) {
 	out := new(GetArticleImageReviewReply)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetArticleImageReview", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) GetArticleContentReview(ctx context.Context, in *GetArticleContentReviewReq, opts ...grpc.CallOption) (*GetArticleContentReviewReply, error) {
+	out := new(GetArticleContentReviewReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetArticleContentReview", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -873,6 +907,15 @@ func (c *creationClient) GetUserTalkCollect(ctx context.Context, in *GetUserTalk
 	return out, nil
 }
 
+func (c *creationClient) GetTalkImageReview(ctx context.Context, in *GetTalkImageReviewReq, opts ...grpc.CallOption) (*GetTalkImageReviewReply, error) {
+	out := new(GetTalkImageReviewReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetTalkImageReview", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *creationClient) AddTalkImageReviewDbAndCache(ctx context.Context, in *AddCreationImageReviewDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/AddTalkImageReviewDbAndCache", in, out, opts...)
@@ -1083,6 +1126,33 @@ func (c *creationClient) GetLastColumnDraft(ctx context.Context, in *GetLastColu
 func (c *creationClient) GetColumnSearch(ctx context.Context, in *GetColumnSearchReq, opts ...grpc.CallOption) (*GetColumnSearchReply, error) {
 	out := new(GetColumnSearchReply)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetColumnSearch", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) GetColumnImageReview(ctx context.Context, in *GetColumnImageReviewReq, opts ...grpc.CallOption) (*GetColumnImageReviewReply, error) {
+	out := new(GetColumnImageReviewReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetColumnImageReview", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) ColumnImageIrregular(ctx context.Context, in *CreationImageIrregularReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/ColumnImageIrregular", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) AddColumnImageReviewDbAndCache(ctx context.Context, in *AddCreationImageReviewDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/AddColumnImageReviewDbAndCache", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1534,7 +1604,9 @@ type CreationServer interface {
 	DeleteCollections(context.Context, *DeleteCollectionsReq) (*emptypb.Empty, error)
 	DeleteCollectionsCache(context.Context, *DeleteCollectionsCacheReq) (*emptypb.Empty, error)
 	ArticleImageIrregular(context.Context, *CreationImageIrregularReq) (*emptypb.Empty, error)
+	ArticleContentIrregular(context.Context, *CreationContentIrregularReq) (*emptypb.Empty, error)
 	AddArticleImageReviewDbAndCache(context.Context, *AddCreationImageReviewDbAndCacheReq) (*emptypb.Empty, error)
+	AddArticleContentReviewDbAndCache(context.Context, *AddCreationContentReviewDbAndCacheReq) (*emptypb.Empty, error)
 	GetArticleList(context.Context, *GetArticleListReq) (*GetArticleListReply, error)
 	GetArticleListHot(context.Context, *GetArticleListHotReq) (*GetArticleListHotReply, error)
 	GetColumnArticleList(context.Context, *GetColumnArticleListReq) (*GetArticleListReply, error)
@@ -1550,6 +1622,7 @@ type CreationServer interface {
 	GetLastArticleDraft(context.Context, *GetLastArticleDraftReq) (*GetLastArticleDraftReply, error)
 	GetArticleSearch(context.Context, *GetArticleSearchReq) (*GetArticleSearchReply, error)
 	GetArticleImageReview(context.Context, *GetArticleImageReviewReq) (*GetArticleImageReviewReply, error)
+	GetArticleContentReview(context.Context, *GetArticleContentReviewReq) (*GetArticleContentReviewReply, error)
 	CreateArticle(context.Context, *CreateArticleReq) (*emptypb.Empty, error)
 	EditArticle(context.Context, *EditArticleReq) (*emptypb.Empty, error)
 	CreateArticleDbCacheAndSearch(context.Context, *CreateArticleDbCacheAndSearchReq) (*emptypb.Empty, error)
@@ -1584,6 +1657,7 @@ type CreationServer interface {
 	GetTalkSearch(context.Context, *GetTalkSearchReq) (*GetTalkSearchReply, error)
 	GetUserTalkAgree(context.Context, *GetUserTalkAgreeReq) (*GetUserTalkAgreeReply, error)
 	GetUserTalkCollect(context.Context, *GetUserTalkCollectReq) (*GetUserTalkCollectReply, error)
+	GetTalkImageReview(context.Context, *GetTalkImageReviewReq) (*GetTalkImageReviewReply, error)
 	AddTalkImageReviewDbAndCache(context.Context, *AddCreationImageReviewDbAndCacheReq) (*emptypb.Empty, error)
 	CreateTalkDraft(context.Context, *CreateTalkDraftReq) (*CreateTalkDraftReply, error)
 	SendTalk(context.Context, *SendTalkReq) (*emptypb.Empty, error)
@@ -1608,6 +1682,9 @@ type CreationServer interface {
 	CancelTalkCollectDbAndCache(context.Context, *CancelTalkCollectDbAndCacheReq) (*emptypb.Empty, error)
 	GetLastColumnDraft(context.Context, *GetLastColumnDraftReq) (*GetLastColumnDraftReply, error)
 	GetColumnSearch(context.Context, *GetColumnSearchReq) (*GetColumnSearchReply, error)
+	GetColumnImageReview(context.Context, *GetColumnImageReviewReq) (*GetColumnImageReviewReply, error)
+	ColumnImageIrregular(context.Context, *CreationImageIrregularReq) (*emptypb.Empty, error)
+	AddColumnImageReviewDbAndCache(context.Context, *AddCreationImageReviewDbAndCacheReq) (*emptypb.Empty, error)
 	CreateColumnDraft(context.Context, *CreateColumnDraftReq) (*CreateColumnDraftReply, error)
 	SendColumn(context.Context, *SendColumnReq) (*emptypb.Empty, error)
 	CreateColumn(context.Context, *CreateColumnReq) (*emptypb.Empty, error)
@@ -1742,8 +1819,14 @@ func (UnimplementedCreationServer) DeleteCollectionsCache(context.Context, *Dele
 func (UnimplementedCreationServer) ArticleImageIrregular(context.Context, *CreationImageIrregularReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ArticleImageIrregular not implemented")
 }
+func (UnimplementedCreationServer) ArticleContentIrregular(context.Context, *CreationContentIrregularReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ArticleContentIrregular not implemented")
+}
 func (UnimplementedCreationServer) AddArticleImageReviewDbAndCache(context.Context, *AddCreationImageReviewDbAndCacheReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddArticleImageReviewDbAndCache not implemented")
+}
+func (UnimplementedCreationServer) AddArticleContentReviewDbAndCache(context.Context, *AddCreationContentReviewDbAndCacheReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddArticleContentReviewDbAndCache not implemented")
 }
 func (UnimplementedCreationServer) GetArticleList(context.Context, *GetArticleListReq) (*GetArticleListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetArticleList not implemented")
@@ -1789,6 +1872,9 @@ func (UnimplementedCreationServer) GetArticleSearch(context.Context, *GetArticle
 }
 func (UnimplementedCreationServer) GetArticleImageReview(context.Context, *GetArticleImageReviewReq) (*GetArticleImageReviewReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetArticleImageReview not implemented")
+}
+func (UnimplementedCreationServer) GetArticleContentReview(context.Context, *GetArticleContentReviewReq) (*GetArticleContentReviewReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetArticleContentReview not implemented")
 }
 func (UnimplementedCreationServer) CreateArticle(context.Context, *CreateArticleReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateArticle not implemented")
@@ -1892,6 +1978,9 @@ func (UnimplementedCreationServer) GetUserTalkAgree(context.Context, *GetUserTal
 func (UnimplementedCreationServer) GetUserTalkCollect(context.Context, *GetUserTalkCollectReq) (*GetUserTalkCollectReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserTalkCollect not implemented")
 }
+func (UnimplementedCreationServer) GetTalkImageReview(context.Context, *GetTalkImageReviewReq) (*GetTalkImageReviewReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTalkImageReview not implemented")
+}
 func (UnimplementedCreationServer) AddTalkImageReviewDbAndCache(context.Context, *AddCreationImageReviewDbAndCacheReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddTalkImageReviewDbAndCache not implemented")
 }
@@ -1963,6 +2052,15 @@ func (UnimplementedCreationServer) GetLastColumnDraft(context.Context, *GetLastC
 }
 func (UnimplementedCreationServer) GetColumnSearch(context.Context, *GetColumnSearchReq) (*GetColumnSearchReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetColumnSearch not implemented")
+}
+func (UnimplementedCreationServer) GetColumnImageReview(context.Context, *GetColumnImageReviewReq) (*GetColumnImageReviewReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetColumnImageReview not implemented")
+}
+func (UnimplementedCreationServer) ColumnImageIrregular(context.Context, *CreationImageIrregularReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ColumnImageIrregular not implemented")
+}
+func (UnimplementedCreationServer) AddColumnImageReviewDbAndCache(context.Context, *AddCreationImageReviewDbAndCacheReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddColumnImageReviewDbAndCache not implemented")
 }
 func (UnimplementedCreationServer) CreateColumnDraft(context.Context, *CreateColumnDraftReq) (*CreateColumnDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateColumnDraft not implemented")
@@ -2601,6 +2699,24 @@ func _Creation_ArticleImageIrregular_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Creation_ArticleContentIrregular_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreationContentIrregularReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).ArticleContentIrregular(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/ArticleContentIrregular",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).ArticleContentIrregular(ctx, req.(*CreationContentIrregularReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Creation_AddArticleImageReviewDbAndCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddCreationImageReviewDbAndCacheReq)
 	if err := dec(in); err != nil {
@@ -2615,6 +2731,24 @@ func _Creation_AddArticleImageReviewDbAndCache_Handler(srv interface{}, ctx cont
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CreationServer).AddArticleImageReviewDbAndCache(ctx, req.(*AddCreationImageReviewDbAndCacheReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_AddArticleContentReviewDbAndCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddCreationContentReviewDbAndCacheReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).AddArticleContentReviewDbAndCache(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/AddArticleContentReviewDbAndCache",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).AddArticleContentReviewDbAndCache(ctx, req.(*AddCreationContentReviewDbAndCacheReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2885,6 +3019,24 @@ func _Creation_GetArticleImageReview_Handler(srv interface{}, ctx context.Contex
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CreationServer).GetArticleImageReview(ctx, req.(*GetArticleImageReviewReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_GetArticleContentReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetArticleContentReviewReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetArticleContentReview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetArticleContentReview",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetArticleContentReview(ctx, req.(*GetArticleContentReviewReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -3501,6 +3653,24 @@ func _Creation_GetUserTalkCollect_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Creation_GetTalkImageReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTalkImageReviewReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetTalkImageReview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetTalkImageReview",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetTalkImageReview(ctx, req.(*GetTalkImageReviewReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Creation_AddTalkImageReviewDbAndCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddCreationImageReviewDbAndCacheReq)
 	if err := dec(in); err != nil {
@@ -3929,6 +4099,60 @@ func _Creation_GetColumnSearch_Handler(srv interface{}, ctx context.Context, dec
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CreationServer).GetColumnSearch(ctx, req.(*GetColumnSearchReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_GetColumnImageReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetColumnImageReviewReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetColumnImageReview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetColumnImageReview",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetColumnImageReview(ctx, req.(*GetColumnImageReviewReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_ColumnImageIrregular_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreationImageIrregularReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).ColumnImageIrregular(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/ColumnImageIrregular",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).ColumnImageIrregular(ctx, req.(*CreationImageIrregularReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_AddColumnImageReviewDbAndCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddCreationImageReviewDbAndCacheReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).AddColumnImageReviewDbAndCache(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/AddColumnImageReviewDbAndCache",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).AddColumnImageReviewDbAndCache(ctx, req.(*AddCreationImageReviewDbAndCacheReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -4877,8 +5101,16 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Creation_ArticleImageIrregular_Handler,
 		},
 		{
+			MethodName: "ArticleContentIrregular",
+			Handler:    _Creation_ArticleContentIrregular_Handler,
+		},
+		{
 			MethodName: "AddArticleImageReviewDbAndCache",
 			Handler:    _Creation_AddArticleImageReviewDbAndCache_Handler,
+		},
+		{
+			MethodName: "AddArticleContentReviewDbAndCache",
+			Handler:    _Creation_AddArticleContentReviewDbAndCache_Handler,
 		},
 		{
 			MethodName: "GetArticleList",
@@ -4939,6 +5171,10 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetArticleImageReview",
 			Handler:    _Creation_GetArticleImageReview_Handler,
+		},
+		{
+			MethodName: "GetArticleContentReview",
+			Handler:    _Creation_GetArticleContentReview_Handler,
 		},
 		{
 			MethodName: "CreateArticle",
@@ -5077,6 +5313,10 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Creation_GetUserTalkCollect_Handler,
 		},
 		{
+			MethodName: "GetTalkImageReview",
+			Handler:    _Creation_GetTalkImageReview_Handler,
+		},
+		{
 			MethodName: "AddTalkImageReviewDbAndCache",
 			Handler:    _Creation_AddTalkImageReviewDbAndCache_Handler,
 		},
@@ -5171,6 +5411,18 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetColumnSearch",
 			Handler:    _Creation_GetColumnSearch_Handler,
+		},
+		{
+			MethodName: "GetColumnImageReview",
+			Handler:    _Creation_GetColumnImageReview_Handler,
+		},
+		{
+			MethodName: "ColumnImageIrregular",
+			Handler:    _Creation_ColumnImageIrregular_Handler,
+		},
+		{
+			MethodName: "AddColumnImageReviewDbAndCache",
+			Handler:    _Creation_AddColumnImageReviewDbAndCache_Handler,
 		},
 		{
 			MethodName: "CreateColumnDraft",
