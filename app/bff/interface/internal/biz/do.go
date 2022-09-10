@@ -57,7 +57,7 @@ type Credentials struct {
 	ExpiredTime  int64
 }
 
-type AvatarReview struct {
+type UserImageReview struct {
 	Id       int32
 	Uuid     string
 	CreateAt string
@@ -68,6 +68,37 @@ type AvatarReview struct {
 	Score    int32
 	Category string
 	SubLabel string
+}
+
+type CreationImageReview struct {
+	Id         int32
+	CreationId int32
+	Kind       string
+	Uid        string
+	CreateAt   string
+	Uuid       string
+	JobId      string
+	Url        string
+	Label      string
+	Result     int32
+	Category   string
+	SubLabel   string
+	Mode       string
+	Score      int32
+}
+
+type CreationContentReview struct {
+	Id         int32
+	CreationId int32
+	Title      string
+	Kind       string
+	CreateAt   string
+	Uuid       string
+	JobId      string
+	Label      string
+	Result     int32
+	Section    string
+	Mode       string
 }
 
 type Follow struct {
