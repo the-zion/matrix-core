@@ -316,6 +316,29 @@ func (s *BffService) GetAvatarReview(ctx context.Context, req *v1.GetAvatarRevie
 	return reply, nil
 }
 
+func (s *BffService) GetCoverReview(ctx context.Context, req *v1.GetCoverReviewReq) (*v1.GetCoverReviewReply, error) {
+	reply := &v1.GetCoverReviewReply{Review: make([]*v1.GetCoverReviewReply_Review, 0)}
+	reviewList, err := s.uc.GetCoverReview(ctx, req.Page)
+	if err != nil {
+		return reply, err
+	}
+	for _, item := range reviewList {
+		reply.Review = append(reply.Review, &v1.GetCoverReviewReply_Review{
+			Id:       item.Id,
+			Uuid:     item.Uuid,
+			CreateAt: item.CreateAt,
+			JobId:    item.JobId,
+			Url:      item.Url,
+			Label:    item.Label,
+			Result:   item.Result,
+			Score:    item.Score,
+			Category: item.Category,
+			SubLabel: item.SubLabel,
+		})
+	}
+	return reply, nil
+}
+
 func (s *BffService) SetProfileUpdate(ctx context.Context, req *v1.SetProfileUpdateReq) (*emptypb.Empty, error) {
 	profile := &biz.UserProfileUpdate{}
 	profile.Username = req.Username
