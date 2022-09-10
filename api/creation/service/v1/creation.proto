@@ -4,6 +4,7 @@ package creation.v1;
 
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
+import "google/protobuf/any.proto";
 import "validate/validate.proto";
 
 option go_package = "api/creation/service/v1;v1";
@@ -64,7 +65,11 @@ service Creation {
 
   rpc ArticleImageIrregular(CreationImageIrregularReq)returns (google.protobuf.Empty){}
 
+  rpc ArticleContentIrregular(CreationContentIrregularReq)returns (google.protobuf.Empty){}
+
   rpc AddArticleImageReviewDbAndCache(AddCreationImageReviewDbAndCacheReq)returns (google.protobuf.Empty){}
+
+  rpc AddArticleContentReviewDbAndCache(AddCreationContentReviewDbAndCacheReq)returns (google.protobuf.Empty){}
 
   rpc GetArticleList(GetArticleListReq) returns (GetArticleListReply){}
 
@@ -95,6 +100,8 @@ service Creation {
   rpc GetArticleSearch(GetArticleSearchReq)returns (GetArticleSearchReply){}
 
   rpc GetArticleImageReview (GetArticleImageReviewReq) returns (GetArticleImageReviewReply) {}
+
+  rpc GetArticleContentReview (GetArticleContentReviewReq) returns (GetArticleContentReviewReply) {}
 
   rpc CreateArticle(CreateArticleReq) returns (google.protobuf.Empty){}
 
@@ -164,6 +171,8 @@ service Creation {
 
   rpc GetUserTalkCollect(GetUserTalkCollectReq)returns (GetUserTalkCollectReply){}
 
+  rpc GetTalkImageReview (GetTalkImageReviewReq) returns (GetTalkImageReviewReply) {}
+
   rpc AddTalkImageReviewDbAndCache(AddCreationImageReviewDbAndCacheReq)returns(google.protobuf.Empty){}
 
   rpc CreateTalkDraft(CreateTalkDraftReq) returns (CreateTalkDraftReply){}
@@ -211,6 +220,12 @@ service Creation {
   rpc GetLastColumnDraft(GetLastColumnDraftReq) returns (GetLastColumnDraftReply){}
 
   rpc GetColumnSearch(GetColumnSearchReq)returns (GetColumnSearchReply){}
+
+  rpc GetColumnImageReview (GetColumnImageReviewReq) returns (GetColumnImageReviewReply) {}
+
+  rpc ColumnImageIrregular(CreationImageIrregularReq)returns (google.protobuf.Empty){}
+
+  rpc AddColumnImageReviewDbAndCache(AddCreationImageReviewDbAndCacheReq)returns(google.protobuf.Empty){}
 
   rpc CreateColumnDraft(CreateColumnDraftReq) returns (CreateColumnDraftReply){}
 
@@ -484,6 +499,17 @@ message CreationImageIrregularReq{
   string uid = 11 [(validate.rules).string = {max_len: 1000}];
 }
 
+message CreationContentIrregularReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+  string job_id = 2 [(validate.rules).string = {max_len: 1000}];
+  string label = 3 [(validate.rules).string = {max_len: 1000}];
+  string kind = 4 [(validate.rules).string = {in: ["create", "edit"]}];
+  string title = 5 [(validate.rules).string = {max_len: 1000}];
+  int32 result = 6;
+  int32 id = 7;
+  string section = 8;
+}
+
 message AddCreationImageReviewDbAndCacheReq{
   string uuid = 1 [(validate.rules).string.uuid = true];
   string job_id = 2 [(validate.rules).string = {max_len: 1000}];
@@ -496,6 +522,17 @@ message AddCreationImageReviewDbAndCacheReq{
   int32 creation_id = 9;
   string kind = 10 [(validate.rules).string = {in: ["content", "cover"]}];
   string uid = 11 [(validate.rules).string = {max_len: 1000}];
+}
+
+message AddCreationContentReviewDbAndCacheReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+  string job_id = 2 [(validate.rules).string = {max_len: 1000}];
+  string label = 3 [(validate.rules).string = {max_len: 1000}];
+  string kind = 4 [(validate.rules).string = {in: ["create", "edit"]}];
+  string title = 5 [(validate.rules).string = {max_len: 50}];
+  int32 result = 6;
+  int32 creation_id = 7;
+  string section = 8;
 }
 
 message GetArticleListReq{
@@ -641,6 +678,27 @@ message GetArticleImageReviewReply{
     int32 score = 11;
     string category = 12;
     string subLabel = 13;
+  }
+  repeated Review review = 1;
+}
+
+message GetArticleContentReviewReq{
+  int32 page = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message GetArticleContentReviewReply{
+  message Review {
+    int32 id = 1;
+    int32 creation_id = 2;
+    string title = 3;
+    string kind = 4;
+    string uuid = 5;
+    string create_at = 6;
+    string job_id = 7;
+    string label = 8;
+    int32 result = 9;
+    string section = 10;
   }
   repeated Review review = 1;
 }
@@ -904,6 +962,30 @@ message GetUserTalkCollectReply{
   map<int32, bool> collect = 1;
 }
 
+message GetTalkImageReviewReq{
+  int32 page = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message GetTalkImageReviewReply{
+  message Review {
+    int32 id = 1;
+    int32 creation_id = 2;
+    string kind = 3;
+    string uid = 4;
+    string uuid = 5;
+    string create_at = 6;
+    string job_id = 7;
+    string url = 8;
+    string label = 9;
+    int32 result = 10;
+    int32 score = 11;
+    string category = 12;
+    string subLabel = 13;
+  }
+  repeated Review review = 1;
+}
+
 message CreateTalkDraftReq{
   string uuid = 1 [(validate.rules).string.uuid = true];
 }
@@ -1055,6 +1137,30 @@ message GetColumnSearchReply{
   }
   repeated List list = 1;
   int32 total = 2;
+}
+
+message GetColumnImageReviewReq{
+  int32 page = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message GetColumnImageReviewReply{
+  message Review {
+    int32 id = 1;
+    int32 creation_id = 2;
+    string kind = 3;
+    string uid = 4;
+    string uuid = 5;
+    string create_at = 6;
+    string job_id = 7;
+    string url = 8;
+    string label = 9;
+    int32 result = 10;
+    int32 score = 11;
+    string category = 12;
+    string subLabel = 13;
+  }
+  repeated Review review = 1;
 }
 
 message CreateColumnDraftReq{
