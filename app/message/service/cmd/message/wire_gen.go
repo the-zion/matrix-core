@@ -50,6 +50,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, re
 	grpcServer := server.NewGRPCServer(confServer, messageService, logger)
 	codeMqConsumerServer := server.NewCodeMqConsumerServer(confServer, messageService, logger)
 	profileMqConsumerServer := server.NewProfileMqConsumerServer(confServer, messageService, logger)
+	pictureMqConsumerServer := server.NewPictureMqConsumerServer(confServer, messageService, logger)
 	followMqConsumerServer := server.NewFollowMqConsumerServer(confServer, messageService, logger)
 	articleReviewMqConsumerServer := server.NewArticleReviewMqConsumerServer(confServer, messageService, logger)
 	articleMqConsumerServer := server.NewArticleMqConsumerServer(confServer, messageService, logger)
@@ -62,7 +63,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, re
 	commentMqConsumerServer := server.NewCommentMqConsumerServer(confServer, messageService, logger)
 	collectionsReviewMqConsumerServer := server.NewCollectionsReviewMqConsumerServer(confServer, messageService, logger)
 	collectionsMqConsumerServer := server.NewCollectionsMqConsumerServer(confServer, messageService, logger)
-	app := newApp(logger, registry, httpServer, grpcServer, codeMqConsumerServer, profileMqConsumerServer, followMqConsumerServer, articleReviewMqConsumerServer, articleMqConsumerServer, talkReviewMqConsumerServer, talkMqConsumerServer, columnReviewMqConsumerServer, columnMqConsumerServer, achievementMqConsumerServer, commentReviewMqConsumerServer, commentMqConsumerServer, collectionsReviewMqConsumerServer, collectionsMqConsumerServer)
+	app := newApp(logger, registry, httpServer, grpcServer, codeMqConsumerServer, profileMqConsumerServer, pictureMqConsumerServer, followMqConsumerServer, articleReviewMqConsumerServer, articleMqConsumerServer, talkReviewMqConsumerServer, talkMqConsumerServer, columnReviewMqConsumerServer, columnMqConsumerServer, achievementMqConsumerServer, commentReviewMqConsumerServer, commentMqConsumerServer, collectionsReviewMqConsumerServer, collectionsMqConsumerServer)
 	return app, func() {
 	}, nil
 }
