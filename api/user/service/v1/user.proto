@@ -13,11 +13,11 @@ service User {
 
   rpc AvatarIrregular (AvatarIrregularReq) returns (google.protobuf.Empty){}
 
-  rpc AddAvatarDbAndCache (AddAvatarDbAndCacheReq) returns (google.protobuf.Empty){}
+  rpc AddAvatarReviewDbAndCache (AddAvatarReviewDbAndCacheReq) returns (google.protobuf.Empty){}
 
   rpc CoverIrregular (CoverIrregularReq) returns (google.protobuf.Empty){}
 
-  rpc AddCoverDbAndCache (AddCoverDbAndCacheReq) returns (google.protobuf.Empty){}
+  rpc AddCoverReviewDbAndCache (AddCoverReviewDbAndCacheReq) returns (google.protobuf.Empty){}
 
   rpc LoginByPassword (LoginByPasswordReq) returns (LoginReply) {}
 
@@ -105,7 +105,7 @@ message AvatarIrregularReq{
   string subLabel = 8 [(validate.rules).string = {max_len: 1000}];
 }
 
-message AddAvatarDbAndCacheReq{
+message AddAvatarReviewDbAndCacheReq{
   string uuid = 1;
   string job_id = 2;
   string url = 3;
@@ -127,7 +127,7 @@ message CoverIrregularReq{
   string subLabel = 8 [(validate.rules).string = {max_len: 1000}];
 }
 
-message AddCoverDbAndCacheReq{
+message AddCoverReviewDbAndCacheReq{
   string uuid = 1;
   string job_id = 2;
   string url = 3;
