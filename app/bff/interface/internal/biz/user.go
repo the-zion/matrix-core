@@ -31,7 +31,8 @@ type UserRepo interface {
 	GetUserFollow(ctx context.Context, uuid, userUuid string) (bool, error)
 	GetUserFollows(ctx context.Context, uuid string) (map[string]bool, error)
 	GetUserSearch(ctx context.Context, page int32, search string) ([]*UserSearch, int32, error)
-	GetAvatarReview(ctx context.Context, page int32, uuid string) ([]*AvatarReview, error)
+	GetAvatarReview(ctx context.Context, page int32, uuid string) ([]*UserImageReview, error)
+	GetCoverReview(ctx context.Context, page int32, uuid string) ([]*UserImageReview, error)
 	SetProfileUpdate(ctx context.Context, profile *UserProfileUpdate) error
 	SetUserPhone(ctx context.Context, uuid, phone, code string) error
 	SetUserPassword(ctx context.Context, uuid, password string) error
@@ -339,9 +340,18 @@ func (r *UserUseCase) GetUserSearch(ctx context.Context, page int32, search stri
 	return searchList, total, nil
 }
 
-func (r *UserUseCase) GetAvatarReview(ctx context.Context, page int32) ([]*AvatarReview, error) {
+func (r *UserUseCase) GetAvatarReview(ctx context.Context, page int32) ([]*UserImageReview, error) {
 	uuid := ctx.Value("uuid").(string)
 	reviewList, err := r.repo.GetAvatarReview(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+	return reviewList, nil
+}
+
+func (r *UserUseCase) GetCoverReview(ctx context.Context, page int32) ([]*UserImageReview, error) {
+	uuid := ctx.Value("uuid").(string)
+	reviewList, err := r.repo.GetCoverReview(ctx, page, uuid)
 	if err != nil {
 		return nil, err
 	}
