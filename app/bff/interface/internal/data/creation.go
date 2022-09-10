@@ -813,6 +813,32 @@ func (r *articleRepo) GetArticleImageReview(ctx context.Context, page int32, uui
 	return reply, nil
 }
 
+func (r *articleRepo) GetArticleContentReview(ctx context.Context, page int32, uuid string) ([]*biz.CreationContentReview, error) {
+	reply := make([]*biz.CreationContentReview, 0)
+	reviewReply, err := r.data.cc.GetArticleContentReview(ctx, &creationV1.GetArticleContentReviewReq{
+		Page: page,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range reviewReply.Review {
+		reply = append(reply, &biz.CreationContentReview{
+			Id:         item.Id,
+			CreationId: item.CreationId,
+			Title:      item.Title,
+			Kind:       item.Kind,
+			Uuid:       item.Uuid,
+			CreateAt:   item.CreateAt,
+			JobId:      item.JobId,
+			Label:      item.Label,
+			Result:     item.Result,
+			Section:    item.Section,
+		})
+	}
+	return reply, nil
+}
+
 func (r *articleRepo) CreateArticleDraft(ctx context.Context, uuid string) (int32, error) {
 	reply, err := r.data.cc.CreateArticleDraft(ctx, &creationV1.CreateArticleDraftReq{
 		Uuid: uuid,
@@ -1189,6 +1215,35 @@ func (r *talkRepo) GetUserTalkCollect(ctx context.Context, uuid string) (map[int
 		return nil, err
 	}
 	return result.(map[int32]bool), nil
+}
+
+func (r *talkRepo) GetTalkImageReview(ctx context.Context, page int32, uuid string) ([]*biz.CreationImageReview, error) {
+	reply := make([]*biz.CreationImageReview, 0)
+	reviewReply, err := r.data.cc.GetTalkImageReview(ctx, &creationV1.GetTalkImageReviewReq{
+		Page: page,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range reviewReply.Review {
+		reply = append(reply, &biz.CreationImageReview{
+			Id:         item.Id,
+			CreationId: item.CreationId,
+			Kind:       item.Kind,
+			Uid:        item.Uid,
+			Uuid:       item.Uuid,
+			CreateAt:   item.CreateAt,
+			JobId:      item.JobId,
+			Url:        item.Url,
+			Label:      item.Label,
+			Result:     item.Result,
+			Score:      item.Score,
+			Category:   item.Category,
+			SubLabel:   item.SubLabel,
+		})
+	}
+	return reply, nil
 }
 
 func (r *talkRepo) CreateTalkDraft(ctx context.Context, uuid string) (int32, error) {
@@ -1665,6 +1720,35 @@ func (r *columnRepo) GetUserSubscribeColumn(ctx context.Context, uuid string) (m
 		return nil, err
 	}
 	return result.(map[int32]bool), nil
+}
+
+func (r *columnRepo) GetColumnImageReview(ctx context.Context, page int32, uuid string) ([]*biz.CreationImageReview, error) {
+	reply := make([]*biz.CreationImageReview, 0)
+	reviewReply, err := r.data.cc.GetColumnImageReview(ctx, &creationV1.GetColumnImageReviewReq{
+		Page: page,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range reviewReply.Review {
+		reply = append(reply, &biz.CreationImageReview{
+			Id:         item.Id,
+			CreationId: item.CreationId,
+			Kind:       item.Kind,
+			Uid:        item.Uid,
+			Uuid:       item.Uuid,
+			CreateAt:   item.CreateAt,
+			JobId:      item.JobId,
+			Url:        item.Url,
+			Label:      item.Label,
+			Result:     item.Result,
+			Score:      item.Score,
+			Category:   item.Category,
+			SubLabel:   item.SubLabel,
+		})
+	}
+	return reply, nil
 }
 
 func (r *columnRepo) SendColumn(ctx context.Context, id int32, uuid, ip string) error {
