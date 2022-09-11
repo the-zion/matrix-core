@@ -268,6 +268,29 @@ func (s *BffService) GetUserSubCommentTalkRepliedList(ctx context.Context, req *
 	return reply, nil
 }
 
+func (s *BffService) GetCommentContentReview(ctx context.Context, req *v1.GetCommentContentReviewReq) (*v1.GetCommentContentReviewReply, error) {
+	reply := &v1.GetCommentContentReviewReply{Review: make([]*v1.GetCommentContentReviewReply_Review, 0)}
+	reviewList, err := s.commc.GetCommentContentReview(ctx, req.Page)
+	if err != nil {
+		return reply, err
+	}
+	for _, item := range reviewList {
+		reply.Review = append(reply.Review, &v1.GetCommentContentReviewReply_Review{
+			Id:        item.Id,
+			CommentId: item.CommentId,
+			Comment:   item.Comment,
+			Kind:      item.Kind,
+			Uuid:      item.Uuid,
+			CreateAt:  item.CreateAt,
+			JobId:     item.JobId,
+			Label:     item.Label,
+			Result:    item.Result,
+			Section:   item.Section,
+		})
+	}
+	return reply, nil
+}
+
 func (s *BffService) SendComment(ctx context.Context, req *v1.SendCommentReq) (*emptypb.Empty, error) {
 	err := s.commc.SendComment(ctx, req.Id)
 	if err != nil {
