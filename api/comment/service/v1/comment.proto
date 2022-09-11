@@ -47,6 +47,10 @@ service Comment {
 
   rpc GetUserSubCommentTalkRepliedList(GetUserSubCommentTalkRepliedListReq) returns (GetUserSubCommentTalkRepliedListReply){}
 
+  rpc GetCommentContentReview (GetCommentContentReviewReq) returns (GetCommentContentReviewReply) {}
+
+  rpc CommentContentIrregular(CommentContentIrregularReq)returns (google.protobuf.Empty){}
+
   rpc CreateCommentDraft(CreateCommentDraftReq) returns (CreateCommentDraftReply){}
 
   rpc CreateComment(CreateCommentReq) returns (google.protobuf.Empty){}
@@ -76,6 +80,8 @@ service Comment {
   rpc CancelCommentAgreeDbAndCache(CancelCommentAgreeReq) returns (google.protobuf.Empty){}
 
   rpc CancelSubCommentAgreeDbAndCache(CancelSubCommentAgreeReq) returns (google.protobuf.Empty){}
+
+  rpc AddCommentContentReviewDbAndCache(AddCommentContentReviewDbAndCacheReq)returns (google.protobuf.Empty){}
 
   rpc RemoveComment(RemoveCommentReq) returns (google.protobuf.Empty){}
 
@@ -355,6 +361,38 @@ message GetUserSubCommentTalkRepliedListReply{
   repeated List list = 1;
 }
 
+message GetCommentContentReviewReq{
+  int32 page = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message GetCommentContentReviewReply{
+  message Review {
+    int32 id = 1;
+    int32 comment_id = 2;
+    string comment = 3;
+    string kind = 4;
+    string uuid = 5;
+    string create_at = 6;
+    string job_id = 7;
+    string label = 8;
+    int32 result = 9;
+    string section = 10;
+  }
+  repeated Review review = 1;
+}
+
+message CommentContentIrregularReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+  string job_id = 2 [(validate.rules).string = {max_len: 1000}];
+  string label = 3 [(validate.rules).string = {max_len: 1000}];
+  string kind = 4 [(validate.rules).string = {in: ["comment", "sub_comment"]}];
+  string comment = 5 [(validate.rules).string = {max_len: 1000}];
+  int32 result = 6;
+  int32 id = 7;
+  string section = 8;
+}
+
 message GetCommentListStatisticReply{
   message Count{
     int32 id = 1;
@@ -390,6 +428,18 @@ message CancelSubCommentAgreeReq{
   int32 id = 1;
   string uuid = 2 [(validate.rules).string.uuid = true];
   string user_uuid = 3 [(validate.rules).string.uuid = true];
+}
+
+
+message AddCommentContentReviewDbAndCacheReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+  string job_id = 2 [(validate.rules).string = {max_len: 1000}];
+  string label = 3 [(validate.rules).string = {max_len: 1000}];
+  string kind = 4 [(validate.rules).string = {in: ["comment", "sub_comment"]}];
+  string comment = 5 [(validate.rules).string = {max_len: 50}];
+  int32 result = 6;
+  int32 comment_id = 7;
+  string section = 8;
 }
 
 message RemoveCommentReq{
