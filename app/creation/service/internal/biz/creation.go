@@ -12,6 +12,7 @@ import (
 type CreationRepo interface {
 	GetLeaderBoard(ctx context.Context) ([]*LeaderBoard, error)
 	GetLastCollectionsDraft(ctx context.Context, uuid string) (*CollectionsDraft, error)
+	GetCollectionsContentReview(ctx context.Context, page int32, uuid string) ([]*TextReview, error)
 	GetCollectArticleList(ctx context.Context, id, page int32) ([]*Article, error)
 	GetCollectArticleCount(ctx context.Context, id int32) (int32, error)
 	GetCollectTalkList(ctx context.Context, id, page int32) ([]*Talk, error)
@@ -54,6 +55,9 @@ type CreationRepo interface {
 	SendReviewToMq(ctx context.Context, review *CollectionsReview) error
 	SendCollectionsToMq(ctx context.Context, collections *Collections, mode string) error
 	SendCollections(ctx context.Context, id int32, uuid string) (*CollectionsDraft, error)
+	SendCollectionsContentIrregularToMq(ctx context.Context, review *TextReview) error
+	SetCollectionsContentIrregular(ctx context.Context, review *TextReview) (*TextReview, error)
+	SetCollectionsContentIrregularToCache(ctx context.Context, review *TextReview) error
 }
 
 type CreationUseCase struct {
@@ -119,6 +123,14 @@ func (r *CreationUseCase) GetLastCollectionsDraft(ctx context.Context, uuid stri
 		return nil, v1.ErrorGetTalkDraftFailed("get last draft failed: %s", err.Error())
 	}
 	return draft, nil
+}
+
+func (r *CreationUseCase) GetCollectionsContentReview(ctx context.Context, page int32, uuid string) ([]*TextReview, error) {
+	reviewList, err := r.repo.GetCollectionsContentReview(ctx, page, uuid)
+	if err != nil {
+		return nil, v1.ErrorGetContentReviewFailed("get collections content review failed: %s", err.Error())
+	}
+	return reviewList, nil
 }
 
 func (r *CreationUseCase) getLeaderBoardFromArticle(ctx context.Context, boardList *[]*LeaderBoard) error {
@@ -372,6 +384,30 @@ func (r *CreationUseCase) CreateCollectionsDbAndCache(ctx context.Context, id, a
 	})
 }
 
+func (r *CreationUseCase) CollectionsContentIrregular(ctx context.Context, review *TextReview) error {
+	err := r.repo.SendCollectionsContentIrregularToMq(ctx, review)
+	if err != nil {
+		return v1.ErrorSetContentIrregularFailed("set collections content irregular to mq failed: %s", err.Error())
+	}
+	return nil
+}
+
+func (r *CreationUseCase) AddCollectionsContentReviewDbAndCache(ctx context.Context, review *TextReview) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		review, err := r.repo.SetCollectionsContentIrregular(ctx, review)
+		if err != nil {
+			return v1.ErrorSetContentIrregularFailed("set collections content irregular failed: %s", err.Error())
+		}
+
+		err = r.repo.SetCollectionsContentIrregularToCache(ctx, review)
+		if err != nil {
+			return v1.ErrorSetContentIrregularFailed("set collections content irregular to cache failed: %s", err.Error())
+		}
+
+		return nil
+	})
+}
+
 func (r *CreationUseCase) SendCollectionsEdit(ctx context.Context, id int32, uuid, ip string) error {
 	collections, err := r.repo.GetCollections(ctx, id, uuid)
 	if err != nil {
@@ -389,7 +425,7 @@ func (r *CreationUseCase) SendCollectionsEdit(ctx context.Context, id int32, uui
 
 	err = r.repo.SendReviewToMq(ctx, &CollectionsReview{
 		Uuid: collections.Uuid,
-		Id:   collections.CollectionsId,
+		Id:   id,
 		Mode: "edit",
 	})
 	if err != nil {

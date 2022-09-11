@@ -28,6 +28,7 @@ type TalkRepo interface {
 	GetTalkAuth(ctx context.Context, id int32) (int32, error)
 	GetCollectionsIdFromTalkCollect(ctx context.Context, id int32) (int32, error)
 	GetTalkImageReview(ctx context.Context, page int32, uuid string) ([]*ImageReview, error)
+	GetTalkContentReview(ctx context.Context, page int32, uuid string) ([]*TextReview, error)
 
 	CreateTalkDraft(ctx context.Context, uuid string) (int32, error)
 	CreateTalkFolder(ctx context.Context, id int32, uuid string) error
@@ -58,6 +59,8 @@ type TalkRepo interface {
 	SetCreationUserCollect(ctx context.Context, userUuid string) error
 	SetTalkImageIrregular(ctx context.Context, review *ImageReview) (*ImageReview, error)
 	SetTalkImageIrregularToCache(ctx context.Context, review *ImageReview) error
+	SetTalkContentIrregular(ctx context.Context, review *TextReview) (*TextReview, error)
+	SetTalkContentIrregularToCache(ctx context.Context, review *TextReview) error
 
 	CancelTalkAgree(ctx context.Context, id int32, uuid string) error
 	CancelUserTalkAgree(ctx context.Context, id int32, userUuid string) error
@@ -79,6 +82,7 @@ type TalkRepo interface {
 	SendScoreToMq(ctx context.Context, score int32, uuid, mode string) error
 	SendStatisticToMq(ctx context.Context, id, collectionsId int32, uuid, userUuid, mode string) error
 	SendTalkImageIrregularToMq(ctx context.Context, review *ImageReview) error
+	SendTalkContentIrregularToMq(ctx context.Context, review *TextReview) error
 
 	DeleteTalk(ctx context.Context, id int32, uuid string) error
 	DeleteTalkDraft(ctx context.Context, id int32, uuid string) error
@@ -214,6 +218,14 @@ func (r *TalkUseCase) GetTalkImageReview(ctx context.Context, page int32, uuid s
 	reviewList, err := r.repo.GetTalkImageReview(ctx, page, uuid)
 	if err != nil {
 		return nil, v1.ErrorGetImageReviewFailed("get talk image review failed: %s", err.Error())
+	}
+	return reviewList, nil
+}
+
+func (r *TalkUseCase) GetTalkContentReview(ctx context.Context, page int32, uuid string) ([]*TextReview, error) {
+	reviewList, err := r.repo.GetTalkContentReview(ctx, page, uuid)
+	if err != nil {
+		return nil, v1.ErrorGetContentReviewFailed("get talk content review failed: %s", err.Error())
 	}
 	return reviewList, nil
 }
@@ -719,6 +731,14 @@ func (r *TalkUseCase) TalkImageIrregular(ctx context.Context, review *ImageRevie
 	return nil
 }
 
+func (r *TalkUseCase) TalkContentIrregular(ctx context.Context, review *TextReview) error {
+	err := r.repo.SendTalkContentIrregularToMq(ctx, review)
+	if err != nil {
+		return v1.ErrorSetContentIrregularFailed("set talk content irregular to mq failed: %s", err.Error())
+	}
+	return nil
+}
+
 func (r *TalkUseCase) AddTalkImageReviewDbAndCache(ctx context.Context, review *ImageReview) error {
 	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		review, err := r.repo.SetTalkImageIrregular(ctx, review)
@@ -729,6 +749,22 @@ func (r *TalkUseCase) AddTalkImageReviewDbAndCache(ctx context.Context, review *
 		err = r.repo.SetTalkImageIrregularToCache(ctx, review)
 		if err != nil {
 			return v1.ErrorSetImageIrregularFailed("set talk image irregular to cache failed: %s", err.Error())
+		}
+
+		return nil
+	})
+}
+
+func (r *TalkUseCase) AddTalkContentReviewDbAndCache(ctx context.Context, review *TextReview) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		review, err := r.repo.SetTalkContentIrregular(ctx, review)
+		if err != nil {
+			return v1.ErrorSetContentIrregularFailed("set talk content irregular failed: %s", err.Error())
+		}
+
+		err = r.repo.SetTalkContentIrregularToCache(ctx, review)
+		if err != nil {
+			return v1.ErrorSetContentIrregularFailed("set talk content irregular to cache failed: %s", err.Error())
 		}
 
 		return nil
