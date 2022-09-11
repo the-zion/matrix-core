@@ -479,55 +479,67 @@ func (r *userRepo) GetUserSearch(ctx context.Context, page int32, search string)
 }
 
 func (r *userRepo) GetAvatarReview(ctx context.Context, page int32, uuid string) ([]*biz.UserImageReview, error) {
-	reply := make([]*biz.UserImageReview, 0)
-	reviewReply, err := r.data.uc.GetAvatarReview(ctx, &userV1.GetAvatarReviewReq{
-		Page: page,
-		Uuid: uuid,
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_avatar_review_%s_%v", uuid, page), func() (interface{}, error) {
+		reply := make([]*biz.UserImageReview, 0)
+		reviewReply, err := r.data.uc.GetAvatarReview(ctx, &userV1.GetAvatarReviewReq{
+			Page: page,
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range reviewReply.Review {
+			reply = append(reply, &biz.UserImageReview{
+				Id:       item.Id,
+				Uuid:     item.Uuid,
+				CreateAt: item.CreateAt,
+				JobId:    item.JobId,
+				Url:      item.Url,
+				Label:    item.Label,
+				Result:   item.Result,
+				Score:    item.Score,
+				Category: item.Category,
+				SubLabel: item.SubLabel,
+			})
+		}
+		return reply, nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	for _, item := range reviewReply.Review {
-		reply = append(reply, &biz.UserImageReview{
-			Id:       item.Id,
-			Uuid:     item.Uuid,
-			CreateAt: item.CreateAt,
-			JobId:    item.JobId,
-			Url:      item.Url,
-			Label:    item.Label,
-			Result:   item.Result,
-			Score:    item.Score,
-			Category: item.Category,
-			SubLabel: item.SubLabel,
-		})
-	}
-	return reply, nil
+	return result.([]*biz.UserImageReview), nil
 }
 
 func (r *userRepo) GetCoverReview(ctx context.Context, page int32, uuid string) ([]*biz.UserImageReview, error) {
-	reply := make([]*biz.UserImageReview, 0)
-	reviewReply, err := r.data.uc.GetCoverReview(ctx, &userV1.GetCoverReviewReq{
-		Page: page,
-		Uuid: uuid,
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_cover_review_%s_%v", uuid, page), func() (interface{}, error) {
+		reply := make([]*biz.UserImageReview, 0)
+		reviewReply, err := r.data.uc.GetCoverReview(ctx, &userV1.GetCoverReviewReq{
+			Page: page,
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range reviewReply.Review {
+			reply = append(reply, &biz.UserImageReview{
+				Id:       item.Id,
+				Uuid:     item.Uuid,
+				CreateAt: item.CreateAt,
+				JobId:    item.JobId,
+				Url:      item.Url,
+				Label:    item.Label,
+				Result:   item.Result,
+				Score:    item.Score,
+				Category: item.Category,
+				SubLabel: item.SubLabel,
+			})
+		}
+		return reply, nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	for _, item := range reviewReply.Review {
-		reply = append(reply, &biz.UserImageReview{
-			Id:       item.Id,
-			Uuid:     item.Uuid,
-			CreateAt: item.CreateAt,
-			JobId:    item.JobId,
-			Url:      item.Url,
-			Label:    item.Label,
-			Result:   item.Result,
-			Score:    item.Score,
-			Category: item.Category,
-			SubLabel: item.SubLabel,
-		})
-	}
-	return reply, nil
+	return result.([]*biz.UserImageReview), nil
 }
 
 func (r *userRepo) SetProfileUpdate(ctx context.Context, profile *biz.UserProfileUpdate) error {
