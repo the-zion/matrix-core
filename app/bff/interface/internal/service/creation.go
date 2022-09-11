@@ -121,6 +121,29 @@ func (s *BffService) GetLastCollectionsDraft(ctx context.Context, _ *emptypb.Emp
 	}, nil
 }
 
+func (s *BffService) GetCollectionsContentReview(ctx context.Context, req *v1.GetCollectionsContentReviewReq) (*v1.GetCollectionsContentReviewReply, error) {
+	reply := &v1.GetCollectionsContentReviewReply{Review: make([]*v1.GetCollectionsContentReviewReply_Review, 0)}
+	reviewList, err := s.cc.GetCollectionsContentReview(ctx, req.Page)
+	if err != nil {
+		return reply, err
+	}
+	for _, item := range reviewList {
+		reply.Review = append(reply.Review, &v1.GetCollectionsContentReviewReply_Review{
+			Id:         item.Id,
+			CreationId: item.CreationId,
+			Title:      item.Title,
+			Kind:       item.Kind,
+			Uuid:       item.Uuid,
+			CreateAt:   item.CreateAt,
+			JobId:      item.JobId,
+			Label:      item.Label,
+			Result:     item.Result,
+			Section:    item.Section,
+		})
+	}
+	return reply, nil
+}
+
 func (s *BffService) GetCollections(ctx context.Context, req *v1.GetCollectionsReq) (*v1.GetCollectionsReply, error) {
 	collection, err := s.cc.GetCollections(ctx, req.Id, req.Uuid)
 	if err != nil {
@@ -857,6 +880,29 @@ func (s *BffService) GetTalkImageReview(ctx context.Context, req *v1.GetTalkImag
 	return reply, nil
 }
 
+func (s *BffService) GetTalkContentReview(ctx context.Context, req *v1.GetTalkContentReviewReq) (*v1.GetTalkContentReviewReply, error) {
+	reply := &v1.GetTalkContentReviewReply{Review: make([]*v1.GetTalkContentReviewReply_Review, 0)}
+	reviewList, err := s.tc.GetTalkContentReview(ctx, req.Page)
+	if err != nil {
+		return reply, err
+	}
+	for _, item := range reviewList {
+		reply.Review = append(reply.Review, &v1.GetTalkContentReviewReply_Review{
+			Id:         item.Id,
+			CreationId: item.CreationId,
+			Title:      item.Title,
+			Kind:       item.Kind,
+			Uuid:       item.Uuid,
+			CreateAt:   item.CreateAt,
+			JobId:      item.JobId,
+			Label:      item.Label,
+			Result:     item.Result,
+			Section:    item.Section,
+		})
+	}
+	return reply, nil
+}
+
 func (s *BffService) CreateTalkDraft(ctx context.Context, _ *emptypb.Empty) (*v1.CreateTalkDraftReply, error) {
 	id, err := s.tc.CreateTalkDraft(ctx)
 	if err != nil {
@@ -1249,6 +1295,29 @@ func (s *BffService) GetColumnImageReview(ctx context.Context, req *v1.GetColumn
 			Score:      item.Score,
 			Category:   item.Category,
 			SubLabel:   item.SubLabel,
+		})
+	}
+	return reply, nil
+}
+
+func (s *BffService) GetColumnContentReview(ctx context.Context, req *v1.GetColumnContentReviewReq) (*v1.GetColumnContentReviewReply, error) {
+	reply := &v1.GetColumnContentReviewReply{Review: make([]*v1.GetColumnContentReviewReply_Review, 0)}
+	reviewList, err := s.coc.GetColumnContentReview(ctx, req.Page)
+	if err != nil {
+		return reply, err
+	}
+	for _, item := range reviewList {
+		reply.Review = append(reply.Review, &v1.GetColumnContentReviewReply_Review{
+			Id:         item.Id,
+			CreationId: item.CreationId,
+			Title:      item.Title,
+			Kind:       item.Kind,
+			Uuid:       item.Uuid,
+			CreateAt:   item.CreateAt,
+			JobId:      item.JobId,
+			Label:      item.Label,
+			Result:     item.Result,
+			Section:    item.Section,
 		})
 	}
 	return reply, nil
