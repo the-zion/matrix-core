@@ -562,6 +562,38 @@ func (r *commentRepo) GetUserSubCommentTalkRepliedList(ctx context.Context, page
 	return result.([]*biz.SubComment), nil
 }
 
+func (r *commentRepo) GetCommentContentReview(ctx context.Context, page int32, uuid string) ([]*biz.CommentContentReview, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_comment_content_review_%s_%v", uuid, page), func() (interface{}, error) {
+		reply := make([]*biz.CommentContentReview, 0)
+		reviewReply, err := r.data.commc.GetCommentContentReview(ctx, &commentV1.GetCommentContentReviewReq{
+			Page: page,
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range reviewReply.Review {
+			reply = append(reply, &biz.CommentContentReview{
+				Id:        item.Id,
+				CommentId: item.CommentId,
+				Comment:   item.Comment,
+				Kind:      item.Kind,
+				Uuid:      item.Uuid,
+				CreateAt:  item.CreateAt,
+				JobId:     item.JobId,
+				Label:     item.Label,
+				Result:    item.Result,
+				Section:   item.Section,
+			})
+		}
+		return reply, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.([]*biz.CommentContentReview), nil
+}
+
 func (r *commentRepo) CreateCommentDraft(ctx context.Context, uuid string) (int32, error) {
 	reply, err := r.data.commc.CreateCommentDraft(ctx, &commentV1.CreateCommentDraftReq{
 		Uuid: uuid,
