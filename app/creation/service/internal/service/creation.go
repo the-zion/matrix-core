@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	v1 "github.com/the-zion/matrix-core/api/creation/service/v1"
+	"github.com/the-zion/matrix-core/app/creation/service/internal/biz"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -31,6 +32,29 @@ func (s *CreationService) GetLastCollectionsDraft(ctx context.Context, req *v1.G
 		Id:     draft.Id,
 		Status: draft.Status,
 	}, nil
+}
+
+func (s *CreationService) GetCollectionsContentReview(ctx context.Context, req *v1.GetCollectionsContentReviewReq) (*v1.GetCollectionsContentReviewReply, error) {
+	reply := &v1.GetCollectionsContentReviewReply{Review: make([]*v1.GetCollectionsContentReviewReply_Review, 0)}
+	reviewList, err := s.cc.GetCollectionsContentReview(ctx, req.Page, req.Uuid)
+	if err != nil {
+		return reply, err
+	}
+	for _, item := range reviewList {
+		reply.Review = append(reply.Review, &v1.GetCollectionsContentReviewReply_Review{
+			Id:         item.Id,
+			CreationId: item.CreationId,
+			Title:      item.Title,
+			Kind:       item.Kind,
+			Uuid:       item.Uuid,
+			CreateAt:   item.CreateAt,
+			JobId:      item.JobId,
+			Label:      item.Label,
+			Result:     item.Result,
+			Section:    item.Section,
+		})
+	}
+	return reply, nil
 }
 
 func (s *CreationService) GetCollectArticleList(ctx context.Context, req *v1.GetCollectArticleListReq) (*v1.GetArticleListReply, error) {
@@ -254,6 +278,41 @@ func (s *CreationService) CreateCollections(ctx context.Context, req *v1.CreateC
 
 func (s *CreationService) CreateCollectionsDbAndCache(ctx context.Context, req *v1.CreateCollectionsDbAndCacheReq) (*emptypb.Empty, error) {
 	err := s.cc.CreateCollectionsDbAndCache(ctx, req.Id, req.Auth, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) CollectionsContentIrregular(ctx context.Context, req *v1.CreationContentIrregularReq) (*emptypb.Empty, error) {
+	err := s.cc.CollectionsContentIrregular(ctx, &biz.TextReview{
+		CreationId: req.Id,
+		Uuid:       req.Uuid,
+		JobId:      req.JobId,
+		Title:      req.Title,
+		Kind:       req.Kind,
+		Label:      req.Label,
+		Result:     req.Result,
+		Section:    req.Section,
+		Mode:       "add_collections_content_review_db_and_cache",
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) AddCollectionsContentReviewDbAndCache(ctx context.Context, req *v1.AddCreationContentReviewDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.cc.AddCollectionsContentReviewDbAndCache(ctx, &biz.TextReview{
+		CreationId: req.CreationId,
+		Uuid:       req.Uuid,
+		JobId:      req.JobId,
+		Title:      req.Title,
+		Kind:       req.Kind,
+		Label:      req.Label,
+		Result:     req.Result,
+		Section:    req.Section,
+	})
 	if err != nil {
 		return nil, err
 	}

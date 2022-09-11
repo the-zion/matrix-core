@@ -39,6 +39,24 @@ func (s *CreationService) ColumnImageIrregular(ctx context.Context, req *v1.Crea
 	return &emptypb.Empty{}, nil
 }
 
+func (s *CreationService) ColumnContentIrregular(ctx context.Context, req *v1.CreationContentIrregularReq) (*emptypb.Empty, error) {
+	err := s.coc.ColumnContentIrregular(ctx, &biz.TextReview{
+		CreationId: req.Id,
+		Uuid:       req.Uuid,
+		JobId:      req.JobId,
+		Title:      req.Title,
+		Kind:       req.Kind,
+		Label:      req.Label,
+		Result:     req.Result,
+		Section:    req.Section,
+		Mode:       "add_column_content_review_db_and_cache",
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *CreationService) AddColumnImageReviewDbAndCache(ctx context.Context, req *v1.AddCreationImageReviewDbAndCacheReq) (*emptypb.Empty, error) {
 	err := s.coc.AddColumnImageReviewDbAndCache(ctx, &biz.ImageReview{
 		CreationId: req.CreationId,
@@ -52,6 +70,23 @@ func (s *CreationService) AddColumnImageReviewDbAndCache(ctx context.Context, re
 		Score:      req.Score,
 		Category:   req.Category,
 		SubLabel:   req.SubLabel,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) AddColumnContentReviewDbAndCache(ctx context.Context, req *v1.AddCreationContentReviewDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.coc.AddColumnContentReviewDbAndCache(ctx, &biz.TextReview{
+		CreationId: req.CreationId,
+		Uuid:       req.Uuid,
+		JobId:      req.JobId,
+		Title:      req.Title,
+		Kind:       req.Kind,
+		Label:      req.Label,
+		Result:     req.Result,
+		Section:    req.Section,
 	})
 	if err != nil {
 		return nil, err
@@ -408,6 +443,29 @@ func (s *CreationService) GetColumnImageReview(ctx context.Context, req *v1.GetC
 			Score:      item.Score,
 			Category:   item.Category,
 			SubLabel:   item.SubLabel,
+		})
+	}
+	return reply, nil
+}
+
+func (s *CreationService) GetColumnContentReview(ctx context.Context, req *v1.GetColumnContentReviewReq) (*v1.GetColumnContentReviewReply, error) {
+	reply := &v1.GetColumnContentReviewReply{Review: make([]*v1.GetColumnContentReviewReply_Review, 0)}
+	reviewList, err := s.coc.GetColumnContentReview(ctx, req.Page, req.Uuid)
+	if err != nil {
+		return reply, err
+	}
+	for _, item := range reviewList {
+		reply.Review = append(reply.Review, &v1.GetColumnContentReviewReply_Review{
+			Id:         item.Id,
+			CreationId: item.CreationId,
+			Title:      item.Title,
+			Kind:       item.Kind,
+			Uuid:       item.Uuid,
+			CreateAt:   item.CreateAt,
+			JobId:      item.JobId,
+			Label:      item.Label,
+			Result:     item.Result,
+			Section:    item.Section,
 		})
 	}
 	return reply, nil

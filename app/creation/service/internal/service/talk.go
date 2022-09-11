@@ -197,6 +197,29 @@ func (s *CreationService) GetTalkImageReview(ctx context.Context, req *v1.GetTal
 	return reply, nil
 }
 
+func (s *CreationService) GetTalkContentReview(ctx context.Context, req *v1.GetTalkContentReviewReq) (*v1.GetTalkContentReviewReply, error) {
+	reply := &v1.GetTalkContentReviewReply{Review: make([]*v1.GetTalkContentReviewReply_Review, 0)}
+	reviewList, err := s.tc.GetTalkContentReview(ctx, req.Page, req.Uuid)
+	if err != nil {
+		return reply, err
+	}
+	for _, item := range reviewList {
+		reply.Review = append(reply.Review, &v1.GetTalkContentReviewReply_Review{
+			Id:         item.Id,
+			CreationId: item.CreationId,
+			Title:      item.Title,
+			Kind:       item.Kind,
+			Uuid:       item.Uuid,
+			CreateAt:   item.CreateAt,
+			JobId:      item.JobId,
+			Label:      item.Label,
+			Result:     item.Result,
+			Section:    item.Section,
+		})
+	}
+	return reply, nil
+}
+
 func (s *CreationService) TalkImageIrregular(ctx context.Context, req *v1.CreationImageIrregularReq) (*emptypb.Empty, error) {
 	err := s.tc.TalkImageIrregular(ctx, &biz.ImageReview{
 		CreationId: req.Id,
@@ -218,6 +241,24 @@ func (s *CreationService) TalkImageIrregular(ctx context.Context, req *v1.Creati
 	return &emptypb.Empty{}, nil
 }
 
+func (s *CreationService) TalkContentIrregular(ctx context.Context, req *v1.CreationContentIrregularReq) (*emptypb.Empty, error) {
+	err := s.tc.TalkContentIrregular(ctx, &biz.TextReview{
+		CreationId: req.Id,
+		Uuid:       req.Uuid,
+		JobId:      req.JobId,
+		Title:      req.Title,
+		Kind:       req.Kind,
+		Label:      req.Label,
+		Result:     req.Result,
+		Section:    req.Section,
+		Mode:       "add_talk_content_review_db_and_cache",
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *CreationService) AddTalkImageReviewDbAndCache(ctx context.Context, req *v1.AddCreationImageReviewDbAndCacheReq) (*emptypb.Empty, error) {
 	err := s.tc.AddTalkImageReviewDbAndCache(ctx, &biz.ImageReview{
 		CreationId: req.CreationId,
@@ -231,6 +272,23 @@ func (s *CreationService) AddTalkImageReviewDbAndCache(ctx context.Context, req 
 		Score:      req.Score,
 		Category:   req.Category,
 		SubLabel:   req.SubLabel,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CreationService) AddTalkContentReviewDbAndCache(ctx context.Context, req *v1.AddCreationContentReviewDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.tc.AddTalkContentReviewDbAndCache(ctx, &biz.TextReview{
+		CreationId: req.CreationId,
+		Uuid:       req.Uuid,
+		JobId:      req.JobId,
+		Title:      req.Title,
+		Kind:       req.Kind,
+		Label:      req.Label,
+		Result:     req.Result,
+		Section:    req.Section,
 	})
 	if err != nil {
 		return nil, err
