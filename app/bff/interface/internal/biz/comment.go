@@ -27,6 +27,7 @@ type CommentRepo interface {
 	GetUserSubCommentArticleRepliedList(ctx context.Context, page int32, uuid string) ([]*SubComment, error)
 	GetUserCommentTalkRepliedList(ctx context.Context, page int32, uuid string) ([]*Comment, error)
 	GetUserSubCommentTalkRepliedList(ctx context.Context, page int32, uuid string) ([]*SubComment, error)
+	GetCommentContentReview(ctx context.Context, page int32, uuid string) ([]*CommentContentReview, error)
 	CreateCommentDraft(ctx context.Context, uuid string) (int32, error)
 	SendComment(ctx context.Context, id int32, uuid, ip string) error
 	SendSubComment(ctx context.Context, id int32, uuid, ip string) error
@@ -346,6 +347,15 @@ func (r *CommentUseCase) GetUserSubCommentTalkRepliedList(ctx context.Context, p
 		}
 	}
 	return commentList, nil
+}
+
+func (r *CommentUseCase) GetCommentContentReview(ctx context.Context, page int32) ([]*CommentContentReview, error) {
+	uuid := ctx.Value("uuid").(string)
+	reviewList, err := r.repo.GetCommentContentReview(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+	return reviewList, nil
 }
 
 func (r *CommentUseCase) SendComment(ctx context.Context, id int32) error {
