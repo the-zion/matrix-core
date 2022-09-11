@@ -15,6 +15,8 @@ service Creation {
 
   rpc GetLastCollectionsDraft(GetLastCollectionsDraftReq) returns (GetLastCollectionsDraftReply){}
 
+  rpc GetCollectionsContentReview (GetCollectionsContentReviewReq) returns (GetCollectionsContentReviewReply) {}
+
   rpc GetCollectArticleList(GetCollectArticleListReq) returns (GetArticleListReply){}
 
   rpc GetCollectArticleCount(GetCollectArticleCountReq) returns (GetCollectArticleCountReply){}
@@ -52,6 +54,10 @@ service Creation {
   rpc CreateCollections(CreateCollectionsReq) returns (google.protobuf.Empty){}
 
   rpc CreateCollectionsDbAndCache(CreateCollectionsDbAndCacheReq) returns (google.protobuf.Empty){}
+
+  rpc CollectionsContentIrregular(CreationContentIrregularReq)returns (google.protobuf.Empty){}
+
+  rpc AddCollectionsContentReviewDbAndCache(AddCreationContentReviewDbAndCacheReq)returns (google.protobuf.Empty){}
 
   rpc SendCollectionsEdit(SendCollectionsEditReq) returns (google.protobuf.Empty){}
 
@@ -173,7 +179,11 @@ service Creation {
 
   rpc GetTalkImageReview (GetTalkImageReviewReq) returns (GetTalkImageReviewReply) {}
 
+  rpc GetTalkContentReview (GetTalkContentReviewReq) returns (GetTalkContentReviewReply) {}
+
   rpc AddTalkImageReviewDbAndCache(AddCreationImageReviewDbAndCacheReq)returns(google.protobuf.Empty){}
+
+  rpc AddTalkContentReviewDbAndCache(AddCreationContentReviewDbAndCacheReq)returns (google.protobuf.Empty){}
 
   rpc CreateTalkDraft(CreateTalkDraftReq) returns (CreateTalkDraftReply){}
 
@@ -182,6 +192,8 @@ service Creation {
   rpc SendTalkEdit(SendTalkEditReq) returns (google.protobuf.Empty){}
 
   rpc TalkImageIrregular(CreationImageIrregularReq)returns (google.protobuf.Empty){}
+
+  rpc TalkContentIrregular(CreationContentIrregularReq)returns (google.protobuf.Empty){}
 
   rpc CreateTalk(CreateTalkReq) returns (google.protobuf.Empty){}
 
@@ -223,9 +235,15 @@ service Creation {
 
   rpc GetColumnImageReview (GetColumnImageReviewReq) returns (GetColumnImageReviewReply) {}
 
+  rpc GetColumnContentReview (GetColumnContentReviewReq) returns (GetColumnContentReviewReply) {}
+
   rpc ColumnImageIrregular(CreationImageIrregularReq)returns (google.protobuf.Empty){}
 
+  rpc ColumnContentIrregular(CreationContentIrregularReq)returns (google.protobuf.Empty){}
+
   rpc AddColumnImageReviewDbAndCache(AddCreationImageReviewDbAndCacheReq)returns(google.protobuf.Empty){}
+
+  rpc AddColumnContentReviewDbAndCache(AddCreationContentReviewDbAndCacheReq)returns (google.protobuf.Empty){}
 
   rpc CreateColumnDraft(CreateColumnDraftReq) returns (CreateColumnDraftReply){}
 
@@ -337,6 +355,28 @@ message GetLastCollectionsDraftReply{
   int32 id = 1;
   int32 status = 2;
 }
+
+message GetCollectionsContentReviewReq{
+  int32 page = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message GetCollectionsContentReviewReply{
+  message Review {
+    int32 id = 1;
+    int32 creation_id = 2;
+    string title = 3;
+    string kind = 4;
+    string uuid = 5;
+    string create_at = 6;
+    string job_id = 7;
+    string label = 8;
+    int32 result = 9;
+    string section = 10;
+  }
+  repeated Review review = 1;
+}
+
 
 message GetCollectArticleListReq{
   int32 id = 1;
@@ -986,6 +1026,27 @@ message GetTalkImageReviewReply{
   repeated Review review = 1;
 }
 
+message GetTalkContentReviewReq{
+  int32 page = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message GetTalkContentReviewReply{
+  message Review {
+    int32 id = 1;
+    int32 creation_id = 2;
+    string title = 3;
+    string kind = 4;
+    string uuid = 5;
+    string create_at = 6;
+    string job_id = 7;
+    string label = 8;
+    int32 result = 9;
+    string section = 10;
+  }
+  repeated Review review = 1;
+}
+
 message CreateTalkDraftReq{
   string uuid = 1 [(validate.rules).string.uuid = true];
 }
@@ -1159,6 +1220,27 @@ message GetColumnImageReviewReply{
     int32 score = 11;
     string category = 12;
     string subLabel = 13;
+  }
+  repeated Review review = 1;
+}
+
+message GetColumnContentReviewReq{
+  int32 page = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message GetColumnContentReviewReply{
+  message Review {
+    int32 id = 1;
+    int32 creation_id = 2;
+    string title = 3;
+    string kind = 4;
+    string uuid = 5;
+    string create_at = 6;
+    string job_id = 7;
+    string label = 8;
+    int32 result = 9;
+    string section = 10;
   }
   repeated Review review = 1;
 }
