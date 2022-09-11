@@ -71,6 +71,7 @@ type BffClient interface {
 	GetCollectionsListByVisitor(ctx context.Context, in *GetCollectionsListByVisitorReq, opts ...grpc.CallOption) (*GetCollectionsListReply, error)
 	GetCollectionsVisitorCount(ctx context.Context, in *GetCollectionsVisitorCountReq, opts ...grpc.CallOption) (*GetCollectionsCountReply, error)
 	GetLastCollectionsDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLastCollectionsDraftReply, error)
+	GetCollectionsContentReview(ctx context.Context, in *GetCollectionsContentReviewReq, opts ...grpc.CallOption) (*GetCollectionsContentReviewReply, error)
 	CreateCollectionsDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateCollectionsDraftReply, error)
 	SendCollections(ctx context.Context, in *SendCollectionsReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SendCollectionsEdit(ctx context.Context, in *SendCollectionsEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -118,6 +119,7 @@ type BffClient interface {
 	GetUserTalkAgree(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserTalkAgreeReply, error)
 	GetUserTalkCollect(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserTalkCollectReply, error)
 	GetTalkImageReview(ctx context.Context, in *GetTalkImageReviewReq, opts ...grpc.CallOption) (*GetTalkImageReviewReply, error)
+	GetTalkContentReview(ctx context.Context, in *GetTalkContentReviewReq, opts ...grpc.CallOption) (*GetTalkContentReviewReply, error)
 	CreateTalkDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateTalkDraftReply, error)
 	SendTalk(ctx context.Context, in *SendTalkReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SendTalkEdit(ctx context.Context, in *SendTalkEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -153,6 +155,7 @@ type BffClient interface {
 	GetUserColumnCollect(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserColumnCollectReply, error)
 	GetUserSubscribeColumn(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserSubscribeColumnReply, error)
 	GetColumnImageReview(ctx context.Context, in *GetColumnImageReviewReq, opts ...grpc.CallOption) (*GetColumnImageReviewReply, error)
+	GetColumnContentReview(ctx context.Context, in *GetColumnContentReviewReq, opts ...grpc.CallOption) (*GetColumnContentReviewReply, error)
 	ColumnStatisticJudge(ctx context.Context, in *ColumnStatisticJudgeReq, opts ...grpc.CallOption) (*ColumnStatisticJudgeReply, error)
 	SetColumnAgree(ctx context.Context, in *SetColumnAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelColumnAgree(ctx context.Context, in *CancelColumnAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -183,6 +186,7 @@ type BffClient interface {
 	GetUserSubCommentArticleRepliedList(ctx context.Context, in *GetUserSubCommentArticleRepliedListReq, opts ...grpc.CallOption) (*GetUserSubCommentArticleRepliedListReply, error)
 	GetUserCommentTalkRepliedList(ctx context.Context, in *GetUserCommentTalkRepliedListReq, opts ...grpc.CallOption) (*GetUserCommentTalkRepliedListReply, error)
 	GetUserSubCommentTalkRepliedList(ctx context.Context, in *GetUserSubCommentTalkRepliedListReq, opts ...grpc.CallOption) (*GetUserSubCommentTalkRepliedListReply, error)
+	GetCommentContentReview(ctx context.Context, in *GetCommentContentReviewReq, opts ...grpc.CallOption) (*GetCommentContentReviewReply, error)
 	CreateCommentDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateCommentDraftReply, error)
 	SendComment(ctx context.Context, in *SendCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SendSubComment(ctx context.Context, in *SendSubCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -625,6 +629,15 @@ func (c *bffClient) GetLastCollectionsDraft(ctx context.Context, in *emptypb.Emp
 	return out, nil
 }
 
+func (c *bffClient) GetCollectionsContentReview(ctx context.Context, in *GetCollectionsContentReviewReq, opts ...grpc.CallOption) (*GetCollectionsContentReviewReply, error) {
+	out := new(GetCollectionsContentReviewReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCollectionsContentReview", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) CreateCollectionsDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateCollectionsDraftReply, error) {
 	out := new(CreateCollectionsDraftReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/CreateCollectionsDraft", in, out, opts...)
@@ -1048,6 +1061,15 @@ func (c *bffClient) GetTalkImageReview(ctx context.Context, in *GetTalkImageRevi
 	return out, nil
 }
 
+func (c *bffClient) GetTalkContentReview(ctx context.Context, in *GetTalkContentReviewReq, opts ...grpc.CallOption) (*GetTalkContentReviewReply, error) {
+	out := new(GetTalkContentReviewReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetTalkContentReview", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) CreateTalkDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateTalkDraftReply, error) {
 	out := new(CreateTalkDraftReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/CreateTalkDraft", in, out, opts...)
@@ -1363,6 +1385,15 @@ func (c *bffClient) GetColumnImageReview(ctx context.Context, in *GetColumnImage
 	return out, nil
 }
 
+func (c *bffClient) GetColumnContentReview(ctx context.Context, in *GetColumnContentReviewReq, opts ...grpc.CallOption) (*GetColumnContentReviewReply, error) {
+	out := new(GetColumnContentReviewReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetColumnContentReview", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) ColumnStatisticJudge(ctx context.Context, in *ColumnStatisticJudgeReq, opts ...grpc.CallOption) (*ColumnStatisticJudgeReply, error) {
 	out := new(ColumnStatisticJudgeReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/ColumnStatisticJudge", in, out, opts...)
@@ -1633,6 +1664,15 @@ func (c *bffClient) GetUserSubCommentTalkRepliedList(ctx context.Context, in *Ge
 	return out, nil
 }
 
+func (c *bffClient) GetCommentContentReview(ctx context.Context, in *GetCommentContentReviewReq, opts ...grpc.CallOption) (*GetCommentContentReviewReply, error) {
+	out := new(GetCommentContentReviewReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCommentContentReview", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) CreateCommentDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateCommentDraftReply, error) {
 	out := new(CreateCommentDraftReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/CreateCommentDraft", in, out, opts...)
@@ -1766,6 +1806,7 @@ type BffServer interface {
 	GetCollectionsListByVisitor(context.Context, *GetCollectionsListByVisitorReq) (*GetCollectionsListReply, error)
 	GetCollectionsVisitorCount(context.Context, *GetCollectionsVisitorCountReq) (*GetCollectionsCountReply, error)
 	GetLastCollectionsDraft(context.Context, *emptypb.Empty) (*GetLastCollectionsDraftReply, error)
+	GetCollectionsContentReview(context.Context, *GetCollectionsContentReviewReq) (*GetCollectionsContentReviewReply, error)
 	CreateCollectionsDraft(context.Context, *emptypb.Empty) (*CreateCollectionsDraftReply, error)
 	SendCollections(context.Context, *SendCollectionsReq) (*emptypb.Empty, error)
 	SendCollectionsEdit(context.Context, *SendCollectionsEditReq) (*emptypb.Empty, error)
@@ -1813,6 +1854,7 @@ type BffServer interface {
 	GetUserTalkAgree(context.Context, *emptypb.Empty) (*GetUserTalkAgreeReply, error)
 	GetUserTalkCollect(context.Context, *emptypb.Empty) (*GetUserTalkCollectReply, error)
 	GetTalkImageReview(context.Context, *GetTalkImageReviewReq) (*GetTalkImageReviewReply, error)
+	GetTalkContentReview(context.Context, *GetTalkContentReviewReq) (*GetTalkContentReviewReply, error)
 	CreateTalkDraft(context.Context, *emptypb.Empty) (*CreateTalkDraftReply, error)
 	SendTalk(context.Context, *SendTalkReq) (*emptypb.Empty, error)
 	SendTalkEdit(context.Context, *SendTalkEditReq) (*emptypb.Empty, error)
@@ -1848,6 +1890,7 @@ type BffServer interface {
 	GetUserColumnCollect(context.Context, *emptypb.Empty) (*GetUserColumnCollectReply, error)
 	GetUserSubscribeColumn(context.Context, *emptypb.Empty) (*GetUserSubscribeColumnReply, error)
 	GetColumnImageReview(context.Context, *GetColumnImageReviewReq) (*GetColumnImageReviewReply, error)
+	GetColumnContentReview(context.Context, *GetColumnContentReviewReq) (*GetColumnContentReviewReply, error)
 	ColumnStatisticJudge(context.Context, *ColumnStatisticJudgeReq) (*ColumnStatisticJudgeReply, error)
 	SetColumnAgree(context.Context, *SetColumnAgreeReq) (*emptypb.Empty, error)
 	CancelColumnAgree(context.Context, *CancelColumnAgreeReq) (*emptypb.Empty, error)
@@ -1878,6 +1921,7 @@ type BffServer interface {
 	GetUserSubCommentArticleRepliedList(context.Context, *GetUserSubCommentArticleRepliedListReq) (*GetUserSubCommentArticleRepliedListReply, error)
 	GetUserCommentTalkRepliedList(context.Context, *GetUserCommentTalkRepliedListReq) (*GetUserCommentTalkRepliedListReply, error)
 	GetUserSubCommentTalkRepliedList(context.Context, *GetUserSubCommentTalkRepliedListReq) (*GetUserSubCommentTalkRepliedListReply, error)
+	GetCommentContentReview(context.Context, *GetCommentContentReviewReq) (*GetCommentContentReviewReply, error)
 	CreateCommentDraft(context.Context, *emptypb.Empty) (*CreateCommentDraftReply, error)
 	SendComment(context.Context, *SendCommentReq) (*emptypb.Empty, error)
 	SendSubComment(context.Context, *SendSubCommentReq) (*emptypb.Empty, error)
@@ -2035,6 +2079,9 @@ func (UnimplementedBffServer) GetCollectionsVisitorCount(context.Context, *GetCo
 func (UnimplementedBffServer) GetLastCollectionsDraft(context.Context, *emptypb.Empty) (*GetLastCollectionsDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLastCollectionsDraft not implemented")
 }
+func (UnimplementedBffServer) GetCollectionsContentReview(context.Context, *GetCollectionsContentReviewReq) (*GetCollectionsContentReviewReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCollectionsContentReview not implemented")
+}
 func (UnimplementedBffServer) CreateCollectionsDraft(context.Context, *emptypb.Empty) (*CreateCollectionsDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateCollectionsDraft not implemented")
 }
@@ -2176,6 +2223,9 @@ func (UnimplementedBffServer) GetUserTalkCollect(context.Context, *emptypb.Empty
 func (UnimplementedBffServer) GetTalkImageReview(context.Context, *GetTalkImageReviewReq) (*GetTalkImageReviewReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTalkImageReview not implemented")
 }
+func (UnimplementedBffServer) GetTalkContentReview(context.Context, *GetTalkContentReviewReq) (*GetTalkContentReviewReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTalkContentReview not implemented")
+}
 func (UnimplementedBffServer) CreateTalkDraft(context.Context, *emptypb.Empty) (*CreateTalkDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTalkDraft not implemented")
 }
@@ -2281,6 +2331,9 @@ func (UnimplementedBffServer) GetUserSubscribeColumn(context.Context, *emptypb.E
 func (UnimplementedBffServer) GetColumnImageReview(context.Context, *GetColumnImageReviewReq) (*GetColumnImageReviewReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetColumnImageReview not implemented")
 }
+func (UnimplementedBffServer) GetColumnContentReview(context.Context, *GetColumnContentReviewReq) (*GetColumnContentReviewReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetColumnContentReview not implemented")
+}
 func (UnimplementedBffServer) ColumnStatisticJudge(context.Context, *ColumnStatisticJudgeReq) (*ColumnStatisticJudgeReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ColumnStatisticJudge not implemented")
 }
@@ -2370,6 +2423,9 @@ func (UnimplementedBffServer) GetUserCommentTalkRepliedList(context.Context, *Ge
 }
 func (UnimplementedBffServer) GetUserSubCommentTalkRepliedList(context.Context, *GetUserSubCommentTalkRepliedListReq) (*GetUserSubCommentTalkRepliedListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserSubCommentTalkRepliedList not implemented")
+}
+func (UnimplementedBffServer) GetCommentContentReview(context.Context, *GetCommentContentReviewReq) (*GetCommentContentReviewReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCommentContentReview not implemented")
 }
 func (UnimplementedBffServer) CreateCommentDraft(context.Context, *emptypb.Empty) (*CreateCommentDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateCommentDraft not implemented")
@@ -3257,6 +3313,24 @@ func _Bff_GetLastCollectionsDraft_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_GetCollectionsContentReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCollectionsContentReviewReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetCollectionsContentReview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetCollectionsContentReview",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetCollectionsContentReview(ctx, req.(*GetCollectionsContentReviewReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_CreateCollectionsDraft_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
@@ -4103,6 +4177,24 @@ func _Bff_GetTalkImageReview_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_GetTalkContentReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTalkContentReviewReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetTalkContentReview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetTalkContentReview",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetTalkContentReview(ctx, req.(*GetTalkContentReviewReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_CreateTalkDraft_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
@@ -4733,6 +4825,24 @@ func _Bff_GetColumnImageReview_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_GetColumnContentReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetColumnContentReviewReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetColumnContentReview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetColumnContentReview",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetColumnContentReview(ctx, req.(*GetColumnContentReviewReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_ColumnStatisticJudge_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ColumnStatisticJudgeReq)
 	if err := dec(in); err != nil {
@@ -5273,6 +5383,24 @@ func _Bff_GetUserSubCommentTalkRepliedList_Handler(srv interface{}, ctx context.
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_GetCommentContentReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCommentContentReviewReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetCommentContentReview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetCommentContentReview",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetCommentContentReview(ctx, req.(*GetCommentContentReviewReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_CreateCommentDraft_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
@@ -5631,6 +5759,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Bff_GetLastCollectionsDraft_Handler,
 		},
 		{
+			MethodName: "GetCollectionsContentReview",
+			Handler:    _Bff_GetCollectionsContentReview_Handler,
+		},
+		{
 			MethodName: "CreateCollectionsDraft",
 			Handler:    _Bff_CreateCollectionsDraft_Handler,
 		},
@@ -5819,6 +5951,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Bff_GetTalkImageReview_Handler,
 		},
 		{
+			MethodName: "GetTalkContentReview",
+			Handler:    _Bff_GetTalkContentReview_Handler,
+		},
+		{
 			MethodName: "CreateTalkDraft",
 			Handler:    _Bff_CreateTalkDraft_Handler,
 		},
@@ -5959,6 +6095,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Bff_GetColumnImageReview_Handler,
 		},
 		{
+			MethodName: "GetColumnContentReview",
+			Handler:    _Bff_GetColumnContentReview_Handler,
+		},
+		{
 			MethodName: "ColumnStatisticJudge",
 			Handler:    _Bff_ColumnStatisticJudge_Handler,
 		},
@@ -6077,6 +6217,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserSubCommentTalkRepliedList",
 			Handler:    _Bff_GetUserSubCommentTalkRepliedList_Handler,
+		},
+		{
+			MethodName: "GetCommentContentReview",
+			Handler:    _Bff_GetCommentContentReview_Handler,
 		},
 		{
 			MethodName: "CreateCommentDraft",

@@ -67,12 +67,14 @@ const OperationBffGetCollectColumnList = "/bff.v1.Bff/GetCollectColumnList"
 const OperationBffGetCollectTalkCount = "/bff.v1.Bff/GetCollectTalkCount"
 const OperationBffGetCollectTalkList = "/bff.v1.Bff/GetCollectTalkList"
 const OperationBffGetCollections = "/bff.v1.Bff/GetCollections"
+const OperationBffGetCollectionsContentReview = "/bff.v1.Bff/GetCollectionsContentReview"
 const OperationBffGetCollectionsCount = "/bff.v1.Bff/GetCollectionsCount"
 const OperationBffGetCollectionsList = "/bff.v1.Bff/GetCollectionsList"
 const OperationBffGetCollectionsListAll = "/bff.v1.Bff/GetCollectionsListAll"
 const OperationBffGetCollectionsListByVisitor = "/bff.v1.Bff/GetCollectionsListByVisitor"
 const OperationBffGetCollectionsVisitorCount = "/bff.v1.Bff/GetCollectionsVisitorCount"
 const OperationBffGetColumnArticleList = "/bff.v1.Bff/GetColumnArticleList"
+const OperationBffGetColumnContentReview = "/bff.v1.Bff/GetColumnContentReview"
 const OperationBffGetColumnCount = "/bff.v1.Bff/GetColumnCount"
 const OperationBffGetColumnCountVisitor = "/bff.v1.Bff/GetColumnCountVisitor"
 const OperationBffGetColumnImageReview = "/bff.v1.Bff/GetColumnImageReview"
@@ -82,6 +84,7 @@ const OperationBffGetColumnListStatistic = "/bff.v1.Bff/GetColumnListStatistic"
 const OperationBffGetColumnSearch = "/bff.v1.Bff/GetColumnSearch"
 const OperationBffGetColumnStatistic = "/bff.v1.Bff/GetColumnStatistic"
 const OperationBffGetColumnSubscribes = "/bff.v1.Bff/GetColumnSubscribes"
+const OperationBffGetCommentContentReview = "/bff.v1.Bff/GetCommentContentReview"
 const OperationBffGetCommentList = "/bff.v1.Bff/GetCommentList"
 const OperationBffGetCommentListHot = "/bff.v1.Bff/GetCommentListHot"
 const OperationBffGetCommentUser = "/bff.v1.Bff/GetCommentUser"
@@ -104,6 +107,7 @@ const OperationBffGetProfileUpdate = "/bff.v1.Bff/GetProfileUpdate"
 const OperationBffGetSubCommentList = "/bff.v1.Bff/GetSubCommentList"
 const OperationBffGetSubscribeList = "/bff.v1.Bff/GetSubscribeList"
 const OperationBffGetSubscribeListCount = "/bff.v1.Bff/GetSubscribeListCount"
+const OperationBffGetTalkContentReview = "/bff.v1.Bff/GetTalkContentReview"
 const OperationBffGetTalkCount = "/bff.v1.Bff/GetTalkCount"
 const OperationBffGetTalkCountVisitor = "/bff.v1.Bff/GetTalkCountVisitor"
 const OperationBffGetTalkImageReview = "/bff.v1.Bff/GetTalkImageReview"
@@ -237,12 +241,14 @@ type BffHTTPServer interface {
 	GetCollectTalkCount(context.Context, *GetCollectTalkCountReq) (*GetCollectTalkCountReply, error)
 	GetCollectTalkList(context.Context, *GetCollectTalkListReq) (*GetTalkListReply, error)
 	GetCollections(context.Context, *GetCollectionsReq) (*GetCollectionsReply, error)
+	GetCollectionsContentReview(context.Context, *GetCollectionsContentReviewReq) (*GetCollectionsContentReviewReply, error)
 	GetCollectionsCount(context.Context, *emptypb.Empty) (*GetCollectionsCountReply, error)
 	GetCollectionsList(context.Context, *GetCollectionsListReq) (*GetCollectionsListReply, error)
 	GetCollectionsListAll(context.Context, *emptypb.Empty) (*GetCollectionsListReply, error)
 	GetCollectionsListByVisitor(context.Context, *GetCollectionsListByVisitorReq) (*GetCollectionsListReply, error)
 	GetCollectionsVisitorCount(context.Context, *GetCollectionsVisitorCountReq) (*GetCollectionsCountReply, error)
 	GetColumnArticleList(context.Context, *GetColumnArticleListReq) (*GetArticleListReply, error)
+	GetColumnContentReview(context.Context, *GetColumnContentReviewReq) (*GetColumnContentReviewReply, error)
 	GetColumnCount(context.Context, *emptypb.Empty) (*GetColumnCountReply, error)
 	GetColumnCountVisitor(context.Context, *GetColumnCountVisitorReq) (*GetColumnCountReply, error)
 	GetColumnImageReview(context.Context, *GetColumnImageReviewReq) (*GetColumnImageReviewReply, error)
@@ -252,6 +258,7 @@ type BffHTTPServer interface {
 	GetColumnSearch(context.Context, *GetColumnSearchReq) (*GetColumnSearchReply, error)
 	GetColumnStatistic(context.Context, *GetColumnStatisticReq) (*GetColumnStatisticReply, error)
 	GetColumnSubscribes(context.Context, *GetColumnSubscribesReq) (*GetColumnSubscribesReply, error)
+	GetCommentContentReview(context.Context, *GetCommentContentReviewReq) (*GetCommentContentReviewReply, error)
 	GetCommentList(context.Context, *GetCommentListReq) (*GetCommentListReply, error)
 	GetCommentListHot(context.Context, *GetCommentListReq) (*GetCommentListReply, error)
 	GetCommentUser(context.Context, *emptypb.Empty) (*GetCommentUserReply, error)
@@ -274,6 +281,7 @@ type BffHTTPServer interface {
 	GetSubCommentList(context.Context, *GetSubCommentListReq) (*GetSubCommentListReply, error)
 	GetSubscribeList(context.Context, *GetSubscribeListReq) (*GetSubscribeListReply, error)
 	GetSubscribeListCount(context.Context, *GetSubscribeListCountReq) (*GetSubscribeListCountReply, error)
+	GetTalkContentReview(context.Context, *GetTalkContentReviewReq) (*GetTalkContentReviewReply, error)
 	GetTalkCount(context.Context, *emptypb.Empty) (*GetTalkCountReply, error)
 	GetTalkCountVisitor(context.Context, *GetTalkCountVisitorReq) (*GetTalkCountReply, error)
 	GetTalkImageReview(context.Context, *GetTalkImageReviewReq) (*GetTalkImageReviewReply, error)
@@ -409,6 +417,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.GET("/v1/get/collections/list/visitor", _Bff_GetCollectionsListByVisitor0_HTTP_Handler(srv))
 	r.GET("/v1/get/collections/visitor/count", _Bff_GetCollectionsVisitorCount0_HTTP_Handler(srv))
 	r.GET("/v1/get/last/collections/draft", _Bff_GetLastCollectionsDraft0_HTTP_Handler(srv))
+	r.POST("/v1/get/collections/content/review", _Bff_GetCollectionsContentReview0_HTTP_Handler(srv))
 	r.POST("/v1/create/collections/draft", _Bff_CreateCollectionsDraft0_HTTP_Handler(srv))
 	r.POST("/v1/send/collections", _Bff_SendCollections0_HTTP_Handler(srv))
 	r.POST("/v1/send/collections/edit", _Bff_SendCollectionsEdit0_HTTP_Handler(srv))
@@ -456,6 +465,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.GET("/v1/get/user/talk/agree", _Bff_GetUserTalkAgree0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/talk/collect", _Bff_GetUserTalkCollect0_HTTP_Handler(srv))
 	r.POST("/v1/get/talk/image/review", _Bff_GetTalkImageReview0_HTTP_Handler(srv))
+	r.POST("/v1/get/talk/content/review", _Bff_GetTalkContentReview0_HTTP_Handler(srv))
 	r.POST("/v1/create/talk/draft", _Bff_CreateTalkDraft0_HTTP_Handler(srv))
 	r.POST("/v1/send/talk", _Bff_SendTalk0_HTTP_Handler(srv))
 	r.POST("/v1/send/talk/edit", _Bff_SendTalkEdit0_HTTP_Handler(srv))
@@ -491,6 +501,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.GET("/v1/get/user/column/collect", _Bff_GetUserColumnCollect0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/subscribe/column", _Bff_GetUserSubscribeColumn0_HTTP_Handler(srv))
 	r.POST("/v1/get/column/image/review", _Bff_GetColumnImageReview0_HTTP_Handler(srv))
+	r.POST("/v1/get/column/content/review", _Bff_GetColumnContentReview0_HTTP_Handler(srv))
 	r.POST("/v1/column/statistic/judge", _Bff_ColumnStatisticJudge0_HTTP_Handler(srv))
 	r.POST("/v1/set/column/agree", _Bff_SetColumnAgree0_HTTP_Handler(srv))
 	r.POST("/v1/cancel/column/agree", _Bff_CancelColumnAgree0_HTTP_Handler(srv))
@@ -521,6 +532,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.POST("/v1/get/user/subcomment/article/replied/list", _Bff_GetUserSubCommentArticleRepliedList0_HTTP_Handler(srv))
 	r.POST("/v1/get/user/comment/talk/replied/list", _Bff_GetUserCommentTalkRepliedList0_HTTP_Handler(srv))
 	r.POST("/v1/get/user/subcomment/talk/replied/list", _Bff_GetUserSubCommentTalkRepliedList0_HTTP_Handler(srv))
+	r.POST("/v1/get/comment/content/review", _Bff_GetCommentContentReview0_HTTP_Handler(srv))
 	r.POST("/v1/create/comment/draft", _Bff_CreateCommentDraft0_HTTP_Handler(srv))
 	r.POST("/v1/send/comment", _Bff_SendComment0_HTTP_Handler(srv))
 	r.POST("/v1/send/subcomment", _Bff_SendSubComment0_HTTP_Handler(srv))
@@ -1425,6 +1437,25 @@ func _Bff_GetLastCollectionsDraft0_HTTP_Handler(srv BffHTTPServer) func(ctx http
 	}
 }
 
+func _Bff_GetCollectionsContentReview0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetCollectionsContentReviewReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetCollectionsContentReview)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetCollectionsContentReview(ctx, req.(*GetCollectionsContentReviewReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetCollectionsContentReviewReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _Bff_CreateCollectionsDraft0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in emptypb.Empty
@@ -2318,6 +2349,25 @@ func _Bff_GetTalkImageReview0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Cont
 	}
 }
 
+func _Bff_GetTalkContentReview0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetTalkContentReviewReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetTalkContentReview)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetTalkContentReview(ctx, req.(*GetTalkContentReviewReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetTalkContentReviewReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _Bff_CreateTalkDraft0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in emptypb.Empty
@@ -2983,6 +3033,25 @@ func _Bff_GetColumnImageReview0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Co
 	}
 }
 
+func _Bff_GetColumnContentReview0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetColumnContentReviewReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetColumnContentReview)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetColumnContentReview(ctx, req.(*GetColumnContentReviewReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetColumnContentReviewReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _Bff_ColumnStatisticJudge0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in ColumnStatisticJudgeReq
@@ -3553,6 +3622,25 @@ func _Bff_GetUserSubCommentTalkRepliedList0_HTTP_Handler(srv BffHTTPServer) func
 	}
 }
 
+func _Bff_GetCommentContentReview0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetCommentContentReviewReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetCommentContentReview)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetCommentContentReview(ctx, req.(*GetCommentContentReviewReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetCommentContentReviewReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _Bff_CreateCommentDraft0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in emptypb.Empty
@@ -3772,12 +3860,14 @@ type BffHTTPClient interface {
 	GetCollectTalkCount(ctx context.Context, req *GetCollectTalkCountReq, opts ...http.CallOption) (rsp *GetCollectTalkCountReply, err error)
 	GetCollectTalkList(ctx context.Context, req *GetCollectTalkListReq, opts ...http.CallOption) (rsp *GetTalkListReply, err error)
 	GetCollections(ctx context.Context, req *GetCollectionsReq, opts ...http.CallOption) (rsp *GetCollectionsReply, err error)
+	GetCollectionsContentReview(ctx context.Context, req *GetCollectionsContentReviewReq, opts ...http.CallOption) (rsp *GetCollectionsContentReviewReply, err error)
 	GetCollectionsCount(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetCollectionsCountReply, err error)
 	GetCollectionsList(ctx context.Context, req *GetCollectionsListReq, opts ...http.CallOption) (rsp *GetCollectionsListReply, err error)
 	GetCollectionsListAll(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetCollectionsListReply, err error)
 	GetCollectionsListByVisitor(ctx context.Context, req *GetCollectionsListByVisitorReq, opts ...http.CallOption) (rsp *GetCollectionsListReply, err error)
 	GetCollectionsVisitorCount(ctx context.Context, req *GetCollectionsVisitorCountReq, opts ...http.CallOption) (rsp *GetCollectionsCountReply, err error)
 	GetColumnArticleList(ctx context.Context, req *GetColumnArticleListReq, opts ...http.CallOption) (rsp *GetArticleListReply, err error)
+	GetColumnContentReview(ctx context.Context, req *GetColumnContentReviewReq, opts ...http.CallOption) (rsp *GetColumnContentReviewReply, err error)
 	GetColumnCount(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetColumnCountReply, err error)
 	GetColumnCountVisitor(ctx context.Context, req *GetColumnCountVisitorReq, opts ...http.CallOption) (rsp *GetColumnCountReply, err error)
 	GetColumnImageReview(ctx context.Context, req *GetColumnImageReviewReq, opts ...http.CallOption) (rsp *GetColumnImageReviewReply, err error)
@@ -3787,6 +3877,7 @@ type BffHTTPClient interface {
 	GetColumnSearch(ctx context.Context, req *GetColumnSearchReq, opts ...http.CallOption) (rsp *GetColumnSearchReply, err error)
 	GetColumnStatistic(ctx context.Context, req *GetColumnStatisticReq, opts ...http.CallOption) (rsp *GetColumnStatisticReply, err error)
 	GetColumnSubscribes(ctx context.Context, req *GetColumnSubscribesReq, opts ...http.CallOption) (rsp *GetColumnSubscribesReply, err error)
+	GetCommentContentReview(ctx context.Context, req *GetCommentContentReviewReq, opts ...http.CallOption) (rsp *GetCommentContentReviewReply, err error)
 	GetCommentList(ctx context.Context, req *GetCommentListReq, opts ...http.CallOption) (rsp *GetCommentListReply, err error)
 	GetCommentListHot(ctx context.Context, req *GetCommentListReq, opts ...http.CallOption) (rsp *GetCommentListReply, err error)
 	GetCommentUser(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetCommentUserReply, err error)
@@ -3809,6 +3900,7 @@ type BffHTTPClient interface {
 	GetSubCommentList(ctx context.Context, req *GetSubCommentListReq, opts ...http.CallOption) (rsp *GetSubCommentListReply, err error)
 	GetSubscribeList(ctx context.Context, req *GetSubscribeListReq, opts ...http.CallOption) (rsp *GetSubscribeListReply, err error)
 	GetSubscribeListCount(ctx context.Context, req *GetSubscribeListCountReq, opts ...http.CallOption) (rsp *GetSubscribeListCountReply, err error)
+	GetTalkContentReview(ctx context.Context, req *GetTalkContentReviewReq, opts ...http.CallOption) (rsp *GetTalkContentReviewReply, err error)
 	GetTalkCount(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetTalkCountReply, err error)
 	GetTalkCountVisitor(ctx context.Context, req *GetTalkCountVisitorReq, opts ...http.CallOption) (rsp *GetTalkCountReply, err error)
 	GetTalkImageReview(ctx context.Context, req *GetTalkImageReviewReq, opts ...http.CallOption) (rsp *GetTalkImageReviewReply, err error)
@@ -4514,6 +4606,19 @@ func (c *BffHTTPClientImpl) GetCollections(ctx context.Context, in *GetCollectio
 	return &out, err
 }
 
+func (c *BffHTTPClientImpl) GetCollectionsContentReview(ctx context.Context, in *GetCollectionsContentReviewReq, opts ...http.CallOption) (*GetCollectionsContentReviewReply, error) {
+	var out GetCollectionsContentReviewReply
+	pattern := "/v1/get/collections/content/review"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffGetCollectionsContentReview))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
 func (c *BffHTTPClientImpl) GetCollectionsCount(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*GetCollectionsCountReply, error) {
 	var out GetCollectionsCountReply
 	pattern := "/v1/get/collections/count"
@@ -4586,6 +4691,19 @@ func (c *BffHTTPClientImpl) GetColumnArticleList(ctx context.Context, in *GetCol
 	opts = append(opts, http.Operation(OperationBffGetColumnArticleList))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetColumnContentReview(ctx context.Context, in *GetColumnContentReviewReq, opts ...http.CallOption) (*GetColumnContentReviewReply, error) {
+	var out GetColumnContentReviewReply
+	pattern := "/v1/get/column/content/review"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffGetColumnContentReview))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -4701,6 +4819,19 @@ func (c *BffHTTPClientImpl) GetColumnSubscribes(ctx context.Context, in *GetColu
 	pattern := "/v1/get/column/subscribes"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationBffGetColumnSubscribes))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetCommentContentReview(ctx context.Context, in *GetCommentContentReviewReq, opts ...http.CallOption) (*GetCommentContentReviewReply, error) {
+	var out GetCommentContentReviewReply
+	pattern := "/v1/get/comment/content/review"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffGetCommentContentReview))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
@@ -4989,6 +5120,19 @@ func (c *BffHTTPClientImpl) GetSubscribeListCount(ctx context.Context, in *GetSu
 	opts = append(opts, http.Operation(OperationBffGetSubscribeListCount))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetTalkContentReview(ctx context.Context, in *GetTalkContentReviewReq, opts ...http.CallOption) (*GetTalkContentReviewReply, error) {
+	var out GetTalkContentReviewReply
+	pattern := "/v1/get/talk/content/review"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffGetTalkContentReview))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}
