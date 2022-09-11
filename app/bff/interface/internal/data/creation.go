@@ -248,6 +248,38 @@ func (r *creationRepo) GetLastCollectionsDraft(ctx context.Context, uuid string)
 	return result.(*biz.CollectionsDraft), nil
 }
 
+func (r *creationRepo) GetCollectionsContentReview(ctx context.Context, page int32, uuid string) ([]*biz.CreationContentReview, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_collections_content_review_%s_%v", uuid, page), func() (interface{}, error) {
+		reply := make([]*biz.CreationContentReview, 0)
+		reviewReply, err := r.data.cc.GetCollectionsContentReview(ctx, &creationV1.GetCollectionsContentReviewReq{
+			Page: page,
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range reviewReply.Review {
+			reply = append(reply, &biz.CreationContentReview{
+				Id:         item.Id,
+				CreationId: item.CreationId,
+				Title:      item.Title,
+				Kind:       item.Kind,
+				Uuid:       item.Uuid,
+				CreateAt:   item.CreateAt,
+				JobId:      item.JobId,
+				Label:      item.Label,
+				Result:     item.Result,
+				Section:    item.Section,
+			})
+		}
+		return reply, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.([]*biz.CreationContentReview), nil
+}
+
 func (r *creationRepo) GetCollections(ctx context.Context, id int32, uuid string) (*biz.Collections, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_collections_%v", id), func() (interface{}, error) {
 		reply, err := r.data.cc.GetCollections(ctx, &creationV1.GetCollectionsReq{
@@ -785,58 +817,70 @@ func (r *articleRepo) GetArticleSearch(ctx context.Context, page int32, search, 
 }
 
 func (r *articleRepo) GetArticleImageReview(ctx context.Context, page int32, uuid string) ([]*biz.CreationImageReview, error) {
-	reply := make([]*biz.CreationImageReview, 0)
-	reviewReply, err := r.data.cc.GetArticleImageReview(ctx, &creationV1.GetArticleImageReviewReq{
-		Page: page,
-		Uuid: uuid,
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_article_image_review_%s_%v", uuid, page), func() (interface{}, error) {
+		reply := make([]*biz.CreationImageReview, 0)
+		reviewReply, err := r.data.cc.GetArticleImageReview(ctx, &creationV1.GetArticleImageReviewReq{
+			Page: page,
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range reviewReply.Review {
+			reply = append(reply, &biz.CreationImageReview{
+				Id:         item.Id,
+				CreationId: item.CreationId,
+				Kind:       item.Kind,
+				Uid:        item.Uid,
+				Uuid:       item.Uuid,
+				CreateAt:   item.CreateAt,
+				JobId:      item.JobId,
+				Url:        item.Url,
+				Label:      item.Label,
+				Result:     item.Result,
+				Score:      item.Score,
+				Category:   item.Category,
+				SubLabel:   item.SubLabel,
+			})
+		}
+		return reply, nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	for _, item := range reviewReply.Review {
-		reply = append(reply, &biz.CreationImageReview{
-			Id:         item.Id,
-			CreationId: item.CreationId,
-			Kind:       item.Kind,
-			Uid:        item.Uid,
-			Uuid:       item.Uuid,
-			CreateAt:   item.CreateAt,
-			JobId:      item.JobId,
-			Url:        item.Url,
-			Label:      item.Label,
-			Result:     item.Result,
-			Score:      item.Score,
-			Category:   item.Category,
-			SubLabel:   item.SubLabel,
-		})
-	}
-	return reply, nil
+	return result.([]*biz.CreationImageReview), nil
 }
 
 func (r *articleRepo) GetArticleContentReview(ctx context.Context, page int32, uuid string) ([]*biz.CreationContentReview, error) {
-	reply := make([]*biz.CreationContentReview, 0)
-	reviewReply, err := r.data.cc.GetArticleContentReview(ctx, &creationV1.GetArticleContentReviewReq{
-		Page: page,
-		Uuid: uuid,
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_article_content_review_%s_%v", uuid, page), func() (interface{}, error) {
+		reply := make([]*biz.CreationContentReview, 0)
+		reviewReply, err := r.data.cc.GetArticleContentReview(ctx, &creationV1.GetArticleContentReviewReq{
+			Page: page,
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range reviewReply.Review {
+			reply = append(reply, &biz.CreationContentReview{
+				Id:         item.Id,
+				CreationId: item.CreationId,
+				Title:      item.Title,
+				Kind:       item.Kind,
+				Uuid:       item.Uuid,
+				CreateAt:   item.CreateAt,
+				JobId:      item.JobId,
+				Label:      item.Label,
+				Result:     item.Result,
+				Section:    item.Section,
+			})
+		}
+		return reply, nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	for _, item := range reviewReply.Review {
-		reply = append(reply, &biz.CreationContentReview{
-			Id:         item.Id,
-			CreationId: item.CreationId,
-			Title:      item.Title,
-			Kind:       item.Kind,
-			Uuid:       item.Uuid,
-			CreateAt:   item.CreateAt,
-			JobId:      item.JobId,
-			Label:      item.Label,
-			Result:     item.Result,
-			Section:    item.Section,
-		})
-	}
-	return reply, nil
+	return result.([]*biz.CreationContentReview), nil
 }
 
 func (r *articleRepo) CreateArticleDraft(ctx context.Context, uuid string) (int32, error) {
@@ -1218,32 +1262,70 @@ func (r *talkRepo) GetUserTalkCollect(ctx context.Context, uuid string) (map[int
 }
 
 func (r *talkRepo) GetTalkImageReview(ctx context.Context, page int32, uuid string) ([]*biz.CreationImageReview, error) {
-	reply := make([]*biz.CreationImageReview, 0)
-	reviewReply, err := r.data.cc.GetTalkImageReview(ctx, &creationV1.GetTalkImageReviewReq{
-		Page: page,
-		Uuid: uuid,
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_talk_image_review_%s_%v", uuid, page), func() (interface{}, error) {
+		reply := make([]*biz.CreationImageReview, 0)
+		reviewReply, err := r.data.cc.GetTalkImageReview(ctx, &creationV1.GetTalkImageReviewReq{
+			Page: page,
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range reviewReply.Review {
+			reply = append(reply, &biz.CreationImageReview{
+				Id:         item.Id,
+				CreationId: item.CreationId,
+				Kind:       item.Kind,
+				Uid:        item.Uid,
+				Uuid:       item.Uuid,
+				CreateAt:   item.CreateAt,
+				JobId:      item.JobId,
+				Url:        item.Url,
+				Label:      item.Label,
+				Result:     item.Result,
+				Score:      item.Score,
+				Category:   item.Category,
+				SubLabel:   item.SubLabel,
+			})
+		}
+		return reply, nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	for _, item := range reviewReply.Review {
-		reply = append(reply, &biz.CreationImageReview{
-			Id:         item.Id,
-			CreationId: item.CreationId,
-			Kind:       item.Kind,
-			Uid:        item.Uid,
-			Uuid:       item.Uuid,
-			CreateAt:   item.CreateAt,
-			JobId:      item.JobId,
-			Url:        item.Url,
-			Label:      item.Label,
-			Result:     item.Result,
-			Score:      item.Score,
-			Category:   item.Category,
-			SubLabel:   item.SubLabel,
+	return result.([]*biz.CreationImageReview), nil
+}
+
+func (r *talkRepo) GetTalkContentReview(ctx context.Context, page int32, uuid string) ([]*biz.CreationContentReview, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_talk_content_review_%s_%v", uuid, page), func() (interface{}, error) {
+		reply := make([]*biz.CreationContentReview, 0)
+		reviewReply, err := r.data.cc.GetTalkContentReview(ctx, &creationV1.GetTalkContentReviewReq{
+			Page: page,
+			Uuid: uuid,
 		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range reviewReply.Review {
+			reply = append(reply, &biz.CreationContentReview{
+				Id:         item.Id,
+				CreationId: item.CreationId,
+				Title:      item.Title,
+				Kind:       item.Kind,
+				Uuid:       item.Uuid,
+				CreateAt:   item.CreateAt,
+				JobId:      item.JobId,
+				Label:      item.Label,
+				Result:     item.Result,
+				Section:    item.Section,
+			})
+		}
+		return reply, nil
+	})
+	if err != nil {
+		return nil, err
 	}
-	return reply, nil
+	return result.([]*biz.CreationContentReview), nil
 }
 
 func (r *talkRepo) CreateTalkDraft(ctx context.Context, uuid string) (int32, error) {
@@ -1723,32 +1805,70 @@ func (r *columnRepo) GetUserSubscribeColumn(ctx context.Context, uuid string) (m
 }
 
 func (r *columnRepo) GetColumnImageReview(ctx context.Context, page int32, uuid string) ([]*biz.CreationImageReview, error) {
-	reply := make([]*biz.CreationImageReview, 0)
-	reviewReply, err := r.data.cc.GetColumnImageReview(ctx, &creationV1.GetColumnImageReviewReq{
-		Page: page,
-		Uuid: uuid,
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_column_image_review_%s_%v", uuid, page), func() (interface{}, error) {
+		reply := make([]*biz.CreationImageReview, 0)
+		reviewReply, err := r.data.cc.GetColumnImageReview(ctx, &creationV1.GetColumnImageReviewReq{
+			Page: page,
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range reviewReply.Review {
+			reply = append(reply, &biz.CreationImageReview{
+				Id:         item.Id,
+				CreationId: item.CreationId,
+				Kind:       item.Kind,
+				Uid:        item.Uid,
+				Uuid:       item.Uuid,
+				CreateAt:   item.CreateAt,
+				JobId:      item.JobId,
+				Url:        item.Url,
+				Label:      item.Label,
+				Result:     item.Result,
+				Score:      item.Score,
+				Category:   item.Category,
+				SubLabel:   item.SubLabel,
+			})
+		}
+		return reply, nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	for _, item := range reviewReply.Review {
-		reply = append(reply, &biz.CreationImageReview{
-			Id:         item.Id,
-			CreationId: item.CreationId,
-			Kind:       item.Kind,
-			Uid:        item.Uid,
-			Uuid:       item.Uuid,
-			CreateAt:   item.CreateAt,
-			JobId:      item.JobId,
-			Url:        item.Url,
-			Label:      item.Label,
-			Result:     item.Result,
-			Score:      item.Score,
-			Category:   item.Category,
-			SubLabel:   item.SubLabel,
+	return result.([]*biz.CreationImageReview), nil
+}
+
+func (r *columnRepo) GetColumnContentReview(ctx context.Context, page int32, uuid string) ([]*biz.CreationContentReview, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_column_content_review_%s_%v", uuid, page), func() (interface{}, error) {
+		reply := make([]*biz.CreationContentReview, 0)
+		reviewReply, err := r.data.cc.GetColumnContentReview(ctx, &creationV1.GetColumnContentReviewReq{
+			Page: page,
+			Uuid: uuid,
 		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range reviewReply.Review {
+			reply = append(reply, &biz.CreationContentReview{
+				Id:         item.Id,
+				CreationId: item.CreationId,
+				Title:      item.Title,
+				Kind:       item.Kind,
+				Uuid:       item.Uuid,
+				CreateAt:   item.CreateAt,
+				JobId:      item.JobId,
+				Label:      item.Label,
+				Result:     item.Result,
+				Section:    item.Section,
+			})
+		}
+		return reply, nil
+	})
+	if err != nil {
+		return nil, err
 	}
-	return reply, nil
+	return result.([]*biz.CreationContentReview), nil
 }
 
 func (r *columnRepo) SendColumn(ctx context.Context, id int32, uuid, ip string) error {
