@@ -317,6 +317,13 @@ service Bff{
     };
   }
 
+  rpc GetCollectionsContentReview (GetCollectionsContentReviewReq) returns (GetCollectionsContentReviewReply) {
+    option (google.api.http) = {
+      post: "/v1/get/collections/content/review",
+      body: "*"
+    };
+  }
+
   rpc CreateCollectionsDraft(google.protobuf.Empty) returns (CreateCollectionsDraftReply){
     option (google.api.http) = {
       post: "/v1/create/collections/draft"
@@ -629,6 +636,13 @@ service Bff{
     };
   }
 
+  rpc GetTalkContentReview (GetTalkContentReviewReq) returns (GetTalkContentReviewReply) {
+    option (google.api.http) = {
+      post: "/v1/get/talk/content/review",
+      body: "*"
+    };
+  }
+
   rpc CreateTalkDraft(google.protobuf.Empty) returns (CreateTalkDraftReply){
     option (google.api.http) = {
       post: "/v1/create/talk/draft"
@@ -864,6 +878,13 @@ service Bff{
     };
   }
 
+  rpc GetColumnContentReview (GetColumnContentReviewReq) returns (GetColumnContentReviewReply) {
+    option (google.api.http) = {
+      post: "/v1/get/column/content/review",
+      body: "*"
+    };
+  }
+
   rpc ColumnStatisticJudge(ColumnStatisticJudgeReq) returns (ColumnStatisticJudgeReply){
     option (google.api.http) = {
       post: "/v1/column/statistic/judge"
@@ -1065,6 +1086,13 @@ service Bff{
   rpc GetUserSubCommentTalkRepliedList(GetUserSubCommentTalkRepliedListReq) returns (GetUserSubCommentTalkRepliedListReply){
     option (google.api.http) = {
       post: "/v1/get/user/subcomment/talk/replied/list",
+      body: "*"
+    };
+  }
+
+  rpc GetCommentContentReview (GetCommentContentReviewReq) returns (GetCommentContentReviewReply) {
+    option (google.api.http) = {
+      post: "/v1/get/comment/content/review",
       body: "*"
     };
   }
@@ -1691,6 +1719,26 @@ message GetLastCollectionsDraftReply{
   int32 status = 2;
 }
 
+message GetCollectionsContentReviewReq{
+  int32 page = 1;
+}
+
+message GetCollectionsContentReviewReply{
+  message Review {
+    int32 id = 1;
+    int32 creation_id = 2;
+    string title = 3;
+    string kind = 4;
+    string uuid = 5;
+    string create_at = 6;
+    string job_id = 7;
+    string label = 8;
+    int32 result = 9;
+    string section = 10;
+  }
+  repeated Review review = 1;
+}
+
 message GetCollectionsListByVisitorReq{
   string uuid = 1;
   int32 page = 2;
@@ -1907,6 +1955,26 @@ message GetTalkImageReviewReply{
     int32 score = 11;
     string category = 12;
     string subLabel = 13;
+  }
+  repeated Review review = 1;
+}
+
+message GetTalkContentReviewReq{
+  int32 page = 1;
+}
+
+message GetTalkContentReviewReply{
+  message Review {
+    int32 id = 1;
+    int32 creation_id = 2;
+    string title = 3;
+    string kind = 4;
+    string uuid = 5;
+    string create_at = 6;
+    string job_id = 7;
+    string label = 8;
+    int32 result = 9;
+    string section = 10;
   }
   repeated Review review = 1;
 }
@@ -2161,6 +2229,26 @@ message GetColumnImageReviewReply{
     int32 score = 11;
     string category = 12;
     string subLabel = 13;
+  }
+  repeated Review review = 1;
+}
+
+message GetColumnContentReviewReq{
+  int32 page = 1;
+}
+
+message GetColumnContentReviewReply{
+  message Review {
+    int32 id = 1;
+    int32 creation_id = 2;
+    string title = 3;
+    string kind = 4;
+    string uuid = 5;
+    string create_at = 6;
+    string job_id = 7;
+    string label = 8;
+    int32 result = 9;
+    string section = 10;
   }
   repeated Review review = 1;
 }
@@ -2502,6 +2590,26 @@ message GetUserSubCommentTalkRepliedListReply{
     string root_name = 11;
   }
   repeated List list = 1;
+}
+
+message GetCommentContentReviewReq{
+  int32 page = 1;
+}
+
+message GetCommentContentReviewReply{
+  message Review {
+    int32 id = 1;
+    int32 comment_id = 2;
+    string comment = 3;
+    string kind = 4;
+    string uuid = 5;
+    string create_at = 6;
+    string job_id = 7;
+    string label = 8;
+    int32 result = 9;
+    string section = 10;
+  }
+  repeated Review review = 1;
 }
 
 message GetSubCommentListReq{
