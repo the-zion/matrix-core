@@ -69,13 +69,14 @@ type TalkReview struct {
 
 type TalkContentReview struct {
 	gorm.Model
-	ArticleId int32
-	Kind      string
-	Uuid      string `gorm:"index;size:36"`
-	JobId     string `gorm:"size:100"`
-	Label     string `gorm:"size:100"`
-	Result    int32
-	Section   string
+	TalkId  int32
+	Title   string
+	Kind    string
+	Uuid    string `gorm:"index;size:36"`
+	JobId   string `gorm:"size:100"`
+	Label   string `gorm:"size:100"`
+	Result  int32
+	Section string
 }
 
 type ArticleStatistic struct {
@@ -181,6 +182,18 @@ type Collect struct {
 	Status        int32          `gorm:"default:1"`
 }
 
+type CollectionsContentReview struct {
+	gorm.Model
+	CollectionsId int32
+	Title         string
+	Kind          string
+	Uuid          string `gorm:"index;size:36"`
+	JobId         string `gorm:"size:100"`
+	Label         string `gorm:"size:100"`
+	Result        int32
+	Section       string
+}
+
 type CollectionsDraft struct {
 	gorm.Model
 	Uuid   string `gorm:"index;size:36"`
@@ -214,13 +227,14 @@ type ColumnReview struct {
 
 type ColumnContentReview struct {
 	gorm.Model
-	ArticleId int32
-	Kind      string
-	Uuid      string `gorm:"index;size:36"`
-	JobId     string `gorm:"size:100"`
-	Label     string `gorm:"size:100"`
-	Result    int32
-	Section   string
+	ColumnId int32
+	Title    string
+	Kind     string
+	Uuid     string `gorm:"index;size:36"`
+	JobId    string `gorm:"size:100"`
+	Label    string `gorm:"size:100"`
+	Result   int32
+	Section  string
 }
 
 type ColumnDraft struct {
