@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	v1 "github.com/the-zion/matrix-core/api/comment/service/v1"
+	"github.com/the-zion/matrix-core/app/comment/service/internal/biz"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -278,6 +279,29 @@ func (s *CommentService) GetUserSubCommentTalkRepliedList(ctx context.Context, r
 	return reply, nil
 }
 
+func (s *CommentService) GetCommentContentReview(ctx context.Context, req *v1.GetCommentContentReviewReq) (*v1.GetCommentContentReviewReply, error) {
+	reply := &v1.GetCommentContentReviewReply{Review: make([]*v1.GetCommentContentReviewReply_Review, 0)}
+	reviewList, err := s.cc.GetCommentContentReview(ctx, req.Page, req.Uuid)
+	if err != nil {
+		return reply, err
+	}
+	for _, item := range reviewList {
+		reply.Review = append(reply.Review, &v1.GetCommentContentReviewReply_Review{
+			Id:        item.Id,
+			CommentId: item.CommentId,
+			Comment:   item.Comment,
+			Kind:      item.Kind,
+			Uuid:      item.Uuid,
+			CreateAt:  item.CreateAt,
+			JobId:     item.JobId,
+			Label:     item.Label,
+			Result:    item.Result,
+			Section:   item.Section,
+		})
+	}
+	return reply, nil
+}
+
 func (s *CommentService) CreateCommentDraft(ctx context.Context, req *v1.CreateCommentDraftReq) (*v1.CreateCommentDraftReply, error) {
 	id, err := s.cc.CreateCommentDraft(ctx, req.Uuid)
 	if err != nil {
@@ -290,6 +314,24 @@ func (s *CommentService) CreateCommentDraft(ctx context.Context, req *v1.CreateC
 
 func (s *CommentService) CreateComment(ctx context.Context, req *v1.CreateCommentReq) (*emptypb.Empty, error) {
 	err := s.cc.CreateComment(ctx, req.Id, req.CreationId, req.CreationType, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CommentService) CommentContentIrregular(ctx context.Context, req *v1.CommentContentIrregularReq) (*emptypb.Empty, error) {
+	err := s.cc.CommentContentIrregular(ctx, &biz.TextReview{
+		CommentId: req.Id,
+		Uuid:      req.Uuid,
+		JobId:     req.JobId,
+		Comment:   req.Comment,
+		Kind:      req.Kind,
+		Label:     req.Label,
+		Result:    req.Result,
+		Section:   req.Section,
+		Mode:      "add_comment_content_review_db_and_cache",
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -426,6 +468,23 @@ func (s *CommentService) CancelCommentAgreeDbAndCache(ctx context.Context, req *
 
 func (s *CommentService) CancelSubCommentAgreeDbAndCache(ctx context.Context, req *v1.CancelSubCommentAgreeReq) (*emptypb.Empty, error) {
 	err := s.cc.CancelSubCommentAgreeDbAndCache(ctx, req.Id, req.Uuid, req.UserUuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CommentService) AddCommentContentReviewDbAndCache(ctx context.Context, req *v1.AddCommentContentReviewDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.cc.AddCommentContentReviewDbAndCache(ctx, &biz.TextReview{
+		CommentId: req.CommentId,
+		Uuid:      req.Uuid,
+		JobId:     req.JobId,
+		Comment:   req.Comment,
+		Kind:      req.Kind,
+		Label:     req.Label,
+		Result:    req.Result,
+		Section:   req.Section,
+	})
 	if err != nil {
 		return nil, err
 	}
