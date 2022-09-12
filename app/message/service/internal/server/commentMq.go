@@ -141,6 +141,8 @@ func NewCommentMqConsumerServer(conf *conf.Server, messageService *service.Messa
 			err = messageService.CancelCommentAgreeDbAndCache(ctx, int32(m["id"].(float64)), int32(m["creationId"].(float64)), int32(m["creationType"].(float64)), m["uuid"].(string), m["userUuid"].(string))
 		case "cancel_sub_comment_agree_db_and_cache":
 			err = messageService.CancelSubCommentAgreeDbAndCache(ctx, int32(m["id"].(float64)), m["uuid"].(string), m["userUuid"].(string))
+		case "add_comment_content_review_db_and_cache":
+			err = messageService.AddCommentContentReviewDbAndCache(ctx, int32(m["comment_id"].(float64)), int32(m["result"].(float64)), m["uuid"].(string), m["job_id"].(string), m["label"].(string), m["comment"].(string), m["kind"].(string), m["section"].(string))
 		}
 
 		if err != nil {
