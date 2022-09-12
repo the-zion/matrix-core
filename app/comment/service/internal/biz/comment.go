@@ -27,6 +27,7 @@ type CommentRepo interface {
 	GetUserSubCommentArticleRepliedList(ctx context.Context, page int32, uuid string) ([]*SubComment, error)
 	GetUserCommentTalkRepliedList(ctx context.Context, page int32, uuid string) ([]*Comment, error)
 	GetUserSubCommentTalkRepliedList(ctx context.Context, page int32, uuid string) ([]*SubComment, error)
+	GetCommentContentReview(ctx context.Context, page int32, uuid string) ([]*TextReview, error)
 	GetRootComment(ctx context.Context, id int32) (*Comment, error)
 	GetSubComment(ctx context.Context, id int32) (*SubComment, error)
 	GetParentCommentUserId(ctx context.Context, id, rootId int32) (string, error)
@@ -50,6 +51,7 @@ type CommentRepo interface {
 	SendCommentAgreeToMq(ctx context.Context, id, creationId, creationType int32, uuid, userUuid, mode string) error
 	SendSubCommentAgreeToMq(ctx context.Context, id int32, uuid, userUuid, mode string) error
 	SendCommentToMq(ctx context.Context, comment *Comment, mode string) error
+	SendCommentContentIrregularToMq(ctx context.Context, review *TextReview) error
 	SendSubCommentToMq(ctx context.Context, comment *SubComment, mode string) error
 	SendReviewToMq(ctx context.Context, review *CommentReview) error
 	SendCommentStatisticToMq(ctx context.Context, uuid, userUuid, mode string) error
@@ -63,6 +65,8 @@ type CommentRepo interface {
 	SetUserCommentAgreeToCache(ctx context.Context, id int32, userUuid string) error
 	SetCommentAgreeToCache(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error
 	SetSubCommentAgreeToCache(ctx context.Context, id int32, uuid, userUuid string) error
+	SetCommentContentIrregular(ctx context.Context, review *TextReview) (*TextReview, error)
+	SetCommentContentIrregularToCache(ctx context.Context, review *TextReview) error
 
 	CancelUserCommentAgreeFromCache(ctx context.Context, id int32, userUuid string) error
 	CancelCommentAgree(ctx context.Context, id int32, uuid string) error
@@ -233,6 +237,14 @@ func (r *CommentUseCase) GetUserSubCommentTalkRepliedList(ctx context.Context, p
 	return commentList, nil
 }
 
+func (r *CommentUseCase) GetCommentContentReview(ctx context.Context, page int32, uuid string) ([]*TextReview, error) {
+	reviewList, err := r.repo.GetCommentContentReview(ctx, page, uuid)
+	if err != nil {
+		return nil, v1.ErrorGetContentReviewFailed("get comment content review failed: %s", err.Error())
+	}
+	return reviewList, nil
+}
+
 func (r *CommentUseCase) CreateCommentDraft(ctx context.Context, uuid string) (int32, error) {
 	var id int32
 	err := r.tm.ExecTx(ctx, func(ctx context.Context) error {
@@ -263,6 +275,14 @@ func (r *CommentUseCase) CreateComment(ctx context.Context, id, creationTd, crea
 	}, "create_comment_db_and_cache")
 	if err != nil {
 		return v1.ErrorCreateCommentFailed("create comment to mq failed: %s", err.Error())
+	}
+	return nil
+}
+
+func (r *CommentUseCase) CommentContentIrregular(ctx context.Context, review *TextReview) error {
+	err := r.repo.SendCommentContentIrregularToMq(ctx, review)
+	if err != nil {
+		return v1.ErrorSetContentIrregularFailed("set comment content irregular to mq failed: %s", err.Error())
 	}
 	return nil
 }
@@ -518,6 +538,22 @@ func (r *CommentUseCase) CancelSubCommentAgreeDbAndCache(ctx context.Context, id
 		if err != nil {
 			return v1.ErrorCancelAgreeFailed("cancel comment agree from mq failed: %s", err.Error())
 		}
+		return nil
+	})
+}
+
+func (r *CommentUseCase) AddCommentContentReviewDbAndCache(ctx context.Context, review *TextReview) error {
+	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		review, err := r.repo.SetCommentContentIrregular(ctx, review)
+		if err != nil {
+			return v1.ErrorSetContentIrregularFailed("set comment content irregular failed: %s", err.Error())
+		}
+
+		err = r.repo.SetCommentContentIrregularToCache(ctx, review)
+		if err != nil {
+			return v1.ErrorSetContentIrregularFailed("set comment content irregular to cache failed: %s", err.Error())
+		}
+
 		return nil
 	})
 }
