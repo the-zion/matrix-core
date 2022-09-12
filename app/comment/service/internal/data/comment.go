@@ -1310,6 +1310,114 @@ func (r *commentRepo) GetUserSubCommentTalkRepliedList(ctx context.Context, page
 	return commentList, nil
 }
 
+func (r *commentRepo) GetCommentContentReview(ctx context.Context, page int32, uuid string) ([]*biz.TextReview, error) {
+	key := "comment_content_irregular_" + uuid
+	review, err := r.getCommentContentReviewFromCache(ctx, page, key)
+	if err != nil {
+		return nil, err
+	}
+
+	size := len(review)
+	if size != 0 {
+		return review, nil
+	}
+
+	review, err = r.getCommentContentReviewFromDB(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	size = len(review)
+	if size != 0 {
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setCommentContentReviewToCache(key, review)
+		})()
+	}
+	return review, nil
+}
+
+func (r *commentRepo) getCommentContentReviewFromCache(ctx context.Context, page int32, key string) ([]*biz.TextReview, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int64(page - 1)
+	list, err := r.data.redisCli.LRange(ctx, key, index*20, index*20+19).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get comment content irregular list from cache: key(%s), page(%v)", key, page))
+	}
+
+	review := make([]*biz.TextReview, 0)
+	for _index, item := range list {
+		var textReview = &biz.TextReview{}
+		err = json.Unmarshal([]byte(item), textReview)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("json unmarshal error: contentReview(%v)", item))
+		}
+		review = append(review, &biz.TextReview{
+			Id:        int32(_index+1) + (page-1)*20,
+			CommentId: textReview.CommentId,
+			Comment:   textReview.Comment,
+			Kind:      textReview.Kind,
+			Uuid:      textReview.Uuid,
+			CreateAt:  textReview.CreateAt,
+			JobId:     textReview.JobId,
+			Label:     textReview.Label,
+			Result:    textReview.Result,
+			Section:   textReview.Section,
+		})
+	}
+	return review, nil
+}
+
+func (r *commentRepo) getCommentContentReviewFromDB(ctx context.Context, page int32, uuid string) ([]*biz.TextReview, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int(page - 1)
+	list := make([]*CommentContentReview, 0)
+	err := r.data.db.WithContext(ctx).Where("uuid", uuid).Order("id desc").Offset(index * 20).Limit(20).Find(&list).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get comment content review from db: page(%v), uuid(%s)", page, uuid))
+	}
+
+	review := make([]*biz.TextReview, 0)
+	for _index, item := range list {
+		review = append(review, &biz.TextReview{
+			Id:        int32(_index+1) + (page-1)*20,
+			CommentId: item.CommentId,
+			Kind:      item.Kind,
+			Comment:   item.Comment,
+			Uuid:      item.Uuid,
+			JobId:     item.JobId,
+			CreateAt:  item.CreatedAt.Format("2006-01-02"),
+			Label:     item.Label,
+			Result:    item.Result,
+			Section:   item.Section,
+		})
+	}
+	return review, nil
+}
+
+func (r *commentRepo) setCommentContentReviewToCache(key string, review []*biz.TextReview) {
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		list := make([]interface{}, 0)
+		for _, item := range review {
+			m, err := json.Marshal(item)
+			if err != nil {
+				r.log.Errorf("fail to marshal avatar review: contentReview(%v)", review)
+			}
+			list = append(list, m)
+		}
+		pipe.RPush(ctx, key, list...)
+		pipe.Expire(ctx, key, time.Hour*8)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to set comment content review to cache: contentReview(%v)", review)
+	}
+}
+
 func (r *commentRepo) getUserSubCommentTalkRepliedListFromCache(ctx context.Context, page int32, uuid string) ([]*biz.SubComment, error) {
 	if page < 1 {
 		page = 1
@@ -1808,6 +1916,49 @@ func (r *commentRepo) SetSubCommentAgreeToCache(ctx context.Context, id int32, u
 	return nil
 }
 
+func (r *commentRepo) SetCommentContentIrregular(ctx context.Context, review *biz.TextReview) (*biz.TextReview, error) {
+	ar := &CommentContentReview{
+		CommentId: review.CommentId,
+		Comment:   review.Comment,
+		Kind:      review.Kind,
+		Uuid:      review.Uuid,
+		JobId:     review.JobId,
+		Label:     review.Label,
+		Result:    review.Result,
+		Section:   review.Section,
+	}
+	err := r.data.DB(ctx).Select("CommentId", "Comment", "Kind", "Uuid", "JobId", "Label", "Result", "Section").Create(ar).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to add comment content review record: review(%v)", review))
+	}
+	review.Id = int32(ar.ID)
+	review.CreateAt = time.Now().Format("2006-01-02")
+	return review, nil
+}
+
+func (r *commentRepo) SetCommentContentIrregularToCache(ctx context.Context, review *biz.TextReview) error {
+	marshal, err := json.Marshal(review)
+	if err != nil {
+		r.log.Errorf("fail to set comment content irregular to json: json.Marshal(%v), error(%v)", review, err)
+	}
+	var script = redis.NewScript(`
+					local key = KEYS[1]
+					local value = ARGV[1]
+					local exist = redis.call("EXISTS", key)
+					if exist == 1 then
+						redis.call("LPUSH", key, value)
+					end
+					return 0
+	`)
+	keys := []string{"comment_content_irregular_" + review.Uuid}
+	values := []interface{}{marshal}
+	_, err = script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to set comment content irregular to cache: review(%v)", review))
+	}
+	return nil
+}
+
 func (r *commentRepo) CancelCommentAgree(ctx context.Context, id int32, uuid string) error {
 	c := Comment{}
 	err := r.data.DB(ctx).Model(&c).Where("comment_id = ? and uuid = ? and agree > 0", id, uuid).Update("agree", gorm.Expr("agree - ?", 1)).Error
@@ -1943,6 +2094,33 @@ func (r *commentRepo) SendCommentToMq(ctx context.Context, comment *biz.Comment,
 	_, err = r.data.commonMqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send comment to mq: %v", comment))
+	}
+	return nil
+}
+
+func (r *commentRepo) SendCommentContentIrregularToMq(ctx context.Context, review *biz.TextReview) error {
+	m := make(map[string]interface{}, 0)
+	m["comment_id"] = review.CommentId
+	m["result"] = review.Result
+	m["uuid"] = review.Uuid
+	m["job_id"] = review.JobId
+	m["label"] = review.Label
+	m["comment"] = review.Comment
+	m["kind"] = review.Kind
+	m["section"] = review.Section
+	m["mode"] = review.Mode
+	data, err := json.Marshal(m)
+	if err != nil {
+		return err
+	}
+	msg := &primitive.Message{
+		Topic: "comment",
+		Body:  data,
+	}
+	msg.WithKeys([]string{review.Uuid})
+	_, err = r.data.commonMqPro.producer.SendSync(ctx, msg)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to send comment content review to mq: %v", err))
 	}
 	return nil
 }
