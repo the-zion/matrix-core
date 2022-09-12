@@ -62,6 +62,18 @@ type CommentUser struct {
 	TalkRepliedSub    int32  `gorm:"type:int unsigned;default:0"`
 }
 
+type CommentContentReview struct {
+	gorm.Model
+	CommentId int32
+	Comment   string
+	Kind      string
+	Uuid      string `gorm:"index;size:36"`
+	JobId     string `gorm:"size:100"`
+	Label     string `gorm:"size:100"`
+	Result    int32
+	Section   string
+}
+
 type Record struct {
 	gorm.Model
 	Uuid     string `gorm:"size:36"`
