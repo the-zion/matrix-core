@@ -108,7 +108,7 @@ func (r *userRepo) SendCode(msgs ...*primitive.MessageExt) {
 	}
 }
 
-func (r *userRepo) AvatarIrregular(ctx context.Context, review *biz.AvatarReview, uuid string) error {
+func (r *userRepo) AvatarIrregular(ctx context.Context, review *biz.ImageReview, uuid string) error {
 	_, err := r.data.uc.AvatarIrregular(ctx, &userV1.AvatarIrregularReq{
 		Uuid:     uuid,
 		JobId:    review.JobId,
@@ -125,7 +125,7 @@ func (r *userRepo) AvatarIrregular(ctx context.Context, review *biz.AvatarReview
 	return nil
 }
 
-func (r *userRepo) CoverIrregular(ctx context.Context, review *biz.CoverReview, uuid string) error {
+func (r *userRepo) CoverIrregular(ctx context.Context, review *biz.ImageReview, uuid string) error {
 	_, err := r.data.uc.CoverIrregular(ctx, &userV1.CoverIrregularReq{
 		Uuid:     uuid,
 		JobId:    review.JobId,
@@ -164,8 +164,8 @@ func (r *userRepo) CancelFollowDbAndCache(ctx context.Context, uuid, userId stri
 	return nil
 }
 
-func (r *userRepo) AddAvatarDbAndCache(ctx context.Context, score, result int32, uuid, jobId, label, category, subLabel string) error {
-	_, err := r.data.uc.AddAvatarDbAndCache(ctx, &userV1.AddAvatarDbAndCacheReq{
+func (r *userRepo) AddAvatarReviewDbAndCache(ctx context.Context, score, result int32, uuid, jobId, label, category, subLabel string) error {
+	_, err := r.data.uc.AddAvatarReviewDbAndCache(ctx, &userV1.AddAvatarReviewDbAndCacheReq{
 		Uuid:     uuid,
 		Score:    score,
 		JobId:    jobId,
@@ -180,8 +180,8 @@ func (r *userRepo) AddAvatarDbAndCache(ctx context.Context, score, result int32,
 	return nil
 }
 
-func (r *userRepo) AddCoverDbAndCache(ctx context.Context, score, result int32, uuid, jobId, label, category, subLabel string) error {
-	_, err := r.data.uc.AddCoverDbAndCache(ctx, &userV1.AddCoverDbAndCacheReq{
+func (r *userRepo) AddCoverReviewDbAndCache(ctx context.Context, score, result int32, uuid, jobId, label, category, subLabel string) error {
+	_, err := r.data.uc.AddCoverReviewDbAndCache(ctx, &userV1.AddCoverReviewDbAndCacheReq{
 		Uuid:     uuid,
 		Score:    score,
 		JobId:    jobId,
