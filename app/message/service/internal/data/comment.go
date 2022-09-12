@@ -68,6 +68,23 @@ func (r *commentRepo) CommentCreateReviewPass(ctx context.Context, id, creationI
 	return nil
 }
 
+func (r *commentRepo) CommentContentIrregular(ctx context.Context, review *biz.TextReview, id int32, comment, kind, uuid string) error {
+	_, err := r.data.commc.CommentContentIrregular(ctx, &commentV1.CommentContentIrregularReq{
+		Id:      id,
+		Uuid:    uuid,
+		Comment: comment,
+		Kind:    kind,
+		JobId:   review.JobId,
+		Label:   review.Label,
+		Result:  review.Result,
+		Section: review.Section,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *commentRepo) SubCommentCreateReviewPass(ctx context.Context, id, rootId, parentId int32, uuid string) error {
 	_, err := r.data.commc.CreateSubComment(ctx, &commentV1.CreateSubCommentReq{
 		Id:       id,
@@ -174,6 +191,23 @@ func (r *commentRepo) CancelSubCommentAgreeDbAndCache(ctx context.Context, id in
 		Id:       id,
 		Uuid:     uuid,
 		UserUuid: userUuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *commentRepo) AddCommentContentReviewDbAndCache(ctx context.Context, commentId, result int32, uuid, jobId, label, comment, kind string, section string) error {
+	_, err := r.data.commc.AddCommentContentReviewDbAndCache(ctx, &commentV1.AddCommentContentReviewDbAndCacheReq{
+		CommentId: commentId,
+		Kind:      kind,
+		Uuid:      uuid,
+		JobId:     jobId,
+		Label:     label,
+		Result:    result,
+		Comment:   comment,
+		Section:   section,
 	})
 	if err != nil {
 		return err
