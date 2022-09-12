@@ -56,3 +56,17 @@ type CommentStatistic struct {
 	Agree     int32
 	Comment   int32
 }
+
+type TextReview struct {
+	Id        int32
+	CommentId int32
+	CreateAt  string
+	Comment   string
+	Kind      string
+	JobId     string
+	Label     string
+	Result    int32
+	Uuid      string
+	Mode      string
+	Section   string
+}
