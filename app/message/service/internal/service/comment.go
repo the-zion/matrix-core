@@ -15,8 +15,12 @@ func (s *MessageService) ToReviewCreateSubComment(id int32, uuid string) error {
 }
 
 func (s *MessageService) CommentCreateReview(ctx context.Context, req *v1.TextReviewReq) (*emptypb.Empty, error) {
-	tr := s.TextReview(req)
-	err := s.commc.CommentCreateReview(ctx, tr)
+	tr, err := s.TextReview(req)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.commc.CommentCreateReview(ctx, tr)
 	if err != nil {
 		return nil, err
 	}
@@ -24,8 +28,12 @@ func (s *MessageService) CommentCreateReview(ctx context.Context, req *v1.TextRe
 }
 
 func (s *MessageService) SubCommentCreateReview(ctx context.Context, req *v1.TextReviewReq) (*emptypb.Empty, error) {
-	tr := s.TextReview(req)
-	err := s.commc.SubCommentCreateReview(ctx, tr)
+	tr, err := s.TextReview(req)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.commc.SubCommentCreateReview(ctx, tr)
 	if err != nil {
 		return nil, err
 	}
@@ -62,4 +70,8 @@ func (s *MessageService) CancelCommentAgreeDbAndCache(ctx context.Context, id, c
 
 func (s *MessageService) CancelSubCommentAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
 	return s.commc.CancelSubCommentAgreeDbAndCache(ctx, id, uuid, userUuid)
+}
+
+func (s *MessageService) AddCommentContentReviewDbAndCache(ctx context.Context, commentId, result int32, uuid, jobId, label, comment, kind string, section string) error {
+	return s.commc.AddCommentContentReviewDbAndCache(ctx, commentId, result, uuid, jobId, label, comment, kind, section)
 }
