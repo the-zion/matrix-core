@@ -10,15 +10,15 @@ import (
 
 type UserRepo interface {
 	SendCode(msgs ...*primitive.MessageExt)
-	AvatarIrregular(ctx context.Context, review *AvatarReview, uuid string) error
-	CoverIrregular(ctx context.Context, review *CoverReview, uuid string) error
+	AvatarIrregular(ctx context.Context, review *ImageReview, uuid string) error
+	CoverIrregular(ctx context.Context, review *ImageReview, uuid string) error
 	UploadProfileToCos(msg *primitive.MessageExt) error
 	ProfileReviewPass(ctx context.Context, uuid, update string) error
 	ProfileReviewNotPass(ctx context.Context, uuid string) error
 	SetFollowDbAndCache(ctx context.Context, uuid, userId string) error
 	CancelFollowDbAndCache(ctx context.Context, uuid, userId string) error
-	AddAvatarDbAndCache(ctx context.Context, score, result int32, uuid, jobId, label, category, subLabel string) error
-	AddCoverDbAndCache(ctx context.Context, score, result int32, uuid, jobId, label, category, subLabel string) error
+	AddAvatarReviewDbAndCache(ctx context.Context, score, result int32, uuid, jobId, label, category, subLabel string) error
+	AddCoverReviewDbAndCache(ctx context.Context, score, result int32, uuid, jobId, label, category, subLabel string) error
 }
 
 type UserUseCase struct {
@@ -43,7 +43,7 @@ func (r *UserUseCase) UploadProfileToCos(msg *primitive.MessageExt) error {
 	return r.repo.UploadProfileToCos(msg)
 }
 
-func (r *UserUseCase) AvatarReview(ctx context.Context, ar *AvatarReview) error {
+func (r *UserUseCase) AvatarReview(ctx context.Context, ar *ImageReview) error {
 	var err error
 	var token string
 	var ok bool
@@ -74,7 +74,7 @@ func (r *UserUseCase) AvatarReview(ctx context.Context, ar *AvatarReview) error 
 	return nil
 }
 
-func (r *UserUseCase) CoverReview(ctx context.Context, cr *CoverReview) error {
+func (r *UserUseCase) CoverReview(ctx context.Context, cr *ImageReview) error {
 	var err error
 	var token string
 	var ok bool
@@ -90,7 +90,7 @@ func (r *UserUseCase) CoverReview(ctx context.Context, cr *CoverReview) error {
 	}
 
 	if cr.State != "Success" {
-		r.log.Info("avatar upload review failed，%v", cr)
+		r.log.Info("cover upload review failed，%v", cr)
 		return nil
 	}
 
@@ -145,10 +145,10 @@ func (r *UserUseCase) CancelFollowDbAndCache(ctx context.Context, uuid, userId s
 	return r.repo.CancelFollowDbAndCache(ctx, uuid, userId)
 }
 
-func (r *UserUseCase) AddAvatarDbAndCache(ctx context.Context, score, result int32, uuid, jobId, label, category, subLabel string) error {
-	return r.repo.AddAvatarDbAndCache(ctx, score, result, uuid, jobId, label, category, subLabel)
+func (r *UserUseCase) AddAvatarReviewDbAndCache(ctx context.Context, score, result int32, uuid, jobId, label, category, subLabel string) error {
+	return r.repo.AddAvatarReviewDbAndCache(ctx, score, result, uuid, jobId, label, category, subLabel)
 }
 
-func (r *UserUseCase) AddCoverDbAndCache(ctx context.Context, score, result int32, uuid, jobId, label, category, subLabel string) error {
-	return r.repo.AddCoverDbAndCache(ctx, score, result, uuid, jobId, label, category, subLabel)
+func (r *UserUseCase) AddCoverReviewDbAndCache(ctx context.Context, score, result int32, uuid, jobId, label, category, subLabel string) error {
+	return r.repo.AddCoverReviewDbAndCache(ctx, score, result, uuid, jobId, label, category, subLabel)
 }
