@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	v1 "github.com/the-zion/matrix-core/api/message/service/v1"
+	"github.com/the-zion/matrix-core/app/message/service/internal/biz"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -15,8 +16,12 @@ func (s *MessageService) ToReviewEditArticle(id int32, uuid string) error {
 }
 
 func (s *MessageService) ArticleCreateReview(ctx context.Context, req *v1.TextReviewReq) (*emptypb.Empty, error) {
-	tr := s.TextReview(req)
-	err := s.cc.ArticleCreateReview(ctx, tr)
+	tr, err := s.TextReview(req)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.cc.ArticleCreateReview(ctx, tr)
 	if err != nil {
 		return nil, err
 	}
@@ -24,8 +29,35 @@ func (s *MessageService) ArticleCreateReview(ctx context.Context, req *v1.TextRe
 }
 
 func (s *MessageService) ArticleEditReview(ctx context.Context, req *v1.TextReviewReq) (*emptypb.Empty, error) {
-	tr := s.TextReview(req)
-	err := s.cc.ArticleEditReview(ctx, tr)
+	tr, err := s.TextReview(req)
+	if err != nil {
+		return nil, err
+	}
+	err = s.cc.ArticleEditReview(ctx, tr)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *MessageService) ArticleImageReview(ctx context.Context, req *v1.ImageReviewReq) (*emptypb.Empty, error) {
+	err := s.cc.ArticleImageReview(ctx, &biz.ImageReview{
+		Code:       req.JobsDetail.Code,
+		Message:    req.JobsDetail.Message,
+		JobId:      req.JobsDetail.JobId,
+		State:      req.JobsDetail.State,
+		Object:     req.JobsDetail.Object,
+		Url:        req.JobsDetail.Url,
+		Label:      req.JobsDetail.Label,
+		Result:     req.JobsDetail.Result,
+		Score:      req.JobsDetail.Score,
+		Category:   req.JobsDetail.Category,
+		SubLabel:   req.JobsDetail.SubLabel,
+		BucketId:   req.JobsDetail.BucketId,
+		Region:     req.JobsDetail.Region,
+		CosHeaders: req.JobsDetail.CosHeaders,
+		EventName:  req.EventName,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -64,6 +96,14 @@ func (s *MessageService) CancelArticleCollectDbAndCache(ctx context.Context, id 
 	return s.cc.CancelArticleCollectDbAndCache(ctx, id, uuid, userUuid)
 }
 
+func (s *MessageService) AddArticleImageReviewDbAndCache(ctx context.Context, creationId, score, result int32, kind, uid, uuid, jobId, label, category, subLabel string) error {
+	return s.cc.AddArticleImageReviewDbAndCache(ctx, creationId, score, result, kind, uid, uuid, jobId, label, category, subLabel)
+}
+
+func (s *MessageService) AddArticleContentReviewDbAndCache(ctx context.Context, creationId, result int32, uuid, jobId, label, title, kind string, section string) error {
+	return s.cc.AddArticleContentReviewDbAndCache(ctx, creationId, result, uuid, jobId, label, title, kind, section)
+}
+
 func (s *MessageService) ToReviewCreateTalk(id int32, uuid string) error {
 	return s.cc.ToReviewCreateTalk(id, uuid)
 }
@@ -73,8 +113,11 @@ func (s *MessageService) ToReviewEditTalk(id int32, uuid string) error {
 }
 
 func (s *MessageService) TalkCreateReview(ctx context.Context, req *v1.TextReviewReq) (*emptypb.Empty, error) {
-	tr := s.TextReview(req)
-	err := s.cc.TalkCreateReview(ctx, tr)
+	tr, err := s.TextReview(req)
+	if err != nil {
+		return nil, err
+	}
+	err = s.cc.TalkCreateReview(ctx, tr)
 	if err != nil {
 		return nil, err
 	}
@@ -82,12 +125,47 @@ func (s *MessageService) TalkCreateReview(ctx context.Context, req *v1.TextRevie
 }
 
 func (s *MessageService) TalkEditReview(ctx context.Context, req *v1.TextReviewReq) (*emptypb.Empty, error) {
-	tr := s.TextReview(req)
-	err := s.cc.TalkEditReview(ctx, tr)
+	tr, err := s.TextReview(req)
+	if err != nil {
+		return nil, err
+	}
+	err = s.cc.TalkEditReview(ctx, tr)
 	if err != nil {
 		return nil, err
 	}
 	return &emptypb.Empty{}, nil
+}
+
+func (s *MessageService) TalkImageReview(ctx context.Context, req *v1.ImageReviewReq) (*emptypb.Empty, error) {
+	err := s.cc.TalkImageReview(ctx, &biz.ImageReview{
+		Code:       req.JobsDetail.Code,
+		Message:    req.JobsDetail.Message,
+		JobId:      req.JobsDetail.JobId,
+		State:      req.JobsDetail.State,
+		Object:     req.JobsDetail.Object,
+		Url:        req.JobsDetail.Url,
+		Label:      req.JobsDetail.Label,
+		Result:     req.JobsDetail.Result,
+		Score:      req.JobsDetail.Score,
+		Category:   req.JobsDetail.Category,
+		SubLabel:   req.JobsDetail.SubLabel,
+		BucketId:   req.JobsDetail.BucketId,
+		Region:     req.JobsDetail.Region,
+		CosHeaders: req.JobsDetail.CosHeaders,
+		EventName:  req.EventName,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *MessageService) AddTalkImageReviewDbAndCache(ctx context.Context, creationId, score, result int32, kind, uid, uuid, jobId, label, category, subLabel string) error {
+	return s.cc.AddTalkImageReviewDbAndCache(ctx, creationId, score, result, kind, uid, uuid, jobId, label, category, subLabel)
+}
+
+func (s *MessageService) AddTalkContentReviewDbAndCache(ctx context.Context, creationId, result int32, uuid, jobId, label, title, kind string, section string) error {
+	return s.cc.AddTalkContentReviewDbAndCache(ctx, creationId, result, uuid, jobId, label, title, kind, section)
 }
 
 func (s *MessageService) CreateTalkDbCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error {
@@ -139,8 +217,11 @@ func (s *MessageService) ToReviewEditCollections(id int32, uuid string) error {
 }
 
 func (s *MessageService) ColumnCreateReview(ctx context.Context, req *v1.TextReviewReq) (*emptypb.Empty, error) {
-	tr := s.TextReview(req)
-	err := s.cc.ColumnCreateReview(ctx, tr)
+	tr, err := s.TextReview(req)
+	if err != nil {
+		return nil, err
+	}
+	err = s.cc.ColumnCreateReview(ctx, tr)
 	if err != nil {
 		return nil, err
 	}
@@ -148,8 +229,35 @@ func (s *MessageService) ColumnCreateReview(ctx context.Context, req *v1.TextRev
 }
 
 func (s *MessageService) ColumnEditReview(ctx context.Context, req *v1.TextReviewReq) (*emptypb.Empty, error) {
-	tr := s.TextReview(req)
-	err := s.cc.ColumnEditReview(ctx, tr)
+	tr, err := s.TextReview(req)
+	if err != nil {
+		return nil, err
+	}
+	err = s.cc.ColumnEditReview(ctx, tr)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *MessageService) ColumnImageReview(ctx context.Context, req *v1.ImageReviewReq) (*emptypb.Empty, error) {
+	err := s.cc.ColumnImageReview(ctx, &biz.ImageReview{
+		Code:       req.JobsDetail.Code,
+		Message:    req.JobsDetail.Message,
+		JobId:      req.JobsDetail.JobId,
+		State:      req.JobsDetail.State,
+		Object:     req.JobsDetail.Object,
+		Url:        req.JobsDetail.Url,
+		Label:      req.JobsDetail.Label,
+		Result:     req.JobsDetail.Result,
+		Score:      req.JobsDetail.Score,
+		Category:   req.JobsDetail.Category,
+		SubLabel:   req.JobsDetail.SubLabel,
+		BucketId:   req.JobsDetail.BucketId,
+		Region:     req.JobsDetail.Region,
+		CosHeaders: req.JobsDetail.CosHeaders,
+		EventName:  req.EventName,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -204,9 +312,20 @@ func (s *MessageService) CancelColumnSubscribeDbAndCache(ctx context.Context, id
 	return s.cc.CancelColumnSubscribeDbAndCache(ctx, id, uuid)
 }
 
+func (s *MessageService) AddColumnImageReviewDbAndCache(ctx context.Context, creationId, score, result int32, kind, uid, uuid, jobId, label, category, subLabel string) error {
+	return s.cc.AddColumnImageReviewDbAndCache(ctx, creationId, score, result, kind, uid, uuid, jobId, label, category, subLabel)
+}
+
+func (s *MessageService) AddColumnContentReviewDbAndCache(ctx context.Context, creationId, result int32, uuid, jobId, label, title, kind string, section string) error {
+	return s.cc.AddColumnContentReviewDbAndCache(ctx, creationId, result, uuid, jobId, label, title, kind, section)
+}
+
 func (s *MessageService) CollectionsCreateReview(ctx context.Context, req *v1.TextReviewReq) (*emptypb.Empty, error) {
-	tr := s.TextReview(req)
-	err := s.cc.CollectionsCreateReview(ctx, tr)
+	tr, err := s.TextReview(req)
+	if err != nil {
+		return nil, err
+	}
+	err = s.cc.CollectionsCreateReview(ctx, tr)
 	if err != nil {
 		return nil, err
 	}
@@ -214,8 +333,11 @@ func (s *MessageService) CollectionsCreateReview(ctx context.Context, req *v1.Te
 }
 
 func (s *MessageService) CollectionsEditReview(ctx context.Context, req *v1.TextReviewReq) (*emptypb.Empty, error) {
-	tr := s.TextReview(req)
-	err := s.cc.CollectionsEditReview(ctx, tr)
+	tr, err := s.TextReview(req)
+	if err != nil {
+		return nil, err
+	}
+	err = s.cc.CollectionsEditReview(ctx, tr)
 	if err != nil {
 		return nil, err
 	}
@@ -232,6 +354,10 @@ func (s *MessageService) EditCollectionsCos(ctx context.Context, id, auth int32,
 
 func (s *MessageService) DeleteCollectionsCache(ctx context.Context, id int32, uuid string) error {
 	return s.cc.DeleteCollectionsCache(ctx, id, uuid)
+}
+
+func (s *MessageService) AddCollectionsContentReviewDbAndCache(ctx context.Context, creationId, result int32, uuid, jobId, label, title, kind string, section string) error {
+	return s.cc.AddCollectionsContentReviewDbAndCache(ctx, creationId, result, uuid, jobId, label, title, kind, section)
 }
 
 func (s *MessageService) AddCreationComment(ctx context.Context, createId, createType int32, uuid string) {
