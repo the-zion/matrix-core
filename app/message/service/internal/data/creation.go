@@ -79,6 +79,43 @@ func (r *creationRepo) ArticleEditReviewPass(ctx context.Context, id, auth int32
 	return nil
 }
 
+func (r *creationRepo) ArticleImageIrregular(ctx context.Context, review *biz.ImageReview, id int32, kind, uid, uuid string) error {
+	_, err := r.data.cc.ArticleImageIrregular(ctx, &creationV1.CreationImageIrregularReq{
+		Id:       id,
+		Kind:     kind,
+		Uid:      uid,
+		Uuid:     uuid,
+		JobId:    review.JobId,
+		Url:      review.Url,
+		Label:    review.Label,
+		Result:   review.Result,
+		Score:    review.Score,
+		Category: review.Category,
+		SubLabel: review.SubLabel,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) ArticleContentIrregular(ctx context.Context, review *biz.TextReview, id int32, title, kind, uuid string) error {
+	_, err := r.data.cc.ArticleContentIrregular(ctx, &creationV1.CreationContentIrregularReq{
+		Id:      id,
+		Uuid:    uuid,
+		Title:   title,
+		Kind:    kind,
+		JobId:   review.JobId,
+		Label:   review.Label,
+		Result:  review.Result,
+		Section: review.Section,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *creationRepo) CreateArticleDbCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error {
 	_, err := r.data.cc.CreateArticleDbCacheAndSearch(ctx, &creationV1.CreateArticleDbCacheAndSearchReq{
 		Id:   id,
@@ -174,6 +211,42 @@ func (r *creationRepo) CancelArticleCollectDbAndCache(ctx context.Context, id in
 	return nil
 }
 
+func (r *creationRepo) AddArticleImageReviewDbAndCache(ctx context.Context, creationId, score, result int32, kind, uid, uuid, jobId, label, category, subLabel string) error {
+	_, err := r.data.cc.AddArticleImageReviewDbAndCache(ctx, &creationV1.AddCreationImageReviewDbAndCacheReq{
+		CreationId: creationId,
+		Kind:       kind,
+		Uid:        uid,
+		Uuid:       uuid,
+		Score:      score,
+		JobId:      jobId,
+		Label:      label,
+		Result:     result,
+		Category:   category,
+		SubLabel:   subLabel,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) AddArticleContentReviewDbAndCache(ctx context.Context, creationId, result int32, uuid, jobId, label, title, kind string, section string) error {
+	_, err := r.data.cc.AddArticleContentReviewDbAndCache(ctx, &creationV1.AddCreationContentReviewDbAndCacheReq{
+		CreationId: creationId,
+		Kind:       kind,
+		Uuid:       uuid,
+		JobId:      jobId,
+		Label:      label,
+		Result:     result,
+		Title:      title,
+		Section:    section,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *creationRepo) ToReviewCreateTalk(id int32, uuid string) error {
 	opt := &cos.PutTextAuditingJobOptions{
 		InputObject: "talk/" + uuid + "/" + strconv.Itoa(int(id)) + "/content",
@@ -218,11 +291,84 @@ func (r *creationRepo) TalkCreateReviewPass(ctx context.Context, id, auth int32,
 	return nil
 }
 
+func (r *creationRepo) TalkImageIrregular(ctx context.Context, review *biz.ImageReview, id int32, kind, uid, uuid string) error {
+	_, err := r.data.cc.TalkImageIrregular(ctx, &creationV1.CreationImageIrregularReq{
+		Id:       id,
+		Kind:     kind,
+		Uid:      uid,
+		Uuid:     uuid,
+		JobId:    review.JobId,
+		Url:      review.Url,
+		Label:    review.Label,
+		Result:   review.Result,
+		Score:    review.Score,
+		Category: review.Category,
+		SubLabel: review.SubLabel,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) TalkContentIrregular(ctx context.Context, review *biz.TextReview, id int32, title, kind, uuid string) error {
+	_, err := r.data.cc.TalkContentIrregular(ctx, &creationV1.CreationContentIrregularReq{
+		Id:      id,
+		Uuid:    uuid,
+		Title:   title,
+		Kind:    kind,
+		JobId:   review.JobId,
+		Label:   review.Label,
+		Result:  review.Result,
+		Section: review.Section,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *creationRepo) TalkEditReviewPass(ctx context.Context, id, auth int32, uuid string) error {
 	_, err := r.data.cc.EditTalk(ctx, &creationV1.EditTalkReq{
 		Id:   id,
 		Auth: auth,
 		Uuid: uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) AddTalkImageReviewDbAndCache(ctx context.Context, creationId, score, result int32, kind, uid, uuid, jobId, label, category, subLabel string) error {
+	_, err := r.data.cc.AddTalkImageReviewDbAndCache(ctx, &creationV1.AddCreationImageReviewDbAndCacheReq{
+		CreationId: creationId,
+		Kind:       kind,
+		Uid:        uid,
+		Uuid:       uuid,
+		Score:      score,
+		JobId:      jobId,
+		Label:      label,
+		Result:     result,
+		Category:   category,
+		SubLabel:   subLabel,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) AddTalkContentReviewDbAndCache(ctx context.Context, creationId, result int32, uuid, jobId, label, title, kind string, section string) error {
+	_, err := r.data.cc.AddTalkContentReviewDbAndCache(ctx, &creationV1.AddCreationContentReviewDbAndCacheReq{
+		CreationId: creationId,
+		Kind:       kind,
+		Uuid:       uuid,
+		JobId:      jobId,
+		Label:      label,
+		Result:     result,
+		Title:      title,
+		Section:    section,
 	})
 	if err != nil {
 		return err
@@ -381,6 +527,43 @@ func (r *creationRepo) ColumnEditReviewPass(ctx context.Context, id, auth int32,
 	return nil
 }
 
+func (r *creationRepo) ColumnImageIrregular(ctx context.Context, review *biz.ImageReview, id int32, kind, uid, uuid string) error {
+	_, err := r.data.cc.ColumnImageIrregular(ctx, &creationV1.CreationImageIrregularReq{
+		Id:       id,
+		Kind:     kind,
+		Uid:      uid,
+		Uuid:     uuid,
+		JobId:    review.JobId,
+		Url:      review.Url,
+		Label:    review.Label,
+		Result:   review.Result,
+		Score:    review.Score,
+		Category: review.Category,
+		SubLabel: review.SubLabel,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) ColumnContentIrregular(ctx context.Context, review *biz.TextReview, id int32, title, kind, uuid string) error {
+	_, err := r.data.cc.ColumnContentIrregular(ctx, &creationV1.CreationContentIrregularReq{
+		Id:      id,
+		Uuid:    uuid,
+		Title:   title,
+		Kind:    kind,
+		JobId:   review.JobId,
+		Label:   review.Label,
+		Result:  review.Result,
+		Section: review.Section,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *creationRepo) CreateColumnDbCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error {
 	_, err := r.data.cc.CreateColumnDbCacheAndSearch(ctx, &creationV1.CreateColumnDbCacheAndSearchReq{
 		Id:   id,
@@ -522,6 +705,42 @@ func (r *creationRepo) CancelColumnSubscribeDbAndCache(ctx context.Context, id i
 	return nil
 }
 
+func (r *creationRepo) AddColumnImageReviewDbAndCache(ctx context.Context, creationId, score, result int32, kind, uid, uuid, jobId, label, category, subLabel string) error {
+	_, err := r.data.cc.AddColumnImageReviewDbAndCache(ctx, &creationV1.AddCreationImageReviewDbAndCacheReq{
+		CreationId: creationId,
+		Kind:       kind,
+		Uid:        uid,
+		Uuid:       uuid,
+		Score:      score,
+		JobId:      jobId,
+		Label:      label,
+		Result:     result,
+		Category:   category,
+		SubLabel:   subLabel,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) AddColumnContentReviewDbAndCache(ctx context.Context, creationId, result int32, uuid, jobId, label, title, kind string, section string) error {
+	_, err := r.data.cc.AddColumnContentReviewDbAndCache(ctx, &creationV1.AddCreationContentReviewDbAndCacheReq{
+		CreationId: creationId,
+		Kind:       kind,
+		Uuid:       uuid,
+		JobId:      jobId,
+		Label:      label,
+		Result:     result,
+		Title:      title,
+		Section:    section,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *creationRepo) ToReviewCreateCollections(id int32, uuid string) error {
 	opt := &cos.PutTextAuditingJobOptions{
 		InputObject: "collections/" + uuid + "/" + strconv.Itoa(int(id)) + "/content",
@@ -566,6 +785,23 @@ func (r *creationRepo) CollectionsCreateReviewPass(ctx context.Context, id, auth
 	return nil
 }
 
+func (r *creationRepo) CollectionsContentIrregular(ctx context.Context, review *biz.TextReview, id int32, title, kind, uuid string) error {
+	_, err := r.data.cc.CollectionsContentIrregular(ctx, &creationV1.CreationContentIrregularReq{
+		Id:      id,
+		Uuid:    uuid,
+		Title:   title,
+		Kind:    kind,
+		JobId:   review.JobId,
+		Label:   review.Label,
+		Result:  review.Result,
+		Section: review.Section,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *creationRepo) CreateCollectionsDbAndCache(ctx context.Context, id, auth int32, uuid string) error {
 	_, err := r.data.cc.CreateCollectionsDbAndCache(ctx, &creationV1.CreateCollectionsDbAndCacheReq{
 		Id:   id,
@@ -594,6 +830,23 @@ func (r *creationRepo) DeleteCollectionsCache(ctx context.Context, id int32, uui
 	_, err := r.data.cc.DeleteCollectionsCache(ctx, &creationV1.DeleteCollectionsCacheReq{
 		Id:   id,
 		Uuid: uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *creationRepo) AddCollectionsContentReviewDbAndCache(ctx context.Context, creationId, result int32, uuid, jobId, label, title, kind string, section string) error {
+	_, err := r.data.cc.AddCollectionsContentReviewDbAndCache(ctx, &creationV1.AddCreationContentReviewDbAndCacheReq{
+		CreationId: creationId,
+		Kind:       kind,
+		Uuid:       uuid,
+		JobId:      jobId,
+		Label:      label,
+		Result:     result,
+		Title:      title,
+		Section:    section,
 	})
 	if err != nil {
 		return err
