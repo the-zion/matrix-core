@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/pkg/errors"
+	"net/url"
 	"strconv"
 )
 
@@ -12,6 +13,7 @@ type CommentRepo interface {
 	ToReviewCreateComment(id int32, uuid string) error
 	ToReviewCreateSubComment(id int32, uuid string) error
 	CommentCreateReviewPass(ctx context.Context, id, creationId, creationType int32, uuid string) error
+	CommentContentIrregular(ctx context.Context, review *TextReview, id int32, comment, kind, uuid string) error
 	SubCommentCreateReviewPass(ctx context.Context, id, rootId, parentId int32, uuid string) error
 	CreateCommentDbAndCache(ctx context.Context, id, createId, createType int32, uuid string) error
 	CreateSubCommentDbAndCache(ctx context.Context, id, rootId, parentId int32, uuid string) error
@@ -21,6 +23,7 @@ type CommentRepo interface {
 	SetSubCommentAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error
 	CancelCommentAgreeDbAndCache(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error
 	CancelSubCommentAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error
+	AddCommentContentReviewDbAndCache(ctx context.Context, commentId, result int32, uuid, jobId, label, comment, kind, section string) error
 	GetCommentUser(ctx context.Context, uuid string) (int32, error)
 }
 
@@ -48,7 +51,7 @@ func (r *CommentUseCase) ToReviewCreateSubComment(id int32, uuid string) error {
 
 func (r *CommentUseCase) CommentCreateReview(ctx context.Context, tr *TextReview) error {
 	var err error
-	var token, id, creationId, creationType string
+	var token, id, creationId, creationType, comment, kind string
 	var ok bool
 
 	if token, ok = tr.CosHeaders["X-Cos-Meta-Token"]; !ok || token == "" {
@@ -68,6 +71,16 @@ func (r *CommentUseCase) CommentCreateReview(ctx context.Context, tr *TextReview
 
 	if creationType, ok = tr.CosHeaders["X-Cos-Meta-Creationtype"]; !ok || creationType == "" {
 		r.log.Info("creationType not exist，%v", tr)
+		return nil
+	}
+
+	if comment, ok = tr.CosHeaders["X-Cos-Meta-Comment"]; !ok || comment == "" {
+		r.log.Info("title not exist，%v", tr)
+		return nil
+	}
+
+	if kind, ok = tr.CosHeaders["X-Cos-Meta-Kind"]; !ok || kind == "" {
+		r.log.Info("kind not exist，%v", tr)
 		return nil
 	}
 
@@ -91,6 +104,11 @@ func (r *CommentUseCase) CommentCreateReview(ctx context.Context, tr *TextReview
 		return errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: %v", tr))
 	}
 
+	comment, err = url.QueryUnescape(comment)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to decode string to UTF-8: %v", tr))
+	}
+
 	if tr.State != "Success" {
 		r.log.Info("comment create review failed，%v", tr)
 		return nil
@@ -99,7 +117,7 @@ func (r *CommentUseCase) CommentCreateReview(ctx context.Context, tr *TextReview
 	if tr.Result == 0 {
 		err = r.repo.CommentCreateReviewPass(ctx, int32(aid), int32(cid), int32(cType), uuid)
 	} else {
-		r.log.Info("comment create review not pass，%v", tr)
+		err = r.repo.CommentContentIrregular(ctx, tr, int32(aid), comment, kind, uuid)
 	}
 	if err != nil {
 		return err
@@ -109,7 +127,7 @@ func (r *CommentUseCase) CommentCreateReview(ctx context.Context, tr *TextReview
 
 func (r *CommentUseCase) SubCommentCreateReview(ctx context.Context, tr *TextReview) error {
 	var err error
-	var token, id, rootId, parentId string
+	var token, id, rootId, parentId, comment, kind string
 	var ok bool
 
 	if token, ok = tr.CosHeaders["X-Cos-Meta-Token"]; !ok || token == "" {
@@ -129,6 +147,16 @@ func (r *CommentUseCase) SubCommentCreateReview(ctx context.Context, tr *TextRev
 
 	if parentId, ok = tr.CosHeaders["X-Cos-Meta-Parentid"]; !ok {
 		r.log.Info("parentId not exist，%v", tr)
+		return nil
+	}
+
+	if comment, ok = tr.CosHeaders["X-Cos-Meta-Comment"]; !ok || comment == "" {
+		r.log.Info("title not exist，%v", tr)
+		return nil
+	}
+
+	if kind, ok = tr.CosHeaders["X-Cos-Meta-Kind"]; !ok || kind == "" {
+		r.log.Info("kind not exist，%v", tr)
 		return nil
 	}
 
@@ -156,6 +184,11 @@ func (r *CommentUseCase) SubCommentCreateReview(ctx context.Context, tr *TextRev
 		return errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: %v", tr))
 	}
 
+	comment, err = url.QueryUnescape(comment)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to decode string to UTF-8: %v", tr))
+	}
+
 	if tr.State != "Success" {
 		r.log.Info("comment create review failed，%v", tr)
 		return nil
@@ -164,7 +197,7 @@ func (r *CommentUseCase) SubCommentCreateReview(ctx context.Context, tr *TextRev
 	if tr.Result == 0 {
 		err = r.repo.SubCommentCreateReviewPass(ctx, int32(aid), int32(rid), int32(pid), uuid)
 	} else {
-		r.log.Info("sub comment create review not pass，%v", tr)
+		err = r.repo.CommentContentIrregular(ctx, tr, int32(aid), comment, kind, uuid)
 	}
 	if err != nil {
 		return err
@@ -202,4 +235,8 @@ func (r *CommentUseCase) CancelCommentAgreeDbAndCache(ctx context.Context, id, c
 
 func (r *CommentUseCase) CancelSubCommentAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error {
 	return r.repo.CancelSubCommentAgreeDbAndCache(ctx, id, uuid, userUuid)
+}
+
+func (r *CommentUseCase) AddCommentContentReviewDbAndCache(ctx context.Context, commentId, result int32, uuid, jobId, label, comment, kind, section string) error {
+	return r.repo.AddCommentContentReviewDbAndCache(ctx, commentId, result, uuid, jobId, label, comment, kind, section)
 }
