@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/pkg/errors"
+	"net/url"
 	"strconv"
 )
 
@@ -13,6 +14,8 @@ type CreationRepo interface {
 	ToReviewEditArticle(id int32, uuid string) error
 	ArticleCreateReviewPass(ctx context.Context, id, auth int32, uuid string) error
 	ArticleEditReviewPass(ctx context.Context, id, auth int32, uuid string) error
+	ArticleImageIrregular(ctx context.Context, review *ImageReview, id int32, kind, uid, uuid string) error
+	ArticleContentIrregular(ctx context.Context, review *TextReview, id int32, title, kind, uuid string) error
 	CreateArticleDbCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error
 	EditArticleCosAndSearch(ctx context.Context, id, auth int32, uuid string) error
 	DeleteArticleCacheAndSearch(ctx context.Context, id int32, uuid string) error
@@ -21,12 +24,18 @@ type CreationRepo interface {
 	SetArticleCollectDbAndCache(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error
 	CancelArticleAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error
 	CancelArticleCollectDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error
+	AddArticleImageReviewDbAndCache(ctx context.Context, creationId, score, result int32, kind, uid, uuid, jobId, label, category, subLabel string) error
+	AddArticleContentReviewDbAndCache(ctx context.Context, creationId, result int32, uuid, jobId, label, title, kind string, section string) error
 
 	ToReviewCreateTalk(id int32, uuid string) error
 	ToReviewEditTalk(id int32, uuid string) error
 	TalkCreateReviewPass(ctx context.Context, id, auth int32, uuid string) error
+	TalkImageIrregular(ctx context.Context, review *ImageReview, id int32, kind, uid, uuid string) error
+	TalkContentIrregular(ctx context.Context, review *TextReview, id int32, title, kind, uuid string) error
 	CreateTalkDbCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error
 	TalkEditReviewPass(ctx context.Context, id, auth int32, uuid string) error
+	AddTalkImageReviewDbAndCache(ctx context.Context, creationId, score, result int32, kind, uid, uuid, jobId, label, category, subLabel string) error
+	AddTalkContentReviewDbAndCache(ctx context.Context, creationId, result int32, uuid, jobId, label, title, kind string, section string) error
 	EditTalkCosAndSearch(ctx context.Context, id, auth int32, uuid string) error
 	DeleteTalkCacheAndSearch(ctx context.Context, id int32, uuid string) error
 	SetTalkViewDbAndCache(ctx context.Context, id int32, uuid string) error
@@ -39,6 +48,8 @@ type CreationRepo interface {
 	ToReviewEditColumn(id int32, uuid string) error
 	ColumnCreateReviewPass(ctx context.Context, id, auth int32, uuid string) error
 	ColumnEditReviewPass(ctx context.Context, id, auth int32, uuid string) error
+	ColumnImageIrregular(ctx context.Context, review *ImageReview, id int32, kind, uid, uuid string) error
+	ColumnContentIrregular(ctx context.Context, review *TextReview, id int32, title, kind, uuid string) error
 	CreateColumnDbCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error
 	EditColumnCosAndSearch(ctx context.Context, id, auth int32, uuid string) error
 	DeleteColumnCacheAndSearch(ctx context.Context, id int32, uuid string) error
@@ -51,14 +62,18 @@ type CreationRepo interface {
 	DeleteColumnIncludesDbAndCache(ctx context.Context, id, articleId int32, uuid string) error
 	SetColumnSubscribeDbAndCache(ctx context.Context, id int32, uuid string) error
 	CancelColumnSubscribeDbAndCache(ctx context.Context, id int32, uuid string) error
+	AddColumnImageReviewDbAndCache(ctx context.Context, creationId, score, result int32, kind, uid, uuid, jobId, label, category, subLabel string) error
+	AddColumnContentReviewDbAndCache(ctx context.Context, creationId, result int32, uuid, jobId, label, title, kind string, section string) error
 
 	ToReviewCreateCollections(id int32, uuid string) error
 	ToReviewEditCollections(id int32, uuid string) error
 	CollectionsCreateReviewPass(ctx context.Context, id, auth int32, uuid string) error
+	CollectionsContentIrregular(ctx context.Context, review *TextReview, id int32, title, kind, uuid string) error
 	CollectionsEditReviewPass(ctx context.Context, id, auth int32, uuid string) error
 	CreateCollectionsDbAndCache(ctx context.Context, id, auth int32, uuid string) error
 	EditCollectionsCos(ctx context.Context, id, auth int32, uuid string) error
 	DeleteCollectionsCache(ctx context.Context, id int32, uuid string) error
+	AddCollectionsContentReviewDbAndCache(ctx context.Context, creationId, result int32, uuid, jobId, label, title, kind string, section string) error
 
 	AddCreationComment(ctx context.Context, createId, createType int32, uuid string)
 	GetCreationUser(ctx context.Context, uuid string) (int32, int32, int32, error)
@@ -88,7 +103,7 @@ func (r *CreationUseCase) ToReviewEditArticle(id int32, uuid string) error {
 
 func (r *CreationUseCase) ArticleCreateReview(ctx context.Context, tr *TextReview) error {
 	var err error
-	var token, id, auths string
+	var token, id, auths, title, kind string
 	var ok bool
 
 	if token, ok = tr.CosHeaders["X-Cos-Meta-Token"]; !ok || token == "" {
@@ -106,6 +121,16 @@ func (r *CreationUseCase) ArticleCreateReview(ctx context.Context, tr *TextRevie
 		return nil
 	}
 
+	if title, ok = tr.CosHeaders["X-Cos-Meta-Title"]; !ok || title == "" {
+		r.log.Info("title not exist，%v", tr)
+		return nil
+	}
+
+	if kind, ok = tr.CosHeaders["X-Cos-Meta-Kind"]; !ok || kind == "" {
+		r.log.Info("kind not exist，%v", tr)
+		return nil
+	}
+
 	uuid, err := r.jwt.JwtCheck(token)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to get uuid from token: %s", token))
@@ -119,6 +144,11 @@ func (r *CreationUseCase) ArticleCreateReview(ctx context.Context, tr *TextRevie
 	auth, err := strconv.ParseInt(auths, 10, 32)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: %v", tr))
+	}
+
+	title, err = url.QueryUnescape(title)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to decode string to UTF-8: %v", tr))
 	}
 
 	if tr.State != "Success" {
@@ -129,7 +159,7 @@ func (r *CreationUseCase) ArticleCreateReview(ctx context.Context, tr *TextRevie
 	if tr.Result == 0 {
 		err = r.repo.ArticleCreateReviewPass(ctx, int32(aid), int32(auth), uuid)
 	} else {
-		r.log.Info("article create review not pass，%v", tr)
+		err = r.repo.ArticleContentIrregular(ctx, tr, int32(aid), title, kind, uuid)
 	}
 	if err != nil {
 		return err
@@ -139,7 +169,7 @@ func (r *CreationUseCase) ArticleCreateReview(ctx context.Context, tr *TextRevie
 
 func (r *CreationUseCase) ArticleEditReview(ctx context.Context, tr *TextReview) error {
 	var err error
-	var token, id, auths string
+	var token, id, auths, title, kind string
 	var ok bool
 
 	if token, ok = tr.CosHeaders["X-Cos-Meta-Token"]; !ok || token == "" {
@@ -154,6 +184,16 @@ func (r *CreationUseCase) ArticleEditReview(ctx context.Context, tr *TextReview)
 
 	if auths, ok = tr.CosHeaders["X-Cos-Meta-Auth"]; !ok || auths == "" {
 		r.log.Info("auth not exist，%v", tr)
+		return nil
+	}
+
+	if title, ok = tr.CosHeaders["X-Cos-Meta-Title"]; !ok || title == "" {
+		r.log.Info("title not exist，%v", tr)
+		return nil
+	}
+
+	if kind, ok = tr.CosHeaders["X-Cos-Meta-Kind"]; !ok || kind == "" {
+		r.log.Info("kind not exist，%v", tr)
 		return nil
 	}
 
@@ -172,6 +212,11 @@ func (r *CreationUseCase) ArticleEditReview(ctx context.Context, tr *TextReview)
 		return errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: %v", tr))
 	}
 
+	title, err = url.QueryUnescape(title)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to decode string to UTF-8: %v", tr))
+	}
+
 	if tr.State != "Success" {
 		r.log.Info("article edit review failed，%v", tr)
 		return nil
@@ -180,7 +225,58 @@ func (r *CreationUseCase) ArticleEditReview(ctx context.Context, tr *TextReview)
 	if tr.Result == 0 {
 		err = r.repo.ArticleEditReviewPass(ctx, int32(aid), int32(auth), uuid)
 	} else {
-		r.log.Info("article edit review not pass，%v", tr)
+		err = r.repo.ArticleContentIrregular(ctx, tr, int32(aid), title, kind, uuid)
+	}
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *CreationUseCase) ArticleImageReview(ctx context.Context, ar *ImageReview) error {
+	var err error
+	var token, kind, uid, id string
+	var ok bool
+
+	if token, ok = ar.CosHeaders["x-cos-meta-token"]; !ok || token == "" {
+		r.log.Info("token not exist，%v", ar)
+		return nil
+	}
+
+	if kind, ok = ar.CosHeaders["x-cos-meta-kind"]; !ok || kind == "" {
+		r.log.Info("kind not exist，%v", ar)
+		return nil
+	}
+
+	if uid, ok = ar.CosHeaders["x-cos-meta-uid"]; (kind == "content") && (!ok || uid == "") {
+		r.log.Info("uid not exist，%v", ar)
+		return nil
+	}
+
+	if id, ok = ar.CosHeaders["x-cos-meta-id"]; !ok || id == "" {
+		r.log.Info("id not exist，%v", ar)
+		return nil
+	}
+
+	aid, err := strconv.ParseInt(id, 10, 32)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: %v", ar))
+	}
+
+	uuid, err := r.jwt.JwtCheck(token)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to get uuid from token: %s", token))
+	}
+
+	if ar.State != "Success" {
+		r.log.Info("article image upload review failed，%v", ar)
+		return nil
+	}
+
+	if ar.Result == 0 {
+		return nil
+	} else {
+		err = r.repo.ArticleImageIrregular(ctx, ar, int32(aid), kind, uid, uuid)
 	}
 	if err != nil {
 		return err
@@ -220,6 +316,14 @@ func (r *CreationUseCase) CancelArticleCollectDbAndCache(ctx context.Context, id
 	return r.repo.CancelArticleCollectDbAndCache(ctx, id, uuid, userUuid)
 }
 
+func (r *CreationUseCase) AddArticleImageReviewDbAndCache(ctx context.Context, creationId, score, result int32, kind, uid, uuid, jobId, label, category, subLabel string) error {
+	return r.repo.AddArticleImageReviewDbAndCache(ctx, creationId, score, result, kind, uid, uuid, jobId, label, category, subLabel)
+}
+
+func (r *CreationUseCase) AddArticleContentReviewDbAndCache(ctx context.Context, creationId, result int32, uuid, jobId, label, title, kind string, section string) error {
+	return r.repo.AddArticleContentReviewDbAndCache(ctx, creationId, result, uuid, jobId, label, title, kind, section)
+}
+
 func (r *CreationUseCase) ToReviewCreateTalk(id int32, uuid string) error {
 	return r.repo.ToReviewCreateTalk(id, uuid)
 }
@@ -230,7 +334,7 @@ func (r *CreationUseCase) ToReviewEditTalk(id int32, uuid string) error {
 
 func (r *CreationUseCase) TalkCreateReview(ctx context.Context, tr *TextReview) error {
 	var err error
-	var token, id, auths string
+	var token, id, auths, title, kind string
 	var ok bool
 
 	if token, ok = tr.CosHeaders["X-Cos-Meta-Token"]; !ok || token == "" {
@@ -248,6 +352,16 @@ func (r *CreationUseCase) TalkCreateReview(ctx context.Context, tr *TextReview) 
 		return nil
 	}
 
+	if title, ok = tr.CosHeaders["X-Cos-Meta-Title"]; !ok || title == "" {
+		r.log.Info("title not exist，%v", tr)
+		return nil
+	}
+
+	if kind, ok = tr.CosHeaders["X-Cos-Meta-Kind"]; !ok || kind == "" {
+		r.log.Info("kind not exist，%v", tr)
+		return nil
+	}
+
 	uuid, err := r.jwt.JwtCheck(token)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to get uuid from token: %s", token))
@@ -261,6 +375,11 @@ func (r *CreationUseCase) TalkCreateReview(ctx context.Context, tr *TextReview) 
 	auth, err := strconv.ParseInt(auths, 10, 32)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: %v", tr))
+	}
+
+	title, err = url.QueryUnescape(title)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to decode string to UTF-8: %v", tr))
 	}
 
 	if tr.State != "Success" {
@@ -271,7 +390,7 @@ func (r *CreationUseCase) TalkCreateReview(ctx context.Context, tr *TextReview) 
 	if tr.Result == 0 {
 		err = r.repo.TalkCreateReviewPass(ctx, int32(aid), int32(auth), uuid)
 	} else {
-		r.log.Info("talk create review not pass，%v", tr)
+		err = r.repo.TalkContentIrregular(ctx, tr, int32(aid), title, kind, uuid)
 	}
 	if err != nil {
 		return err
@@ -281,7 +400,7 @@ func (r *CreationUseCase) TalkCreateReview(ctx context.Context, tr *TextReview) 
 
 func (r *CreationUseCase) TalkEditReview(ctx context.Context, tr *TextReview) error {
 	var err error
-	var token, id, auths string
+	var token, id, auths, title, kind string
 	var ok bool
 
 	if token, ok = tr.CosHeaders["X-Cos-Meta-Token"]; !ok || token == "" {
@@ -296,6 +415,16 @@ func (r *CreationUseCase) TalkEditReview(ctx context.Context, tr *TextReview) er
 
 	if auths, ok = tr.CosHeaders["X-Cos-Meta-Auth"]; !ok || auths == "" {
 		r.log.Info("auth not exist，%v", tr)
+		return nil
+	}
+
+	if title, ok = tr.CosHeaders["X-Cos-Meta-Title"]; !ok || title == "" {
+		r.log.Info("title not exist，%v", tr)
+		return nil
+	}
+
+	if kind, ok = tr.CosHeaders["X-Cos-Meta-Kind"]; !ok || kind == "" {
+		r.log.Info("kind not exist，%v", tr)
 		return nil
 	}
 
@@ -314,6 +443,11 @@ func (r *CreationUseCase) TalkEditReview(ctx context.Context, tr *TextReview) er
 		return errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: %v", tr))
 	}
 
+	title, err = url.QueryUnescape(title)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to decode string to UTF-8: %v", tr))
+	}
+
 	if tr.State != "Success" {
 		r.log.Info("talk edit review failed，%v", tr)
 		return nil
@@ -322,7 +456,58 @@ func (r *CreationUseCase) TalkEditReview(ctx context.Context, tr *TextReview) er
 	if tr.Result == 0 {
 		err = r.repo.TalkEditReviewPass(ctx, int32(aid), int32(auth), uuid)
 	} else {
-		r.log.Info("talk edit review not pass，%v", tr)
+		err = r.repo.TalkContentIrregular(ctx, tr, int32(aid), title, kind, uuid)
+	}
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *CreationUseCase) TalkImageReview(ctx context.Context, ar *ImageReview) error {
+	var err error
+	var token, kind, uid, id string
+	var ok bool
+
+	if token, ok = ar.CosHeaders["x-cos-meta-token"]; !ok || token == "" {
+		r.log.Info("token not exist，%v", ar)
+		return nil
+	}
+
+	if kind, ok = ar.CosHeaders["x-cos-meta-kind"]; !ok || kind == "" {
+		r.log.Info("kind not exist，%v", ar)
+		return nil
+	}
+
+	if uid, ok = ar.CosHeaders["x-cos-meta-uid"]; (kind == "content") && (!ok || uid == "") {
+		r.log.Info("uid not exist，%v", ar)
+		return nil
+	}
+
+	if id, ok = ar.CosHeaders["x-cos-meta-id"]; !ok || id == "" {
+		r.log.Info("id not exist，%v", ar)
+		return nil
+	}
+
+	aid, err := strconv.ParseInt(id, 10, 32)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: %v", ar))
+	}
+
+	uuid, err := r.jwt.JwtCheck(token)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to get uuid from token: %s", token))
+	}
+
+	if ar.State != "Success" {
+		r.log.Info("talk image upload review failed，%v", ar)
+		return nil
+	}
+
+	if ar.Result == 0 {
+		return nil
+	} else {
+		err = r.repo.TalkImageIrregular(ctx, ar, int32(aid), kind, uid, uuid)
 	}
 	if err != nil {
 		return err
@@ -362,6 +547,14 @@ func (r *CreationUseCase) CancelTalkCollectDbAndCache(ctx context.Context, id in
 	return r.repo.CancelTalkCollectDbAndCache(ctx, id, uuid, userUuid)
 }
 
+func (r *CreationUseCase) AddTalkImageReviewDbAndCache(ctx context.Context, creationId, score, result int32, kind, uid, uuid, jobId, label, category, subLabel string) error {
+	return r.repo.AddTalkImageReviewDbAndCache(ctx, creationId, score, result, kind, uid, uuid, jobId, label, category, subLabel)
+}
+
+func (r *CreationUseCase) AddTalkContentReviewDbAndCache(ctx context.Context, creationId, result int32, uuid, jobId, label, title, kind string, section string) error {
+	return r.repo.AddTalkContentReviewDbAndCache(ctx, creationId, result, uuid, jobId, label, title, kind, section)
+}
+
 func (r *CreationUseCase) ToReviewCreateColumn(id int32, uuid string) error {
 	return r.repo.ToReviewCreateColumn(id, uuid)
 }
@@ -372,7 +565,7 @@ func (r *CreationUseCase) ToReviewEditColumn(id int32, uuid string) error {
 
 func (r *CreationUseCase) ColumnCreateReview(ctx context.Context, tr *TextReview) error {
 	var err error
-	var token, id, auths string
+	var token, id, auths, title, kind string
 	var ok bool
 
 	if token, ok = tr.CosHeaders["X-Cos-Meta-Token"]; !ok || token == "" {
@@ -390,6 +583,16 @@ func (r *CreationUseCase) ColumnCreateReview(ctx context.Context, tr *TextReview
 		return nil
 	}
 
+	if title, ok = tr.CosHeaders["X-Cos-Meta-Title"]; !ok || title == "" {
+		r.log.Info("title not exist，%v", tr)
+		return nil
+	}
+
+	if kind, ok = tr.CosHeaders["X-Cos-Meta-Kind"]; !ok || kind == "" {
+		r.log.Info("kind not exist，%v", tr)
+		return nil
+	}
+
 	uuid, err := r.jwt.JwtCheck(token)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to get uuid from token: %s", token))
@@ -403,6 +606,11 @@ func (r *CreationUseCase) ColumnCreateReview(ctx context.Context, tr *TextReview
 	auth, err := strconv.ParseInt(auths, 10, 32)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: %v", tr))
+	}
+
+	title, err = url.QueryUnescape(title)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to decode string to UTF-8: %v", tr))
 	}
 
 	if tr.State != "Success" {
@@ -413,7 +621,7 @@ func (r *CreationUseCase) ColumnCreateReview(ctx context.Context, tr *TextReview
 	if tr.Result == 0 {
 		err = r.repo.ColumnCreateReviewPass(ctx, int32(aid), int32(auth), uuid)
 	} else {
-		r.log.Info("column create review not pass，%v", tr)
+		err = r.repo.ColumnContentIrregular(ctx, tr, int32(aid), title, kind, uuid)
 	}
 	if err != nil {
 		return err
@@ -423,7 +631,7 @@ func (r *CreationUseCase) ColumnCreateReview(ctx context.Context, tr *TextReview
 
 func (r *CreationUseCase) ColumnEditReview(ctx context.Context, tr *TextReview) error {
 	var err error
-	var token, id, auths string
+	var token, id, auths, title, kind string
 	var ok bool
 
 	if token, ok = tr.CosHeaders["X-Cos-Meta-Token"]; !ok || token == "" {
@@ -438,6 +646,16 @@ func (r *CreationUseCase) ColumnEditReview(ctx context.Context, tr *TextReview) 
 
 	if auths, ok = tr.CosHeaders["X-Cos-Meta-Auth"]; !ok || auths == "" {
 		r.log.Info("auth not exist，%v", tr)
+		return nil
+	}
+
+	if title, ok = tr.CosHeaders["X-Cos-Meta-Title"]; !ok || title == "" {
+		r.log.Info("title not exist，%v", tr)
+		return nil
+	}
+
+	if kind, ok = tr.CosHeaders["X-Cos-Meta-Kind"]; !ok || kind == "" {
+		r.log.Info("kind not exist，%v", tr)
 		return nil
 	}
 
@@ -456,6 +674,11 @@ func (r *CreationUseCase) ColumnEditReview(ctx context.Context, tr *TextReview) 
 		return errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: %v", tr))
 	}
 
+	title, err = url.QueryUnescape(title)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to decode string to UTF-8: %v", tr))
+	}
+
 	if tr.State != "Success" {
 		r.log.Info("column edit review failed，%v", tr)
 		return nil
@@ -464,7 +687,58 @@ func (r *CreationUseCase) ColumnEditReview(ctx context.Context, tr *TextReview) 
 	if tr.Result == 0 {
 		err = r.repo.ColumnEditReviewPass(ctx, int32(aid), int32(auth), uuid)
 	} else {
-		r.log.Info("column edit review not pass，%v", tr)
+		err = r.repo.ColumnContentIrregular(ctx, tr, int32(aid), title, kind, uuid)
+	}
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *CreationUseCase) ColumnImageReview(ctx context.Context, ar *ImageReview) error {
+	var err error
+	var token, kind, uid, id string
+	var ok bool
+
+	if token, ok = ar.CosHeaders["x-cos-meta-token"]; !ok || token == "" {
+		r.log.Info("token not exist，%v", ar)
+		return nil
+	}
+
+	if kind, ok = ar.CosHeaders["x-cos-meta-kind"]; !ok || kind == "" {
+		r.log.Info("kind not exist，%v", ar)
+		return nil
+	}
+
+	if uid, ok = ar.CosHeaders["x-cos-meta-uid"]; (kind == "content") && (!ok || uid == "") {
+		r.log.Info("uid not exist，%v", ar)
+		return nil
+	}
+
+	if id, ok = ar.CosHeaders["x-cos-meta-id"]; !ok || id == "" {
+		r.log.Info("id not exist，%v", ar)
+		return nil
+	}
+
+	aid, err := strconv.ParseInt(id, 10, 32)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: %v", ar))
+	}
+
+	uuid, err := r.jwt.JwtCheck(token)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to get uuid from token: %s", token))
+	}
+
+	if ar.State != "Success" {
+		r.log.Info("column image upload review failed，%v", ar)
+		return nil
+	}
+
+	if ar.Result == 0 {
+		return nil
+	} else {
+		err = r.repo.ColumnImageIrregular(ctx, ar, int32(aid), kind, uid, uuid)
 	}
 	if err != nil {
 		return err
@@ -520,9 +794,17 @@ func (r *CreationUseCase) CancelColumnSubscribeDbAndCache(ctx context.Context, i
 	return r.repo.CancelColumnSubscribeDbAndCache(ctx, id, uuid)
 }
 
+func (r *CreationUseCase) AddColumnImageReviewDbAndCache(ctx context.Context, creationId, score, result int32, kind, uid, uuid, jobId, label, category, subLabel string) error {
+	return r.repo.AddColumnImageReviewDbAndCache(ctx, creationId, score, result, kind, uid, uuid, jobId, label, category, subLabel)
+}
+
+func (r *CreationUseCase) AddColumnContentReviewDbAndCache(ctx context.Context, creationId, result int32, uuid, jobId, label, title, kind string, section string) error {
+	return r.repo.AddColumnContentReviewDbAndCache(ctx, creationId, result, uuid, jobId, label, title, kind, section)
+}
+
 func (r *CreationUseCase) CollectionsCreateReview(ctx context.Context, tr *TextReview) error {
 	var err error
-	var token, id, auths string
+	var token, id, auths, title, kind string
 	var ok bool
 
 	if token, ok = tr.CosHeaders["X-Cos-Meta-Token"]; !ok || token == "" {
@@ -540,6 +822,16 @@ func (r *CreationUseCase) CollectionsCreateReview(ctx context.Context, tr *TextR
 		return nil
 	}
 
+	if title, ok = tr.CosHeaders["X-Cos-Meta-Title"]; !ok || title == "" {
+		r.log.Info("title not exist，%v", tr)
+		return nil
+	}
+
+	if kind, ok = tr.CosHeaders["X-Cos-Meta-Kind"]; !ok || kind == "" {
+		r.log.Info("kind not exist，%v", tr)
+		return nil
+	}
+
 	uuid, err := r.jwt.JwtCheck(token)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to get uuid from token: %s", token))
@@ -553,6 +845,11 @@ func (r *CreationUseCase) CollectionsCreateReview(ctx context.Context, tr *TextR
 	auth, err := strconv.ParseInt(auths, 10, 32)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: %v", tr))
+	}
+
+	title, err = url.QueryUnescape(title)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to decode string to UTF-8: %v", tr))
 	}
 
 	if tr.State != "Success" {
@@ -563,7 +860,7 @@ func (r *CreationUseCase) CollectionsCreateReview(ctx context.Context, tr *TextR
 	if tr.Result == 0 {
 		err = r.repo.CollectionsCreateReviewPass(ctx, int32(aid), int32(auth), uuid)
 	} else {
-		r.log.Info("collections create review not pass，%v", tr)
+		err = r.repo.CollectionsContentIrregular(ctx, tr, int32(aid), title, kind, uuid)
 	}
 	if err != nil {
 		return err
@@ -573,7 +870,7 @@ func (r *CreationUseCase) CollectionsCreateReview(ctx context.Context, tr *TextR
 
 func (r *CreationUseCase) CollectionsEditReview(ctx context.Context, tr *TextReview) error {
 	var err error
-	var token, id, auths string
+	var token, id, auths, title, kind string
 	var ok bool
 
 	if token, ok = tr.CosHeaders["X-Cos-Meta-Token"]; !ok || token == "" {
@@ -588,6 +885,16 @@ func (r *CreationUseCase) CollectionsEditReview(ctx context.Context, tr *TextRev
 
 	if auths, ok = tr.CosHeaders["X-Cos-Meta-Auth"]; !ok || auths == "" {
 		r.log.Info("auth not exist，%v", tr)
+		return nil
+	}
+
+	if title, ok = tr.CosHeaders["X-Cos-Meta-Title"]; !ok || title == "" {
+		r.log.Info("title not exist，%v", tr)
+		return nil
+	}
+
+	if kind, ok = tr.CosHeaders["X-Cos-Meta-Kind"]; !ok || kind == "" {
+		r.log.Info("kind not exist，%v", tr)
 		return nil
 	}
 
@@ -606,6 +913,11 @@ func (r *CreationUseCase) CollectionsEditReview(ctx context.Context, tr *TextRev
 		return errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: %v", tr))
 	}
 
+	title, err = url.QueryUnescape(title)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to decode string to UTF-8: %v", tr))
+	}
+
 	if tr.State != "Success" {
 		r.log.Info("collections edit review failed，%v", tr)
 		return nil
@@ -614,7 +926,7 @@ func (r *CreationUseCase) CollectionsEditReview(ctx context.Context, tr *TextRev
 	if tr.Result == 0 {
 		err = r.repo.CollectionsEditReviewPass(ctx, int32(aid), int32(auth), uuid)
 	} else {
-		r.log.Info("collections edit review not pass，%v", tr)
+		err = r.repo.CollectionsContentIrregular(ctx, tr, int32(aid), title, kind, uuid)
 	}
 	if err != nil {
 		return err
@@ -632,6 +944,10 @@ func (r *CreationUseCase) EditCollectionsCos(ctx context.Context, id, auth int32
 
 func (r *CreationUseCase) DeleteCollectionsCache(ctx context.Context, id int32, uuid string) error {
 	return r.repo.DeleteCollectionsCache(ctx, id, uuid)
+}
+
+func (r *CreationUseCase) AddCollectionsContentReviewDbAndCache(ctx context.Context, creationId, result int32, uuid, jobId, label, title, kind string, section string) error {
+	return r.repo.AddCollectionsContentReviewDbAndCache(ctx, creationId, result, uuid, jobId, label, title, kind, section)
 }
 
 func (r *CreationUseCase) AddCreationComment(ctx context.Context, createId, createType int32, uuid string) {
