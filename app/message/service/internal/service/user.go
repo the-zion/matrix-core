@@ -17,16 +17,20 @@ func (s *MessageService) UploadProfileToCos(msg *primitive.MessageExt) error {
 }
 
 func (s *MessageService) ProfileReview(ctx context.Context, req *v1.TextReviewReq) (*emptypb.Empty, error) {
-	tr := s.TextReview(req)
-	err := s.uc.ProfileReview(ctx, tr)
+	tr, err := s.TextReview(req)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.uc.ProfileReview(ctx, tr)
 	if err != nil {
 		return nil, err
 	}
 	return &emptypb.Empty{}, nil
 }
 
-func (s *MessageService) AvatarReview(ctx context.Context, req *v1.AvatarReviewReq) (*emptypb.Empty, error) {
-	err := s.uc.AvatarReview(ctx, &biz.AvatarReview{
+func (s *MessageService) AvatarReview(ctx context.Context, req *v1.ImageReviewReq) (*emptypb.Empty, error) {
+	err := s.uc.AvatarReview(ctx, &biz.ImageReview{
 		Code:       req.JobsDetail.Code,
 		Message:    req.JobsDetail.Message,
 		JobId:      req.JobsDetail.JobId,
@@ -49,8 +53,8 @@ func (s *MessageService) AvatarReview(ctx context.Context, req *v1.AvatarReviewR
 	return &emptypb.Empty{}, nil
 }
 
-func (s *MessageService) CoverReview(ctx context.Context, req *v1.CoverReviewReq) (*emptypb.Empty, error) {
-	err := s.uc.CoverReview(ctx, &biz.CoverReview{
+func (s *MessageService) CoverReview(ctx context.Context, req *v1.ImageReviewReq) (*emptypb.Empty, error) {
+	err := s.uc.CoverReview(ctx, &biz.ImageReview{
 		Code:       req.JobsDetail.Code,
 		Message:    req.JobsDetail.Message,
 		JobId:      req.JobsDetail.JobId,
@@ -81,10 +85,10 @@ func (s *MessageService) CancelFollowDbAndCache(ctx context.Context, uuid, userI
 	return s.uc.CancelFollowDbAndCache(ctx, uuid, userId)
 }
 
-func (s *MessageService) AddAvatarDbAndCache(ctx context.Context, score, result int32, uuid, jobId, label, category, subLabel string) error {
-	return s.uc.AddAvatarDbAndCache(ctx, score, result, uuid, jobId, label, category, subLabel)
+func (s *MessageService) AddAvatarReviewDbAndCache(ctx context.Context, score, result int32, uuid, jobId, label, category, subLabel string) error {
+	return s.uc.AddAvatarReviewDbAndCache(ctx, score, result, uuid, jobId, label, category, subLabel)
 }
 
-func (s *MessageService) AddCoverDbAndCache(ctx context.Context, score, result int32, uuid, jobId, label, category, subLabel string) error {
-	return s.uc.AddCoverDbAndCache(ctx, score, result, uuid, jobId, label, category, subLabel)
+func (s *MessageService) AddCoverReviewDbAndCache(ctx context.Context, score, result int32, uuid, jobId, label, category, subLabel string) error {
+	return s.uc.AddCoverReviewDbAndCache(ctx, score, result, uuid, jobId, label, category, subLabel)
 }
