@@ -1,24 +1,6 @@
 package biz
 
-type AvatarReview struct {
-	Code       string
-	Message    string
-	JobId      string
-	State      string
-	Object     string
-	Url        string
-	Label      string
-	Result     int32
-	Score      int32
-	Category   string
-	SubLabel   string
-	BucketId   string
-	Region     string
-	CosHeaders map[string]string
-	EventName  string
-}
-
-type CoverReview struct {
+type ImageReview struct {
 	Code       string
 	Message    string
 	JobId      string
@@ -105,5 +87,5 @@ type TextReview struct {
 	BucketId     string
 	Region       string
 	CosHeaders   map[string]string
-	Section      []*Section
+	Section      string
 }
