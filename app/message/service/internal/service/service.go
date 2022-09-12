@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/json"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
 	v1 "github.com/the-zion/matrix-core/api/message/service/v1"
@@ -28,7 +29,7 @@ func NewMessageService(uc *biz.UserUseCase, cc *biz.CreationUseCase, ac *biz.Ach
 	}
 }
 
-func (s *MessageService) TextReview(req *v1.TextReviewReq) *biz.TextReview {
+func (s *MessageService) TextReview(req *v1.TextReviewReq) (*biz.TextReview, error) {
 	tr := &biz.TextReview{
 		Code:         req.JobsDetail.Code,
 		Message:      req.JobsDetail.Message,
@@ -44,36 +45,26 @@ func (s *MessageService) TextReview(req *v1.TextReviewReq) *biz.TextReview {
 		CosHeaders:   req.JobsDetail.CosHeaders,
 	}
 
-	var section []*biz.Section
+	var section []map[string]interface{}
 
 	for _, item := range req.JobsDetail.Section {
-		se := &biz.Section{
-			Label:  item.Label,
-			Result: item.Result,
-			PornInfo: &biz.SectionPornInfo{
-				HitFlag:  item.PornInfo.HitFlag,
-				Score:    item.PornInfo.Score,
-				Keywords: item.PornInfo.Keywords,
-			},
-			AdsInfo: &biz.SectionAdsInfo{
-				HitFlag:  item.AdsInfo.HitFlag,
-				Score:    item.AdsInfo.Score,
-				Keywords: item.AdsInfo.Keywords,
-			},
-			IllegalInfo: &biz.SectionIllegalInfo{
-				HitFlag:  item.IllegalInfo.HitFlag,
-				Score:    item.IllegalInfo.Score,
-				Keywords: item.IllegalInfo.Keywords,
-			},
-			AbuseInfo: &biz.SectionAbuseInfo{
-				HitFlag:  item.AbuseInfo.HitFlag,
-				Score:    item.AbuseInfo.Score,
-				Keywords: item.AbuseInfo.Keywords,
-			},
-		}
+		se := make(map[string]interface{}, 0)
+		se["PornInfoHitFlag"] = item.PornInfo.HitFlag
+		se["PornInfoKeywords"] = item.PornInfo.Keywords
+		se["AdsInfoHitFlag"] = item.AdsInfo.HitFlag
+		se["AdsInfoKeywords"] = item.AdsInfo.Keywords
+		se["IllegalInfoHitFlag"] = item.IllegalInfo.HitFlag
+		se["IllegalInfoKeywords"] = item.IllegalInfo.Keywords
+		se["AbuseInfoHitFlag"] = item.AbuseInfo.HitFlag
+		se["AbuseInfoKeywords"] = item.AbuseInfo.Keywords
 		section = append(section, se)
 	}
 
-	tr.Section = section
-	return tr
+	sectionMap, err := json.Marshal(section)
+	if err != nil {
+		return nil, err
+	}
+
+	tr.Section = string(sectionMap)
+	return tr, nil
 }
