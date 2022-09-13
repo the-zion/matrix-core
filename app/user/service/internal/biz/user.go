@@ -20,13 +20,13 @@ type UserRepo interface {
 	GetFollowedList(ctx context.Context, page int32, uuid string) ([]*Follow, error)
 	GetFollowedListCount(ctx context.Context, uuid string) (int32, error)
 	GetUserSearch(ctx context.Context, page int32, search string) ([]*UserSearch, int32, error)
-	GetAvatarReview(ctx context.Context, page int32, uuid string) ([]*PictureReview, error)
-	GetCoverReview(ctx context.Context, page int32, uuid string) ([]*PictureReview, error)
+	GetAvatarReview(ctx context.Context, page int32, uuid string) ([]*ImageReview, error)
+	GetCoverReview(ctx context.Context, page int32, uuid string) ([]*ImageReview, error)
 	EditUserSearch(ctx context.Context, uuid string, profile *ProfileUpdate) error
-	SetAvatarIrregular(ctx context.Context, review *PictureReview) (*PictureReview, error)
-	SetAvatarIrregularToCache(ctx context.Context, review *PictureReview) error
-	SetCoverIrregular(ctx context.Context, review *PictureReview) (*PictureReview, error)
-	SetCoverIrregularToCache(ctx context.Context, review *PictureReview) error
+	SetAvatarIrregular(ctx context.Context, review *ImageReview) (*ImageReview, error)
+	SetAvatarIrregularToCache(ctx context.Context, review *ImageReview) error
+	SetCoverIrregular(ctx context.Context, review *ImageReview) (*ImageReview, error)
+	SetCoverIrregularToCache(ctx context.Context, review *ImageReview) error
 	SetProfile(ctx context.Context, profile *ProfileUpdate) error
 	SetProfileUpdate(ctx context.Context, profile *ProfileUpdate, status int32) (*ProfileUpdate, error)
 	SetUserFollow(ctx context.Context, uuid, userId string) error
@@ -34,7 +34,7 @@ type UserRepo interface {
 	SetFollowToMq(ctx context.Context, follow *Follow, mode string) error
 	CancelUserFollow(ctx context.Context, uuid, userId string) error
 	CancelUserFollowFromCache(ctx context.Context, uuid, userId string) error
-	SendPictureIrregularToMq(ctx context.Context, review *PictureReview) error
+	SendImageIrregularToMq(ctx context.Context, review *ImageReview) error
 	SendProfileToMq(ctx context.Context, profile *ProfileUpdate) error
 	SendUserStatisticToMq(ctx context.Context, uuid, userUuid, mode string) error
 	ModifyProfileUpdateStatus(ctx context.Context, uuid, update string) error
@@ -119,7 +119,7 @@ func (r *UserUseCase) GetUserSearch(ctx context.Context, page int32, search stri
 	return userList, total, nil
 }
 
-func (r *UserUseCase) GetAvatarReview(ctx context.Context, page int32, uuid string) ([]*PictureReview, error) {
+func (r *UserUseCase) GetAvatarReview(ctx context.Context, page int32, uuid string) ([]*ImageReview, error) {
 	reviewList, err := r.repo.GetAvatarReview(ctx, page, uuid)
 	if err != nil {
 		return nil, v1.ErrorGetPictureReviewFailed("get avatar review failed: %s", err.Error())
@@ -127,7 +127,7 @@ func (r *UserUseCase) GetAvatarReview(ctx context.Context, page int32, uuid stri
 	return reviewList, nil
 }
 
-func (r *UserUseCase) GetCoverReview(ctx context.Context, page int32, uuid string) ([]*PictureReview, error) {
+func (r *UserUseCase) GetCoverReview(ctx context.Context, page int32, uuid string) ([]*ImageReview, error) {
 	reviewList, err := r.repo.GetCoverReview(ctx, page, uuid)
 	if err != nil {
 		return nil, v1.ErrorGetPictureReviewFailed("get cover review failed: %s", err.Error())
@@ -188,48 +188,48 @@ func (r *UserUseCase) SetProfileUpdate(ctx context.Context, profile *ProfileUpda
 	return nil
 }
 
-func (r *UserUseCase) AvatarIrregular(ctx context.Context, review *PictureReview) error {
-	err := r.repo.SendPictureIrregularToMq(ctx, review)
+func (r *UserUseCase) AvatarIrregular(ctx context.Context, review *ImageReview) error {
+	err := r.repo.SendImageIrregularToMq(ctx, review)
 	if err != nil {
-		return v1.ErrorSetPictureIrregularFailed("send picture review to mq failed: %s", err.Error())
+		return v1.ErrorSetImageIrregularFailed("send picture review to mq failed: %s", err.Error())
 	}
 	return nil
 }
 
-func (r *UserUseCase) AddAvatarDbAndCache(ctx context.Context, review *PictureReview) error {
+func (r *UserUseCase) AddAvatarReviewDbAndCache(ctx context.Context, review *ImageReview) error {
 	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		review, err := r.repo.SetAvatarIrregular(ctx, review)
 		if err != nil {
-			return v1.ErrorSetPictureIrregularFailed("set avatar irregular failed: %s", err.Error())
+			return v1.ErrorSetImageIrregularFailed("set avatar irregular failed: %s", err.Error())
 		}
 
 		err = r.repo.SetAvatarIrregularToCache(ctx, review)
 		if err != nil {
-			return v1.ErrorSetPictureIrregularFailed("set avatar irregular to cache failed: %s", err.Error())
+			return v1.ErrorSetImageIrregularFailed("set avatar irregular to cache failed: %s", err.Error())
 		}
 
 		return nil
 	})
 }
 
-func (r *UserUseCase) CoverIrregular(ctx context.Context, review *PictureReview) error {
-	err := r.repo.SendPictureIrregularToMq(ctx, review)
+func (r *UserUseCase) CoverIrregular(ctx context.Context, review *ImageReview) error {
+	err := r.repo.SendImageIrregularToMq(ctx, review)
 	if err != nil {
-		return v1.ErrorSetPictureIrregularFailed("send picture review to mq failed: %s", err.Error())
+		return v1.ErrorSetImageIrregularFailed("send picture review to mq failed: %s", err.Error())
 	}
 	return nil
 }
 
-func (r *UserUseCase) AddCoverDbAndCache(ctx context.Context, review *PictureReview) error {
+func (r *UserUseCase) AddCoverReviewDbAndCache(ctx context.Context, review *ImageReview) error {
 	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		review, err := r.repo.SetCoverIrregular(ctx, review)
 		if err != nil {
-			return v1.ErrorSetPictureIrregularFailed("set cover irregular failed: %s", err.Error())
+			return v1.ErrorSetImageIrregularFailed("set cover irregular failed: %s", err.Error())
 		}
 
 		err = r.repo.SetCoverIrregularToCache(ctx, review)
 		if err != nil {
-			return v1.ErrorSetPictureIrregularFailed("set cover irregular to cache failed: %s", err.Error())
+			return v1.ErrorSetImageIrregularFailed("set cover irregular to cache failed: %s", err.Error())
 		}
 
 		return nil
