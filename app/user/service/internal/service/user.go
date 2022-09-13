@@ -206,7 +206,7 @@ func (s *UserService) GetCoverReview(ctx context.Context, req *v1.GetCoverReview
 }
 
 func (s *UserService) AvatarIrregular(ctx context.Context, req *v1.AvatarIrregularReq) (*emptypb.Empty, error) {
-	err := s.uc.AvatarIrregular(ctx, &biz.PictureReview{
+	err := s.uc.AvatarIrregular(ctx, &biz.ImageReview{
 		Uuid:     req.Uuid,
 		JobId:    req.JobId,
 		Url:      req.Url,
@@ -215,7 +215,7 @@ func (s *UserService) AvatarIrregular(ctx context.Context, req *v1.AvatarIrregul
 		Score:    req.Score,
 		Category: req.Category,
 		SubLabel: req.SubLabel,
-		Mode:     "add_avatar_db_and_cache",
+		Mode:     "add_avatar_review_db_and_cache",
 	})
 	if err != nil {
 		return nil, err
@@ -223,8 +223,8 @@ func (s *UserService) AvatarIrregular(ctx context.Context, req *v1.AvatarIrregul
 	return &emptypb.Empty{}, nil
 }
 
-func (s *UserService) AddAvatarDbAndCache(ctx context.Context, req *v1.AddAvatarDbAndCacheReq) (*emptypb.Empty, error) {
-	err := s.uc.AddAvatarDbAndCache(ctx, &biz.PictureReview{
+func (s *UserService) AddAvatarReviewDbAndCache(ctx context.Context, req *v1.AddAvatarReviewDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.uc.AddAvatarReviewDbAndCache(ctx, &biz.ImageReview{
 		Uuid:     req.Uuid,
 		JobId:    req.JobId,
 		Url:      req.Url,
@@ -241,7 +241,7 @@ func (s *UserService) AddAvatarDbAndCache(ctx context.Context, req *v1.AddAvatar
 }
 
 func (s *UserService) CoverIrregular(ctx context.Context, req *v1.CoverIrregularReq) (*emptypb.Empty, error) {
-	err := s.uc.CoverIrregular(ctx, &biz.PictureReview{
+	err := s.uc.CoverIrregular(ctx, &biz.ImageReview{
 		Uuid:     req.Uuid,
 		JobId:    req.JobId,
 		Url:      req.Url,
@@ -250,7 +250,7 @@ func (s *UserService) CoverIrregular(ctx context.Context, req *v1.CoverIrregular
 		Score:    req.Score,
 		Category: req.Category,
 		SubLabel: req.SubLabel,
-		Mode:     "add_cover_db_and_cache",
+		Mode:     "add_cover_review_db_and_cache",
 	})
 	if err != nil {
 		return nil, err
@@ -258,8 +258,8 @@ func (s *UserService) CoverIrregular(ctx context.Context, req *v1.CoverIrregular
 	return &emptypb.Empty{}, nil
 }
 
-func (s *UserService) AddCoverDbAndCache(ctx context.Context, req *v1.AddCoverDbAndCacheReq) (*emptypb.Empty, error) {
-	err := s.uc.AddCoverDbAndCache(ctx, &biz.PictureReview{
+func (s *UserService) AddCoverReviewDbAndCache(ctx context.Context, req *v1.AddCoverReviewDbAndCacheReq) (*emptypb.Empty, error) {
+	err := s.uc.AddCoverReviewDbAndCache(ctx, &biz.ImageReview{
 		Uuid:     req.Uuid,
 		JobId:    req.JobId,
 		Url:      req.Url,
