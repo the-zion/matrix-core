@@ -60,7 +60,7 @@ type Follows struct {
 	Follow int32
 }
 
-type PictureReview struct {
+type ImageReview struct {
 	Id       int32
 	CreateAt string
 	Uuid     string
