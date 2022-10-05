@@ -280,6 +280,32 @@ func (r *creationRepo) GetCollectionsContentReview(ctx context.Context, page int
 	return result.([]*biz.CreationContentReview), nil
 }
 
+func (r *creationRepo) GetUserTimeLineListVisitor(ctx context.Context, page int32, uuid string) ([]*biz.TimeLine, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_user_timeline_%s_%v", uuid, page), func() (interface{}, error) {
+		reply := make([]*biz.TimeLine, 0)
+		timeline, err := r.data.cc.GetUserTimeLineList(ctx, &creationV1.GetUserTimeLineListReq{
+			Page: page,
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range timeline.Timeline {
+			reply = append(reply, &biz.TimeLine{
+				Id:         item.Id,
+				Uuid:       item.Uuid,
+				CreationId: item.CreationId,
+				Mode:       item.Mode,
+			})
+		}
+		return reply, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.([]*biz.TimeLine), nil
+}
+
 func (r *creationRepo) GetCollections(ctx context.Context, id int32, uuid string) (*biz.Collections, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_collections_%v", id), func() (interface{}, error) {
 		reply, err := r.data.cc.GetCollections(ctx, &creationV1.GetCollectionsReq{
