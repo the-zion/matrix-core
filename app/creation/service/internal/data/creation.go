@@ -1039,6 +1039,108 @@ func (r *creationRepo) GetCreationUserVisitor(ctx context.Context, uuid string) 
 	return creationUser, nil
 }
 
+func (r *creationRepo) GetUserTimeLineList(ctx context.Context, page int32, uuid string) ([]*biz.TimeLine, error) {
+	timeline, err := r.getUserTimeLineListFromCache(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	size := len(timeline)
+	if size != 0 {
+		return timeline, nil
+	}
+
+	timeline, err = r.getUserTimeLineListFromDB(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	size = len(timeline)
+	if size != 0 {
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setUserTimeLineListToCache("user_timeline_list_"+uuid, timeline)
+		})()
+	}
+	return timeline, nil
+}
+
+func (r *creationRepo) getUserTimeLineListFromCache(ctx context.Context, page int32, uuid string) ([]*biz.TimeLine, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int64(page - 1)
+	list, err := r.data.redisCli.ZRevRange(ctx, "user_timeline_list_"+uuid, index*10, index*10+9).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user timeline list from cache: key(%s), page(%v)", "user_timeline_list_"+uuid, page))
+	}
+
+	timeline := make([]*biz.TimeLine, 0)
+	for _, item := range list {
+		member := strings.Split(item, "%")
+		id, err := strconv.ParseInt(member[0], 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s)", member[0]))
+		}
+		creationId, err := strconv.ParseInt(member[1], 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: creationId(%s)", member[1]))
+		}
+		mode, err := strconv.ParseInt(member[2], 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: mode(%s)", member[2]))
+		}
+		timeline = append(timeline, &biz.TimeLine{
+			Id:         int32(id),
+			CreationId: int32(creationId),
+			Mode:       int32(mode),
+			Uuid:       member[3],
+		})
+	}
+	return timeline, nil
+}
+
+func (r *creationRepo) getUserTimeLineListFromDB(ctx context.Context, page int32, uuid string) ([]*biz.TimeLine, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int(page - 1)
+	list := make([]*TimeLine, 0)
+	err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).Order("id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user timeline list from db: page(%v), uuid(%s)", page, uuid))
+	}
+
+	timeline := make([]*biz.TimeLine, 0)
+	for _, item := range list {
+		timeline = append(timeline, &biz.TimeLine{
+			Id:         int32(item.ID),
+			Uuid:       item.Uuid,
+			CreationId: item.CreationsId,
+			Mode:       item.Mode,
+		})
+	}
+	return timeline, nil
+}
+
+func (r *creationRepo) setUserTimeLineListToCache(key string, timeline []*biz.TimeLine) {
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		z := make([]*redis.Z, 0)
+		for _, item := range timeline {
+			z = append(z, &redis.Z{
+				Score:  float64(item.Id),
+				Member: strconv.Itoa(int(item.Id)) + "%" + strconv.Itoa(int(item.CreationId)) + "%" + strconv.Itoa(int(item.Mode)) + "%" + item.Uuid,
+			})
+		}
+		pipe.ZAddNX(ctx, key, z...)
+		pipe.Expire(ctx, key, time.Hour*8)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to set timeline to cache: timeline(%v)", timeline)
+	}
+}
+
 func (r *creationRepo) GetCollectionsAuth(ctx context.Context, id int32) (int32, error) {
 	collections := &Collections{}
 	err := r.data.db.WithContext(ctx).Where("collections_id = ?", id).First(collections).Error
