@@ -1,5 +1,12 @@
 package biz
 
+type TimeLine struct {
+	Id         int32
+	Uuid       string
+	CreationId int32
+	Mode       int32
+}
+
 type Article struct {
 	ArticleId int32
 	Uuid      string
