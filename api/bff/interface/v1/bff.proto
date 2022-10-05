@@ -324,6 +324,12 @@ service Bff{
     };
   }
 
+  rpc GetUserTimeLineListVisitor(GetUserTimeLineListReq) returns (GetUserTimeLineListReply){
+    option (google.api.http) = {
+      get: "/v1/get/user/timeline/list/visitor"
+    };
+  }
+
   rpc CreateCollectionsDraft(google.protobuf.Empty) returns (CreateCollectionsDraftReply){
     option (google.api.http) = {
       post: "/v1/create/collections/draft"
@@ -1737,6 +1743,25 @@ message GetCollectionsContentReviewReply{
     string section = 10;
   }
   repeated Review review = 1;
+}
+
+message GetUserTimeLineListReq{
+  int32 page = 1;
+  string uuid = 2;
+}
+
+message GetUserTimeLineListReply{
+  message TimeLine{
+    int32 id = 1;
+    string uuid = 2;
+    int32 creation_id = 3;
+    int32 mode = 4;
+    int32 agree = 5;
+    int32 collect = 6;
+    int32 view = 7;
+    int32 comment = 8;
+  }
+  repeated TimeLine timeline = 1;
 }
 
 message GetCollectionsListByVisitorReq{
