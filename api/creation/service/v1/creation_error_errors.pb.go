@@ -107,6 +107,18 @@ func ErrorCreateCollectionsFailed(format string, args ...interface{}) *errors.Er
 	return errors.New(500, CreationErrorReason_CREATE_COLLECTIONS_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsCreateTimelineFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_CREATE_TIMELINE_FAILED.String() && e.Code == 500
+}
+
+func ErrorCreateTimelineFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_CREATE_TIMELINE_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsEditCollectionsFailed(err error) bool {
 	if err == nil {
 		return false
