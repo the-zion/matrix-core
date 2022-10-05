@@ -29,6 +29,7 @@ type CreationRepo interface {
 	GetCollectionsVisitorCount(ctx context.Context, uuid string) (int32, error)
 	GetCreationUser(ctx context.Context, uuid string) (*CreationUser, error)
 	GetCreationUserVisitor(ctx context.Context, uuid string) (*CreationUser, error)
+	GetUserTimeLineList(ctx context.Context, page int32, uuid string) ([]*TimeLine, error)
 	GetCollectionsAuth(ctx context.Context, id int32) (int32, error)
 
 	CreateCollectionsDraft(ctx context.Context, uuid string) (int32, error)
@@ -299,6 +300,14 @@ func (r *CreationUseCase) GetCreationUserVisitor(ctx context.Context, uuid strin
 		return nil, v1.ErrorGetCreationUserFailed("get creation user failed: %s", err.Error())
 	}
 	return creationUser, nil
+}
+
+func (r *CreationUseCase) GetUserTimeLineList(ctx context.Context, page int32, uuid string) ([]*TimeLine, error) {
+	timeline, err := r.repo.GetUserTimeLineList(ctx, page, uuid)
+	if err != nil {
+		return nil, v1.ErrorGetTimelineListFailed("get user timeline list failed: %s", err.Error())
+	}
+	return timeline, nil
 }
 
 func (r *CreationUseCase) SendCollections(ctx context.Context, id int32, uuid, ip string) error {
