@@ -72,6 +72,7 @@ type BffClient interface {
 	GetCollectionsVisitorCount(ctx context.Context, in *GetCollectionsVisitorCountReq, opts ...grpc.CallOption) (*GetCollectionsCountReply, error)
 	GetLastCollectionsDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLastCollectionsDraftReply, error)
 	GetCollectionsContentReview(ctx context.Context, in *GetCollectionsContentReviewReq, opts ...grpc.CallOption) (*GetCollectionsContentReviewReply, error)
+	GetUserTimeLineListVisitor(ctx context.Context, in *GetUserTimeLineListReq, opts ...grpc.CallOption) (*GetUserTimeLineListReply, error)
 	CreateCollectionsDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateCollectionsDraftReply, error)
 	SendCollections(ctx context.Context, in *SendCollectionsReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SendCollectionsEdit(ctx context.Context, in *SendCollectionsEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -632,6 +633,15 @@ func (c *bffClient) GetLastCollectionsDraft(ctx context.Context, in *emptypb.Emp
 func (c *bffClient) GetCollectionsContentReview(ctx context.Context, in *GetCollectionsContentReviewReq, opts ...grpc.CallOption) (*GetCollectionsContentReviewReply, error) {
 	out := new(GetCollectionsContentReviewReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCollectionsContentReview", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetUserTimeLineListVisitor(ctx context.Context, in *GetUserTimeLineListReq, opts ...grpc.CallOption) (*GetUserTimeLineListReply, error) {
+	out := new(GetUserTimeLineListReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserTimeLineListVisitor", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1807,6 +1817,7 @@ type BffServer interface {
 	GetCollectionsVisitorCount(context.Context, *GetCollectionsVisitorCountReq) (*GetCollectionsCountReply, error)
 	GetLastCollectionsDraft(context.Context, *emptypb.Empty) (*GetLastCollectionsDraftReply, error)
 	GetCollectionsContentReview(context.Context, *GetCollectionsContentReviewReq) (*GetCollectionsContentReviewReply, error)
+	GetUserTimeLineListVisitor(context.Context, *GetUserTimeLineListReq) (*GetUserTimeLineListReply, error)
 	CreateCollectionsDraft(context.Context, *emptypb.Empty) (*CreateCollectionsDraftReply, error)
 	SendCollections(context.Context, *SendCollectionsReq) (*emptypb.Empty, error)
 	SendCollectionsEdit(context.Context, *SendCollectionsEditReq) (*emptypb.Empty, error)
@@ -2081,6 +2092,9 @@ func (UnimplementedBffServer) GetLastCollectionsDraft(context.Context, *emptypb.
 }
 func (UnimplementedBffServer) GetCollectionsContentReview(context.Context, *GetCollectionsContentReviewReq) (*GetCollectionsContentReviewReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCollectionsContentReview not implemented")
+}
+func (UnimplementedBffServer) GetUserTimeLineListVisitor(context.Context, *GetUserTimeLineListReq) (*GetUserTimeLineListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserTimeLineListVisitor not implemented")
 }
 func (UnimplementedBffServer) CreateCollectionsDraft(context.Context, *emptypb.Empty) (*CreateCollectionsDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateCollectionsDraft not implemented")
@@ -3327,6 +3341,24 @@ func _Bff_GetCollectionsContentReview_Handler(srv interface{}, ctx context.Conte
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BffServer).GetCollectionsContentReview(ctx, req.(*GetCollectionsContentReviewReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetUserTimeLineListVisitor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserTimeLineListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetUserTimeLineListVisitor(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetUserTimeLineListVisitor",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetUserTimeLineListVisitor(ctx, req.(*GetUserTimeLineListReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -5761,6 +5793,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetCollectionsContentReview",
 			Handler:    _Bff_GetCollectionsContentReview_Handler,
+		},
+		{
+			MethodName: "GetUserTimeLineListVisitor",
+			Handler:    _Bff_GetUserTimeLineListVisitor_Handler,
 		},
 		{
 			MethodName: "CreateCollectionsDraft",

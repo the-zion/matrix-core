@@ -150,6 +150,7 @@ const OperationBffGetUserTalkCollect = "/bff.v1.Bff/GetUserTalkCollect"
 const OperationBffGetUserTalkList = "/bff.v1.Bff/GetUserTalkList"
 const OperationBffGetUserTalkListSimple = "/bff.v1.Bff/GetUserTalkListSimple"
 const OperationBffGetUserTalkListVisitor = "/bff.v1.Bff/GetUserTalkListVisitor"
+const OperationBffGetUserTimeLineListVisitor = "/bff.v1.Bff/GetUserTimeLineListVisitor"
 const OperationBffLoginByCode = "/bff.v1.Bff/LoginByCode"
 const OperationBffLoginByGithub = "/bff.v1.Bff/LoginByGithub"
 const OperationBffLoginByPassword = "/bff.v1.Bff/LoginByPassword"
@@ -324,6 +325,7 @@ type BffHTTPServer interface {
 	GetUserTalkList(context.Context, *GetUserTalkListReq) (*GetTalkListReply, error)
 	GetUserTalkListSimple(context.Context, *GetUserTalkListSimpleReq) (*GetTalkListReply, error)
 	GetUserTalkListVisitor(context.Context, *GetUserTalkListVisitorReq) (*GetTalkListReply, error)
+	GetUserTimeLineListVisitor(context.Context, *GetUserTimeLineListReq) (*GetUserTimeLineListReply, error)
 	LoginByCode(context.Context, *LoginByCodeReq) (*LoginReply, error)
 	LoginByGithub(context.Context, *LoginByGithubReq) (*LoginReply, error)
 	LoginByPassword(context.Context, *LoginByPasswordReq) (*LoginReply, error)
@@ -418,6 +420,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.GET("/v1/get/collections/visitor/count", _Bff_GetCollectionsVisitorCount0_HTTP_Handler(srv))
 	r.GET("/v1/get/last/collections/draft", _Bff_GetLastCollectionsDraft0_HTTP_Handler(srv))
 	r.POST("/v1/get/collections/content/review", _Bff_GetCollectionsContentReview0_HTTP_Handler(srv))
+	r.GET("/v1/get/user/timeline/list/visitor", _Bff_GetUserTimeLineListVisitor0_HTTP_Handler(srv))
 	r.POST("/v1/create/collections/draft", _Bff_CreateCollectionsDraft0_HTTP_Handler(srv))
 	r.POST("/v1/send/collections", _Bff_SendCollections0_HTTP_Handler(srv))
 	r.POST("/v1/send/collections/edit", _Bff_SendCollectionsEdit0_HTTP_Handler(srv))
@@ -1452,6 +1455,25 @@ func _Bff_GetCollectionsContentReview0_HTTP_Handler(srv BffHTTPServer) func(ctx 
 			return err
 		}
 		reply := out.(*GetCollectionsContentReviewReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_GetUserTimeLineListVisitor0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetUserTimeLineListReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetUserTimeLineListVisitor)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetUserTimeLineListVisitor(ctx, req.(*GetUserTimeLineListReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetUserTimeLineListReply)
 		return ctx.Result(200, reply)
 	}
 }
@@ -3943,6 +3965,7 @@ type BffHTTPClient interface {
 	GetUserTalkList(ctx context.Context, req *GetUserTalkListReq, opts ...http.CallOption) (rsp *GetTalkListReply, err error)
 	GetUserTalkListSimple(ctx context.Context, req *GetUserTalkListSimpleReq, opts ...http.CallOption) (rsp *GetTalkListReply, err error)
 	GetUserTalkListVisitor(ctx context.Context, req *GetUserTalkListVisitorReq, opts ...http.CallOption) (rsp *GetTalkListReply, err error)
+	GetUserTimeLineListVisitor(ctx context.Context, req *GetUserTimeLineListReq, opts ...http.CallOption) (rsp *GetUserTimeLineListReply, err error)
 	LoginByCode(ctx context.Context, req *LoginByCodeReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginByGithub(ctx context.Context, req *LoginByGithubReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginByPassword(ctx context.Context, req *LoginByPasswordReq, opts ...http.CallOption) (rsp *LoginReply, err error)
@@ -5677,6 +5700,19 @@ func (c *BffHTTPClientImpl) GetUserTalkListVisitor(ctx context.Context, in *GetU
 	pattern := "/v1/get/user/talk/list/visitor"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationBffGetUserTalkListVisitor))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetUserTimeLineListVisitor(ctx context.Context, in *GetUserTimeLineListReq, opts ...http.CallOption) (*GetUserTimeLineListReply, error) {
+	var out GetUserTimeLineListReply
+	pattern := "/v1/get/user/timeline/list/visitor"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationBffGetUserTimeLineListVisitor))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

@@ -9633,6 +9633,248 @@ var _ interface {
 	ErrorName() string
 } = GetCollectionsContentReviewReplyValidationError{}
 
+// Validate checks the field values on GetUserTimeLineListReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetUserTimeLineListReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserTimeLineListReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetUserTimeLineListReqMultiError, or nil if none found.
+func (m *GetUserTimeLineListReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserTimeLineListReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Page
+
+	// no validation rules for Uuid
+
+	if len(errors) > 0 {
+		return GetUserTimeLineListReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetUserTimeLineListReqMultiError is an error wrapping multiple validation
+// errors returned by GetUserTimeLineListReq.ValidateAll() if the designated
+// constraints aren't met.
+type GetUserTimeLineListReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserTimeLineListReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserTimeLineListReqMultiError) AllErrors() []error { return m }
+
+// GetUserTimeLineListReqValidationError is the validation error returned by
+// GetUserTimeLineListReq.Validate if the designated constraints aren't met.
+type GetUserTimeLineListReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserTimeLineListReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserTimeLineListReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserTimeLineListReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserTimeLineListReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserTimeLineListReqValidationError) ErrorName() string {
+	return "GetUserTimeLineListReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetUserTimeLineListReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserTimeLineListReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserTimeLineListReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserTimeLineListReqValidationError{}
+
+// Validate checks the field values on GetUserTimeLineListReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetUserTimeLineListReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserTimeLineListReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetUserTimeLineListReplyMultiError, or nil if none found.
+func (m *GetUserTimeLineListReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserTimeLineListReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetTimeline() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetUserTimeLineListReplyValidationError{
+						field:  fmt.Sprintf("Timeline[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetUserTimeLineListReplyValidationError{
+						field:  fmt.Sprintf("Timeline[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetUserTimeLineListReplyValidationError{
+					field:  fmt.Sprintf("Timeline[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return GetUserTimeLineListReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetUserTimeLineListReplyMultiError is an error wrapping multiple validation
+// errors returned by GetUserTimeLineListReply.ValidateAll() if the designated
+// constraints aren't met.
+type GetUserTimeLineListReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserTimeLineListReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserTimeLineListReplyMultiError) AllErrors() []error { return m }
+
+// GetUserTimeLineListReplyValidationError is the validation error returned by
+// GetUserTimeLineListReply.Validate if the designated constraints aren't met.
+type GetUserTimeLineListReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserTimeLineListReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserTimeLineListReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserTimeLineListReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserTimeLineListReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserTimeLineListReplyValidationError) ErrorName() string {
+	return "GetUserTimeLineListReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetUserTimeLineListReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserTimeLineListReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserTimeLineListReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserTimeLineListReplyValidationError{}
+
 // Validate checks the field values on GetCollectionsListByVisitorReq with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -27335,6 +27577,127 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetCollectionsContentReviewReply_ReviewValidationError{}
+
+// Validate checks the field values on GetUserTimeLineListReply_TimeLine with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *GetUserTimeLineListReply_TimeLine) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserTimeLineListReply_TimeLine
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the result is a list of violation errors wrapped in
+// GetUserTimeLineListReply_TimeLineMultiError, or nil if none found.
+func (m *GetUserTimeLineListReply_TimeLine) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserTimeLineListReply_TimeLine) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Uuid
+
+	// no validation rules for CreationId
+
+	// no validation rules for Mode
+
+	// no validation rules for Agree
+
+	// no validation rules for Collect
+
+	// no validation rules for View
+
+	// no validation rules for Comment
+
+	if len(errors) > 0 {
+		return GetUserTimeLineListReply_TimeLineMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetUserTimeLineListReply_TimeLineMultiError is an error wrapping multiple
+// validation errors returned by
+// GetUserTimeLineListReply_TimeLine.ValidateAll() if the designated
+// constraints aren't met.
+type GetUserTimeLineListReply_TimeLineMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserTimeLineListReply_TimeLineMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserTimeLineListReply_TimeLineMultiError) AllErrors() []error { return m }
+
+// GetUserTimeLineListReply_TimeLineValidationError is the validation error
+// returned by GetUserTimeLineListReply_TimeLine.Validate if the designated
+// constraints aren't met.
+type GetUserTimeLineListReply_TimeLineValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserTimeLineListReply_TimeLineValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserTimeLineListReply_TimeLineValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserTimeLineListReply_TimeLineValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserTimeLineListReply_TimeLineValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserTimeLineListReply_TimeLineValidationError) ErrorName() string {
+	return "GetUserTimeLineListReply_TimeLineValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetUserTimeLineListReply_TimeLineValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserTimeLineListReply_TimeLine.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserTimeLineListReply_TimeLineValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserTimeLineListReply_TimeLineValidationError{}
 
 // Validate checks the field values on GetArticleDraftListReply_Draft with the
 // rules defined in the proto definition for this message. If any rules are
