@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
+	"golang.org/x/sync/errgroup"
 )
 
 type CreationRepo interface {
@@ -15,6 +16,7 @@ type CreationRepo interface {
 	GetCollectColumnCount(ctx context.Context, id int32) (int32, error)
 	GetLastCollectionsDraft(ctx context.Context, uuid string) (*CollectionsDraft, error)
 	GetCollectionsContentReview(ctx context.Context, page int32, uuid string) ([]*CreationContentReview, error)
+	GetUserTimeLineListVisitor(ctx context.Context, page int32, uuid string) ([]*TimeLine, error)
 	GetCollections(ctx context.Context, id int32, uuid string) (*Collections, error)
 	GetCollectionListInfo(ctx context.Context, collectionsList []*Collections) ([]*Collections, error)
 	GetCollectionsList(ctx context.Context, uuid string, page int32) ([]*Collections, error)
@@ -297,6 +299,82 @@ func (r *CreationUseCase) GetCollectionsContentReview(ctx context.Context, page 
 		return nil, err
 	}
 	return reviewList, nil
+}
+
+func (r *CreationUseCase) GetUserTimeLineListVisitor(ctx context.Context, page int32, uuid string) ([]*TimeLine, error) {
+	timeline, err := r.repo.GetUserTimeLineListVisitor(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+	articleList := make([]*Article, 0)
+	talkList := make([]*Talk, 0)
+	columnList := make([]*Column, 0)
+	for _, item := range timeline {
+		switch item.Mode {
+		case 1:
+			articleList = append(articleList, &Article{Id: item.CreationId})
+		case 2:
+			columnList = append(columnList, &Column{Id: item.CreationId})
+		case 3:
+			talkList = append(talkList, &Talk{Id: item.CreationId})
+		}
+	}
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		articleListStatistic, err := r.articleRepo.GetArticleListStatistic(ctx, articleList)
+		if err != nil {
+			return err
+		}
+		for _, item := range articleListStatistic {
+			for index, listItem := range timeline {
+				if listItem.CreationId == item.Id {
+					timeline[index].Agree = item.Agree
+					timeline[index].View = item.View
+					timeline[index].Collect = item.Collect
+					timeline[index].Comment = item.Comment
+				}
+			}
+		}
+		return nil
+	}))
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		columnListStatistic, err := r.columnRepo.GetColumnListStatistic(ctx, columnList)
+		if err != nil {
+			return err
+		}
+		for _, item := range columnListStatistic {
+			for index, listItem := range timeline {
+				if listItem.CreationId == item.Id {
+					timeline[index].Agree = item.Agree
+					timeline[index].View = item.View
+					timeline[index].Collect = item.Collect
+				}
+			}
+		}
+		return nil
+	}))
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		talkListStatistic, err := r.talkRepo.GetTalkListStatistic(ctx, talkList)
+		if err != nil {
+			return err
+		}
+		for _, item := range talkListStatistic {
+			for index, listItem := range timeline {
+				if listItem.CreationId == item.Id {
+					timeline[index].Agree = item.Agree
+					timeline[index].View = item.View
+					timeline[index].Collect = item.Collect
+					timeline[index].Comment = item.Comment
+				}
+			}
+		}
+		return nil
+	}))
+	err = g.Wait()
+	if err != nil {
+		return nil, err
+	}
+	return timeline, nil
 }
 
 func (r *CreationUseCase) GetCollections(ctx context.Context, id int32, uuid string) (*Collections, error) {
