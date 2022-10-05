@@ -250,6 +250,23 @@ func (s *CreationService) GetCreationUserVisitor(ctx context.Context, req *v1.Ge
 	}, nil
 }
 
+func (s *CreationService) GetUserTimeLineList(ctx context.Context, req *v1.GetUserTimeLineListReq) (*v1.GetUserTimeLineListReply, error) {
+	reply := &v1.GetUserTimeLineListReply{Timeline: make([]*v1.GetUserTimeLineListReply_TimeLine, 0)}
+	timeline, err := s.cc.GetUserTimeLineList(ctx, req.Page, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range timeline {
+		reply.Timeline = append(reply.Timeline, &v1.GetUserTimeLineListReply_TimeLine{
+			Id:         item.Id,
+			Uuid:       item.Uuid,
+			CreationId: item.CreationId,
+			Mode:       item.Mode,
+		})
+	}
+	return reply, nil
+}
+
 func (s *CreationService) CreateCollectionsDraft(ctx context.Context, req *v1.CreateCollectionsDraftReq) (*v1.CreateCollectionsDraftReply, error) {
 	id, err := s.cc.CreateCollectionsDraft(ctx, req.Uuid)
 	if err != nil {
