@@ -47,6 +47,8 @@ service Creation {
 
   rpc GetCreationUserVisitor(GetCreationUserReq) returns (GetCreationUserReply){}
 
+  rpc GetUserTimeLineList(GetUserTimeLineListReq) returns (GetUserTimeLineListReply){}
+
   rpc SendCollections(SendCollectionsReq) returns (google.protobuf.Empty){}
 
   rpc CreateCollectionsDraft(CreateCollectionsDraftReq) returns (CreateCollectionsDraftReply){}
@@ -469,6 +471,25 @@ message GetCreationUserReply{
   int32 collections = 4;
   int32 collect = 5;
   int32 subscribe = 6;
+}
+
+message GetUserTimeLineListReq{
+  int32 page = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message GetUserTimeLineListReply{
+  message TimeLine{
+    int32 id = 1;
+    string uuid = 2;
+    int32 creation_id = 3;
+    int32 mode = 4;
+    int32 agree = 5;
+    int32 collect = 6;
+    int32 view = 7;
+    int32 comment = 8;
+  }
+  repeated TimeLine timeline = 1;
 }
 
 message SendCollectionsReq{
