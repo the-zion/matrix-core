@@ -41,6 +41,7 @@ type CreationClient interface {
 	GetCollectionsVisitorCount(ctx context.Context, in *GetCollectionsCountReq, opts ...grpc.CallOption) (*GetCollectionsCountReply, error)
 	GetCreationUser(ctx context.Context, in *GetCreationUserReq, opts ...grpc.CallOption) (*GetCreationUserReply, error)
 	GetCreationUserVisitor(ctx context.Context, in *GetCreationUserReq, opts ...grpc.CallOption) (*GetCreationUserReply, error)
+	GetUserTimeLineList(ctx context.Context, in *GetUserTimeLineListReq, opts ...grpc.CallOption) (*GetUserTimeLineListReply, error)
 	SendCollections(ctx context.Context, in *SendCollectionsReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateCollectionsDraft(ctx context.Context, in *CreateCollectionsDraftReq, opts ...grpc.CallOption) (*CreateCollectionsDraftReply, error)
 	CreateCollections(ctx context.Context, in *CreateCollectionsReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -352,6 +353,15 @@ func (c *creationClient) GetCreationUser(ctx context.Context, in *GetCreationUse
 func (c *creationClient) GetCreationUserVisitor(ctx context.Context, in *GetCreationUserReq, opts ...grpc.CallOption) (*GetCreationUserReply, error) {
 	out := new(GetCreationUserReply)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetCreationUserVisitor", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) GetUserTimeLineList(ctx context.Context, in *GetUserTimeLineListReq, opts ...grpc.CallOption) (*GetUserTimeLineListReply, error) {
+	out := new(GetUserTimeLineListReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetUserTimeLineList", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1685,6 +1695,7 @@ type CreationServer interface {
 	GetCollectionsVisitorCount(context.Context, *GetCollectionsCountReq) (*GetCollectionsCountReply, error)
 	GetCreationUser(context.Context, *GetCreationUserReq) (*GetCreationUserReply, error)
 	GetCreationUserVisitor(context.Context, *GetCreationUserReq) (*GetCreationUserReply, error)
+	GetUserTimeLineList(context.Context, *GetUserTimeLineListReq) (*GetUserTimeLineListReply, error)
 	SendCollections(context.Context, *SendCollectionsReq) (*emptypb.Empty, error)
 	CreateCollectionsDraft(context.Context, *CreateCollectionsDraftReq) (*CreateCollectionsDraftReply, error)
 	CreateCollections(context.Context, *CreateCollectionsReq) (*emptypb.Empty, error)
@@ -1890,6 +1901,9 @@ func (UnimplementedCreationServer) GetCreationUser(context.Context, *GetCreation
 }
 func (UnimplementedCreationServer) GetCreationUserVisitor(context.Context, *GetCreationUserReq) (*GetCreationUserReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCreationUserVisitor not implemented")
+}
+func (UnimplementedCreationServer) GetUserTimeLineList(context.Context, *GetUserTimeLineListReq) (*GetUserTimeLineListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserTimeLineList not implemented")
 }
 func (UnimplementedCreationServer) SendCollections(context.Context, *SendCollectionsReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendCollections not implemented")
@@ -2659,6 +2673,24 @@ func _Creation_GetCreationUserVisitor_Handler(srv interface{}, ctx context.Conte
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CreationServer).GetCreationUserVisitor(ctx, req.(*GetCreationUserReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_GetUserTimeLineList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserTimeLineListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetUserTimeLineList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetUserTimeLineList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetUserTimeLineList(ctx, req.(*GetUserTimeLineListReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -5351,6 +5383,10 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetCreationUserVisitor",
 			Handler:    _Creation_GetCreationUserVisitor_Handler,
+		},
+		{
+			MethodName: "GetUserTimeLineList",
+			Handler:    _Creation_GetUserTimeLineList_Handler,
 		},
 		{
 			MethodName: "SendCollections",
