@@ -197,6 +197,17 @@ type LeaderBoard struct {
 	Mode string
 }
 
+type TimeLine struct {
+	Id         int32
+	Uuid       string
+	CreationId int32
+	Mode       int32
+	Agree      int32
+	View       int32
+	Collect    int32
+	Comment    int32
+}
+
 type Article struct {
 	Id      int32
 	Agree   int32
