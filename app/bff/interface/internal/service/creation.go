@@ -144,6 +144,27 @@ func (s *BffService) GetCollectionsContentReview(ctx context.Context, req *v1.Ge
 	return reply, nil
 }
 
+func (s *BffService) GetUserTimeLineListVisitor(ctx context.Context, req *v1.GetUserTimeLineListReq) (*v1.GetUserTimeLineListReply, error) {
+	reply := &v1.GetUserTimeLineListReply{Timeline: make([]*v1.GetUserTimeLineListReply_TimeLine, 0)}
+	timeline, err := s.cc.GetUserTimeLineListVisitor(ctx, req.Page, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range timeline {
+		reply.Timeline = append(reply.Timeline, &v1.GetUserTimeLineListReply_TimeLine{
+			Id:         item.Id,
+			Uuid:       item.Uuid,
+			CreationId: item.CreationId,
+			Mode:       item.Mode,
+			Agree:      item.Agree,
+			Collect:    item.Collect,
+			View:       item.View,
+			Comment:    item.Comment,
+		})
+	}
+	return reply, nil
+}
+
 func (s *BffService) GetCollections(ctx context.Context, req *v1.GetCollectionsReq) (*v1.GetCollectionsReply, error) {
 	collection, err := s.cc.GetCollections(ctx, req.Id, req.Uuid)
 	if err != nil {
