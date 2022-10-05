@@ -5,6 +5,13 @@ import (
 	"time"
 )
 
+type TimeLine struct {
+	gorm.Model
+	Uuid        string `gorm:"index;size:36"`
+	CreationsId int32
+	Mode        int32 `gorm:"default:1"`
+}
+
 type Article struct {
 	ArticleId int32 `gorm:"primarykey"`
 	CreatedAt time.Time
