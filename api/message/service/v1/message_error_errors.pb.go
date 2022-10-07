@@ -34,3 +34,27 @@ func IsAccessUserMedalFailed(err error) bool {
 func ErrorAccessUserMedalFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, MessageErrorReason_ACCESS_USER_MEDAL_FAILED.String(), fmt.Sprintf(format, args...))
 }
+
+func IsGetMailboxLastTimeFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == MessageErrorReason_GET_MAILBOX_LAST_TIME_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetMailboxLastTimeFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, MessageErrorReason_GET_MAILBOX_LAST_TIME_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsSetMailboxLastTimeFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == MessageErrorReason_SET_MAILBOX_LAST_TIME_FAILED.String() && e.Code == 500
+}
+
+func ErrorSetMailboxLastTimeFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, MessageErrorReason_SET_MAILBOX_LAST_TIME_FAILED.String(), fmt.Sprintf(format, args...))
+}
