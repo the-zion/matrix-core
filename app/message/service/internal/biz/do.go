@@ -89,3 +89,7 @@ type TextReview struct {
 	CosHeaders   map[string]string
 	Section      string
 }
+
+type MailBox struct {
+	Time int32
+}
