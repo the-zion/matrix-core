@@ -6,6 +6,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
+	"github.com/go-redis/redis/v8"
 	"github.com/google/wire"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/profile"
@@ -22,9 +23,10 @@ import (
 	"net/http"
 	"net/url"
 	"runtime"
+	"time"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewCreationRepo, NewCommentRepo, NewAchievementRepo, NewPhoneCode, NewGoMail, NewUserServiceClient, NewCreationServiceClient, NewAchievementServiceClient, NewCommentServiceClient, NewCosUserClient, NewCosCreationClient, NewCosCommentClient, NewJwtClient, NewJwt, NewRecovery)
+var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewCreationRepo, NewCommentRepo, NewMessageRepo, NewAchievementRepo, NewPhoneCode, NewGoMail, NewUserServiceClient, NewCreationServiceClient, NewAchievementServiceClient, NewCommentServiceClient, NewCosUserClient, NewCosCreationClient, NewCosCommentClient, NewJwtClient, NewJwt, NewRecovery, NewRedis)
 
 type TxCode struct {
 	client  *sms.Client
@@ -56,6 +58,7 @@ type Jwt struct {
 
 type Data struct {
 	log            *log.Helper
+	redisCli       redis.Cmdable
 	uc             userv1.UserClient
 	cc             creationv1.CreationClient
 	commc          commentv1.CommentClient
@@ -245,10 +248,31 @@ func NewCosCommentClient(conf *conf.Data, logger log.Logger) *CosComment {
 	}
 }
 
-func NewData(logger log.Logger, uc userv1.UserClient, cc creationv1.CreationClient, commc commentv1.CommentClient, ac achievementv1.AchievementClient, jwt Jwt, cosUser *CosUser, cosCreation *CosCreation, cosComment *CosComment, phoneCodeCli *TxCode, goMailCli *GoMail) (*Data, error) {
+func NewRedis(conf *conf.Data, logger log.Logger) redis.Cmdable {
+	l := log.NewHelper(log.With(logger, "module", "creation/data/redis"))
+	client := redis.NewClient(&redis.Options{
+		Addr:         conf.Redis.Addr,
+		DB:           4,
+		ReadTimeout:  conf.Redis.ReadTimeout.AsDuration(),
+		WriteTimeout: conf.Redis.WriteTimeout.AsDuration(),
+		DialTimeout:  time.Second * 2,
+		PoolSize:     10,
+		Password:     conf.Redis.Password,
+	})
+	timeout, cancelFunc := context.WithTimeout(context.Background(), time.Second*2)
+	defer cancelFunc()
+	err := client.Ping(timeout).Err()
+	if err != nil {
+		l.Fatalf("redis connect error: %v", err)
+	}
+	return client
+}
+
+func NewData(logger log.Logger, redisCmd redis.Cmdable, uc userv1.UserClient, cc creationv1.CreationClient, commc commentv1.CommentClient, ac achievementv1.AchievementClient, jwt Jwt, cosUser *CosUser, cosCreation *CosCreation, cosComment *CosComment, phoneCodeCli *TxCode, goMailCli *GoMail) (*Data, error) {
 	l := log.NewHelper(log.With(logger, "module", "message/data"))
 	d := &Data{
 		log:            l,
+		redisCli:       redisCmd,
 		uc:             uc,
 		cc:             cc,
 		commc:          commc,
