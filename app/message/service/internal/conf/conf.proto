@@ -119,6 +119,13 @@ message Data {
     string secret_id = 1;
     string secret_key = 2;
   }
+  message Redis {
+    string network = 1;
+    string addr = 2;
+    string password = 3;
+    google.protobuf.Duration read_timeout = 4;
+    google.protobuf.Duration write_timeout = 5;
+  }
   message Mail{
     string code = 1;
   }
@@ -153,5 +160,6 @@ message Data {
   Code code = 2;
   Mail mail = 3;
   Cos cos = 4;
+  Redis redis = 5;
 }
 
