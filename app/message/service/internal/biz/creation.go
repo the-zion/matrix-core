@@ -19,6 +19,7 @@ type CreationRepo interface {
 	CreateArticleDbCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error
 	EditArticleCosAndSearch(ctx context.Context, id, auth int32, uuid string) error
 	DeleteArticleCacheAndSearch(ctx context.Context, id int32, uuid string) error
+	SetCreationUpdateTime(ctx context.Context, uuid string)
 	SetArticleViewDbAndCache(ctx context.Context, id int32, uuid string) error
 	SetArticleAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error
 	SetArticleCollectDbAndCache(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error
@@ -158,11 +159,15 @@ func (r *CreationUseCase) ArticleCreateReview(ctx context.Context, tr *TextRevie
 
 	if tr.Result == 0 {
 		err = r.repo.ArticleCreateReviewPass(ctx, int32(aid), int32(auth), uuid)
+		if err != nil {
+			return err
+		}
+		r.repo.SetCreationUpdateTime(ctx, uuid)
 	} else {
 		err = r.repo.ArticleContentIrregular(ctx, tr, int32(aid), title, kind, uuid)
-	}
-	if err != nil {
-		return err
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -389,11 +394,15 @@ func (r *CreationUseCase) TalkCreateReview(ctx context.Context, tr *TextReview) 
 
 	if tr.Result == 0 {
 		err = r.repo.TalkCreateReviewPass(ctx, int32(aid), int32(auth), uuid)
+		if err != nil {
+			return err
+		}
+		r.repo.SetCreationUpdateTime(ctx, uuid)
 	} else {
 		err = r.repo.TalkContentIrregular(ctx, tr, int32(aid), title, kind, uuid)
-	}
-	if err != nil {
-		return err
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -620,11 +629,15 @@ func (r *CreationUseCase) ColumnCreateReview(ctx context.Context, tr *TextReview
 
 	if tr.Result == 0 {
 		err = r.repo.ColumnCreateReviewPass(ctx, int32(aid), int32(auth), uuid)
+		if err != nil {
+			return err
+		}
+		r.repo.SetCreationUpdateTime(ctx, uuid)
 	} else {
 		err = r.repo.ColumnContentIrregular(ctx, tr, int32(aid), title, kind, uuid)
-	}
-	if err != nil {
-		return err
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
