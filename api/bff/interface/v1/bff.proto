@@ -129,6 +129,12 @@ service Bff{
     };
   }
 
+  rpc GetTimeLineUsers (google.protobuf.Empty) returns (GetTimeLineUsersReply) {
+    option (google.api.http) = {
+      get: "/v1/get/timeline/user",
+    };
+  }
+
   rpc GetFollowList (GetFollowListReq) returns (GetFollowListReply) {
     option (google.api.http) = {
       get: "/v1/get/follow/list",
@@ -1165,6 +1171,21 @@ service Bff{
       body: "*"
     };
   }
+
+  // --------------------comment service------------------------
+
+  rpc GetMailBoxLastTime(google.protobuf.Empty) returns (GetMailBoxLastTimeReply){
+    option (google.api.http) = {
+      get: "/v1/get/mailbox/last/time"
+    };
+  }
+
+  rpc SetMailBoxLastTime(google.protobuf.Empty) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/set/mailbox/last/time"
+      body: "*"
+    };
+  }
 }
 
 // --------------------user service-------------------------
@@ -2111,6 +2132,14 @@ message GetUserFollowsReply{
   map<string, bool> follows = 1;
 }
 
+message GetTimeLineUsersReply{
+  message Follows{
+    string uuid = 1;
+    string username = 2;
+  }
+  repeated Follows follows = 1;
+}
+
 message GetColumnListReq{
   int32 page = 1;
 }
@@ -2677,4 +2706,8 @@ message CancelCommentAgreeReq{
 message CancelSubCommentAgreeReq{
   int32 id = 1;
   string uuid = 2;
+}
+
+message GetMailBoxLastTimeReply{
+  int32 time = 1;
 }
