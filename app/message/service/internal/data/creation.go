@@ -9,6 +9,7 @@ import (
 	creationV1 "github.com/the-zion/matrix-core/api/creation/service/v1"
 	"github.com/the-zion/matrix-core/app/message/service/internal/biz"
 	"strconv"
+	"time"
 )
 
 type creationRepo struct {
@@ -149,6 +150,13 @@ func (r *creationRepo) DeleteArticleCacheAndSearch(ctx context.Context, id int32
 		return err
 	}
 	return nil
+}
+
+func (r *creationRepo) SetCreationUpdateTime(ctx context.Context, uuid string) {
+	err := r.data.redisCli.HSet(ctx, "message_timeline", uuid, float64(time.Now().Unix()))
+	if err != nil {
+		r.log.Errorf("fail to set creation update time: uuid(%s)", uuid)
+	}
 }
 
 func (r *creationRepo) SetArticleViewDbAndCache(ctx context.Context, id int32, uuid string) error {
