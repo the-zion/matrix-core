@@ -41,6 +41,7 @@ type BffClient interface {
 	GetUserInfoVisitor(ctx context.Context, in *GetUserInfoVisitorReq, opts ...grpc.CallOption) (*GetUserInfoReply, error)
 	GetUserFollow(ctx context.Context, in *GetUserFollowReq, opts ...grpc.CallOption) (*GetUserFollowReply, error)
 	GetUserFollows(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserFollowsReply, error)
+	GetTimeLineUsers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetTimeLineUsersReply, error)
 	GetFollowList(ctx context.Context, in *GetFollowListReq, opts ...grpc.CallOption) (*GetFollowListReply, error)
 	GetFollowListCount(ctx context.Context, in *GetFollowListCountReq, opts ...grpc.CallOption) (*GetFollowListCountReply, error)
 	GetFollowedList(ctx context.Context, in *GetFollowedListReq, opts ...grpc.CallOption) (*GetFollowedListReply, error)
@@ -197,6 +198,8 @@ type BffClient interface {
 	SetSubCommentAgree(ctx context.Context, in *SetSubCommentAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelCommentAgree(ctx context.Context, in *CancelCommentAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelSubCommentAgree(ctx context.Context, in *CancelSubCommentAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetMailBoxLastTime(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMailBoxLastTimeReply, error)
+	SetMailBoxLastTime(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type bffClient struct {
@@ -363,6 +366,15 @@ func (c *bffClient) GetUserFollow(ctx context.Context, in *GetUserFollowReq, opt
 func (c *bffClient) GetUserFollows(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserFollowsReply, error) {
 	out := new(GetUserFollowsReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserFollows", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetTimeLineUsers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetTimeLineUsersReply, error) {
+	out := new(GetTimeLineUsersReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetTimeLineUsers", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1764,6 +1776,24 @@ func (c *bffClient) CancelSubCommentAgree(ctx context.Context, in *CancelSubComm
 	return out, nil
 }
 
+func (c *bffClient) GetMailBoxLastTime(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMailBoxLastTimeReply, error) {
+	out := new(GetMailBoxLastTimeReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetMailBoxLastTime", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) SetMailBoxLastTime(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SetMailBoxLastTime", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BffServer is the server API for Bff service.
 // All implementations must embed UnimplementedBffServer
 // for forward compatibility
@@ -1786,6 +1816,7 @@ type BffServer interface {
 	GetUserInfoVisitor(context.Context, *GetUserInfoVisitorReq) (*GetUserInfoReply, error)
 	GetUserFollow(context.Context, *GetUserFollowReq) (*GetUserFollowReply, error)
 	GetUserFollows(context.Context, *emptypb.Empty) (*GetUserFollowsReply, error)
+	GetTimeLineUsers(context.Context, *emptypb.Empty) (*GetTimeLineUsersReply, error)
 	GetFollowList(context.Context, *GetFollowListReq) (*GetFollowListReply, error)
 	GetFollowListCount(context.Context, *GetFollowListCountReq) (*GetFollowListCountReply, error)
 	GetFollowedList(context.Context, *GetFollowedListReq) (*GetFollowedListReply, error)
@@ -1942,6 +1973,8 @@ type BffServer interface {
 	SetSubCommentAgree(context.Context, *SetSubCommentAgreeReq) (*emptypb.Empty, error)
 	CancelCommentAgree(context.Context, *CancelCommentAgreeReq) (*emptypb.Empty, error)
 	CancelSubCommentAgree(context.Context, *CancelSubCommentAgreeReq) (*emptypb.Empty, error)
+	GetMailBoxLastTime(context.Context, *emptypb.Empty) (*GetMailBoxLastTimeReply, error)
+	SetMailBoxLastTime(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	mustEmbedUnimplementedBffServer()
 }
 
@@ -2002,6 +2035,9 @@ func (UnimplementedBffServer) GetUserFollow(context.Context, *GetUserFollowReq) 
 }
 func (UnimplementedBffServer) GetUserFollows(context.Context, *emptypb.Empty) (*GetUserFollowsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserFollows not implemented")
+}
+func (UnimplementedBffServer) GetTimeLineUsers(context.Context, *emptypb.Empty) (*GetTimeLineUsersReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTimeLineUsers not implemented")
 }
 func (UnimplementedBffServer) GetFollowList(context.Context, *GetFollowListReq) (*GetFollowListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFollowList not implemented")
@@ -2468,6 +2504,12 @@ func (UnimplementedBffServer) CancelCommentAgree(context.Context, *CancelComment
 func (UnimplementedBffServer) CancelSubCommentAgree(context.Context, *CancelSubCommentAgreeReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CancelSubCommentAgree not implemented")
 }
+func (UnimplementedBffServer) GetMailBoxLastTime(context.Context, *emptypb.Empty) (*GetMailBoxLastTimeReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMailBoxLastTime not implemented")
+}
+func (UnimplementedBffServer) SetMailBoxLastTime(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetMailBoxLastTime not implemented")
+}
 func (UnimplementedBffServer) mustEmbedUnimplementedBffServer() {}
 
 // UnsafeBffServer may be embedded to opt out of forward compatibility for this service.
@@ -2801,6 +2843,24 @@ func _Bff_GetUserFollows_Handler(srv interface{}, ctx context.Context, dec func(
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BffServer).GetUserFollows(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetTimeLineUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetTimeLineUsers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetTimeLineUsers",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetTimeLineUsers(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -5595,6 +5655,42 @@ func _Bff_CancelSubCommentAgree_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_GetMailBoxLastTime_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetMailBoxLastTime(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetMailBoxLastTime",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetMailBoxLastTime(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_SetMailBoxLastTime_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).SetMailBoxLastTime(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/SetMailBoxLastTime",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).SetMailBoxLastTime(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Bff_ServiceDesc is the grpc.ServiceDesc for Bff service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -5673,6 +5769,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserFollows",
 			Handler:    _Bff_GetUserFollows_Handler,
+		},
+		{
+			MethodName: "GetTimeLineUsers",
+			Handler:    _Bff_GetTimeLineUsers_Handler,
 		},
 		{
 			MethodName: "GetFollowList",
@@ -6293,6 +6393,14 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CancelSubCommentAgree",
 			Handler:    _Bff_CancelSubCommentAgree_Handler,
+		},
+		{
+			MethodName: "GetMailBoxLastTime",
+			Handler:    _Bff_GetMailBoxLastTime_Handler,
+		},
+		{
+			MethodName: "SetMailBoxLastTime",
+			Handler:    _Bff_SetMailBoxLastTime_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

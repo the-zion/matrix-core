@@ -100,6 +100,7 @@ const OperationBffGetLastColumnDraft = "/bff.v1.Bff/GetLastColumnDraft"
 const OperationBffGetLastCommentDraft = "/bff.v1.Bff/GetLastCommentDraft"
 const OperationBffGetLastTalkDraft = "/bff.v1.Bff/GetLastTalkDraft"
 const OperationBffGetLeaderBoard = "/bff.v1.Bff/GetLeaderBoard"
+const OperationBffGetMailBoxLastTime = "/bff.v1.Bff/GetMailBoxLastTime"
 const OperationBffGetNews = "/bff.v1.Bff/GetNews"
 const OperationBffGetProfile = "/bff.v1.Bff/GetProfile"
 const OperationBffGetProfileList = "/bff.v1.Bff/GetProfileList"
@@ -116,6 +117,7 @@ const OperationBffGetTalkListHot = "/bff.v1.Bff/GetTalkListHot"
 const OperationBffGetTalkListStatistic = "/bff.v1.Bff/GetTalkListStatistic"
 const OperationBffGetTalkSearch = "/bff.v1.Bff/GetTalkSearch"
 const OperationBffGetTalkStatistic = "/bff.v1.Bff/GetTalkStatistic"
+const OperationBffGetTimeLineUsers = "/bff.v1.Bff/GetTimeLineUsers"
 const OperationBffGetUserAchievement = "/bff.v1.Bff/GetUserAchievement"
 const OperationBffGetUserArticleAgree = "/bff.v1.Bff/GetUserArticleAgree"
 const OperationBffGetUserArticleCollect = "/bff.v1.Bff/GetUserArticleCollect"
@@ -177,6 +179,7 @@ const OperationBffSetColumnAgree = "/bff.v1.Bff/SetColumnAgree"
 const OperationBffSetColumnCollect = "/bff.v1.Bff/SetColumnCollect"
 const OperationBffSetColumnView = "/bff.v1.Bff/SetColumnView"
 const OperationBffSetCommentAgree = "/bff.v1.Bff/SetCommentAgree"
+const OperationBffSetMailBoxLastTime = "/bff.v1.Bff/SetMailBoxLastTime"
 const OperationBffSetProfileUpdate = "/bff.v1.Bff/SetProfileUpdate"
 const OperationBffSetSubCommentAgree = "/bff.v1.Bff/SetSubCommentAgree"
 const OperationBffSetTalkAgree = "/bff.v1.Bff/SetTalkAgree"
@@ -275,6 +278,7 @@ type BffHTTPServer interface {
 	GetLastCommentDraft(context.Context, *emptypb.Empty) (*GetLastCommentDraftReply, error)
 	GetLastTalkDraft(context.Context, *emptypb.Empty) (*GetLastTalkDraftReply, error)
 	GetLeaderBoard(context.Context, *emptypb.Empty) (*GetLeaderBoardReply, error)
+	GetMailBoxLastTime(context.Context, *emptypb.Empty) (*GetMailBoxLastTimeReply, error)
 	GetNews(context.Context, *GetNewsReq) (*GetNewsReply, error)
 	GetProfile(context.Context, *emptypb.Empty) (*GetProfileReply, error)
 	GetProfileList(context.Context, *GetProfileListReq) (*GetProfileListReply, error)
@@ -291,6 +295,7 @@ type BffHTTPServer interface {
 	GetTalkListStatistic(context.Context, *GetTalkListStatisticReq) (*GetTalkListStatisticReply, error)
 	GetTalkSearch(context.Context, *GetTalkSearchReq) (*GetTalkSearchReply, error)
 	GetTalkStatistic(context.Context, *GetTalkStatisticReq) (*GetTalkStatisticReply, error)
+	GetTimeLineUsers(context.Context, *emptypb.Empty) (*GetTimeLineUsersReply, error)
 	GetUserAchievement(context.Context, *GetUserAchievementReq) (*GetUserAchievementReply, error)
 	GetUserArticleAgree(context.Context, *emptypb.Empty) (*GetUserArticleAgreeReply, error)
 	GetUserArticleCollect(context.Context, *emptypb.Empty) (*GetUserArticleCollectReply, error)
@@ -352,6 +357,7 @@ type BffHTTPServer interface {
 	SetColumnCollect(context.Context, *SetColumnCollectReq) (*emptypb.Empty, error)
 	SetColumnView(context.Context, *SetColumnViewReq) (*emptypb.Empty, error)
 	SetCommentAgree(context.Context, *SetCommentAgreeReq) (*emptypb.Empty, error)
+	SetMailBoxLastTime(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	SetProfileUpdate(context.Context, *SetProfileUpdateReq) (*emptypb.Empty, error)
 	SetSubCommentAgree(context.Context, *SetSubCommentAgreeReq) (*emptypb.Empty, error)
 	SetTalkAgree(context.Context, *SetTalkAgreeReq) (*emptypb.Empty, error)
@@ -390,6 +396,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.GET("/v1/get/user/info/visitor", _Bff_GetUserInfoVisitor0_HTTP_Handler(srv))
 	r.POST("/v1/get/user/follow", _Bff_GetUserFollow0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/follows", _Bff_GetUserFollows0_HTTP_Handler(srv))
+	r.GET("/v1/get/timeline/user", _Bff_GetTimeLineUsers0_HTTP_Handler(srv))
 	r.GET("/v1/get/follow/list", _Bff_GetFollowList0_HTTP_Handler(srv))
 	r.GET("/v1/get/follow/list/count", _Bff_GetFollowListCount0_HTTP_Handler(srv))
 	r.GET("/v1/get/followed/list", _Bff_GetFollowedList0_HTTP_Handler(srv))
@@ -545,6 +552,8 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.POST("/v1/set/subcomment/agree", _Bff_SetSubCommentAgree0_HTTP_Handler(srv))
 	r.POST("/v1/cancel/comment/agree", _Bff_CancelCommentAgree0_HTTP_Handler(srv))
 	r.POST("/v1/cancel/subcomment/agree", _Bff_CancelSubCommentAgree0_HTTP_Handler(srv))
+	r.GET("/v1/get/mailbox/last/time", _Bff_GetMailBoxLastTime0_HTTP_Handler(srv))
+	r.POST("/v1/set/mailbox/last/time", _Bff_SetMailBoxLastTime0_HTTP_Handler(srv))
 }
 
 func _Bff_UserRegister0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
@@ -885,6 +894,25 @@ func _Bff_GetUserFollows0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context)
 			return err
 		}
 		reply := out.(*GetUserFollowsReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_GetTimeLineUsers0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in emptypb.Empty
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetTimeLineUsers)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetTimeLineUsers(ctx, req.(*emptypb.Empty))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetTimeLineUsersReply)
 		return ctx.Result(200, reply)
 	}
 }
@@ -3834,6 +3862,44 @@ func _Bff_CancelSubCommentAgree0_HTTP_Handler(srv BffHTTPServer) func(ctx http.C
 	}
 }
 
+func _Bff_GetMailBoxLastTime0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in emptypb.Empty
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetMailBoxLastTime)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetMailBoxLastTime(ctx, req.(*emptypb.Empty))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetMailBoxLastTimeReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_SetMailBoxLastTime0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in emptypb.Empty
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffSetMailBoxLastTime)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SetMailBoxLastTime(ctx, req.(*emptypb.Empty))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
 type BffHTTPClient interface {
 	AccessUserMedal(ctx context.Context, req *AccessUserMedalReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	AddColumnIncludes(ctx context.Context, req *AddColumnIncludesReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -3915,6 +3981,7 @@ type BffHTTPClient interface {
 	GetLastCommentDraft(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetLastCommentDraftReply, err error)
 	GetLastTalkDraft(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetLastTalkDraftReply, err error)
 	GetLeaderBoard(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetLeaderBoardReply, err error)
+	GetMailBoxLastTime(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetMailBoxLastTimeReply, err error)
 	GetNews(ctx context.Context, req *GetNewsReq, opts ...http.CallOption) (rsp *GetNewsReply, err error)
 	GetProfile(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetProfileReply, err error)
 	GetProfileList(ctx context.Context, req *GetProfileListReq, opts ...http.CallOption) (rsp *GetProfileListReply, err error)
@@ -3931,6 +3998,7 @@ type BffHTTPClient interface {
 	GetTalkListStatistic(ctx context.Context, req *GetTalkListStatisticReq, opts ...http.CallOption) (rsp *GetTalkListStatisticReply, err error)
 	GetTalkSearch(ctx context.Context, req *GetTalkSearchReq, opts ...http.CallOption) (rsp *GetTalkSearchReply, err error)
 	GetTalkStatistic(ctx context.Context, req *GetTalkStatisticReq, opts ...http.CallOption) (rsp *GetTalkStatisticReply, err error)
+	GetTimeLineUsers(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetTimeLineUsersReply, err error)
 	GetUserAchievement(ctx context.Context, req *GetUserAchievementReq, opts ...http.CallOption) (rsp *GetUserAchievementReply, err error)
 	GetUserArticleAgree(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetUserArticleAgreeReply, err error)
 	GetUserArticleCollect(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetUserArticleCollectReply, err error)
@@ -3992,6 +4060,7 @@ type BffHTTPClient interface {
 	SetColumnCollect(ctx context.Context, req *SetColumnCollectReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SetColumnView(ctx context.Context, req *SetColumnViewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SetCommentAgree(ctx context.Context, req *SetCommentAgreeReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	SetMailBoxLastTime(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SetProfileUpdate(ctx context.Context, req *SetProfileUpdateReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SetSubCommentAgree(ctx context.Context, req *SetSubCommentAgreeReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SetTalkAgree(ctx context.Context, req *SetTalkAgreeReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -5058,6 +5127,19 @@ func (c *BffHTTPClientImpl) GetLeaderBoard(ctx context.Context, in *emptypb.Empt
 	return &out, err
 }
 
+func (c *BffHTTPClientImpl) GetMailBoxLastTime(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*GetMailBoxLastTimeReply, error) {
+	var out GetMailBoxLastTimeReply
+	pattern := "/v1/get/mailbox/last/time"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationBffGetMailBoxLastTime))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
 func (c *BffHTTPClientImpl) GetNews(ctx context.Context, in *GetNewsReq, opts ...http.CallOption) (*GetNewsReply, error) {
 	var out GetNewsReply
 	pattern := "/v1/get/news"
@@ -5258,6 +5340,19 @@ func (c *BffHTTPClientImpl) GetTalkStatistic(ctx context.Context, in *GetTalkSta
 	pattern := "/v1/get/talk/statistic"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationBffGetTalkStatistic))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetTimeLineUsers(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*GetTimeLineUsersReply, error) {
+	var out GetTimeLineUsersReply
+	pattern := "/v1/get/timeline/user"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationBffGetTimeLineUsers))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
@@ -6051,6 +6146,19 @@ func (c *BffHTTPClientImpl) SetCommentAgree(ctx context.Context, in *SetCommentA
 	pattern := "/v1/set/comment/agree"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationBffSetCommentAgree))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) SetMailBoxLastTime(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/set/mailbox/last/time"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffSetMailBoxLastTime))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
