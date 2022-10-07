@@ -5,7 +5,7 @@ import (
 	"github.com/google/wire"
 )
 
-var ProviderSet = wire.NewSet(NewUserUseCase, NewCreationUseCase, NewAchievementUseCase, NewCommentUseCase)
+var ProviderSet = wire.NewSet(NewUserUseCase, NewCreationUseCase, NewAchievementUseCase, NewCommentUseCase, NewMessageUseCase)
 
 type Jwt interface {
 	JwtCheck(token string) (string, error)
