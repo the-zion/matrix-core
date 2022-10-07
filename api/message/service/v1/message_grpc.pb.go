@@ -39,6 +39,8 @@ type MessageClient interface {
 	CollectionsEditReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CommentCreateReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SubCommentCreateReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetMailBoxLastTime(ctx context.Context, in *GetMailBoxLastTimeReq, opts ...grpc.CallOption) (*GetMailBoxLastTimeReply, error)
+	SetMailBoxLastTime(ctx context.Context, in *SetMailBoxLastTimeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type messageClient struct {
@@ -193,6 +195,24 @@ func (c *messageClient) SubCommentCreateReview(ctx context.Context, in *TextRevi
 	return out, nil
 }
 
+func (c *messageClient) GetMailBoxLastTime(ctx context.Context, in *GetMailBoxLastTimeReq, opts ...grpc.CallOption) (*GetMailBoxLastTimeReply, error) {
+	out := new(GetMailBoxLastTimeReply)
+	err := c.cc.Invoke(ctx, "/message.v1.Message/GetMailBoxLastTime", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *messageClient) SetMailBoxLastTime(ctx context.Context, in *SetMailBoxLastTimeReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/message.v1.Message/SetMailBoxLastTime", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MessageServer is the server API for Message service.
 // All implementations must embed UnimplementedMessageServer
 // for forward compatibility
@@ -213,6 +233,8 @@ type MessageServer interface {
 	CollectionsEditReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	CommentCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	SubCommentCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
+	GetMailBoxLastTime(context.Context, *GetMailBoxLastTimeReq) (*GetMailBoxLastTimeReply, error)
+	SetMailBoxLastTime(context.Context, *SetMailBoxLastTimeReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedMessageServer()
 }
 
@@ -267,6 +289,12 @@ func (UnimplementedMessageServer) CommentCreateReview(context.Context, *TextRevi
 }
 func (UnimplementedMessageServer) SubCommentCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SubCommentCreateReview not implemented")
+}
+func (UnimplementedMessageServer) GetMailBoxLastTime(context.Context, *GetMailBoxLastTimeReq) (*GetMailBoxLastTimeReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMailBoxLastTime not implemented")
+}
+func (UnimplementedMessageServer) SetMailBoxLastTime(context.Context, *SetMailBoxLastTimeReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetMailBoxLastTime not implemented")
 }
 func (UnimplementedMessageServer) mustEmbedUnimplementedMessageServer() {}
 
@@ -569,6 +597,42 @@ func _Message_SubCommentCreateReview_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Message_GetMailBoxLastTime_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMailBoxLastTimeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MessageServer).GetMailBoxLastTime(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/message.v1.Message/GetMailBoxLastTime",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MessageServer).GetMailBoxLastTime(ctx, req.(*GetMailBoxLastTimeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Message_SetMailBoxLastTime_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetMailBoxLastTimeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MessageServer).SetMailBoxLastTime(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/message.v1.Message/SetMailBoxLastTime",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MessageServer).SetMailBoxLastTime(ctx, req.(*SetMailBoxLastTimeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Message_ServiceDesc is the grpc.ServiceDesc for Message service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -639,6 +703,14 @@ var Message_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SubCommentCreateReview",
 			Handler:    _Message_SubCommentCreateReview_Handler,
+		},
+		{
+			MethodName: "GetMailBoxLastTime",
+			Handler:    _Message_GetMailBoxLastTime_Handler,
+		},
+		{
+			MethodName: "SetMailBoxLastTime",
+			Handler:    _Message_SetMailBoxLastTime_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

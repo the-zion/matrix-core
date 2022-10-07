@@ -35,6 +35,9 @@ var (
 	_ = sort.Sort
 )
 
+// define the regex for a UUID once up-front
+var _message_uuidPattern = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+
 // Validate checks the field values on ImageReviewReq with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
@@ -314,6 +317,354 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = TextReviewReqValidationError{}
+
+// Validate checks the field values on GetMailBoxLastTimeReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetMailBoxLastTimeReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetMailBoxLastTimeReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetMailBoxLastTimeReqMultiError, or nil if none found.
+func (m *GetMailBoxLastTimeReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetMailBoxLastTimeReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = GetMailBoxLastTimeReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return GetMailBoxLastTimeReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *GetMailBoxLastTimeReq) _validateUuid(uuid string) error {
+	if matched := _message_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// GetMailBoxLastTimeReqMultiError is an error wrapping multiple validation
+// errors returned by GetMailBoxLastTimeReq.ValidateAll() if the designated
+// constraints aren't met.
+type GetMailBoxLastTimeReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetMailBoxLastTimeReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetMailBoxLastTimeReqMultiError) AllErrors() []error { return m }
+
+// GetMailBoxLastTimeReqValidationError is the validation error returned by
+// GetMailBoxLastTimeReq.Validate if the designated constraints aren't met.
+type GetMailBoxLastTimeReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetMailBoxLastTimeReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetMailBoxLastTimeReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetMailBoxLastTimeReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetMailBoxLastTimeReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetMailBoxLastTimeReqValidationError) ErrorName() string {
+	return "GetMailBoxLastTimeReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetMailBoxLastTimeReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetMailBoxLastTimeReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetMailBoxLastTimeReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetMailBoxLastTimeReqValidationError{}
+
+// Validate checks the field values on GetMailBoxLastTimeReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetMailBoxLastTimeReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetMailBoxLastTimeReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetMailBoxLastTimeReplyMultiError, or nil if none found.
+func (m *GetMailBoxLastTimeReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetMailBoxLastTimeReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Time
+
+	if len(errors) > 0 {
+		return GetMailBoxLastTimeReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetMailBoxLastTimeReplyMultiError is an error wrapping multiple validation
+// errors returned by GetMailBoxLastTimeReply.ValidateAll() if the designated
+// constraints aren't met.
+type GetMailBoxLastTimeReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetMailBoxLastTimeReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetMailBoxLastTimeReplyMultiError) AllErrors() []error { return m }
+
+// GetMailBoxLastTimeReplyValidationError is the validation error returned by
+// GetMailBoxLastTimeReply.Validate if the designated constraints aren't met.
+type GetMailBoxLastTimeReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetMailBoxLastTimeReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetMailBoxLastTimeReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetMailBoxLastTimeReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetMailBoxLastTimeReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetMailBoxLastTimeReplyValidationError) ErrorName() string {
+	return "GetMailBoxLastTimeReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetMailBoxLastTimeReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetMailBoxLastTimeReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetMailBoxLastTimeReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetMailBoxLastTimeReplyValidationError{}
+
+// Validate checks the field values on SetMailBoxLastTimeReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SetMailBoxLastTimeReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SetMailBoxLastTimeReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SetMailBoxLastTimeReqMultiError, or nil if none found.
+func (m *SetMailBoxLastTimeReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SetMailBoxLastTimeReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = SetMailBoxLastTimeReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return SetMailBoxLastTimeReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *SetMailBoxLastTimeReq) _validateUuid(uuid string) error {
+	if matched := _message_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// SetMailBoxLastTimeReqMultiError is an error wrapping multiple validation
+// errors returned by SetMailBoxLastTimeReq.ValidateAll() if the designated
+// constraints aren't met.
+type SetMailBoxLastTimeReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SetMailBoxLastTimeReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SetMailBoxLastTimeReqMultiError) AllErrors() []error { return m }
+
+// SetMailBoxLastTimeReqValidationError is the validation error returned by
+// SetMailBoxLastTimeReq.Validate if the designated constraints aren't met.
+type SetMailBoxLastTimeReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SetMailBoxLastTimeReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SetMailBoxLastTimeReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SetMailBoxLastTimeReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SetMailBoxLastTimeReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SetMailBoxLastTimeReqValidationError) ErrorName() string {
+	return "SetMailBoxLastTimeReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SetMailBoxLastTimeReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSetMailBoxLastTimeReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SetMailBoxLastTimeReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SetMailBoxLastTimeReqValidationError{}
 
 // Validate checks the field values on SectionPornInfoStruct with the rules
 // defined in the proto definition for this message. If any rules are
