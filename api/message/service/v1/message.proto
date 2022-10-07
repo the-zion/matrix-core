@@ -121,6 +121,10 @@ service Message {
       body: "*"
     };
   }
+
+  rpc GetMailBoxLastTime(GetMailBoxLastTimeReq) returns (GetMailBoxLastTimeReply){}
+
+  rpc SetMailBoxLastTime(SetMailBoxLastTimeReq) returns (google.protobuf.Empty){}
 }
 
 message ImageReviewReq{
@@ -147,6 +151,18 @@ message ImageReviewReq{
 message TextReviewReq{
   JobsDetailStruct JobsDetail = 1;
   string EventName = 2 [(validate.rules).string = {max_len: 1000}];
+}
+
+message GetMailBoxLastTimeReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+message GetMailBoxLastTimeReply{
+  int32 time = 1;
+}
+
+message SetMailBoxLastTimeReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
 }
 
 // --------------------text review message define-------------------------
