@@ -23,7 +23,7 @@ type AchievementRepo interface {
 	AccessUserMedalDbAndCache(ctx context.Context, medal, uuid string) error
 }
 
-type AchievementCase struct {
+type AchievementUseCase struct {
 	repo         AchievementRepo
 	creationRepo CreationRepo
 	commentRepo  CommentRepo
@@ -31,8 +31,8 @@ type AchievementCase struct {
 	log          *log.Helper
 }
 
-func NewAchievementUseCase(repo AchievementRepo, creationRepo CreationRepo, commentRepo CommentRepo, re Recovery, logger log.Logger) *AchievementCase {
-	return &AchievementCase{
+func NewAchievementUseCase(repo AchievementRepo, creationRepo CreationRepo, commentRepo CommentRepo, re Recovery, logger log.Logger) *AchievementUseCase {
+	return &AchievementUseCase{
 		repo:         repo,
 		creationRepo: creationRepo,
 		commentRepo:  commentRepo,
@@ -41,43 +41,43 @@ func NewAchievementUseCase(repo AchievementRepo, creationRepo CreationRepo, comm
 	}
 }
 
-func (r *AchievementCase) SetAchievementAgree(ctx context.Context, uuid, userUuid string) error {
+func (r *AchievementUseCase) SetAchievementAgree(ctx context.Context, uuid, userUuid string) error {
 	return r.repo.SetAchievementAgree(ctx, uuid, userUuid)
 }
 
-func (r *AchievementCase) CancelAchievementAgree(ctx context.Context, uuid, userUuid string) error {
+func (r *AchievementUseCase) CancelAchievementAgree(ctx context.Context, uuid, userUuid string) error {
 	return r.repo.CancelAchievementAgree(ctx, uuid, userUuid)
 }
 
-func (r *AchievementCase) SetAchievementView(ctx context.Context, uuid string) error {
+func (r *AchievementUseCase) SetAchievementView(ctx context.Context, uuid string) error {
 	return r.repo.SetAchievementView(ctx, uuid)
 }
 
-func (r *AchievementCase) SetAchievementCollect(ctx context.Context, uuid string) error {
+func (r *AchievementUseCase) SetAchievementCollect(ctx context.Context, uuid string) error {
 	return r.repo.SetAchievementCollect(ctx, uuid)
 }
 
-func (r *AchievementCase) SetUserMedalDbAndCache(ctx context.Context, medal, uuid string) error {
+func (r *AchievementUseCase) SetUserMedalDbAndCache(ctx context.Context, medal, uuid string) error {
 	return r.repo.SetUserMedalDbAndCache(ctx, medal, uuid)
 }
 
-func (r *AchievementCase) CancelAchievementCollect(ctx context.Context, uuid string) error {
+func (r *AchievementUseCase) CancelAchievementCollect(ctx context.Context, uuid string) error {
 	return r.repo.CancelAchievementCollect(ctx, uuid)
 }
 
-func (r *AchievementCase) SetAchievementFollow(ctx context.Context, follow, followed string) error {
+func (r *AchievementUseCase) SetAchievementFollow(ctx context.Context, follow, followed string) error {
 	return r.repo.SetAchievementFollow(ctx, follow, followed)
 }
 
-func (r *AchievementCase) CancelAchievementFollow(ctx context.Context, follow, followed string) error {
+func (r *AchievementUseCase) CancelAchievementFollow(ctx context.Context, follow, followed string) error {
 	return r.repo.CancelAchievementFollow(ctx, follow, followed)
 }
 
-func (r *AchievementCase) CancelUserMedalDbAndCache(ctx context.Context, medal, uuid string) error {
+func (r *AchievementUseCase) CancelUserMedalDbAndCache(ctx context.Context, medal, uuid string) error {
 	return r.repo.CancelUserMedalDbAndCache(ctx, medal, uuid)
 }
 
-func (r *AchievementCase) AccessUserMedalDbAndCache(ctx context.Context, medal, uuid string) error {
+func (r *AchievementUseCase) AccessUserMedalDbAndCache(ctx context.Context, medal, uuid string) error {
 	medalMap, err := r.getUserMedalProgress(ctx, uuid)
 	if err != nil {
 		return nil
@@ -197,7 +197,7 @@ func (r *AchievementCase) AccessUserMedalDbAndCache(ctx context.Context, medal, 
 	return r.repo.AccessUserMedalDbAndCache(ctx, medal, uuid)
 }
 
-func (r *AchievementCase) getUserMedalProgress(ctx context.Context, uuid string) (map[string]int32, error) {
+func (r *AchievementUseCase) getUserMedalProgress(ctx context.Context, uuid string) (map[string]int32, error) {
 	m := make(map[string]int32, 0)
 	g, _ := errgroup.WithContext(ctx)
 	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
@@ -241,6 +241,6 @@ func (r *AchievementCase) getUserMedalProgress(ctx context.Context, uuid string)
 	return m, nil
 }
 
-func (r *AchievementCase) AddAchievementScore(ctx context.Context, uuid string, score int32) error {
+func (r *AchievementUseCase) AddAchievementScore(ctx context.Context, uuid string, score int32) error {
 	return r.repo.AddAchievementScore(ctx, uuid, score)
 }
