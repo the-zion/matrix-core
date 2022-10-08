@@ -47,6 +47,18 @@ func ErrorGetMailboxLastTimeFailed(format string, args ...interface{}) *errors.E
 	return errors.New(500, MessageErrorReason_GET_MAILBOX_LAST_TIME_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsGetMessageNotificationFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == MessageErrorReason_GET_MESSAGE_NOTIFICATION_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetMessageNotificationFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, MessageErrorReason_GET_MESSAGE_NOTIFICATION_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsSetMailboxLastTimeFailed(err error) bool {
 	if err == nil {
 		return false
