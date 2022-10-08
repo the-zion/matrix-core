@@ -8,7 +8,8 @@ import (
 
 type MessageRepo interface {
 	GetMailBoxLastTime(ctx context.Context, uuid string) (*MailBox, error)
-	SetMailBoxLastTime(ctx context.Context, uuid string) error
+	GetMessageNotification(ctx context.Context, uuid string, follows []string) (*Notification, error)
+	SetMailBoxLastTime(ctx context.Context, uuid string, time int32) error
 }
 
 type MessageUseCase struct {
@@ -33,8 +34,16 @@ func (r *MessageUseCase) GetMailBoxLastTime(ctx context.Context, uuid string) (*
 	return mailbox, nil
 }
 
-func (r *MessageUseCase) SetMailBoxLastTime(ctx context.Context, uuid string) error {
-	err := r.repo.SetMailBoxLastTime(ctx, uuid)
+func (r *MessageUseCase) GetMessageNotification(ctx context.Context, uuid string, follows []string) (*Notification, error) {
+	mailbox, err := r.repo.GetMessageNotification(ctx, uuid, follows)
+	if err != nil {
+		return nil, v1.ErrorGetMessageNotificationFailed("get message notification failed: %s", err.Error())
+	}
+	return mailbox, nil
+}
+
+func (r *MessageUseCase) SetMailBoxLastTime(ctx context.Context, uuid string, time int32) error {
+	err := r.repo.SetMailBoxLastTime(ctx, uuid, time)
 	if err != nil {
 		return v1.ErrorSetMailboxLastTimeFailed("set mailbox last time failed: %s", err.Error())
 	}
