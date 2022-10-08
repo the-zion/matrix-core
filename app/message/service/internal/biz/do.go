@@ -93,3 +93,10 @@ type TextReview struct {
 type MailBox struct {
 	Time int32
 }
+
+type Notification struct {
+	Timeline           map[string]int32
+	Comment            int32
+	SubComment         int32
+	SystemNotification int32
+}
