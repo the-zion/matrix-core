@@ -318,6 +318,128 @@ var _ interface {
 	ErrorName() string
 } = TextReviewReqValidationError{}
 
+// Validate checks the field values on GetMessageNotificationReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetMessageNotificationReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetMessageNotificationReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetMessageNotificationReqMultiError, or nil if none found.
+func (m *GetMessageNotificationReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetMessageNotificationReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUuid()); err != nil {
+		err = GetMessageNotificationReqValidationError{
+			field:  "Uuid",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return GetMessageNotificationReqMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *GetMessageNotificationReq) _validateUuid(uuid string) error {
+	if matched := _message_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// GetMessageNotificationReqMultiError is an error wrapping multiple validation
+// errors returned by GetMessageNotificationReq.ValidateAll() if the
+// designated constraints aren't met.
+type GetMessageNotificationReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetMessageNotificationReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetMessageNotificationReqMultiError) AllErrors() []error { return m }
+
+// GetMessageNotificationReqValidationError is the validation error returned by
+// GetMessageNotificationReq.Validate if the designated constraints aren't met.
+type GetMessageNotificationReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetMessageNotificationReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetMessageNotificationReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetMessageNotificationReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetMessageNotificationReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetMessageNotificationReqValidationError) ErrorName() string {
+	return "GetMessageNotificationReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetMessageNotificationReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetMessageNotificationReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetMessageNotificationReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetMessageNotificationReqValidationError{}
+
 // Validate checks the field values on GetMailBoxLastTimeReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -439,6 +561,117 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetMailBoxLastTimeReqValidationError{}
+
+// Validate checks the field values on GetMessageNotificationReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetMessageNotificationReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetMessageNotificationReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetMessageNotificationReplyMultiError, or nil if none found.
+func (m *GetMessageNotificationReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetMessageNotificationReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Timeline
+
+	// no validation rules for Comment
+
+	// no validation rules for SubComment
+
+	// no validation rules for System
+
+	if len(errors) > 0 {
+		return GetMessageNotificationReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetMessageNotificationReplyMultiError is an error wrapping multiple
+// validation errors returned by GetMessageNotificationReply.ValidateAll() if
+// the designated constraints aren't met.
+type GetMessageNotificationReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetMessageNotificationReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetMessageNotificationReplyMultiError) AllErrors() []error { return m }
+
+// GetMessageNotificationReplyValidationError is the validation error returned
+// by GetMessageNotificationReply.Validate if the designated constraints
+// aren't met.
+type GetMessageNotificationReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetMessageNotificationReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetMessageNotificationReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetMessageNotificationReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetMessageNotificationReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetMessageNotificationReplyValidationError) ErrorName() string {
+	return "GetMessageNotificationReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetMessageNotificationReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetMessageNotificationReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetMessageNotificationReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetMessageNotificationReplyValidationError{}
 
 // Validate checks the field values on GetMailBoxLastTimeReply with the rules
 // defined in the proto definition for this message. If any rules are
@@ -577,6 +810,8 @@ func (m *SetMailBoxLastTimeReq) validate(all bool) error {
 		}
 		errors = append(errors, err)
 	}
+
+	// no validation rules for Time
 
 	if len(errors) > 0 {
 		return SetMailBoxLastTimeReqMultiError(errors)

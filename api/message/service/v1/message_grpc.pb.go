@@ -39,6 +39,7 @@ type MessageClient interface {
 	CollectionsEditReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CommentCreateReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SubCommentCreateReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetMessageNotification(ctx context.Context, in *GetMessageNotificationReq, opts ...grpc.CallOption) (*GetMessageNotificationReply, error)
 	GetMailBoxLastTime(ctx context.Context, in *GetMailBoxLastTimeReq, opts ...grpc.CallOption) (*GetMailBoxLastTimeReply, error)
 	SetMailBoxLastTime(ctx context.Context, in *SetMailBoxLastTimeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
@@ -195,6 +196,15 @@ func (c *messageClient) SubCommentCreateReview(ctx context.Context, in *TextRevi
 	return out, nil
 }
 
+func (c *messageClient) GetMessageNotification(ctx context.Context, in *GetMessageNotificationReq, opts ...grpc.CallOption) (*GetMessageNotificationReply, error) {
+	out := new(GetMessageNotificationReply)
+	err := c.cc.Invoke(ctx, "/message.v1.Message/GetMessageNotification", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *messageClient) GetMailBoxLastTime(ctx context.Context, in *GetMailBoxLastTimeReq, opts ...grpc.CallOption) (*GetMailBoxLastTimeReply, error) {
 	out := new(GetMailBoxLastTimeReply)
 	err := c.cc.Invoke(ctx, "/message.v1.Message/GetMailBoxLastTime", in, out, opts...)
@@ -233,6 +243,7 @@ type MessageServer interface {
 	CollectionsEditReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	CommentCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	SubCommentCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
+	GetMessageNotification(context.Context, *GetMessageNotificationReq) (*GetMessageNotificationReply, error)
 	GetMailBoxLastTime(context.Context, *GetMailBoxLastTimeReq) (*GetMailBoxLastTimeReply, error)
 	SetMailBoxLastTime(context.Context, *SetMailBoxLastTimeReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedMessageServer()
@@ -289,6 +300,9 @@ func (UnimplementedMessageServer) CommentCreateReview(context.Context, *TextRevi
 }
 func (UnimplementedMessageServer) SubCommentCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SubCommentCreateReview not implemented")
+}
+func (UnimplementedMessageServer) GetMessageNotification(context.Context, *GetMessageNotificationReq) (*GetMessageNotificationReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMessageNotification not implemented")
 }
 func (UnimplementedMessageServer) GetMailBoxLastTime(context.Context, *GetMailBoxLastTimeReq) (*GetMailBoxLastTimeReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMailBoxLastTime not implemented")
@@ -597,6 +611,24 @@ func _Message_SubCommentCreateReview_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Message_GetMessageNotification_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMessageNotificationReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MessageServer).GetMessageNotification(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/message.v1.Message/GetMessageNotification",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MessageServer).GetMessageNotification(ctx, req.(*GetMessageNotificationReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Message_GetMailBoxLastTime_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetMailBoxLastTimeReq)
 	if err := dec(in); err != nil {
@@ -703,6 +735,10 @@ var Message_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SubCommentCreateReview",
 			Handler:    _Message_SubCommentCreateReview_Handler,
+		},
+		{
+			MethodName: "GetMessageNotification",
+			Handler:    _Message_GetMessageNotification_Handler,
 		},
 		{
 			MethodName: "GetMailBoxLastTime",
