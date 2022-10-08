@@ -16,8 +16,21 @@ func (s *MessageService) GetMailBoxLastTime(ctx context.Context, req *v1.GetMail
 	}, nil
 }
 
+func (s *MessageService) GetMessageNotification(ctx context.Context, req *v1.GetMessageNotificationReq) (*v1.GetMessageNotificationReply, error) {
+	notification, err := s.mc.GetMessageNotification(ctx, req.Uuid, req.Follows)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetMessageNotificationReply{
+		Timeline:   notification.Timeline,
+		Comment:    notification.Comment,
+		SubComment: notification.SubComment,
+		System:     notification.SystemNotification,
+	}, nil
+}
+
 func (s *MessageService) SetMailBoxLastTime(ctx context.Context, req *v1.SetMailBoxLastTimeReq) (*emptypb.Empty, error) {
-	err := s.mc.SetMailBoxLastTime(ctx, req.Uuid)
+	err := s.mc.SetMailBoxLastTime(ctx, req.Uuid, req.Time)
 	if err != nil {
 		return nil, err
 	}
