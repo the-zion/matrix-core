@@ -198,8 +198,9 @@ type BffClient interface {
 	SetSubCommentAgree(ctx context.Context, in *SetSubCommentAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelCommentAgree(ctx context.Context, in *CancelCommentAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelSubCommentAgree(ctx context.Context, in *CancelSubCommentAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetMessageNotification(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMessageNotificationReply, error)
 	GetMailBoxLastTime(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMailBoxLastTimeReply, error)
-	SetMailBoxLastTime(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetMailBoxLastTime(ctx context.Context, in *SetMailBoxLastTimeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type bffClient struct {
@@ -1776,6 +1777,15 @@ func (c *bffClient) CancelSubCommentAgree(ctx context.Context, in *CancelSubComm
 	return out, nil
 }
 
+func (c *bffClient) GetMessageNotification(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMessageNotificationReply, error) {
+	out := new(GetMessageNotificationReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetMessageNotification", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) GetMailBoxLastTime(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMailBoxLastTimeReply, error) {
 	out := new(GetMailBoxLastTimeReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetMailBoxLastTime", in, out, opts...)
@@ -1785,7 +1795,7 @@ func (c *bffClient) GetMailBoxLastTime(ctx context.Context, in *emptypb.Empty, o
 	return out, nil
 }
 
-func (c *bffClient) SetMailBoxLastTime(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *bffClient) SetMailBoxLastTime(ctx context.Context, in *SetMailBoxLastTimeReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SetMailBoxLastTime", in, out, opts...)
 	if err != nil {
@@ -1973,8 +1983,9 @@ type BffServer interface {
 	SetSubCommentAgree(context.Context, *SetSubCommentAgreeReq) (*emptypb.Empty, error)
 	CancelCommentAgree(context.Context, *CancelCommentAgreeReq) (*emptypb.Empty, error)
 	CancelSubCommentAgree(context.Context, *CancelSubCommentAgreeReq) (*emptypb.Empty, error)
+	GetMessageNotification(context.Context, *emptypb.Empty) (*GetMessageNotificationReply, error)
 	GetMailBoxLastTime(context.Context, *emptypb.Empty) (*GetMailBoxLastTimeReply, error)
-	SetMailBoxLastTime(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
+	SetMailBoxLastTime(context.Context, *SetMailBoxLastTimeReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedBffServer()
 }
 
@@ -2504,10 +2515,13 @@ func (UnimplementedBffServer) CancelCommentAgree(context.Context, *CancelComment
 func (UnimplementedBffServer) CancelSubCommentAgree(context.Context, *CancelSubCommentAgreeReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CancelSubCommentAgree not implemented")
 }
+func (UnimplementedBffServer) GetMessageNotification(context.Context, *emptypb.Empty) (*GetMessageNotificationReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMessageNotification not implemented")
+}
 func (UnimplementedBffServer) GetMailBoxLastTime(context.Context, *emptypb.Empty) (*GetMailBoxLastTimeReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMailBoxLastTime not implemented")
 }
-func (UnimplementedBffServer) SetMailBoxLastTime(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
+func (UnimplementedBffServer) SetMailBoxLastTime(context.Context, *SetMailBoxLastTimeReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetMailBoxLastTime not implemented")
 }
 func (UnimplementedBffServer) mustEmbedUnimplementedBffServer() {}
@@ -5655,6 +5669,24 @@ func _Bff_CancelSubCommentAgree_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_GetMessageNotification_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetMessageNotification(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetMessageNotification",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetMessageNotification(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_GetMailBoxLastTime_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
@@ -5674,7 +5706,7 @@ func _Bff_GetMailBoxLastTime_Handler(srv interface{}, ctx context.Context, dec f
 }
 
 func _Bff_SetMailBoxLastTime_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(SetMailBoxLastTimeReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -5686,7 +5718,7 @@ func _Bff_SetMailBoxLastTime_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: "/bff.v1.Bff/SetMailBoxLastTime",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BffServer).SetMailBoxLastTime(ctx, req.(*emptypb.Empty))
+		return srv.(BffServer).SetMailBoxLastTime(ctx, req.(*SetMailBoxLastTimeReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -6393,6 +6425,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CancelSubCommentAgree",
 			Handler:    _Bff_CancelSubCommentAgree_Handler,
+		},
+		{
+			MethodName: "GetMessageNotification",
+			Handler:    _Bff_GetMessageNotification_Handler,
 		},
 		{
 			MethodName: "GetMailBoxLastTime",
