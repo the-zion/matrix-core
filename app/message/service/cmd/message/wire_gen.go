@@ -21,6 +21,7 @@ import (
 
 // wireApp init kratos application.
 func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, registry *nacos.Registry) (*kratos.App, func(), error) {
+	cmdable := data.NewRedis(confData, logger)
 	userClient := data.NewUserServiceClient(registry, logger)
 	creationClient := data.NewCreationServiceClient(registry, logger)
 	commentClient := data.NewCommentServiceClient(registry, logger)
@@ -31,7 +32,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, re
 	cosComment := data.NewCosCommentClient(confData, logger)
 	txCode := data.NewPhoneCode(confData)
 	goMail := data.NewGoMail(confData)
-	dataData, err := data.NewData(logger, userClient, creationClient, commentClient, achievementClient, jwt, cosUser, cosCreation, cosComment, txCode, goMail)
+	dataData, err := data.NewData(logger, cmdable, userClient, creationClient, commentClient, achievementClient, jwt, cosUser, cosCreation, cosComment, txCode, goMail)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -43,9 +44,11 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, re
 	achievementRepo := data.NewAchievementRepo(dataData, logger)
 	commentRepo := data.NewCommentRepo(dataData, logger)
 	recovery := data.NewRecovery(dataData)
-	achievementCase := biz.NewAchievementUseCase(achievementRepo, creationRepo, commentRepo, recovery, logger)
+	achievementUseCase := biz.NewAchievementUseCase(achievementRepo, creationRepo, commentRepo, recovery, logger)
 	commentUseCase := biz.NewCommentUseCase(commentRepo, bizJwt, logger)
-	messageService := service.NewMessageService(userUseCase, creationUseCase, achievementCase, commentUseCase, logger)
+	messageRepo := data.NewMessageRepo(dataData, logger)
+	messageUseCase := biz.NewMessageUseCase(messageRepo, recovery, logger)
+	messageService := service.NewMessageService(userUseCase, creationUseCase, achievementUseCase, commentUseCase, messageUseCase, logger)
 	httpServer := server.NewHTTPServer(confServer, messageService, logger)
 	grpcServer := server.NewGRPCServer(confServer, messageService, logger)
 	codeMqConsumerServer := server.NewCodeMqConsumerServer(confServer, messageService, logger)
