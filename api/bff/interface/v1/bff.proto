@@ -1174,13 +1174,19 @@ service Bff{
 
   // --------------------comment service------------------------
 
+  rpc GetMessageNotification(google.protobuf.Empty) returns (GetMessageNotificationReply){
+    option (google.api.http) = {
+      get: "/v1/get/message/notification"
+    };
+  }
+
   rpc GetMailBoxLastTime(google.protobuf.Empty) returns (GetMailBoxLastTimeReply){
     option (google.api.http) = {
       get: "/v1/get/mailbox/last/time"
     };
   }
 
-  rpc SetMailBoxLastTime(google.protobuf.Empty) returns (google.protobuf.Empty){
+  rpc SetMailBoxLastTime(SetMailBoxLastTimeReq) returns (google.protobuf.Empty){
     option (google.api.http) = {
       post: "/v1/set/mailbox/last/time"
       body: "*"
@@ -2708,6 +2714,17 @@ message CancelSubCommentAgreeReq{
   string uuid = 2;
 }
 
+message GetMessageNotificationReply{
+  map<string, int32> timeline = 1;
+  int32 comment = 2;
+  int32 subComment = 3;
+  int32 system = 4;
+}
+
 message GetMailBoxLastTimeReply{
+  int32 time = 1;
+}
+
+message SetMailBoxLastTimeReq{
   int32 time = 1;
 }
