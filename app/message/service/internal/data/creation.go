@@ -153,9 +153,9 @@ func (r *creationRepo) DeleteArticleCacheAndSearch(ctx context.Context, id int32
 }
 
 func (r *creationRepo) SetCreationUpdateTime(ctx context.Context, uuid string) {
-	err := r.data.redisCli.HSet(ctx, "message_timeline", uuid, float64(time.Now().Unix()))
+	_, err := r.data.redisCli.HSet(ctx, "message_timeline", uuid, int32(time.Now().Unix())).Result()
 	if err != nil {
-		r.log.Errorf("fail to set creation update time: uuid(%s)", uuid)
+		r.log.Errorf("fail to set creation update time: error(%v), uuid(%s)", err, uuid)
 	}
 }
 
