@@ -122,6 +122,8 @@ service Message {
     };
   }
 
+  rpc GetMessageNotification(GetMessageNotificationReq) returns (GetMessageNotificationReply){}
+
   rpc GetMailBoxLastTime(GetMailBoxLastTimeReq) returns (GetMailBoxLastTimeReply){}
 
   rpc SetMailBoxLastTime(SetMailBoxLastTimeReq) returns (google.protobuf.Empty){}
@@ -153,8 +155,20 @@ message TextReviewReq{
   string EventName = 2 [(validate.rules).string = {max_len: 1000}];
 }
 
+message GetMessageNotificationReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+  repeated string follows = 2;
+}
+
 message GetMailBoxLastTimeReq{
   string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+message GetMessageNotificationReply{
+  map<string, int32> timeline = 1;
+  int32 comment = 2;
+  int32 subComment = 3;
+  int32 system = 4;
 }
 
 message GetMailBoxLastTimeReply{
@@ -163,6 +177,7 @@ message GetMailBoxLastTimeReply{
 
 message SetMailBoxLastTimeReq{
   string uuid = 1 [(validate.rules).string.uuid = true];
+  int32 time = 2;
 }
 
 // --------------------text review message define-------------------------
