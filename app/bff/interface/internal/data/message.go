@@ -43,9 +43,32 @@ func (r *messageRepo) GetMailBoxLastTime(ctx context.Context, uuid string) (*biz
 	return result.(*biz.MailBox), nil
 }
 
-func (r *messageRepo) SetMailBoxLastTime(ctx context.Context, uuid string) error {
+func (r *messageRepo) GetMessageNotification(ctx context.Context, uuid string, follows []string) (*biz.Notification, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_message_notification_%s", uuid), func() (interface{}, error) {
+		reply, err := r.data.mc.GetMessageNotification(ctx, &messageV1.GetMessageNotificationReq{
+			Uuid:    uuid,
+			Follows: follows,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return &biz.Notification{
+			Timeline:           reply.Timeline,
+			Comment:            reply.Comment,
+			SubComment:         reply.SubComment,
+			SystemNotification: reply.System,
+		}, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*biz.Notification), nil
+}
+
+func (r *messageRepo) SetMailBoxLastTime(ctx context.Context, uuid string, time int32) error {
 	_, err := r.data.mc.SetMailBoxLastTime(ctx, &messageV1.SetMailBoxLastTimeReq{
 		Uuid: uuid,
+		Time: time,
 	})
 	if err != nil {
 		return err
