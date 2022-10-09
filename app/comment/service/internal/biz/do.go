@@ -13,6 +13,7 @@ type CommentReview struct {
 }
 
 type Comment struct {
+	UpdatedAt      int32
 	CommentId      int32
 	CreationId     int32
 	CreationType   int32
