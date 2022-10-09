@@ -40,6 +40,8 @@ type CommentClient interface {
 	GetUserSubCommentArticleRepliedList(ctx context.Context, in *GetUserSubCommentArticleRepliedListReq, opts ...grpc.CallOption) (*GetUserSubCommentArticleRepliedListReply, error)
 	GetUserCommentTalkRepliedList(ctx context.Context, in *GetUserCommentTalkRepliedListReq, opts ...grpc.CallOption) (*GetUserCommentTalkRepliedListReply, error)
 	GetUserSubCommentTalkRepliedList(ctx context.Context, in *GetUserSubCommentTalkRepliedListReq, opts ...grpc.CallOption) (*GetUserSubCommentTalkRepliedListReply, error)
+	GetUserCommentRepliedList(ctx context.Context, in *GetUserCommentRepliedListReq, opts ...grpc.CallOption) (*GetUserCommentRepliedListReply, error)
+	GetUserSubCommentRepliedList(ctx context.Context, in *GetUserSubCommentRepliedListReq, opts ...grpc.CallOption) (*GetUserSubCommentRepliedListReply, error)
 	GetCommentContentReview(ctx context.Context, in *GetCommentContentReviewReq, opts ...grpc.CallOption) (*GetCommentContentReviewReply, error)
 	CommentContentIrregular(ctx context.Context, in *CommentContentIrregularReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateCommentDraft(ctx context.Context, in *CreateCommentDraftReq, opts ...grpc.CallOption) (*CreateCommentDraftReply, error)
@@ -219,6 +221,24 @@ func (c *commentClient) GetUserCommentTalkRepliedList(ctx context.Context, in *G
 func (c *commentClient) GetUserSubCommentTalkRepliedList(ctx context.Context, in *GetUserSubCommentTalkRepliedListReq, opts ...grpc.CallOption) (*GetUserSubCommentTalkRepliedListReply, error) {
 	out := new(GetUserSubCommentTalkRepliedListReply)
 	err := c.cc.Invoke(ctx, "/comment.v1.Comment/GetUserSubCommentTalkRepliedList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *commentClient) GetUserCommentRepliedList(ctx context.Context, in *GetUserCommentRepliedListReq, opts ...grpc.CallOption) (*GetUserCommentRepliedListReply, error) {
+	out := new(GetUserCommentRepliedListReply)
+	err := c.cc.Invoke(ctx, "/comment.v1.Comment/GetUserCommentRepliedList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *commentClient) GetUserSubCommentRepliedList(ctx context.Context, in *GetUserSubCommentRepliedListReq, opts ...grpc.CallOption) (*GetUserSubCommentRepliedListReply, error) {
+	out := new(GetUserSubCommentRepliedListReply)
+	err := c.cc.Invoke(ctx, "/comment.v1.Comment/GetUserSubCommentRepliedList", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -444,6 +464,8 @@ type CommentServer interface {
 	GetUserSubCommentArticleRepliedList(context.Context, *GetUserSubCommentArticleRepliedListReq) (*GetUserSubCommentArticleRepliedListReply, error)
 	GetUserCommentTalkRepliedList(context.Context, *GetUserCommentTalkRepliedListReq) (*GetUserCommentTalkRepliedListReply, error)
 	GetUserSubCommentTalkRepliedList(context.Context, *GetUserSubCommentTalkRepliedListReq) (*GetUserSubCommentTalkRepliedListReply, error)
+	GetUserCommentRepliedList(context.Context, *GetUserCommentRepliedListReq) (*GetUserCommentRepliedListReply, error)
+	GetUserSubCommentRepliedList(context.Context, *GetUserSubCommentRepliedListReq) (*GetUserSubCommentRepliedListReply, error)
 	GetCommentContentReview(context.Context, *GetCommentContentReviewReq) (*GetCommentContentReviewReply, error)
 	CommentContentIrregular(context.Context, *CommentContentIrregularReq) (*emptypb.Empty, error)
 	CreateCommentDraft(context.Context, *CreateCommentDraftReq) (*CreateCommentDraftReply, error)
@@ -523,6 +545,12 @@ func (UnimplementedCommentServer) GetUserCommentTalkRepliedList(context.Context,
 }
 func (UnimplementedCommentServer) GetUserSubCommentTalkRepliedList(context.Context, *GetUserSubCommentTalkRepliedListReq) (*GetUserSubCommentTalkRepliedListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserSubCommentTalkRepliedList not implemented")
+}
+func (UnimplementedCommentServer) GetUserCommentRepliedList(context.Context, *GetUserCommentRepliedListReq) (*GetUserCommentRepliedListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserCommentRepliedList not implemented")
+}
+func (UnimplementedCommentServer) GetUserSubCommentRepliedList(context.Context, *GetUserSubCommentRepliedListReq) (*GetUserSubCommentRepliedListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserSubCommentRepliedList not implemented")
 }
 func (UnimplementedCommentServer) GetCommentContentReview(context.Context, *GetCommentContentReviewReq) (*GetCommentContentReviewReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCommentContentReview not implemented")
@@ -905,6 +933,42 @@ func _Comment_GetUserSubCommentTalkRepliedList_Handler(srv interface{}, ctx cont
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CommentServer).GetUserSubCommentTalkRepliedList(ctx, req.(*GetUserSubCommentTalkRepliedListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Comment_GetUserCommentRepliedList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserCommentRepliedListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommentServer).GetUserCommentRepliedList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/comment.v1.Comment/GetUserCommentRepliedList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommentServer).GetUserCommentRepliedList(ctx, req.(*GetUserCommentRepliedListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Comment_GetUserSubCommentRepliedList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserSubCommentRepliedListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommentServer).GetUserSubCommentRepliedList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/comment.v1.Comment/GetUserSubCommentRepliedList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommentServer).GetUserSubCommentRepliedList(ctx, req.(*GetUserSubCommentRepliedListReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1379,6 +1443,14 @@ var Comment_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserSubCommentTalkRepliedList",
 			Handler:    _Comment_GetUserSubCommentTalkRepliedList_Handler,
+		},
+		{
+			MethodName: "GetUserCommentRepliedList",
+			Handler:    _Comment_GetUserCommentRepliedList_Handler,
+		},
+		{
+			MethodName: "GetUserSubCommentRepliedList",
+			Handler:    _Comment_GetUserSubCommentRepliedList_Handler,
 		},
 		{
 			MethodName: "GetCommentContentReview",
