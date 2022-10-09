@@ -268,6 +268,49 @@ func (s *BffService) GetUserSubCommentTalkRepliedList(ctx context.Context, req *
 	return reply, nil
 }
 
+func (s *BffService) GetUserCommentRepliedList(ctx context.Context, req *v1.GetUserCommentRepliedListReq) (*v1.GetUserCommentRepliedListReply, error) {
+	reply := &v1.GetUserCommentRepliedListReply{List: make([]*v1.GetUserCommentRepliedListReply_List, 0)}
+	commentList, err := s.commc.GetUserCommentRepliedList(ctx, req.Page)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range commentList {
+		reply.List = append(reply.List, &v1.GetUserCommentRepliedListReply_List{
+			Id:           item.Id,
+			CreationId:   item.CreationId,
+			CreationType: item.CreationType,
+			Uuid:         item.Uuid,
+			Username:     item.UserName,
+		})
+	}
+	return reply, nil
+}
+
+func (s *BffService) GetUserSubCommentRepliedList(ctx context.Context, req *v1.GetUserSubCommentRepliedListReq) (*v1.GetUserSubCommentRepliedListReply, error) {
+	reply := &v1.GetUserSubCommentRepliedListReply{List: make([]*v1.GetUserSubCommentRepliedListReply_List, 0)}
+	commentList, err := s.commc.GetUserSubCommentRepliedList(ctx, req.Page)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range commentList {
+		reply.List = append(reply.List, &v1.GetUserSubCommentRepliedListReply_List{
+			Id:             item.Id,
+			Uuid:           item.Uuid,
+			CreationId:     item.CreationId,
+			CreationType:   item.CreationType,
+			RootId:         item.RootId,
+			ParentId:       item.ParentId,
+			CreationAuthor: item.CreationAuthor,
+			RootUser:       item.RootUser,
+			Reply:          item.Reply,
+			ReplyName:      item.ReplyName,
+			RootName:       item.RootName,
+			UserName:       item.UserName,
+		})
+	}
+	return reply, nil
+}
+
 func (s *BffService) GetCommentContentReview(ctx context.Context, req *v1.GetCommentContentReviewReq) (*v1.GetCommentContentReviewReply, error) {
 	reply := &v1.GetCommentContentReviewReply{Review: make([]*v1.GetCommentContentReviewReply_Review, 0)}
 	reviewList, err := s.commc.GetCommentContentReview(ctx, req.Page)
