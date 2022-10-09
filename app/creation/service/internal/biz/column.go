@@ -454,6 +454,11 @@ func (r *ColumnUseCase) CreateColumnDbCacheAndSearch(ctx context.Context, id, au
 			return v1.ErrorCreateColumnFailed("create column failed: %s", err.Error())
 		}
 
+		timelineId, err := r.creationRepo.CreateTimeLine(ctx, id, auth, 2, uuid)
+		if err != nil {
+			return v1.ErrorCreateTimelineFailed("create column timeline failed: %s", err.Error())
+		}
+
 		err = r.repo.CreateColumnStatistic(ctx, id, auth, uuid)
 		if err != nil {
 			return v1.ErrorCreateColumnFailed("create column statistic failed: %s", err.Error())
@@ -471,6 +476,11 @@ func (r *ColumnUseCase) CreateColumnDbCacheAndSearch(ctx context.Context, id, au
 
 		if auth == 2 {
 			return nil
+		}
+
+		err = r.creationRepo.CreateTimeLineCache(ctx, timelineId, id, 2, uuid)
+		if err != nil {
+			return v1.ErrorCreateArticleFailed("create column timeline cache failed: %s", err.Error())
 		}
 
 		err = r.repo.CreateColumnSearch(ctx, id, uuid)
@@ -516,9 +526,19 @@ func (r *ColumnUseCase) DeleteColumnCacheAndSearch(ctx context.Context, id int32
 			return v1.ErrorDeleteColumnFailed("get column auth failed: %s", err.Error())
 		}
 
+		timelineId, err := r.creationRepo.GetUserTimeLine(ctx, id, 2)
+		if err != nil {
+			return v1.ErrorDeleteArticleFailed("get user column timeline failed: %s", err.Error())
+		}
+
 		err = r.repo.DeleteColumn(ctx, id, uuid)
 		if err != nil {
 			return v1.ErrorDeleteColumnFailed("delete column failed: %s", err.Error())
+		}
+
+		err = r.creationRepo.DeleteTimeLine(ctx, timelineId)
+		if err != nil {
+			return v1.ErrorDeleteArticleFailed("delete column timeline failed: %s", err.Error())
 		}
 
 		err = r.repo.DeleteColumnStatistic(ctx, id, uuid)
@@ -543,6 +563,11 @@ func (r *ColumnUseCase) DeleteColumnCacheAndSearch(ctx context.Context, id int32
 
 		if auth == 2 {
 			return nil
+		}
+
+		err = r.creationRepo.DeleteTimeLineCache(ctx, timelineId, id, 2, uuid)
+		if err != nil {
+			return v1.ErrorDeleteArticleFailed("delete column timeline cache failed: %s", err.Error())
 		}
 
 		err = r.repo.DeleteColumnSearch(ctx, id, uuid)
