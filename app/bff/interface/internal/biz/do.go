@@ -114,6 +114,11 @@ type Follow struct {
 	Status      int32
 }
 
+type TimeLIneFollows struct {
+	Uuid     string
+	Username string
+}
+
 type Follows struct {
 	Uuid   string
 	Follow int32
@@ -409,6 +414,7 @@ type Comment struct {
 	UserName       string
 	CreationAuthor string
 	CreationId     int32
+	CreationType   int32
 	Agree          int32
 	Comment        int32
 }
@@ -416,6 +422,7 @@ type Comment struct {
 type SubComment struct {
 	Id             int32
 	CreationId     int32
+	CreationType   int32
 	RootId         int32
 	ParentId       int32
 	CreationAuthor string
@@ -458,4 +465,15 @@ type CommentContentReview struct {
 	Result    int32
 	Section   string
 	Mode      string
+}
+
+type MailBox struct {
+	Time int32
+}
+
+type Notification struct {
+	Timeline           map[string]int32
+	Comment            int32
+	SubComment         int32
+	SystemNotification int32
 }
