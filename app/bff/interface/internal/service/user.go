@@ -272,6 +272,21 @@ func (s *BffService) GetUserFollows(ctx context.Context, _ *emptypb.Empty) (*v1.
 	}, nil
 }
 
+func (s *BffService) GetTimeLineUsers(ctx context.Context, _ *emptypb.Empty) (*v1.GetTimeLineUsersReply, error) {
+	reply := &v1.GetTimeLineUsersReply{Follows: make([]*v1.GetTimeLineUsersReply_Follows, 0)}
+	followList, err := s.uc.GetTimeLineUsers(ctx)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range followList {
+		reply.Follows = append(reply.Follows, &v1.GetTimeLineUsersReply_Follows{
+			Uuid:     item.Uuid,
+			Username: item.Username,
+		})
+	}
+	return reply, nil
+}
+
 func (s *BffService) GetUserSearch(ctx context.Context, req *v1.GetUserSearchReq) (*v1.GetUserSearchReply, error) {
 	reply := &v1.GetUserSearchReply{List: make([]*v1.GetUserSearchReply_List, 0)}
 	userList, total, err := s.uc.GetUserSearch(ctx, req.Page, req.Search)
