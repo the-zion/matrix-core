@@ -27,6 +27,8 @@ type CommentRepo interface {
 	GetUserSubCommentArticleRepliedList(ctx context.Context, page int32, uuid string) ([]*SubComment, error)
 	GetUserCommentTalkRepliedList(ctx context.Context, page int32, uuid string) ([]*Comment, error)
 	GetUserSubCommentTalkRepliedList(ctx context.Context, page int32, uuid string) ([]*SubComment, error)
+	GetUserCommentRepliedList(ctx context.Context, page int32, uuid string) ([]*Comment, error)
+	GetUserSubCommentRepliedList(ctx context.Context, page int32, uuid string) ([]*SubComment, error)
 	GetCommentContentReview(ctx context.Context, page int32, uuid string) ([]*CommentContentReview, error)
 	CreateCommentDraft(ctx context.Context, uuid string) (int32, error)
 	SendComment(ctx context.Context, id int32, uuid, ip string) error
@@ -329,6 +331,54 @@ func (r *CommentUseCase) GetUserSubCommentTalkRepliedList(ctx context.Context, p
 	}
 
 	userProfileMap, err := r.repo.GetUserSubCommentProfileList(ctx, page, "get_sub_comment_talk_replied_profile_list_", uuid, commentList)
+	if err != nil {
+		return nil, err
+	}
+
+	for index, listItem := range commentList {
+		if value, ok := userProfileMap[listItem.Uuid]; ok {
+			commentList[index].UserName = value
+		}
+
+		if value, ok := userProfileMap[listItem.Reply]; ok {
+			commentList[index].ReplyName = value
+		}
+
+		if value, ok := userProfileMap[listItem.RootUser]; ok {
+			commentList[index].RootName = value
+		}
+	}
+	return commentList, nil
+}
+
+func (r *CommentUseCase) GetUserCommentRepliedList(ctx context.Context, page int32) ([]*Comment, error) {
+	uuid := ctx.Value("uuid").(string)
+	commentList, err := r.repo.GetUserCommentRepliedList(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	userProfileMap, err := r.repo.GetUserCommentProfileList(ctx, page, "get_comment_replied_profile_list_", uuid, commentList)
+	if err != nil {
+		return nil, err
+	}
+
+	for index, listItem := range commentList {
+		if value, ok := userProfileMap[listItem.Uuid]; ok {
+			commentList[index].UserName = value
+		}
+	}
+	return commentList, nil
+}
+
+func (r *CommentUseCase) GetUserSubCommentRepliedList(ctx context.Context, page int32) ([]*SubComment, error) {
+	uuid := ctx.Value("uuid").(string)
+	commentList, err := r.repo.GetUserSubCommentRepliedList(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	userProfileMap, err := r.repo.GetUserSubCommentProfileList(ctx, page, "get_sub_comment_replied_profile_list_", uuid, commentList)
 	if err != nil {
 		return nil, err
 	}
