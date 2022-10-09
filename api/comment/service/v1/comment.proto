@@ -47,6 +47,10 @@ service Comment {
 
   rpc GetUserSubCommentTalkRepliedList(GetUserSubCommentTalkRepliedListReq) returns (GetUserSubCommentTalkRepliedListReply){}
 
+  rpc GetUserCommentRepliedList(GetUserCommentRepliedListReq) returns (GetUserCommentRepliedListReply){}
+
+  rpc GetUserSubCommentRepliedList(GetUserSubCommentRepliedListReq) returns (GetUserSubCommentRepliedListReply){}
+
   rpc GetCommentContentReview (GetCommentContentReviewReq) returns (GetCommentContentReviewReply) {}
 
   rpc CommentContentIrregular(CommentContentIrregularReq)returns (google.protobuf.Empty){}
@@ -357,6 +361,44 @@ message GetUserSubCommentTalkRepliedListReply{
     string user_name = 9;
     string reply_name = 10;
     string root_name = 11;
+  }
+  repeated List list = 1;
+}
+
+message GetUserCommentRepliedListReq{
+  int32 page = 1;
+  string uuid = 2 [(validate.rules).string.uuid = true];
+}
+
+message GetUserCommentRepliedListReply{
+  message List{
+    int32 id = 1;
+    int32 creation_id = 2;
+    int32 creation_type = 3;
+    string uuid = 4;
+  }
+  repeated List list = 1;
+}
+
+message GetUserSubCommentRepliedListReq{
+  int32 page = 1;
+  string uuid = 2;
+}
+
+message GetUserSubCommentRepliedListReply{
+  message List{
+    int32 id = 1;
+    string uuid = 2;
+    int32 creation_id = 3;
+    int32 creation_type = 4;
+    string creation_author = 5;
+    int32 root_id = 6;
+    string root_user = 7;
+    int32 parent_id = 8;
+    string reply = 9;
+    string user_name = 10;
+    string reply_name = 11;
+    string root_name = 12;
   }
   repeated List list = 1;
 }
