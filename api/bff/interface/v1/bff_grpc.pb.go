@@ -188,6 +188,8 @@ type BffClient interface {
 	GetUserSubCommentArticleRepliedList(ctx context.Context, in *GetUserSubCommentArticleRepliedListReq, opts ...grpc.CallOption) (*GetUserSubCommentArticleRepliedListReply, error)
 	GetUserCommentTalkRepliedList(ctx context.Context, in *GetUserCommentTalkRepliedListReq, opts ...grpc.CallOption) (*GetUserCommentTalkRepliedListReply, error)
 	GetUserSubCommentTalkRepliedList(ctx context.Context, in *GetUserSubCommentTalkRepliedListReq, opts ...grpc.CallOption) (*GetUserSubCommentTalkRepliedListReply, error)
+	GetUserCommentRepliedList(ctx context.Context, in *GetUserCommentRepliedListReq, opts ...grpc.CallOption) (*GetUserCommentRepliedListReply, error)
+	GetUserSubCommentRepliedList(ctx context.Context, in *GetUserSubCommentRepliedListReq, opts ...grpc.CallOption) (*GetUserSubCommentRepliedListReply, error)
 	GetCommentContentReview(ctx context.Context, in *GetCommentContentReviewReq, opts ...grpc.CallOption) (*GetCommentContentReviewReply, error)
 	CreateCommentDraft(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateCommentDraftReply, error)
 	SendComment(ctx context.Context, in *SendCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -1687,6 +1689,24 @@ func (c *bffClient) GetUserSubCommentTalkRepliedList(ctx context.Context, in *Ge
 	return out, nil
 }
 
+func (c *bffClient) GetUserCommentRepliedList(ctx context.Context, in *GetUserCommentRepliedListReq, opts ...grpc.CallOption) (*GetUserCommentRepliedListReply, error) {
+	out := new(GetUserCommentRepliedListReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserCommentRepliedList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) GetUserSubCommentRepliedList(ctx context.Context, in *GetUserSubCommentRepliedListReq, opts ...grpc.CallOption) (*GetUserSubCommentRepliedListReply, error) {
+	out := new(GetUserSubCommentRepliedListReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetUserSubCommentRepliedList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) GetCommentContentReview(ctx context.Context, in *GetCommentContentReviewReq, opts ...grpc.CallOption) (*GetCommentContentReviewReply, error) {
 	out := new(GetCommentContentReviewReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetCommentContentReview", in, out, opts...)
@@ -1973,6 +1993,8 @@ type BffServer interface {
 	GetUserSubCommentArticleRepliedList(context.Context, *GetUserSubCommentArticleRepliedListReq) (*GetUserSubCommentArticleRepliedListReply, error)
 	GetUserCommentTalkRepliedList(context.Context, *GetUserCommentTalkRepliedListReq) (*GetUserCommentTalkRepliedListReply, error)
 	GetUserSubCommentTalkRepliedList(context.Context, *GetUserSubCommentTalkRepliedListReq) (*GetUserSubCommentTalkRepliedListReply, error)
+	GetUserCommentRepliedList(context.Context, *GetUserCommentRepliedListReq) (*GetUserCommentRepliedListReply, error)
+	GetUserSubCommentRepliedList(context.Context, *GetUserSubCommentRepliedListReq) (*GetUserSubCommentRepliedListReply, error)
 	GetCommentContentReview(context.Context, *GetCommentContentReviewReq) (*GetCommentContentReviewReply, error)
 	CreateCommentDraft(context.Context, *emptypb.Empty) (*CreateCommentDraftReply, error)
 	SendComment(context.Context, *SendCommentReq) (*emptypb.Empty, error)
@@ -2484,6 +2506,12 @@ func (UnimplementedBffServer) GetUserCommentTalkRepliedList(context.Context, *Ge
 }
 func (UnimplementedBffServer) GetUserSubCommentTalkRepliedList(context.Context, *GetUserSubCommentTalkRepliedListReq) (*GetUserSubCommentTalkRepliedListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserSubCommentTalkRepliedList not implemented")
+}
+func (UnimplementedBffServer) GetUserCommentRepliedList(context.Context, *GetUserCommentRepliedListReq) (*GetUserCommentRepliedListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserCommentRepliedList not implemented")
+}
+func (UnimplementedBffServer) GetUserSubCommentRepliedList(context.Context, *GetUserSubCommentRepliedListReq) (*GetUserSubCommentRepliedListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserSubCommentRepliedList not implemented")
 }
 func (UnimplementedBffServer) GetCommentContentReview(context.Context, *GetCommentContentReviewReq) (*GetCommentContentReviewReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCommentContentReview not implemented")
@@ -5489,6 +5517,42 @@ func _Bff_GetUserSubCommentTalkRepliedList_Handler(srv interface{}, ctx context.
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_GetUserCommentRepliedList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserCommentRepliedListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetUserCommentRepliedList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetUserCommentRepliedList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetUserCommentRepliedList(ctx, req.(*GetUserCommentRepliedListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_GetUserSubCommentRepliedList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserSubCommentRepliedListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetUserSubCommentRepliedList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetUserSubCommentRepliedList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetUserSubCommentRepliedList(ctx, req.(*GetUserSubCommentRepliedListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_GetCommentContentReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetCommentContentReviewReq)
 	if err := dec(in); err != nil {
@@ -6385,6 +6449,14 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserSubCommentTalkRepliedList",
 			Handler:    _Bff_GetUserSubCommentTalkRepliedList_Handler,
+		},
+		{
+			MethodName: "GetUserCommentRepliedList",
+			Handler:    _Bff_GetUserCommentRepliedList_Handler,
+		},
+		{
+			MethodName: "GetUserSubCommentRepliedList",
+			Handler:    _Bff_GetUserSubCommentRepliedList_Handler,
 		},
 		{
 			MethodName: "GetCommentContentReview",

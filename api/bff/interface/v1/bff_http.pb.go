@@ -134,6 +134,7 @@ const OperationBffGetUserColumnListVisitor = "/bff.v1.Bff/GetUserColumnListVisit
 const OperationBffGetUserCommentAgree = "/bff.v1.Bff/GetUserCommentAgree"
 const OperationBffGetUserCommentArticleRepliedList = "/bff.v1.Bff/GetUserCommentArticleRepliedList"
 const OperationBffGetUserCommentArticleReplyList = "/bff.v1.Bff/GetUserCommentArticleReplyList"
+const OperationBffGetUserCommentRepliedList = "/bff.v1.Bff/GetUserCommentRepliedList"
 const OperationBffGetUserCommentTalkRepliedList = "/bff.v1.Bff/GetUserCommentTalkRepliedList"
 const OperationBffGetUserCommentTalkReplyList = "/bff.v1.Bff/GetUserCommentTalkReplyList"
 const OperationBffGetUserFollow = "/bff.v1.Bff/GetUserFollow"
@@ -145,6 +146,7 @@ const OperationBffGetUserMedalProgress = "/bff.v1.Bff/GetUserMedalProgress"
 const OperationBffGetUserSearch = "/bff.v1.Bff/GetUserSearch"
 const OperationBffGetUserSubCommentArticleRepliedList = "/bff.v1.Bff/GetUserSubCommentArticleRepliedList"
 const OperationBffGetUserSubCommentArticleReplyList = "/bff.v1.Bff/GetUserSubCommentArticleReplyList"
+const OperationBffGetUserSubCommentRepliedList = "/bff.v1.Bff/GetUserSubCommentRepliedList"
 const OperationBffGetUserSubCommentTalkRepliedList = "/bff.v1.Bff/GetUserSubCommentTalkRepliedList"
 const OperationBffGetUserSubCommentTalkReplyList = "/bff.v1.Bff/GetUserSubCommentTalkReplyList"
 const OperationBffGetUserSubscribeColumn = "/bff.v1.Bff/GetUserSubscribeColumn"
@@ -313,6 +315,7 @@ type BffHTTPServer interface {
 	GetUserCommentAgree(context.Context, *emptypb.Empty) (*GetUserCommentAgreeReply, error)
 	GetUserCommentArticleRepliedList(context.Context, *GetUserCommentArticleRepliedListReq) (*GetUserCommentArticleRepliedListReply, error)
 	GetUserCommentArticleReplyList(context.Context, *GetUserCommentArticleReplyListReq) (*GetUserCommentArticleReplyListReply, error)
+	GetUserCommentRepliedList(context.Context, *GetUserCommentRepliedListReq) (*GetUserCommentRepliedListReply, error)
 	GetUserCommentTalkRepliedList(context.Context, *GetUserCommentTalkRepliedListReq) (*GetUserCommentTalkRepliedListReply, error)
 	GetUserCommentTalkReplyList(context.Context, *GetUserCommentTalkReplyListReq) (*GetUserCommentTalkReplyListReply, error)
 	GetUserFollow(context.Context, *GetUserFollowReq) (*GetUserFollowReply, error)
@@ -324,6 +327,7 @@ type BffHTTPServer interface {
 	GetUserSearch(context.Context, *GetUserSearchReq) (*GetUserSearchReply, error)
 	GetUserSubCommentArticleRepliedList(context.Context, *GetUserSubCommentArticleRepliedListReq) (*GetUserSubCommentArticleRepliedListReply, error)
 	GetUserSubCommentArticleReplyList(context.Context, *GetUserSubCommentArticleReplyListReq) (*GetUserSubCommentArticleReplyListReply, error)
+	GetUserSubCommentRepliedList(context.Context, *GetUserSubCommentRepliedListReq) (*GetUserSubCommentRepliedListReply, error)
 	GetUserSubCommentTalkRepliedList(context.Context, *GetUserSubCommentTalkRepliedListReq) (*GetUserSubCommentTalkRepliedListReply, error)
 	GetUserSubCommentTalkReplyList(context.Context, *GetUserSubCommentTalkReplyListReq) (*GetUserSubCommentTalkReplyListReply, error)
 	GetUserSubscribeColumn(context.Context, *emptypb.Empty) (*GetUserSubscribeColumnReply, error)
@@ -544,6 +548,8 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.POST("/v1/get/user/subcomment/article/replied/list", _Bff_GetUserSubCommentArticleRepliedList0_HTTP_Handler(srv))
 	r.POST("/v1/get/user/comment/talk/replied/list", _Bff_GetUserCommentTalkRepliedList0_HTTP_Handler(srv))
 	r.POST("/v1/get/user/subcomment/talk/replied/list", _Bff_GetUserSubCommentTalkRepliedList0_HTTP_Handler(srv))
+	r.POST("/v1/get/user/comment/replied/list", _Bff_GetUserCommentRepliedList0_HTTP_Handler(srv))
+	r.POST("/v1/get/user/subcomment/replied/list", _Bff_GetUserSubCommentRepliedList0_HTTP_Handler(srv))
 	r.POST("/v1/get/comment/content/review", _Bff_GetCommentContentReview0_HTTP_Handler(srv))
 	r.POST("/v1/create/comment/draft", _Bff_CreateCommentDraft0_HTTP_Handler(srv))
 	r.POST("/v1/send/comment", _Bff_SendComment0_HTTP_Handler(srv))
@@ -3675,6 +3681,44 @@ func _Bff_GetUserSubCommentTalkRepliedList0_HTTP_Handler(srv BffHTTPServer) func
 	}
 }
 
+func _Bff_GetUserCommentRepliedList0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetUserCommentRepliedListReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetUserCommentRepliedList)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetUserCommentRepliedList(ctx, req.(*GetUserCommentRepliedListReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetUserCommentRepliedListReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_GetUserSubCommentRepliedList0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetUserSubCommentRepliedListReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetUserSubCommentRepliedList)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetUserSubCommentRepliedList(ctx, req.(*GetUserSubCommentRepliedListReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetUserSubCommentRepliedListReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _Bff_GetCommentContentReview0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in GetCommentContentReviewReq
@@ -4037,6 +4081,7 @@ type BffHTTPClient interface {
 	GetUserCommentAgree(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetUserCommentAgreeReply, err error)
 	GetUserCommentArticleRepliedList(ctx context.Context, req *GetUserCommentArticleRepliedListReq, opts ...http.CallOption) (rsp *GetUserCommentArticleRepliedListReply, err error)
 	GetUserCommentArticleReplyList(ctx context.Context, req *GetUserCommentArticleReplyListReq, opts ...http.CallOption) (rsp *GetUserCommentArticleReplyListReply, err error)
+	GetUserCommentRepliedList(ctx context.Context, req *GetUserCommentRepliedListReq, opts ...http.CallOption) (rsp *GetUserCommentRepliedListReply, err error)
 	GetUserCommentTalkRepliedList(ctx context.Context, req *GetUserCommentTalkRepliedListReq, opts ...http.CallOption) (rsp *GetUserCommentTalkRepliedListReply, err error)
 	GetUserCommentTalkReplyList(ctx context.Context, req *GetUserCommentTalkReplyListReq, opts ...http.CallOption) (rsp *GetUserCommentTalkReplyListReply, err error)
 	GetUserFollow(ctx context.Context, req *GetUserFollowReq, opts ...http.CallOption) (rsp *GetUserFollowReply, err error)
@@ -4048,6 +4093,7 @@ type BffHTTPClient interface {
 	GetUserSearch(ctx context.Context, req *GetUserSearchReq, opts ...http.CallOption) (rsp *GetUserSearchReply, err error)
 	GetUserSubCommentArticleRepliedList(ctx context.Context, req *GetUserSubCommentArticleRepliedListReq, opts ...http.CallOption) (rsp *GetUserSubCommentArticleRepliedListReply, err error)
 	GetUserSubCommentArticleReplyList(ctx context.Context, req *GetUserSubCommentArticleReplyListReq, opts ...http.CallOption) (rsp *GetUserSubCommentArticleReplyListReply, err error)
+	GetUserSubCommentRepliedList(ctx context.Context, req *GetUserSubCommentRepliedListReq, opts ...http.CallOption) (rsp *GetUserSubCommentRepliedListReply, err error)
 	GetUserSubCommentTalkRepliedList(ctx context.Context, req *GetUserSubCommentTalkRepliedListReq, opts ...http.CallOption) (rsp *GetUserSubCommentTalkRepliedListReply, err error)
 	GetUserSubCommentTalkReplyList(ctx context.Context, req *GetUserSubCommentTalkReplyListReq, opts ...http.CallOption) (rsp *GetUserSubCommentTalkReplyListReply, err error)
 	GetUserSubscribeColumn(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetUserSubscribeColumnReply, err error)
@@ -5592,6 +5638,19 @@ func (c *BffHTTPClientImpl) GetUserCommentArticleReplyList(ctx context.Context, 
 	return &out, err
 }
 
+func (c *BffHTTPClientImpl) GetUserCommentRepliedList(ctx context.Context, in *GetUserCommentRepliedListReq, opts ...http.CallOption) (*GetUserCommentRepliedListReply, error) {
+	var out GetUserCommentRepliedListReply
+	pattern := "/v1/get/user/comment/replied/list"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffGetUserCommentRepliedList))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
 func (c *BffHTTPClientImpl) GetUserCommentTalkRepliedList(ctx context.Context, in *GetUserCommentTalkRepliedListReq, opts ...http.CallOption) (*GetUserCommentTalkRepliedListReply, error) {
 	var out GetUserCommentTalkRepliedListReply
 	pattern := "/v1/get/user/comment/talk/replied/list"
@@ -5727,6 +5786,19 @@ func (c *BffHTTPClientImpl) GetUserSubCommentArticleReplyList(ctx context.Contex
 	pattern := "/v1/get/user/subcomment/article/reply/list"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationBffGetUserSubCommentArticleReplyList))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetUserSubCommentRepliedList(ctx context.Context, in *GetUserSubCommentRepliedListReq, opts ...http.CallOption) (*GetUserSubCommentRepliedListReply, error) {
+	var out GetUserSubCommentRepliedListReply
+	pattern := "/v1/get/user/subcomment/replied/list"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffGetUserSubCommentRepliedList))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
