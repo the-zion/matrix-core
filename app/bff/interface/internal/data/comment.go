@@ -562,6 +562,63 @@ func (r *commentRepo) GetUserSubCommentTalkRepliedList(ctx context.Context, page
 	return result.([]*biz.SubComment), nil
 }
 
+func (r *commentRepo) GetUserCommentRepliedList(ctx context.Context, page int32, uuid string) ([]*biz.Comment, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_user_comment_replied_list_%v_%s", page, uuid), func() (interface{}, error) {
+		reply := make([]*biz.Comment, 0)
+		commentList, err := r.data.commc.GetUserCommentRepliedList(ctx, &commentV1.GetUserCommentRepliedListReq{
+			Page: page,
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range commentList.List {
+			reply = append(reply, &biz.Comment{
+				Id:           item.Id,
+				CreationId:   item.CreationId,
+				CreationType: item.CreationType,
+				Uuid:         item.Uuid,
+			})
+		}
+		return reply, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.([]*biz.Comment), nil
+}
+
+func (r *commentRepo) GetUserSubCommentRepliedList(ctx context.Context, page int32, uuid string) ([]*biz.SubComment, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_user_sub_comment_replied_list_%v_%s", page, uuid), func() (interface{}, error) {
+		reply := make([]*biz.SubComment, 0)
+		commentList, err := r.data.commc.GetUserSubCommentRepliedList(ctx, &commentV1.GetUserSubCommentRepliedListReq{
+			Page: page,
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range commentList.List {
+			reply = append(reply, &biz.SubComment{
+				Id:             item.Id,
+				Uuid:           item.Uuid,
+				CreationId:     item.CreationId,
+				CreationType:   item.CreationType,
+				RootId:         item.RootId,
+				ParentId:       item.ParentId,
+				CreationAuthor: item.CreationAuthor,
+				RootUser:       item.RootUser,
+				Reply:          item.Reply,
+			})
+		}
+		return reply, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.([]*biz.SubComment), nil
+}
+
 func (r *commentRepo) GetCommentContentReview(ctx context.Context, page int32, uuid string) ([]*biz.CommentContentReview, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_comment_content_review_%s_%v", uuid, page), func() (interface{}, error) {
 		reply := make([]*biz.CommentContentReview, 0)
