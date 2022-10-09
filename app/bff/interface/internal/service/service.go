@@ -19,10 +19,11 @@ type BffService struct {
 	achc  *biz.AchievementUseCase
 	nc    *biz.NewsUseCase
 	commc *biz.CommentUseCase
+	mc    *biz.MessageUseCase
 	log   *log.Helper
 }
 
-func NewBffService(uc *biz.UserUseCase, cc *biz.CreationUseCase, tc *biz.TalkUseCase, ac *biz.ArticleUseCase, coc *biz.ColumnUseCase, achc *biz.AchievementUseCase, nc *biz.NewsUseCase, commc *biz.CommentUseCase, logger log.Logger) *BffService {
+func NewBffService(uc *biz.UserUseCase, cc *biz.CreationUseCase, tc *biz.TalkUseCase, ac *biz.ArticleUseCase, coc *biz.ColumnUseCase, achc *biz.AchievementUseCase, nc *biz.NewsUseCase, commc *biz.CommentUseCase, mc *biz.MessageUseCase, logger log.Logger) *BffService {
 	return &BffService{
 		log:   log.NewHelper(log.With(logger, "module", "bff/interface")),
 		uc:    uc,
@@ -32,6 +33,7 @@ func NewBffService(uc *biz.UserUseCase, cc *biz.CreationUseCase, tc *biz.TalkUse
 		coc:   coc,
 		achc:  achc,
 		nc:    nc,
+		mc:    mc,
 		commc: commc,
 	}
 }
