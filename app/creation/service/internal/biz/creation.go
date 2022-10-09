@@ -31,11 +31,14 @@ type CreationRepo interface {
 	GetCreationUserVisitor(ctx context.Context, uuid string) (*CreationUser, error)
 	GetUserTimeLineList(ctx context.Context, page int32, uuid string) ([]*TimeLine, error)
 	GetCollectionsAuth(ctx context.Context, id int32) (int32, error)
+	GetUserTimeLine(ctx context.Context, creationId, mode int32) (int32, error)
 
 	CreateCollectionsDraft(ctx context.Context, uuid string) (int32, error)
 	CreateCollectionsFolder(ctx context.Context, id int32, uuid string) error
 	CreateCollections(ctx context.Context, id, auth int32, uuid string) error
 	CreateCollectionsCache(ctx context.Context, id, auth int32, uuid, mode string) error
+	CreateTimeLine(ctx context.Context, creationsId, auth, mode int32, uuid string) (int32, error)
+	CreateTimeLineCache(ctx context.Context, id, creationId, mode int32, uuid string) error
 
 	AddCreationUserCollections(ctx context.Context, uuid string, auth int32) error
 
@@ -47,6 +50,8 @@ type CreationRepo interface {
 	DeleteCollect(ctx context.Context, id int32) error
 	DeleteCollectionsDraft(ctx context.Context, id int32, uuid string) error
 	DeleteCreationCache(ctx context.Context, id, auth int32, uuid string) error
+	DeleteTimeLine(ctx context.Context, id int32) error
+	DeleteTimeLineCache(ctx context.Context, id, creationId, mode int32, uuid string) error
 
 	ReduceCreationUserCollections(ctx context.Context, auth int32, uuid string) error
 
