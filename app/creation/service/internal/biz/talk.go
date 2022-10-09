@@ -349,6 +349,11 @@ func (r *TalkUseCase) CreateTalkDbCacheAndSearch(ctx context.Context, id, auth i
 			return v1.ErrorCreateTalkFailed("create talk failed: %s", err.Error())
 		}
 
+		timelineId, err := r.creationRepo.CreateTimeLine(ctx, id, auth, 3, uuid)
+		if err != nil {
+			return v1.ErrorCreateTimelineFailed("create talk timeline failed: %s", err.Error())
+		}
+
 		err = r.repo.CreateTalkStatistic(ctx, id, auth, uuid)
 		if err != nil {
 			return v1.ErrorCreateTalkFailed("create talk statistic failed: %s", err.Error())
@@ -366,6 +371,11 @@ func (r *TalkUseCase) CreateTalkDbCacheAndSearch(ctx context.Context, id, auth i
 
 		if auth == 2 {
 			return nil
+		}
+
+		err = r.creationRepo.CreateTimeLineCache(ctx, timelineId, id, 3, uuid)
+		if err != nil {
+			return v1.ErrorCreateArticleFailed("create talk timeline cache failed: %s", err.Error())
 		}
 
 		err = r.repo.CreateTalkSearch(ctx, id, uuid)
@@ -411,9 +421,19 @@ func (r *TalkUseCase) DeleteTalkCacheAndSearch(ctx context.Context, id int32, uu
 			return v1.ErrorDeleteTalkFailed("get talk auth failed: %s", err.Error())
 		}
 
+		timelineId, err := r.creationRepo.GetUserTimeLine(ctx, id, 3)
+		if err != nil {
+			return v1.ErrorDeleteArticleFailed("get user talk timeline failed: %s", err.Error())
+		}
+
 		err = r.repo.DeleteTalk(ctx, id, uuid)
 		if err != nil {
 			return v1.ErrorDeleteTalkFailed("delete talk failed: %s", err.Error())
+		}
+
+		err = r.creationRepo.DeleteTimeLine(ctx, timelineId)
+		if err != nil {
+			return v1.ErrorDeleteArticleFailed("delete talk timeline failed: %s", err.Error())
 		}
 
 		err = r.repo.DeleteTalkStatistic(ctx, id, uuid)
@@ -438,6 +458,11 @@ func (r *TalkUseCase) DeleteTalkCacheAndSearch(ctx context.Context, id int32, uu
 
 		if auth == 2 {
 			return nil
+		}
+
+		err = r.creationRepo.DeleteTimeLineCache(ctx, timelineId, id, 3, uuid)
+		if err != nil {
+			return v1.ErrorDeleteArticleFailed("delete talk timeline cache failed: %s", err.Error())
 		}
 
 		err = r.repo.DeleteTalkSearch(ctx, id, uuid)
