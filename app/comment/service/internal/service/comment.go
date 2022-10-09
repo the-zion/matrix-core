@@ -279,6 +279,48 @@ func (s *CommentService) GetUserSubCommentTalkRepliedList(ctx context.Context, r
 	return reply, nil
 }
 
+func (s *CommentService) GetUserCommentRepliedList(ctx context.Context, req *v1.GetUserCommentRepliedListReq) (*v1.GetUserCommentRepliedListReply, error) {
+	reply := &v1.GetUserCommentRepliedListReply{List: make([]*v1.GetUserCommentRepliedListReply_List, 0)}
+	commentList, err := s.cc.GetUserCommentRepliedList(ctx, req.Page, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range commentList {
+		reply.List = append(reply.List, &v1.GetUserCommentRepliedListReply_List{
+			Id:           item.CommentId,
+			CreationId:   item.CreationId,
+			CreationType: item.CreationType,
+			Uuid:         item.Uuid,
+		})
+	}
+	return reply, nil
+}
+
+func (s *CommentService) GetUserSubCommentRepliedList(ctx context.Context, req *v1.GetUserSubCommentRepliedListReq) (*v1.GetUserSubCommentRepliedListReply, error) {
+	reply := &v1.GetUserSubCommentRepliedListReply{List: make([]*v1.GetUserSubCommentRepliedListReply_List, 0)}
+	commentList, err := s.cc.GetUserSubCommentRepliedList(ctx, req.Page, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range commentList {
+		reply.List = append(reply.List, &v1.GetUserSubCommentRepliedListReply_List{
+			Id:             item.CommentId,
+			Uuid:           item.Uuid,
+			CreationId:     item.CreationId,
+			CreationType:   item.CreationType,
+			RootId:         item.RootId,
+			ParentId:       item.ParentId,
+			CreationAuthor: item.CreationAuthor,
+			RootUser:       item.RootUser,
+			Reply:          item.Reply,
+			ReplyName:      item.ReplyName,
+			RootName:       item.RootName,
+			UserName:       item.UserName,
+		})
+	}
+	return reply, nil
+}
+
 func (s *CommentService) GetCommentContentReview(ctx context.Context, req *v1.GetCommentContentReviewReq) (*v1.GetCommentContentReviewReply, error) {
 	reply := &v1.GetCommentContentReviewReply{Review: make([]*v1.GetCommentContentReviewReply_Review, 0)}
 	reviewList, err := s.cc.GetCommentContentReview(ctx, req.Page, req.Uuid)
