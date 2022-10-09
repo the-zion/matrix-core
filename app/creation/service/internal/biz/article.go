@@ -6,6 +6,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	v1 "github.com/the-zion/matrix-core/api/creation/service/v1"
 	"golang.org/x/sync/errgroup"
+	"gorm.io/gorm"
 )
 
 type ArticleRepo interface {
@@ -247,6 +248,11 @@ func (r *ArticleUseCase) CreateArticleDbCacheAndSearch(ctx context.Context, id, 
 			return v1.ErrorCreateArticleFailed("create article failed: %s", err.Error())
 		}
 
+		timelineId, err := r.creationRepo.CreateTimeLine(ctx, id, auth, 1, uuid)
+		if err != nil {
+			return v1.ErrorCreateTimelineFailed("create article timeline failed: %s", err.Error())
+		}
+
 		err = r.repo.CreateArticleStatistic(ctx, id, auth, uuid)
 		if err != nil {
 			return v1.ErrorCreateArticleFailed("create article statistic failed: %s", err.Error())
@@ -264,6 +270,11 @@ func (r *ArticleUseCase) CreateArticleDbCacheAndSearch(ctx context.Context, id, 
 
 		if auth == 2 {
 			return nil
+		}
+
+		err = r.creationRepo.CreateTimeLineCache(ctx, timelineId, id, 1, uuid)
+		if err != nil {
+			return v1.ErrorCreateArticleFailed("create article timeline cache failed: %s", err.Error())
 		}
 
 		err = r.repo.CreateArticleSearch(ctx, id, uuid)
@@ -309,9 +320,19 @@ func (r *ArticleUseCase) DeleteArticleCacheAndSearch(ctx context.Context, id int
 			return v1.ErrorDeleteArticleFailed("get article auth failed: %s", err.Error())
 		}
 
+		timelineId, err := r.creationRepo.GetUserTimeLine(ctx, id, 1)
+		if err != nil {
+			return v1.ErrorDeleteArticleFailed("get user article timeline failed: %s", err.Error())
+		}
+
 		err = r.repo.DeleteArticle(ctx, id, uuid)
 		if err != nil {
 			return v1.ErrorDeleteArticleFailed("delete article failed: %s", err.Error())
+		}
+
+		err = r.creationRepo.DeleteTimeLine(ctx, timelineId)
+		if err != nil {
+			return v1.ErrorDeleteArticleFailed("delete article timeline failed: %s", err.Error())
 		}
 
 		err = r.repo.DeleteArticleStatistic(ctx, id, uuid)
@@ -336,6 +357,11 @@ func (r *ArticleUseCase) DeleteArticleCacheAndSearch(ctx context.Context, id int
 
 		if auth == 2 {
 			return nil
+		}
+
+		err = r.creationRepo.DeleteTimeLineCache(ctx, timelineId, id, 1, uuid)
+		if err != nil {
+			return v1.ErrorDeleteArticleFailed("delete article timeline cache failed: %s", err.Error())
 		}
 
 		err = r.repo.DeleteArticleSearch(ctx, id, uuid)
@@ -442,6 +468,9 @@ func (r *ArticleUseCase) GetUserArticleListVisitor(ctx context.Context, page int
 
 func (r *ArticleUseCase) GetArticleStatistic(ctx context.Context, id int32, uuid string) (*ArticleStatistic, error) {
 	statistic, err := r.repo.GetArticleStatistic(ctx, id, uuid)
+	if kerrors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, v1.ErrorRecordNotFound("get article statistic failed: %s", err.Error())
+	}
 	if err != nil {
 		return nil, v1.ErrorGetStatisticFailed("get article statistic failed: %s", err.Error())
 	}
