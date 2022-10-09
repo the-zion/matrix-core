@@ -40,7 +40,7 @@ func (r *commentRepo) GetLastCommentDraft(ctx context.Context, uuid string) (*bi
 		return nil, kerrors.NotFound("comment draft not found from db", fmt.Sprintf("uuid(%s)", uuid))
 	}
 	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("db query system error: uuid(%s)", uuid))
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get last comment draft: uuid(%s)", uuid))
 	}
 	return &biz.CommentDraft{
 		Id:     int32(draft.ID),
@@ -320,7 +320,7 @@ func (r *commentRepo) getCommentFromDB(ctx context.Context, page, creationId, cr
 	}
 	index := int(page - 1)
 	list := make([]*Comment, 0)
-	err := r.data.db.WithContext(ctx).Where("creation_id = ? and creation_type = ?", creationId, creationType).Order("comment_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("updated_at", "comment_id", "uuid").Where("creation_id = ? and creation_type = ?", creationId, creationType).Order("updated_at desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get comment from db: page(%v)", page))
 	}
@@ -328,6 +328,7 @@ func (r *commentRepo) getCommentFromDB(ctx context.Context, page, creationId, cr
 	comment := make([]*biz.Comment, 0)
 	for _, item := range list {
 		comment = append(comment, &biz.Comment{
+			UpdatedAt: int32(item.UpdatedAt.Unix()),
 			CommentId: item.CommentId,
 			Uuid:      item.Uuid,
 		})
@@ -364,7 +365,7 @@ func (r *commentRepo) setCommentToCache(creationId, creationType int32, comment 
 		key := fmt.Sprintf("comment_%v_%v", creationId, creationType)
 		for _, item := range comment {
 			z = append(z, &redis.Z{
-				Score:  float64(item.CommentId),
+				Score:  float64(item.UpdatedAt),
 				Member: strconv.Itoa(int(item.CommentId)) + "%" + item.Uuid,
 			})
 		}
@@ -373,7 +374,7 @@ func (r *commentRepo) setCommentToCache(creationId, creationType int32, comment 
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set comment to cache: comment(%v)", comment)
+		r.log.Errorf("fail to set comment to cache: comment(%v), err(%v)", comment, err)
 	}
 }
 
@@ -393,7 +394,7 @@ func (r *commentRepo) setSubCommentToCache(id int32, subComment []*biz.SubCommen
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set sub comment to cache: comment(%v)", subComment)
+		r.log.Errorf("fail to set sub comment to cache: comment(%v), err(%v)", subComment, err)
 	}
 }
 
@@ -485,7 +486,7 @@ func (r *commentRepo) setCommentHotToCache(creationId, creationType int32, comme
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set comment hot to cache: comment(%v)", comment)
+		r.log.Errorf("fail to set comment hot to cache: comment(%v), err(%v)", comment, err)
 	}
 }
 
@@ -642,7 +643,7 @@ func (r *commentRepo) setUserCommentArticleReplyListToCache(uuid string, comment
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set user comment article reply list to cache: comment(%v)", comment)
+		r.log.Errorf("fail to set user comment article reply list to cache: comment(%v), err(%v)", comment, err)
 	}
 }
 
@@ -756,7 +757,7 @@ func (r *commentRepo) setUserSubCommentArticleReplyListToCache(uuid string, comm
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set user sub comment article reply list to cache: subComment(%v)", comment)
+		r.log.Errorf("fail to set user sub comment article reply list to cache: subComment(%v), err(%v)", comment, err)
 	}
 }
 
@@ -855,7 +856,7 @@ func (r *commentRepo) setUserCommentTalkReplyListToCache(uuid string, comment []
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set user comment talk reply list to cache: comment(%v)", comment)
+		r.log.Errorf("fail to set user comment talk reply list to cache: comment(%v), err(%v)", comment, err)
 	}
 }
 
@@ -969,7 +970,7 @@ func (r *commentRepo) setUserSubCommentTalkReplyListToCache(uuid string, comment
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set user sub comment talk reply list to cache: subComment(%v)", comment)
+		r.log.Errorf("fail to set user sub comment talk reply list to cache: subComment(%v), err(%v)", comment, err)
 	}
 }
 
@@ -1067,7 +1068,7 @@ func (r *commentRepo) setUserCommentArticleRepliedListToCache(uuid string, comme
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set user comment article replied list to cache: comment(%v)", comment)
+		r.log.Errorf("fail to set user comment article replied list to cache: comment(%v), err(%v)", comment, err)
 	}
 }
 
@@ -1183,7 +1184,7 @@ func (r *commentRepo) setUserSubCommentArticleRepliedListToCache(uuid string, co
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set user sub comment article replied list to cache: subComment(%v)", comment)
+		r.log.Errorf("fail to set user sub comment article replied list to cache: subComment(%v), err(%v)", comment, err)
 	}
 }
 
@@ -1281,7 +1282,7 @@ func (r *commentRepo) setUserCommentTalkRepliedListToCache(uuid string, comment 
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set user comment talk replied list to cache: comment(%v)", comment)
+		r.log.Errorf("fail to set user comment talk replied list to cache: comment(%v), err(%v)", comment, err)
 	}
 }
 
@@ -1308,6 +1309,323 @@ func (r *commentRepo) GetUserSubCommentTalkRepliedList(ctx context.Context, page
 		})()
 	}
 	return commentList, nil
+}
+
+func (r *commentRepo) getUserSubCommentTalkRepliedListFromCache(ctx context.Context, page int32, uuid string) ([]*biz.SubComment, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int64(page - 1)
+	key := fmt.Sprintf("user_sub_comment_talk_replied_list_%s", uuid)
+	list, err := r.data.redisCli.ZRevRange(ctx, key, index*10, index*10+9).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user sub comment talk replied list from cache: key(%s), page(%v)", key, page))
+	}
+
+	comment := make([]*biz.SubComment, 0)
+	for _, item := range list {
+		member := strings.Split(item, "%")
+		id, err := strconv.ParseInt(member[0], 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s)", member[0]))
+		}
+		creationId, err := strconv.ParseInt(member[1], 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s)", member[1]))
+		}
+		rootId, err := strconv.ParseInt(member[2], 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s)", member[2]))
+		}
+		parentId, err := strconv.ParseInt(member[3], 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s)", member[3]))
+		}
+		comment = append(comment, &biz.SubComment{
+			CommentId:      int32(id),
+			CreationId:     int32(creationId),
+			RootId:         int32(rootId),
+			ParentId:       int32(parentId),
+			Uuid:           member[4],
+			CreationAuthor: member[5],
+			RootUser:       member[6],
+			Reply:          member[7],
+		})
+	}
+	return comment, nil
+}
+
+func (r *commentRepo) getUserSubCommentTalkRepliedListFromDB(ctx context.Context, page int32, uuid string) ([]*biz.SubComment, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int(page - 1)
+	list := make([]*SubComment, 0)
+	err := r.data.db.WithContext(ctx).Where("(root_user = ? or reply = ?) and creation_type = ?", uuid, uuid, 3).Order("comment_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user sub comment talk replied list from db: page(%v)", page))
+	}
+
+	comment := make([]*biz.SubComment, 0)
+	for _, item := range list {
+		comment = append(comment, &biz.SubComment{
+			CommentId:      item.CommentId,
+			Uuid:           item.Uuid,
+			CreationId:     item.CreationId,
+			RootId:         item.RootId,
+			ParentId:       item.ParentId,
+			CreationAuthor: item.CreationAuthor,
+			RootUser:       item.RootUser,
+			Reply:          item.Reply,
+		})
+	}
+	return comment, nil
+}
+
+func (r *commentRepo) setUserSubCommentTalkRepliedListToCache(uuid string, comment []*biz.SubComment) {
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		z := make([]*redis.Z, 0)
+		key := fmt.Sprintf("user_sub_comment_talk_replied_list_%s", uuid)
+		for _, item := range comment {
+			z = append(z, &redis.Z{
+				Score:  float64(item.CommentId),
+				Member: strconv.Itoa(int(item.CommentId)) + "%" + strconv.Itoa(int(item.CreationId)) + "%" + strconv.Itoa(int(item.RootId)) + "%" + strconv.Itoa(int(item.ParentId)) + "%" + item.Uuid + "%" + item.CreationAuthor + "%" + item.RootUser + "%" + item.Reply,
+			})
+		}
+		pipe.ZAddNX(ctx, key, z...)
+		pipe.Expire(ctx, key, time.Hour*8)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to set user sub comment talk replied list to cache: subComment(%v), err(%v)", comment, err)
+	}
+}
+
+func (r *commentRepo) GetUserCommentRepliedList(ctx context.Context, page int32, uuid string) ([]*biz.Comment, error) {
+	commentList, err := r.getUserCommentRepliedListFromCache(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	size := len(commentList)
+	if size != 0 {
+		return commentList, nil
+	}
+
+	commentList, err = r.getUserCommentRepliedListFromDB(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	size = len(commentList)
+	if size != 0 {
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setUserCommentRepliedListToCache(uuid, commentList)
+		})()
+	}
+	return commentList, nil
+}
+
+func (r *commentRepo) getUserCommentRepliedListFromCache(ctx context.Context, page int32, uuid string) ([]*biz.Comment, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int64(page - 1)
+	key := fmt.Sprintf("user_comment_replied_list_%s", uuid)
+	list, err := r.data.redisCli.ZRevRange(ctx, key, index*10, index*10+9).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user comment replied list from cache: key(%s), page(%v)", key, page))
+	}
+
+	comment := make([]*biz.Comment, 0)
+	for _, item := range list {
+		member := strings.Split(item, "%")
+		id, err := strconv.ParseInt(member[0], 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s)", member[0]))
+		}
+		creationId, err := strconv.ParseInt(member[1], 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s)", member[1]))
+		}
+		creationType, err := strconv.ParseInt(member[2], 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s)", member[2]))
+		}
+		comment = append(comment, &biz.Comment{
+			CommentId:    int32(id),
+			CreationId:   int32(creationId),
+			CreationType: int32(creationType),
+			Uuid:         member[3],
+		})
+	}
+	return comment, nil
+}
+
+func (r *commentRepo) getUserCommentRepliedListFromDB(ctx context.Context, page int32, uuid string) ([]*biz.Comment, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int(page - 1)
+	list := make([]*Comment, 0)
+	err := r.data.db.WithContext(ctx).Where("creation_author = ?", uuid).Order("comment_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user comment replied list from db: page(%v)", page))
+	}
+
+	comment := make([]*biz.Comment, 0)
+	for _, item := range list {
+		comment = append(comment, &biz.Comment{
+			CommentId:    item.CommentId,
+			CreationId:   item.CreationId,
+			CreationType: item.CreationType,
+			Uuid:         item.Uuid,
+		})
+	}
+	return comment, nil
+}
+
+func (r *commentRepo) setUserCommentRepliedListToCache(uuid string, comment []*biz.Comment) {
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		z := make([]*redis.Z, 0)
+		key := fmt.Sprintf("user_comment_replied_list_%s", uuid)
+		for _, item := range comment {
+			z = append(z, &redis.Z{
+				Score:  float64(item.CommentId),
+				Member: strconv.Itoa(int(item.CommentId)) + "%" + strconv.Itoa(int(item.CreationId)) + "%" + strconv.Itoa(int(item.CreationType)) + "%" + item.Uuid,
+			})
+		}
+		pipe.ZAddNX(ctx, key, z...)
+		pipe.Expire(ctx, key, time.Hour*8)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to set user comment replied list to cache: comment(%v), err(%v)", comment, err)
+	}
+}
+
+func (r *commentRepo) GetUserSubCommentRepliedList(ctx context.Context, page int32, uuid string) ([]*biz.SubComment, error) {
+	commentList, err := r.getUserSubCommentRepliedListFromCache(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	size := len(commentList)
+	if size != 0 {
+		return commentList, nil
+	}
+
+	commentList, err = r.getUserSubCommentRepliedListFromDB(ctx, page, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	size = len(commentList)
+	if size != 0 {
+		go r.data.Recover(context.Background(), func(ctx context.Context) {
+			r.setUserSubCommentRepliedListToCache(uuid, commentList)
+		})()
+	}
+	return commentList, nil
+}
+
+func (r *commentRepo) getUserSubCommentRepliedListFromCache(ctx context.Context, page int32, uuid string) ([]*biz.SubComment, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int64(page - 1)
+	key := fmt.Sprintf("user_sub_comment_replied_list_%s", uuid)
+	list, err := r.data.redisCli.ZRevRange(ctx, key, index*10, index*10+9).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user sub comment replied list from cache: key(%s), page(%v)", key, page))
+	}
+
+	comment := make([]*biz.SubComment, 0)
+	for _, item := range list {
+		member := strings.Split(item, "%")
+		id, err := strconv.ParseInt(member[0], 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s)", member[0]))
+		}
+		creationId, err := strconv.ParseInt(member[1], 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s)", member[1]))
+		}
+		creationType, err := strconv.ParseInt(member[2], 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s)", member[2]))
+		}
+		rootId, err := strconv.ParseInt(member[3], 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s)", member[3]))
+		}
+		parentId, err := strconv.ParseInt(member[4], 10, 32)
+		if err != nil {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s)", member[4]))
+		}
+		comment = append(comment, &biz.SubComment{
+			CommentId:      int32(id),
+			CreationId:     int32(creationId),
+			CreationType:   int32(creationType),
+			RootId:         int32(rootId),
+			ParentId:       int32(parentId),
+			Uuid:           member[5],
+			CreationAuthor: member[6],
+			RootUser:       member[7],
+			Reply:          member[8],
+		})
+	}
+	return comment, nil
+}
+
+func (r *commentRepo) getUserSubCommentRepliedListFromDB(ctx context.Context, page int32, uuid string) ([]*biz.SubComment, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int(page - 1)
+	list := make([]*SubComment, 0)
+	err := r.data.db.WithContext(ctx).Where("root_user = ? or reply = ?", uuid, uuid).Order("comment_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user sub comment replied list from db: page(%v)", page))
+	}
+
+	comment := make([]*biz.SubComment, 0)
+	for _, item := range list {
+		comment = append(comment, &biz.SubComment{
+			CommentId:      item.CommentId,
+			Uuid:           item.Uuid,
+			CreationId:     item.CreationId,
+			CreationType:   item.CreationType,
+			RootId:         item.RootId,
+			ParentId:       item.ParentId,
+			CreationAuthor: item.CreationAuthor,
+			RootUser:       item.RootUser,
+			Reply:          item.Reply,
+		})
+	}
+	return comment, nil
+}
+
+func (r *commentRepo) setUserSubCommentRepliedListToCache(uuid string, comment []*biz.SubComment) {
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		z := make([]*redis.Z, 0)
+		key := fmt.Sprintf("user_sub_comment_replied_list_%s", uuid)
+		for _, item := range comment {
+			z = append(z, &redis.Z{
+				Score:  float64(item.CommentId),
+				Member: strconv.Itoa(int(item.CommentId)) + "%" + strconv.Itoa(int(item.CreationId)) + "%" + strconv.Itoa(int(item.CreationType)) + "%" + strconv.Itoa(int(item.RootId)) + "%" + strconv.Itoa(int(item.ParentId)) + "%" + item.Uuid + "%" + item.CreationAuthor + "%" + item.RootUser + "%" + item.Reply,
+			})
+		}
+		pipe.ZAddNX(ctx, key, z...)
+		pipe.Expire(ctx, key, time.Hour*8)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to set user sub comment replied list to cache: subComment(%v), err(%v)", comment, err)
+	}
 }
 
 func (r *commentRepo) GetCommentContentReview(ctx context.Context, page int32, uuid string) ([]*biz.TextReview, error) {
@@ -1405,7 +1723,7 @@ func (r *commentRepo) setCommentContentReviewToCache(key string, review []*biz.T
 		for _, item := range review {
 			m, err := json.Marshal(item)
 			if err != nil {
-				r.log.Errorf("fail to marshal avatar review: contentReview(%v)", review)
+				r.log.Errorf("fail to marshal avatar review: contentReview(%v), err(%v)", review, err)
 			}
 			list = append(list, m)
 		}
@@ -1414,98 +1732,7 @@ func (r *commentRepo) setCommentContentReviewToCache(key string, review []*biz.T
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set comment content review to cache: contentReview(%v)", review)
-	}
-}
-
-func (r *commentRepo) getUserSubCommentTalkRepliedListFromCache(ctx context.Context, page int32, uuid string) ([]*biz.SubComment, error) {
-	if page < 1 {
-		page = 1
-	}
-	index := int64(page - 1)
-	key := fmt.Sprintf("user_sub_comment_talk_replied_list_%s", uuid)
-	list, err := r.data.redisCli.ZRevRange(ctx, key, index*10, index*10+9).Result()
-	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user sub comment talk replied list from cache: key(%s), page(%v)", key, page))
-	}
-
-	comment := make([]*biz.SubComment, 0)
-	for _, item := range list {
-		member := strings.Split(item, "%")
-		id, err := strconv.ParseInt(member[0], 10, 32)
-		if err != nil {
-			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s)", member[0]))
-		}
-		creationId, err := strconv.ParseInt(member[1], 10, 32)
-		if err != nil {
-			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s)", member[1]))
-		}
-		rootId, err := strconv.ParseInt(member[2], 10, 32)
-		if err != nil {
-			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s)", member[2]))
-		}
-		parentId, err := strconv.ParseInt(member[3], 10, 32)
-		if err != nil {
-			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: id(%s)", member[3]))
-		}
-		comment = append(comment, &biz.SubComment{
-			CommentId:      int32(id),
-			CreationId:     int32(creationId),
-			RootId:         int32(rootId),
-			ParentId:       int32(parentId),
-			Uuid:           member[4],
-			CreationAuthor: member[5],
-			RootUser:       member[6],
-			Reply:          member[7],
-		})
-	}
-	return comment, nil
-}
-
-func (r *commentRepo) getUserSubCommentTalkRepliedListFromDB(ctx context.Context, page int32, uuid string) ([]*biz.SubComment, error) {
-	if page < 1 {
-		page = 1
-	}
-	index := int(page - 1)
-	list := make([]*SubComment, 0)
-	err := r.data.db.WithContext(ctx).Where("(root_user = ? or reply = ?) and creation_type = ?", uuid, uuid, 3).Order("comment_id desc").Offset(index * 10).Limit(10).Find(&list).Error
-	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user sub comment talk replied list from db: page(%v)", page))
-	}
-
-	comment := make([]*biz.SubComment, 0)
-	for _, item := range list {
-		comment = append(comment, &biz.SubComment{
-			CommentId:      item.CommentId,
-			Uuid:           item.Uuid,
-			CreationId:     item.CreationId,
-			RootId:         item.RootId,
-			ParentId:       item.ParentId,
-			CreationAuthor: item.CreationAuthor,
-			RootUser:       item.RootUser,
-			Reply:          item.Reply,
-		})
-	}
-	return comment, nil
-}
-
-func (r *commentRepo) setUserSubCommentTalkRepliedListToCache(uuid string, comment []*biz.SubComment) {
-	ctx := context.Background()
-	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		z := make([]*redis.Z, 0)
-		key := fmt.Sprintf("user_sub_comment_talk_replied_list_%s", uuid)
-		for _, item := range comment {
-			z = append(z, &redis.Z{
-				Score:  float64(item.CommentId),
-				Member: strconv.Itoa(int(item.CommentId)) + "%" + strconv.Itoa(int(item.CreationId)) + "%" + strconv.Itoa(int(item.RootId)) + "%" + strconv.Itoa(int(item.ParentId)) + "%" + item.Uuid + "%" + item.CreationAuthor + "%" + item.RootUser + "%" + item.Reply,
-			})
-		}
-		pipe.ZAddNX(ctx, key, z...)
-		pipe.Expire(ctx, key, time.Hour*8)
-		return nil
-	})
-	if err != nil {
-		r.log.Errorf("fail to set user sub comment talk replied list to cache: subComment(%v)", comment)
+		r.log.Errorf("fail to set comment content review to cache: contentReview(%v), err(%v)", review, err)
 	}
 }
 
@@ -1513,7 +1740,7 @@ func (r *commentRepo) GetRootComment(ctx context.Context, id int32) (*biz.Commen
 	sc := &Comment{}
 	err := r.data.DB(ctx).Where("comment_id = ?", id).First(sc).Error
 	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("db query system error: rootId(%v)", id))
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get root comment: rootId(%v)", id))
 	}
 	return &biz.Comment{
 		CreationId:     sc.CreationId,
@@ -1527,7 +1754,7 @@ func (r *commentRepo) GetSubComment(ctx context.Context, id int32) (*biz.SubComm
 	sc := &SubComment{}
 	err := r.data.DB(ctx).Where("comment_id = ?", id).First(sc).Error
 	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("db query system error: rootId(%v)", id))
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get sun comment: rootId(%v)", id))
 	}
 	return &biz.SubComment{
 		CreationId:     sc.CreationId,
@@ -1545,7 +1772,7 @@ func (r *commentRepo) GetParentCommentUserId(ctx context.Context, id, rootId int
 	sc := &SubComment{}
 	err := r.data.DB(ctx).Where("comment_id = ? and root_id = ?", id, rootId).First(sc).Error
 	if err != nil {
-		return "", errors.Wrapf(err, fmt.Sprintf("db query system error: parentId(%v)", id))
+		return "", errors.Wrapf(err, fmt.Sprintf("fail to get parent comment user id: parentId(%v)", id))
 	}
 	return sc.Uuid, nil
 }
@@ -1554,7 +1781,7 @@ func (r *commentRepo) GetSubCommentReply(ctx context.Context, id int32, uuid str
 	sc := &SubComment{}
 	err := r.data.DB(ctx).Where("comment_id = ? and uuid = ?", id, uuid).First(sc).Error
 	if err != nil {
-		return "", errors.Wrapf(err, fmt.Sprintf("db query system error: parentId(%v)", id))
+		return "", errors.Wrapf(err, fmt.Sprintf("fail to get sub comment reply: parentId(%v)", id))
 	}
 	return sc.Reply, nil
 }
@@ -2282,6 +2509,7 @@ func (r *commentRepo) CreateCommentCache(ctx context.Context, id, creationId, cr
 	commentUserRepliedField := ""
 	userCommentCreationReplyList := ""
 	userCommentCreationRepliedList := ""
+	userCommentCreationMessageRepliedList := "user_comment_replied_list_" + creationAuthor
 	switch creationType {
 	case 1:
 		commentUserReplyField = "article_reply"
@@ -2306,8 +2534,10 @@ func (r *commentRepo) CreateCommentCache(ctx context.Context, id, creationId, cr
 					local commentUserRepliedField = KEYS[7]
 					local userCommentCreationReplyList = KEYS[8]
 					local userCommentCreationRepliedList = KEYS[9]
+					local userCommentCreationMessageRepliedList = KEYS[10]
 					local memberReply = ARGV[3]
 					local memberReplied = ARGV[4]
+					local memberMessageReplied = ARGV[5]
 
 					local newKeyExist = redis.call("EXISTS", newKey)
 					local hotKeyExist = redis.call("EXISTS", hotKey)
@@ -2315,6 +2545,7 @@ func (r *commentRepo) CreateCommentCache(ctx context.Context, id, creationId, cr
 					local commentUserKey2Exist = redis.call("EXISTS", commentUserKey2)
 					local userCommentCreationReplyListExist = redis.call("EXISTS", userCommentCreationReplyList)
 					local userCommentCreationRepliedListExist = redis.call("EXISTS", userCommentCreationRepliedList)
+					local userCommentCreationMessageRepliedListExist = redis.call("EXISTS", userCommentCreationMessageRepliedList)
 
 					redis.call("HSETNX", commentKey, "agree", 0)
 					redis.call("HSETNX", commentKey, "comment", 0)
@@ -2344,12 +2575,17 @@ func (r *commentRepo) CreateCommentCache(ctx context.Context, id, creationId, cr
 
 					if userCommentCreationReplyListExist == 1 then
 						redis.call("ZADD", userCommentCreationReplyList, commentId, memberReply)
-						redis.call("EXPIRE", newKey, 28800)
+						redis.call("EXPIRE", userCommentCreationReplyList, 28800)
 					end
 
 					if userCommentCreationRepliedListExist == 1 then
 						redis.call("ZADD", userCommentCreationRepliedList, commentId, memberReplied)
-						redis.call("EXPIRE", newKey, 28800)
+						redis.call("EXPIRE", userCommentCreationRepliedList, 28800)
+					end
+
+					if userCommentCreationMessageRepliedListExist == 1 then
+						redis.call("ZADD", userCommentCreationMessageRepliedList, commentId, memberMessageReplied)
+						redis.call("EXPIRE", userCommentCreationMessageRepliedList, 28800)
 					end
 					return 0
 	`)
@@ -2363,12 +2599,14 @@ func (r *commentRepo) CreateCommentCache(ctx context.Context, id, creationId, cr
 		commentUserRepliedField,
 		userCommentCreationReplyList,
 		userCommentCreationRepliedList,
+		userCommentCreationMessageRepliedList,
 	}
 	values := []interface{}{
 		id,
 		ids + "%" + uuid,
 		ids + "%" + creationIds + "%" + creationAuthor,
 		ids + "%" + creationIds + "%" + uuid,
+		ids + "%" + creationIds + "%" + creationTypes + "%" + uuid,
 	}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
@@ -2382,11 +2620,14 @@ func (r *commentRepo) CreateSubCommentCache(ctx context.Context, id, rootId, par
 	rootIds := strconv.Itoa(int(rootId))
 	parentIds := strconv.Itoa(int(parentId))
 	creationIds := strconv.Itoa(int(creationId))
+	creationTypes := strconv.Itoa(int(creationType))
 	commentUserReplyField := ""
 	commentUserRepliedField := ""
 	userSubCommentCreationReplyList := ""
 	userSubCommentCreationRepliedListForRoot := ""
 	userSubCommentCreationRepliedListForParent := ""
+	userSubCommentCreationMessageRepliedListForRoot := "user_sub_comment_replied_list_" + rootUser
+	userSubCommentCreationMessageRepliedListForParent := "user_sub_comment_replied_list_" + reply
 	switch creationType {
 	case 1:
 		commentUserReplyField = "article_reply_sub"
@@ -2414,14 +2655,17 @@ func (r *commentRepo) CreateSubCommentCache(ctx context.Context, id, rootId, par
 					local userSubCommentCreationReplyList = KEYS[9]
 					local userSubCommentCreationRepliedListForRoot = KEYS[10]
 					local userSubCommentCreationRepliedListForParent = KEYS[11]
+					local userSubCommentCreationMessageRepliedListForRoot = KEYS[12]
+					local userSubCommentCreationMessageRepliedListForParent = KEYS[13]
 
 					local commentId = ARGV[1]
 					local subCommentListMember = ARGV[2]
 					local memberReply = ARGV[3]
 					local memberReplied = ARGV[4]
-					local parentId = ARGV[5]
-					local rootUser = ARGV[6]
-					local reply = ARGV[7]
+					local memberMessageReplied = ARGV[5]
+					local parentId = ARGV[6]
+					local rootUser = ARGV[7]
+					local reply = ARGV[8]
 
 					local commentRootExist = redis.call("EXISTS", commentRoot)
 					local subCommentListExist = redis.call("EXISTS", subCommentList)
@@ -2431,6 +2675,8 @@ func (r *commentRepo) CreateSubCommentCache(ctx context.Context, id, rootId, par
 					local userSubCommentCreationReplyListExist = redis.call("EXISTS", userSubCommentCreationReplyList)
 					local userSubCommentCreationRepliedListForRootExist = redis.call("EXISTS", userSubCommentCreationRepliedListForRoot)
 					local userSubCommentCreationRepliedListForParentExist = redis.call("EXISTS", userSubCommentCreationRepliedListForParent)
+					local userSubCommentCreationMessageRepliedListForRootExist = redis.call("EXISTS", userSubCommentCreationMessageRepliedListForRoot)
+					local userSubCommentCreationMessageRepliedListForParentExist = redis.call("EXISTS", userSubCommentCreationMessageRepliedListForParent)
 
 					redis.call("HSETNX", comment, "agree", 0)
 					redis.call("EXPIRE", comment, 28800)
@@ -2473,6 +2719,16 @@ func (r *commentRepo) CreateSubCommentCache(ctx context.Context, id, rootId, par
 						redis.call("ZADD", userSubCommentCreationRepliedListForParent, commentId, memberReplied)
 						redis.call("EXPIRE", userSubCommentCreationRepliedListForParent, 28800)
 					end
+
+					if userSubCommentCreationMessageRepliedListForRootExist == 1 then
+						redis.call("ZADD", userSubCommentCreationMessageRepliedListForRoot, commentId, memberMessageReplied)
+						redis.call("EXPIRE", userSubCommentCreationMessageRepliedListForRoot, 28800)
+					end
+
+					if userSubCommentCreationMessageRepliedListForParentExist == 1 then
+						redis.call("ZADD", userSubCommentCreationMessageRepliedListForParent, commentId, memberMessageReplied)
+						redis.call("EXPIRE", userSubCommentCreationMessageRepliedListForParent, 28800)
+					end
 					return 0
 	`)
 	keys := []string{
@@ -2487,12 +2743,15 @@ func (r *commentRepo) CreateSubCommentCache(ctx context.Context, id, rootId, par
 		userSubCommentCreationReplyList,
 		userSubCommentCreationRepliedListForRoot,
 		userSubCommentCreationRepliedListForParent,
+		userSubCommentCreationMessageRepliedListForRoot,
+		userSubCommentCreationMessageRepliedListForParent,
 	}
 	values := []interface{}{
 		id,
 		ids + "%" + uuid + "%" + reply,
 		ids + "%" + creationIds + "%" + rootIds + "%" + parentIds + "%" + creationAuthor + "%" + rootUser + "%" + reply,
 		ids + "%" + creationIds + "%" + rootIds + "%" + parentIds + "%" + uuid + "%" + creationAuthor + "%" + rootUser + "%" + reply,
+		ids + "%" + creationIds + "%" + creationTypes + "%" + rootIds + "%" + parentIds + "%" + uuid + "%" + creationAuthor + "%" + rootUser + "%" + reply,
 		parentId,
 		rootUser,
 		reply,
@@ -2830,6 +3089,7 @@ func (r *commentRepo) RemoveCommentCache(ctx context.Context, id, creationId, cr
 	commentUserRepliedField := ""
 	userCommentCreationReplyList := ""
 	userCommentCreationRepliedList := ""
+	userCommentCreationMessageRepliedList := "user_comment_replied_list_" + creationAuthor
 	switch creationType {
 	case 1:
 		commentUserReplyField = "article_reply"
@@ -2855,8 +3115,10 @@ func (r *commentRepo) RemoveCommentCache(ctx context.Context, id, creationId, cr
 					local commentUserRepliedField = KEYS[7]
 					local userCommentCreationReplyList = KEYS[8]
 					local userCommentCreationRepliedList = KEYS[9]
+					local userCommentCreationMessageRepliedList = KEYS[10]
 					local memberReply = ARGV[3]
 					local memberReplied = ARGV[4]
+					local memberMessageReplied = ARGV[5]
 
 
 					local commentUserKey1Exist = redis.call("EXISTS", commentUserKey1)
@@ -2888,6 +3150,7 @@ func (r *commentRepo) RemoveCommentCache(ctx context.Context, id, creationId, cr
 
 					redis.call("ZREM", userCommentCreationReplyList, memberReply)
 					redis.call("ZREM", userCommentCreationRepliedList, memberReplied)
+					redis.call("ZREM", userCommentCreationMessageRepliedList, memberMessageReplied)
 					return 0
 	`)
 	keys := []string{
@@ -2900,12 +3163,14 @@ func (r *commentRepo) RemoveCommentCache(ctx context.Context, id, creationId, cr
 		commentUserRepliedField,
 		userCommentCreationReplyList,
 		userCommentCreationRepliedList,
+		userCommentCreationMessageRepliedList,
 	}
 	values := []interface{}{
 		id,
 		ids + "%" + uuid,
 		ids + "%" + creationIds + "%" + creationAuthor,
 		ids + "%" + creationIds + "%" + uuid,
+		ids + "%" + creationIds + "%" + creationTypes + "%" + uuid,
 	}
 
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -2920,11 +3185,14 @@ func (r *commentRepo) RemoveSubCommentCache(ctx context.Context, id, rootId, par
 	rootIds := strconv.Itoa(int(rootId))
 	parentIds := strconv.Itoa(int(parentId))
 	creationIds := strconv.Itoa(int(creationId))
+	creationTypes := strconv.Itoa(int(creationType))
 	commentUserReplyField := ""
 	commentUserRepliedField := ""
 	userSubCommentCreationReplyList := ""
 	userSubCommentCreationRepliedListForRoot := ""
 	userSubCommentCreationRepliedListForParent := ""
+	userSubCommentCreationMessageRepliedListForRoot := "user_sub_comment_replied_list_" + rootUser
+	userSubCommentCreationMessageRepliedListForParent := "user_sub_comment_replied_list_" + reply
 	switch creationType {
 	case 1:
 		commentUserReplyField = "article_reply_sub"
@@ -2952,14 +3220,17 @@ func (r *commentRepo) RemoveSubCommentCache(ctx context.Context, id, rootId, par
 					local userSubCommentCreationReplyList = KEYS[9]
 					local userSubCommentCreationRepliedListForRoot = KEYS[10]
 					local userSubCommentCreationRepliedListForParent = KEYS[11]
+					local userSubCommentCreationMessageRepliedListForRoot = KEYS[12]
+					local userSubCommentCreationMessageRepliedListForParent = KEYS[13]
 
 					local commentId = ARGV[1]
 					local subCommentListMember = ARGV[2]
 					local memberReply = ARGV[3]
 					local memberReplied = ARGV[4]
-					local parentId = ARGV[5]
-					local rootUser = ARGV[6]
-					local reply = ARGV[7]
+					local memberMessageReplied = ARGV[5]
+					local parentId = ARGV[6]
+					local rootUser = ARGV[7]
+					local reply = ARGV[8]
 
 					local commentRootExist = redis.call("EXISTS", commentRoot)
 					local commentUserKey1Exist = redis.call("EXISTS", commentUserKey1)
@@ -3006,6 +3277,8 @@ func (r *commentRepo) RemoveSubCommentCache(ctx context.Context, id, rootId, par
 					redis.call("ZREM", userSubCommentCreationReplyList, memberReply)
 					redis.call("ZREM", userSubCommentCreationRepliedListForRoot, memberReplied)
 					redis.call("ZREM", userSubCommentCreationRepliedListForParent, memberReplied)
+					redis.call("ZREM", userSubCommentCreationMessageRepliedListForRoot, memberMessageReplied)
+					redis.call("ZREM", userSubCommentCreationMessageRepliedListForParent, memberMessageReplied)
 					return 0
 	`)
 	keys := []string{
@@ -3020,12 +3293,15 @@ func (r *commentRepo) RemoveSubCommentCache(ctx context.Context, id, rootId, par
 		userSubCommentCreationReplyList,
 		userSubCommentCreationRepliedListForRoot,
 		userSubCommentCreationRepliedListForParent,
+		userSubCommentCreationMessageRepliedListForRoot,
+		userSubCommentCreationMessageRepliedListForParent,
 	}
 	values := []interface{}{
 		id,
 		ids + "%" + uuid + "%" + reply,
 		ids + "%" + creationIds + "%" + rootIds + "%" + parentIds + "%" + creationAuthor + "%" + rootUser + "%" + reply,
 		ids + "%" + creationIds + "%" + rootIds + "%" + parentIds + "%" + uuid + "%" + creationAuthor + "%" + rootUser + "%" + reply,
+		ids + "%" + creationIds + "%" + creationTypes + "%" + rootIds + "%" + parentIds + "%" + uuid + "%" + creationAuthor + "%" + rootUser + "%" + reply,
 		parentId,
 		rootUser,
 		reply,
