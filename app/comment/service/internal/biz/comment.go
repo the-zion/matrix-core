@@ -7,7 +7,9 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/pkg/errors"
 	v1 "github.com/the-zion/matrix-core/api/comment/service/v1"
+	creationv1 "github.com/the-zion/matrix-core/api/creation/service/v1"
 	"golang.org/x/sync/errgroup"
+	"gorm.io/gorm"
 )
 
 type CommentRepo interface {
@@ -27,6 +29,8 @@ type CommentRepo interface {
 	GetUserSubCommentArticleRepliedList(ctx context.Context, page int32, uuid string) ([]*SubComment, error)
 	GetUserCommentTalkRepliedList(ctx context.Context, page int32, uuid string) ([]*Comment, error)
 	GetUserSubCommentTalkRepliedList(ctx context.Context, page int32, uuid string) ([]*SubComment, error)
+	GetUserCommentRepliedList(ctx context.Context, page int32, uuid string) ([]*Comment, error)
+	GetUserSubCommentRepliedList(ctx context.Context, page int32, uuid string) ([]*SubComment, error)
 	GetCommentContentReview(ctx context.Context, page int32, uuid string) ([]*TextReview, error)
 	GetRootComment(ctx context.Context, id int32) (*Comment, error)
 	GetSubComment(ctx context.Context, id int32) (*SubComment, error)
@@ -233,6 +237,22 @@ func (r *CommentUseCase) GetUserSubCommentTalkRepliedList(ctx context.Context, p
 	commentList, err := r.repo.GetUserSubCommentTalkRepliedList(ctx, page, uuid)
 	if err != nil {
 		return nil, v1.ErrorGetUserSubCommentCreationRepliedListFailed("get user sub comment talk replied list failed: %s", err.Error())
+	}
+	return commentList, nil
+}
+
+func (r *CommentUseCase) GetUserCommentRepliedList(ctx context.Context, page int32, uuid string) ([]*Comment, error) {
+	commentList, err := r.repo.GetUserCommentRepliedList(ctx, page, uuid)
+	if err != nil {
+		return nil, v1.ErrorGetUserCommentCreationRepliedListFailed("get user comment replied list failed: %s", err.Error())
+	}
+	return commentList, nil
+}
+
+func (r *CommentUseCase) GetUserSubCommentRepliedList(ctx context.Context, page int32, uuid string) ([]*SubComment, error) {
+	commentList, err := r.repo.GetUserSubCommentRepliedList(ctx, page, uuid)
+	if err != nil {
+		return nil, v1.ErrorGetUserSubCommentCreationRepliedListFailed("get user sub comment replied list failed: %s", err.Error())
 	}
 	return commentList, nil
 }
@@ -559,39 +579,43 @@ func (r *CommentUseCase) AddCommentContentReviewDbAndCache(ctx context.Context, 
 }
 
 func (r *CommentUseCase) CreateCommentDbAndCache(ctx context.Context, id, creationId, creationType int32, uuid string) error {
-	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+	err := r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		var err error
 		err = r.repo.DeleteCommentDraft(ctx, id, uuid)
 		if err != nil {
-			return v1.ErrorCreateCommentFailed("delete comment draft failed: %s", err.Error())
+			return err
 		}
 
 		creationAuthor, err := r.getCreationAuthor(ctx, creationId, creationType)
 		if err != nil {
-			return v1.ErrorCreateCommentFailed("get creation author failed: %s", err.Error())
+			return err
 		}
 
 		err = r.repo.CreateComment(ctx, id, creationId, creationType, creationAuthor, uuid)
 		if err != nil {
-			return v1.ErrorCreateCommentFailed("create comment failed: %s", err.Error())
+			return err
 		}
 
 		err = r.addCommentUser(ctx, creationType, creationAuthor, uuid)
 		if err != nil {
-			return v1.ErrorCreateCommentFailed("create comment user failed: %s", err.Error())
+			return err
 		}
 
 		err = r.repo.CreateCommentCache(ctx, id, creationId, creationType, creationAuthor, uuid)
 		if err != nil {
-			return v1.ErrorCreateCommentFailed("create comment cache failed: %s", err.Error())
+			return err
 		}
 
 		err = r.repo.SendScoreToMq(ctx, 5, uuid, "add_score")
 		if err != nil {
-			return v1.ErrorCreateCommentFailed("send 5 score to mq failed: %s", err.Error())
+			return err
 		}
 		return nil
 	})
+	if err != nil && !creationv1.IsRecordNotFound(err) {
+		return v1.ErrorCreateCommentFailed("create comment failed: %s", err.Error())
+	}
+	return nil
 }
 
 func (r *CommentUseCase) getCreationAuthor(ctx context.Context, creationId, creationType int32) (string, error) {
@@ -615,51 +639,55 @@ func (r *CommentUseCase) addCommentUser(ctx context.Context, creationType int32,
 }
 
 func (r *CommentUseCase) CreateSubCommentDbAndCache(ctx context.Context, id, rootId, parentId int32, uuid string) error {
-	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+	err := r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		var err error
 		var parentUserId string
 		if parentId != 0 {
 			parentUserId, err = r.repo.GetParentCommentUserId(ctx, parentId, rootId)
 			if err != nil {
-				return v1.ErrorCreateCommentFailed("get sub comment parent id failed: %s", err.Error())
+				return err
 			}
 		}
 		err = r.repo.DeleteCommentDraft(ctx, id, uuid)
 		if err != nil {
-			return v1.ErrorCreateCommentFailed("delete sub comment draft failed: %s", err.Error())
+			return err
 		}
 
 		rootComment, err := r.repo.GetRootComment(ctx, rootId)
 		if err != nil {
-			return v1.ErrorCreateCommentFailed("get sub comment parent id failed: %s", err.Error())
+			return err
 		}
 
 		err = r.repo.CreateSubComment(ctx, id, rootId, parentId, rootComment.CreationId, rootComment.CreationType, rootComment.CreationAuthor, rootComment.Uuid, uuid, parentUserId)
 		if err != nil {
-			return v1.ErrorCreateCommentFailed("create sub comment failed: %s", err.Error())
+			return err
 		}
 
 		err = r.repo.SetCommentComment(ctx, rootId)
 		if err != nil {
-			return v1.ErrorCreateCommentFailed("create sub comment failed: %s", err.Error())
+			return err
 		}
 
 		err = r.addSubCommentUser(ctx, rootComment.CreationType, parentId, rootComment.Uuid, parentUserId, uuid)
 		if err != nil {
-			return v1.ErrorCreateCommentFailed("create comment user failed: %s", err.Error())
+			return err
 		}
 
 		err = r.repo.CreateSubCommentCache(ctx, id, rootId, parentId, rootComment.CreationId, rootComment.CreationType, rootComment.CreationAuthor, rootComment.Uuid, uuid, parentUserId)
 		if err != nil {
-			return v1.ErrorCreateCommentFailed("create sub comment cache failed: %s", err.Error())
+			return err
 		}
 
 		err = r.repo.SendScoreToMq(ctx, 5, uuid, "add_score")
 		if err != nil {
-			return v1.ErrorCreateCommentFailed("send 5 score to mq failed: %s", err.Error())
+			return err
 		}
 		return nil
 	})
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return v1.ErrorCreateCommentFailed("create sub comment failed: %s", err.Error())
+	}
+	return nil
 }
 
 func (r *CommentUseCase) addSubCommentUser(ctx context.Context, creationType, parentId int32, rootUser, parentUser, uuid string) error {
@@ -673,39 +701,42 @@ func (r *CommentUseCase) addSubCommentUser(ctx context.Context, creationType, pa
 }
 
 func (r *CommentUseCase) RemoveCommentDbAndCache(ctx context.Context, id int32, uuid string) error {
-	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+	err := r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		var err error
 		rootComment, err := r.repo.GetRootComment(ctx, id)
 		if err != nil {
-			return v1.ErrorRemoveCommentFailed("get comment info failed: %s", err.Error())
+			return err
 		}
 		err = r.repo.RemoveComment(ctx, id, uuid)
 		if err != nil {
-			return v1.ErrorRemoveCommentFailed("remove comment failed: %s", err.Error())
+			return err
 		}
 
 		err = r.repo.RemoveCommentAgree(ctx, id, rootComment.Uuid)
 		if err != nil {
-			return v1.ErrorRemoveCommentFailed("remove comment agree record failed: %s", err.Error())
+			return err
 		}
 
 		err = r.reduceCommentUser(ctx, rootComment.CreationType, rootComment.CreationAuthor, rootComment.Uuid)
 		if err != nil {
-			return v1.ErrorRemoveCommentFailed("reduce comment user failed: %s", err.Error())
+			return err
 		}
 
 		err = r.repo.RemoveCommentCache(ctx, id, rootComment.CreationId, rootComment.CreationType, rootComment.CreationAuthor, rootComment.Uuid)
 		if err != nil {
-			return v1.ErrorRemoveCommentFailed("remove comment cache failed: %s", err.Error())
+			return err
 		}
 
 		err = r.repo.ReduceCreationComment(ctx, rootComment.CreationId, rootComment.CreationType, rootComment.CreationAuthor)
 		if err != nil {
-			return v1.ErrorRemoveCommentFailed("reduce creation comment failed: %s", err.Error())
+			return err
 		}
-
 		return nil
 	})
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return v1.ErrorRemoveCommentFailed("remove comment failed: %s", err.Error())
+	}
+	return nil
 }
 
 func (r *CommentUseCase) reduceCommentUser(ctx context.Context, creationType int32, creationAuthor, uuid string) error {
@@ -719,34 +750,38 @@ func (r *CommentUseCase) reduceCommentUser(ctx context.Context, creationType int
 }
 
 func (r *CommentUseCase) RemoveSubCommentDbAndCache(ctx context.Context, id int32, uuid string) error {
-	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
+	err := r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		var err error
 		subComment, err := r.repo.GetSubComment(ctx, id)
 		if err != nil {
-			return v1.ErrorRemoveCommentFailed("get sub comment failed: %s", err.Error())
+			return err
 		}
 
 		err = r.repo.RemoveSubComment(ctx, id, subComment.RootId, uuid)
 		if err != nil {
-			return v1.ErrorRemoveCommentFailed("remove sub comment failed: %s", err.Error())
+			return err
 		}
 
-		err = r.repo.RemoveCommentAgree(ctx, id, uuid)
+		err = r.repo.RemoveCommentAgree(ctx, id, subComment.Uuid)
 		if err != nil {
-			return v1.ErrorRemoveCommentFailed("remove sub comment agree record failed: %s", err.Error())
+			return err
 		}
 
-		err = r.reduceSubCommentUser(ctx, subComment.CreationType, subComment.ParentId, subComment.Uuid, subComment.Reply, uuid)
+		err = r.reduceSubCommentUser(ctx, subComment.CreationType, subComment.ParentId, subComment.RootUser, subComment.Reply, subComment.Uuid)
 		if err != nil {
-			return v1.ErrorCreateCommentFailed("create comment user failed: %s", err.Error())
+			return err
 		}
 
 		err = r.repo.RemoveSubCommentCache(ctx, id, subComment.RootId, subComment.ParentId, subComment.CreationId, subComment.CreationType, subComment.CreationAuthor, subComment.RootUser, subComment.Uuid, subComment.Reply)
 		if err != nil {
-			return v1.ErrorRemoveCommentFailed("remove sub comment cache failed: %s", err.Error())
+			return err
 		}
 		return nil
 	})
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return v1.ErrorRemoveCommentFailed("remove sub comment failed: %s", err.Error())
+	}
+	return nil
 }
 
 func (r *CommentUseCase) reduceSubCommentUser(ctx context.Context, creationType, parentId int32, rootUser, parentUser, uuid string) error {
