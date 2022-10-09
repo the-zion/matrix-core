@@ -318,6 +318,44 @@ func (r *UserUseCase) GetUserFollows(ctx context.Context) (map[string]bool, erro
 	return r.repo.GetUserFollows(ctx, uuid)
 }
 
+func (r *UserUseCase) GetTimeLineUsers(ctx context.Context) ([]*TimeLIneFollows, error) {
+	uuid := ctx.Value("uuid").(string)
+	follows, err := r.repo.GetUserFollows(ctx, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	followList := make([]*TimeLIneFollows, 0)
+	uuids := make([]string, 0)
+	for key := range follows {
+		followList = append(followList, &TimeLIneFollows{
+			Uuid: key,
+		})
+		uuids = append(uuids, key)
+	}
+
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(r.re.GroupRecover(ctx, func(ctx context.Context) error {
+		userProfileList, err := r.repo.GetProfileList(ctx, uuids)
+		if err != nil {
+			return err
+		}
+		for _, item := range userProfileList {
+			for index, listItem := range followList {
+				if listItem.Uuid == item.Uuid {
+					followList[index].Username = item.Username
+				}
+			}
+		}
+		return nil
+	}))
+	err = g.Wait()
+	if err != nil {
+		return nil, err
+	}
+	return followList, nil
+}
+
 func (r *UserUseCase) GetUserSearch(ctx context.Context, page int32, search string) ([]*UserSearch, int32, error) {
 	searchList, total, err := r.repo.GetUserSearch(ctx, page, search)
 	if err != nil {
