@@ -388,20 +388,25 @@ func (s *CommentService) CreateSubComment(ctx context.Context, req *v1.CreateSub
 	return &emptypb.Empty{}, nil
 }
 
-func (s *CommentService) CreateCommentDbAndCache(ctx context.Context, req *v1.CreateCommentDbAndCacheReq) (*emptypb.Empty, error) {
-	err := s.cc.CreateCommentDbAndCache(ctx, req.Id, req.CreationId, req.CreationType, req.Uuid)
+func (s *CommentService) CreateCommentDbAndCache(ctx context.Context, req *v1.CreateCommentDbAndCacheReq) (*v1.CreateCommentDbAndCacheReply, error) {
+	author, err := s.cc.CreateCommentDbAndCache(ctx, req.Id, req.CreationId, req.CreationType, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
-	return &emptypb.Empty{}, nil
+	return &v1.CreateCommentDbAndCacheReply{
+		Author: author,
+	}, nil
 }
 
-func (s *CommentService) CreateSubCommentDbAndCache(ctx context.Context, req *v1.CreateSubCommentDbAndCacheReq) (*emptypb.Empty, error) {
-	err := s.cc.CreateSubCommentDbAndCache(ctx, req.Id, req.RootId, req.ParentId, req.Uuid)
+func (s *CommentService) CreateSubCommentDbAndCache(ctx context.Context, req *v1.CreateSubCommentDbAndCacheReq) (*v1.CreateSubCommentDbAndCacheReply, error) {
+	root, parent, err := s.cc.CreateSubCommentDbAndCache(ctx, req.Id, req.RootId, req.ParentId, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
-	return &emptypb.Empty{}, nil
+	return &v1.CreateSubCommentDbAndCacheReply{
+		Root:   root,
+		Parent: parent,
+	}, nil
 }
 
 func (s *CommentService) SendComment(ctx context.Context, req *v1.SendCommentReq) (*emptypb.Empty, error) {
