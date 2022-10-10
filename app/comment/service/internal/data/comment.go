@@ -342,7 +342,7 @@ func (r *commentRepo) getSubCommentFromDB(ctx context.Context, page, id int32) (
 	}
 	index := int(page - 1)
 	list := make([]*SubComment, 0)
-	err := r.data.db.WithContext(ctx).Where("root_id = ?", id).Order("comment_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("updated_at", "comment_id", "uuid", "reply").Where("root_id = ?", id).Order("updated_at desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get sub comment from db: page(%v)", page))
 	}
@@ -351,6 +351,7 @@ func (r *commentRepo) getSubCommentFromDB(ctx context.Context, page, id int32) (
 	for _, item := range list {
 		subComment = append(subComment, &biz.SubComment{
 			CommentId: item.CommentId,
+			UpdatedAt: int32(item.UpdatedAt.Unix()),
 			Uuid:      item.Uuid,
 			Reply:     item.Reply,
 		})
@@ -385,7 +386,7 @@ func (r *commentRepo) setSubCommentToCache(id int32, subComment []*biz.SubCommen
 		key := fmt.Sprintf("sub_comment_%v", id)
 		for _, item := range subComment {
 			z = append(z, &redis.Z{
-				Score:  float64(item.CommentId),
+				Score:  float64(item.UpdatedAt),
 				Member: strconv.Itoa(int(item.CommentId)) + "%" + item.Uuid + "%" + item.Reply,
 			})
 		}
@@ -566,7 +567,6 @@ func (r *commentRepo) GetUserCommentArticleReplyList(ctx context.Context, page i
 
 	size = len(commentList)
 	if size != 0 {
-		//go r.setUserCommentArticleReplyListToCache(uuid, commentList)
 		go r.data.Recover(context.Background(), func(ctx context.Context) {
 			r.setUserCommentArticleReplyListToCache(uuid, commentList)
 		})()
@@ -611,7 +611,7 @@ func (r *commentRepo) getUserCommentArticleReplyListFromDB(ctx context.Context, 
 	}
 	index := int(page - 1)
 	list := make([]*Comment, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid = ? and creation_type = ?", uuid, 1).Order("comment_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("comment_id", "updated_at", "creation_id", "creation_author").Where("uuid = ? and creation_type = ?", uuid, 1).Order("updated_at desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user comment article reply list from db: page(%v)", page))
 	}
@@ -620,6 +620,7 @@ func (r *commentRepo) getUserCommentArticleReplyListFromDB(ctx context.Context, 
 	for _, item := range list {
 		comment = append(comment, &biz.Comment{
 			CommentId:      item.CommentId,
+			UpdatedAt:      int32(item.UpdatedAt.Unix()),
 			CreationId:     item.CreationId,
 			CreationAuthor: item.CreationAuthor,
 		})
@@ -634,7 +635,7 @@ func (r *commentRepo) setUserCommentArticleReplyListToCache(uuid string, comment
 		key := fmt.Sprintf("user_comment_article_reply_list_%s", uuid)
 		for _, item := range comment {
 			z = append(z, &redis.Z{
-				Score:  float64(item.CommentId),
+				Score:  float64(item.UpdatedAt),
 				Member: strconv.Itoa(int(item.CommentId)) + "%" + strconv.Itoa(int(item.CreationId)) + "%" + item.CreationAuthor,
 			})
 		}
@@ -721,7 +722,7 @@ func (r *commentRepo) getUserSubCommentArticleReplyListFromDB(ctx context.Contex
 	}
 	index := int(page - 1)
 	list := make([]*SubComment, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid = ? and creation_type = ?", uuid, 1).Order("comment_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("comment_id", "updated_at", "creation_id", "root_id", "parent_id", "creation_author", "root_user", "reply").Where("uuid = ? and creation_type = ?", uuid, 1).Order("updated_at desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user sub comment article reply list from db: page(%v)", page))
 	}
@@ -730,6 +731,7 @@ func (r *commentRepo) getUserSubCommentArticleReplyListFromDB(ctx context.Contex
 	for _, item := range list {
 		comment = append(comment, &biz.SubComment{
 			CommentId:      item.CommentId,
+			UpdatedAt:      int32(item.UpdatedAt.Unix()),
 			CreationId:     item.CreationId,
 			RootId:         item.RootId,
 			ParentId:       item.ParentId,
@@ -748,7 +750,7 @@ func (r *commentRepo) setUserSubCommentArticleReplyListToCache(uuid string, comm
 		key := fmt.Sprintf("user_sub_comment_article_reply_list_%s", uuid)
 		for _, item := range comment {
 			z = append(z, &redis.Z{
-				Score:  float64(item.CommentId),
+				Score:  float64(item.UpdatedAt),
 				Member: strconv.Itoa(int(item.CommentId)) + "%" + strconv.Itoa(int(item.CreationId)) + "%" + strconv.Itoa(int(item.RootId)) + "%" + strconv.Itoa(int(item.ParentId)) + "%" + item.CreationAuthor + "%" + item.RootUser + "%" + item.Reply,
 			})
 		}
@@ -779,7 +781,6 @@ func (r *commentRepo) GetUserCommentTalkReplyList(ctx context.Context, page int3
 
 	size = len(commentList)
 	if size != 0 {
-		//go r.setUserCommentArticleReplyListToCache(uuid, commentList)
 		go r.data.Recover(context.Background(), func(ctx context.Context) {
 			r.setUserCommentTalkReplyListToCache(uuid, commentList)
 		})()
@@ -824,7 +825,7 @@ func (r *commentRepo) getUserCommentTalkReplyListFromDB(ctx context.Context, pag
 	}
 	index := int(page - 1)
 	list := make([]*Comment, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid = ? and creation_type = ?", uuid, 3).Order("comment_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("comment_id", "updated_at", "creation_id", "creation_author").Where("uuid = ? and creation_type = ?", uuid, 3).Order("updated_at desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user comment talk reply list from db: page(%v)", page))
 	}
@@ -833,6 +834,7 @@ func (r *commentRepo) getUserCommentTalkReplyListFromDB(ctx context.Context, pag
 	for _, item := range list {
 		comment = append(comment, &biz.Comment{
 			CommentId:      item.CommentId,
+			UpdatedAt:      int32(item.UpdatedAt.Unix()),
 			CreationId:     item.CreationId,
 			CreationAuthor: item.CreationAuthor,
 		})
@@ -847,7 +849,7 @@ func (r *commentRepo) setUserCommentTalkReplyListToCache(uuid string, comment []
 		key := fmt.Sprintf("user_comment_talk_reply_list_%s", uuid)
 		for _, item := range comment {
 			z = append(z, &redis.Z{
-				Score:  float64(item.CommentId),
+				Score:  float64(item.UpdatedAt),
 				Member: strconv.Itoa(int(item.CommentId)) + "%" + strconv.Itoa(int(item.CreationId)) + "%" + item.CreationAuthor,
 			})
 		}
@@ -934,7 +936,7 @@ func (r *commentRepo) getUserSubCommentTalkReplyListFromDB(ctx context.Context, 
 	}
 	index := int(page - 1)
 	list := make([]*SubComment, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid = ? and creation_type = ?", uuid, 3).Order("comment_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("comment_id", "updated_at", "creation_id", "root_id", "parent_id", "creation_author", "root_user", "reply").Where("uuid = ? and creation_type = ?", uuid, 3).Order("updated_at desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user sub comment talk reply list from db: page(%v)", page))
 	}
@@ -943,6 +945,7 @@ func (r *commentRepo) getUserSubCommentTalkReplyListFromDB(ctx context.Context, 
 	for _, item := range list {
 		comment = append(comment, &biz.SubComment{
 			CommentId:      item.CommentId,
+			UpdatedAt:      int32(item.UpdatedAt.Unix()),
 			CreationId:     item.CreationId,
 			RootId:         item.RootId,
 			ParentId:       item.ParentId,
@@ -961,7 +964,7 @@ func (r *commentRepo) setUserSubCommentTalkReplyListToCache(uuid string, comment
 		key := fmt.Sprintf("user_sub_comment_talk_reply_list_%s", uuid)
 		for _, item := range comment {
 			z = append(z, &redis.Z{
-				Score:  float64(item.CommentId),
+				Score:  float64(item.UpdatedAt),
 				Member: strconv.Itoa(int(item.CommentId)) + "%" + strconv.Itoa(int(item.CreationId)) + "%" + strconv.Itoa(int(item.RootId)) + "%" + strconv.Itoa(int(item.ParentId)) + "%" + item.CreationAuthor + "%" + item.RootUser + "%" + item.Reply,
 			})
 		}
@@ -1036,7 +1039,7 @@ func (r *commentRepo) getUserCommentArticleRepliedListFromDB(ctx context.Context
 	}
 	index := int(page - 1)
 	list := make([]*Comment, 0)
-	err := r.data.db.WithContext(ctx).Where("creation_author = ? and creation_type = ?", uuid, 1).Order("comment_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("comment_id", "updated_at", "creation_id", "uuid").Where("creation_author = ? and creation_type = ?", uuid, 1).Order("updated_at desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user comment article replied list from db: page(%v)", page))
 	}
@@ -1045,6 +1048,7 @@ func (r *commentRepo) getUserCommentArticleRepliedListFromDB(ctx context.Context
 	for _, item := range list {
 		comment = append(comment, &biz.Comment{
 			CommentId:  item.CommentId,
+			UpdatedAt:  int32(item.UpdatedAt.Unix()),
 			CreationId: item.CreationId,
 			Uuid:       item.Uuid,
 		})
@@ -1059,7 +1063,7 @@ func (r *commentRepo) setUserCommentArticleRepliedListToCache(uuid string, comme
 		key := fmt.Sprintf("user_comment_article_replied_list_%s", uuid)
 		for _, item := range comment {
 			z = append(z, &redis.Z{
-				Score:  float64(item.CommentId),
+				Score:  float64(item.UpdatedAt),
 				Member: strconv.Itoa(int(item.CommentId)) + "%" + strconv.Itoa(int(item.CreationId)) + "%" + item.Uuid,
 			})
 		}
@@ -1147,7 +1151,7 @@ func (r *commentRepo) getUserSubCommentArticleRepliedListFromDB(ctx context.Cont
 	}
 	index := int(page - 1)
 	list := make([]*SubComment, 0)
-	err := r.data.db.WithContext(ctx).Where("(root_user = ? or reply = ?) and creation_type = ?", uuid, uuid, 1).Order("comment_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("comment_id", "updated_at", "uuid", "creation_id", "root_id", "parent_id", "creation_author", "root_user", "reply").Where("(root_user = ? or reply = ?) and creation_type = ?", uuid, uuid, 1).Order("updated_at desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user sub comment article replied list from db: page(%v)", page))
 	}
@@ -1156,6 +1160,7 @@ func (r *commentRepo) getUserSubCommentArticleRepliedListFromDB(ctx context.Cont
 	for _, item := range list {
 		comment = append(comment, &biz.SubComment{
 			CommentId:      item.CommentId,
+			UpdatedAt:      int32(item.UpdatedAt.Unix()),
 			Uuid:           item.Uuid,
 			CreationId:     item.CreationId,
 			RootId:         item.RootId,
@@ -1175,7 +1180,7 @@ func (r *commentRepo) setUserSubCommentArticleRepliedListToCache(uuid string, co
 		key := fmt.Sprintf("user_sub_comment_article_replied_list_%s", uuid)
 		for _, item := range comment {
 			z = append(z, &redis.Z{
-				Score:  float64(item.CommentId),
+				Score:  float64(item.UpdatedAt),
 				Member: strconv.Itoa(int(item.CommentId)) + "%" + strconv.Itoa(int(item.CreationId)) + "%" + strconv.Itoa(int(item.RootId)) + "%" + strconv.Itoa(int(item.ParentId)) + "%" + item.Uuid + "%" + item.CreationAuthor + "%" + item.RootUser + "%" + item.Reply,
 			})
 		}
@@ -1250,7 +1255,7 @@ func (r *commentRepo) getUserCommentTalkRepliedListFromDB(ctx context.Context, p
 	}
 	index := int(page - 1)
 	list := make([]*Comment, 0)
-	err := r.data.db.WithContext(ctx).Where("creation_author = ? and creation_type = ?", uuid, 3).Order("comment_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("comment_id", "updated_at", "creation_id", "uuid").Where("creation_author = ? and creation_type = ?", uuid, 3).Order("updated_at desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user comment talk replied list from db: page(%v)", page))
 	}
@@ -1259,6 +1264,7 @@ func (r *commentRepo) getUserCommentTalkRepliedListFromDB(ctx context.Context, p
 	for _, item := range list {
 		comment = append(comment, &biz.Comment{
 			CommentId:  item.CommentId,
+			UpdatedAt:  int32(item.UpdatedAt.Unix()),
 			CreationId: item.CreationId,
 			Uuid:       item.Uuid,
 		})
@@ -1273,7 +1279,7 @@ func (r *commentRepo) setUserCommentTalkRepliedListToCache(uuid string, comment 
 		key := fmt.Sprintf("user_comment_talk_replied_list_%s", uuid)
 		for _, item := range comment {
 			z = append(z, &redis.Z{
-				Score:  float64(item.CommentId),
+				Score:  float64(item.UpdatedAt),
 				Member: strconv.Itoa(int(item.CommentId)) + "%" + strconv.Itoa(int(item.CreationId)) + "%" + item.Uuid,
 			})
 		}
@@ -1361,7 +1367,7 @@ func (r *commentRepo) getUserSubCommentTalkRepliedListFromDB(ctx context.Context
 	}
 	index := int(page - 1)
 	list := make([]*SubComment, 0)
-	err := r.data.db.WithContext(ctx).Where("(root_user = ? or reply = ?) and creation_type = ?", uuid, uuid, 3).Order("comment_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("comment_id", "updated_at", "uuid", "creation_id", "root_id", "parent_id", "creation_author", "root_user", "reply").Where("(root_user = ? or reply = ?) and creation_type = ?", uuid, uuid, 3).Order("updated_at desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user sub comment talk replied list from db: page(%v)", page))
 	}
@@ -1370,6 +1376,7 @@ func (r *commentRepo) getUserSubCommentTalkRepliedListFromDB(ctx context.Context
 	for _, item := range list {
 		comment = append(comment, &biz.SubComment{
 			CommentId:      item.CommentId,
+			UpdatedAt:      int32(item.UpdatedAt.Unix()),
 			Uuid:           item.Uuid,
 			CreationId:     item.CreationId,
 			RootId:         item.RootId,
@@ -1389,7 +1396,7 @@ func (r *commentRepo) setUserSubCommentTalkRepliedListToCache(uuid string, comme
 		key := fmt.Sprintf("user_sub_comment_talk_replied_list_%s", uuid)
 		for _, item := range comment {
 			z = append(z, &redis.Z{
-				Score:  float64(item.CommentId),
+				Score:  float64(item.UpdatedAt),
 				Member: strconv.Itoa(int(item.CommentId)) + "%" + strconv.Itoa(int(item.CreationId)) + "%" + strconv.Itoa(int(item.RootId)) + "%" + strconv.Itoa(int(item.ParentId)) + "%" + item.Uuid + "%" + item.CreationAuthor + "%" + item.RootUser + "%" + item.Reply,
 			})
 		}
@@ -1469,7 +1476,7 @@ func (r *commentRepo) getUserCommentRepliedListFromDB(ctx context.Context, page 
 	}
 	index := int(page - 1)
 	list := make([]*Comment, 0)
-	err := r.data.db.WithContext(ctx).Where("creation_author = ?", uuid).Order("comment_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("comment_id", "updated_at", "creation_id", "creation_type", "uuid").Where("creation_author = ?", uuid).Order("updated_at desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user comment replied list from db: page(%v)", page))
 	}
@@ -1478,6 +1485,7 @@ func (r *commentRepo) getUserCommentRepliedListFromDB(ctx context.Context, page 
 	for _, item := range list {
 		comment = append(comment, &biz.Comment{
 			CommentId:    item.CommentId,
+			UpdatedAt:    int32(item.UpdatedAt.Unix()),
 			CreationId:   item.CreationId,
 			CreationType: item.CreationType,
 			Uuid:         item.Uuid,
@@ -1493,7 +1501,7 @@ func (r *commentRepo) setUserCommentRepliedListToCache(uuid string, comment []*b
 		key := fmt.Sprintf("user_comment_replied_list_%s", uuid)
 		for _, item := range comment {
 			z = append(z, &redis.Z{
-				Score:  float64(item.CommentId),
+				Score:  float64(item.UpdatedAt),
 				Member: strconv.Itoa(int(item.CommentId)) + "%" + strconv.Itoa(int(item.CreationId)) + "%" + strconv.Itoa(int(item.CreationType)) + "%" + item.Uuid,
 			})
 		}
@@ -1586,7 +1594,7 @@ func (r *commentRepo) getUserSubCommentRepliedListFromDB(ctx context.Context, pa
 	}
 	index := int(page - 1)
 	list := make([]*SubComment, 0)
-	err := r.data.db.WithContext(ctx).Where("root_user = ? or reply = ?", uuid, uuid).Order("comment_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("comment_id", "updated_at", "uuid", "creation_id", "creation_type", "root_id", "parent_id", "creation_author", "root_user", "reply").Where("root_user = ? or reply = ?", uuid, uuid).Order("updated_at desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user sub comment replied list from db: page(%v)", page))
 	}
@@ -1595,6 +1603,7 @@ func (r *commentRepo) getUserSubCommentRepliedListFromDB(ctx context.Context, pa
 	for _, item := range list {
 		comment = append(comment, &biz.SubComment{
 			CommentId:      item.CommentId,
+			UpdatedAt:      int32(item.UpdatedAt.Unix()),
 			Uuid:           item.Uuid,
 			CreationId:     item.CreationId,
 			CreationType:   item.CreationType,
@@ -1615,7 +1624,7 @@ func (r *commentRepo) setUserSubCommentRepliedListToCache(uuid string, comment [
 		key := fmt.Sprintf("user_sub_comment_replied_list_%s", uuid)
 		for _, item := range comment {
 			z = append(z, &redis.Z{
-				Score:  float64(item.CommentId),
+				Score:  float64(item.UpdatedAt),
 				Member: strconv.Itoa(int(item.CommentId)) + "%" + strconv.Itoa(int(item.CreationId)) + "%" + strconv.Itoa(int(item.CreationType)) + "%" + strconv.Itoa(int(item.RootId)) + "%" + strconv.Itoa(int(item.ParentId)) + "%" + item.Uuid + "%" + item.CreationAuthor + "%" + item.RootUser + "%" + item.Reply,
 			})
 		}
@@ -2166,7 +2175,7 @@ func (r *commentRepo) SetCommentContentIrregular(ctx context.Context, review *bi
 func (r *commentRepo) SetCommentContentIrregularToCache(ctx context.Context, review *biz.TextReview) error {
 	marshal, err := json.Marshal(review)
 	if err != nil {
-		r.log.Errorf("fail to set comment content irregular to json: json.Marshal(%v), error(%v)", review, err)
+		return errors.Wrapf(err, fmt.Sprintf("fail to set comment content irregular to json: json.Marshal(%v)", review))
 	}
 	var script = redis.NewScript(`
 					local key = KEYS[1]
@@ -2551,10 +2560,10 @@ func (r *commentRepo) CreateCommentCache(ctx context.Context, id, creationId, cr
 					redis.call("HSETNX", commentKey, "comment", 0)
 					redis.call("EXPIRE", commentKey, 28800)
 
-					local commentId = ARGV[1]
+					local time = ARGV[1]
 
 					if newKeyExist == 1 then
-						redis.call("ZADD", newKey, commentId, newMember)
+						redis.call("ZADD", newKey, time, newMember)
 						redis.call("EXPIRE", newKey, 28800)
 					end
 
@@ -2574,17 +2583,17 @@ func (r *commentRepo) CreateCommentCache(ctx context.Context, id, creationId, cr
 					end
 
 					if userCommentCreationReplyListExist == 1 then
-						redis.call("ZADD", userCommentCreationReplyList, commentId, memberReply)
+						redis.call("ZADD", userCommentCreationReplyList, time, memberReply)
 						redis.call("EXPIRE", userCommentCreationReplyList, 28800)
 					end
 
 					if userCommentCreationRepliedListExist == 1 then
-						redis.call("ZADD", userCommentCreationRepliedList, commentId, memberReplied)
+						redis.call("ZADD", userCommentCreationRepliedList, time, memberReplied)
 						redis.call("EXPIRE", userCommentCreationRepliedList, 28800)
 					end
 
 					if userCommentCreationMessageRepliedListExist == 1 then
-						redis.call("ZADD", userCommentCreationMessageRepliedList, commentId, memberMessageReplied)
+						redis.call("ZADD", userCommentCreationMessageRepliedList, time, memberMessageReplied)
 						redis.call("EXPIRE", userCommentCreationMessageRepliedList, 28800)
 					end
 					return 0
@@ -2602,7 +2611,7 @@ func (r *commentRepo) CreateCommentCache(ctx context.Context, id, creationId, cr
 		userCommentCreationMessageRepliedList,
 	}
 	values := []interface{}{
-		id,
+		int32(time.Now().Unix()),
 		ids + "%" + uuid,
 		ids + "%" + creationIds + "%" + creationAuthor,
 		ids + "%" + creationIds + "%" + uuid,
@@ -2658,7 +2667,7 @@ func (r *commentRepo) CreateSubCommentCache(ctx context.Context, id, rootId, par
 					local userSubCommentCreationMessageRepliedListForRoot = KEYS[12]
 					local userSubCommentCreationMessageRepliedListForParent = KEYS[13]
 
-					local commentId = ARGV[1]
+					local time = ARGV[1]
 					local subCommentListMember = ARGV[2]
 					local memberReply = ARGV[3]
 					local memberReplied = ARGV[4]
@@ -2687,7 +2696,7 @@ func (r *commentRepo) CreateSubCommentCache(ctx context.Context, id, rootId, par
 					end
 
 					if subCommentListExist == 1 then
-						redis.call("ZADD", subCommentList, commentId, subCommentListMember)
+						redis.call("ZADD", subCommentList, time, subCommentListMember)
 						redis.call("EXPIRE", subCommentList, 28800)
 					end
 
@@ -2706,27 +2715,27 @@ func (r *commentRepo) CreateSubCommentCache(ctx context.Context, id, rootId, par
 					end
 
 					if userSubCommentCreationReplyListExist == 1 then
-						redis.call("ZADD", userSubCommentCreationReplyList, commentId, memberReply)
+						redis.call("ZADD", userSubCommentCreationReplyList, time, memberReply)
 						redis.call("EXPIRE", userSubCommentCreationReplyList, 28800)
 					end
 
 					if userSubCommentCreationRepliedListForRootExist == 1 then
-						redis.call("ZADD", userSubCommentCreationRepliedListForRoot, commentId, memberReplied)
+						redis.call("ZADD", userSubCommentCreationRepliedListForRoot, time, memberReplied)
 						redis.call("EXPIRE", userSubCommentCreationRepliedListForRoot, 28800)
 					end
 
 					if userSubCommentCreationRepliedListForParentExist == 1 then
-						redis.call("ZADD", userSubCommentCreationRepliedListForParent, commentId, memberReplied)
+						redis.call("ZADD", userSubCommentCreationRepliedListForParent, time, memberReplied)
 						redis.call("EXPIRE", userSubCommentCreationRepliedListForParent, 28800)
 					end
 
 					if userSubCommentCreationMessageRepliedListForRootExist == 1 then
-						redis.call("ZADD", userSubCommentCreationMessageRepliedListForRoot, commentId, memberMessageReplied)
+						redis.call("ZADD", userSubCommentCreationMessageRepliedListForRoot, time, memberMessageReplied)
 						redis.call("EXPIRE", userSubCommentCreationMessageRepliedListForRoot, 28800)
 					end
 
 					if userSubCommentCreationMessageRepliedListForParentExist == 1 then
-						redis.call("ZADD", userSubCommentCreationMessageRepliedListForParent, commentId, memberMessageReplied)
+						redis.call("ZADD", userSubCommentCreationMessageRepliedListForParent, time, memberMessageReplied)
 						redis.call("EXPIRE", userSubCommentCreationMessageRepliedListForParent, 28800)
 					end
 					return 0
@@ -2747,7 +2756,7 @@ func (r *commentRepo) CreateSubCommentCache(ctx context.Context, id, rootId, par
 		userSubCommentCreationMessageRepliedListForParent,
 	}
 	values := []interface{}{
-		id,
+		int32(time.Now().Unix()),
 		ids + "%" + uuid + "%" + reply,
 		ids + "%" + creationIds + "%" + rootIds + "%" + parentIds + "%" + creationAuthor + "%" + rootUser + "%" + reply,
 		ids + "%" + creationIds + "%" + rootIds + "%" + parentIds + "%" + uuid + "%" + creationAuthor + "%" + rootUser + "%" + reply,
@@ -2759,6 +2768,18 @@ func (r *commentRepo) CreateSubCommentCache(ctx context.Context, id, rootId, par
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to create sub comment cache: id(%v), rootId(%v), parentId(%v), creationId(%v), creationType(%v), creationAuthor(%s), rootUser(%s),uuid(%s), reply(%s)", id, rootId, parentId, creationId, creationType, creationAuthor, rootUser, uuid, reply))
+	}
+	return nil
+}
+
+func (r *commentRepo) AddCreationComment(ctx context.Context, createId, createType int32, uuid string) error {
+	_, err := r.data.cc.AddCreationComment(ctx, &creationV1.AddCreationCommentReq{
+		Uuid:         uuid,
+		CreationId:   createId,
+		CreationType: createType,
+	})
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to add creation comment: createId(%v), createType(%v),uuid(%s)", createId, createType, uuid))
 	}
 	return nil
 }
