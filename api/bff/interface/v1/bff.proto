@@ -1194,6 +1194,13 @@ service Bff{
     };
   }
 
+  rpc GetMessageSystemNotification(GetMessageSystemNotificationReq) returns (GetMessageSystemNotificationReply){
+    option (google.api.http) = {
+      post: "/v1/get/message/system/notification"
+      body: "*"
+    };
+  }
+
   rpc GetMailBoxLastTime(google.protobuf.Empty) returns (GetMailBoxLastTimeReply){
     option (google.api.http) = {
       get: "/v1/get/mailbox/last/time"
@@ -1203,6 +1210,20 @@ service Bff{
   rpc SetMailBoxLastTime(SetMailBoxLastTimeReq) returns (google.protobuf.Empty){
     option (google.api.http) = {
       post: "/v1/set/mailbox/last/time"
+      body: "*"
+    };
+  }
+
+  rpc RemoveMailBoxCommentCount(google.protobuf.Empty) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/remove/mailbox/comment/count"
+      body: "*"
+    };
+  }
+
+  rpc RemoveMailBoxSubCommentCount(google.protobuf.Empty) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/remove/mailbox/subcomment/count"
       body: "*"
     };
   }
@@ -2770,6 +2791,26 @@ message GetMessageNotificationReply{
   int32 comment = 2;
   int32 subComment = 3;
   int32 system = 4;
+}
+
+message GetMessageSystemNotificationReq{
+  int32 page = 1;
+}
+
+message GetMessageSystemNotificationReply{
+  message List {
+    int32 id = 1;
+    int32 contentId = 2;
+    string createdAt = 3;
+    string notificationType = 4;
+    string title = 5;
+    string uuid = 6;
+    string label = 7;
+    int32 result = 8;
+    string section = 9;
+    string text = 10;
+  }
+  repeated List list = 1;
 }
 
 message GetMailBoxLastTimeReply{
