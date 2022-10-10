@@ -102,6 +102,7 @@ const OperationBffGetLastTalkDraft = "/bff.v1.Bff/GetLastTalkDraft"
 const OperationBffGetLeaderBoard = "/bff.v1.Bff/GetLeaderBoard"
 const OperationBffGetMailBoxLastTime = "/bff.v1.Bff/GetMailBoxLastTime"
 const OperationBffGetMessageNotification = "/bff.v1.Bff/GetMessageNotification"
+const OperationBffGetMessageSystemNotification = "/bff.v1.Bff/GetMessageSystemNotification"
 const OperationBffGetNews = "/bff.v1.Bff/GetNews"
 const OperationBffGetProfile = "/bff.v1.Bff/GetProfile"
 const OperationBffGetProfileList = "/bff.v1.Bff/GetProfileList"
@@ -162,6 +163,8 @@ const OperationBffLoginByPassword = "/bff.v1.Bff/LoginByPassword"
 const OperationBffLoginByWeChat = "/bff.v1.Bff/LoginByWeChat"
 const OperationBffLoginPasswordReset = "/bff.v1.Bff/LoginPasswordReset"
 const OperationBffRemoveComment = "/bff.v1.Bff/RemoveComment"
+const OperationBffRemoveMailBoxCommentCount = "/bff.v1.Bff/RemoveMailBoxCommentCount"
+const OperationBffRemoveMailBoxSubCommentCount = "/bff.v1.Bff/RemoveMailBoxSubCommentCount"
 const OperationBffRemoveSubComment = "/bff.v1.Bff/RemoveSubComment"
 const OperationBffSendArticle = "/bff.v1.Bff/SendArticle"
 const OperationBffSendArticleEdit = "/bff.v1.Bff/SendArticleEdit"
@@ -283,6 +286,7 @@ type BffHTTPServer interface {
 	GetLeaderBoard(context.Context, *emptypb.Empty) (*GetLeaderBoardReply, error)
 	GetMailBoxLastTime(context.Context, *emptypb.Empty) (*GetMailBoxLastTimeReply, error)
 	GetMessageNotification(context.Context, *emptypb.Empty) (*GetMessageNotificationReply, error)
+	GetMessageSystemNotification(context.Context, *GetMessageSystemNotificationReq) (*GetMessageSystemNotificationReply, error)
 	GetNews(context.Context, *GetNewsReq) (*GetNewsReply, error)
 	GetProfile(context.Context, *emptypb.Empty) (*GetProfileReply, error)
 	GetProfileList(context.Context, *GetProfileListReq) (*GetProfileListReply, error)
@@ -343,6 +347,8 @@ type BffHTTPServer interface {
 	LoginByWeChat(context.Context, *LoginByWeChatReq) (*LoginReply, error)
 	LoginPasswordReset(context.Context, *LoginPasswordResetReq) (*emptypb.Empty, error)
 	RemoveComment(context.Context, *RemoveCommentReq) (*emptypb.Empty, error)
+	RemoveMailBoxCommentCount(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
+	RemoveMailBoxSubCommentCount(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	RemoveSubComment(context.Context, *RemoveSubCommentReq) (*emptypb.Empty, error)
 	SendArticle(context.Context, *SendArticleReq) (*emptypb.Empty, error)
 	SendArticleEdit(context.Context, *SendArticleEditReq) (*emptypb.Empty, error)
@@ -561,8 +567,11 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.POST("/v1/cancel/comment/agree", _Bff_CancelCommentAgree0_HTTP_Handler(srv))
 	r.POST("/v1/cancel/subcomment/agree", _Bff_CancelSubCommentAgree0_HTTP_Handler(srv))
 	r.GET("/v1/get/message/notification", _Bff_GetMessageNotification0_HTTP_Handler(srv))
+	r.POST("/v1/get/message/system/notification", _Bff_GetMessageSystemNotification0_HTTP_Handler(srv))
 	r.GET("/v1/get/mailbox/last/time", _Bff_GetMailBoxLastTime0_HTTP_Handler(srv))
 	r.POST("/v1/set/mailbox/last/time", _Bff_SetMailBoxLastTime0_HTTP_Handler(srv))
+	r.POST("/v1/remove/mailbox/comment/count", _Bff_RemoveMailBoxCommentCount0_HTTP_Handler(srv))
+	r.POST("/v1/remove/mailbox/subcomment/count", _Bff_RemoveMailBoxSubCommentCount0_HTTP_Handler(srv))
 }
 
 func _Bff_UserRegister0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
@@ -3928,6 +3937,25 @@ func _Bff_GetMessageNotification0_HTTP_Handler(srv BffHTTPServer) func(ctx http.
 	}
 }
 
+func _Bff_GetMessageSystemNotification0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetMessageSystemNotificationReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetMessageSystemNotification)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetMessageSystemNotification(ctx, req.(*GetMessageSystemNotificationReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetMessageSystemNotificationReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _Bff_GetMailBoxLastTime0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in emptypb.Empty
@@ -3956,6 +3984,44 @@ func _Bff_SetMailBoxLastTime0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Cont
 		http.SetOperation(ctx, OperationBffSetMailBoxLastTime)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.SetMailBoxLastTime(ctx, req.(*SetMailBoxLastTimeReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_RemoveMailBoxCommentCount0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in emptypb.Empty
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffRemoveMailBoxCommentCount)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.RemoveMailBoxCommentCount(ctx, req.(*emptypb.Empty))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_RemoveMailBoxSubCommentCount0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in emptypb.Empty
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffRemoveMailBoxSubCommentCount)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.RemoveMailBoxSubCommentCount(ctx, req.(*emptypb.Empty))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -4049,6 +4115,7 @@ type BffHTTPClient interface {
 	GetLeaderBoard(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetLeaderBoardReply, err error)
 	GetMailBoxLastTime(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetMailBoxLastTimeReply, err error)
 	GetMessageNotification(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetMessageNotificationReply, err error)
+	GetMessageSystemNotification(ctx context.Context, req *GetMessageSystemNotificationReq, opts ...http.CallOption) (rsp *GetMessageSystemNotificationReply, err error)
 	GetNews(ctx context.Context, req *GetNewsReq, opts ...http.CallOption) (rsp *GetNewsReply, err error)
 	GetProfile(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetProfileReply, err error)
 	GetProfileList(ctx context.Context, req *GetProfileListReq, opts ...http.CallOption) (rsp *GetProfileListReply, err error)
@@ -4109,6 +4176,8 @@ type BffHTTPClient interface {
 	LoginByWeChat(ctx context.Context, req *LoginByWeChatReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginPasswordReset(ctx context.Context, req *LoginPasswordResetReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	RemoveComment(ctx context.Context, req *RemoveCommentReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	RemoveMailBoxCommentCount(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	RemoveMailBoxSubCommentCount(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	RemoveSubComment(ctx context.Context, req *RemoveSubCommentReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SendArticle(ctx context.Context, req *SendArticleReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SendArticleEdit(ctx context.Context, req *SendArticleEditReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -5222,6 +5291,19 @@ func (c *BffHTTPClientImpl) GetMessageNotification(ctx context.Context, in *empt
 	return &out, err
 }
 
+func (c *BffHTTPClientImpl) GetMessageSystemNotification(ctx context.Context, in *GetMessageSystemNotificationReq, opts ...http.CallOption) (*GetMessageSystemNotificationReply, error) {
+	var out GetMessageSystemNotificationReply
+	pattern := "/v1/get/message/system/notification"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffGetMessageSystemNotification))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
 func (c *BffHTTPClientImpl) GetNews(ctx context.Context, in *GetNewsReq, opts ...http.CallOption) (*GetNewsReply, error) {
 	var out GetNewsReply
 	pattern := "/v1/get/news"
@@ -5994,6 +6076,32 @@ func (c *BffHTTPClientImpl) RemoveComment(ctx context.Context, in *RemoveComment
 	pattern := "/v1/remove/comment"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationBffRemoveComment))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) RemoveMailBoxCommentCount(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/remove/mailbox/comment/count"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffRemoveMailBoxCommentCount))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) RemoveMailBoxSubCommentCount(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/remove/mailbox/subcomment/count"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffRemoveMailBoxSubCommentCount))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

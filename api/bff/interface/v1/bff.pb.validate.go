@@ -26433,6 +26433,250 @@ var _ interface {
 	ErrorName() string
 } = GetMessageNotificationReplyValidationError{}
 
+// Validate checks the field values on GetMessageSystemNotificationReq with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetMessageSystemNotificationReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetMessageSystemNotificationReq with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// GetMessageSystemNotificationReqMultiError, or nil if none found.
+func (m *GetMessageSystemNotificationReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetMessageSystemNotificationReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Page
+
+	if len(errors) > 0 {
+		return GetMessageSystemNotificationReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetMessageSystemNotificationReqMultiError is an error wrapping multiple
+// validation errors returned by GetMessageSystemNotificationReq.ValidateAll()
+// if the designated constraints aren't met.
+type GetMessageSystemNotificationReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetMessageSystemNotificationReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetMessageSystemNotificationReqMultiError) AllErrors() []error { return m }
+
+// GetMessageSystemNotificationReqValidationError is the validation error
+// returned by GetMessageSystemNotificationReq.Validate if the designated
+// constraints aren't met.
+type GetMessageSystemNotificationReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetMessageSystemNotificationReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetMessageSystemNotificationReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetMessageSystemNotificationReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetMessageSystemNotificationReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetMessageSystemNotificationReqValidationError) ErrorName() string {
+	return "GetMessageSystemNotificationReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetMessageSystemNotificationReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetMessageSystemNotificationReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetMessageSystemNotificationReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetMessageSystemNotificationReqValidationError{}
+
+// Validate checks the field values on GetMessageSystemNotificationReply with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *GetMessageSystemNotificationReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetMessageSystemNotificationReply
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the result is a list of violation errors wrapped in
+// GetMessageSystemNotificationReplyMultiError, or nil if none found.
+func (m *GetMessageSystemNotificationReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetMessageSystemNotificationReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetList() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetMessageSystemNotificationReplyValidationError{
+						field:  fmt.Sprintf("List[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetMessageSystemNotificationReplyValidationError{
+						field:  fmt.Sprintf("List[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetMessageSystemNotificationReplyValidationError{
+					field:  fmt.Sprintf("List[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return GetMessageSystemNotificationReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetMessageSystemNotificationReplyMultiError is an error wrapping multiple
+// validation errors returned by
+// GetMessageSystemNotificationReply.ValidateAll() if the designated
+// constraints aren't met.
+type GetMessageSystemNotificationReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetMessageSystemNotificationReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetMessageSystemNotificationReplyMultiError) AllErrors() []error { return m }
+
+// GetMessageSystemNotificationReplyValidationError is the validation error
+// returned by GetMessageSystemNotificationReply.Validate if the designated
+// constraints aren't met.
+type GetMessageSystemNotificationReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetMessageSystemNotificationReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetMessageSystemNotificationReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetMessageSystemNotificationReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetMessageSystemNotificationReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetMessageSystemNotificationReplyValidationError) ErrorName() string {
+	return "GetMessageSystemNotificationReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetMessageSystemNotificationReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetMessageSystemNotificationReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetMessageSystemNotificationReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetMessageSystemNotificationReplyValidationError{}
+
 // Validate checks the field values on GetMailBoxLastTimeReply with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -32194,3 +32438,129 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetSubCommentListReply_CommentValidationError{}
+
+// Validate checks the field values on GetMessageSystemNotificationReply_List
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the first error encountered is returned, or nil if
+// there are no violations.
+func (m *GetMessageSystemNotificationReply_List) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on
+// GetMessageSystemNotificationReply_List with the rules defined in the proto
+// definition for this message. If any rules are violated, the result is a
+// list of violation errors wrapped in
+// GetMessageSystemNotificationReply_ListMultiError, or nil if none found.
+func (m *GetMessageSystemNotificationReply_List) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetMessageSystemNotificationReply_List) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for ContentId
+
+	// no validation rules for CreatedAt
+
+	// no validation rules for NotificationType
+
+	// no validation rules for Title
+
+	// no validation rules for Uuid
+
+	// no validation rules for Label
+
+	// no validation rules for Result
+
+	// no validation rules for Section
+
+	// no validation rules for Text
+
+	if len(errors) > 0 {
+		return GetMessageSystemNotificationReply_ListMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetMessageSystemNotificationReply_ListMultiError is an error wrapping
+// multiple validation errors returned by
+// GetMessageSystemNotificationReply_List.ValidateAll() if the designated
+// constraints aren't met.
+type GetMessageSystemNotificationReply_ListMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetMessageSystemNotificationReply_ListMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetMessageSystemNotificationReply_ListMultiError) AllErrors() []error { return m }
+
+// GetMessageSystemNotificationReply_ListValidationError is the validation
+// error returned by GetMessageSystemNotificationReply_List.Validate if the
+// designated constraints aren't met.
+type GetMessageSystemNotificationReply_ListValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetMessageSystemNotificationReply_ListValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetMessageSystemNotificationReply_ListValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetMessageSystemNotificationReply_ListValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetMessageSystemNotificationReply_ListValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetMessageSystemNotificationReply_ListValidationError) ErrorName() string {
+	return "GetMessageSystemNotificationReply_ListValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetMessageSystemNotificationReply_ListValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetMessageSystemNotificationReply_List.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetMessageSystemNotificationReply_ListValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetMessageSystemNotificationReply_ListValidationError{}
