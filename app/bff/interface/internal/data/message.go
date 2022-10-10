@@ -65,10 +65,62 @@ func (r *messageRepo) GetMessageNotification(ctx context.Context, uuid string, f
 	return result.(*biz.Notification), nil
 }
 
+func (r *messageRepo) GetMessageSystemNotification(ctx context.Context, page int32, uuid string) ([]*biz.SystemNotification, error) {
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_message_system_notification_%v_%v", page, uuid), func() (interface{}, error) {
+		reply := make([]*biz.SystemNotification, 0)
+		notificationList, err := r.data.mc.GetMessageSystemNotification(ctx, &messageV1.GetMessageSystemNotificationReq{
+			Page: page,
+			Uuid: uuid,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range notificationList.List {
+			reply = append(reply, &biz.SystemNotification{
+				Id:               item.Id,
+				ContentId:        item.ContentId,
+				CreatedAt:        item.CreatedAt,
+				NotificationType: item.NotificationType,
+				Title:            item.Title,
+				Uuid:             item.Uuid,
+				Label:            item.Label,
+				Result:           item.Result,
+				Section:          item.Section,
+				Text:             item.Text,
+			})
+		}
+		return reply, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.([]*biz.SystemNotification), nil
+}
+
 func (r *messageRepo) SetMailBoxLastTime(ctx context.Context, uuid string, time int32) error {
 	_, err := r.data.mc.SetMailBoxLastTime(ctx, &messageV1.SetMailBoxLastTimeReq{
 		Uuid: uuid,
 		Time: time,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *messageRepo) RemoveMailBoxCommentCount(ctx context.Context, uuid string) error {
+	_, err := r.data.mc.RemoveMailBoxCommentCount(ctx, &messageV1.RemoveMailBoxCommentCountReq{
+		Uuid: uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *messageRepo) RemoveMailBoxSubCommentCount(ctx context.Context, uuid string) error {
+	_, err := r.data.mc.RemoveMailBoxSubCommentCount(ctx, &messageV1.RemoveMailBoxSubCommentCountReq{
+		Uuid: uuid,
 	})
 	if err != nil {
 		return err
