@@ -46,6 +46,7 @@ type CommentRepo interface {
 	CreateCommentCache(ctx context.Context, id, creationId, creationType int32, creationAuthor, uuid string) error
 	CreateSubCommentCache(ctx context.Context, id, rootId, parentId, creationId, creationType int32, creationAuthor, rootUser, uuid, reply string) error
 
+	AddCreationComment(ctx context.Context, creationId, creationType int32, uuid string) error
 	AddArticleCommentUser(ctx context.Context, creationAuthor, uuid string) error
 	AddArticleSubCommentUser(ctx context.Context, parentId int32, rootUser, parentUser, uuid string) error
 	AddTalkCommentUser(ctx context.Context, creationAuthor, uuid string) error
@@ -578,7 +579,8 @@ func (r *CommentUseCase) AddCommentContentReviewDbAndCache(ctx context.Context, 
 	})
 }
 
-func (r *CommentUseCase) CreateCommentDbAndCache(ctx context.Context, id, creationId, creationType int32, uuid string) error {
+func (r *CommentUseCase) CreateCommentDbAndCache(ctx context.Context, id, creationId, creationType int32, uuid string) (string, error) {
+	var creationAuthor string
 	err := r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		var err error
 		err = r.repo.DeleteCommentDraft(ctx, id, uuid)
@@ -586,7 +588,7 @@ func (r *CommentUseCase) CreateCommentDbAndCache(ctx context.Context, id, creati
 			return err
 		}
 
-		creationAuthor, err := r.getCreationAuthor(ctx, creationId, creationType)
+		creationAuthor, err = r.getCreationAuthor(ctx, creationId, creationType)
 		if err != nil {
 			return err
 		}
@@ -606,6 +608,11 @@ func (r *CommentUseCase) CreateCommentDbAndCache(ctx context.Context, id, creati
 			return err
 		}
 
+		err = r.repo.AddCreationComment(ctx, creationId, creationType, uuid)
+		if err != nil {
+			return err
+		}
+
 		err = r.repo.SendScoreToMq(ctx, 5, uuid, "add_score")
 		if err != nil {
 			return err
@@ -613,9 +620,9 @@ func (r *CommentUseCase) CreateCommentDbAndCache(ctx context.Context, id, creati
 		return nil
 	})
 	if err != nil && !creationv1.IsRecordNotFound(err) {
-		return v1.ErrorCreateCommentFailed("create comment failed: %s", err.Error())
+		return "", v1.ErrorCreateCommentFailed("create comment failed: %s", err.Error())
 	}
-	return nil
+	return creationAuthor, nil
 }
 
 func (r *CommentUseCase) getCreationAuthor(ctx context.Context, creationId, creationType int32) (string, error) {
@@ -638,10 +645,11 @@ func (r *CommentUseCase) addCommentUser(ctx context.Context, creationType int32,
 	return nil
 }
 
-func (r *CommentUseCase) CreateSubCommentDbAndCache(ctx context.Context, id, rootId, parentId int32, uuid string) error {
+func (r *CommentUseCase) CreateSubCommentDbAndCache(ctx context.Context, id, rootId, parentId int32, uuid string) (string, string, error) {
+	rootComment := &Comment{}
+	var parentUserId string
 	err := r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		var err error
-		var parentUserId string
 		if parentId != 0 {
 			parentUserId, err = r.repo.GetParentCommentUserId(ctx, parentId, rootId)
 			if err != nil {
@@ -653,7 +661,7 @@ func (r *CommentUseCase) CreateSubCommentDbAndCache(ctx context.Context, id, roo
 			return err
 		}
 
-		rootComment, err := r.repo.GetRootComment(ctx, rootId)
+		rootComment, err = r.repo.GetRootComment(ctx, rootId)
 		if err != nil {
 			return err
 		}
@@ -685,9 +693,9 @@ func (r *CommentUseCase) CreateSubCommentDbAndCache(ctx context.Context, id, roo
 		return nil
 	})
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return v1.ErrorCreateCommentFailed("create sub comment failed: %s", err.Error())
+		return "", "", v1.ErrorCreateCommentFailed("create sub comment failed: %s", err.Error())
 	}
-	return nil
+	return rootComment.Uuid, parentUserId, nil
 }
 
 func (r *CommentUseCase) addSubCommentUser(ctx context.Context, creationType, parentId int32, rootUser, parentUser, uuid string) error {
