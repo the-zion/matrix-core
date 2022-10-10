@@ -477,3 +477,16 @@ type Notification struct {
 	SubComment         int32
 	SystemNotification int32
 }
+
+type SystemNotification struct {
+	Id               int32
+	ContentId        int32
+	CreatedAt        string
+	NotificationType string
+	Title            string
+	Uuid             string
+	Label            string
+	Result           int32
+	Section          string
+	Text             string
+}
