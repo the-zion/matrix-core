@@ -70,3 +70,15 @@ func IsSetMailboxLastTimeFailed(err error) bool {
 func ErrorSetMailboxLastTimeFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, MessageErrorReason_SET_MAILBOX_LAST_TIME_FAILED.String(), fmt.Sprintf(format, args...))
 }
+
+func IsRemoveMailboxCommentFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == MessageErrorReason_REMOVE_MAILBOX_COMMENT_FAILED.String() && e.Code == 500
+}
+
+func ErrorRemoveMailboxCommentFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, MessageErrorReason_REMOVE_MAILBOX_COMMENT_FAILED.String(), fmt.Sprintf(format, args...))
+}
