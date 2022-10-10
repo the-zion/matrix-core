@@ -38,6 +38,7 @@ type CommentUser struct {
 
 type SubComment struct {
 	CommentId      int32
+	UpdatedAt      int32
 	CreationId     int32
 	RootId         int32
 	ParentId       int32
