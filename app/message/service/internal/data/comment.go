@@ -98,30 +98,30 @@ func (r *commentRepo) SubCommentCreateReviewPass(ctx context.Context, id, rootId
 	return nil
 }
 
-func (r *commentRepo) CreateCommentDbAndCache(ctx context.Context, id, createId, createType int32, uuid string) error {
-	_, err := r.data.commc.CreateCommentDbAndCache(ctx, &commentV1.CreateCommentDbAndCacheReq{
+func (r *commentRepo) CreateCommentDbAndCache(ctx context.Context, id, createId, createType int32, uuid string) (string, error) {
+	reply, err := r.data.commc.CreateCommentDbAndCache(ctx, &commentV1.CreateCommentDbAndCacheReq{
 		Id:           id,
 		CreationId:   createId,
 		CreationType: createType,
 		Uuid:         uuid,
 	})
 	if err != nil {
-		return err
+		return "", err
 	}
-	return nil
+	return reply.Author, nil
 }
 
-func (r *commentRepo) CreateSubCommentDbAndCache(ctx context.Context, id, rootId, parentId int32, uuid string) error {
-	_, err := r.data.commc.CreateSubCommentDbAndCache(ctx, &commentV1.CreateSubCommentDbAndCacheReq{
+func (r *commentRepo) CreateSubCommentDbAndCache(ctx context.Context, id, rootId, parentId int32, uuid string) (string, string, error) {
+	reply, err := r.data.commc.CreateSubCommentDbAndCache(ctx, &commentV1.CreateSubCommentDbAndCacheReq{
 		Id:       id,
 		RootId:   rootId,
 		ParentId: parentId,
 		Uuid:     uuid,
 	})
 	if err != nil {
-		return err
+		return "", "", err
 	}
-	return nil
+	return reply.Root, reply.Parent, nil
 }
 
 func (r *commentRepo) RemoveCommentDbAndCache(ctx context.Context, id int32, uuid string) error {
@@ -170,6 +170,20 @@ func (r *commentRepo) SetSubCommentAgreeDbAndCache(ctx context.Context, id int32
 		return err
 	}
 	return nil
+}
+
+func (r *commentRepo) SetCommentCount(ctx context.Context, uuid string) {
+	_, err := r.data.redisCli.HIncrBy(ctx, "message_comment", uuid, 1).Result()
+	if err != nil {
+		r.log.Errorf("fail to set comment count: error(%v), uuid(%s)", err, uuid)
+	}
+}
+
+func (r *commentRepo) SetSubCommentCount(ctx context.Context, uuid string) {
+	_, err := r.data.redisCli.HIncrBy(ctx, "message_sub_comment", uuid, 1).Result()
+	if err != nil {
+		r.log.Errorf("fail to set comment count: error(%v), uuid(%s)", err, uuid)
+	}
 }
 
 func (r *commentRepo) CancelCommentAgreeDbAndCache(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error {
