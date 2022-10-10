@@ -36,3 +36,19 @@ func (s *MessageService) SetMailBoxLastTime(ctx context.Context, req *v1.SetMail
 	}
 	return &emptypb.Empty{}, nil
 }
+
+func (s *MessageService) RemoveMailBoxCommentCount(ctx context.Context, req *v1.RemoveMailBoxCommentCountReq) (*emptypb.Empty, error) {
+	err := s.mc.RemoveMailBoxCommentCount(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *MessageService) RemoveMailBoxSubCommentCount(ctx context.Context, req *v1.RemoveMailBoxSubCommentCountReq) (*emptypb.Empty, error) {
+	err := s.mc.RemoveMailBoxSubCommentCount(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
