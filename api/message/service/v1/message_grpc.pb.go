@@ -41,7 +41,10 @@ type MessageClient interface {
 	SubCommentCreateReview(ctx context.Context, in *TextReviewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetMessageNotification(ctx context.Context, in *GetMessageNotificationReq, opts ...grpc.CallOption) (*GetMessageNotificationReply, error)
 	GetMailBoxLastTime(ctx context.Context, in *GetMailBoxLastTimeReq, opts ...grpc.CallOption) (*GetMailBoxLastTimeReply, error)
+	GetMessageSystemNotification(ctx context.Context, in *GetMessageSystemNotificationReq, opts ...grpc.CallOption) (*GetMessageSystemNotificationReply, error)
 	SetMailBoxLastTime(ctx context.Context, in *SetMailBoxLastTimeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	RemoveMailBoxCommentCount(ctx context.Context, in *RemoveMailBoxCommentCountReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	RemoveMailBoxSubCommentCount(ctx context.Context, in *RemoveMailBoxSubCommentCountReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type messageClient struct {
@@ -214,9 +217,36 @@ func (c *messageClient) GetMailBoxLastTime(ctx context.Context, in *GetMailBoxLa
 	return out, nil
 }
 
+func (c *messageClient) GetMessageSystemNotification(ctx context.Context, in *GetMessageSystemNotificationReq, opts ...grpc.CallOption) (*GetMessageSystemNotificationReply, error) {
+	out := new(GetMessageSystemNotificationReply)
+	err := c.cc.Invoke(ctx, "/message.v1.Message/GetMessageSystemNotification", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *messageClient) SetMailBoxLastTime(ctx context.Context, in *SetMailBoxLastTimeReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/message.v1.Message/SetMailBoxLastTime", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *messageClient) RemoveMailBoxCommentCount(ctx context.Context, in *RemoveMailBoxCommentCountReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/message.v1.Message/RemoveMailBoxCommentCount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *messageClient) RemoveMailBoxSubCommentCount(ctx context.Context, in *RemoveMailBoxSubCommentCountReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/message.v1.Message/RemoveMailBoxSubCommentCount", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -245,7 +275,10 @@ type MessageServer interface {
 	SubCommentCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	GetMessageNotification(context.Context, *GetMessageNotificationReq) (*GetMessageNotificationReply, error)
 	GetMailBoxLastTime(context.Context, *GetMailBoxLastTimeReq) (*GetMailBoxLastTimeReply, error)
+	GetMessageSystemNotification(context.Context, *GetMessageSystemNotificationReq) (*GetMessageSystemNotificationReply, error)
 	SetMailBoxLastTime(context.Context, *SetMailBoxLastTimeReq) (*emptypb.Empty, error)
+	RemoveMailBoxCommentCount(context.Context, *RemoveMailBoxCommentCountReq) (*emptypb.Empty, error)
+	RemoveMailBoxSubCommentCount(context.Context, *RemoveMailBoxSubCommentCountReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedMessageServer()
 }
 
@@ -307,8 +340,17 @@ func (UnimplementedMessageServer) GetMessageNotification(context.Context, *GetMe
 func (UnimplementedMessageServer) GetMailBoxLastTime(context.Context, *GetMailBoxLastTimeReq) (*GetMailBoxLastTimeReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMailBoxLastTime not implemented")
 }
+func (UnimplementedMessageServer) GetMessageSystemNotification(context.Context, *GetMessageSystemNotificationReq) (*GetMessageSystemNotificationReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMessageSystemNotification not implemented")
+}
 func (UnimplementedMessageServer) SetMailBoxLastTime(context.Context, *SetMailBoxLastTimeReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetMailBoxLastTime not implemented")
+}
+func (UnimplementedMessageServer) RemoveMailBoxCommentCount(context.Context, *RemoveMailBoxCommentCountReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveMailBoxCommentCount not implemented")
+}
+func (UnimplementedMessageServer) RemoveMailBoxSubCommentCount(context.Context, *RemoveMailBoxSubCommentCountReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveMailBoxSubCommentCount not implemented")
 }
 func (UnimplementedMessageServer) mustEmbedUnimplementedMessageServer() {}
 
@@ -647,6 +689,24 @@ func _Message_GetMailBoxLastTime_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Message_GetMessageSystemNotification_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMessageSystemNotificationReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MessageServer).GetMessageSystemNotification(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/message.v1.Message/GetMessageSystemNotification",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MessageServer).GetMessageSystemNotification(ctx, req.(*GetMessageSystemNotificationReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Message_SetMailBoxLastTime_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SetMailBoxLastTimeReq)
 	if err := dec(in); err != nil {
@@ -661,6 +721,42 @@ func _Message_SetMailBoxLastTime_Handler(srv interface{}, ctx context.Context, d
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MessageServer).SetMailBoxLastTime(ctx, req.(*SetMailBoxLastTimeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Message_RemoveMailBoxCommentCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveMailBoxCommentCountReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MessageServer).RemoveMailBoxCommentCount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/message.v1.Message/RemoveMailBoxCommentCount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MessageServer).RemoveMailBoxCommentCount(ctx, req.(*RemoveMailBoxCommentCountReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Message_RemoveMailBoxSubCommentCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveMailBoxSubCommentCountReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MessageServer).RemoveMailBoxSubCommentCount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/message.v1.Message/RemoveMailBoxSubCommentCount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MessageServer).RemoveMailBoxSubCommentCount(ctx, req.(*RemoveMailBoxSubCommentCountReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -745,8 +841,20 @@ var Message_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Message_GetMailBoxLastTime_Handler,
 		},
 		{
+			MethodName: "GetMessageSystemNotification",
+			Handler:    _Message_GetMessageSystemNotification_Handler,
+		},
+		{
 			MethodName: "SetMailBoxLastTime",
 			Handler:    _Message_SetMailBoxLastTime_Handler,
+		},
+		{
+			MethodName: "RemoveMailBoxCommentCount",
+			Handler:    _Message_RemoveMailBoxCommentCount_Handler,
+		},
+		{
+			MethodName: "RemoveMailBoxSubCommentCount",
+			Handler:    _Message_RemoveMailBoxSubCommentCount_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
