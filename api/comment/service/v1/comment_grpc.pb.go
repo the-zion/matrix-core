@@ -47,8 +47,8 @@ type CommentClient interface {
 	CreateCommentDraft(ctx context.Context, in *CreateCommentDraftReq, opts ...grpc.CallOption) (*CreateCommentDraftReply, error)
 	CreateComment(ctx context.Context, in *CreateCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateSubComment(ctx context.Context, in *CreateSubCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	CreateCommentDbAndCache(ctx context.Context, in *CreateCommentDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	CreateSubCommentDbAndCache(ctx context.Context, in *CreateSubCommentDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CreateCommentDbAndCache(ctx context.Context, in *CreateCommentDbAndCacheReq, opts ...grpc.CallOption) (*CreateCommentDbAndCacheReply, error)
+	CreateSubCommentDbAndCache(ctx context.Context, in *CreateSubCommentDbAndCacheReq, opts ...grpc.CallOption) (*CreateSubCommentDbAndCacheReply, error)
 	SendComment(ctx context.Context, in *SendCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SendSubComment(ctx context.Context, in *SendSubCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetCommentAgree(ctx context.Context, in *SetCommentAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -290,8 +290,8 @@ func (c *commentClient) CreateSubComment(ctx context.Context, in *CreateSubComme
 	return out, nil
 }
 
-func (c *commentClient) CreateCommentDbAndCache(ctx context.Context, in *CreateCommentDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
+func (c *commentClient) CreateCommentDbAndCache(ctx context.Context, in *CreateCommentDbAndCacheReq, opts ...grpc.CallOption) (*CreateCommentDbAndCacheReply, error) {
+	out := new(CreateCommentDbAndCacheReply)
 	err := c.cc.Invoke(ctx, "/comment.v1.Comment/CreateCommentDbAndCache", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -299,8 +299,8 @@ func (c *commentClient) CreateCommentDbAndCache(ctx context.Context, in *CreateC
 	return out, nil
 }
 
-func (c *commentClient) CreateSubCommentDbAndCache(ctx context.Context, in *CreateSubCommentDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
+func (c *commentClient) CreateSubCommentDbAndCache(ctx context.Context, in *CreateSubCommentDbAndCacheReq, opts ...grpc.CallOption) (*CreateSubCommentDbAndCacheReply, error) {
+	out := new(CreateSubCommentDbAndCacheReply)
 	err := c.cc.Invoke(ctx, "/comment.v1.Comment/CreateSubCommentDbAndCache", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -471,8 +471,8 @@ type CommentServer interface {
 	CreateCommentDraft(context.Context, *CreateCommentDraftReq) (*CreateCommentDraftReply, error)
 	CreateComment(context.Context, *CreateCommentReq) (*emptypb.Empty, error)
 	CreateSubComment(context.Context, *CreateSubCommentReq) (*emptypb.Empty, error)
-	CreateCommentDbAndCache(context.Context, *CreateCommentDbAndCacheReq) (*emptypb.Empty, error)
-	CreateSubCommentDbAndCache(context.Context, *CreateSubCommentDbAndCacheReq) (*emptypb.Empty, error)
+	CreateCommentDbAndCache(context.Context, *CreateCommentDbAndCacheReq) (*CreateCommentDbAndCacheReply, error)
+	CreateSubCommentDbAndCache(context.Context, *CreateSubCommentDbAndCacheReq) (*CreateSubCommentDbAndCacheReply, error)
 	SendComment(context.Context, *SendCommentReq) (*emptypb.Empty, error)
 	SendSubComment(context.Context, *SendSubCommentReq) (*emptypb.Empty, error)
 	SetCommentAgree(context.Context, *SetCommentAgreeReq) (*emptypb.Empty, error)
@@ -567,10 +567,10 @@ func (UnimplementedCommentServer) CreateComment(context.Context, *CreateCommentR
 func (UnimplementedCommentServer) CreateSubComment(context.Context, *CreateSubCommentReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateSubComment not implemented")
 }
-func (UnimplementedCommentServer) CreateCommentDbAndCache(context.Context, *CreateCommentDbAndCacheReq) (*emptypb.Empty, error) {
+func (UnimplementedCommentServer) CreateCommentDbAndCache(context.Context, *CreateCommentDbAndCacheReq) (*CreateCommentDbAndCacheReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateCommentDbAndCache not implemented")
 }
-func (UnimplementedCommentServer) CreateSubCommentDbAndCache(context.Context, *CreateSubCommentDbAndCacheReq) (*emptypb.Empty, error) {
+func (UnimplementedCommentServer) CreateSubCommentDbAndCache(context.Context, *CreateSubCommentDbAndCacheReq) (*CreateSubCommentDbAndCacheReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateSubCommentDbAndCache not implemented")
 }
 func (UnimplementedCommentServer) SendComment(context.Context, *SendCommentReq) (*emptypb.Empty, error) {

@@ -1610,6 +1610,111 @@ var _ interface {
 	ErrorName() string
 } = CreateCommentDbAndCacheReqValidationError{}
 
+// Validate checks the field values on CreateCommentDbAndCacheReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *CreateCommentDbAndCacheReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CreateCommentDbAndCacheReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// CreateCommentDbAndCacheReplyMultiError, or nil if none found.
+func (m *CreateCommentDbAndCacheReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CreateCommentDbAndCacheReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Author
+
+	if len(errors) > 0 {
+		return CreateCommentDbAndCacheReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// CreateCommentDbAndCacheReplyMultiError is an error wrapping multiple
+// validation errors returned by CreateCommentDbAndCacheReply.ValidateAll() if
+// the designated constraints aren't met.
+type CreateCommentDbAndCacheReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CreateCommentDbAndCacheReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CreateCommentDbAndCacheReplyMultiError) AllErrors() []error { return m }
+
+// CreateCommentDbAndCacheReplyValidationError is the validation error returned
+// by CreateCommentDbAndCacheReply.Validate if the designated constraints
+// aren't met.
+type CreateCommentDbAndCacheReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CreateCommentDbAndCacheReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CreateCommentDbAndCacheReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CreateCommentDbAndCacheReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CreateCommentDbAndCacheReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CreateCommentDbAndCacheReplyValidationError) ErrorName() string {
+	return "CreateCommentDbAndCacheReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CreateCommentDbAndCacheReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCreateCommentDbAndCacheReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CreateCommentDbAndCacheReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CreateCommentDbAndCacheReplyValidationError{}
+
 // Validate checks the field values on CreateSubCommentDbAndCacheReq with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -1738,6 +1843,113 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CreateSubCommentDbAndCacheReqValidationError{}
+
+// Validate checks the field values on CreateSubCommentDbAndCacheReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *CreateSubCommentDbAndCacheReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CreateSubCommentDbAndCacheReply with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// CreateSubCommentDbAndCacheReplyMultiError, or nil if none found.
+func (m *CreateSubCommentDbAndCacheReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CreateSubCommentDbAndCacheReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Root
+
+	// no validation rules for Parent
+
+	if len(errors) > 0 {
+		return CreateSubCommentDbAndCacheReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// CreateSubCommentDbAndCacheReplyMultiError is an error wrapping multiple
+// validation errors returned by CreateSubCommentDbAndCacheReply.ValidateAll()
+// if the designated constraints aren't met.
+type CreateSubCommentDbAndCacheReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CreateSubCommentDbAndCacheReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CreateSubCommentDbAndCacheReplyMultiError) AllErrors() []error { return m }
+
+// CreateSubCommentDbAndCacheReplyValidationError is the validation error
+// returned by CreateSubCommentDbAndCacheReply.Validate if the designated
+// constraints aren't met.
+type CreateSubCommentDbAndCacheReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CreateSubCommentDbAndCacheReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CreateSubCommentDbAndCacheReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CreateSubCommentDbAndCacheReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CreateSubCommentDbAndCacheReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CreateSubCommentDbAndCacheReplyValidationError) ErrorName() string {
+	return "CreateSubCommentDbAndCacheReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CreateSubCommentDbAndCacheReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCreateSubCommentDbAndCacheReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CreateSubCommentDbAndCacheReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CreateSubCommentDbAndCacheReplyValidationError{}
 
 // Validate checks the field values on GetCommentListReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the
