@@ -61,9 +61,9 @@ service Comment {
 
   rpc CreateSubComment(CreateSubCommentReq) returns (google.protobuf.Empty){}
 
-  rpc CreateCommentDbAndCache(CreateCommentDbAndCacheReq) returns (google.protobuf.Empty){}
+  rpc CreateCommentDbAndCache(CreateCommentDbAndCacheReq) returns (CreateCommentDbAndCacheReply){}
 
-  rpc CreateSubCommentDbAndCache(CreateSubCommentDbAndCacheReq) returns (google.protobuf.Empty){}
+  rpc CreateSubCommentDbAndCache(CreateSubCommentDbAndCacheReq) returns (CreateSubCommentDbAndCacheReply){}
 
   rpc SendComment(SendCommentReq) returns (google.protobuf.Empty){}
 
@@ -171,11 +171,20 @@ message CreateCommentDbAndCacheReq{
   string uuid = 4 [(validate.rules).string.uuid = true];
 }
 
+message CreateCommentDbAndCacheReply{
+  string author = 1;
+}
+
 message CreateSubCommentDbAndCacheReq{
   int32 id = 1;
   int32 rootId = 2;
   int32 parentId = 3;
   string uuid = 4 [(validate.rules).string.uuid = true];
+}
+
+message CreateSubCommentDbAndCacheReply{
+  string root = 1;
+  string parent = 2;
 }
 
 message GetCommentListReq{
