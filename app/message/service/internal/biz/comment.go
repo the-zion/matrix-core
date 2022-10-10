@@ -15,12 +15,14 @@ type CommentRepo interface {
 	CommentCreateReviewPass(ctx context.Context, id, creationId, creationType int32, uuid string) error
 	CommentContentIrregular(ctx context.Context, review *TextReview, id int32, comment, kind, uuid string) error
 	SubCommentCreateReviewPass(ctx context.Context, id, rootId, parentId int32, uuid string) error
-	CreateCommentDbAndCache(ctx context.Context, id, createId, createType int32, uuid string) error
-	CreateSubCommentDbAndCache(ctx context.Context, id, rootId, parentId int32, uuid string) error
+	CreateCommentDbAndCache(ctx context.Context, id, createId, createType int32, uuid string) (string, error)
+	CreateSubCommentDbAndCache(ctx context.Context, id, rootId, parentId int32, uuid string) (string, string, error)
 	RemoveCommentDbAndCache(ctx context.Context, id int32, uuid string) error
 	RemoveSubCommentDbAndCache(ctx context.Context, id int32, uuid string) error
 	SetCommentAgreeDbAndCache(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error
 	SetSubCommentAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error
+	SetCommentCount(ctx context.Context, uuid string)
+	SetSubCommentCount(ctx context.Context, uuid string)
 	CancelCommentAgreeDbAndCache(ctx context.Context, id, creationId, creationType int32, uuid, userUuid string) error
 	CancelSubCommentAgreeDbAndCache(ctx context.Context, id int32, uuid, userUuid string) error
 	AddCommentContentReviewDbAndCache(ctx context.Context, commentId, result int32, uuid, jobId, label, comment, kind, section string) error
@@ -28,16 +30,20 @@ type CommentRepo interface {
 }
 
 type CommentUseCase struct {
-	repo CommentRepo
-	jwt  Jwt
-	log  *log.Helper
+	repo        CommentRepo
+	messageRepo MessageRepo
+	tm          Transaction
+	jwt         Jwt
+	log         *log.Helper
 }
 
-func NewCommentUseCase(repo CommentRepo, jwt Jwt, logger log.Logger) *CommentUseCase {
+func NewCommentUseCase(repo CommentRepo, messageRepo MessageRepo, tm Transaction, jwt Jwt, logger log.Logger) *CommentUseCase {
 	return &CommentUseCase{
-		repo: repo,
-		jwt:  jwt,
-		log:  log.NewHelper(log.With(logger, "module", "message/biz/commentUseCase")),
+		repo:        repo,
+		messageRepo: messageRepo,
+		tm:          tm,
+		jwt:         jwt,
+		log:         log.NewHelper(log.With(logger, "module", "message/biz/commentUseCase")),
 	}
 }
 
@@ -116,11 +122,14 @@ func (r *CommentUseCase) CommentCreateReview(ctx context.Context, tr *TextReview
 
 	if tr.Result == 0 {
 		err = r.repo.CommentCreateReviewPass(ctx, int32(aid), int32(cid), int32(cType), uuid)
+		if err != nil {
+			return err
+		}
 	} else {
 		err = r.repo.CommentContentIrregular(ctx, tr, int32(aid), comment, kind, uuid)
-	}
-	if err != nil {
-		return err
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -196,21 +205,43 @@ func (r *CommentUseCase) SubCommentCreateReview(ctx context.Context, tr *TextRev
 
 	if tr.Result == 0 {
 		err = r.repo.SubCommentCreateReviewPass(ctx, int32(aid), int32(rid), int32(pid), uuid)
+		if err != nil {
+			return err
+		}
 	} else {
 		err = r.repo.CommentContentIrregular(ctx, tr, int32(aid), comment, kind, uuid)
-	}
-	if err != nil {
-		return err
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
 
 func (r *CommentUseCase) CreateCommentDbAndCache(ctx context.Context, id, createId, createType int32, uuid string) error {
-	return r.repo.CreateCommentDbAndCache(ctx, id, createId, createType, uuid)
+	author, err := r.repo.CreateCommentDbAndCache(ctx, id, createId, createType, uuid)
+	if err != nil {
+		return err
+	}
+	if author != "" && author != uuid {
+		r.repo.SetCommentCount(ctx, author)
+	}
+	return nil
 }
 
 func (r *CommentUseCase) CreateSubCommentDbAndCache(ctx context.Context, id, rootId, parentId int32, uuid string) error {
-	return r.repo.CreateSubCommentDbAndCache(ctx, id, rootId, parentId, uuid)
+	root, parent, err := r.repo.CreateSubCommentDbAndCache(ctx, id, rootId, parentId, uuid)
+	if err != nil {
+		return err
+	}
+	if root != "" && root != uuid {
+		r.repo.SetSubCommentCount(ctx, root)
+	}
+
+	if parent != "" && root != parent && parent != uuid {
+		r.repo.SetSubCommentCount(ctx, parent)
+	}
+
+	return nil
 }
 
 func (r *CommentUseCase) RemoveCommentDbAndCache(ctx context.Context, id int32, uuid string) error {
@@ -238,5 +269,24 @@ func (r *CommentUseCase) CancelSubCommentAgreeDbAndCache(ctx context.Context, id
 }
 
 func (r *CommentUseCase) AddCommentContentReviewDbAndCache(ctx context.Context, commentId, result int32, uuid, jobId, label, comment, kind, section string) error {
-	return r.repo.AddCommentContentReviewDbAndCache(ctx, commentId, result, uuid, jobId, label, comment, kind, section)
+	err := r.repo.AddCommentContentReviewDbAndCache(ctx, commentId, result, uuid, jobId, label, comment, kind, section)
+	if err != nil {
+		return err
+	}
+	err = r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		notification, err := r.messageRepo.AddMailBoxSystemNotification(ctx, commentId, "comment", "", uuid, label, result, section, comment)
+		if err != nil {
+			return err
+		}
+
+		err = r.messageRepo.AddMailBoxSystemNotificationToCache(ctx, notification)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to add mail box system notification for comment: error(%v), uuid(%s)", err, uuid)
+	}
+	return nil
 }
