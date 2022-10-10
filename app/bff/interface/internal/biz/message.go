@@ -8,7 +8,10 @@ import (
 type MessageRepo interface {
 	GetMailBoxLastTime(ctx context.Context, uuid string) (*MailBox, error)
 	GetMessageNotification(ctx context.Context, uuid string, follows []string) (*Notification, error)
+	GetMessageSystemNotification(ctx context.Context, page int32, uuid string) ([]*SystemNotification, error)
 	SetMailBoxLastTime(ctx context.Context, uuid string, time int32) error
+	RemoveMailBoxCommentCount(ctx context.Context, uuid string) error
+	RemoveMailBoxSubCommentCount(ctx context.Context, uuid string) error
 }
 
 type MessageUseCase struct {
@@ -45,7 +48,22 @@ func (r *MessageUseCase) GetMailBoxLastTime(ctx context.Context) (*MailBox, erro
 	return r.repo.GetMailBoxLastTime(ctx, uuid)
 }
 
+func (r *MessageUseCase) GetMessageSystemNotification(ctx context.Context, page int32) ([]*SystemNotification, error) {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.GetMessageSystemNotification(ctx, page, uuid)
+}
+
 func (r *MessageUseCase) SetMailBoxLastTime(ctx context.Context, time int32) error {
 	uuid := ctx.Value("uuid").(string)
 	return r.repo.SetMailBoxLastTime(ctx, uuid, time)
+}
+
+func (r *MessageUseCase) RemoveMailBoxCommentCount(ctx context.Context) error {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.RemoveMailBoxCommentCount(ctx, uuid)
+}
+
+func (r *MessageUseCase) RemoveMailBoxSubCommentCount(ctx context.Context) error {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.RemoveMailBoxSubCommentCount(ctx, uuid)
 }
