@@ -82,6 +82,7 @@ func (r *messageRepo) GetMessageSystemNotification(ctx context.Context, page int
 				CreatedAt:        item.CreatedAt,
 				NotificationType: item.NotificationType,
 				Title:            item.Title,
+				Uid:              item.Uid,
 				Uuid:             item.Uuid,
 				Label:            item.Label,
 				Result:           item.Result,
@@ -120,6 +121,16 @@ func (r *messageRepo) RemoveMailBoxCommentCount(ctx context.Context, uuid string
 
 func (r *messageRepo) RemoveMailBoxSubCommentCount(ctx context.Context, uuid string) error {
 	_, err := r.data.mc.RemoveMailBoxSubCommentCount(ctx, &messageV1.RemoveMailBoxSubCommentCountReq{
+		Uuid: uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *messageRepo) RemoveMailBoxSystemNotificationCount(ctx context.Context, uuid string) error {
+	_, err := r.data.mc.RemoveMailBoxSystemNotificationCount(ctx, &messageV1.RemoveMailBoxSystemNotificationCountReq{
 		Uuid: uuid,
 	})
 	if err != nil {
