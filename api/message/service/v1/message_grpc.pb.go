@@ -45,6 +45,7 @@ type MessageClient interface {
 	SetMailBoxLastTime(ctx context.Context, in *SetMailBoxLastTimeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	RemoveMailBoxCommentCount(ctx context.Context, in *RemoveMailBoxCommentCountReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	RemoveMailBoxSubCommentCount(ctx context.Context, in *RemoveMailBoxSubCommentCountReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	RemoveMailBoxSystemNotificationCount(ctx context.Context, in *RemoveMailBoxSystemNotificationCountReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type messageClient struct {
@@ -253,6 +254,15 @@ func (c *messageClient) RemoveMailBoxSubCommentCount(ctx context.Context, in *Re
 	return out, nil
 }
 
+func (c *messageClient) RemoveMailBoxSystemNotificationCount(ctx context.Context, in *RemoveMailBoxSystemNotificationCountReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/message.v1.Message/RemoveMailBoxSystemNotificationCount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MessageServer is the server API for Message service.
 // All implementations must embed UnimplementedMessageServer
 // for forward compatibility
@@ -279,6 +289,7 @@ type MessageServer interface {
 	SetMailBoxLastTime(context.Context, *SetMailBoxLastTimeReq) (*emptypb.Empty, error)
 	RemoveMailBoxCommentCount(context.Context, *RemoveMailBoxCommentCountReq) (*emptypb.Empty, error)
 	RemoveMailBoxSubCommentCount(context.Context, *RemoveMailBoxSubCommentCountReq) (*emptypb.Empty, error)
+	RemoveMailBoxSystemNotificationCount(context.Context, *RemoveMailBoxSystemNotificationCountReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedMessageServer()
 }
 
@@ -351,6 +362,9 @@ func (UnimplementedMessageServer) RemoveMailBoxCommentCount(context.Context, *Re
 }
 func (UnimplementedMessageServer) RemoveMailBoxSubCommentCount(context.Context, *RemoveMailBoxSubCommentCountReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveMailBoxSubCommentCount not implemented")
+}
+func (UnimplementedMessageServer) RemoveMailBoxSystemNotificationCount(context.Context, *RemoveMailBoxSystemNotificationCountReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveMailBoxSystemNotificationCount not implemented")
 }
 func (UnimplementedMessageServer) mustEmbedUnimplementedMessageServer() {}
 
@@ -761,6 +775,24 @@ func _Message_RemoveMailBoxSubCommentCount_Handler(srv interface{}, ctx context.
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Message_RemoveMailBoxSystemNotificationCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveMailBoxSystemNotificationCountReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MessageServer).RemoveMailBoxSystemNotificationCount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/message.v1.Message/RemoveMailBoxSystemNotificationCount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MessageServer).RemoveMailBoxSystemNotificationCount(ctx, req.(*RemoveMailBoxSystemNotificationCountReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Message_ServiceDesc is the grpc.ServiceDesc for Message service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -855,6 +887,10 @@ var Message_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RemoveMailBoxSubCommentCount",
 			Handler:    _Message_RemoveMailBoxSubCommentCount_Handler,
+		},
+		{
+			MethodName: "RemoveMailBoxSystemNotificationCount",
+			Handler:    _Message_RemoveMailBoxSystemNotificationCount_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
