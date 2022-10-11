@@ -165,6 +165,7 @@ const OperationBffLoginPasswordReset = "/bff.v1.Bff/LoginPasswordReset"
 const OperationBffRemoveComment = "/bff.v1.Bff/RemoveComment"
 const OperationBffRemoveMailBoxCommentCount = "/bff.v1.Bff/RemoveMailBoxCommentCount"
 const OperationBffRemoveMailBoxSubCommentCount = "/bff.v1.Bff/RemoveMailBoxSubCommentCount"
+const OperationBffRemoveMailBoxSystemNotificationCount = "/bff.v1.Bff/RemoveMailBoxSystemNotificationCount"
 const OperationBffRemoveSubComment = "/bff.v1.Bff/RemoveSubComment"
 const OperationBffSendArticle = "/bff.v1.Bff/SendArticle"
 const OperationBffSendArticleEdit = "/bff.v1.Bff/SendArticleEdit"
@@ -349,6 +350,7 @@ type BffHTTPServer interface {
 	RemoveComment(context.Context, *RemoveCommentReq) (*emptypb.Empty, error)
 	RemoveMailBoxCommentCount(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	RemoveMailBoxSubCommentCount(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
+	RemoveMailBoxSystemNotificationCount(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	RemoveSubComment(context.Context, *RemoveSubCommentReq) (*emptypb.Empty, error)
 	SendArticle(context.Context, *SendArticleReq) (*emptypb.Empty, error)
 	SendArticleEdit(context.Context, *SendArticleEditReq) (*emptypb.Empty, error)
@@ -572,6 +574,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.POST("/v1/set/mailbox/last/time", _Bff_SetMailBoxLastTime0_HTTP_Handler(srv))
 	r.POST("/v1/remove/mailbox/comment/count", _Bff_RemoveMailBoxCommentCount0_HTTP_Handler(srv))
 	r.POST("/v1/remove/mailbox/subcomment/count", _Bff_RemoveMailBoxSubCommentCount0_HTTP_Handler(srv))
+	r.POST("/v1/remove/mailbox/system/notification", _Bff_RemoveMailBoxSystemNotificationCount0_HTTP_Handler(srv))
 }
 
 func _Bff_UserRegister0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
@@ -4032,6 +4035,25 @@ func _Bff_RemoveMailBoxSubCommentCount0_HTTP_Handler(srv BffHTTPServer) func(ctx
 	}
 }
 
+func _Bff_RemoveMailBoxSystemNotificationCount0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in emptypb.Empty
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffRemoveMailBoxSystemNotificationCount)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.RemoveMailBoxSystemNotificationCount(ctx, req.(*emptypb.Empty))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
 type BffHTTPClient interface {
 	AccessUserMedal(ctx context.Context, req *AccessUserMedalReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	AddColumnIncludes(ctx context.Context, req *AddColumnIncludesReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -4178,6 +4200,7 @@ type BffHTTPClient interface {
 	RemoveComment(ctx context.Context, req *RemoveCommentReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	RemoveMailBoxCommentCount(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	RemoveMailBoxSubCommentCount(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	RemoveMailBoxSystemNotificationCount(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	RemoveSubComment(ctx context.Context, req *RemoveSubCommentReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SendArticle(ctx context.Context, req *SendArticleReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SendArticleEdit(ctx context.Context, req *SendArticleEditReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -6102,6 +6125,19 @@ func (c *BffHTTPClientImpl) RemoveMailBoxSubCommentCount(ctx context.Context, in
 	pattern := "/v1/remove/mailbox/subcomment/count"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationBffRemoveMailBoxSubCommentCount))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) RemoveMailBoxSystemNotificationCount(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/remove/mailbox/system/notification"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffRemoveMailBoxSystemNotificationCount))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

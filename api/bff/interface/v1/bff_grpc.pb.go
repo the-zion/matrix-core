@@ -206,6 +206,7 @@ type BffClient interface {
 	SetMailBoxLastTime(ctx context.Context, in *SetMailBoxLastTimeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	RemoveMailBoxCommentCount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	RemoveMailBoxSubCommentCount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	RemoveMailBoxSystemNotificationCount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type bffClient struct {
@@ -1854,6 +1855,15 @@ func (c *bffClient) RemoveMailBoxSubCommentCount(ctx context.Context, in *emptyp
 	return out, nil
 }
 
+func (c *bffClient) RemoveMailBoxSystemNotificationCount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/RemoveMailBoxSystemNotificationCount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BffServer is the server API for Bff service.
 // All implementations must embed UnimplementedBffServer
 // for forward compatibility
@@ -2041,6 +2051,7 @@ type BffServer interface {
 	SetMailBoxLastTime(context.Context, *SetMailBoxLastTimeReq) (*emptypb.Empty, error)
 	RemoveMailBoxCommentCount(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	RemoveMailBoxSubCommentCount(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
+	RemoveMailBoxSystemNotificationCount(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	mustEmbedUnimplementedBffServer()
 }
 
@@ -2593,6 +2604,9 @@ func (UnimplementedBffServer) RemoveMailBoxCommentCount(context.Context, *emptyp
 }
 func (UnimplementedBffServer) RemoveMailBoxSubCommentCount(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveMailBoxSubCommentCount not implemented")
+}
+func (UnimplementedBffServer) RemoveMailBoxSystemNotificationCount(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveMailBoxSystemNotificationCount not implemented")
 }
 func (UnimplementedBffServer) mustEmbedUnimplementedBffServer() {}
 
@@ -5883,6 +5897,24 @@ func _Bff_RemoveMailBoxSubCommentCount_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_RemoveMailBoxSystemNotificationCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).RemoveMailBoxSystemNotificationCount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/RemoveMailBoxSystemNotificationCount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).RemoveMailBoxSystemNotificationCount(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Bff_ServiceDesc is the grpc.ServiceDesc for Bff service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -6617,6 +6649,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RemoveMailBoxSubCommentCount",
 			Handler:    _Bff_RemoveMailBoxSubCommentCount_Handler,
+		},
+		{
+			MethodName: "RemoveMailBoxSystemNotificationCount",
+			Handler:    _Bff_RemoveMailBoxSystemNotificationCount_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

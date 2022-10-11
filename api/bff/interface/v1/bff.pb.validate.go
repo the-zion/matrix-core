@@ -32473,6 +32473,8 @@ func (m *GetMessageSystemNotificationReply_List) validate(all bool) error {
 
 	// no validation rules for Title
 
+	// no validation rules for Uid
+
 	// no validation rules for Uuid
 
 	// no validation rules for Label
