@@ -82,3 +82,15 @@ func IsRemoveMailboxCommentFailed(err error) bool {
 func ErrorRemoveMailboxCommentFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, MessageErrorReason_REMOVE_MAILBOX_COMMENT_FAILED.String(), fmt.Sprintf(format, args...))
 }
+
+func IsRemoveMailboxSystemNotificationFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == MessageErrorReason_REMOVE_MAILBOX_SYSTEM_NOTIFICATION_FAILED.String() && e.Code == 500
+}
+
+func ErrorRemoveMailboxSystemNotificationFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, MessageErrorReason_REMOVE_MAILBOX_SYSTEM_NOTIFICATION_FAILED.String(), fmt.Sprintf(format, args...))
+}
