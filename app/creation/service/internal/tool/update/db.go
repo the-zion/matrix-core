@@ -54,6 +54,7 @@ func NewDB(logger log.Logger) *gorm.DB {
 		&data.Record{},
 		&data.CreationUser{},
 		&data.CreationUserVisitor{},
+		&data.TimeLine{},
 	); err != nil {
 		l.Fatalf("failed creat or update table resources: %v", err)
 	}
