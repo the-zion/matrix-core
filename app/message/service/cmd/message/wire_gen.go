@@ -21,6 +21,7 @@ import (
 
 // wireApp init kratos application.
 func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, registry *nacos.Registry) (*kratos.App, func(), error) {
+	db := data.NewDB(confData, logger)
 	cmdable := data.NewRedis(confData, logger)
 	userClient := data.NewUserServiceClient(registry, logger)
 	creationClient := data.NewCreationServiceClient(registry, logger)
@@ -32,21 +33,22 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, re
 	cosComment := data.NewCosCommentClient(confData, logger)
 	txCode := data.NewPhoneCode(confData)
 	goMail := data.NewGoMail(confData)
-	dataData, err := data.NewData(logger, cmdable, userClient, creationClient, commentClient, achievementClient, jwt, cosUser, cosCreation, cosComment, txCode, goMail)
+	dataData, err := data.NewData(logger, db, cmdable, userClient, creationClient, commentClient, achievementClient, jwt, cosUser, cosCreation, cosComment, txCode, goMail)
 	if err != nil {
 		return nil, nil, err
 	}
 	userRepo := data.NewUserRepo(dataData, logger)
+	messageRepo := data.NewMessageRepo(dataData, logger)
+	transaction := data.NewTransaction(dataData)
 	bizJwt := data.NewJwt(dataData)
-	userUseCase := biz.NewUserUseCase(userRepo, bizJwt, logger)
+	userUseCase := biz.NewUserUseCase(userRepo, messageRepo, transaction, bizJwt, logger)
 	creationRepo := data.NewCreationRepo(dataData, logger)
-	creationUseCase := biz.NewCreationUseCase(creationRepo, bizJwt, logger)
+	creationUseCase := biz.NewCreationUseCase(creationRepo, messageRepo, transaction, bizJwt, logger)
 	achievementRepo := data.NewAchievementRepo(dataData, logger)
 	commentRepo := data.NewCommentRepo(dataData, logger)
 	recovery := data.NewRecovery(dataData)
 	achievementUseCase := biz.NewAchievementUseCase(achievementRepo, creationRepo, commentRepo, recovery, logger)
-	commentUseCase := biz.NewCommentUseCase(commentRepo, bizJwt, logger)
-	messageRepo := data.NewMessageRepo(dataData, logger)
+	commentUseCase := biz.NewCommentUseCase(commentRepo, messageRepo, transaction, bizJwt, logger)
 	messageUseCase := biz.NewMessageUseCase(messageRepo, recovery, logger)
 	messageService := service.NewMessageService(userUseCase, creationUseCase, achievementUseCase, commentUseCase, messageUseCase, logger)
 	httpServer := server.NewHTTPServer(confServer, messageService, logger)
