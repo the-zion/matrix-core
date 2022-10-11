@@ -12,6 +12,7 @@ type MessageRepo interface {
 	SetMailBoxLastTime(ctx context.Context, uuid string, time int32) error
 	RemoveMailBoxCommentCount(ctx context.Context, uuid string) error
 	RemoveMailBoxSubCommentCount(ctx context.Context, uuid string) error
+	RemoveMailBoxSystemNotificationCount(ctx context.Context, uuid string) error
 }
 
 type MessageUseCase struct {
@@ -66,4 +67,9 @@ func (r *MessageUseCase) RemoveMailBoxCommentCount(ctx context.Context) error {
 func (r *MessageUseCase) RemoveMailBoxSubCommentCount(ctx context.Context) error {
 	uuid := ctx.Value("uuid").(string)
 	return r.repo.RemoveMailBoxSubCommentCount(ctx, uuid)
+}
+
+func (r *MessageUseCase) RemoveMailBoxSystemNotificationCount(ctx context.Context) error {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.RemoveMailBoxSystemNotificationCount(ctx, uuid)
 }
