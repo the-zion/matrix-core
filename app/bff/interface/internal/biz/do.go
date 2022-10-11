@@ -484,6 +484,7 @@ type SystemNotification struct {
 	CreatedAt        string
 	NotificationType string
 	Title            string
+	Uid              string
 	Uuid             string
 	Label            string
 	Result           int32
