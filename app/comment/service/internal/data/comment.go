@@ -1732,7 +1732,7 @@ func (r *commentRepo) setCommentContentReviewToCache(key string, review []*biz.T
 		for _, item := range review {
 			m, err := json.Marshal(item)
 			if err != nil {
-				r.log.Errorf("fail to marshal avatar review: contentReview(%v), err(%v)", review, err)
+				return errors.Wrapf(err, fmt.Sprintf("fail to marshal avatar review: contentReview(%v)", review))
 			}
 			list = append(list, m)
 		}
