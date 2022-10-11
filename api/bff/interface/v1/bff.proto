@@ -1227,6 +1227,13 @@ service Bff{
       body: "*"
     };
   }
+
+  rpc RemoveMailBoxSystemNotificationCount(google.protobuf.Empty) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/remove/mailbox/system/notification"
+      body: "*"
+    };
+  }
 }
 
 // --------------------user service-------------------------
@@ -2804,11 +2811,12 @@ message GetMessageSystemNotificationReply{
     string createdAt = 3;
     string notificationType = 4;
     string title = 5;
-    string uuid = 6;
-    string label = 7;
-    int32 result = 8;
-    string section = 9;
-    string text = 10;
+    string uid = 6;
+    string uuid = 7;
+    string label = 8;
+    int32 result = 9;
+    string section = 10;
+    string text = 11;
   }
   repeated List list = 1;
 }
