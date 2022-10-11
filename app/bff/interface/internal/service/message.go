@@ -42,6 +42,7 @@ func (s *BffService) GetMessageSystemNotification(ctx context.Context, req *v1.G
 			CreatedAt:        item.CreatedAt,
 			NotificationType: item.NotificationType,
 			Title:            item.Title,
+			Uid:              item.Uid,
 			Uuid:             item.Uuid,
 			Label:            item.Label,
 			Result:           item.Result,
@@ -70,6 +71,14 @@ func (s *BffService) RemoveMailBoxCommentCount(ctx context.Context, _ *emptypb.E
 
 func (s *BffService) RemoveMailBoxSubCommentCount(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
 	err := s.mc.RemoveMailBoxSubCommentCount(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) RemoveMailBoxSystemNotificationCount(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
+	err := s.mc.RemoveMailBoxSystemNotificationCount(ctx)
 	if err != nil {
 		return nil, err
 	}
