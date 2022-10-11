@@ -133,6 +133,8 @@ service Message {
   rpc RemoveMailBoxCommentCount(RemoveMailBoxCommentCountReq) returns (google.protobuf.Empty){}
 
   rpc RemoveMailBoxSubCommentCount(RemoveMailBoxSubCommentCountReq) returns (google.protobuf.Empty){}
+
+  rpc RemoveMailBoxSystemNotificationCount(RemoveMailBoxSystemNotificationCountReq) returns (google.protobuf.Empty){}
 }
 
 message ImageReviewReq{
@@ -193,11 +195,12 @@ message GetMessageSystemNotificationReply{
     string createdAt = 3;
     string notificationType = 4;
     string title = 5;
-    string uuid = 6;
-    string label = 7;
-    int32 result = 8;
-    string section = 9;
-    string text = 10;
+    string uid = 6;
+    string uuid = 7;
+    string label = 8;
+    int32 result = 9;
+    string section = 10;
+    string text = 11;
   }
   repeated List list = 1;
 }
@@ -212,6 +215,10 @@ message RemoveMailBoxCommentCountReq{
 }
 
 message RemoveMailBoxSubCommentCountReq{
+  string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+message RemoveMailBoxSystemNotificationCountReq{
   string uuid = 1 [(validate.rules).string.uuid = true];
 }
 
