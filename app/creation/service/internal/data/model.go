@@ -8,8 +8,8 @@ import (
 type TimeLine struct {
 	gorm.Model
 	Uuid        string `gorm:"index;size:36"`
-	CreationsId int32
-	Mode        int32 `gorm:"default:1"`
+	CreationsId int32  `gorm:"uniqueIndex:idx_unique"`
+	Mode        int32  `gorm:"uniqueIndex:idx_unique;default:1"`
 }
 
 type Article struct {
