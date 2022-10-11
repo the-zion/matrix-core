@@ -29,6 +29,30 @@ func (s *MessageService) GetMessageNotification(ctx context.Context, req *v1.Get
 	}, nil
 }
 
+func (s *MessageService) GetMessageSystemNotification(ctx context.Context, req *v1.GetMessageSystemNotificationReq) (*v1.GetMessageSystemNotificationReply, error) {
+	reply := &v1.GetMessageSystemNotificationReply{List: make([]*v1.GetMessageSystemNotificationReply_List, 0)}
+	notificationList, err := s.mc.GetMessageSystemNotification(ctx, req.Page, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range notificationList {
+		reply.List = append(reply.List, &v1.GetMessageSystemNotificationReply_List{
+			Id:               item.Id,
+			ContentId:        item.ContentId,
+			CreatedAt:        item.CreatedAt,
+			NotificationType: item.NotificationType,
+			Title:            item.Title,
+			Uid:              item.Uuid,
+			Uuid:             item.Uuid,
+			Label:            item.Label,
+			Result:           item.Result,
+			Section:          item.Section,
+			Text:             item.Text,
+		})
+	}
+	return reply, nil
+}
+
 func (s *MessageService) SetMailBoxLastTime(ctx context.Context, req *v1.SetMailBoxLastTimeReq) (*emptypb.Empty, error) {
 	err := s.mc.SetMailBoxLastTime(ctx, req.Uuid, req.Time)
 	if err != nil {
@@ -47,6 +71,14 @@ func (s *MessageService) RemoveMailBoxCommentCount(ctx context.Context, req *v1.
 
 func (s *MessageService) RemoveMailBoxSubCommentCount(ctx context.Context, req *v1.RemoveMailBoxSubCommentCountReq) (*emptypb.Empty, error) {
 	err := s.mc.RemoveMailBoxSubCommentCount(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *MessageService) RemoveMailBoxSystemNotificationCount(ctx context.Context, req *v1.RemoveMailBoxSystemNotificationCountReq) (*emptypb.Empty, error) {
+	err := s.mc.RemoveMailBoxSystemNotificationCount(ctx, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
