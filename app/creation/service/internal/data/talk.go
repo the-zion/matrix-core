@@ -255,7 +255,7 @@ func (r *talkRepo) setUserTalkListToCache(key string, talk []*biz.Talk) {
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set talk to cache: talk(%v)", talk)
+		r.log.Errorf("fail to set talk to cache: talk(%v), err(%v)", talk, err)
 	}
 }
 
@@ -291,7 +291,7 @@ func (r *talkRepo) setTalkHotToCache(key string, talk []*biz.TalkStatistic) {
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set talk to cache: talk(%v)", talk)
+		r.log.Errorf("fail to set talk to cache: talk(%v), err(%v)", talk, err)
 	}
 }
 
@@ -402,7 +402,7 @@ func (r *talkRepo) setTalkToCache(key string, talk []*biz.Talk) {
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set talk to cache: talk(%v)", talk)
+		r.log.Errorf("fail to set talk to cache: talk(%v), err(%v)", talk, err)
 	}
 }
 
@@ -636,7 +636,7 @@ func (r *talkRepo) GetLastTalkDraft(ctx context.Context, uuid string) (*biz.Talk
 		return nil, kerrors.NotFound("talk draft not found from db", fmt.Sprintf("uuid(%s)", uuid))
 	}
 	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("db query system error: uuid(%s)", uuid))
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get last talk draft: uuid(%s)", uuid))
 	}
 	return &biz.TalkDraft{
 		Id:     int32(draft.ID),
@@ -1061,7 +1061,7 @@ func (r *talkRepo) setTalkImageReviewToCache(key string, review []*biz.ImageRevi
 		for _, item := range review {
 			m, err := json.Marshal(item)
 			if err != nil {
-				r.log.Errorf("fail to marshal avatar review: imageReview(%v)", review)
+				return errors.Wrapf(err, fmt.Sprintf("fail to marshal avatar review: imageReview(%v)", review))
 			}
 			list = append(list, m)
 		}
@@ -1070,7 +1070,7 @@ func (r *talkRepo) setTalkImageReviewToCache(key string, review []*biz.ImageRevi
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set talk image review to cache: imageReview(%v)", review)
+		r.log.Errorf("fail to set talk image review to cache: imageReview(%v), err(%v)", review, err)
 	}
 }
 
@@ -1169,7 +1169,7 @@ func (r *talkRepo) setTalkContentReviewToCache(key string, review []*biz.TextRev
 		for _, item := range review {
 			m, err := json.Marshal(item)
 			if err != nil {
-				r.log.Errorf("fail to marshal avatar review: contentReview(%v)", review)
+				return errors.Wrapf(err, fmt.Sprintf("fail to marshal avatar review: contentReview(%v)", review))
 			}
 			list = append(list, m)
 		}
@@ -1178,7 +1178,7 @@ func (r *talkRepo) setTalkContentReviewToCache(key string, review []*biz.TextRev
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set talk content review to cache: contentReview(%v)", review)
+		r.log.Errorf("fail to set talk content review to cache: contentReview(%v), err(%v)", review, err)
 	}
 }
 
@@ -1451,6 +1451,7 @@ func (r *talkRepo) CreateTalkCache(ctx context.Context, id, auth int32, uuid, mo
 					redis.call("HSETNX", talkStatistic, "view", 0)
 					redis.call("HSETNX", talkStatistic, "comment", 0)
 					redis.call("HSETNX", talkStatistic, "auth", auth)
+					redis.call("EXPIRE", talkStatistic, 28800)
 
 					if userTalkListExist == 1 then
 						redis.call("ZADD", userTalkList, id, member)
@@ -1665,7 +1666,7 @@ func (r *talkRepo) SetTalkViewToCache(ctx context.Context, id int32, uuid string
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to add talk agree to cache: id(%v), uuid(%s)", id, uuid)
+		r.log.Errorf("fail to add talk agree to cache: id(%v), uuid(%s), err(%v)", id, uuid, err)
 	}
 	return nil
 }
@@ -2033,7 +2034,7 @@ func (r *talkRepo) SetTalkImageIrregular(ctx context.Context, review *biz.ImageR
 func (r *talkRepo) SetTalkImageIrregularToCache(ctx context.Context, review *biz.ImageReview) error {
 	marshal, err := json.Marshal(review)
 	if err != nil {
-		r.log.Errorf("fail to set talk image irregular to json: json.Marshal(%v), error(%v)", review, err)
+		return errors.Wrapf(err, fmt.Sprintf("fail to set talk image irregular to json: json.Marshal(%v)", review))
 	}
 	var script = redis.NewScript(`
 					local key = KEYS[1]
@@ -2076,7 +2077,7 @@ func (r *talkRepo) SetTalkContentIrregular(ctx context.Context, review *biz.Text
 func (r *talkRepo) SetTalkContentIrregularToCache(ctx context.Context, review *biz.TextReview) error {
 	marshal, err := json.Marshal(review)
 	if err != nil {
-		r.log.Errorf("fail to set talk content irregular to json: json.Marshal(%v), error(%v)", review, err)
+		return errors.Wrapf(err, fmt.Sprintf("fail to set talk content irregular to json: json.Marshal(%v)", review))
 	}
 	var script = redis.NewScript(`
 					local key = KEYS[1]
@@ -2308,7 +2309,7 @@ func (r *talkRepo) AddTalkCommentToCache(ctx context.Context, id int32, uuid str
 	var values []interface{}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
-		r.log.Errorf("fail to add talk comment to cache: id(%v), uuid(%s)", id, uuid)
+		r.log.Errorf("fail to add talk comment to cache: id(%v), uuid(%s), err(%v)", id, uuid, err)
 	}
 	return nil
 }

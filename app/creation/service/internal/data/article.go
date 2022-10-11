@@ -43,7 +43,7 @@ func (r *articleRepo) GetLastArticleDraft(ctx context.Context, uuid string) (*bi
 		return nil, kerrors.NotFound("article draft not found from db", fmt.Sprintf("uuid(%s)", uuid))
 	}
 	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("db query system error: uuid(%s)", uuid))
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get last article draft: uuid(%s)", uuid))
 	}
 	return &biz.ArticleDraft{
 		Id:     int32(draft.ID),
@@ -415,7 +415,7 @@ func (r *articleRepo) setUserArticleListToCache(key string, article []*biz.Artic
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set article to cache: article(%v)", article)
+		r.log.Errorf("fail to set article to cache: article(%v), err(%v)", article, err)
 	}
 }
 
@@ -993,7 +993,7 @@ func (r *articleRepo) SetArticleContentIrregular(ctx context.Context, review *bi
 func (r *articleRepo) SetArticleImageIrregularToCache(ctx context.Context, review *biz.ImageReview) error {
 	marshal, err := json.Marshal(review)
 	if err != nil {
-		r.log.Errorf("fail to set article image irregular to json: json.Marshal(%v), error(%v)", review, err)
+		return errors.Wrapf(err, fmt.Sprintf("fail to set article image irregular to json: json.Marshal(%v)", review))
 	}
 	var script = redis.NewScript(`
 					local key = KEYS[1]
@@ -1016,7 +1016,7 @@ func (r *articleRepo) SetArticleImageIrregularToCache(ctx context.Context, revie
 func (r *articleRepo) SetArticleContentIrregularToCache(ctx context.Context, review *biz.TextReview) error {
 	marshal, err := json.Marshal(review)
 	if err != nil {
-		r.log.Errorf("fail to set article content irregular to json: json.Marshal(%v), error(%v)", review, err)
+		return errors.Wrapf(err, fmt.Sprintf("fail to set article content irregular to json: json.Marshal(%v)", review))
 	}
 	var script = redis.NewScript(`
 					local key = KEYS[1]
@@ -1146,7 +1146,7 @@ func (r *articleRepo) setArticleImageReviewToCache(key string, review []*biz.Ima
 		for _, item := range review {
 			m, err := json.Marshal(item)
 			if err != nil {
-				r.log.Errorf("fail to marshal avatar review: imageReview(%v)", review)
+				return errors.Wrapf(err, "fail to marshal avatar review: imageReview(%v)", review)
 			}
 			list = append(list, m)
 		}
@@ -1155,7 +1155,7 @@ func (r *articleRepo) setArticleImageReviewToCache(key string, review []*biz.Ima
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set article image review to cache: imageReview(%v)", review)
+		r.log.Errorf("fail to set article image review to cache: imageReview(%v), err(%v)", review, err)
 	}
 }
 
@@ -1254,7 +1254,7 @@ func (r *articleRepo) setArticleContentReviewToCache(key string, review []*biz.T
 		for _, item := range review {
 			m, err := json.Marshal(item)
 			if err != nil {
-				r.log.Errorf("fail to marshal avatar review: contentReview(%v)", review)
+				return errors.Wrapf(err, fmt.Sprintf("fail to marshal avatar review: contentReview(%v)", review))
 			}
 			list = append(list, m)
 		}
@@ -1263,7 +1263,7 @@ func (r *articleRepo) setArticleContentReviewToCache(key string, review []*biz.T
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set article content review to cache: contentReview(%v)", review)
+		r.log.Errorf("fail to set article content review to cache: contentReview(%v), err(%v)", review, err)
 	}
 }
 
@@ -1372,6 +1372,7 @@ func (r *articleRepo) CreateArticleCache(ctx context.Context, id, auth int32, uu
 					redis.call("HSETNX", articleStatistic, "view", 0)
 					redis.call("HSETNX", articleStatistic, "comment", 0)
 					redis.call("HSETNX", articleStatistic, "auth", auth)
+					redis.call("EXPIRE", articleStatistic, 28800)
 
 					if userArticleListExist == 1 then
 						redis.call("ZADD", userArticleList, id, member)
@@ -1548,7 +1549,7 @@ func (r *articleRepo) AddArticleCommentToCache(ctx context.Context, id int32, uu
 	var values []interface{}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
-		r.log.Errorf("fail to add article comment to cache: id(%v), uuid(%s)", id, uuid)
+		r.log.Errorf("fail to add article comment to cache: id(%v), uuid(%s), err(%v)", id, uuid, err)
 	}
 	return nil
 }
@@ -2493,7 +2494,7 @@ func (r *articleRepo) setArticleToCache(key string, article []*biz.Article) {
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set article to cache: article(%v)", article)
+		r.log.Errorf("fail to set article to cache: article(%v), err(%v)", article, err)
 	}
 }
 
@@ -2511,7 +2512,7 @@ func (r *articleRepo) setArticleHotToCache(key string, article []*biz.ArticleSta
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set article to cache: article(%v)", article)
+		r.log.Errorf("fail to set article to cache: article(%v), err(%v)", article, err)
 	}
 }
 
@@ -2532,7 +2533,7 @@ func (r *articleRepo) setColumnArticleToCache(id int32, article []*biz.Article) 
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set column article to cache: article(%v)", article)
+		r.log.Errorf("fail to set column article to cache: article(%v), err(%v)", article, err)
 	}
 }
 

@@ -55,7 +55,7 @@ func (r *columnRepo) GetLastColumnDraft(ctx context.Context, uuid string) (*biz.
 		return nil, kerrors.NotFound("column draft not found from db", fmt.Sprintf("uuid(%s)", uuid))
 	}
 	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("db query system error: uuid(%s)", uuid))
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get last column draft: uuid(%s)", uuid))
 	}
 	return &biz.ColumnDraft{
 		Id:     int32(draft.ID),
@@ -473,6 +473,7 @@ func (r *columnRepo) CreateColumnCache(ctx context.Context, id, auth int32, uuid
 					redis.call("HSETNX", columnStatistic, "view", 0)
 					redis.call("HSETNX", columnStatistic, "comment", 0)
 					redis.call("HSETNX", columnStatistic, "auth", auth)
+					redis.call("EXPIRE", columnStatistic, 28800)
 
 					if userColumnListExist == 1 then
 						redis.call("ZADD", userColumnList, id, member)
@@ -680,7 +681,7 @@ func (r *columnRepo) setColumnToCache(key string, column []*biz.Column) {
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set column to cache: column(%v)", column)
+		r.log.Errorf("fail to set column to cache: column(%v), err(%v)", column, err)
 	}
 }
 
@@ -865,7 +866,7 @@ func (r *columnRepo) setUserColumnListToCache(key string, column []*biz.Column) 
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set column to cache: column(%v)", column)
+		r.log.Errorf("fail to set column to cache: column(%v), err(%v)", column, err)
 	}
 }
 
@@ -947,7 +948,7 @@ func (r *columnRepo) setColumnHotToCache(key string, column []*biz.ColumnStatist
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set column to cache: column(%v)", column)
+		r.log.Errorf("fail to set column to cache: column(%v), err(%v)", column, err)
 	}
 }
 
@@ -1357,7 +1358,7 @@ func (r *columnRepo) setUserSubscribeListToCache(key string, subscribe []*biz.Su
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set column subscribe to cache: column(%v)", subscribe)
+		r.log.Errorf("fail to set column subscribe to cache: column(%v), err(%v)", subscribe, err)
 	}
 }
 
@@ -1645,7 +1646,7 @@ func (r *columnRepo) SetColumnViewToCache(ctx context.Context, id int32, uuid st
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to add column agree to cache: id(%v), uuid(%s)", id, uuid)
+		r.log.Errorf("fail to add column agree to cache: id(%v), uuid(%s), err(%v)", id, uuid, err)
 	}
 	return nil
 }
@@ -2113,7 +2114,7 @@ func (r *columnRepo) SetColumnImageIrregular(ctx context.Context, review *biz.Im
 func (r *columnRepo) SetColumnImageIrregularToCache(ctx context.Context, review *biz.ImageReview) error {
 	marshal, err := json.Marshal(review)
 	if err != nil {
-		r.log.Errorf("fail to set column image irregular to json: json.Marshal(%v), error(%v)", review, err)
+		return errors.Wrapf(err, fmt.Sprintf("fail to set column image irregular to json: json.Marshal(%v)", review))
 	}
 	var script = redis.NewScript(`
 					local key = KEYS[1]
@@ -2156,7 +2157,7 @@ func (r *columnRepo) SetColumnContentIrregular(ctx context.Context, review *biz.
 func (r *columnRepo) SetColumnContentIrregularToCache(ctx context.Context, review *biz.TextReview) error {
 	marshal, err := json.Marshal(review)
 	if err != nil {
-		r.log.Errorf("fail to set column content irregular to json: json.Marshal(%v), error(%v)", review, err)
+		return errors.Wrapf(err, fmt.Sprintf("fail to set column content irregular to json: json.Marshal(%v)", review))
 	}
 	var script = redis.NewScript(`
 					local key = KEYS[1]
@@ -2685,7 +2686,7 @@ func (r *columnRepo) setColumnImageReviewToCache(key string, review []*biz.Image
 		for _, item := range review {
 			m, err := json.Marshal(item)
 			if err != nil {
-				r.log.Errorf("fail to marshal avatar review: imageReview(%v)", review)
+				return errors.Wrapf(err, fmt.Sprintf("fail to marshal avatar review: imageReview(%v)", review))
 			}
 			list = append(list, m)
 		}
@@ -2694,7 +2695,7 @@ func (r *columnRepo) setColumnImageReviewToCache(key string, review []*biz.Image
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set column image review to cache: imageReview(%v)", review)
+		r.log.Errorf("fail to set column image review to cache: imageReview(%v), err(%v)", review, err)
 	}
 }
 
@@ -2793,7 +2794,7 @@ func (r *columnRepo) setColumnContentReviewToCache(key string, review []*biz.Tex
 		for _, item := range review {
 			m, err := json.Marshal(item)
 			if err != nil {
-				r.log.Errorf("fail to marshal avatar review: contentReview(%v)", review)
+				return errors.Wrapf(err, fmt.Sprintf("fail to marshal avatar review: contentReview(%v)", review))
 			}
 			list = append(list, m)
 		}
@@ -2802,7 +2803,7 @@ func (r *columnRepo) setColumnContentReviewToCache(key string, review []*biz.Tex
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set column content review to cache: contentReview(%v)", review)
+		r.log.Errorf("fail to set column content review to cache: contentReview(%v), err(%v)", review, err)
 	}
 }
 

@@ -65,7 +65,7 @@ func (r *creationRepo) GetLastCollectionsDraft(ctx context.Context, uuid string)
 		return nil, kerrors.NotFound("collections draft not found from db", fmt.Sprintf("uuid(%s)", uuid))
 	}
 	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("db query system error: uuid(%s)", uuid))
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get last collections draft: uuid(%s)", uuid))
 	}
 	return &biz.CollectionsDraft{
 		Id:     int32(draft.ID),
@@ -168,7 +168,7 @@ func (r *creationRepo) setCollectionsContentReviewToCache(key string, review []*
 		for _, item := range review {
 			m, err := json.Marshal(item)
 			if err != nil {
-				r.log.Errorf("fail to marshal avatar review: contentReview(%v)", review)
+				r.log.Errorf("fail to marshal avatar review: contentReview(%v), err(%v)", review, err)
 			}
 			list = append(list, m)
 		}
@@ -177,7 +177,7 @@ func (r *creationRepo) setCollectionsContentReviewToCache(key string, review []*
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set collections content review to cache: contentReview(%v)", review)
+		r.log.Errorf("fail to set collections content review to cache: contentReview(%v), err(%v)", review, err)
 	}
 }
 
@@ -268,7 +268,7 @@ func (r *creationRepo) setCollectArticleListToCache(key string, article []*biz.A
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set user collect article to cache: article(%v)", article)
+		r.log.Errorf("fail to set user collect article to cache: article(%v), err(%v)", article, err)
 	}
 }
 
@@ -368,7 +368,7 @@ func (r *creationRepo) setCollectTalkListToCache(key string, talk []*biz.Talk) {
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set user collect talk to cache: article(%v)", talk)
+		r.log.Errorf("fail to set user collect talk to cache: article(%v), err(%v)", talk, err)
 	}
 }
 
@@ -468,7 +468,7 @@ func (r *creationRepo) setCollectColumnListToCache(key string, column []*biz.Col
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set user collect column to cache: column(%v)", column)
+		r.log.Errorf("fail to set user collect column to cache: column(%v), err(%v)", column, err)
 	}
 }
 
@@ -847,7 +847,7 @@ func (r *creationRepo) setUserCollectionsListToCache(key string, collections []*
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set collections to cache: collections(%v)", collections)
+		r.log.Errorf("fail to set collections to cache: collections(%v), err(%v)", collections, err)
 	}
 }
 
@@ -1137,7 +1137,7 @@ func (r *creationRepo) setUserTimeLineListToCache(key string, timeline []*biz.Ti
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set timeline to cache: timeline(%v)", timeline)
+		r.log.Errorf("fail to set timeline to cache: timeline(%v), err(%v)", timeline, err)
 	}
 }
 
@@ -1148,6 +1148,15 @@ func (r *creationRepo) GetCollectionsAuth(ctx context.Context, id int32) (int32,
 		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get collections auth from db: id(%v)", id))
 	}
 	return collections.Auth, nil
+}
+
+func (r *creationRepo) GetUserTimeLine(ctx context.Context, creationId, mode int32) (int32, error) {
+	timeline := &TimeLine{}
+	err := r.data.db.WithContext(ctx).Where("creations_id = ? and mode = ?", creationId, mode).First(timeline).Error
+	if !errors.Is(err, gorm.ErrRecordNotFound) && err != nil {
+		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get user timeline from db: creationId(%v), mode(%v)", creationId, mode))
+	}
+	return int32(timeline.ID), nil
 }
 
 func (r *creationRepo) getCreationUserVisitorFromCache(ctx context.Context, key string) (*biz.CreationUser, error) {
@@ -1264,7 +1273,7 @@ func (r *creationRepo) SetCollectionsContentIrregular(ctx context.Context, revie
 func (r *creationRepo) SetCollectionsContentIrregularToCache(ctx context.Context, review *biz.TextReview) error {
 	marshal, err := json.Marshal(review)
 	if err != nil {
-		r.log.Errorf("fail to set collections content irregular to json: json.Marshal(%v), error(%v)", review, err)
+		return errors.Wrapf(err, fmt.Sprintf("fail to set collections content irregular to json: json.Marshal(%v)", review))
 	}
 	var script = redis.NewScript(`
 					local key = KEYS[1]
@@ -1381,6 +1390,49 @@ func (r *creationRepo) CreateCollectionsCache(ctx context.Context, id, auth int3
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to create(update) collections cache: uuid(%s), id(%v)", uuid, id))
+	}
+	return nil
+}
+
+func (r *creationRepo) CreateTimeLine(ctx context.Context, creationsId, auth, mode int32, uuid string) (int32, error) {
+	if auth == 2 {
+		return 0, nil
+	}
+
+	timeline := &TimeLine{
+		CreationsId: creationsId,
+		Uuid:        uuid,
+		Mode:        mode,
+	}
+	err := r.data.DB(ctx).Select("CreationsId", "Uuid", "Mode").Create(timeline).Error
+	if err != nil {
+		return 0, errors.Wrapf(err, fmt.Sprintf("fail to create creation timeline: uuid(%s), creationid(%v), mode(%v)", uuid, creationsId, mode))
+	}
+	return int32(timeline.ID), nil
+}
+
+func (r *creationRepo) CreateTimeLineCache(ctx context.Context, id, creationId, mode int32, uuid string) error {
+	ids := strconv.Itoa(int(id))
+	creationIds := strconv.Itoa(int(creationId))
+	modes := strconv.Itoa(int(mode))
+	userTimeLineList := "user_timeline_list_" + uuid
+	var script = redis.NewScript(`
+					local userTimeLineList = KEYS[1]
+					local id = ARGV[1]
+					local member = ARGV[2]
+
+					local userTimeLineListExist = redis.call("EXISTS", userTimeLineList)
+
+					if userTimeLineListExist == 1 then
+						redis.call("ZADD", userTimeLineList, id, member)
+					end
+					return 0
+	`)
+	keys := []string{userTimeLineList}
+	values := []interface{}{ids, ids + "%" + creationIds + "%" + modes + "%" + uuid}
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to create timeline cache: uuid(%s), creationId(%v), mode(%v)", uuid, creationId, mode))
 	}
 	return nil
 }
@@ -1518,6 +1570,28 @@ func (r *creationRepo) DeleteCreationCache(ctx context.Context, id, auth int32, 
 	return nil
 }
 
+func (r *creationRepo) DeleteTimeLine(ctx context.Context, id int32) error {
+	timeline := &TimeLine{}
+	err := r.data.DB(ctx).Where("id = ?", id).Delete(timeline).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to delete timeline: id(%v)", id))
+	}
+	return nil
+}
+
+func (r *creationRepo) DeleteTimeLineCache(ctx context.Context, id, creationId, mode int32, uuid string) error {
+	ids := strconv.Itoa(int(id))
+	creationIds := strconv.Itoa(int(creationId))
+	modes := strconv.Itoa(int(mode))
+	key := "user_timeline_list_" + uuid
+	member := ids + "%" + creationIds + "%" + modes + "%" + uuid
+	_, err := r.data.redisCli.ZRem(ctx, key, member).Result()
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to delete timeline from cache: key(%s), member(%s)", key, member))
+	}
+	return nil
+}
+
 func (r *creationRepo) ReduceCreationUserCollections(ctx context.Context, auth int32, uuid string) error {
 	cu := CreationUser{}
 	err := r.data.DB(ctx).Model(&cu).Where("uuid = ? and collections > 0", uuid).Update("collections", gorm.Expr("collections - ?", 1)).Error
@@ -1565,7 +1639,7 @@ func (r *creationRepo) SetLeaderBoardToCache(ctx context.Context, boardList []*b
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set LeaderBoard to cache: LeaderBoard(%v)", boardList)
+		r.log.Errorf("fail to set LeaderBoard to cache: LeaderBoard(%v), err(%v)", boardList, err)
 	}
 }
 
