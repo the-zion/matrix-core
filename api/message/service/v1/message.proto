@@ -201,6 +201,7 @@ message GetMessageSystemNotificationReply{
     int32 result = 9;
     string section = 10;
     string text = 11;
+    string comment = 12;
   }
   repeated List list = 1;
 }
