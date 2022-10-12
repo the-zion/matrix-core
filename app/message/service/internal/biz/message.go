@@ -14,7 +14,7 @@ type MessageRepo interface {
 	RemoveMailBoxCommentCount(ctx context.Context, uuid string) error
 	RemoveMailBoxSubCommentCount(ctx context.Context, uuid string) error
 	RemoveMailBoxSystemNotificationCount(ctx context.Context, uuid string) error
-	AddMailBoxSystemNotification(ctx context.Context, contentId int32, notificationType string, title string, uuid string, label string, result int32, section string, text string, uid string) (*SystemNotification, error)
+	AddMailBoxSystemNotification(ctx context.Context, contentId int32, notificationType string, title string, uuid string, label string, result int32, section string, text string, uid string, comment string) (*SystemNotification, error)
 	AddMailBoxSystemNotificationToCache(ctx context.Context, notification *SystemNotification) error
 }
 
