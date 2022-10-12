@@ -115,6 +115,10 @@ message Server {
 }
 
 message Data {
+  message Database {
+    string driver = 1;
+    string source = 2;
+  }
   message Code{
     string secret_id = 1;
     string secret_key = 2;
@@ -156,10 +160,11 @@ message Data {
     BucketCreation bucketCreation = 2;
     BucketComment bucketComment = 3;
   }
-  Jwt jwt = 1;
-  Code code = 2;
-  Mail mail = 3;
-  Cos cos = 4;
-  Redis redis = 5;
+  Database database = 1;
+  Jwt jwt = 2;
+  Code code = 3;
+  Mail mail = 4;
+  Cos cos = 5;
+  Redis redis = 6;
 }
 
