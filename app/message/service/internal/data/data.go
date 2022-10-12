@@ -20,13 +20,15 @@ import (
 	"github.com/the-zion/matrix-core/app/message/service/internal/biz"
 	"github.com/the-zion/matrix-core/app/message/service/internal/conf"
 	"gopkg.in/gomail.v2"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 	"net/http"
 	"net/url"
 	"runtime"
 	"time"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewCreationRepo, NewCommentRepo, NewMessageRepo, NewAchievementRepo, NewPhoneCode, NewGoMail, NewUserServiceClient, NewCreationServiceClient, NewAchievementServiceClient, NewCommentServiceClient, NewCosUserClient, NewCosCreationClient, NewCosCommentClient, NewJwtClient, NewJwt, NewRecovery, NewRedis)
+var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewCreationRepo, NewCommentRepo, NewMessageRepo, NewAchievementRepo, NewPhoneCode, NewGoMail, NewUserServiceClient, NewCreationServiceClient, NewAchievementServiceClient, NewCommentServiceClient, NewCosUserClient, NewCosCreationClient, NewCosCommentClient, NewJwtClient, NewJwt, NewRecovery, NewTransaction, NewRedis, NewDB)
 
 type TxCode struct {
 	client  *sms.Client
@@ -57,6 +59,7 @@ type Jwt struct {
 }
 
 type Data struct {
+	db             *gorm.DB
 	log            *log.Helper
 	redisCli       redis.Cmdable
 	uc             userv1.UserClient
@@ -69,6 +72,15 @@ type Data struct {
 	cosUserCli     *CosUser
 	cosCreationCli *CosCreation
 	cosCommentCli  *CosComment
+}
+
+type contextTxKey struct{}
+
+func (d *Data) ExecTx(ctx context.Context, fn func(ctx context.Context) error) error {
+	return d.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		ctx = context.WithValue(ctx, contextTxKey{}, tx)
+		return fn(ctx)
+	})
 }
 
 func (d *Data) GroupRecover(ctx context.Context, fn func(ctx context.Context) error) func() error {
@@ -85,7 +97,25 @@ func (d *Data) GroupRecover(ctx context.Context, fn func(ctx context.Context) er
 	}
 }
 
+func (d *Data) Recover(ctx context.Context, fn func(ctx context.Context)) func() {
+	return func() {
+		defer func() {
+			if rerr := recover(); rerr != nil {
+				buf := make([]byte, 64<<10)
+				n := runtime.Stack(buf, false)
+				buf = buf[:n]
+				log.Context(ctx).Errorf("%v: %s\n", rerr, buf)
+			}
+		}()
+		fn(ctx)
+	}
+}
+
 func NewRecovery(d *Data) biz.Recovery {
+	return d
+}
+
+func NewTransaction(d *Data) biz.Transaction {
 	return d
 }
 
@@ -248,6 +278,18 @@ func NewCosCommentClient(conf *conf.Data, logger log.Logger) *CosComment {
 	}
 }
 
+func NewDB(conf *conf.Data, logger log.Logger) *gorm.DB {
+	l := log.NewHelper(log.With(logger, "module", "creation/data/mysql"))
+
+	db, err := gorm.Open(mysql.Open(conf.Database.Source), &gorm.Config{
+		DisableForeignKeyConstraintWhenMigrating: true,
+	})
+	if err != nil {
+		l.Fatalf("failed opening connection to db: %v", err)
+	}
+	return db
+}
+
 func NewRedis(conf *conf.Data, logger log.Logger) redis.Cmdable {
 	l := log.NewHelper(log.With(logger, "module", "creation/data/redis"))
 	client := redis.NewClient(&redis.Options{
@@ -268,9 +310,10 @@ func NewRedis(conf *conf.Data, logger log.Logger) redis.Cmdable {
 	return client
 }
 
-func NewData(logger log.Logger, redisCmd redis.Cmdable, uc userv1.UserClient, cc creationv1.CreationClient, commc commentv1.CommentClient, ac achievementv1.AchievementClient, jwt Jwt, cosUser *CosUser, cosCreation *CosCreation, cosComment *CosComment, phoneCodeCli *TxCode, goMailCli *GoMail) (*Data, error) {
+func NewData(logger log.Logger, db *gorm.DB, redisCmd redis.Cmdable, uc userv1.UserClient, cc creationv1.CreationClient, commc commentv1.CommentClient, ac achievementv1.AchievementClient, jwt Jwt, cosUser *CosUser, cosCreation *CosCreation, cosComment *CosComment, phoneCodeCli *TxCode, goMailCli *GoMail) (*Data, error) {
 	l := log.NewHelper(log.With(logger, "module", "message/data"))
 	d := &Data{
+		db:             db,
 		log:            l,
 		redisCli:       redisCmd,
 		uc:             uc,
