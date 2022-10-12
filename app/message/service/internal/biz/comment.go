@@ -274,7 +274,7 @@ func (r *CommentUseCase) AddCommentContentReviewDbAndCache(ctx context.Context, 
 		return err
 	}
 	err = r.tm.ExecTx(ctx, func(ctx context.Context) error {
-		notification, err := r.messageRepo.AddMailBoxSystemNotification(ctx, commentId, "comment", "", uuid, label, result, section, comment)
+		notification, err := r.messageRepo.AddMailBoxSystemNotification(ctx, commentId, "comment-create", "", uuid, label, result, section, "", "", comment)
 		if err != nil {
 			return err
 		}
