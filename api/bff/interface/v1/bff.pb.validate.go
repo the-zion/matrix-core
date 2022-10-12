@@ -32485,6 +32485,8 @@ func (m *GetMessageSystemNotificationReply_List) validate(all bool) error {
 
 	// no validation rules for Text
 
+	// no validation rules for Comment
+
 	if len(errors) > 0 {
 		return GetMessageSystemNotificationReply_ListMultiError(errors)
 	}
