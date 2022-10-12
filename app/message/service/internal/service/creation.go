@@ -359,7 +359,3 @@ func (s *MessageService) DeleteCollectionsCache(ctx context.Context, id int32, u
 func (s *MessageService) AddCollectionsContentReviewDbAndCache(ctx context.Context, creationId, result int32, uuid, jobId, label, title, kind string, section string) error {
 	return s.cc.AddCollectionsContentReviewDbAndCache(ctx, creationId, result, uuid, jobId, label, title, kind, section)
 }
-
-func (s *MessageService) AddCreationComment(ctx context.Context, createId, createType int32, uuid string) {
-	s.cc.AddCreationComment(ctx, createId, createType, uuid)
-}
