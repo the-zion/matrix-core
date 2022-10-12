@@ -93,7 +93,7 @@ func (r *messageRepo) GetMessageNotification(ctx context.Context, uuid string, f
 	var s int64
 	systems := result[3].(*redis.SliceCmd).Val()[0]
 	if systems != nil {
-		c, err = strconv.ParseInt(systems.(string), 10, 32)
+		s, err = strconv.ParseInt(systems.(string), 10, 32)
 		if err != nil {
 			return nil, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: systems(%v)", systems))
 		}
@@ -163,6 +163,7 @@ func (r *messageRepo) getMessageSystemNotificationFromCache(ctx context.Context,
 			Result:           notification.Result,
 			Section:          notification.Section,
 			Text:             notification.Text,
+			Comment:          notification.Comment,
 		})
 	}
 	return notificationList, nil
@@ -193,6 +194,7 @@ func (r *messageRepo) getMessageSystemNotificationFromDB(ctx context.Context, pa
 			Result:           item.Result,
 			Section:          item.Section,
 			Text:             item.Text,
+			Comment:          item.Comment,
 		})
 	}
 	return notification, nil
@@ -250,7 +252,7 @@ func (r *messageRepo) RemoveMailBoxSystemNotificationCount(ctx context.Context, 
 	return nil
 }
 
-func (r *messageRepo) AddMailBoxSystemNotification(ctx context.Context, contentId int32, notificationType string, title string, uuid string, label string, result int32, section string, text string, uid string) (*biz.SystemNotification, error) {
+func (r *messageRepo) AddMailBoxSystemNotification(ctx context.Context, contentId int32, notificationType string, title string, uuid string, label string, result int32, section string, text string, uid string, comment string) (*biz.SystemNotification, error) {
 	ar := &SystemNotification{
 		ContentId:        contentId,
 		NotificationType: notificationType,
@@ -261,8 +263,9 @@ func (r *messageRepo) AddMailBoxSystemNotification(ctx context.Context, contentI
 		Result:           result,
 		Section:          section,
 		Text:             text,
+		Comment:          comment,
 	}
-	err := r.data.db.WithContext(ctx).Select("ContentId", "NotificationType", "Title", "Uuid", "Uid", "Label", "Result", "Section", "Text").Create(ar).Error
+	err := r.data.db.WithContext(ctx).Select("ContentId", "NotificationType", "Title", "Uuid", "Uid", "Label", "Result", "Section", "Text", "Comment").Create(ar).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, "fail to add mail box notification: notification(%v)", ar)
 	}
@@ -272,11 +275,13 @@ func (r *messageRepo) AddMailBoxSystemNotification(ctx context.Context, contentI
 		ContentId:        contentId,
 		NotificationType: notificationType,
 		Title:            title,
+		Uid:              uid,
 		Uuid:             uuid,
 		Label:            label,
 		Result:           result,
 		Section:          section,
 		Text:             text,
+		Comment:          comment,
 	}, nil
 }
 
