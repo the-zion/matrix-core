@@ -874,14 +874,6 @@ func (r *creationRepo) CollectionsEditReviewPass(ctx context.Context, id, auth i
 	return nil
 }
 
-func (r *creationRepo) AddCreationComment(ctx context.Context, createId, createType int32, uuid string) {
-	_, _ = r.data.cc.AddCreationComment(ctx, &creationV1.AddCreationCommentReq{
-		Uuid:         uuid,
-		CreationId:   createId,
-		CreationType: createType,
-	})
-}
-
 func (r *creationRepo) GetCreationUser(ctx context.Context, uuid string) (int32, int32, int32, error) {
 	reply, err := r.data.cc.GetCreationUser(ctx, &creationV1.GetCreationUserReq{
 		Uuid: uuid,
