@@ -126,7 +126,6 @@ func NewCommentMqConsumerServer(conf *conf.Server, messageService *service.Messa
 		switch mode {
 		case "create_comment_db_and_cache":
 			err = messageService.CreateCommentDbAndCache(ctx, int32(m["id"].(float64)), int32(m["creationId"].(float64)), int32(m["creationType"].(float64)), m["uuid"].(string))
-			go messageService.AddCreationComment(ctx, int32(m["creationId"].(float64)), int32(m["creationType"].(float64)), m["uuid"].(string))
 		case "create_sub_comment_db_and_cache":
 			err = messageService.CreateSubCommentDbAndCache(ctx, int32(m["id"].(float64)), int32(m["rootId"].(float64)), int32(m["parentId"].(float64)), m["uuid"].(string))
 		case "remove_comment_db_and_cache":
