@@ -88,6 +88,7 @@ func (r *messageRepo) GetMessageSystemNotification(ctx context.Context, page int
 				Result:           item.Result,
 				Section:          item.Section,
 				Text:             item.Text,
+				Comment:          item.Comment,
 			})
 		}
 		return reply, nil
