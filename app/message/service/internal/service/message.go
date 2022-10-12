@@ -42,12 +42,13 @@ func (s *MessageService) GetMessageSystemNotification(ctx context.Context, req *
 			CreatedAt:        item.CreatedAt,
 			NotificationType: item.NotificationType,
 			Title:            item.Title,
-			Uid:              item.Uuid,
+			Uid:              item.Uid,
 			Uuid:             item.Uuid,
 			Label:            item.Label,
 			Result:           item.Result,
 			Section:          item.Section,
 			Text:             item.Text,
+			Comment:          item.Comment,
 		})
 	}
 	return reply, nil
