@@ -48,6 +48,7 @@ func (s *BffService) GetMessageSystemNotification(ctx context.Context, req *v1.G
 			Result:           item.Result,
 			Section:          item.Section,
 			Text:             item.Text,
+			Comment:          item.Comment,
 		})
 	}
 	return reply, nil
