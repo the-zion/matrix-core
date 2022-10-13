@@ -22,16 +22,20 @@ type UserRepo interface {
 }
 
 type UserUseCase struct {
-	repo UserRepo
-	jwt  Jwt
-	log  *log.Helper
+	repo        UserRepo
+	messageRepo MessageRepo
+	tm          Transaction
+	jwt         Jwt
+	log         *log.Helper
 }
 
-func NewUserUseCase(repo UserRepo, jwt Jwt, logger log.Logger) *UserUseCase {
+func NewUserUseCase(repo UserRepo, messageRepo MessageRepo, tm Transaction, jwt Jwt, logger log.Logger) *UserUseCase {
 	return &UserUseCase{
-		repo: repo,
-		jwt:  jwt,
-		log:  log.NewHelper(log.With(logger, "module", "message/biz/userUseCase")),
+		repo:        repo,
+		messageRepo: messageRepo,
+		tm:          tm,
+		jwt:         jwt,
+		log:         log.NewHelper(log.With(logger, "module", "message/biz/userUseCase")),
 	}
 }
 
@@ -127,12 +131,29 @@ func (r *UserUseCase) ProfileReview(ctx context.Context, tr *TextReview) error {
 	var err error
 	if tr.Result == 0 {
 		err = r.repo.ProfileReviewPass(ctx, uuid, updated)
+		if err != nil {
+			return err
+		}
 	} else {
-		r.log.Info("profile review not pass，%v", tr)
 		err = r.repo.ProfileReviewNotPass(ctx, uuid)
-	}
-	if err != nil {
-		return err
+		if err != nil {
+			return err
+		}
+		err = r.tm.ExecTx(ctx, func(ctx context.Context) error {
+			notification, err := r.messageRepo.AddMailBoxSystemNotification(ctx, 0, "profile-edit", "", uuid, tr.Label, tr.Result, tr.Section, "", "", "")
+			if err != nil {
+				return err
+			}
+
+			err = r.messageRepo.AddMailBoxSystemNotificationToCache(ctx, notification)
+			if err != nil {
+				return err
+			}
+			return nil
+		})
+		if err != nil {
+			r.log.Errorf("fail to add mail box system notification for user profile: error(%v), uuid(%s)", err, uuid)
+		}
 	}
 	return nil
 }
@@ -146,9 +167,47 @@ func (r *UserUseCase) CancelFollowDbAndCache(ctx context.Context, uuid, userId s
 }
 
 func (r *UserUseCase) AddAvatarReviewDbAndCache(ctx context.Context, score, result int32, uuid, jobId, label, category, subLabel string) error {
-	return r.repo.AddAvatarReviewDbAndCache(ctx, score, result, uuid, jobId, label, category, subLabel)
+	err := r.repo.AddAvatarReviewDbAndCache(ctx, score, result, uuid, jobId, label, category, subLabel)
+	if err != nil {
+		return err
+	}
+	err = r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		notification, err := r.messageRepo.AddMailBoxSystemNotification(ctx, 0, "avatar", "", uuid, label, result, "", "", "", "")
+		if err != nil {
+			return err
+		}
+
+		err = r.messageRepo.AddMailBoxSystemNotificationToCache(ctx, notification)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to add mail box system notification for avatar: error(%v), uuid(%s)", err, uuid)
+	}
+	return nil
 }
 
 func (r *UserUseCase) AddCoverReviewDbAndCache(ctx context.Context, score, result int32, uuid, jobId, label, category, subLabel string) error {
-	return r.repo.AddCoverReviewDbAndCache(ctx, score, result, uuid, jobId, label, category, subLabel)
+	err := r.repo.AddCoverReviewDbAndCache(ctx, score, result, uuid, jobId, label, category, subLabel)
+	if err != nil {
+		return err
+	}
+	err = r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		notification, err := r.messageRepo.AddMailBoxSystemNotification(ctx, 0, "cover", "", uuid, label, result, "", "", "", "")
+		if err != nil {
+			return err
+		}
+
+		err = r.messageRepo.AddMailBoxSystemNotificationToCache(ctx, notification)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to add mail box system notification for cover: error(%v), uuid(%s)", err, uuid)
+	}
+	return nil
 }
