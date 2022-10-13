@@ -490,4 +490,5 @@ type SystemNotification struct {
 	Result           int32
 	Section          string
 	Text             string
+	Comment          string
 }
