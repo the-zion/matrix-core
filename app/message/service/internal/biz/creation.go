@@ -76,21 +76,24 @@ type CreationRepo interface {
 	DeleteCollectionsCache(ctx context.Context, id int32, uuid string) error
 	AddCollectionsContentReviewDbAndCache(ctx context.Context, creationId, result int32, uuid, jobId, label, title, kind string, section string) error
 
-	AddCreationComment(ctx context.Context, createId, createType int32, uuid string)
 	GetCreationUser(ctx context.Context, uuid string) (int32, int32, int32, error)
 }
 
 type CreationUseCase struct {
-	repo CreationRepo
-	jwt  Jwt
-	log  *log.Helper
+	repo        CreationRepo
+	messageRepo MessageRepo
+	tm          Transaction
+	jwt         Jwt
+	log         *log.Helper
 }
 
-func NewCreationUseCase(repo CreationRepo, jwt Jwt, logger log.Logger) *CreationUseCase {
+func NewCreationUseCase(repo CreationRepo, messageRepo MessageRepo, tm Transaction, jwt Jwt, logger log.Logger) *CreationUseCase {
 	return &CreationUseCase{
-		repo: repo,
-		jwt:  jwt,
-		log:  log.NewHelper(log.With(logger, "module", "message/biz/creationUseCase")),
+		repo:        repo,
+		messageRepo: messageRepo,
+		tm:          tm,
+		jwt:         jwt,
+		log:         log.NewHelper(log.With(logger, "module", "message/biz/creationUseCase")),
 	}
 }
 
@@ -322,11 +325,49 @@ func (r *CreationUseCase) CancelArticleCollectDbAndCache(ctx context.Context, id
 }
 
 func (r *CreationUseCase) AddArticleImageReviewDbAndCache(ctx context.Context, creationId, score, result int32, kind, uid, uuid, jobId, label, category, subLabel string) error {
-	return r.repo.AddArticleImageReviewDbAndCache(ctx, creationId, score, result, kind, uid, uuid, jobId, label, category, subLabel)
+	err := r.repo.AddArticleImageReviewDbAndCache(ctx, creationId, score, result, kind, uid, uuid, jobId, label, category, subLabel)
+	if err != nil {
+		return err
+	}
+	err = r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		notification, err := r.messageRepo.AddMailBoxSystemNotification(ctx, creationId, "article-image-"+kind, "", uuid, label, result, "", "", uid, "")
+		if err != nil {
+			return err
+		}
+
+		err = r.messageRepo.AddMailBoxSystemNotificationToCache(ctx, notification)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to add mail box system notification for article image: error(%v), uuid(%s)", err, uuid)
+	}
+	return nil
 }
 
 func (r *CreationUseCase) AddArticleContentReviewDbAndCache(ctx context.Context, creationId, result int32, uuid, jobId, label, title, kind string, section string) error {
-	return r.repo.AddArticleContentReviewDbAndCache(ctx, creationId, result, uuid, jobId, label, title, kind, section)
+	err := r.repo.AddArticleContentReviewDbAndCache(ctx, creationId, result, uuid, jobId, label, title, kind, section)
+	if err != nil {
+		return err
+	}
+	err = r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		notification, err := r.messageRepo.AddMailBoxSystemNotification(ctx, creationId, "article-"+kind, title, uuid, label, result, section, "", "", "")
+		if err != nil {
+			return err
+		}
+
+		err = r.messageRepo.AddMailBoxSystemNotificationToCache(ctx, notification)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to add mail box system notification for article content: error(%v), uuid(%s)", err, uuid)
+	}
+	return nil
 }
 
 func (r *CreationUseCase) ToReviewCreateTalk(id int32, uuid string) error {
@@ -557,11 +598,49 @@ func (r *CreationUseCase) CancelTalkCollectDbAndCache(ctx context.Context, id in
 }
 
 func (r *CreationUseCase) AddTalkImageReviewDbAndCache(ctx context.Context, creationId, score, result int32, kind, uid, uuid, jobId, label, category, subLabel string) error {
-	return r.repo.AddTalkImageReviewDbAndCache(ctx, creationId, score, result, kind, uid, uuid, jobId, label, category, subLabel)
+	err := r.repo.AddTalkImageReviewDbAndCache(ctx, creationId, score, result, kind, uid, uuid, jobId, label, category, subLabel)
+	if err != nil {
+		return err
+	}
+	err = r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		notification, err := r.messageRepo.AddMailBoxSystemNotification(ctx, creationId, "talk-image-"+kind, "", uuid, label, result, "", "", uid, "")
+		if err != nil {
+			return err
+		}
+
+		err = r.messageRepo.AddMailBoxSystemNotificationToCache(ctx, notification)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to add mail box system notification for talk image: error(%v), uuid(%s)", err, uuid)
+	}
+	return nil
 }
 
 func (r *CreationUseCase) AddTalkContentReviewDbAndCache(ctx context.Context, creationId, result int32, uuid, jobId, label, title, kind string, section string) error {
-	return r.repo.AddTalkContentReviewDbAndCache(ctx, creationId, result, uuid, jobId, label, title, kind, section)
+	err := r.repo.AddTalkContentReviewDbAndCache(ctx, creationId, result, uuid, jobId, label, title, kind, section)
+	if err != nil {
+		return err
+	}
+	err = r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		notification, err := r.messageRepo.AddMailBoxSystemNotification(ctx, creationId, "talk-"+kind, title, uuid, label, result, section, "", "", "")
+		if err != nil {
+			return err
+		}
+
+		err = r.messageRepo.AddMailBoxSystemNotificationToCache(ctx, notification)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to add mail box system notification for talk content: error(%v), uuid(%s)", err, uuid)
+	}
+	return nil
 }
 
 func (r *CreationUseCase) ToReviewCreateColumn(id int32, uuid string) error {
@@ -808,11 +887,49 @@ func (r *CreationUseCase) CancelColumnSubscribeDbAndCache(ctx context.Context, i
 }
 
 func (r *CreationUseCase) AddColumnImageReviewDbAndCache(ctx context.Context, creationId, score, result int32, kind, uid, uuid, jobId, label, category, subLabel string) error {
-	return r.repo.AddColumnImageReviewDbAndCache(ctx, creationId, score, result, kind, uid, uuid, jobId, label, category, subLabel)
+	err := r.repo.AddColumnImageReviewDbAndCache(ctx, creationId, score, result, kind, uid, uuid, jobId, label, category, subLabel)
+	if err != nil {
+		return err
+	}
+	err = r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		notification, err := r.messageRepo.AddMailBoxSystemNotification(ctx, creationId, "column-image-"+kind, "", uuid, label, result, "", "", uid, "")
+		if err != nil {
+			return err
+		}
+
+		err = r.messageRepo.AddMailBoxSystemNotificationToCache(ctx, notification)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to add mail box system notification for column image: error(%v), uuid(%s)", err, uuid)
+	}
+	return nil
 }
 
 func (r *CreationUseCase) AddColumnContentReviewDbAndCache(ctx context.Context, creationId, result int32, uuid, jobId, label, title, kind string, section string) error {
-	return r.repo.AddColumnContentReviewDbAndCache(ctx, creationId, result, uuid, jobId, label, title, kind, section)
+	err := r.repo.AddColumnContentReviewDbAndCache(ctx, creationId, result, uuid, jobId, label, title, kind, section)
+	if err != nil {
+		return err
+	}
+	err = r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		notification, err := r.messageRepo.AddMailBoxSystemNotification(ctx, creationId, "column-"+kind, title, uuid, label, result, section, "", "", "")
+		if err != nil {
+			return err
+		}
+
+		err = r.messageRepo.AddMailBoxSystemNotificationToCache(ctx, notification)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to add mail box system notification for column content: error(%v), uuid(%s)", err, uuid)
+	}
+	return nil
 }
 
 func (r *CreationUseCase) CollectionsCreateReview(ctx context.Context, tr *TextReview) error {
@@ -960,11 +1077,26 @@ func (r *CreationUseCase) DeleteCollectionsCache(ctx context.Context, id int32, 
 }
 
 func (r *CreationUseCase) AddCollectionsContentReviewDbAndCache(ctx context.Context, creationId, result int32, uuid, jobId, label, title, kind string, section string) error {
-	return r.repo.AddCollectionsContentReviewDbAndCache(ctx, creationId, result, uuid, jobId, label, title, kind, section)
-}
+	err := r.repo.AddCollectionsContentReviewDbAndCache(ctx, creationId, result, uuid, jobId, label, title, kind, section)
+	if err != nil {
+		return err
+	}
+	err = r.tm.ExecTx(ctx, func(ctx context.Context) error {
+		notification, err := r.messageRepo.AddMailBoxSystemNotification(ctx, creationId, "collections-"+kind, title, uuid, label, result, section, "", "", "")
+		if err != nil {
+			return err
+		}
 
-func (r *CreationUseCase) AddCreationComment(ctx context.Context, createId, createType int32, uuid string) {
-	r.repo.AddCreationComment(ctx, createId, createType, uuid)
+		err = r.messageRepo.AddMailBoxSystemNotificationToCache(ctx, notification)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to add mail box system notification for collect content: error(%v), uuid(%s)", err, uuid)
+	}
+	return nil
 }
 
 func (r *CreationUseCase) ToReviewCreateCollections(id int32, uuid string) error {
