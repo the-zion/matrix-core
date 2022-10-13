@@ -41,7 +41,7 @@ func (r *userRepo) GetAccount(ctx context.Context, uuid string) (*biz.User, erro
 		return nil, kerrors.NotFound("user not found from db", fmt.Sprintf("uuid(%v)", uuid))
 	}
 	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("db query system error: uuid(%v)", uuid))
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get account: uuid(%v)", uuid))
 	}
 	return &biz.User{
 		Phone:    user.Phone,
@@ -64,7 +64,7 @@ func (r *userRepo) GetProfile(ctx context.Context, uuid string) (*biz.Profile, e
 			return nil, kerrors.NotFound("profile not found from db", fmt.Sprintf("uuid(%v)", uuid))
 		}
 		if err != nil {
-			return nil, errors.Wrapf(err, fmt.Sprintf("db query system error: uuid(%v)", uuid))
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to get profile: uuid(%v)", uuid))
 		}
 		target = profile
 		r.setProfileToCache(ctx, profile, key)
@@ -216,7 +216,7 @@ func (r *userRepo) GetProfileUpdate(ctx context.Context, uuid string) (*biz.Prof
 		return nil, kerrors.NotFound("profile update not found from db", fmt.Sprintf("uuid(%v)", uuid))
 	}
 	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("db query system error: uuid(%v)", uuid))
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get profile update: uuid(%v)", uuid))
 	}
 	pu.Updated = strconv.FormatInt(profile.Updated, 10)
 	pu.Uuid = profile.Uuid
@@ -313,7 +313,7 @@ func (r *userRepo) setFollowToCache(uuid string, follow []*biz.Follow) {
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set user follow to cache: uuid(%s), follow(%v)", follow)
+		r.log.Errorf("fail to set user follow to cache: uuid(%s), follow(%v), err(%v)", follow, err)
 	}
 }
 
@@ -407,7 +407,7 @@ func (r *userRepo) setFollowedToCache(uuid string, followed []*biz.Follow) {
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set user followed to cache: uuid(%s), followed(%v)", followed)
+		r.log.Errorf("fail to set user followed to cache: uuid(%s), followed(%v), err(%v)", uuid, followed, err)
 	}
 }
 
@@ -833,7 +833,7 @@ func (r *userRepo) setAvatarReviewToCache(key string, review []*biz.ImageReview)
 		for _, item := range review {
 			m, err := json.Marshal(item)
 			if err != nil {
-				r.log.Errorf("fail to marshal avatar review: avatarReview(%v)", review)
+				return errors.Wrapf(err, fmt.Sprintf("fail to marshal avatar review: avatarReview(%v)", review))
 			}
 			list = append(list, m)
 		}
@@ -842,14 +842,14 @@ func (r *userRepo) setAvatarReviewToCache(key string, review []*biz.ImageReview)
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set avatar review to cache: avatarReview(%v)", review)
+		r.log.Errorf("fail to set avatar review to cache: avatarReview(%v), err(%v)", review, err)
 	}
 }
 
 func (r *userRepo) SetAvatarIrregularToCache(ctx context.Context, review *biz.ImageReview) error {
 	marshal, err := json.Marshal(review)
 	if err != nil {
-		r.log.Errorf("fail to set avatar irregular to json: json.Marshal(%v), error(%v)", review, err)
+		return errors.Wrapf(err, fmt.Sprintf("fail to set avatar irregular to json: json.Marshal(%v)", review))
 	}
 	var script = redis.NewScript(`
 					local key = KEYS[1]
@@ -984,7 +984,7 @@ func (r *userRepo) setCoverReviewToCache(key string, review []*biz.ImageReview) 
 		for _, item := range review {
 			m, err := json.Marshal(item)
 			if err != nil {
-				r.log.Errorf("fail to marshal cover review: coverReview(%v)", review)
+				return errors.Wrapf(err, fmt.Sprintf("fail to marshal cover review: coverReview(%v)", review))
 			}
 			list = append(list, m)
 		}
@@ -993,7 +993,7 @@ func (r *userRepo) setCoverReviewToCache(key string, review []*biz.ImageReview) 
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set cover review to cache: coverReview(%v)", review)
+		r.log.Errorf("fail to set cover review to cache: coverReview(%v), err(%v)", review, err)
 	}
 }
 
@@ -1020,7 +1020,7 @@ func (r *userRepo) SetCoverIrregular(ctx context.Context, review *biz.ImageRevie
 func (r *userRepo) SetCoverIrregularToCache(ctx context.Context, review *biz.ImageReview) error {
 	marshal, err := json.Marshal(review)
 	if err != nil {
-		r.log.Errorf("fail to set cover irregular to json: json.Marshal(%v), error(%v)", review, err)
+		return errors.Wrapf(err, fmt.Sprintf("fail to set cover irregular to json: json.Marshal(%v)", review))
 	}
 	var script = redis.NewScript(`
 					local key = KEYS[1]
@@ -1052,7 +1052,7 @@ func (r *userRepo) setUserFollowsToCache(uuid string, follows []string) {
 		return nil
 	})
 	if err != nil {
-		r.log.Errorf("fail to set user follows to cache: uuid(%s), follows(%v)", follows)
+		r.log.Errorf("fail to set user follows to cache: uuid(%s), follows(%v), err(%v)", uuid, follows, err)
 	}
 }
 
@@ -1081,7 +1081,7 @@ func (r *userRepo) updateProfileToCache(ctx context.Context, profile *Profile, k
 func (r *userRepo) SetUserEmail(ctx context.Context, id int64, email string) error {
 	err := r.data.db.WithContext(ctx).Model(&User{}).Where("id = ?", id).Update("email", email).Error
 	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("db query system error: user_id(%v), email(%s)", id, email))
+		return errors.Wrapf(err, fmt.Sprintf("fail to set user email: user_id(%v), email(%s)", id, email))
 	}
 	return nil
 }
@@ -1105,14 +1105,28 @@ func (r *userRepo) SetUserFollowToCache(ctx context.Context, uuid, userUuid stri
 	var script = redis.NewScript(`
 					local key = KEYS[1]
 					local value = ARGV[1]
+					local value2 =  ARGV[2]
 					local exist = redis.call("EXISTS", key)
 					if exist == 1 then
 						redis.call("SADD", key, value)
 					end
+
+					local followList = KEYS[2]
+					local score = ARGV[3]
+					local exist = redis.call("EXISTS", followList)
+					if exist == 1 then
+						redis.call("ZADD", followList, score, value)
+					end
+
+					local followedList = KEYS[3]
+					local exist = redis.call("EXISTS", followedList)
+					if exist == 1 then
+						redis.call("ZADD", followedList, score, value2)
+					end
 					return 0
 	`)
-	keys := []string{"user_follows_" + userUuid}
-	values := []interface{}{uuid}
+	keys := []string{"user_follows_" + userUuid, "follow_" + userUuid, "followed_" + uuid}
+	values := []interface{}{uuid, userUuid, float64(time.Now().Unix())}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set user follow to cache: uuid(%s), userUuid(%s)", uuid, userUuid))
@@ -1132,7 +1146,12 @@ func (r *userRepo) CancelUserFollow(ctx context.Context, uuid, userUuid string) 
 }
 
 func (r *userRepo) CancelUserFollowFromCache(ctx context.Context, uuid, userUuid string) error {
-	err := r.data.redisCli.SRem(ctx, "user_follows_"+userUuid, uuid).Err()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.SRem(ctx, "user_follows_"+userUuid, uuid)
+		pipe.ZRem(ctx, "follow_"+userUuid, uuid)
+		pipe.ZRem(ctx, "followed_"+uuid, userUuid)
+		return nil
+	})
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel a follow: follow(%s), followed(%s)", uuid, userUuid))
 	}
