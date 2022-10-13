@@ -40,7 +40,7 @@ func (r *authRepo) FindUserByPhone(ctx context.Context, phone string) (*biz.User
 		return nil, kerrors.NotFound("phone not found from db", fmt.Sprintf("phone(%s)", phone))
 	}
 	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("db query system error: phone(%s)", phone))
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to find user by phone: phone(%s)", phone))
 	}
 	return &biz.User{
 		Uuid:     user.Uuid,
@@ -59,7 +59,7 @@ func (r *authRepo) FindUserByEmail(ctx context.Context, email string) (*biz.User
 		return nil, kerrors.NotFound("email not found from db", fmt.Sprintf("email(%s)", email))
 	}
 	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("db query system error: email(%s)", email))
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to find user by email: email(%s)", email))
 	}
 	return &biz.User{
 		Uuid:     user.Uuid,
