@@ -4,7 +4,10 @@ import (
 	"context"
 	"github.com/go-kratos/kratos/contrib/registry/nacos/v2"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v2/middleware/circuitbreaker"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
+	"github.com/go-kratos/kratos/v2/middleware/tracing"
+	"github.com/go-kratos/kratos/v2/selector/p2c"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/go-redis/redis/v8"
 	"github.com/google/wire"
@@ -19,6 +22,8 @@ import (
 	userv1 "github.com/the-zion/matrix-core/api/user/service/v1"
 	"github.com/the-zion/matrix-core/app/message/service/internal/biz"
 	"github.com/the-zion/matrix-core/app/message/service/internal/conf"
+	"github.com/the-zion/matrix-core/pkg/trace"
+	"go.opentelemetry.io/otel/propagation"
 	"gopkg.in/gomail.v2"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -151,9 +156,11 @@ func NewUserServiceClient(r *nacos.Registry, logger log.Logger) userv1.UserClien
 		context.Background(),
 		grpc.WithEndpoint("discovery:///matrix.user.service.grpc"),
 		grpc.WithDiscovery(r),
+		grpc.WithBalancerName(p2c.Name),
 		grpc.WithMiddleware(
-			//tracing.Client(tracing.WithTracerProvider(tp)),
 			recovery.Recovery(),
+			circuitbreaker.Client(),
+			tracing.Client(tracing.WithPropagator(propagation.NewCompositeTextMapPropagator(trace.Metadata{}, propagation.Baggage{}, propagation.TraceContext{}))),
 		),
 	)
 	if err != nil {
@@ -169,9 +176,11 @@ func NewCreationServiceClient(r *nacos.Registry, logger log.Logger) creationv1.C
 		context.Background(),
 		grpc.WithEndpoint("discovery:///matrix.creation.service.grpc"),
 		grpc.WithDiscovery(r),
+		grpc.WithBalancerName(p2c.Name),
 		grpc.WithMiddleware(
-			//tracing.Client(tracing.WithTracerProvider(tp)),
 			recovery.Recovery(),
+			circuitbreaker.Client(),
+			tracing.Client(tracing.WithPropagator(propagation.NewCompositeTextMapPropagator(trace.Metadata{}, propagation.Baggage{}, propagation.TraceContext{}))),
 		),
 	)
 	if err != nil {
@@ -187,9 +196,11 @@ func NewCommentServiceClient(r *nacos.Registry, logger log.Logger) commentv1.Com
 		context.Background(),
 		grpc.WithEndpoint("discovery:///matrix.comment.service.grpc"),
 		grpc.WithDiscovery(r),
+		grpc.WithBalancerName(p2c.Name),
 		grpc.WithMiddleware(
-			//tracing.Client(tracing.WithTracerProvider(tp)),
 			recovery.Recovery(),
+			circuitbreaker.Client(),
+			tracing.Client(tracing.WithPropagator(propagation.NewCompositeTextMapPropagator(trace.Metadata{}, propagation.Baggage{}, propagation.TraceContext{}))),
 		),
 	)
 	if err != nil {
@@ -205,9 +216,11 @@ func NewAchievementServiceClient(r *nacos.Registry, logger log.Logger) achieveme
 		context.Background(),
 		grpc.WithEndpoint("discovery:///matrix.achievement.service.grpc"),
 		grpc.WithDiscovery(r),
+		grpc.WithBalancerName(p2c.Name),
 		grpc.WithMiddleware(
-			//tracing.Client(tracing.WithTracerProvider(tp)),
 			recovery.Recovery(),
+			circuitbreaker.Client(),
+			tracing.Client(tracing.WithPropagator(propagation.NewCompositeTextMapPropagator(trace.Metadata{}, propagation.Baggage{}, propagation.TraceContext{}))),
 		),
 	)
 	if err != nil {
