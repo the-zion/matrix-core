@@ -14,8 +14,11 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/vo"
 	"github.com/the-zion/matrix-core/app/creation/service/internal/conf"
+	"github.com/the-zion/matrix-core/pkg/trace"
 	"gopkg.in/yaml.v3"
 	"os"
+	"strconv"
+	"strings"
 )
 
 // go build -ldflags "-X main.Version=x.y.z"
@@ -23,14 +26,25 @@ var (
 	// Version is the version of the compiled software.
 	Version string
 	// flagconf is the config flag.
-	flagconf string
-
-	Name  = "matrix.creation.service"
-	id, _ = os.Hostname()
+	flagconf       string
+	traceUrl       string
+	traceToken     string
+	nacosUrl       string
+	nacosNameSpace string
+	nacosGroup     string
+	nacosConfig    string
+	Name           = "matrix.creation.service"
+	id, _          = os.Hostname()
 )
 
 func init() {
 	flag.StringVar(&flagconf, "conf", "../../configs", "config path, eg: -conf config.yaml")
+	flag.StringVar(&traceUrl, "trace", "127.0.0.1:14268/api/traces", "trace report path, eg: -trace 127.0.0.1:14268/api/traces")
+	flag.StringVar(&traceToken, "token", "", "trace token, eg: -token xxx")
+	flag.StringVar(&nacosUrl, "nacos", "127.0.0.1:30000", "nacos path, eg: -nacos 127.0.0.1:30000")
+	flag.StringVar(&nacosNameSpace, "namespace", "public", "nacos namespace, eg: -namespace xxx")
+	flag.StringVar(&nacosGroup, "group", "DEFAULT_GROUP", "nacos config group, eg: -group xxx")
+	flag.StringVar(&nacosConfig, "config", "matrix.creation.service", "nacos config name, eg: -config xxx")
 }
 
 func newApp(logger log.Logger, r *nacos.Registry, hs *http.Server, gs *grpc.Server) *kratos.App {
@@ -60,11 +74,21 @@ func main() {
 		"span.id", tracing.SpanID(),
 	)
 
+	err := trace.SetTracerProvider(traceUrl, traceToken, Name, id)
+	if err != nil {
+		log.Error(err)
+	}
+
+	url := strings.Split(nacosUrl, ":")[0]
+	port, err := strconv.Atoi(strings.Split(nacosUrl, ":")[1])
+	if err != nil {
+		panic(err)
+	}
 	sc := []constant.ServerConfig{
-		*constant.NewServerConfig("124.223.94.61", 30000),
+		*constant.NewServerConfig(url, uint64(port)),
 	}
 	cc := &constant.ClientConfig{
-		NamespaceId:          "public",
+		NamespaceId:          nacosNameSpace,
 		TimeoutMs:            5000,
 		NotLoadCacheAtStart:  true,
 		UpdateCacheWhenEmpty: true,
@@ -83,8 +107,8 @@ func main() {
 		panic(err)
 	}
 
-	dataID := Name
-	group := "DEFAULT_GROUP"
+	dataID := nacosConfig
+	group := nacosGroup
 	_, err = client.PublishConfig(vo.ConfigParam{DataId: dataID, Group: group, Content: `
 logger:
   level: warn
