@@ -3,7 +3,9 @@ package server
 import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/logging"
+	"github.com/go-kratos/kratos/v2/middleware/ratelimit"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
+	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/go-kratos/kratos/v2/middleware/validate"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	v1 "github.com/the-zion/matrix-core/api/user/service/v1"
@@ -17,6 +19,8 @@ func NewGRPCServer(c *conf.Server, userService *service.UserService, logger log.
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
 			recovery.Recovery(),
+			ratelimit.Server(),
+			tracing.Server(),
 			responce.Server(),
 			logging.Server(logger),
 			validate.Validator(),
