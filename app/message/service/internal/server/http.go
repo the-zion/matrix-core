@@ -3,7 +3,9 @@ package server
 import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/logging"
+	"github.com/go-kratos/kratos/v2/middleware/ratelimit"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
+	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/the-zion/matrix-core/api/message/service/v1"
 	"github.com/the-zion/matrix-core/app/message/service/internal/conf"
@@ -15,6 +17,8 @@ func NewHTTPServer(c *conf.Server, messageService *service.MessageService, logge
 	var opts = []http.ServerOption{
 		http.Middleware(
 			recovery.Recovery(),
+			ratelimit.Server(),
+			tracing.Server(),
 			logging.Server(logger),
 		),
 	}
