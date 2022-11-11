@@ -13,6 +13,7 @@ init:
 	go install github.com/google/gnostic/cmd/protoc-gen-openapi@latest
 	go install github.com/go-kratos/kratos/cmd/protoc-gen-go-errors/v2@latest
 	go install github.com/envoyproxy/protoc-gen-validate@latest
+	go get github.com/google/wire/cmd/wire@latest
 
 .PHONY: api
 # generate api proto
@@ -43,8 +44,6 @@ build:
 .PHONY: image
 # image
 image:
-#	make all;
-#	make build;
 	for file in `ls bin`;\
 	do \
 	docker build --build-arg filename=$$file -t $$file:$(VERSION) .;\
@@ -54,7 +53,6 @@ image:
 # generate
 generate:
 	go mod tidy
-	go get github.com/google/wire/cmd/wire@latest
 	go generate ./...
 
 .PHONY: wire
@@ -65,8 +63,10 @@ wire:
 .PHONY: all
 # generate all
 all:
+	make init;
 	make api;
 	make generate;
+	make build;
 
 # show help
 help:
