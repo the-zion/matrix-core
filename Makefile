@@ -44,6 +44,7 @@ build:
 .PHONY: image
 # image
 image:
+	make all;
 	for file in `ls bin`;\
 	do \
 	docker build --build-arg filename=$$file -t $$file:$(VERSION) .;\
