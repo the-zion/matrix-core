@@ -13,7 +13,6 @@ init:
 	go install github.com/google/gnostic/cmd/protoc-gen-openapi@latest
 	go install github.com/go-kratos/kratos/cmd/protoc-gen-go-errors/v2@latest
 	go install github.com/envoyproxy/protoc-gen-validate@latest
-	go get github.com/google/wire/cmd/wire@latest
 
 .PHONY: api
 # generate api proto
@@ -54,6 +53,7 @@ image:
 # generate
 generate:
 	go mod tidy
+	go get github.com/google/wire/cmd/wire@latest
 	go generate ./...
 
 .PHONY: wire
