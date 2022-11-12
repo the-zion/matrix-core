@@ -1,5 +1,5 @@
 GOPATH:=$(shell go env GOPATH)
-VERSION=$(shell git describe --tags --always)
+VERSION=$(shell git describe --tags --abbrev=0)
 INTERNAL_PROTO_FILES=$(shell find internal -name *.proto)
 API_PROTO_FILES=$(shell find api -name *.proto)
 
