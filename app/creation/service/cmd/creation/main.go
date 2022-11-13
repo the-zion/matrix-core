@@ -109,10 +109,7 @@ func main() {
 
 	dataID := nacosConfig
 	group := nacosGroup
-	_, err = client.PublishConfig(vo.ConfigParam{DataId: dataID, Group: group, Content: `
-logger:
-  level: warn
-`})
+	_, err = client.PublishConfig(vo.ConfigParam{DataId: dataID, Group: group})
 	if err != nil {
 		panic(err)
 	}
