@@ -34,6 +34,8 @@ var (
 	nacosNameSpace string
 	nacosGroup     string
 	nacosConfig    string
+	nacosUserName  string
+	nacosPassword  string
 	Name           = "matrix.message.service"
 	id, _          = os.Hostname()
 )
@@ -46,6 +48,8 @@ func init() {
 	flag.StringVar(&nacosNameSpace, "namespace", "public", "nacos namespace, eg: -namespace xxx")
 	flag.StringVar(&nacosGroup, "group", "DEFAULT_GROUP", "nacos config group, eg: -group xxx")
 	flag.StringVar(&nacosConfig, "config", "matrix.message.service", "nacos config name, eg: -config xxx")
+	flag.StringVar(&nacosUserName, "username", "nacos", "nacos username, eg: -username nacos")
+	flag.StringVar(&nacosPassword, "password", "nacos", "nacos password, eg: -password nacos")
 }
 
 func newApp(logger log.Logger, r *nacos.Registry, hs *http.Server, gs *grpc.Server, cmcs *server.CodeMqConsumerServer, pmcs *server.ProfileMqConsumerServer, pms *server.PictureMqConsumerServer, fmcs *server.FollowMqConsumerServer, arms *server.ArticleReviewMqConsumerServer, amcs *server.ArticleMqConsumerServer, trcs *server.TalkReviewMqConsumerServer, tmcs *server.TalkMqConsumerServer, crmcs *server.ColumnReviewMqConsumerServer, comcs *server.ColumnMqConsumerServer, achcs *server.AchievementMqConsumerServer, commrcs *server.CommentReviewMqConsumerServer, commcs *server.CommentMqConsumerServer, corms *server.CollectionsReviewMqConsumerServer, coms *server.CollectionsMqConsumerServer) *kratos.App {
@@ -105,6 +109,8 @@ func main() {
 	}
 	cc := &constant.ClientConfig{
 		NamespaceId:          nacosNameSpace,
+		Username:             nacosUserName,
+		Password:             nacosPassword,
 		TimeoutMs:            5000,
 		NotLoadCacheAtStart:  true,
 		UpdateCacheWhenEmpty: true,
