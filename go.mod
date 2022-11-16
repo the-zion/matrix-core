@@ -7,9 +7,9 @@ require (
 	github.com/duke-git/lancet v1.2.9
 	github.com/elastic/go-elasticsearch/v7 v7.17.1
 	github.com/envoyproxy/protoc-gen-validate v0.6.7
-	github.com/go-kratos/kratos/contrib/config/nacos/v2 v2.0.0-20220604031450-874d4c3edcf5
-	github.com/go-kratos/kratos/contrib/registry/nacos/v2 v2.0.0-20220604031450-874d4c3edcf5
-	github.com/go-kratos/kratos/v2 v2.3.1
+	github.com/go-kratos/kratos/contrib/config/nacos/v2 v2.0.0-20221110150034-a7bae93ee08d
+	github.com/go-kratos/kratos/contrib/registry/nacos/v2 v2.0.0-20221110150034-a7bae93ee08d
+	github.com/go-kratos/kratos/v2 v2.5.3
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/golang-jwt/jwt/v4 v4.4.1
 	github.com/golang/protobuf v1.5.2
@@ -51,7 +51,6 @@ require (
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/golang/mock v1.3.1 // indirect
 	github.com/google/go-querystring v1.0.0 // indirect
-	github.com/google/subcommands v1.0.1 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
@@ -67,7 +66,6 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v0.0.0-20180701023420-4b7aa43c6742 // indirect
 	github.com/mozillazg/go-httpheader v0.2.1 // indirect
-	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/shirou/gopsutil/v3 v3.21.8 // indirect
 	github.com/sirupsen/logrus v1.4.1 // indirect
 	github.com/tidwall/gjson v1.2.1 // indirect
@@ -80,12 +78,9 @@ require (
 	go.uber.org/atomic v1.6.0 // indirect
 	go.uber.org/multierr v1.5.0 // indirect
 	go.uber.org/zap v1.15.0 // indirect
-	golang.org/x/mod v0.5.0 // indirect
 	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 // indirect
 	golang.org/x/sys v0.0.0-20220919091848-fb04ddd9f9c8 // indirect
 	golang.org/x/text v0.3.7 // indirect
-	golang.org/x/tools v0.1.5 // indirect
-	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 	gopkg.in/ini.v1 v1.42.0 // indirect
