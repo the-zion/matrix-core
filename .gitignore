@@ -43,3 +43,6 @@ kratos-gateway/
 cache/
 log/
 
+# db schema update
+update/
+
