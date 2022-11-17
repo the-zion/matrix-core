@@ -302,7 +302,7 @@ func NewCosClient(conf *conf.Data) *Cos {
 }
 
 func NewElasticsearch(conf *conf.Data, logger log.Logger) *ElasticSearch {
-	l := log.NewHelper(log.With(logger, "module", "creation/data/elastic-search"))
+	l := log.NewHelper(log.With(logger, "module", "user/data/elastic-search"))
 	cfg := elasticsearch.Config{
 		Username: conf.ElasticSearch.User,
 		Password: conf.ElasticSearch.Password,
