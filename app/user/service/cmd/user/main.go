@@ -4,7 +4,6 @@ import (
 	"flag"
 	nc "github.com/go-kratos/kratos/contrib/config/nacos/v2"
 	"github.com/go-kratos/kratos/contrib/log/tencent/v2"
-	_ "github.com/go-kratos/kratos/contrib/log/tencent/v2"
 	"github.com/go-kratos/kratos/contrib/registry/nacos/v2"
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/config"
