@@ -10,6 +10,7 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware/circuitbreaker"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
+	"github.com/go-kratos/kratos/v2/selector"
 	"github.com/go-kratos/kratos/v2/selector/p2c"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/go-redis/redis/v8"
@@ -239,7 +240,6 @@ func NewCreationServiceClient(r *nacos.Registry, logger log.Logger) creationv1.C
 		context.Background(),
 		grpc.WithEndpoint("discovery:///matrix.creation.service.grpc"),
 		grpc.WithDiscovery(r),
-		grpc.WithBalancerName(p2c.Name),
 		grpc.WithMiddleware(
 			recovery.Recovery(),
 			circuitbreaker.Client(),
@@ -255,7 +255,7 @@ func NewCreationServiceClient(r *nacos.Registry, logger log.Logger) creationv1.C
 
 func NewData(db *gorm.DB, cos *cos.Client, redisCmd redis.Cmdable, rm *ReviewMqPro, cm *CommentMqPro, ap *AchievementMqPro, cc creationv1.CreationClient, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(logger, "module", "comment/data/new-data"))
-
+	selector.SetGlobalSelector(p2c.NewBuilder())
 	d := &Data{
 		db:               db,
 		redisCli:         redisCmd,

@@ -7,6 +7,7 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware/circuitbreaker"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
+	"github.com/go-kratos/kratos/v2/selector"
 	"github.com/go-kratos/kratos/v2/selector/p2c"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/go-redis/redis/v8"
@@ -156,7 +157,6 @@ func NewUserServiceClient(r *nacos.Registry, logger log.Logger) userv1.UserClien
 		context.Background(),
 		grpc.WithEndpoint("discovery:///matrix.user.service.grpc"),
 		grpc.WithDiscovery(r),
-		grpc.WithBalancerName(p2c.Name),
 		grpc.WithMiddleware(
 			recovery.Recovery(),
 			circuitbreaker.Client(),
@@ -176,7 +176,6 @@ func NewCreationServiceClient(r *nacos.Registry, logger log.Logger) creationv1.C
 		context.Background(),
 		grpc.WithEndpoint("discovery:///matrix.creation.service.grpc"),
 		grpc.WithDiscovery(r),
-		grpc.WithBalancerName(p2c.Name),
 		grpc.WithMiddleware(
 			recovery.Recovery(),
 			circuitbreaker.Client(),
@@ -196,7 +195,6 @@ func NewCommentServiceClient(r *nacos.Registry, logger log.Logger) commentv1.Com
 		context.Background(),
 		grpc.WithEndpoint("discovery:///matrix.comment.service.grpc"),
 		grpc.WithDiscovery(r),
-		grpc.WithBalancerName(p2c.Name),
 		grpc.WithMiddleware(
 			recovery.Recovery(),
 			circuitbreaker.Client(),
@@ -216,7 +214,6 @@ func NewAchievementServiceClient(r *nacos.Registry, logger log.Logger) achieveme
 		context.Background(),
 		grpc.WithEndpoint("discovery:///matrix.achievement.service.grpc"),
 		grpc.WithDiscovery(r),
-		grpc.WithBalancerName(p2c.Name),
 		grpc.WithMiddleware(
 			recovery.Recovery(),
 			circuitbreaker.Client(),
@@ -325,6 +322,7 @@ func NewRedis(conf *conf.Data, logger log.Logger) redis.Cmdable {
 
 func NewData(logger log.Logger, db *gorm.DB, redisCmd redis.Cmdable, uc userv1.UserClient, cc creationv1.CreationClient, commc commentv1.CommentClient, ac achievementv1.AchievementClient, jwt Jwt, cosUser *CosUser, cosCreation *CosCreation, cosComment *CosComment, phoneCodeCli *TxCode, goMailCli *GoMail) (*Data, error) {
 	l := log.NewHelper(log.With(logger, "module", "message/data"))
+	selector.SetGlobalSelector(p2c.NewBuilder())
 	d := &Data{
 		db:             db,
 		log:            l,
