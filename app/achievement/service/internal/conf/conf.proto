@@ -8,6 +8,7 @@ import "google/protobuf/duration.proto";
 message Bootstrap {
   Server server = 1;
   Data data = 2;
+  Log log = 3;
 }
 
 message Server {
@@ -52,3 +53,9 @@ message Data {
   AchievementMq achievementMq = 3;
 }
 
+message Log {
+  string host = 1;
+  string accessKeyID = 2;
+  string accessKeySecret = 3;
+  string topicID = 4;
+}

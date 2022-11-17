@@ -9,6 +9,7 @@ message Bootstrap {
   Server server = 1;
   Data data = 2;
   Auth auth = 3;
+  Log log = 4;
 }
 
 message Server {
@@ -99,4 +100,11 @@ message Data {
 
 message Auth {
   string api_key = 1;
+}
+
+message Log {
+  string host = 1;
+  string accessKeyID = 2;
+  string accessKeySecret = 3;
+  string topicID = 4;
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	nc "github.com/go-kratos/kratos/contrib/config/nacos/v2"
+	"github.com/go-kratos/kratos/contrib/log/tencent/v2"
 	"github.com/go-kratos/kratos/contrib/registry/nacos/v2"
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/config"
@@ -35,6 +36,7 @@ var (
 	nacosConfig    string
 	nacosUserName  string
 	nacosPassword  string
+	logSelect      string
 	Name           = "matrix.creation.service"
 	id, _          = os.Hostname()
 )
@@ -49,6 +51,7 @@ func init() {
 	flag.StringVar(&nacosConfig, "config", "matrix.creation.service", "nacos config name, eg: -config xxx")
 	flag.StringVar(&nacosUserName, "username", "nacos", "nacos username, eg: -username nacos")
 	flag.StringVar(&nacosPassword, "password", "nacos", "nacos password, eg: -password nacos")
+	flag.StringVar(&logSelect, "log", "default", "log select, eg: -log default")
 }
 
 func newApp(logger log.Logger, r *nacos.Registry, hs *http.Server, gs *grpc.Server) *kratos.App {
@@ -68,15 +71,6 @@ func newApp(logger log.Logger, r *nacos.Registry, hs *http.Server, gs *grpc.Serv
 
 func main() {
 	flag.Parse()
-	logger := log.With(log.NewStdLogger(os.Stdout),
-		"ts", log.DefaultTimestamp,
-		"caller", log.DefaultCaller,
-		"service.id", id,
-		"service.name", Name,
-		"service.version", Version,
-		"trace.id", tracing.TraceID(),
-		"span.id", tracing.SpanID(),
-	)
 
 	err := trace.SetTracerProvider(traceUrl, traceToken, Name, id)
 	if err != nil {
@@ -151,11 +145,44 @@ func main() {
 
 	r := nacos.New(rclient)
 
+	var logger log.Logger
+	var tencentLogger tencent.Logger
+	logKv := []interface{}{
+		"ts", log.DefaultTimestamp,
+		"caller", log.DefaultCaller,
+		"service.id", id,
+		"service.name", Name,
+		"service.version", Version,
+		"trace.id", tracing.TraceID(),
+		"span.id", tracing.SpanID(),
+	}
+	switch logSelect {
+	case "tencent":
+		tencentLogger, err = tencent.NewLogger(
+			tencent.WithEndpoint(bc.Log.Host),
+			tencent.WithAccessKey(bc.Log.AccessKeyID),
+			tencent.WithAccessSecret(bc.Log.AccessKeySecret),
+			tencent.WithTopicID(bc.Log.TopicID),
+		)
+		if err != nil {
+			panic(err)
+		}
+
+		tencentLogger.GetProducer().Start()
+		logger = log.With(tencentLogger, logKv...)
+	default:
+		logger = log.With(log.NewStdLogger(os.Stdout), logKv...)
+	}
+
 	app, cleanup, err := wireApp(bc.Server, bc.Data, logger, r)
 	if err != nil {
 		panic(err)
 	}
-	defer cleanup()
+
+	defer func() {
+		cleanup()
+		tencentLogger.Close()
+	}()
 
 	// start and wait for stop signal
 	if err := app.Run(); err != nil {
