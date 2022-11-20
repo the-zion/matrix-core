@@ -83,8 +83,8 @@ func NewRecovery(d *Data) biz.Recovery {
 	return d
 }
 
-func NewDB(conf *conf.Data, logger log.Logger) *gorm.DB {
-	l := log.NewHelper(log.With(logger, "module", "achievement/data/mysql"))
+func NewDB(conf *conf.Data) *gorm.DB {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "achievement/data/mysql"))
 
 	db, err := gorm.Open(mysql.Open(conf.Database.Source), &gorm.Config{
 		DisableForeignKeyConstraintWhenMigrating: true,
@@ -95,8 +95,8 @@ func NewDB(conf *conf.Data, logger log.Logger) *gorm.DB {
 	return db
 }
 
-func NewRedis(conf *conf.Data, logger log.Logger) redis.Cmdable {
-	l := log.NewHelper(log.With(logger, "module", "achievement/data/redis"))
+func NewRedis(conf *conf.Data) redis.Cmdable {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "achievement/data/redis"))
 	client := redis.NewClient(&redis.Options{
 		Addr:         conf.Redis.Addr,
 		DB:           2,
@@ -115,8 +115,8 @@ func NewRedis(conf *conf.Data, logger log.Logger) redis.Cmdable {
 	return client
 }
 
-func NewRocketmqAchievementProducer(conf *conf.Data, logger log.Logger) *AchievementMqPro {
-	l := log.NewHelper(log.With(logger, "module", "creation/data/rocketmq-achievement-producer"))
+func NewRocketmqAchievementProducer(conf *conf.Data) *AchievementMqPro {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/rocketmq-achievement-producer"))
 	p, err := rocketmq.NewProducer(
 		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.AchievementMq.ServerAddress})),
 		producer.WithCredentials(primitive.Credentials{
@@ -142,8 +142,8 @@ func NewRocketmqAchievementProducer(conf *conf.Data, logger log.Logger) *Achieve
 	}
 }
 
-func NewData(db *gorm.DB, redisCmd redis.Cmdable, achievementMqPro *AchievementMqPro, logger log.Logger) (*Data, func(), error) {
-	l := log.NewHelper(log.With(logger, "module", "achievement/data/new-data"))
+func NewData(db *gorm.DB, redisCmd redis.Cmdable, achievementMqPro *AchievementMqPro) (*Data, func(), error) {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "achievement/data/new-data"))
 
 	d := &Data{
 		db:               db,
@@ -152,5 +152,25 @@ func NewData(db *gorm.DB, redisCmd redis.Cmdable, achievementMqPro *AchievementM
 	}
 	return d, func() {
 		l.Info("closing the data resources")
+
+		sqlDB, err := db.DB()
+		if err != nil {
+			l.Errorf("close db err: %v", err.Error())
+		}
+
+		err = sqlDB.Close()
+		if err != nil {
+			l.Errorf("close db err: %v", err.Error())
+		}
+
+		err = redisCmd.(*redis.Client).Close()
+		if err != nil {
+			l.Errorf("close redis error: %v", err.Error())
+		}
+
+		err = achievementMqPro.producer.Shutdown()
+		if err != nil {
+			l.Errorf("shutdown achievement producer error: %v", err.Error())
+		}
 	}, nil
 }

@@ -22,6 +22,7 @@ import (
 	"github.com/the-zion/matrix-core/app/comment/service/internal/conf"
 	"github.com/the-zion/matrix-core/pkg/trace"
 	"go.opentelemetry.io/otel/propagation"
+	gooGrpc "google.golang.org/grpc"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"net/http"
@@ -31,6 +32,7 @@ import (
 )
 
 var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewTransaction, NewCommentRepo, NewRocketmqCommentProducer, NewRocketmqReviewProducer, NewRocketmqAchievementProducer, NewCosServiceClient, NewCreationServiceClient, NewRecovery)
+var connBox []*gooGrpc.ClientConn
 
 type ReviewMqPro struct {
 	producer rocketmq.Producer
@@ -108,8 +110,8 @@ func NewRecovery(d *Data) biz.Recovery {
 	return d
 }
 
-func NewDB(conf *conf.Data, logger log.Logger) *gorm.DB {
-	l := log.NewHelper(log.With(logger, "module", "comment/data/mysql"))
+func NewDB(conf *conf.Data) *gorm.DB {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "comment/data/mysql"))
 
 	db, err := gorm.Open(mysql.Open(conf.Database.Source), &gorm.Config{
 		DisableForeignKeyConstraintWhenMigrating: true,
@@ -120,8 +122,8 @@ func NewDB(conf *conf.Data, logger log.Logger) *gorm.DB {
 	return db
 }
 
-func NewRedis(conf *conf.Data, logger log.Logger) redis.Cmdable {
-	l := log.NewHelper(log.With(logger, "module", "comment/data/redis"))
+func NewRedis(conf *conf.Data) redis.Cmdable {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "comment/data/redis"))
 	client := redis.NewClient(&redis.Options{
 		Addr:         conf.Redis.Addr,
 		DB:           3,
@@ -140,8 +142,8 @@ func NewRedis(conf *conf.Data, logger log.Logger) redis.Cmdable {
 	return client
 }
 
-func NewRocketmqReviewProducer(conf *conf.Data, logger log.Logger) *ReviewMqPro {
-	l := log.NewHelper(log.With(logger, "module", "creation/data/rocketmq-review-producer"))
+func NewRocketmqReviewProducer(conf *conf.Data) *ReviewMqPro {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/rocketmq-review-producer"))
 	p, err := rocketmq.NewProducer(
 		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.CommentMq.ServerAddress})),
 		producer.WithCredentials(primitive.Credentials{
@@ -166,8 +168,8 @@ func NewRocketmqReviewProducer(conf *conf.Data, logger log.Logger) *ReviewMqPro 
 	}
 }
 
-func NewCosServiceClient(conf *conf.Data, logger log.Logger) *cos.Client {
-	l := log.NewHelper(log.With(logger, "module", "creation/data/new-cos-client"))
+func NewCosServiceClient(conf *conf.Data) *cos.Client {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/new-cos-client"))
 	u, err := url.Parse(conf.Cos.Url)
 	if err != nil {
 		l.Errorf("fail to init cos server, error: %v", err)
@@ -181,8 +183,8 @@ func NewCosServiceClient(conf *conf.Data, logger log.Logger) *cos.Client {
 	})
 }
 
-func NewRocketmqCommentProducer(conf *conf.Data, logger log.Logger) *CommentMqPro {
-	l := log.NewHelper(log.With(logger, "module", "creation/data/rocketmq-comment-producer"))
+func NewRocketmqCommentProducer(conf *conf.Data) *CommentMqPro {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/rocketmq-comment-producer"))
 	p, err := rocketmq.NewProducer(
 		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.CommentMq.ServerAddress})),
 		producer.WithCredentials(primitive.Credentials{
@@ -207,8 +209,8 @@ func NewRocketmqCommentProducer(conf *conf.Data, logger log.Logger) *CommentMqPr
 	}
 }
 
-func NewRocketmqAchievementProducer(conf *conf.Data, logger log.Logger) *AchievementMqPro {
-	l := log.NewHelper(log.With(logger, "module", "creation/data/rocketmq-achievement-producer"))
+func NewRocketmqAchievementProducer(conf *conf.Data) *AchievementMqPro {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/rocketmq-achievement-producer"))
 	p, err := rocketmq.NewProducer(
 		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.AchievementMq.ServerAddress})),
 		producer.WithCredentials(primitive.Credentials{
@@ -234,8 +236,8 @@ func NewRocketmqAchievementProducer(conf *conf.Data, logger log.Logger) *Achieve
 	}
 }
 
-func NewCreationServiceClient(r *nacos.Registry, logger log.Logger) creationv1.CreationClient {
-	l := log.NewHelper(log.With(logger, "module", "message/data/new-creation-client"))
+func NewCreationServiceClient(r *nacos.Registry) creationv1.CreationClient {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "message/data/new-creation-client"))
 	conn, err := grpc.DialInsecure(
 		context.Background(),
 		grpc.WithEndpoint("discovery:///matrix.creation.service.grpc"),
@@ -250,11 +252,12 @@ func NewCreationServiceClient(r *nacos.Registry, logger log.Logger) creationv1.C
 		l.Fatalf(err.Error())
 	}
 	c := creationv1.NewCreationClient(conn)
+	connBox = append(connBox, conn)
 	return c
 }
 
-func NewData(db *gorm.DB, cos *cos.Client, redisCmd redis.Cmdable, rm *ReviewMqPro, cm *CommentMqPro, ap *AchievementMqPro, cc creationv1.CreationClient, logger log.Logger) (*Data, func(), error) {
-	l := log.NewHelper(log.With(logger, "module", "comment/data/new-data"))
+func NewData(db *gorm.DB, cos *cos.Client, redisCmd redis.Cmdable, rm *ReviewMqPro, cm *CommentMqPro, ap *AchievementMqPro, cc creationv1.CreationClient) (*Data, func(), error) {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "comment/data/new-data"))
 	selector.SetGlobalSelector(p2c.NewBuilder())
 	d := &Data{
 		db:               db,
@@ -266,7 +269,24 @@ func NewData(db *gorm.DB, cos *cos.Client, redisCmd redis.Cmdable, rm *ReviewMqP
 		commonMqPro:      cm,
 	}
 	return d, func() {
-		err := d.commonMqPro.producer.Shutdown()
+		l.Info("closing the data resources")
+
+		sqlDB, err := db.DB()
+		if err != nil {
+			l.Errorf("close db err: %v", err.Error())
+		}
+
+		err = sqlDB.Close()
+		if err != nil {
+			l.Errorf("close db err: %v", err.Error())
+		}
+
+		err = redisCmd.(*redis.Client).Close()
+		if err != nil {
+			l.Errorf("close redis err: %v", err.Error())
+		}
+
+		err = d.commonMqPro.producer.Shutdown()
 		if err != nil {
 			l.Errorf("shutdown comment producer error: %v", err.Error())
 		}
@@ -281,6 +301,12 @@ func NewData(db *gorm.DB, cos *cos.Client, redisCmd redis.Cmdable, rm *ReviewMqP
 			l.Errorf("shutdown achievement producer error: %v", err.Error())
 		}
 
-		l.Info("closing the data resources")
+		for _, conn := range connBox {
+			err = conn.Close()
+			if err != nil {
+				l.Errorf("close connection err: %v", err.Error())
+			}
+		}
+		connBox = make([]*gooGrpc.ClientConn, 0)
 	}, nil
 }

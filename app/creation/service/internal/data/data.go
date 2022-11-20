@@ -137,8 +137,8 @@ func NewTransaction(d *Data) biz.Transaction {
 	return d
 }
 
-func NewDB(conf *conf.Data, logger log.Logger) *gorm.DB {
-	l := log.NewHelper(log.With(logger, "module", "creation/data/mysql"))
+func NewDB(conf *conf.Data) *gorm.DB {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/mysql"))
 
 	db, err := gorm.Open(mysql.Open(conf.Database.Source), &gorm.Config{
 		DisableForeignKeyConstraintWhenMigrating: true,
@@ -149,8 +149,8 @@ func NewDB(conf *conf.Data, logger log.Logger) *gorm.DB {
 	return db
 }
 
-func NewRedis(conf *conf.Data, logger log.Logger) redis.Cmdable {
-	l := log.NewHelper(log.With(logger, "module", "creation/data/redis"))
+func NewRedis(conf *conf.Data) redis.Cmdable {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/redis"))
 	client := redis.NewClient(&redis.Options{
 		Addr:         conf.Redis.Addr,
 		DB:           1,
@@ -169,8 +169,8 @@ func NewRedis(conf *conf.Data, logger log.Logger) redis.Cmdable {
 	return client
 }
 
-func NewCosServiceClient(conf *conf.Data, logger log.Logger) *cos.Client {
-	l := log.NewHelper(log.With(logger, "module", "creation/data/new-cos-client"))
+func NewCosServiceClient(conf *conf.Data) *cos.Client {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/new-cos-client"))
 	u, err := url.Parse(conf.Cos.Url)
 	if err != nil {
 		l.Errorf("fail to init cos server, error: %v", err)
@@ -184,8 +184,8 @@ func NewCosServiceClient(conf *conf.Data, logger log.Logger) *cos.Client {
 	})
 }
 
-func NewRocketmqArticleReviewProducer(conf *conf.Data, logger log.Logger) *ArticleReviewMqPro {
-	l := log.NewHelper(log.With(logger, "module", "creation/data/rocketmq-article-review-producer"))
+func NewRocketmqArticleReviewProducer(conf *conf.Data) *ArticleReviewMqPro {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/rocketmq-article-review-producer"))
 	p, err := rocketmq.NewProducer(
 		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.CreationMq.ServerAddress})),
 		producer.WithCredentials(primitive.Credentials{
@@ -210,8 +210,8 @@ func NewRocketmqArticleReviewProducer(conf *conf.Data, logger log.Logger) *Artic
 	}
 }
 
-func NewRocketmqArticleProducer(conf *conf.Data, logger log.Logger) *ArticleMqPro {
-	l := log.NewHelper(log.With(logger, "module", "creation/data/rocketmq-article-producer"))
+func NewRocketmqArticleProducer(conf *conf.Data) *ArticleMqPro {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/rocketmq-article-producer"))
 	p, err := rocketmq.NewProducer(
 		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.CreationMq.ServerAddress})),
 		producer.WithCredentials(primitive.Credentials{
@@ -236,8 +236,8 @@ func NewRocketmqArticleProducer(conf *conf.Data, logger log.Logger) *ArticleMqPr
 	}
 }
 
-func NewRocketmqTalkReviewProducer(conf *conf.Data, logger log.Logger) *TalkReviewMqPro {
-	l := log.NewHelper(log.With(logger, "module", "creation/data/rocketmq-talk-review-producer"))
+func NewRocketmqTalkReviewProducer(conf *conf.Data) *TalkReviewMqPro {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/rocketmq-talk-review-producer"))
 	p, err := rocketmq.NewProducer(
 		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.CreationMq.ServerAddress})),
 		producer.WithCredentials(primitive.Credentials{
@@ -262,8 +262,8 @@ func NewRocketmqTalkReviewProducer(conf *conf.Data, logger log.Logger) *TalkRevi
 	}
 }
 
-func NewRocketmqTalkProducer(conf *conf.Data, logger log.Logger) *TalkMqPro {
-	l := log.NewHelper(log.With(logger, "module", "creation/data/rocketmq-talk-producer"))
+func NewRocketmqTalkProducer(conf *conf.Data) *TalkMqPro {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/rocketmq-talk-producer"))
 	p, err := rocketmq.NewProducer(
 		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.CreationMq.ServerAddress})),
 		producer.WithCredentials(primitive.Credentials{
@@ -288,8 +288,8 @@ func NewRocketmqTalkProducer(conf *conf.Data, logger log.Logger) *TalkMqPro {
 	}
 }
 
-func NewRocketmqColumnReviewProducer(conf *conf.Data, logger log.Logger) *ColumnReviewMqPro {
-	l := log.NewHelper(log.With(logger, "module", "creation/data/rocketmq-column-review-producer"))
+func NewRocketmqColumnReviewProducer(conf *conf.Data) *ColumnReviewMqPro {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/rocketmq-column-review-producer"))
 	p, err := rocketmq.NewProducer(
 		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.CreationMq.ServerAddress})),
 		producer.WithCredentials(primitive.Credentials{
@@ -314,8 +314,8 @@ func NewRocketmqColumnReviewProducer(conf *conf.Data, logger log.Logger) *Column
 	}
 }
 
-func NewRocketmqColumnProducer(conf *conf.Data, logger log.Logger) *ColumnMqPro {
-	l := log.NewHelper(log.With(logger, "module", "creation/data/rocketmq-column-producer"))
+func NewRocketmqColumnProducer(conf *conf.Data) *ColumnMqPro {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/rocketmq-column-producer"))
 	p, err := rocketmq.NewProducer(
 		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.CreationMq.ServerAddress})),
 		producer.WithCredentials(primitive.Credentials{
@@ -340,8 +340,8 @@ func NewRocketmqColumnProducer(conf *conf.Data, logger log.Logger) *ColumnMqPro 
 	}
 }
 
-func NewRocketmqCollectionsReviewProducer(conf *conf.Data, logger log.Logger) *CollectionsReviewMqPro {
-	l := log.NewHelper(log.With(logger, "module", "creation/data/rocketmq-collections-review-producer"))
+func NewRocketmqCollectionsReviewProducer(conf *conf.Data) *CollectionsReviewMqPro {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/rocketmq-collections-review-producer"))
 	p, err := rocketmq.NewProducer(
 		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.CreationMq.ServerAddress})),
 		producer.WithCredentials(primitive.Credentials{
@@ -366,8 +366,8 @@ func NewRocketmqCollectionsReviewProducer(conf *conf.Data, logger log.Logger) *C
 	}
 }
 
-func NewRocketmqCollectionsProducer(conf *conf.Data, logger log.Logger) *CollectionsMqPro {
-	l := log.NewHelper(log.With(logger, "module", "creation/data/rocketmq-collections-producer"))
+func NewRocketmqCollectionsProducer(conf *conf.Data) *CollectionsMqPro {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/rocketmq-collections-producer"))
 	p, err := rocketmq.NewProducer(
 		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.CreationMq.ServerAddress})),
 		producer.WithCredentials(primitive.Credentials{
@@ -392,8 +392,8 @@ func NewRocketmqCollectionsProducer(conf *conf.Data, logger log.Logger) *Collect
 	}
 }
 
-func NewRocketmqAchievementProducer(conf *conf.Data, logger log.Logger) *AchievementMqPro {
-	l := log.NewHelper(log.With(logger, "module", "creation/data/rocketmq-achievement-producer"))
+func NewRocketmqAchievementProducer(conf *conf.Data) *AchievementMqPro {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/rocketmq-achievement-producer"))
 	p, err := rocketmq.NewProducer(
 		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.AchievementMq.ServerAddress})),
 		producer.WithCredentials(primitive.Credentials{
@@ -419,8 +419,8 @@ func NewRocketmqAchievementProducer(conf *conf.Data, logger log.Logger) *Achieve
 	}
 }
 
-func NewElasticsearch(conf *conf.Data, logger log.Logger) *ElasticSearch {
-	l := log.NewHelper(log.With(logger, "module", "creation/data/elastic-search"))
+func NewElasticsearch(conf *conf.Data) *ElasticSearch {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/elastic-search"))
 	cfg := elasticsearch.Config{
 		Username: conf.ElasticSearch.User,
 		Password: conf.ElasticSearch.Password,
@@ -454,8 +454,8 @@ func NewNewsClient(conf *conf.Data) *News {
 	}
 }
 
-func NewData(db *gorm.DB, redisCmd redis.Cmdable, cos *cos.Client, es *ElasticSearch, amp *ArticleMqPro, arp *ArticleReviewMqPro, tmp *TalkMqPro, trp *TalkReviewMqPro, cmp *ColumnMqPro, crq *ColumnReviewMqPro, cormq *CollectionsReviewMqPro, cmq *CollectionsMqPro, ap *AchievementMqPro, news *News, logger log.Logger) (*Data, func(), error) {
-	l := log.NewHelper(log.With(logger, "module", "creation/data/new-data"))
+func NewData(db *gorm.DB, redisCmd redis.Cmdable, cos *cos.Client, es *ElasticSearch, amp *ArticleMqPro, arp *ArticleReviewMqPro, tmp *TalkMqPro, trp *TalkReviewMqPro, cmp *ColumnMqPro, crq *ColumnReviewMqPro, cormq *CollectionsReviewMqPro, cmq *CollectionsMqPro, ap *AchievementMqPro, news *News) (*Data, func(), error) {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/new-data"))
 
 	d := &Data{
 		db:                     db,
@@ -476,7 +476,22 @@ func NewData(db *gorm.DB, redisCmd redis.Cmdable, cos *cos.Client, es *ElasticSe
 	return d, func() {
 		l.Info("closing the data resources")
 
-		err := d.articleMqPro.producer.Shutdown()
+		sqlDB, err := db.DB()
+		if err != nil {
+			l.Errorf("close db err: %v", err.Error())
+		}
+
+		err = sqlDB.Close()
+		if err != nil {
+			l.Errorf("close db err: %v", err.Error())
+		}
+
+		err = redisCmd.(*redis.Client).Close()
+		if err != nil {
+			l.Errorf("close redis err: %v", err.Error())
+		}
+
+		err = d.articleMqPro.producer.Shutdown()
 		if err != nil {
 			l.Errorf("shutdown article producer error: %v", err.Error())
 		}

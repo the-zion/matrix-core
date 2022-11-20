@@ -114,8 +114,8 @@ func NewRecovery(d *Data) biz.Recovery {
 	return d
 }
 
-func NewDB(conf *conf.Data, logger log.Logger) *gorm.DB {
-	l := log.NewHelper(log.With(logger, "module", "user/data/mysql"))
+func NewDB(conf *conf.Data) *gorm.DB {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "user/data/mysql"))
 
 	db, err := gorm.Open(mysql.Open(conf.Database.Source), &gorm.Config{
 		DisableForeignKeyConstraintWhenMigrating: true,
@@ -126,8 +126,8 @@ func NewDB(conf *conf.Data, logger log.Logger) *gorm.DB {
 	return db
 }
 
-func NewRedis(conf *conf.Data, logger log.Logger) redis.Cmdable {
-	l := log.NewHelper(log.With(logger, "module", "user/data/redis"))
+func NewRedis(conf *conf.Data) redis.Cmdable {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "user/data/redis"))
 	client := redis.NewClient(&redis.Options{
 		Addr:         conf.Redis.Addr,
 		ReadTimeout:  conf.Redis.ReadTimeout.AsDuration(),
@@ -145,8 +145,8 @@ func NewRedis(conf *conf.Data, logger log.Logger) redis.Cmdable {
 	return client
 }
 
-func NewRocketmqCodeProducer(conf *conf.Data, logger log.Logger) *CodeMqPro {
-	l := log.NewHelper(log.With(logger, "module", "user/data/rocketmq-code-producer"))
+func NewRocketmqCodeProducer(conf *conf.Data) *CodeMqPro {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "user/data/rocketmq-code-producer"))
 	p, err := rocketmq.NewProducer(
 		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.Rocketmq.ServerAddress})),
 		producer.WithCredentials(primitive.Credentials{
@@ -170,8 +170,8 @@ func NewRocketmqCodeProducer(conf *conf.Data, logger log.Logger) *CodeMqPro {
 	}
 }
 
-func NewRocketmqProfileProducer(conf *conf.Data, logger log.Logger) *ProfileMqPro {
-	l := log.NewHelper(log.With(logger, "module", "user/data/rocketmq-profile-producer"))
+func NewRocketmqProfileProducer(conf *conf.Data) *ProfileMqPro {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "user/data/rocketmq-profile-producer"))
 	p, err := rocketmq.NewProducer(
 		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.Rocketmq.ServerAddress})),
 		producer.WithCredentials(primitive.Credentials{
@@ -196,8 +196,8 @@ func NewRocketmqProfileProducer(conf *conf.Data, logger log.Logger) *ProfileMqPr
 	}
 }
 
-func NewRocketmqFollowProducer(conf *conf.Data, logger log.Logger) *FollowMqPro {
-	l := log.NewHelper(log.With(logger, "module", "user/data/rocketmq-follow-producer"))
+func NewRocketmqFollowProducer(conf *conf.Data) *FollowMqPro {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "user/data/rocketmq-follow-producer"))
 	p, err := rocketmq.NewProducer(
 		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.Rocketmq.ServerAddress})),
 		producer.WithCredentials(primitive.Credentials{
@@ -222,8 +222,8 @@ func NewRocketmqFollowProducer(conf *conf.Data, logger log.Logger) *FollowMqPro 
 	}
 }
 
-func NewRocketmqPictureProducer(conf *conf.Data, logger log.Logger) *PictureMqPro {
-	l := log.NewHelper(log.With(logger, "module", "user/data/rocketmq-picture-producer"))
+func NewRocketmqPictureProducer(conf *conf.Data) *PictureMqPro {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "user/data/rocketmq-picture-producer"))
 	p, err := rocketmq.NewProducer(
 		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.Rocketmq.ServerAddress})),
 		producer.WithCredentials(primitive.Credentials{
@@ -248,8 +248,8 @@ func NewRocketmqPictureProducer(conf *conf.Data, logger log.Logger) *PictureMqPr
 	}
 }
 
-func NewRocketmqAchievementProducer(conf *conf.Data, logger log.Logger) *AchievementMqPro {
-	l := log.NewHelper(log.With(logger, "module", "creation/data/rocketmq-achievement-producer"))
+func NewRocketmqAchievementProducer(conf *conf.Data) *AchievementMqPro {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/rocketmq-achievement-producer"))
 	p, err := rocketmq.NewProducer(
 		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.AchievementMq.ServerAddress})),
 		producer.WithCredentials(primitive.Credentials{
@@ -301,8 +301,8 @@ func NewCosClient(conf *conf.Data) *Cos {
 	}
 }
 
-func NewElasticsearch(conf *conf.Data, logger log.Logger) *ElasticSearch {
-	l := log.NewHelper(log.With(logger, "module", "user/data/elastic-search"))
+func NewElasticsearch(conf *conf.Data) *ElasticSearch {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "user/data/elastic-search"))
 	cfg := elasticsearch.Config{
 		Username: conf.ElasticSearch.User,
 		Password: conf.ElasticSearch.Password,
@@ -330,8 +330,8 @@ func NewElasticsearch(conf *conf.Data, logger log.Logger) *ElasticSearch {
 	}
 }
 
-func NewData(db *gorm.DB, redisCmd redis.Cmdable, cp *CodeMqPro, es *ElasticSearch, pp *ProfileMqPro, fp *FollowMqPro, pip *PictureMqPro, aq *AchievementMqPro, cos *Cos, logger log.Logger) (*Data, func(), error) {
-	l := log.NewHelper(log.With(logger, "module", "user/data/new-data"))
+func NewData(db *gorm.DB, redisCmd redis.Cmdable, cp *CodeMqPro, es *ElasticSearch, pp *ProfileMqPro, fp *FollowMqPro, pip *PictureMqPro, aq *AchievementMqPro, cos *Cos) (*Data, func(), error) {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "user/data/new-data"))
 
 	d := &Data{
 		db:               db,
@@ -347,6 +347,21 @@ func NewData(db *gorm.DB, redisCmd redis.Cmdable, cp *CodeMqPro, es *ElasticSear
 	return d, func() {
 		var err error
 		l.Info("closing the data resources")
+
+		sqlDB, err := db.DB()
+		if err != nil {
+			l.Errorf("close db err: %v", err.Error())
+		}
+
+		err = sqlDB.Close()
+		if err != nil {
+			l.Errorf("close db err: %v", err.Error())
+		}
+
+		err = redisCmd.(*redis.Client).Close()
+		if err != nil {
+			l.Errorf("close redis err: %v", err.Error())
+		}
 
 		err = d.codeMqPro.producer.Shutdown()
 		if err != nil {

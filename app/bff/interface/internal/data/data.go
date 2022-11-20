@@ -19,10 +19,12 @@ import (
 	"github.com/the-zion/matrix-core/app/bff/interface/internal/biz"
 	"github.com/the-zion/matrix-core/pkg/trace"
 	"go.opentelemetry.io/otel/propagation"
+	gooGrpc "google.golang.org/grpc"
 	"runtime"
 )
 
 var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewCreationRepo, NewArticleRepo, NewTalkRepo, NewColumnRepo, NewNewsRepo, NewAchievementRepo, NewCommentRepo, NewMessageRepo, NewUserServiceClient, NewCreationServiceClient, NewMessageServiceClient, NewAchievementServiceClient, NewCommentServiceClient, NewRecovery)
+var connBox []*gooGrpc.ClientConn
 
 type Data struct {
 	log   *log.Helper
@@ -51,8 +53,8 @@ func NewRecovery(d *Data) biz.Recovery {
 	return d
 }
 
-func NewData(logger log.Logger, uc userv1.UserClient, cc creationv1.CreationClient, mc messagev1.MessageClient, ac achievementv1.AchievementClient, commc commentv1.CommentClient) (*Data, error) {
-	l := log.NewHelper(log.With(logger, "module", "bff/data"))
+func NewData(uc userv1.UserClient, cc creationv1.CreationClient, mc messagev1.MessageClient, ac achievementv1.AchievementClient, commc commentv1.CommentClient) (*Data, func(), error) {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "bff/data"))
 	selector.SetGlobalSelector(p2c.NewBuilder())
 	d := &Data{
 		log:   l,
@@ -62,11 +64,21 @@ func NewData(logger log.Logger, uc userv1.UserClient, cc creationv1.CreationClie
 		ac:    ac,
 		commc: commc,
 	}
-	return d, nil
+	return d, func() {
+		l.Info("closing the data resources")
+
+		for _, conn := range connBox {
+			err := conn.Close()
+			if err != nil {
+				l.Errorf("close connection err: %v", err.Error())
+			}
+		}
+		connBox = make([]*gooGrpc.ClientConn, 0)
+	}, nil
 }
 
-func NewUserServiceClient(r *nacos.Registry, logger log.Logger) userv1.UserClient {
-	l := log.NewHelper(log.With(logger, "module", "bff/data/new-user-client"))
+func NewUserServiceClient(r *nacos.Registry) userv1.UserClient {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "bff/data/new-user-client"))
 	conn, err := grpc.DialInsecure(
 		context.Background(),
 		grpc.WithEndpoint("discovery:///matrix.user.service.grpc"),
@@ -81,11 +93,12 @@ func NewUserServiceClient(r *nacos.Registry, logger log.Logger) userv1.UserClien
 		l.Fatalf(err.Error())
 	}
 	c := userv1.NewUserClient(conn)
+	connBox = append(connBox, conn)
 	return c
 }
 
-func NewCreationServiceClient(r *nacos.Registry, logger log.Logger) creationv1.CreationClient {
-	l := log.NewHelper(log.With(logger, "module", "bff/data/new-creation-client"))
+func NewCreationServiceClient(r *nacos.Registry) creationv1.CreationClient {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "bff/data/new-creation-client"))
 	conn, err := grpc.DialInsecure(
 		context.Background(),
 		grpc.WithEndpoint("discovery:///matrix.creation.service.grpc"),
@@ -100,11 +113,12 @@ func NewCreationServiceClient(r *nacos.Registry, logger log.Logger) creationv1.C
 		l.Fatalf(err.Error())
 	}
 	c := creationv1.NewCreationClient(conn)
+	connBox = append(connBox, conn)
 	return c
 }
 
-func NewMessageServiceClient(r *nacos.Registry, logger log.Logger) messagev1.MessageClient {
-	l := log.NewHelper(log.With(logger, "module", "bff/data/new-message-client"))
+func NewMessageServiceClient(r *nacos.Registry) messagev1.MessageClient {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "bff/data/new-message-client"))
 	conn, err := grpc.DialInsecure(
 		context.Background(),
 		grpc.WithEndpoint("discovery:///matrix.message.service.grpc"),
@@ -119,11 +133,12 @@ func NewMessageServiceClient(r *nacos.Registry, logger log.Logger) messagev1.Mes
 		l.Fatalf(err.Error())
 	}
 	c := messagev1.NewMessageClient(conn)
+	connBox = append(connBox, conn)
 	return c
 }
 
-func NewAchievementServiceClient(r *nacos.Registry, logger log.Logger) achievementv1.AchievementClient {
-	l := log.NewHelper(log.With(logger, "module", "bff/data/new-achievement-client"))
+func NewAchievementServiceClient(r *nacos.Registry) achievementv1.AchievementClient {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "bff/data/new-achievement-client"))
 	conn, err := grpc.DialInsecure(
 		context.Background(),
 		grpc.WithEndpoint("discovery:///matrix.achievement.service.grpc"),
@@ -138,11 +153,12 @@ func NewAchievementServiceClient(r *nacos.Registry, logger log.Logger) achieveme
 		l.Fatalf(err.Error())
 	}
 	c := achievementv1.NewAchievementClient(conn)
+	connBox = append(connBox, conn)
 	return c
 }
 
-func NewCommentServiceClient(r *nacos.Registry, logger log.Logger) commentv1.CommentClient {
-	l := log.NewHelper(log.With(logger, "module", "bff/data/new-comment-client"))
+func NewCommentServiceClient(r *nacos.Registry) commentv1.CommentClient {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "bff/data/new-comment-client"))
 	conn, err := grpc.DialInsecure(
 		context.Background(),
 		grpc.WithEndpoint("discovery:///matrix.comment.service.grpc"),
@@ -157,5 +173,6 @@ func NewCommentServiceClient(r *nacos.Registry, logger log.Logger) commentv1.Com
 		l.Fatalf(err.Error())
 	}
 	c := commentv1.NewCommentClient(conn)
+	connBox = append(connBox, conn)
 	return c
 }
