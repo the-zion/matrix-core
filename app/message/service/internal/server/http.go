@@ -19,7 +19,7 @@ func NewHTTPServer(c *conf.Server, messageService *service.MessageService, logge
 			recovery.Recovery(),
 			ratelimit.Server(),
 			tracing.Server(),
-			logging.Server(logger),
+			logging.Server(log.NewFilter(logger, log.FilterLevel(log.LevelError))),
 		),
 	}
 	if c.Http.Network != "" {

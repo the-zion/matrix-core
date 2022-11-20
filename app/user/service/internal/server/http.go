@@ -18,7 +18,7 @@ func NewHTTPServer(c *conf.Server, userService *service.UserService, logger log.
 		http.Middleware(
 			recovery.Recovery(),
 			responce.Server(),
-			logging.Server(logger),
+			logging.Server(log.NewFilter(logger, log.FilterLevel(log.LevelError))),
 			validate.Validator(),
 		),
 	}

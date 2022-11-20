@@ -19,7 +19,7 @@ func NewGRPCServer(c *conf.Server, bffService *service.BffService, logger log.Lo
 			recovery.Recovery(),
 			tracing.Server(),
 			responce.Server(),
-			logging.Server(logger),
+			logging.Server(log.NewFilter(logger, log.FilterLevel(log.LevelError))),
 			validate.Validator(),
 		),
 	}

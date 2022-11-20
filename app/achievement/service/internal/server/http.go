@@ -15,7 +15,7 @@ func NewHTTPServer(c *conf.Server, achievementService *service.AchievementServic
 	var opts = []http.ServerOption{
 		http.Middleware(
 			recovery.Recovery(),
-			logging.Server(logger),
+			logging.Server(log.NewFilter(logger, log.FilterLevel(log.LevelError))),
 		),
 	}
 	if c.Http.Network != "" {
