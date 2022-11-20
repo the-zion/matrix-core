@@ -25,6 +25,7 @@ import (
 	"github.com/the-zion/matrix-core/app/message/service/internal/conf"
 	"github.com/the-zion/matrix-core/pkg/trace"
 	"go.opentelemetry.io/otel/propagation"
+	gooGrpc "google.golang.org/grpc"
 	"gopkg.in/gomail.v2"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -35,6 +36,7 @@ import (
 )
 
 var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewCreationRepo, NewCommentRepo, NewMessageRepo, NewAchievementRepo, NewPhoneCode, NewGoMail, NewUserServiceClient, NewCreationServiceClient, NewAchievementServiceClient, NewCommentServiceClient, NewCosUserClient, NewCosCreationClient, NewCosCommentClient, NewJwtClient, NewJwt, NewRecovery, NewTransaction, NewRedis, NewDB)
+var connBox []*gooGrpc.ClientConn
 
 type TxCode struct {
 	client  *sms.Client
@@ -151,8 +153,8 @@ func NewGoMail(conf *conf.Data) *GoMail {
 	}
 }
 
-func NewUserServiceClient(r *nacos.Registry, logger log.Logger) userv1.UserClient {
-	l := log.NewHelper(log.With(logger, "module", "message/data/new-user-client"))
+func NewUserServiceClient(r *nacos.Registry) userv1.UserClient {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "message/data/new-user-client"))
 	conn, err := grpc.DialInsecure(
 		context.Background(),
 		grpc.WithEndpoint("discovery:///matrix.user.service.grpc"),
@@ -167,11 +169,12 @@ func NewUserServiceClient(r *nacos.Registry, logger log.Logger) userv1.UserClien
 		l.Fatalf(err.Error())
 	}
 	c := userv1.NewUserClient(conn)
+	connBox = append(connBox, conn)
 	return c
 }
 
-func NewCreationServiceClient(r *nacos.Registry, logger log.Logger) creationv1.CreationClient {
-	l := log.NewHelper(log.With(logger, "module", "message/data/new-creation-client"))
+func NewCreationServiceClient(r *nacos.Registry) creationv1.CreationClient {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "message/data/new-creation-client"))
 	conn, err := grpc.DialInsecure(
 		context.Background(),
 		grpc.WithEndpoint("discovery:///matrix.creation.service.grpc"),
@@ -186,11 +189,12 @@ func NewCreationServiceClient(r *nacos.Registry, logger log.Logger) creationv1.C
 		l.Fatalf(err.Error())
 	}
 	c := creationv1.NewCreationClient(conn)
+	connBox = append(connBox, conn)
 	return c
 }
 
-func NewCommentServiceClient(r *nacos.Registry, logger log.Logger) commentv1.CommentClient {
-	l := log.NewHelper(log.With(logger, "module", "message/data/new-comment-client"))
+func NewCommentServiceClient(r *nacos.Registry) commentv1.CommentClient {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "message/data/new-comment-client"))
 	conn, err := grpc.DialInsecure(
 		context.Background(),
 		grpc.WithEndpoint("discovery:///matrix.comment.service.grpc"),
@@ -205,11 +209,12 @@ func NewCommentServiceClient(r *nacos.Registry, logger log.Logger) commentv1.Com
 		l.Fatalf(err.Error())
 	}
 	c := commentv1.NewCommentClient(conn)
+	connBox = append(connBox, conn)
 	return c
 }
 
-func NewAchievementServiceClient(r *nacos.Registry, logger log.Logger) achievementv1.AchievementClient {
-	l := log.NewHelper(log.With(logger, "module", "message/data/new-achievement-client"))
+func NewAchievementServiceClient(r *nacos.Registry) achievementv1.AchievementClient {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "message/data/new-achievement-client"))
 	conn, err := grpc.DialInsecure(
 		context.Background(),
 		grpc.WithEndpoint("discovery:///matrix.achievement.service.grpc"),
@@ -224,11 +229,12 @@ func NewAchievementServiceClient(r *nacos.Registry, logger log.Logger) achieveme
 		l.Fatalf(err.Error())
 	}
 	c := achievementv1.NewAchievementClient(conn)
+	connBox = append(connBox, conn)
 	return c
 }
 
-func NewCosUserClient(conf *conf.Data, logger log.Logger) *CosUser {
-	l := log.NewHelper(log.With(logger, "module", "message/data/new-cos-user-client"))
+func NewCosUserClient(conf *conf.Data) *CosUser {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "message/data/new-cos-user-client"))
 	u, err := url.Parse(conf.Cos.BucketUser.BucketUrl)
 	if err != nil {
 		l.Errorf("fail to init cos server, error: %v", err)
@@ -244,8 +250,8 @@ func NewCosUserClient(conf *conf.Data, logger log.Logger) *CosUser {
 	}
 }
 
-func NewCosCreationClient(conf *conf.Data, logger log.Logger) *CosCreation {
-	l := log.NewHelper(log.With(logger, "module", "message/data/new-cos-creation-client"))
+func NewCosCreationClient(conf *conf.Data) *CosCreation {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "message/data/new-cos-creation-client"))
 	bu, err := url.Parse(conf.Cos.BucketCreation.BucketUrl)
 	if err != nil {
 		l.Errorf("fail to init cos server, error: %v", err)
@@ -266,8 +272,8 @@ func NewCosCreationClient(conf *conf.Data, logger log.Logger) *CosCreation {
 	}
 }
 
-func NewCosCommentClient(conf *conf.Data, logger log.Logger) *CosComment {
-	l := log.NewHelper(log.With(logger, "module", "message/data/new-cos-comment-client"))
+func NewCosCommentClient(conf *conf.Data) *CosComment {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "message/data/new-cos-comment-client"))
 	bu, err := url.Parse(conf.Cos.BucketComment.BucketUrl)
 	if err != nil {
 		l.Errorf("fail to init cos server, error: %v", err)
@@ -288,8 +294,8 @@ func NewCosCommentClient(conf *conf.Data, logger log.Logger) *CosComment {
 	}
 }
 
-func NewDB(conf *conf.Data, logger log.Logger) *gorm.DB {
-	l := log.NewHelper(log.With(logger, "module", "creation/data/mysql"))
+func NewDB(conf *conf.Data) *gorm.DB {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "message/data/mysql"))
 
 	db, err := gorm.Open(mysql.Open(conf.Database.Source), &gorm.Config{
 		DisableForeignKeyConstraintWhenMigrating: true,
@@ -300,8 +306,8 @@ func NewDB(conf *conf.Data, logger log.Logger) *gorm.DB {
 	return db
 }
 
-func NewRedis(conf *conf.Data, logger log.Logger) redis.Cmdable {
-	l := log.NewHelper(log.With(logger, "module", "creation/data/redis"))
+func NewRedis(conf *conf.Data) redis.Cmdable {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "message/data/redis"))
 	client := redis.NewClient(&redis.Options{
 		Addr:         conf.Redis.Addr,
 		DB:           4,
@@ -320,8 +326,8 @@ func NewRedis(conf *conf.Data, logger log.Logger) redis.Cmdable {
 	return client
 }
 
-func NewData(logger log.Logger, db *gorm.DB, redisCmd redis.Cmdable, uc userv1.UserClient, cc creationv1.CreationClient, commc commentv1.CommentClient, ac achievementv1.AchievementClient, jwt Jwt, cosUser *CosUser, cosCreation *CosCreation, cosComment *CosComment, phoneCodeCli *TxCode, goMailCli *GoMail) (*Data, error) {
-	l := log.NewHelper(log.With(logger, "module", "message/data"))
+func NewData(db *gorm.DB, redisCmd redis.Cmdable, uc userv1.UserClient, cc creationv1.CreationClient, commc commentv1.CommentClient, ac achievementv1.AchievementClient, jwt Jwt, cosUser *CosUser, cosCreation *CosCreation, cosComment *CosComment, phoneCodeCli *TxCode, goMailCli *GoMail) (*Data, func(), error) {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "message/data"))
 	selector.SetGlobalSelector(p2c.NewBuilder())
 	d := &Data{
 		db:             db,
@@ -338,5 +344,42 @@ func NewData(logger log.Logger, db *gorm.DB, redisCmd redis.Cmdable, uc userv1.U
 		cosCreationCli: cosCreation,
 		cosCommentCli:  cosComment,
 	}
-	return d, nil
+	return d, func() {
+		l.Info("closing the data resources")
+
+		goMailCli.message.Reset()
+		mail, err := goMailCli.dialer.Dial()
+		if err != nil {
+			l.Errorf("close goMail err: %v", err.Error())
+		}
+
+		err = mail.Close()
+		if err != nil {
+			l.Errorf("close goMail err: %v", err.Error())
+		}
+
+		sqlDB, err := db.DB()
+		if err != nil {
+			l.Errorf("close db err: %v", err.Error())
+		}
+
+		err = sqlDB.Close()
+		if err != nil {
+			l.Errorf("close db err: %v", err.Error())
+		}
+
+		err = redisCmd.(*redis.Client).Close()
+		if err != nil {
+			l.Errorf("close redis err: %v", err.Error())
+		}
+
+		for _, conn := range connBox {
+			err = conn.Close()
+			if err != nil {
+				l.Errorf("close connection err: %v", err.Error())
+			}
+		}
+		connBox = make([]*gooGrpc.ClientConn, 0)
+
+	}, nil
 }

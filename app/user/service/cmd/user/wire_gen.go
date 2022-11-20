@@ -20,31 +20,31 @@ import (
 // Injectors from wire.go:
 
 // wireApp init kratos application.
-func wireApp(confServer *conf.Server, confData *conf.Data, auth *conf.Auth, logger log.Logger, registry *nacos.Registry) (*kratos.App, func(), error) {
-	db := data.NewDB(confData, logger)
-	cmdable := data.NewRedis(confData, logger)
-	codeMqPro := data.NewRocketmqCodeProducer(confData, logger)
-	elasticSearch := data.NewElasticsearch(confData, logger)
-	profileMqPro := data.NewRocketmqProfileProducer(confData, logger)
-	followMqPro := data.NewRocketmqFollowProducer(confData, logger)
-	pictureMqPro := data.NewRocketmqPictureProducer(confData, logger)
-	achievementMqPro := data.NewRocketmqAchievementProducer(confData, logger)
+func wireApp(confServer *conf.Server, confData *conf.Data, auth *conf.Auth, logLogger log.Logger, registry *nacos.Registry) (*kratos.App, func(), error) {
+	db := data.NewDB(confData)
+	cmdable := data.NewRedis(confData)
+	codeMqPro := data.NewRocketmqCodeProducer(confData)
+	elasticSearch := data.NewElasticsearch(confData)
+	profileMqPro := data.NewRocketmqProfileProducer(confData)
+	followMqPro := data.NewRocketmqFollowProducer(confData)
+	pictureMqPro := data.NewRocketmqPictureProducer(confData)
+	achievementMqPro := data.NewRocketmqAchievementProducer(confData)
 	cos := data.NewCosClient(confData)
-	dataData, cleanup, err := data.NewData(db, cmdable, codeMqPro, elasticSearch, profileMqPro, followMqPro, pictureMqPro, achievementMqPro, cos, logger)
+	dataData, cleanup2, err := data.NewData(db, cmdable, codeMqPro, elasticSearch, profileMqPro, followMqPro, pictureMqPro, achievementMqPro, cos)
 	if err != nil {
 		return nil, nil, err
 	}
-	userRepo := data.NewUserRepo(dataData, logger)
+	userRepo := data.NewUserRepo(dataData, logLogger)
 	recovery := data.NewRecovery(dataData)
 	transaction := data.NewTransaction(dataData)
-	userUseCase := biz.NewUserUseCase(userRepo, recovery, transaction, logger)
-	authRepo := data.NewAuthRepo(dataData, logger)
-	authUseCase := biz.NewAuthUseCase(auth, authRepo, recovery, userRepo, transaction, logger)
-	userService := service.NewUserService(userUseCase, authUseCase, logger)
-	httpServer := server.NewHTTPServer(confServer, userService, logger)
-	grpcServer := server.NewGRPCServer(confServer, userService, logger)
-	app := newApp(logger, registry, httpServer, grpcServer)
-	return app, func() {
-		cleanup()
+	userUseCase := biz.NewUserUseCase(userRepo, recovery, transaction, logLogger)
+	authRepo := data.NewAuthRepo(dataData, logLogger)
+	authUseCase := biz.NewAuthUseCase(auth, authRepo, recovery, userRepo, transaction, logLogger)
+	userService := service.NewUserService(userUseCase, authUseCase, logLogger)
+	httpServer := server.NewHTTPServer(confServer, userService, logLogger)
+	grpcServer := server.NewGRPCServer(confServer, userService, logLogger)
+	kratosApp := newApp(registry, httpServer, grpcServer)
+	return kratosApp, func() {
+		cleanup2()
 	}, nil
 }

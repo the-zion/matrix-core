@@ -20,23 +20,23 @@ import (
 // Injectors from wire.go:
 
 // wireApp init kratos application.
-func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, registry *nacos.Registry) (*kratos.App, func(), error) {
-	db := data.NewDB(confData, logger)
-	cmdable := data.NewRedis(confData, logger)
-	achievementMqPro := data.NewRocketmqAchievementProducer(confData, logger)
-	dataData, cleanup, err := data.NewData(db, cmdable, achievementMqPro, logger)
+func wireApp(confServer *conf.Server, confData *conf.Data, logLogger log.Logger, registry *nacos.Registry) (*kratos.App, func(), error) {
+	db := data.NewDB(confData)
+	cmdable := data.NewRedis(confData)
+	achievementMqPro := data.NewRocketmqAchievementProducer(confData)
+	dataData, cleanup2, err := data.NewData(db, cmdable, achievementMqPro)
 	if err != nil {
 		return nil, nil, err
 	}
-	achievementRepo := data.NewAchievementRepo(dataData, logger)
+	achievementRepo := data.NewAchievementRepo(dataData, logLogger)
 	recovery := data.NewRecovery(dataData)
 	transaction := data.NewTransaction(dataData)
-	achievementUseCase := biz.NewAchievementUseCase(achievementRepo, recovery, transaction, logger)
-	achievementService := service.NewAchievementService(achievementUseCase, logger)
-	httpServer := server.NewHTTPServer(confServer, achievementService, logger)
-	grpcServer := server.NewGRPCServer(confServer, achievementService, logger)
-	app := newApp(logger, registry, httpServer, grpcServer)
-	return app, func() {
-		cleanup()
+	achievementUseCase := biz.NewAchievementUseCase(achievementRepo, recovery, transaction, logLogger)
+	achievementService := service.NewAchievementService(achievementUseCase, logLogger)
+	httpServer := server.NewHTTPServer(confServer, achievementService, logLogger)
+	grpcServer := server.NewGRPCServer(confServer, achievementService, logLogger)
+	kratosApp := newApp(registry, httpServer, grpcServer)
+	return kratosApp, func() {
+		cleanup2()
 	}, nil
 }
