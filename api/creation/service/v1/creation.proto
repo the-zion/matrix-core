@@ -11,6 +11,12 @@ option go_package = "api/creation/service/v1;v1";
 
 service Creation {
 
+  rpc GetHealth(google.protobuf.Empty) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      get: "/v1/get/creation/healthz"
+    };
+  }
+
   rpc GetLeaderBoard(google.protobuf.Empty) returns (GetLeaderBoardReply){}
 
   rpc GetLastCollectionsDraft(GetLastCollectionsDraftReq) returns (GetLastCollectionsDraftReply){}

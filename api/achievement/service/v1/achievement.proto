@@ -26,12 +26,12 @@ service Achievement {
   rpc GetUserAchievement(GetUserAchievementReq) returns (GetUserAchievementReply){}
   rpc GetUserMedal(GetUserMedalReq) returns (GetUserMedalReply){}
   rpc GetUserActive(GetUserActiveReq) returns (GetUserActiveReply){}
+  rpc AddAchievementScore(AddAchievementScoreReq) returns (google.protobuf.Empty){}
   rpc GetHealth(google.protobuf.Empty) returns (google.protobuf.Empty){
     option (google.api.http) = {
-      get: "/v1/get/achievement/health"
+      get: "/v1/get/achievement/healthz"
     };
   }
-  rpc AddAchievementScore(AddAchievementScoreReq) returns (google.protobuf.Empty){}
 }
 
 message SetAchievementAgreeReq{

@@ -9,6 +9,13 @@ import "validate/validate.proto";
 option go_package = "api/user/service/v1;v1";
 
 service User {
+
+  rpc GetHealth(google.protobuf.Empty) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      get: "/v1/get/user/healthz"
+    };
+  }
+
   rpc UserRegister (UserRegisterReq) returns (google.protobuf.Empty){}
 
   rpc AvatarIrregular (AvatarIrregularReq) returns (google.protobuf.Empty){}

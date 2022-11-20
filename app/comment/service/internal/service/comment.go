@@ -7,10 +7,6 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-func (s *CommentService) GetHealth(_ context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
-	return &emptypb.Empty{}, nil
-}
-
 func (s *CommentService) GetLastCommentDraft(ctx context.Context, req *v1.GetLastCommentDraftReq) (*v1.GetLastCommentDraftReply, error) {
 	draft, err := s.cc.GetLastCommentDraft(ctx, req.Uuid)
 	if err != nil {
