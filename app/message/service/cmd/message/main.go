@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	nc "github.com/go-kratos/kratos/contrib/config/nacos/v2"
 	"github.com/go-kratos/kratos/contrib/log/tencent/v2"
@@ -17,8 +18,10 @@ import (
 	"github.com/the-zion/matrix-core/app/message/service/internal/conf"
 	"github.com/the-zion/matrix-core/app/message/service/internal/server"
 	"github.com/the-zion/matrix-core/pkg/trace"
+	tracesdk "go.opentelemetry.io/otel/sdk/trace"
 	"gopkg.in/yaml.v3"
 	"os"
+	"runtime"
 	"strconv"
 	"strings"
 )
@@ -38,6 +41,17 @@ var (
 	nacosUserName  string
 	nacosPassword  string
 	logSelect      string
+	traceProvider  *tracesdk.TracerProvider
+	bootstrap      conf.Bootstrap
+	servieConfig   config.Config
+	rclient        *nacos.Registry
+	logger         log.Logger
+	tencentLogger  tencent.Logger
+	app            *kratos.App
+	sc             []constant.ServerConfig
+	cc             *constant.ClientConfig
+	cleanup        func()
+	restart        = true
 	Name           = "matrix.message.service"
 	id, _          = os.Hostname()
 )
@@ -55,14 +69,13 @@ func init() {
 	flag.StringVar(&logSelect, "log", "default", "log select, eg: -log default")
 }
 
-func newApp(logger log.Logger, r *nacos.Registry, hs *http.Server, gs *grpc.Server, cmcs *server.CodeMqConsumerServer, pmcs *server.ProfileMqConsumerServer, pms *server.PictureMqConsumerServer, fmcs *server.FollowMqConsumerServer, arms *server.ArticleReviewMqConsumerServer, amcs *server.ArticleMqConsumerServer, trcs *server.TalkReviewMqConsumerServer, tmcs *server.TalkMqConsumerServer, crmcs *server.ColumnReviewMqConsumerServer, comcs *server.ColumnMqConsumerServer, achcs *server.AchievementMqConsumerServer, commrcs *server.CommentReviewMqConsumerServer, commcs *server.CommentMqConsumerServer, corms *server.CollectionsReviewMqConsumerServer, coms *server.CollectionsMqConsumerServer) *kratos.App {
+func newApp(r *nacos.Registry, hs *http.Server, gs *grpc.Server, cmcs *server.CodeMqConsumerServer, pmcs *server.ProfileMqConsumerServer, pms *server.PictureMqConsumerServer, fmcs *server.FollowMqConsumerServer, arms *server.ArticleReviewMqConsumerServer, amcs *server.ArticleMqConsumerServer, trcs *server.TalkReviewMqConsumerServer, tmcs *server.TalkMqConsumerServer, crmcs *server.ColumnReviewMqConsumerServer, comcs *server.ColumnMqConsumerServer, achcs *server.AchievementMqConsumerServer, commrcs *server.CommentReviewMqConsumerServer, commcs *server.CommentMqConsumerServer, corms *server.CollectionsReviewMqConsumerServer, coms *server.CollectionsMqConsumerServer) *kratos.App {
 	return kratos.New(
 		kratos.ID(id),
 		kratos.Name(Name),
 		kratos.Registrar(r),
 		kratos.Version(Version),
 		kratos.Metadata(map[string]string{}),
-		kratos.Logger(logger),
 		kratos.Server(
 			hs,
 			gs,
@@ -85,23 +98,25 @@ func newApp(logger log.Logger, r *nacos.Registry, hs *http.Server, gs *grpc.Serv
 	)
 }
 
-func main() {
-	flag.Parse()
-
-	err := trace.SetTracerProvider(traceUrl, traceToken, Name, id)
+func traceInit() {
+	var err error
+	traceProvider, err = trace.SetTracerProvider(traceUrl, traceToken, Name, id)
 	if err != nil {
 		log.Error(err)
 	}
+}
 
+func nacosInit() {
 	url := strings.Split(nacosUrl, ":")[0]
 	port, err := strconv.Atoi(strings.Split(nacosUrl, ":")[1])
 	if err != nil {
 		panic(err)
 	}
-	sc := []constant.ServerConfig{
+
+	sc = []constant.ServerConfig{
 		*constant.NewServerConfig(url, uint64(port)),
 	}
-	cc := &constant.ClientConfig{
+	cc = &constant.ClientConfig{
 		NamespaceId:          nacosNameSpace,
 		Username:             nacosUserName,
 		Password:             nacosPassword,
@@ -112,7 +127,11 @@ func main() {
 		MaxAge:               3,
 		LogLevel:             "warn",
 	}
+	configNew()
+	clientNew()
+}
 
+func configNew() {
 	client, err := clients.NewConfigClient(
 		vo.NacosClientParam{
 			ClientConfig:  cc,
@@ -125,12 +144,8 @@ func main() {
 
 	dataID := nacosConfig
 	group := nacosGroup
-	_, err = client.GetConfig(vo.ConfigParam{DataId: dataID, Group: group})
-	if err != nil {
-		panic(err)
-	}
 
-	c := config.New(
+	servieConfig = config.New(
 		config.WithSource(
 			nc.NewConfigSource(client, nc.WithGroup(group), nc.WithDataID(dataID)),
 		),
@@ -138,18 +153,32 @@ func main() {
 			return yaml.Unmarshal(kv.Value, v)
 		}),
 	)
-	defer c.Close()
 
-	if err := c.Load(); err != nil {
+	if err = servieConfig.Load(); err != nil {
 		panic(err)
 	}
 
-	var bc conf.Bootstrap
-	if err := c.Scan(&bc); err != nil {
+	if err = servieConfig.Scan(&bootstrap); err != nil {
 		panic(err)
 	}
 
-	rclient, err := clients.NewNamingClient(
+	if err = servieConfig.Watch("config", func(s string, value config.Value) {
+		if err = servieConfig.Scan(&bootstrap); err != nil {
+			log.Error(err)
+			return
+		}
+		restart = true
+		if err = app.Stop(); err != nil {
+			log.Error(err)
+			restart = false
+		}
+	}); err != nil {
+		panic(err)
+	}
+}
+
+func clientNew() {
+	r, err := clients.NewNamingClient(
 		vo.NacosClientParam{
 			ClientConfig:  cc,
 			ServerConfigs: sc,
@@ -159,10 +188,11 @@ func main() {
 		panic(err)
 	}
 
-	r := nacos.New(rclient)
+	rclient = nacos.New(r)
+}
 
-	var logger log.Logger
-	var tencentLogger tencent.Logger
+func loggerInit() {
+	var err error
 	logKv := []interface{}{
 		"ts", log.DefaultTimestamp,
 		"caller", log.DefaultCaller,
@@ -175,10 +205,10 @@ func main() {
 	switch logSelect {
 	case "tencent":
 		tencentLogger, err = tencent.NewLogger(
-			tencent.WithEndpoint(bc.Log.Host),
-			tencent.WithAccessKey(bc.Log.AccessKeyID),
-			tencent.WithAccessSecret(bc.Log.AccessKeySecret),
-			tencent.WithTopicID(bc.Log.TopicID),
+			tencent.WithEndpoint(bootstrap.Config.Log.Host),
+			tencent.WithAccessKey(bootstrap.Config.Log.AccessKeyID),
+			tencent.WithAccessSecret(bootstrap.Config.Log.AccessKeySecret),
+			tencent.WithTopicID(bootstrap.Config.Log.TopicID),
 		)
 		if err != nil {
 			panic(err)
@@ -189,19 +219,53 @@ func main() {
 	default:
 		logger = log.With(log.NewStdLogger(os.Stdout), logKv...)
 	}
+}
 
-	app, cleanup, err := wireApp(bc.Server, bc.Data, logger, r)
+func appInit() {
+	var err error
+	app, cleanup, err = wireApp(bootstrap.Config.Server, bootstrap.Config.Data, logger, rclient)
 	if err != nil {
 		panic(err)
 	}
+}
 
-	defer func() {
-		cleanup()
-		tencentLogger.Close()
-	}()
+func appRefresh() {
+	traceInit()
+	loggerInit()
+	clientNew()
+	appInit()
+	runtime.GC()
+	restart = false
+}
 
-	// start and wait for stop signal
+func appRun() {
 	if err := app.Run(); err != nil {
 		panic(err)
 	}
+}
+
+func appClean() {
+	traceProvider.Shutdown(context.Background())
+	cleanup()
+	if tencentLogger != nil {
+		tencentLogger.Close()
+	}
+}
+
+func matrixRun() {
+	for {
+		if !restart {
+			break
+		}
+		appRefresh()
+		appRun()
+		appClean()
+	}
+	servieConfig.Close()
+}
+
+func main() {
+	flag.Parse()
+	nacosInit()
+	matrixRun()
 }
