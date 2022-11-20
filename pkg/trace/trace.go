@@ -64,7 +64,7 @@ func SetTracerProvider(url, token, service, hostname string) (*tracesdk.TracerPr
 		return nil, err
 	}
 	tp := tracesdk.NewTracerProvider(
-		tracesdk.WithSampler(tracesdk.ParentBased(tracesdk.TraceIDRatioBased(1))),
+		tracesdk.WithSampler(tracesdk.ParentBased(tracesdk.TraceIDRatioBased(0.5))),
 		tracesdk.WithBatcher(exp),
 		tracesdk.WithResource(resource.NewSchemaless(
 			semconv.ServiceNameKey.String(builder.String()),
