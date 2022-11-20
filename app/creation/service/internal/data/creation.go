@@ -173,7 +173,7 @@ func (r *creationRepo) setCollectionsContentReviewToCache(key string, review []*
 			list = append(list, m)
 		}
 		pipe.RPush(ctx, key, list...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -264,7 +264,7 @@ func (r *creationRepo) setCollectArticleListToCache(key string, article []*biz.A
 			})
 		}
 		pipe.ZAddNX(ctx, key, z...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -364,7 +364,7 @@ func (r *creationRepo) setCollectTalkListToCache(key string, talk []*biz.Talk) {
 			})
 		}
 		pipe.ZAddNX(ctx, key, z...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -464,7 +464,7 @@ func (r *creationRepo) setCollectColumnListToCache(key string, column []*biz.Col
 			})
 		}
 		pipe.ZAddNX(ctx, key, z...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -560,7 +560,7 @@ func (r *creationRepo) setCollectionsToCache(key string, collections *biz.Collec
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		pipe.HMSet(context.Background(), key, "uuid", collections.Uuid, "auth", collections.Auth, "article", collections.Article, "column", collections.Column, "talk", collections.Talk)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -677,7 +677,7 @@ func (r *creationRepo) setCollectionsListInfoToCache(collectionsList []*Collecti
 			key := "collection_" + strconv.Itoa(int(item.CollectionsId))
 			pipe.HSetNX(ctx, key, "uuid", item.Uuid)
 			pipe.HSetNX(ctx, key, "auth", item.Auth)
-			pipe.Expire(ctx, key, time.Hour*8)
+			pipe.Expire(ctx, key, time.Minute*30)
 		}
 		return nil
 	})
@@ -843,7 +843,7 @@ func (r *creationRepo) setUserCollectionsListToCache(key string, collections []*
 			})
 		}
 		pipe.ZAddNX(ctx, key, z...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -1003,7 +1003,7 @@ func (r *creationRepo) setCreationUserToCache(key string, creationUser *biz.Crea
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		pipe.HMSet(context.Background(), key, "article", creationUser.Article, "talk", creationUser.Talk, "column", creationUser.Column, "collections", creationUser.Collections, "collect", creationUser.Collect, "subscribe", creationUser.Subscribe)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -1133,7 +1133,7 @@ func (r *creationRepo) setUserTimeLineListToCache(key string, timeline []*biz.Ti
 			})
 		}
 		pipe.ZAddNX(ctx, key, z...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -1201,7 +1201,7 @@ func (r *creationRepo) setCreationUserVisitorToCache(key string, creationUser *b
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		pipe.HMSet(context.Background(), key, "article", creationUser.Article, "talk", creationUser.Talk, "column", creationUser.Column, "collections", creationUser.Collections)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {

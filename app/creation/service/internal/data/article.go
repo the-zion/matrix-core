@@ -411,7 +411,7 @@ func (r *articleRepo) setUserArticleListToCache(key string, article []*biz.Artic
 			})
 		}
 		pipe.ZAddNX(ctx, key, z...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -615,7 +615,7 @@ func (r *articleRepo) setArticleListStatisticToCache(commentList []*ArticleStati
 			pipe.HSetNX(ctx, key, "collect", item.Collect)
 			pipe.HSetNX(ctx, key, "view", item.View)
 			pipe.HSetNX(ctx, key, "auth", item.Auth)
-			pipe.Expire(ctx, key, time.Hour*8)
+			pipe.Expire(ctx, key, time.Minute*30)
 		}
 		return nil
 	})
@@ -864,7 +864,7 @@ func (r *articleRepo) setUserArticleAgreeToCache(uuid string, agreeList []*Artic
 			set = append(set, item.ArticleId)
 		}
 		pipe.SAdd(ctx, key, set...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -939,7 +939,7 @@ func (r *articleRepo) setUserArticleCollectToCache(uuid string, collectList []*A
 			set = append(set, item.ArticleId)
 		}
 		pipe.SAdd(ctx, key, set...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -1151,7 +1151,7 @@ func (r *articleRepo) setArticleImageReviewToCache(key string, review []*biz.Ima
 			list = append(list, m)
 		}
 		pipe.RPush(ctx, key, list...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -1259,7 +1259,7 @@ func (r *articleRepo) setArticleContentReviewToCache(key string, review []*biz.T
 			list = append(list, m)
 		}
 		pipe.RPush(ctx, key, list...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -1372,7 +1372,7 @@ func (r *articleRepo) CreateArticleCache(ctx context.Context, id, auth int32, uu
 					redis.call("HSETNX", articleStatistic, "view", 0)
 					redis.call("HSETNX", articleStatistic, "comment", 0)
 					redis.call("HSETNX", articleStatistic, "auth", auth)
-					redis.call("EXPIRE", articleStatistic, 28800)
+					redis.call("EXPIRE", articleStatistic, 1800)
 
 					if userArticleListExist == 1 then
 						redis.call("ZADD", userArticleList, id, member)
@@ -2529,7 +2529,7 @@ func (r *articleRepo) setColumnArticleToCache(id int32, article []*biz.Article) 
 			})
 		}
 		pipe.ZAddNX(ctx, "column_includes_"+ids, z...)
-		pipe.Expire(ctx, "column_includes_"+ids, time.Hour*8)
+		pipe.Expire(ctx, "column_includes_"+ids, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -2569,7 +2569,7 @@ func (r *articleRepo) setArticleStatisticToCache(key string, statistic *biz.Arti
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		pipe.HMSet(context.Background(), key, "uuid", statistic.Uuid, "agree", statistic.Agree, "collect", statistic.Collect, "view", statistic.View, "comment", statistic.Comment)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {

@@ -212,7 +212,7 @@ func (r *messageRepo) setMessageSystemNotificationToCache(key string, notificati
 			list = append(list, m)
 		}
 		pipe.RPush(ctx, key, list...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {

@@ -198,7 +198,7 @@ func (r *userRepo) setProfileListToCache(profileList []*Profile) {
 			if err != nil {
 				r.log.Errorf("fail to set user profile to json: json.Marshal(%v), error(%v)", item, err)
 			}
-			pipe.SetNX(ctx, key, marshal, time.Hour*8)
+			pipe.SetNX(ctx, key, marshal, time.Minute*30)
 		}
 		return nil
 	})
@@ -309,7 +309,7 @@ func (r *userRepo) setFollowToCache(uuid string, follow []*biz.Follow) {
 			})
 		}
 		pipe.ZAddNX(ctx, "follow_"+uuid, z...)
-		pipe.Expire(ctx, "follow_"+uuid, time.Hour*8)
+		pipe.Expire(ctx, "follow_"+uuid, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -403,7 +403,7 @@ func (r *userRepo) setFollowedToCache(uuid string, followed []*biz.Follow) {
 			})
 		}
 		pipe.ZAddNX(ctx, "followed_"+uuid, z...)
-		pipe.Expire(ctx, "followed_"+uuid, time.Hour*8)
+		pipe.Expire(ctx, "followed_"+uuid, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -838,7 +838,7 @@ func (r *userRepo) setAvatarReviewToCache(key string, review []*biz.ImageReview)
 			list = append(list, m)
 		}
 		pipe.RPush(ctx, key, list...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -989,7 +989,7 @@ func (r *userRepo) setCoverReviewToCache(key string, review []*biz.ImageReview) 
 			list = append(list, m)
 		}
 		pipe.RPush(ctx, key, list...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -1048,7 +1048,7 @@ func (r *userRepo) setUserFollowsToCache(uuid string, follows []string) {
 	}
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		pipe.SAdd(ctx, "user_follows_"+uuid, members)
-		pipe.Expire(ctx, "user_follows_"+uuid, time.Hour*8)
+		pipe.Expire(ctx, "user_follows_"+uuid, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -1061,7 +1061,7 @@ func (r *userRepo) setProfileToCache(ctx context.Context, profile *Profile, key 
 	if err != nil {
 		r.log.Errorf("fail to set user profile to json: json.Marshal(%v), error(%v)", profile, err)
 	}
-	err = r.data.redisCli.SetNX(ctx, key, string(marshal), time.Hour*8).Err()
+	err = r.data.redisCli.SetNX(ctx, key, string(marshal), time.Minute*30).Err()
 	if err != nil {
 		r.log.Errorf("fail to set user profile to cache: redis.Set(%v), error(%v)", profile, err)
 	}
@@ -1072,7 +1072,7 @@ func (r *userRepo) updateProfileToCache(ctx context.Context, profile *Profile, k
 	if err != nil {
 		r.log.Errorf("fail to set user profile to json: json.Marshal(%v), error(%v)", profile, err)
 	}
-	err = r.data.redisCli.Set(ctx, key, string(marshal), time.Hour*8).Err()
+	err = r.data.redisCli.Set(ctx, key, string(marshal), time.Minute*30).Err()
 	if err != nil {
 		r.log.Errorf("fail to set user profile to cache: redis.Set(%v), error(%v)", profile, err)
 	}

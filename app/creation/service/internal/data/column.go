@@ -473,7 +473,7 @@ func (r *columnRepo) CreateColumnCache(ctx context.Context, id, auth int32, uuid
 					redis.call("HSETNX", columnStatistic, "view", 0)
 					redis.call("HSETNX", columnStatistic, "comment", 0)
 					redis.call("HSETNX", columnStatistic, "auth", auth)
-					redis.call("EXPIRE", columnStatistic, 28800)
+					redis.call("EXPIRE", columnStatistic, 1800)
 
 					if userColumnListExist == 1 then
 						redis.call("ZADD", userColumnList, id, member)
@@ -862,7 +862,7 @@ func (r *columnRepo) setUserColumnListToCache(key string, column []*biz.Column) 
 			})
 		}
 		pipe.ZAddNX(context.Background(), key, z...)
-		pipe.Expire(context.Background(), key, time.Hour*8)
+		pipe.Expire(context.Background(), key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -1074,7 +1074,7 @@ func (r *columnRepo) setColumnListStatisticToCache(commentList []*ColumnStatisti
 			pipe.HSetNX(context.Background(), key, "collect", item.Collect)
 			pipe.HSetNX(context.Background(), key, "view", item.View)
 			pipe.HSetNX(context.Background(), key, "auth", item.Auth)
-			pipe.Expire(context.Background(), key, time.Hour*8)
+			pipe.Expire(context.Background(), key, time.Minute*30)
 		}
 		return nil
 	})
@@ -1161,7 +1161,7 @@ func (r *columnRepo) setColumnStatisticToCache(key string, statistic *biz.Column
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		pipe.HMSet(context.Background(), key, "uuid", statistic.Uuid, "agree", statistic.Agree, "collect", statistic.Collect, "view", statistic.View).Err()
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -1354,7 +1354,7 @@ func (r *columnRepo) setUserSubscribeListToCache(key string, subscribe []*biz.Su
 			})
 		}
 		pipe.ZAddNX(context.Background(), key, z...)
-		pipe.Expire(context.Background(), key, time.Hour*8)
+		pipe.Expire(context.Background(), key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -2419,7 +2419,7 @@ func (r *columnRepo) setUserColumnAgreeToCache(uuid string, agreeList []*ColumnA
 			set = append(set, item.ColumnId)
 		}
 		pipe.SAdd(ctx, key, set...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -2494,7 +2494,7 @@ func (r *columnRepo) setUserColumnCollectToCache(uuid string, collectList []*Col
 			set = append(set, item.ColumnId)
 		}
 		pipe.SAdd(ctx, key, set...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -2568,7 +2568,7 @@ func (r *columnRepo) setUserColumnSubscribeToCache(uuid string, subscribeList []
 			set = append(set, item.ColumnId)
 		}
 		pipe.SAdd(ctx, key, set...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -2691,7 +2691,7 @@ func (r *columnRepo) setColumnImageReviewToCache(key string, review []*biz.Image
 			list = append(list, m)
 		}
 		pipe.RPush(ctx, key, list...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -2799,7 +2799,7 @@ func (r *columnRepo) setColumnContentReviewToCache(key string, review []*biz.Tex
 			list = append(list, m)
 		}
 		pipe.RPush(ctx, key, list...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {

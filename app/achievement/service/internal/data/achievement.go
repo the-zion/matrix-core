@@ -478,7 +478,7 @@ func (r *achievementRepo) setAchievementListToCache(achievementList []*Achieveme
 			pipe.HSetNX(ctx, key, "view", item.View)
 			pipe.HSetNX(ctx, key, "follow", item.Follow)
 			pipe.HSetNX(ctx, key, "followed", item.Followed)
-			pipe.Expire(ctx, key, time.Hour*8)
+			pipe.Expire(ctx, key, time.Minute*30)
 		}
 		return nil
 	})
@@ -569,7 +569,7 @@ func (r *achievementRepo) setAchievementToCache(key string, achievement *biz.Ach
 		pipe.HSetNX(ctx, key, "followed", achievement.Followed)
 		pipe.HSetNX(ctx, key, "followed", achievement.Followed)
 		pipe.HSetNX(ctx, key, "score", achievement.Score)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -709,7 +709,7 @@ func (r *achievementRepo) setMedalToCache(key string, medal *biz.Medal) {
 		pipe.HSetNX(ctx, key, "collect1", medal.Collect1)
 		pipe.HSetNX(ctx, key, "collect2", medal.Collect2)
 		pipe.HSetNX(ctx, key, "collect3", medal.Collect3)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -781,7 +781,7 @@ func (r *achievementRepo) setActiveToCache(key string, active *biz.Active) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		pipe.HSetNX(ctx, key, "agree", active.Agree)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {

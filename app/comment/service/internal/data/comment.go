@@ -115,7 +115,7 @@ func (r *commentRepo) setUserCommentAgreeToCache(uuid string, agreeList []*Comme
 			set = append(set, item.CommentId)
 		}
 		pipe.SAdd(ctx, key, set...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -203,7 +203,7 @@ func (r *commentRepo) setCommentUserToCache(key string, commentUser *biz.Comment
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		pipe.HMSet(context.Background(), key, "comment", commentUser.Comment, "article_reply", commentUser.ArticleReply, "article_reply_sub", commentUser.ArticleReplySub, "talk_reply", commentUser.TalkReply, "talk_reply_sub", commentUser.TalkReplySub, "article_replied", commentUser.ArticleReplied, "article_replied_sub", commentUser.ArticleRepliedSub, "talk_replied", commentUser.TalkReplied, "talk_replied_sub", commentUser.TalkRepliedSub)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -371,7 +371,7 @@ func (r *commentRepo) setCommentToCache(creationId, creationType int32, comment 
 			})
 		}
 		pipe.ZAddNX(ctx, key, z...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -391,7 +391,7 @@ func (r *commentRepo) setSubCommentToCache(id int32, subComment []*biz.SubCommen
 			})
 		}
 		pipe.ZAddNX(ctx, key, z...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -483,7 +483,7 @@ func (r *commentRepo) setCommentHotToCache(creationId, creationType int32, comme
 			})
 		}
 		pipe.ZAddNX(context.Background(), key, z...)
-		pipe.Expire(context.Background(), key, time.Hour*8)
+		pipe.Expire(context.Background(), key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -640,7 +640,7 @@ func (r *commentRepo) setUserCommentArticleReplyListToCache(uuid string, comment
 			})
 		}
 		pipe.ZAddNX(ctx, key, z...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -755,7 +755,7 @@ func (r *commentRepo) setUserSubCommentArticleReplyListToCache(uuid string, comm
 			})
 		}
 		pipe.ZAddNX(ctx, key, z...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -854,7 +854,7 @@ func (r *commentRepo) setUserCommentTalkReplyListToCache(uuid string, comment []
 			})
 		}
 		pipe.ZAddNX(ctx, key, z...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -969,7 +969,7 @@ func (r *commentRepo) setUserSubCommentTalkReplyListToCache(uuid string, comment
 			})
 		}
 		pipe.ZAddNX(ctx, key, z...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -1068,7 +1068,7 @@ func (r *commentRepo) setUserCommentArticleRepliedListToCache(uuid string, comme
 			})
 		}
 		pipe.ZAddNX(ctx, key, z...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -1185,7 +1185,7 @@ func (r *commentRepo) setUserSubCommentArticleRepliedListToCache(uuid string, co
 			})
 		}
 		pipe.ZAddNX(ctx, key, z...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -1284,7 +1284,7 @@ func (r *commentRepo) setUserCommentTalkRepliedListToCache(uuid string, comment 
 			})
 		}
 		pipe.ZAddNX(ctx, key, z...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -1401,7 +1401,7 @@ func (r *commentRepo) setUserSubCommentTalkRepliedListToCache(uuid string, comme
 			})
 		}
 		pipe.ZAddNX(ctx, key, z...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -1506,7 +1506,7 @@ func (r *commentRepo) setUserCommentRepliedListToCache(uuid string, comment []*b
 			})
 		}
 		pipe.ZAddNX(ctx, key, z...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -1629,7 +1629,7 @@ func (r *commentRepo) setUserSubCommentRepliedListToCache(uuid string, comment [
 			})
 		}
 		pipe.ZAddNX(ctx, key, z...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -1737,7 +1737,7 @@ func (r *commentRepo) setCommentContentReviewToCache(key string, review []*biz.T
 			list = append(list, m)
 		}
 		pipe.RPush(ctx, key, list...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -1953,7 +1953,7 @@ func (r *commentRepo) setCommentStatisticToCache(commentList []*Comment) {
 			key := "comment_" + strconv.Itoa(int(item.CommentId))
 			pipe.HSetNX(context.Background(), key, "agree", item.Agree)
 			pipe.HSetNX(context.Background(), key, "comment", item.Comment)
-			pipe.Expire(context.Background(), key, time.Hour*8)
+			pipe.Expire(context.Background(), key, time.Minute*30)
 		}
 		return nil
 	})
@@ -1968,7 +1968,7 @@ func (r *commentRepo) setSubCommentStatisticToCache(commentList []*SubComment) {
 		for _, item := range commentList {
 			key := "comment_" + strconv.Itoa(int(item.CommentId))
 			pipe.HSetNX(context.Background(), key, "agree", item.Agree)
-			pipe.Expire(context.Background(), key, time.Hour*8)
+			pipe.Expire(context.Background(), key, time.Minute*30)
 		}
 		return nil
 	})
@@ -2558,24 +2558,24 @@ func (r *commentRepo) CreateCommentCache(ctx context.Context, id, creationId, cr
 
 					redis.call("HSETNX", commentKey, "agree", 0)
 					redis.call("HSETNX", commentKey, "comment", 0)
-					redis.call("EXPIRE", commentKey, 28800)
+					redis.call("EXPIRE", commentKey, 1800)
 
 					local time = ARGV[1]
 
 					if newKeyExist == 1 then
 						redis.call("ZADD", newKey, time, newMember)
-						redis.call("EXPIRE", newKey, 28800)
+						redis.call("EXPIRE", newKey, 1800)
 					end
 
 					if hotKeyExist == 1 then
 						redis.call("ZADD", hotKey, 0, hotMember)
-						redis.call("EXPIRE", hotKey, 28800)
+						redis.call("EXPIRE", hotKey, 1800)
 					end
 
 					if commentUserKey1Exist == 1 then
 						redis.call("HINCRBY", commentUserKey1, "comment", 1)
 						redis.call("HINCRBY", commentUserKey1, commentUserReplyField, 1)
-						redis.call("EXPIRE", commentUserKey1, 28800)
+						redis.call("EXPIRE", commentUserKey1, 1800)
 					end
 
 					if commentUserKey2Exist == 1 then
@@ -2584,17 +2584,17 @@ func (r *commentRepo) CreateCommentCache(ctx context.Context, id, creationId, cr
 
 					if userCommentCreationReplyListExist == 1 then
 						redis.call("ZADD", userCommentCreationReplyList, time, memberReply)
-						redis.call("EXPIRE", userCommentCreationReplyList, 28800)
+						redis.call("EXPIRE", userCommentCreationReplyList, 1800)
 					end
 
 					if userCommentCreationRepliedListExist == 1 then
 						redis.call("ZADD", userCommentCreationRepliedList, time, memberReplied)
-						redis.call("EXPIRE", userCommentCreationRepliedList, 28800)
+						redis.call("EXPIRE", userCommentCreationRepliedList, 1800)
 					end
 
 					if userCommentCreationMessageRepliedListExist == 1 then
 						redis.call("ZADD", userCommentCreationMessageRepliedList, time, memberMessageReplied)
-						redis.call("EXPIRE", userCommentCreationMessageRepliedList, 28800)
+						redis.call("EXPIRE", userCommentCreationMessageRepliedList, 1800)
 					end
 					return 0
 	`)
@@ -2688,22 +2688,22 @@ func (r *commentRepo) CreateSubCommentCache(ctx context.Context, id, rootId, par
 					local userSubCommentCreationMessageRepliedListForParentExist = redis.call("EXISTS", userSubCommentCreationMessageRepliedListForParent)
 
 					redis.call("HSETNX", comment, "agree", 0)
-					redis.call("EXPIRE", comment, 28800)
+					redis.call("EXPIRE", comment, 1800)
 
 					if commentRootExist == 1 then
 						redis.call("HINCRBY", commentRoot, "comment", 1)
-						redis.call("EXPIRE", commentRoot, 28800)
+						redis.call("EXPIRE", commentRoot, 1800)
 					end
 
 					if subCommentListExist == 1 then
 						redis.call("ZADD", subCommentList, time, subCommentListMember)
-						redis.call("EXPIRE", subCommentList, 28800)
+						redis.call("EXPIRE", subCommentList, 1800)
 					end
 
 					if commentUserKey1Exist == 1 then
 						redis.call("HINCRBY", commentUserKey1, "comment", 1)
 						redis.call("HINCRBY", commentUserKey1, commentUserReplyField, 1)
-						redis.call("EXPIRE", commentUserKey1, 28800)
+						redis.call("EXPIRE", commentUserKey1, 1800)
 					end
 
 					if commentUserKey2Exist == 1 then
@@ -2716,27 +2716,27 @@ func (r *commentRepo) CreateSubCommentCache(ctx context.Context, id, rootId, par
 
 					if userSubCommentCreationReplyListExist == 1 then
 						redis.call("ZADD", userSubCommentCreationReplyList, time, memberReply)
-						redis.call("EXPIRE", userSubCommentCreationReplyList, 28800)
+						redis.call("EXPIRE", userSubCommentCreationReplyList, 1800)
 					end
 
 					if userSubCommentCreationRepliedListForRootExist == 1 then
 						redis.call("ZADD", userSubCommentCreationRepliedListForRoot, time, memberReplied)
-						redis.call("EXPIRE", userSubCommentCreationRepliedListForRoot, 28800)
+						redis.call("EXPIRE", userSubCommentCreationRepliedListForRoot, 1800)
 					end
 
 					if userSubCommentCreationRepliedListForParentExist == 1 then
 						redis.call("ZADD", userSubCommentCreationRepliedListForParent, time, memberReplied)
-						redis.call("EXPIRE", userSubCommentCreationRepliedListForParent, 28800)
+						redis.call("EXPIRE", userSubCommentCreationRepliedListForParent, 1800)
 					end
 
 					if userSubCommentCreationMessageRepliedListForRootExist == 1 then
 						redis.call("ZADD", userSubCommentCreationMessageRepliedListForRoot, time, memberMessageReplied)
-						redis.call("EXPIRE", userSubCommentCreationMessageRepliedListForRoot, 28800)
+						redis.call("EXPIRE", userSubCommentCreationMessageRepliedListForRoot, 1800)
 					end
 
 					if userSubCommentCreationMessageRepliedListForParentExist == 1 then
 						redis.call("ZADD", userSubCommentCreationMessageRepliedListForParent, time, memberMessageReplied)
-						redis.call("EXPIRE", userSubCommentCreationMessageRepliedListForParent, 28800)
+						redis.call("EXPIRE", userSubCommentCreationMessageRepliedListForParent, 1800)
 					end
 					return 0
 	`)

@@ -251,7 +251,7 @@ func (r *talkRepo) setUserTalkListToCache(key string, talk []*biz.Talk) {
 			})
 		}
 		pipe.ZAddNX(ctx, key, z...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -532,7 +532,7 @@ func (r *talkRepo) setTalkListStatisticToCache(commentList []*TalkStatistic) {
 			pipe.HSetNX(ctx, key, "collect", item.Collect)
 			pipe.HSetNX(ctx, key, "view", item.View)
 			pipe.HSetNX(ctx, key, "auth", item.Auth)
-			pipe.Expire(ctx, key, time.Hour*8)
+			pipe.Expire(ctx, key, time.Minute*30)
 		}
 		return nil
 	})
@@ -621,7 +621,7 @@ func (r *talkRepo) setTalkStatisticToCache(key string, statistic *biz.TalkStatis
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		pipe.HMSet(context.Background(), key, "uuid", statistic.Uuid, "agree", statistic.Agree, "collect", statistic.Collect, "view", statistic.View, "comment", statistic.Comment)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -859,7 +859,7 @@ func (r *talkRepo) setUserTalkAgreeToCache(uuid string, agreeList []*TalkAgree) 
 			set = append(set, item.TalkId)
 		}
 		pipe.SAdd(ctx, key, set...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -934,7 +934,7 @@ func (r *talkRepo) setUserTalkCollectToCache(uuid string, collectList []*TalkCol
 			set = append(set, item.TalkId)
 		}
 		pipe.SAdd(ctx, key, set...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -1066,7 +1066,7 @@ func (r *talkRepo) setTalkImageReviewToCache(key string, review []*biz.ImageRevi
 			list = append(list, m)
 		}
 		pipe.RPush(ctx, key, list...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -1174,7 +1174,7 @@ func (r *talkRepo) setTalkContentReviewToCache(key string, review []*biz.TextRev
 			list = append(list, m)
 		}
 		pipe.RPush(ctx, key, list...)
-		pipe.Expire(ctx, key, time.Hour*8)
+		pipe.Expire(ctx, key, time.Minute*30)
 		return nil
 	})
 	if err != nil {
@@ -1451,7 +1451,7 @@ func (r *talkRepo) CreateTalkCache(ctx context.Context, id, auth int32, uuid, mo
 					redis.call("HSETNX", talkStatistic, "view", 0)
 					redis.call("HSETNX", talkStatistic, "comment", 0)
 					redis.call("HSETNX", talkStatistic, "auth", auth)
-					redis.call("EXPIRE", talkStatistic, 28800)
+					redis.call("EXPIRE", talkStatistic, 1800)
 
 					if userTalkListExist == 1 then
 						redis.call("ZADD", userTalkList, id, member)
