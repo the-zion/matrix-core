@@ -54,17 +54,17 @@ func (b Metadata) Fields() []string {
 	return []string{serviceHeader}
 }
 
-func SetTracerProvider(url, token, service, hostname string) error {
+func SetTracerProvider(url, token, service, hostname string) (*tracesdk.TracerProvider, error) {
 	var builder strings.Builder
 	for _, str := range []string{service, ".", hostname} {
 		builder.WriteString(str)
 	}
 	exp, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(url)))
 	if err != nil {
-		return err
+		return nil, err
 	}
 	tp := tracesdk.NewTracerProvider(
-		tracesdk.WithSampler(tracesdk.ParentBased(tracesdk.TraceIDRatioBased(0.5))),
+		tracesdk.WithSampler(tracesdk.ParentBased(tracesdk.TraceIDRatioBased(1))),
 		tracesdk.WithBatcher(exp),
 		tracesdk.WithResource(resource.NewSchemaless(
 			semconv.ServiceNameKey.String(builder.String()),
@@ -76,5 +76,5 @@ func SetTracerProvider(url, token, service, hostname string) error {
 		)),
 	)
 	otel.SetTracerProvider(tp)
-	return nil
+	return tp, nil
 }
