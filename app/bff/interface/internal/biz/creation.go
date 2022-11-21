@@ -306,9 +306,9 @@ func (r *CreationUseCase) GetUserTimeLineListVisitor(ctx context.Context, page i
 	if err != nil {
 		return nil, err
 	}
-	articleList := make([]*Article, 0)
-	talkList := make([]*Talk, 0)
-	columnList := make([]*Column, 0)
+	articleList := make([]*Article, 0, len(timeline))
+	talkList := make([]*Talk, 0, len(timeline))
+	columnList := make([]*Column, 0, len(timeline))
 	for _, item := range timeline {
 		switch item.Mode {
 		case 1:

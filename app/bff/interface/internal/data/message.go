@@ -67,7 +67,6 @@ func (r *messageRepo) GetMessageNotification(ctx context.Context, uuid string, f
 
 func (r *messageRepo) GetMessageSystemNotification(ctx context.Context, page int32, uuid string) ([]*biz.SystemNotification, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_message_system_notification_%v_%v", page, uuid), func() (interface{}, error) {
-		reply := make([]*biz.SystemNotification, 0)
 		notificationList, err := r.data.mc.GetMessageSystemNotification(ctx, &messageV1.GetMessageSystemNotificationReq{
 			Page: page,
 			Uuid: uuid,
@@ -75,6 +74,7 @@ func (r *messageRepo) GetMessageSystemNotification(ctx context.Context, page int
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.SystemNotification, 0, len(notificationList.List))
 		for _, item := range notificationList.List {
 			reply = append(reply, &biz.SystemNotification{
 				Id:               item.Id,

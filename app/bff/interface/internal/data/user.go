@@ -162,14 +162,13 @@ func (r *userRepo) GetProfile(ctx context.Context, uuid string) (*biz.UserProfil
 }
 
 func (r *userRepo) GetProfileList(ctx context.Context, uuids []string) ([]*biz.UserProfile, error) {
-	reply := make([]*biz.UserProfile, 0)
 	profileList, err := r.data.uc.GetProfileList(ctx, &userV1.GetProfileListReq{
 		Uuids: uuids,
 	})
 	if err != nil {
 		return nil, err
 	}
-
+	reply := make([]*biz.UserProfile, 0, len(profileList.Profile))
 	for _, item := range profileList.Profile {
 		reply = append(reply, &biz.UserProfile{
 			Uuid:      item.Uuid,
@@ -266,7 +265,6 @@ func (r *userRepo) GetUserFollows(ctx context.Context, uuid string) (map[string]
 
 func (r *userRepo) GetFollowList(ctx context.Context, page int32, uuid string) ([]*biz.Follow, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_follow_%s_%v", uuid, page), func() (interface{}, error) {
-		reply := make([]*biz.Follow, 0)
 		followList, err := r.data.uc.GetFollowList(ctx, &userV1.GetFollowListReq{
 			Page: page,
 			Uuid: uuid,
@@ -274,7 +272,7 @@ func (r *userRepo) GetFollowList(ctx context.Context, page int32, uuid string) (
 		if err != nil {
 			return nil, err
 		}
-
+		reply := make([]*biz.Follow, 0, len(followList.Follow))
 		for _, item := range followList.Follow {
 			reply = append(reply, &biz.Follow{
 				Follow: item.Uuid,
@@ -289,7 +287,7 @@ func (r *userRepo) GetFollowList(ctx context.Context, page int32, uuid string) (
 }
 
 func (r *userRepo) GetFollowProfileList(ctx context.Context, page int32, uuid string, followList []*biz.Follow) ([]*biz.UserProfile, error) {
-	uuids := make([]string, 0)
+	uuids := make([]string, 0, len(followList))
 	for _, item := range followList {
 		uuids = append(uuids, item.Follow)
 	}
@@ -303,19 +301,18 @@ func (r *userRepo) GetFollowProfileList(ctx context.Context, page int32, uuid st
 }
 
 func (r *userRepo) GetFollowAchievementList(ctx context.Context, page int32, uuid string, followList []*biz.Follow) ([]*biz.Achievement, error) {
-	uuids := make([]string, 0)
+	uuids := make([]string, 0, len(followList))
 	for _, item := range followList {
 		uuids = append(uuids, item.Follow)
 	}
 	result, err, _ := r.sg.Do(fmt.Sprintf("user_follow_achievement_list_%s_%v", uuid, page), func() (interface{}, error) {
-		reply := make([]*biz.Achievement, 0)
 		achievementList, err := r.data.ac.GetAchievementList(ctx, &achievementV1.GetAchievementListReq{
 			Uuids: uuids,
 		})
 		if err != nil {
 			return nil, err
 		}
-
+		reply := make([]*biz.Achievement, 0, len(achievementList.Achievement))
 		for _, item := range achievementList.Achievement {
 			reply = append(reply, &biz.Achievement{
 				Uuid:     item.Uuid,
@@ -334,7 +331,7 @@ func (r *userRepo) GetFollowAchievementList(ctx context.Context, page int32, uui
 }
 
 func (r *userRepo) GetFollowedProfileList(ctx context.Context, page int32, uuid string, followedList []*biz.Follow) ([]*biz.UserProfile, error) {
-	uuids := make([]string, 0)
+	uuids := make([]string, 0, len(followedList))
 	for _, item := range followedList {
 		uuids = append(uuids, item.Followed)
 	}
@@ -348,19 +345,18 @@ func (r *userRepo) GetFollowedProfileList(ctx context.Context, page int32, uuid 
 }
 
 func (r *userRepo) GetFollowedAchievementList(ctx context.Context, page int32, uuid string, followedList []*biz.Follow) ([]*biz.Achievement, error) {
-	uuids := make([]string, 0)
+	uuids := make([]string, 0, len(followedList))
 	for _, item := range followedList {
 		uuids = append(uuids, item.Followed)
 	}
 	result, err, _ := r.sg.Do(fmt.Sprintf("user_followed_achievement_list_%s_%v", uuid, page), func() (interface{}, error) {
-		reply := make([]*biz.Achievement, 0)
 		achievementList, err := r.data.ac.GetAchievementList(ctx, &achievementV1.GetAchievementListReq{
 			Uuids: uuids,
 		})
 		if err != nil {
 			return nil, err
 		}
-
+		reply := make([]*biz.Achievement, 0, len(achievementList.Achievement))
 		for _, item := range achievementList.Achievement {
 			reply = append(reply, &biz.Achievement{
 				Uuid:     item.Uuid,
@@ -379,18 +375,17 @@ func (r *userRepo) GetFollowedAchievementList(ctx context.Context, page int32, u
 }
 
 func (r *userRepo) GetSearchAchievementList(ctx context.Context, searchList []*biz.UserSearch) ([]*biz.Achievement, error) {
-	uuids := make([]string, 0)
+	uuids := make([]string, 0, len(searchList))
 	for _, item := range searchList {
 		uuids = append(uuids, item.Uuid)
 	}
-	reply := make([]*biz.Achievement, 0)
 	achievementList, err := r.data.ac.GetAchievementList(ctx, &achievementV1.GetAchievementListReq{
 		Uuids: uuids,
 	})
 	if err != nil {
 		return nil, err
 	}
-
+	reply := make([]*biz.Achievement, 0, len(achievementList.Achievement))
 	for _, item := range achievementList.Achievement {
 		reply = append(reply, &biz.Achievement{
 			Uuid:     item.Uuid,
@@ -421,7 +416,6 @@ func (r *userRepo) GetFollowListCount(ctx context.Context, uuid string) (int32, 
 
 func (r *userRepo) GetFollowedList(ctx context.Context, page int32, uuid string) ([]*biz.Follow, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_followed_%s", uuid), func() (interface{}, error) {
-		reply := make([]*biz.Follow, 0)
 		followedList, err := r.data.uc.GetFollowedList(ctx, &userV1.GetFollowedListReq{
 			Page: page,
 			Uuid: uuid,
@@ -429,7 +423,7 @@ func (r *userRepo) GetFollowedList(ctx context.Context, page int32, uuid string)
 		if err != nil {
 			return nil, err
 		}
-
+		reply := make([]*biz.Follow, 0, len(followedList.Follow))
 		for _, item := range followedList.Follow {
 			reply = append(reply, &biz.Follow{
 				Followed: item.Uuid,
@@ -460,7 +454,6 @@ func (r *userRepo) GetFollowedListCount(ctx context.Context, uuid string) (int32
 }
 
 func (r *userRepo) GetUserSearch(ctx context.Context, page int32, search string) ([]*biz.UserSearch, int32, error) {
-	reply := make([]*biz.UserSearch, 0)
 	searchReply, err := r.data.uc.GetUserSearch(ctx, &userV1.GetUserSearchReq{
 		Page:   page,
 		Search: search,
@@ -468,6 +461,7 @@ func (r *userRepo) GetUserSearch(ctx context.Context, page int32, search string)
 	if err != nil {
 		return nil, 0, err
 	}
+	reply := make([]*biz.UserSearch, 0, len(searchReply.List))
 	for _, item := range searchReply.List {
 		reply = append(reply, &biz.UserSearch{
 			Uuid:      item.Uuid,
@@ -480,7 +474,6 @@ func (r *userRepo) GetUserSearch(ctx context.Context, page int32, search string)
 
 func (r *userRepo) GetAvatarReview(ctx context.Context, page int32, uuid string) ([]*biz.UserImageReview, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_avatar_review_%s_%v", uuid, page), func() (interface{}, error) {
-		reply := make([]*biz.UserImageReview, 0)
 		reviewReply, err := r.data.uc.GetAvatarReview(ctx, &userV1.GetAvatarReviewReq{
 			Page: page,
 			Uuid: uuid,
@@ -488,6 +481,7 @@ func (r *userRepo) GetAvatarReview(ctx context.Context, page int32, uuid string)
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.UserImageReview, 0, len(reviewReply.Review))
 		for _, item := range reviewReply.Review {
 			reply = append(reply, &biz.UserImageReview{
 				Id:       item.Id,
@@ -512,7 +506,6 @@ func (r *userRepo) GetAvatarReview(ctx context.Context, page int32, uuid string)
 
 func (r *userRepo) GetCoverReview(ctx context.Context, page int32, uuid string) ([]*biz.UserImageReview, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_cover_review_%s_%v", uuid, page), func() (interface{}, error) {
-		reply := make([]*biz.UserImageReview, 0)
 		reviewReply, err := r.data.uc.GetCoverReview(ctx, &userV1.GetCoverReviewReq{
 			Page: page,
 			Uuid: uuid,
@@ -520,6 +513,7 @@ func (r *userRepo) GetCoverReview(ctx context.Context, page int32, uuid string) 
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.UserImageReview, 0, len(reviewReply.Review))
 		for _, item := range reviewReply.Review {
 			reply = append(reply, &biz.UserImageReview{
 				Id:       item.Id,

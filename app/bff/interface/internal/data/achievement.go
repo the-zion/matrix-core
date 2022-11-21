@@ -26,13 +26,13 @@ func NewAchievementRepo(data *Data, logger log.Logger) biz.AchievementRepo {
 }
 
 func (r *achievementRepo) GetAchievementList(ctx context.Context, uuids []string) ([]*biz.Achievement, error) {
-	reply := make([]*biz.Achievement, 0)
 	achievementList, err := r.data.ac.GetAchievementList(ctx, &achievementV1.GetAchievementListReq{
 		Uuids: uuids,
 	})
 	if err != nil {
 		return nil, err
 	}
+	reply := make([]*biz.Achievement, 0, len(achievementList.Achievement))
 	for _, item := range achievementList.Achievement {
 		reply = append(reply, &biz.Achievement{
 			Uuid:     item.Uuid,

@@ -325,7 +325,7 @@ func (r *UserUseCase) GetTimeLineUsers(ctx context.Context) ([]*TimeLIneFollows,
 		return nil, err
 	}
 
-	followList := make([]*TimeLIneFollows, 0)
+	followList := make([]*TimeLIneFollows, 0, len(follows))
 	uuids := make([]string, 0)
 	for key := range follows {
 		followList = append(followList, &TimeLIneFollows{

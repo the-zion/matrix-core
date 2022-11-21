@@ -7,11 +7,11 @@ import (
 )
 
 func (s *BffService) GetAchievementList(ctx context.Context, req *v1.GetAchievementListReq) (*v1.GetAchievementListReply, error) {
-	reply := &v1.GetAchievementListReply{Achievement: make([]*v1.GetAchievementListReply_Achievement, 0)}
 	achievementList, err := s.achc.GetAchievementList(ctx, req.Uuids)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetAchievementListReply{Achievement: make([]*v1.GetAchievementListReply_Achievement, 0, len(achievementList))}
 	for _, item := range achievementList {
 		reply.Achievement = append(reply.Achievement, &v1.GetAchievementListReply_Achievement{
 			Uuid:     item.Uuid,

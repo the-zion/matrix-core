@@ -9,11 +9,11 @@ import (
 // ------------------------------------------creation-------------------------------------------------
 
 func (s *BffService) GetLeaderBoard(ctx context.Context, _ *emptypb.Empty) (*v1.GetLeaderBoardReply, error) {
-	reply := &v1.GetLeaderBoardReply{Board: make([]*v1.GetLeaderBoardReply_Board, 0)}
 	boardList, err := s.cc.GetLeaderBoard(ctx)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetLeaderBoardReply{Board: make([]*v1.GetLeaderBoardReply_Board, 0, len(boardList))}
 	for _, item := range boardList {
 		reply.Board = append(reply.Board, &v1.GetLeaderBoardReply_Board{
 			Id:   item.Id,
@@ -25,11 +25,11 @@ func (s *BffService) GetLeaderBoard(ctx context.Context, _ *emptypb.Empty) (*v1.
 }
 
 func (s *BffService) GetCollectArticleList(ctx context.Context, req *v1.GetCollectArticleListReq) (*v1.GetArticleListReply, error) {
-	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0)}
 	articleList, err := s.cc.GetCollectArticleList(ctx, req.Id, req.Page)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0, len(articleList))}
 	for _, item := range articleList {
 		reply.Article = append(reply.Article, &v1.GetArticleListReply_Article{
 			Id:      item.Id,
@@ -54,11 +54,11 @@ func (s *BffService) GetCollectArticleCount(ctx context.Context, req *v1.GetColl
 }
 
 func (s *BffService) GetCollectTalkList(ctx context.Context, req *v1.GetCollectTalkListReq) (*v1.GetTalkListReply, error) {
-	reply := &v1.GetTalkListReply{Talk: make([]*v1.GetTalkListReply_Talk, 0)}
 	talkList, err := s.cc.GetCollectTalkList(ctx, req.Id, req.Page)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetTalkListReply{Talk: make([]*v1.GetTalkListReply_Talk, 0, len(talkList))}
 	for _, item := range talkList {
 		reply.Talk = append(reply.Talk, &v1.GetTalkListReply_Talk{
 			Id:      item.Id,
@@ -83,11 +83,11 @@ func (s *BffService) GetCollectTalkCount(ctx context.Context, req *v1.GetCollect
 }
 
 func (s *BffService) GetCollectColumnList(ctx context.Context, req *v1.GetCollectColumnListReq) (*v1.GetColumnListReply, error) {
-	reply := &v1.GetColumnListReply{Column: make([]*v1.GetColumnListReply_Column, 0)}
 	columnList, err := s.cc.GetCollectColumnList(ctx, req.Id, req.Page)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetColumnListReply{Column: make([]*v1.GetColumnListReply_Column, 0, len(columnList))}
 	for _, item := range columnList {
 		reply.Column = append(reply.Column, &v1.GetColumnListReply_Column{
 			Id:      item.Id,
@@ -122,11 +122,11 @@ func (s *BffService) GetLastCollectionsDraft(ctx context.Context, _ *emptypb.Emp
 }
 
 func (s *BffService) GetCollectionsContentReview(ctx context.Context, req *v1.GetCollectionsContentReviewReq) (*v1.GetCollectionsContentReviewReply, error) {
-	reply := &v1.GetCollectionsContentReviewReply{Review: make([]*v1.GetCollectionsContentReviewReply_Review, 0)}
 	reviewList, err := s.cc.GetCollectionsContentReview(ctx, req.Page)
 	if err != nil {
-		return reply, err
+		return nil, err
 	}
+	reply := &v1.GetCollectionsContentReviewReply{Review: make([]*v1.GetCollectionsContentReviewReply_Review, 0, len(reviewList))}
 	for _, item := range reviewList {
 		reply.Review = append(reply.Review, &v1.GetCollectionsContentReviewReply_Review{
 			Id:         item.Id,
@@ -145,11 +145,11 @@ func (s *BffService) GetCollectionsContentReview(ctx context.Context, req *v1.Ge
 }
 
 func (s *BffService) GetUserTimeLineListVisitor(ctx context.Context, req *v1.GetUserTimeLineListReq) (*v1.GetUserTimeLineListReply, error) {
-	reply := &v1.GetUserTimeLineListReply{Timeline: make([]*v1.GetUserTimeLineListReply_TimeLine, 0)}
 	timeline, err := s.cc.GetUserTimeLineListVisitor(ctx, req.Page, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetUserTimeLineListReply{Timeline: make([]*v1.GetUserTimeLineListReply_TimeLine, 0, len(timeline))}
 	for _, item := range timeline {
 		reply.Timeline = append(reply.Timeline, &v1.GetUserTimeLineListReply_TimeLine{
 			Id:         item.Id,
@@ -180,11 +180,11 @@ func (s *BffService) GetCollections(ctx context.Context, req *v1.GetCollectionsR
 }
 
 func (s *BffService) GetCollectionsList(ctx context.Context, req *v1.GetCollectionsListReq) (*v1.GetCollectionsListReply, error) {
-	reply := &v1.GetCollectionsListReply{Collections: make([]*v1.GetCollectionsListReply_Collections, 0)}
 	collections, err := s.cc.GetCollectionsList(ctx, req.Page)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetCollectionsListReply{Collections: make([]*v1.GetCollectionsListReply_Collections, 0, len(collections))}
 	for _, item := range collections {
 		reply.Collections = append(reply.Collections, &v1.GetCollectionsListReply_Collections{
 			Id: item.Id,
@@ -194,11 +194,11 @@ func (s *BffService) GetCollectionsList(ctx context.Context, req *v1.GetCollecti
 }
 
 func (s *BffService) GetCollectionsListAll(ctx context.Context, _ *emptypb.Empty) (*v1.GetCollectionsListReply, error) {
-	reply := &v1.GetCollectionsListReply{Collections: make([]*v1.GetCollectionsListReply_Collections, 0)}
 	collections, err := s.cc.GetCollectionsListAll(ctx)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetCollectionsListReply{Collections: make([]*v1.GetCollectionsListReply_Collections, 0, len(collections))}
 	for _, item := range collections {
 		reply.Collections = append(reply.Collections, &v1.GetCollectionsListReply_Collections{
 			Id: item.Id,
@@ -218,11 +218,11 @@ func (s *BffService) GetCollectionsCount(ctx context.Context, _ *emptypb.Empty) 
 }
 
 func (s *BffService) GetCollectionsListByVisitor(ctx context.Context, req *v1.GetCollectionsListByVisitorReq) (*v1.GetCollectionsListReply, error) {
-	reply := &v1.GetCollectionsListReply{Collections: make([]*v1.GetCollectionsListReply_Collections, 0)}
 	collections, err := s.cc.GetCollectionsListByVisitor(ctx, req.Page, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetCollectionsListReply{Collections: make([]*v1.GetCollectionsListReply_Collections, 0, len(collections))}
 	for _, item := range collections {
 		reply.Collections = append(reply.Collections, &v1.GetCollectionsListReply_Collections{
 			Id: item.Id,
@@ -278,11 +278,11 @@ func (s *BffService) DeleteCollections(ctx context.Context, req *v1.DeleteCollec
 // ------------------------------------------article-------------------------------------------------
 
 func (s *BffService) GetArticleList(ctx context.Context, req *v1.GetArticleListReq) (*v1.GetArticleListReply, error) {
-	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0)}
 	articleList, err := s.ac.GetArticleList(ctx, req.Page)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0, len(articleList))}
 	for _, item := range articleList {
 		reply.Article = append(reply.Article, &v1.GetArticleListReply_Article{
 			Id:      item.Id,
@@ -297,11 +297,11 @@ func (s *BffService) GetArticleList(ctx context.Context, req *v1.GetArticleListR
 }
 
 func (s *BffService) GetArticleListHot(ctx context.Context, req *v1.GetArticleListHotReq) (*v1.GetArticleListHotReply, error) {
-	reply := &v1.GetArticleListHotReply{Article: make([]*v1.GetArticleListHotReply_Article, 0)}
 	articleList, err := s.ac.GetArticleListHot(ctx, req.Page)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetArticleListHotReply{Article: make([]*v1.GetArticleListHotReply_Article, 0, len(articleList))}
 	for _, item := range articleList {
 		reply.Article = append(reply.Article, &v1.GetArticleListHotReply_Article{
 			Id:      item.Id,
@@ -316,11 +316,11 @@ func (s *BffService) GetArticleListHot(ctx context.Context, req *v1.GetArticleLi
 }
 
 func (s *BffService) GetColumnArticleList(ctx context.Context, req *v1.GetColumnArticleListReq) (*v1.GetArticleListReply, error) {
-	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0)}
 	articleList, err := s.ac.GetColumnArticleList(ctx, req.Id)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0, len(articleList))}
 	for _, item := range articleList {
 		reply.Article = append(reply.Article, &v1.GetArticleListReply_Article{
 			Id:   item.Id,
@@ -351,11 +351,11 @@ func (s *BffService) GetArticleCount(ctx context.Context, _ *emptypb.Empty) (*v1
 }
 
 func (s *BffService) GetUserArticleList(ctx context.Context, req *v1.GetUserArticleListReq) (*v1.GetArticleListReply, error) {
-	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0)}
 	articleList, err := s.ac.GetUserArticleList(ctx, req.Page)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0, len(articleList))}
 	for _, item := range articleList {
 		reply.Article = append(reply.Article, &v1.GetArticleListReply_Article{
 			Id:      item.Id,
@@ -370,11 +370,11 @@ func (s *BffService) GetUserArticleList(ctx context.Context, req *v1.GetUserArti
 }
 
 func (s *BffService) GetUserArticleListSimple(ctx context.Context, req *v1.GetUserArticleListSimpleReq) (*v1.GetArticleListReply, error) {
-	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0)}
 	articleList, err := s.ac.GetUserArticleListSimple(ctx, req.Page)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0, len(articleList))}
 	for _, item := range articleList {
 		reply.Article = append(reply.Article, &v1.GetArticleListReply_Article{
 			Id:      item.Id,
@@ -389,11 +389,11 @@ func (s *BffService) GetUserArticleListSimple(ctx context.Context, req *v1.GetUs
 }
 
 func (s *BffService) GetUserArticleListVisitor(ctx context.Context, req *v1.GetUserArticleListVisitorReq) (*v1.GetArticleListReply, error) {
-	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0)}
 	articleList, err := s.ac.GetUserArticleListVisitor(ctx, req.Page, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0, len(articleList))}
 	for _, item := range articleList {
 		reply.Article = append(reply.Article, &v1.GetArticleListReply_Article{
 			Id:      item.Id,
@@ -408,11 +408,11 @@ func (s *BffService) GetUserArticleListVisitor(ctx context.Context, req *v1.GetU
 }
 
 func (s *BffService) GetUserArticleListAll(ctx context.Context, _ *emptypb.Empty) (*v1.GetArticleListReply, error) {
-	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0)}
 	articleList, err := s.ac.GetUserArticleListAll(ctx)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0, len(articleList))}
 	for _, item := range articleList {
 		reply.Article = append(reply.Article, &v1.GetArticleListReply_Article{
 			Id:      item.Id,
@@ -461,11 +461,11 @@ func (s *BffService) GetUserArticleCollect(ctx context.Context, _ *emptypb.Empty
 }
 
 func (s *BffService) GetArticleListStatistic(ctx context.Context, req *v1.GetArticleListStatisticReq) (*v1.GetArticleListStatisticReply, error) {
-	reply := &v1.GetArticleListStatisticReply{Count: make([]*v1.GetArticleListStatisticReply_Count, 0)}
 	statisticList, err := s.ac.GetArticleListStatistic(ctx, req.Ids)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetArticleListStatisticReply{Count: make([]*v1.GetArticleListStatisticReply_Count, 0, len(statisticList))}
 	for _, item := range statisticList {
 		reply.Count = append(reply.Count, &v1.GetArticleListStatisticReply_Count{
 			Id:      item.Id,
@@ -490,11 +490,11 @@ func (s *BffService) GetLastArticleDraft(ctx context.Context, _ *emptypb.Empty) 
 }
 
 func (s *BffService) GetArticleImageReview(ctx context.Context, req *v1.GetArticleImageReviewReq) (*v1.GetArticleImageReviewReply, error) {
-	reply := &v1.GetArticleImageReviewReply{Review: make([]*v1.GetArticleImageReviewReply_Review, 0)}
 	reviewList, err := s.ac.GetArticleImageReview(ctx, req.Page)
 	if err != nil {
-		return reply, err
+		return nil, err
 	}
+	reply := &v1.GetArticleImageReviewReply{Review: make([]*v1.GetArticleImageReviewReply_Review, 0, len(reviewList))}
 	for _, item := range reviewList {
 		reply.Review = append(reply.Review, &v1.GetArticleImageReviewReply_Review{
 			Id:         item.Id,
@@ -516,11 +516,11 @@ func (s *BffService) GetArticleImageReview(ctx context.Context, req *v1.GetArtic
 }
 
 func (s *BffService) GetArticleContentReview(ctx context.Context, req *v1.GetArticleContentReviewReq) (*v1.GetArticleContentReviewReply, error) {
-	reply := &v1.GetArticleContentReviewReply{Review: make([]*v1.GetArticleContentReviewReply_Review, 0)}
 	reviewList, err := s.ac.GetArticleContentReview(ctx, req.Page)
 	if err != nil {
-		return reply, err
+		return nil, err
 	}
+	reply := &v1.GetArticleContentReviewReply{Review: make([]*v1.GetArticleContentReviewReply_Review, 0, len(reviewList))}
 	for _, item := range reviewList {
 		reply.Review = append(reply.Review, &v1.GetArticleContentReviewReply_Review{
 			Id:         item.Id,
@@ -557,11 +557,11 @@ func (s *BffService) ArticleDraftMark(ctx context.Context, req *v1.ArticleDraftM
 }
 
 func (s *BffService) GetArticleDraftList(ctx context.Context, _ *emptypb.Empty) (*v1.GetArticleDraftListReply, error) {
-	reply := &v1.GetArticleDraftListReply{Draft: make([]*v1.GetArticleDraftListReply_Draft, 0)}
 	draftList, err := s.ac.GetArticleDraftList(ctx)
 	if err != nil {
-		return reply, err
+		return nil, err
 	}
+	reply := &v1.GetArticleDraftListReply{Draft: make([]*v1.GetArticleDraftListReply_Draft, 0, len(draftList))}
 	for _, item := range draftList {
 		reply.Draft = append(reply.Draft, &v1.GetArticleDraftListReply_Draft{
 			Id: item.Id,
@@ -571,11 +571,11 @@ func (s *BffService) GetArticleDraftList(ctx context.Context, _ *emptypb.Empty) 
 }
 
 func (s *BffService) GetArticleSearch(ctx context.Context, req *v1.GetArticleSearchReq) (*v1.GetArticleSearchReply, error) {
-	reply := &v1.GetArticleSearchReply{List: make([]*v1.GetArticleSearchReply_List, 0)}
 	articleList, total, err := s.ac.GetArticleSearch(ctx, req.Page, req.Search, req.Time)
 	if err != nil {
-		return reply, err
+		return nil, err
 	}
+	reply := &v1.GetArticleSearchReply{List: make([]*v1.GetArticleSearchReply_List, 0, len(articleList))}
 	for _, item := range articleList {
 		reply.List = append(reply.List, &v1.GetArticleSearchReply_List{
 			Id:      item.Id,
@@ -673,11 +673,11 @@ func (s *BffService) ArticleStatisticJudge(ctx context.Context, req *v1.ArticleS
 // ------------------------------------------talk-------------------------------------------------
 
 func (s *BffService) GetTalkList(ctx context.Context, req *v1.GetTalkListReq) (*v1.GetTalkListReply, error) {
-	reply := &v1.GetTalkListReply{Talk: make([]*v1.GetTalkListReply_Talk, 0)}
 	talkList, err := s.tc.GetTalkList(ctx, req.Page)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetTalkListReply{Talk: make([]*v1.GetTalkListReply_Talk, 0, len(talkList))}
 	for _, item := range talkList {
 		reply.Talk = append(reply.Talk, &v1.GetTalkListReply_Talk{
 			Id:      item.Id,
@@ -692,11 +692,11 @@ func (s *BffService) GetTalkList(ctx context.Context, req *v1.GetTalkListReq) (*
 }
 
 func (s *BffService) GetTalkListHot(ctx context.Context, req *v1.GetTalkListHotReq) (*v1.GetTalkListHotReply, error) {
-	reply := &v1.GetTalkListHotReply{Talk: make([]*v1.GetTalkListHotReply_Talk, 0)}
 	talkList, err := s.tc.GetTalkListHot(ctx, req.Page)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetTalkListHotReply{Talk: make([]*v1.GetTalkListHotReply_Talk, 0, len(talkList))}
 	for _, item := range talkList {
 		reply.Talk = append(reply.Talk, &v1.GetTalkListHotReply_Talk{
 			Id:      item.Id,
@@ -711,11 +711,11 @@ func (s *BffService) GetTalkListHot(ctx context.Context, req *v1.GetTalkListHotR
 }
 
 func (s *BffService) GetUserTalkList(ctx context.Context, req *v1.GetUserTalkListReq) (*v1.GetTalkListReply, error) {
-	reply := &v1.GetTalkListReply{Talk: make([]*v1.GetTalkListReply_Talk, 0)}
 	talkList, err := s.tc.GetUserTalkList(ctx, req.Page)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetTalkListReply{Talk: make([]*v1.GetTalkListReply_Talk, 0, len(talkList))}
 	for _, item := range talkList {
 		reply.Talk = append(reply.Talk, &v1.GetTalkListReply_Talk{
 			Id:      item.Id,
@@ -730,11 +730,11 @@ func (s *BffService) GetUserTalkList(ctx context.Context, req *v1.GetUserTalkLis
 }
 
 func (s *BffService) GetUserTalkListSimple(ctx context.Context, req *v1.GetUserTalkListSimpleReq) (*v1.GetTalkListReply, error) {
-	reply := &v1.GetTalkListReply{Talk: make([]*v1.GetTalkListReply_Talk, 0)}
 	talkList, err := s.tc.GetUserTalkListSimple(ctx, req.Page)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetTalkListReply{Talk: make([]*v1.GetTalkListReply_Talk, 0, len(talkList))}
 	for _, item := range talkList {
 		reply.Talk = append(reply.Talk, &v1.GetTalkListReply_Talk{
 			Id:      item.Id,
@@ -749,11 +749,11 @@ func (s *BffService) GetUserTalkListSimple(ctx context.Context, req *v1.GetUserT
 }
 
 func (s *BffService) GetUserTalkListVisitor(ctx context.Context, req *v1.GetUserTalkListVisitorReq) (*v1.GetTalkListReply, error) {
-	reply := &v1.GetTalkListReply{Talk: make([]*v1.GetTalkListReply_Talk, 0)}
 	talkList, err := s.tc.GetUserTalkListVisitor(ctx, req.Page, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetTalkListReply{Talk: make([]*v1.GetTalkListReply_Talk, 0, len(talkList))}
 	for _, item := range talkList {
 		reply.Talk = append(reply.Talk, &v1.GetTalkListReply_Talk{
 			Id:      item.Id,
@@ -788,11 +788,11 @@ func (s *BffService) GetTalkCountVisitor(ctx context.Context, req *v1.GetTalkCou
 }
 
 func (s *BffService) GetTalkListStatistic(ctx context.Context, req *v1.GetTalkListStatisticReq) (*v1.GetTalkListStatisticReply, error) {
-	reply := &v1.GetTalkListStatisticReply{Count: make([]*v1.GetTalkListStatisticReply_Count, 0)}
 	statisticList, err := s.tc.GetTalkListStatistic(ctx, req.Ids)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetTalkListStatisticReply{Count: make([]*v1.GetTalkListStatisticReply_Count, 0, len(statisticList))}
 	for _, item := range statisticList {
 		reply.Count = append(reply.Count, &v1.GetTalkListStatisticReply_Count{
 			Id:      item.Id,
@@ -831,11 +831,11 @@ func (s *BffService) GetLastTalkDraft(ctx context.Context, _ *emptypb.Empty) (*v
 }
 
 func (s *BffService) GetTalkSearch(ctx context.Context, req *v1.GetTalkSearchReq) (*v1.GetTalkSearchReply, error) {
-	reply := &v1.GetTalkSearchReply{List: make([]*v1.GetTalkSearchReply_List, 0)}
 	talkList, total, err := s.tc.GetTalkSearch(ctx, req.Page, req.Search, req.Time)
 	if err != nil {
-		return reply, err
+		return nil, err
 	}
+	reply := &v1.GetTalkSearchReply{List: make([]*v1.GetTalkSearchReply_List, 0, len(talkList))}
 	for _, item := range talkList {
 		reply.List = append(reply.List, &v1.GetTalkSearchReply_List{
 			Id:      item.Id,
@@ -876,11 +876,11 @@ func (s *BffService) GetUserTalkCollect(ctx context.Context, _ *emptypb.Empty) (
 }
 
 func (s *BffService) GetTalkImageReview(ctx context.Context, req *v1.GetTalkImageReviewReq) (*v1.GetTalkImageReviewReply, error) {
-	reply := &v1.GetTalkImageReviewReply{Review: make([]*v1.GetTalkImageReviewReply_Review, 0)}
 	reviewList, err := s.tc.GetTalkImageReview(ctx, req.Page)
 	if err != nil {
-		return reply, err
+		return nil, err
 	}
+	reply := &v1.GetTalkImageReviewReply{Review: make([]*v1.GetTalkImageReviewReply_Review, 0, len(reviewList))}
 	for _, item := range reviewList {
 		reply.Review = append(reply.Review, &v1.GetTalkImageReviewReply_Review{
 			Id:         item.Id,
@@ -902,11 +902,11 @@ func (s *BffService) GetTalkImageReview(ctx context.Context, req *v1.GetTalkImag
 }
 
 func (s *BffService) GetTalkContentReview(ctx context.Context, req *v1.GetTalkContentReviewReq) (*v1.GetTalkContentReviewReply, error) {
-	reply := &v1.GetTalkContentReviewReply{Review: make([]*v1.GetTalkContentReviewReply_Review, 0)}
 	reviewList, err := s.tc.GetTalkContentReview(ctx, req.Page)
 	if err != nil {
-		return reply, err
+		return nil, err
 	}
+	reply := &v1.GetTalkContentReviewReply{Review: make([]*v1.GetTalkContentReviewReply_Review, 0, len(reviewList))}
 	for _, item := range reviewList {
 		reply.Review = append(reply.Review, &v1.GetTalkContentReviewReply_Review{
 			Id:         item.Id,
@@ -1059,11 +1059,11 @@ func (s *BffService) SubscribeJudge(ctx context.Context, req *v1.SubscribeJudgeR
 }
 
 func (s *BffService) GetColumnList(ctx context.Context, req *v1.GetColumnListReq) (*v1.GetColumnListReply, error) {
-	reply := &v1.GetColumnListReply{Column: make([]*v1.GetColumnListReply_Column, 0)}
 	columnList, err := s.coc.GetColumnList(ctx, req.Page)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetColumnListReply{Column: make([]*v1.GetColumnListReply_Column, 0, len(columnList))}
 	for _, item := range columnList {
 		reply.Column = append(reply.Column, &v1.GetColumnListReply_Column{
 			Id:      item.Id,
@@ -1077,11 +1077,11 @@ func (s *BffService) GetColumnList(ctx context.Context, req *v1.GetColumnListReq
 }
 
 func (s *BffService) GetColumnListHot(ctx context.Context, req *v1.GetColumnListHotReq) (*v1.GetColumnListHotReply, error) {
-	reply := &v1.GetColumnListHotReply{Column: make([]*v1.GetColumnListHotReply_Column, 0)}
 	columnList, err := s.coc.GetColumnListHot(ctx, req.Page)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetColumnListHotReply{Column: make([]*v1.GetColumnListHotReply_Column, 0, len(columnList))}
 	for _, item := range columnList {
 		reply.Column = append(reply.Column, &v1.GetColumnListHotReply_Column{
 			Id:      item.Id,
@@ -1095,11 +1095,11 @@ func (s *BffService) GetColumnListHot(ctx context.Context, req *v1.GetColumnList
 }
 
 func (s *BffService) GetUserColumnList(ctx context.Context, req *v1.GetUserColumnListReq) (*v1.GetColumnListReply, error) {
-	reply := &v1.GetColumnListReply{Column: make([]*v1.GetColumnListReply_Column, 0)}
 	columnList, err := s.coc.GetUserColumnList(ctx, req.Page)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetColumnListReply{Column: make([]*v1.GetColumnListReply_Column, 0, len(columnList))}
 	for _, item := range columnList {
 		reply.Column = append(reply.Column, &v1.GetColumnListReply_Column{
 			Id:      item.Id,
@@ -1113,11 +1113,11 @@ func (s *BffService) GetUserColumnList(ctx context.Context, req *v1.GetUserColum
 }
 
 func (s *BffService) GetUserColumnListSimple(ctx context.Context, req *v1.GetUserColumnListSimpleReq) (*v1.GetColumnListReply, error) {
-	reply := &v1.GetColumnListReply{Column: make([]*v1.GetColumnListReply_Column, 0)}
 	columnList, err := s.coc.GetUserColumnListSimple(ctx, req.Page)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetColumnListReply{Column: make([]*v1.GetColumnListReply_Column, 0, len(columnList))}
 	for _, item := range columnList {
 		reply.Column = append(reply.Column, &v1.GetColumnListReply_Column{
 			Id:      item.Id,
@@ -1131,11 +1131,11 @@ func (s *BffService) GetUserColumnListSimple(ctx context.Context, req *v1.GetUse
 }
 
 func (s *BffService) GetUserColumnListVisitor(ctx context.Context, req *v1.GetUserColumnListVisitorReq) (*v1.GetColumnListReply, error) {
-	reply := &v1.GetColumnListReply{Column: make([]*v1.GetColumnListReply_Column, 0)}
 	columnList, err := s.coc.GetUserColumnListVisitor(ctx, req.Page, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetColumnListReply{Column: make([]*v1.GetColumnListReply_Column, 0, len(columnList))}
 	for _, item := range columnList {
 		reply.Column = append(reply.Column, &v1.GetColumnListReply_Column{
 			Id:      item.Id,
@@ -1169,11 +1169,11 @@ func (s *BffService) GetColumnCountVisitor(ctx context.Context, req *v1.GetColum
 }
 
 func (s *BffService) GetColumnListStatistic(ctx context.Context, req *v1.GetColumnListStatisticReq) (*v1.GetColumnListStatisticReply, error) {
-	reply := &v1.GetColumnListStatisticReply{Count: make([]*v1.GetColumnListStatisticReply_Count, 0)}
 	statisticList, err := s.coc.GetColumnListStatistic(ctx, req.Ids)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetColumnListStatisticReply{Count: make([]*v1.GetColumnListStatisticReply_Count, 0, len(statisticList))}
 	for _, item := range statisticList {
 		reply.Count = append(reply.Count, &v1.GetColumnListStatisticReply_Count{
 			Id:      item.Id,
@@ -1199,11 +1199,11 @@ func (s *BffService) GetColumnStatistic(ctx context.Context, req *v1.GetColumnSt
 }
 
 func (s *BffService) GetSubscribeList(ctx context.Context, req *v1.GetSubscribeListReq) (*v1.GetSubscribeListReply, error) {
-	reply := &v1.GetSubscribeListReply{Subscribe: make([]*v1.GetSubscribeListReply_Subscribe, 0)}
 	statisticList, err := s.coc.GetSubscribeList(ctx, req.Page)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetSubscribeListReply{Subscribe: make([]*v1.GetSubscribeListReply_Subscribe, 0, len(statisticList))}
 	for _, item := range statisticList {
 		reply.Subscribe = append(reply.Subscribe, &v1.GetSubscribeListReply_Subscribe{
 			Id:      item.Id,
@@ -1227,11 +1227,11 @@ func (s *BffService) GetSubscribeListCount(ctx context.Context, req *v1.GetSubsc
 }
 
 func (s *BffService) GetColumnSubscribes(ctx context.Context, req *v1.GetColumnSubscribesReq) (*v1.GetColumnSubscribesReply, error) {
-	reply := &v1.GetColumnSubscribesReply{Subscribes: make([]*v1.GetColumnSubscribesReply_Subscribes, 0)}
 	subscribesList, err := s.coc.GetColumnSubscribes(ctx, req.Ids)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetColumnSubscribesReply{Subscribes: make([]*v1.GetColumnSubscribesReply_Subscribes, 0, len(subscribesList))}
 	for _, item := range subscribesList {
 		reply.Subscribes = append(reply.Subscribes, &v1.GetColumnSubscribesReply_Subscribes{
 			Id:             item.ColumnId,
@@ -1242,11 +1242,11 @@ func (s *BffService) GetColumnSubscribes(ctx context.Context, req *v1.GetColumnS
 }
 
 func (s *BffService) GetColumnSearch(ctx context.Context, req *v1.GetColumnSearchReq) (*v1.GetColumnSearchReply, error) {
-	reply := &v1.GetColumnSearchReply{List: make([]*v1.GetColumnSearchReply_List, 0)}
 	columnList, total, err := s.coc.GetColumnSearch(ctx, req.Page, req.Search, req.Time)
 	if err != nil {
-		return reply, err
+		return nil, err
 	}
+	reply := &v1.GetColumnSearchReply{List: make([]*v1.GetColumnSearchReply_List, 0, len(columnList))}
 	for _, item := range columnList {
 		reply.List = append(reply.List, &v1.GetColumnSearchReply_List{
 			Id:        item.Id,
@@ -1296,11 +1296,11 @@ func (s *BffService) GetUserSubscribeColumn(ctx context.Context, _ *emptypb.Empt
 }
 
 func (s *BffService) GetColumnImageReview(ctx context.Context, req *v1.GetColumnImageReviewReq) (*v1.GetColumnImageReviewReply, error) {
-	reply := &v1.GetColumnImageReviewReply{Review: make([]*v1.GetColumnImageReviewReply_Review, 0)}
 	reviewList, err := s.coc.GetColumnImageReview(ctx, req.Page)
 	if err != nil {
-		return reply, err
+		return nil, err
 	}
+	reply := &v1.GetColumnImageReviewReply{Review: make([]*v1.GetColumnImageReviewReply_Review, 0, len(reviewList))}
 	for _, item := range reviewList {
 		reply.Review = append(reply.Review, &v1.GetColumnImageReviewReply_Review{
 			Id:         item.Id,
@@ -1322,11 +1322,11 @@ func (s *BffService) GetColumnImageReview(ctx context.Context, req *v1.GetColumn
 }
 
 func (s *BffService) GetColumnContentReview(ctx context.Context, req *v1.GetColumnContentReviewReq) (*v1.GetColumnContentReviewReply, error) {
-	reply := &v1.GetColumnContentReviewReply{Review: make([]*v1.GetColumnContentReviewReply_Review, 0)}
 	reviewList, err := s.coc.GetColumnContentReview(ctx, req.Page)
 	if err != nil {
-		return reply, err
+		return nil, err
 	}
+	reply := &v1.GetColumnContentReviewReply{Review: make([]*v1.GetColumnContentReviewReply_Review, 0, len(reviewList))}
 	for _, item := range reviewList {
 		reply.Review = append(reply.Review, &v1.GetColumnContentReviewReply_Review{
 			Id:         item.Id,
@@ -1436,11 +1436,11 @@ func (s *BffService) DeleteColumnIncludes(ctx context.Context, req *v1.DeleteCol
 }
 
 func (s *BffService) GetNews(ctx context.Context, req *v1.GetNewsReq) (*v1.GetNewsReply, error) {
-	reply := &v1.GetNewsReply{News: make([]*v1.GetNewsReply_News, 0)}
 	newsList, err := s.nc.GetNews(ctx, req.Page)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetNewsReply{News: make([]*v1.GetNewsReply_News, 0, len(newsList))}
 	for _, item := range newsList {
 		reply.News = append(reply.News, &v1.GetNewsReply_News{
 			Id:     item.Id,

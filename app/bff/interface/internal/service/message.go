@@ -30,11 +30,11 @@ func (s *BffService) GetMailBoxLastTime(ctx context.Context, _ *emptypb.Empty) (
 }
 
 func (s *BffService) GetMessageSystemNotification(ctx context.Context, req *v1.GetMessageSystemNotificationReq) (*v1.GetMessageSystemNotificationReply, error) {
-	reply := &v1.GetMessageSystemNotificationReply{List: make([]*v1.GetMessageSystemNotificationReply_List, 0)}
 	notificationList, err := s.mc.GetMessageSystemNotification(ctx, req.Page)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetMessageSystemNotificationReply{List: make([]*v1.GetMessageSystemNotificationReply_List, 0, len(notificationList))}
 	for _, item := range notificationList {
 		reply.List = append(reply.List, &v1.GetMessageSystemNotificationReply_List{
 			Id:               item.Id,

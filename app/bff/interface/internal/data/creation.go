@@ -88,12 +88,11 @@ func NewNewsRepo(data *Data, logger log.Logger) biz.NewsRepo {
 
 func (r *creationRepo) GetLeaderBoard(ctx context.Context) ([]*biz.LeaderBoard, error) {
 	result, err, _ := r.sg.Do("leader_board", func() (interface{}, error) {
-		replyBoard := make([]*biz.LeaderBoard, 0)
 		reply, err := r.data.cc.GetLeaderBoard(ctx, &emptypb.Empty{})
 		if err != nil {
 			return nil, err
 		}
-
+		replyBoard := make([]*biz.LeaderBoard, 0, len(reply.Board))
 		for _, item := range reply.Board {
 			replyBoard = append(replyBoard, &biz.LeaderBoard{
 				Id:   item.Id,
@@ -111,7 +110,6 @@ func (r *creationRepo) GetLeaderBoard(ctx context.Context) ([]*biz.LeaderBoard, 
 
 func (r *creationRepo) GetCollectArticleList(ctx context.Context, id, page int32) ([]*biz.Article, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("collect_article_list_page_%v_%v", id, page), func() (interface{}, error) {
-		reply := make([]*biz.Article, 0)
 		articleList, err := r.data.cc.GetCollectArticleList(ctx, &creationV1.GetCollectArticleListReq{
 			Id:   id,
 			Page: page,
@@ -119,6 +117,7 @@ func (r *creationRepo) GetCollectArticleList(ctx context.Context, id, page int32
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.Article, 0, len(articleList.Article))
 		for _, item := range articleList.Article {
 			reply = append(reply, &biz.Article{
 				Id:   item.Id,
@@ -151,7 +150,6 @@ func (r *creationRepo) GetCollectArticleCount(ctx context.Context, id int32) (in
 
 func (r *creationRepo) GetCollectTalkList(ctx context.Context, id, page int32) ([]*biz.Talk, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("collect_talk_list_page_%v_%v", id, page), func() (interface{}, error) {
-		reply := make([]*biz.Talk, 0)
 		talkList, err := r.data.cc.GetCollectTalkList(ctx, &creationV1.GetCollectTalkListReq{
 			Id:   id,
 			Page: page,
@@ -159,6 +157,7 @@ func (r *creationRepo) GetCollectTalkList(ctx context.Context, id, page int32) (
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.Talk, 0, len(talkList.Talk))
 		for _, item := range talkList.Talk {
 			reply = append(reply, &biz.Talk{
 				Id:   item.Id,
@@ -191,7 +190,6 @@ func (r *creationRepo) GetCollectTalkCount(ctx context.Context, id int32) (int32
 
 func (r *creationRepo) GetCollectColumnList(ctx context.Context, id, page int32) ([]*biz.Column, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("collect_column_list_page_%v_%v", id, page), func() (interface{}, error) {
-		reply := make([]*biz.Column, 0)
 		columnList, err := r.data.cc.GetCollectColumnList(ctx, &creationV1.GetCollectColumnListReq{
 			Id:   id,
 			Page: page,
@@ -199,6 +197,7 @@ func (r *creationRepo) GetCollectColumnList(ctx context.Context, id, page int32)
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.Column, 0, len(columnList.Column))
 		for _, item := range columnList.Column {
 			reply = append(reply, &biz.Column{
 				Id:   item.Id,
@@ -250,7 +249,6 @@ func (r *creationRepo) GetLastCollectionsDraft(ctx context.Context, uuid string)
 
 func (r *creationRepo) GetCollectionsContentReview(ctx context.Context, page int32, uuid string) ([]*biz.CreationContentReview, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_collections_content_review_%s_%v", uuid, page), func() (interface{}, error) {
-		reply := make([]*biz.CreationContentReview, 0)
 		reviewReply, err := r.data.cc.GetCollectionsContentReview(ctx, &creationV1.GetCollectionsContentReviewReq{
 			Page: page,
 			Uuid: uuid,
@@ -258,6 +256,7 @@ func (r *creationRepo) GetCollectionsContentReview(ctx context.Context, page int
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.CreationContentReview, 0, len(reviewReply.Review))
 		for _, item := range reviewReply.Review {
 			reply = append(reply, &biz.CreationContentReview{
 				Id:         item.Id,
@@ -282,7 +281,6 @@ func (r *creationRepo) GetCollectionsContentReview(ctx context.Context, page int
 
 func (r *creationRepo) GetUserTimeLineListVisitor(ctx context.Context, page int32, uuid string) ([]*biz.TimeLine, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_user_timeline_%s_%v", uuid, page), func() (interface{}, error) {
-		reply := make([]*biz.TimeLine, 0)
 		timeline, err := r.data.cc.GetUserTimeLineList(ctx, &creationV1.GetUserTimeLineListReq{
 			Page: page,
 			Uuid: uuid,
@@ -290,6 +288,7 @@ func (r *creationRepo) GetUserTimeLineListVisitor(ctx context.Context, page int3
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.TimeLine, 0, len(timeline.Timeline))
 		for _, item := range timeline.Timeline {
 			reply = append(reply, &biz.TimeLine{
 				Id:         item.Id,
@@ -330,17 +329,17 @@ func (r *creationRepo) GetCollections(ctx context.Context, id int32, uuid string
 }
 
 func (r *creationRepo) GetCollectionListInfo(ctx context.Context, collectionsList []*biz.Collections) ([]*biz.Collections, error) {
-	ids := make([]int32, 0)
+	ids := make([]int32, 0, len(collectionsList))
 	for _, item := range collectionsList {
 		ids = append(ids, item.Id)
 	}
-	reply := make([]*biz.Collections, 0)
 	collectionsListInfo, err := r.data.cc.GetCollectionListInfo(ctx, &creationV1.GetCollectionListInfoReq{
 		Ids: ids,
 	})
 	if err != nil {
 		return nil, err
 	}
+	reply := make([]*biz.Collections, 0, len(collectionsListInfo.Collections))
 	for _, item := range collectionsListInfo.Collections {
 		reply = append(reply, &biz.Collections{
 			Id: item.Id,
@@ -351,7 +350,6 @@ func (r *creationRepo) GetCollectionListInfo(ctx context.Context, collectionsLis
 
 func (r *creationRepo) GetCollectionsList(ctx context.Context, uuid string, page int32) ([]*biz.Collections, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_collections_list_%s_%v", uuid, page), func() (interface{}, error) {
-		collections := make([]*biz.Collections, 0)
 		reply, err := r.data.cc.GetCollectionsList(ctx, &creationV1.GetCollectionsListReq{
 			Uuid: uuid,
 			Page: page,
@@ -359,6 +357,7 @@ func (r *creationRepo) GetCollectionsList(ctx context.Context, uuid string, page
 		if err != nil {
 			return nil, err
 		}
+		collections := make([]*biz.Collections, 0, len(reply.Collections))
 		for _, item := range reply.Collections {
 			collections = append(collections, &biz.Collections{
 				Id: item.Id,
@@ -374,13 +373,13 @@ func (r *creationRepo) GetCollectionsList(ctx context.Context, uuid string, page
 
 func (r *creationRepo) GetCollectionsListAll(ctx context.Context, uuid string) ([]*biz.Collections, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_collections_list_all_%s", uuid), func() (interface{}, error) {
-		collections := make([]*biz.Collections, 0)
 		reply, err := r.data.cc.GetCollectionsListAll(ctx, &creationV1.GetCollectionsListAllReq{
 			Uuid: uuid,
 		})
 		if err != nil {
 			return nil, err
 		}
+		collections := make([]*biz.Collections, 0, len(reply.Collections))
 		for _, item := range reply.Collections {
 			collections = append(collections, &biz.Collections{
 				Id: item.Id,
@@ -396,7 +395,6 @@ func (r *creationRepo) GetCollectionsListAll(ctx context.Context, uuid string) (
 
 func (r *creationRepo) GetCollectionsListByVisitor(ctx context.Context, uuid string, page int32) ([]*biz.Collections, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_collections_list_by_visitor_%s_%v", uuid, page), func() (interface{}, error) {
-		collections := make([]*biz.Collections, 0)
 		reply, err := r.data.cc.GetCollectionsListByVisitor(ctx, &creationV1.GetCollectionsListReq{
 			Uuid: uuid,
 			Page: page,
@@ -404,6 +402,7 @@ func (r *creationRepo) GetCollectionsListByVisitor(ctx context.Context, uuid str
 		if err != nil {
 			return nil, err
 		}
+		collections := make([]*biz.Collections, 0, len(reply.Collections))
 		for _, item := range reply.Collections {
 			collections = append(collections, &biz.Collections{
 				Id: item.Id,
@@ -553,13 +552,13 @@ func (r *articleRepo) GetLastArticleDraft(ctx context.Context, uuid string) (*bi
 
 func (r *articleRepo) GetArticleList(ctx context.Context, page int32) ([]*biz.Article, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("article_page_%v", page), func() (interface{}, error) {
-		reply := make([]*biz.Article, 0)
 		articleList, err := r.data.cc.GetArticleList(ctx, &creationV1.GetArticleListReq{
 			Page: page,
 		})
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.Article, 0, len(articleList.Article))
 		for _, item := range articleList.Article {
 			reply = append(reply, &biz.Article{
 				Id:   item.Id,
@@ -576,13 +575,13 @@ func (r *articleRepo) GetArticleList(ctx context.Context, page int32) ([]*biz.Ar
 
 func (r *articleRepo) GetArticleListHot(ctx context.Context, page int32) ([]*biz.Article, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("article_page_hot_%v", page), func() (interface{}, error) {
-		reply := make([]*biz.Article, 0)
 		articleList, err := r.data.cc.GetArticleListHot(ctx, &creationV1.GetArticleListHotReq{
 			Page: page,
 		})
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.Article, 0, len(articleList.Article))
 		for _, item := range articleList.Article {
 			reply = append(reply, &biz.Article{
 				Id:   item.Id,
@@ -599,13 +598,13 @@ func (r *articleRepo) GetArticleListHot(ctx context.Context, page int32) ([]*biz
 
 func (r *articleRepo) GetUserArticleListAll(ctx context.Context, uuid string) ([]*biz.Article, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("article_all_%s", uuid), func() (interface{}, error) {
-		reply := make([]*biz.Article, 0)
 		articleList, err := r.data.cc.GetUserArticleListAll(ctx, &creationV1.GetUserArticleListAllReq{
 			Uuid: uuid,
 		})
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.Article, 0, len(articleList.Article))
 		for _, item := range articleList.Article {
 			reply = append(reply, &biz.Article{
 				Id:   item.Id,
@@ -622,13 +621,13 @@ func (r *articleRepo) GetUserArticleListAll(ctx context.Context, uuid string) ([
 
 func (r *articleRepo) GetColumnArticleList(ctx context.Context, id int32) ([]*biz.Article, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_column_article_list_%v", id), func() (interface{}, error) {
-		reply := make([]*biz.Article, 0)
 		articleList, err := r.data.cc.GetColumnArticleList(ctx, &creationV1.GetColumnArticleListReq{
 			Id: id,
 		})
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.Article, 0, len(articleList.Article))
 		for _, item := range articleList.Article {
 			reply = append(reply, &biz.Article{
 				Id:   item.Id,
@@ -671,7 +670,6 @@ func (r *articleRepo) GetArticleCountVisitor(ctx context.Context, uuid string) (
 
 func (r *articleRepo) GetUserArticleList(ctx context.Context, page int32, uuid string) ([]*biz.Article, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_user_article_list_%s_%v", uuid, page), func() (interface{}, error) {
-		reply := make([]*biz.Article, 0)
 		articleList, err := r.data.cc.GetUserArticleList(ctx, &creationV1.GetUserArticleListReq{
 			Page: page,
 			Uuid: uuid,
@@ -679,6 +677,7 @@ func (r *articleRepo) GetUserArticleList(ctx context.Context, page int32, uuid s
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.Article, 0, len(articleList.Article))
 		for _, item := range articleList.Article {
 			reply = append(reply, &biz.Article{
 				Id:   item.Id,
@@ -695,7 +694,6 @@ func (r *articleRepo) GetUserArticleList(ctx context.Context, page int32, uuid s
 
 func (r *articleRepo) GetUserArticleListVisitor(ctx context.Context, page int32, uuid string) ([]*biz.Article, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_user_article_by_visitor_%s_%v", uuid, page), func() (interface{}, error) {
-		reply := make([]*biz.Article, 0)
 		articleList, err := r.data.cc.GetUserArticleListVisitor(ctx, &creationV1.GetUserArticleListVisitorReq{
 			Page: page,
 			Uuid: uuid,
@@ -703,6 +701,7 @@ func (r *articleRepo) GetUserArticleListVisitor(ctx context.Context, page int32,
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.Article, 0, len(articleList.Article))
 		for _, item := range articleList.Article {
 			reply = append(reply, &biz.Article{
 				Id:   item.Id,
@@ -773,17 +772,17 @@ func (r *articleRepo) GetUserArticleCollect(ctx context.Context, uuid string) (m
 }
 
 func (r *articleRepo) GetArticleListStatistic(ctx context.Context, articleList []*biz.Article) ([]*biz.ArticleStatistic, error) {
-	ids := make([]int32, 0)
+	ids := make([]int32, 0, len(articleList))
 	for _, item := range articleList {
 		ids = append(ids, item.Id)
 	}
-	reply := make([]*biz.ArticleStatistic, 0)
 	statisticList, err := r.data.cc.GetArticleListStatistic(ctx, &creationV1.GetArticleListStatisticReq{
 		Ids: ids,
 	})
 	if err != nil {
 		return nil, err
 	}
+	reply := make([]*biz.ArticleStatistic, 0, len(statisticList.Count))
 	for _, item := range statisticList.Count {
 		reply = append(reply, &biz.ArticleStatistic{
 			Id:      item.Id,
@@ -798,13 +797,13 @@ func (r *articleRepo) GetArticleListStatistic(ctx context.Context, articleList [
 
 func (r *articleRepo) GetArticleDraftList(ctx context.Context, uuid string) ([]*biz.ArticleDraft, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_article_draft_list_%s", uuid), func() (interface{}, error) {
-		reply := make([]*biz.ArticleDraft, 0)
 		draftList, err := r.data.cc.GetArticleDraftList(ctx, &creationV1.GetArticleDraftListReq{
 			Uuid: uuid,
 		})
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.ArticleDraft, 0, len(draftList.Draft))
 		for _, item := range draftList.Draft {
 			reply = append(reply, &biz.ArticleDraft{
 				Id: item.Id,
@@ -819,7 +818,6 @@ func (r *articleRepo) GetArticleDraftList(ctx context.Context, uuid string) ([]*
 }
 
 func (r *articleRepo) GetArticleSearch(ctx context.Context, page int32, search, time string) ([]*biz.Article, int32, error) {
-	reply := make([]*biz.Article, 0)
 	searchReply, err := r.data.cc.GetArticleSearch(ctx, &creationV1.GetArticleSearchReq{
 		Page:   page,
 		Search: search,
@@ -828,6 +826,7 @@ func (r *articleRepo) GetArticleSearch(ctx context.Context, page int32, search, 
 	if err != nil {
 		return nil, 0, err
 	}
+	reply := make([]*biz.Article, 0, len(searchReply.List))
 	for _, item := range searchReply.List {
 		reply = append(reply, &biz.Article{
 			Id:     item.Id,
@@ -844,7 +843,6 @@ func (r *articleRepo) GetArticleSearch(ctx context.Context, page int32, search, 
 
 func (r *articleRepo) GetArticleImageReview(ctx context.Context, page int32, uuid string) ([]*biz.CreationImageReview, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_article_image_review_%s_%v", uuid, page), func() (interface{}, error) {
-		reply := make([]*biz.CreationImageReview, 0)
 		reviewReply, err := r.data.cc.GetArticleImageReview(ctx, &creationV1.GetArticleImageReviewReq{
 			Page: page,
 			Uuid: uuid,
@@ -852,6 +850,7 @@ func (r *articleRepo) GetArticleImageReview(ctx context.Context, page int32, uui
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.CreationImageReview, 0, len(reviewReply.Review))
 		for _, item := range reviewReply.Review {
 			reply = append(reply, &biz.CreationImageReview{
 				Id:         item.Id,
@@ -879,7 +878,6 @@ func (r *articleRepo) GetArticleImageReview(ctx context.Context, page int32, uui
 
 func (r *articleRepo) GetArticleContentReview(ctx context.Context, page int32, uuid string) ([]*biz.CreationContentReview, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_article_content_review_%s_%v", uuid, page), func() (interface{}, error) {
-		reply := make([]*biz.CreationContentReview, 0)
 		reviewReply, err := r.data.cc.GetArticleContentReview(ctx, &creationV1.GetArticleContentReviewReq{
 			Page: page,
 			Uuid: uuid,
@@ -887,6 +885,7 @@ func (r *articleRepo) GetArticleContentReview(ctx context.Context, page int32, u
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.CreationContentReview, 0, len(reviewReply.Review))
 		for _, item := range reviewReply.Review {
 			reply = append(reply, &biz.CreationContentReview{
 				Id:         item.Id,
@@ -1047,13 +1046,13 @@ func (r *articleRepo) ArticleStatisticJudge(ctx context.Context, id int32, uuid 
 
 func (r *talkRepo) GetTalkList(ctx context.Context, page int32) ([]*biz.Talk, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("talk_page_%v", page), func() (interface{}, error) {
-		reply := make([]*biz.Talk, 0)
 		talkList, err := r.data.cc.GetTalkList(ctx, &creationV1.GetTalkListReq{
 			Page: page,
 		})
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.Talk, 0, len(talkList.Talk))
 		for _, item := range talkList.Talk {
 			reply = append(reply, &biz.Talk{
 				Id:   item.Id,
@@ -1070,13 +1069,13 @@ func (r *talkRepo) GetTalkList(ctx context.Context, page int32) ([]*biz.Talk, er
 
 func (r *talkRepo) GetTalkListHot(ctx context.Context, page int32) ([]*biz.Talk, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("talk_page_hot_%v", page), func() (interface{}, error) {
-		reply := make([]*biz.Talk, 0)
 		talkList, err := r.data.cc.GetTalkListHot(ctx, &creationV1.GetTalkListHotReq{
 			Page: page,
 		})
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.Talk, 0, len(talkList.Talk))
 		for _, item := range talkList.Talk {
 			reply = append(reply, &biz.Talk{
 				Id:   item.Id,
@@ -1093,7 +1092,6 @@ func (r *talkRepo) GetTalkListHot(ctx context.Context, page int32) ([]*biz.Talk,
 
 func (r *talkRepo) GetUserTalkList(ctx context.Context, page int32, uuid string) ([]*biz.Talk, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_user_talk_list_%s_%v", uuid, page), func() (interface{}, error) {
-		reply := make([]*biz.Talk, 0)
 		talkList, err := r.data.cc.GetUserTalkList(ctx, &creationV1.GetUserTalkListReq{
 			Page: page,
 			Uuid: uuid,
@@ -1101,6 +1099,7 @@ func (r *talkRepo) GetUserTalkList(ctx context.Context, page int32, uuid string)
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.Talk, 0, len(talkList.Talk))
 		for _, item := range talkList.Talk {
 			reply = append(reply, &biz.Talk{
 				Id:   item.Id,
@@ -1117,7 +1116,6 @@ func (r *talkRepo) GetUserTalkList(ctx context.Context, page int32, uuid string)
 
 func (r *talkRepo) GetUserTalkListVisitor(ctx context.Context, page int32, uuid string) ([]*biz.Talk, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_user_talk_by_visitor_%s_%v", uuid, page), func() (interface{}, error) {
-		reply := make([]*biz.Talk, 0)
 		talkList, err := r.data.cc.GetUserTalkListVisitor(ctx, &creationV1.GetUserTalkListVisitorReq{
 			Page: page,
 			Uuid: uuid,
@@ -1125,6 +1123,7 @@ func (r *talkRepo) GetUserTalkListVisitor(ctx context.Context, page int32, uuid 
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.Talk, 0, len(talkList.Talk))
 		for _, item := range talkList.Talk {
 			reply = append(reply, &biz.Talk{
 				Id:   item.Id,
@@ -1166,17 +1165,17 @@ func (r *talkRepo) GetTalkCountVisitor(ctx context.Context, uuid string) (int32,
 }
 
 func (r *talkRepo) GetTalkListStatistic(ctx context.Context, talkList []*biz.Talk) ([]*biz.TalkStatistic, error) {
-	ids := make([]int32, 0)
+	ids := make([]int32, 0, len(talkList))
 	for _, item := range talkList {
 		ids = append(ids, item.Id)
 	}
-	reply := make([]*biz.TalkStatistic, 0)
 	statisticList, err := r.data.cc.GetTalkListStatistic(ctx, &creationV1.GetTalkListStatisticReq{
 		Ids: ids,
 	})
 	if err != nil {
 		return nil, err
 	}
+	reply := make([]*biz.TalkStatistic, 0, len(statisticList.Count))
 	for _, item := range statisticList.Count {
 		reply = append(reply, &biz.TalkStatistic{
 			Id:      item.Id,
@@ -1232,7 +1231,6 @@ func (r *talkRepo) GetLastTalkDraft(ctx context.Context, uuid string) (*biz.Talk
 }
 
 func (r *talkRepo) GetTalkSearch(ctx context.Context, page int32, search, time string) ([]*biz.Talk, int32, error) {
-	reply := make([]*biz.Talk, 0)
 	searchReply, err := r.data.cc.GetTalkSearch(ctx, &creationV1.GetTalkSearchReq{
 		Page:   page,
 		Search: search,
@@ -1241,6 +1239,7 @@ func (r *talkRepo) GetTalkSearch(ctx context.Context, page int32, search, time s
 	if err != nil {
 		return nil, 0, err
 	}
+	reply := make([]*biz.Talk, 0, len(searchReply.List))
 	for _, item := range searchReply.List {
 		reply = append(reply, &biz.Talk{
 			Id:     item.Id,
@@ -1289,7 +1288,6 @@ func (r *talkRepo) GetUserTalkCollect(ctx context.Context, uuid string) (map[int
 
 func (r *talkRepo) GetTalkImageReview(ctx context.Context, page int32, uuid string) ([]*biz.CreationImageReview, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_talk_image_review_%s_%v", uuid, page), func() (interface{}, error) {
-		reply := make([]*biz.CreationImageReview, 0)
 		reviewReply, err := r.data.cc.GetTalkImageReview(ctx, &creationV1.GetTalkImageReviewReq{
 			Page: page,
 			Uuid: uuid,
@@ -1297,6 +1295,7 @@ func (r *talkRepo) GetTalkImageReview(ctx context.Context, page int32, uuid stri
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.CreationImageReview, 0, len(reviewReply.Review))
 		for _, item := range reviewReply.Review {
 			reply = append(reply, &biz.CreationImageReview{
 				Id:         item.Id,
@@ -1324,7 +1323,6 @@ func (r *talkRepo) GetTalkImageReview(ctx context.Context, page int32, uuid stri
 
 func (r *talkRepo) GetTalkContentReview(ctx context.Context, page int32, uuid string) ([]*biz.CreationContentReview, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_talk_content_review_%s_%v", uuid, page), func() (interface{}, error) {
-		reply := make([]*biz.CreationContentReview, 0)
 		reviewReply, err := r.data.cc.GetTalkContentReview(ctx, &creationV1.GetTalkContentReviewReq{
 			Page: page,
 			Uuid: uuid,
@@ -1332,6 +1330,7 @@ func (r *talkRepo) GetTalkContentReview(ctx context.Context, page int32, uuid st
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.CreationContentReview, 0, len(reviewReply.Review))
 		for _, item := range reviewReply.Review {
 			reply = append(reply, &biz.CreationContentReview{
 				Id:         item.Id,
@@ -1543,13 +1542,13 @@ func (r *columnRepo) SubscribeJudge(ctx context.Context, id int32, uuid string) 
 
 func (r *columnRepo) GetColumnList(ctx context.Context, page int32) ([]*biz.Column, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("column_page_%v", page), func() (interface{}, error) {
-		reply := make([]*biz.Column, 0)
 		columnList, err := r.data.cc.GetColumnList(ctx, &creationV1.GetColumnListReq{
 			Page: page,
 		})
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.Column, 0, len(columnList.Column))
 		for _, item := range columnList.Column {
 			reply = append(reply, &biz.Column{
 				Id:   item.Id,
@@ -1566,13 +1565,13 @@ func (r *columnRepo) GetColumnList(ctx context.Context, page int32) ([]*biz.Colu
 
 func (r *columnRepo) GetColumnListHot(ctx context.Context, page int32) ([]*biz.Column, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("column_page_hot_%v", page), func() (interface{}, error) {
-		reply := make([]*biz.Column, 0)
 		columnList, err := r.data.cc.GetColumnListHot(ctx, &creationV1.GetColumnListHotReq{
 			Page: page,
 		})
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.Column, 0, len(columnList.Column))
 		for _, item := range columnList.Column {
 			reply = append(reply, &biz.Column{
 				Id:   item.Id,
@@ -1589,7 +1588,6 @@ func (r *columnRepo) GetColumnListHot(ctx context.Context, page int32) ([]*biz.C
 
 func (r *columnRepo) GetUserColumnList(ctx context.Context, page int32, uuid string) ([]*biz.Column, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_user_column_list_%s_%v", uuid, page), func() (interface{}, error) {
-		reply := make([]*biz.Column, 0)
 		columnList, err := r.data.cc.GetUserColumnList(ctx, &creationV1.GetUserColumnListReq{
 			Page: page,
 			Uuid: uuid,
@@ -1597,6 +1595,7 @@ func (r *columnRepo) GetUserColumnList(ctx context.Context, page int32, uuid str
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.Column, 0, len(columnList.Column))
 		for _, item := range columnList.Column {
 			reply = append(reply, &biz.Column{
 				Id:   item.Id,
@@ -1613,7 +1612,6 @@ func (r *columnRepo) GetUserColumnList(ctx context.Context, page int32, uuid str
 
 func (r *columnRepo) GetUserColumnListVisitor(ctx context.Context, page int32, uuid string) ([]*biz.Column, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_user_column_by_visitor_%s_%v", uuid, page), func() (interface{}, error) {
-		reply := make([]*biz.Column, 0)
 		columnList, err := r.data.cc.GetUserColumnListVisitor(ctx, &creationV1.GetUserColumnListVisitorReq{
 			Page: page,
 			Uuid: uuid,
@@ -1621,6 +1619,7 @@ func (r *columnRepo) GetUserColumnListVisitor(ctx context.Context, page int32, u
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.Column, 0, len(columnList.Column))
 		for _, item := range columnList.Column {
 			reply = append(reply, &biz.Column{
 				Id:   item.Id,
@@ -1662,17 +1661,17 @@ func (r *columnRepo) GetColumnCountVisitor(ctx context.Context, uuid string) (in
 }
 
 func (r *columnRepo) GetColumnListStatistic(ctx context.Context, columnList []*biz.Column) ([]*biz.ColumnStatistic, error) {
-	ids := make([]int32, 0)
+	ids := make([]int32, 0, len(columnList))
 	for _, item := range columnList {
 		ids = append(ids, item.Id)
 	}
-	reply := make([]*biz.ColumnStatistic, 0)
 	statisticList, err := r.data.cc.GetColumnListStatistic(ctx, &creationV1.GetColumnListStatisticReq{
 		Ids: ids,
 	})
 	if err != nil {
 		return nil, err
 	}
+	reply := make([]*biz.ColumnStatistic, 0, len(statisticList.Count))
 	for _, item := range statisticList.Count {
 		reply = append(reply, &biz.ColumnStatistic{
 			Id:      item.Id,
@@ -1708,7 +1707,6 @@ func (r *columnRepo) GetColumnStatistic(ctx context.Context, id int32, uuid stri
 
 func (r *columnRepo) GetSubscribeList(ctx context.Context, page int32, uuid string) ([]*biz.Column, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_subscribe_list_%s_%v", uuid, page), func() (interface{}, error) {
-		reply := make([]*biz.Column, 0)
 		subscribeList, err := r.data.cc.GetSubscribeList(ctx, &creationV1.GetSubscribeListReq{
 			Page: page,
 			Uuid: uuid,
@@ -1716,6 +1714,7 @@ func (r *columnRepo) GetSubscribeList(ctx context.Context, page int32, uuid stri
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.Column, 0, len(subscribeList.Subscribe))
 		for _, item := range subscribeList.Subscribe {
 			reply = append(reply, &biz.Column{
 				Id:   item.Id,
@@ -1741,7 +1740,6 @@ func (r *columnRepo) GetSubscribeListCount(ctx context.Context, uuid string) (in
 }
 
 func (r *columnRepo) GetColumnSubscribes(ctx context.Context, uuid string, ids []int32) ([]*biz.Subscribe, error) {
-	reply := make([]*biz.Subscribe, 0)
 	subscribeList, err := r.data.cc.GetColumnSubscribes(ctx, &creationV1.GetColumnSubscribesReq{
 		Ids:  ids,
 		Uuid: uuid,
@@ -1749,6 +1747,7 @@ func (r *columnRepo) GetColumnSubscribes(ctx context.Context, uuid string, ids [
 	if err != nil {
 		return nil, err
 	}
+	reply := make([]*biz.Subscribe, 0, len(subscribeList.Subscribes))
 	for _, item := range subscribeList.Subscribes {
 		reply = append(reply, &biz.Subscribe{
 			ColumnId: item.Id,
@@ -1759,7 +1758,6 @@ func (r *columnRepo) GetColumnSubscribes(ctx context.Context, uuid string, ids [
 }
 
 func (r *columnRepo) GetColumnSearch(ctx context.Context, page int32, search, time string) ([]*biz.Column, int32, error) {
-	reply := make([]*biz.Column, 0)
 	searchReply, err := r.data.cc.GetColumnSearch(ctx, &creationV1.GetColumnSearchReq{
 		Page:   page,
 		Search: search,
@@ -1768,6 +1766,7 @@ func (r *columnRepo) GetColumnSearch(ctx context.Context, page int32, search, ti
 	if err != nil {
 		return nil, 0, err
 	}
+	reply := make([]*biz.Column, 0, len(searchReply.List))
 	for _, item := range searchReply.List {
 		reply = append(reply, &biz.Column{
 			Id:        item.Id,
@@ -1832,7 +1831,6 @@ func (r *columnRepo) GetUserSubscribeColumn(ctx context.Context, uuid string) (m
 
 func (r *columnRepo) GetColumnImageReview(ctx context.Context, page int32, uuid string) ([]*biz.CreationImageReview, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_column_image_review_%s_%v", uuid, page), func() (interface{}, error) {
-		reply := make([]*biz.CreationImageReview, 0)
 		reviewReply, err := r.data.cc.GetColumnImageReview(ctx, &creationV1.GetColumnImageReviewReq{
 			Page: page,
 			Uuid: uuid,
@@ -1840,6 +1838,7 @@ func (r *columnRepo) GetColumnImageReview(ctx context.Context, page int32, uuid 
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.CreationImageReview, 0, len(reviewReply.Review))
 		for _, item := range reviewReply.Review {
 			reply = append(reply, &biz.CreationImageReview{
 				Id:         item.Id,
@@ -1867,7 +1866,6 @@ func (r *columnRepo) GetColumnImageReview(ctx context.Context, page int32, uuid 
 
 func (r *columnRepo) GetColumnContentReview(ctx context.Context, page int32, uuid string) ([]*biz.CreationContentReview, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_column_content_review_%s_%v", uuid, page), func() (interface{}, error) {
-		reply := make([]*biz.CreationContentReview, 0)
 		reviewReply, err := r.data.cc.GetColumnContentReview(ctx, &creationV1.GetColumnContentReviewReq{
 			Page: page,
 			Uuid: uuid,
@@ -1875,6 +1873,7 @@ func (r *columnRepo) GetColumnContentReview(ctx context.Context, page int32, uui
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.CreationContentReview, 0, len(reviewReply.Review))
 		for _, item := range reviewReply.Review {
 			reply = append(reply, &biz.CreationContentReview{
 				Id:         item.Id,
@@ -2031,13 +2030,13 @@ func (r *columnRepo) DeleteColumnIncludes(ctx context.Context, id, articleId int
 }
 
 func (r *newsRepo) GetNews(ctx context.Context, page int32) ([]*biz.News, error) {
-	reply := make([]*biz.News, 0)
 	newsList, err := r.data.cc.GetNews(ctx, &creationV1.GetNewsReq{
 		Page: page,
 	})
 	if err != nil {
 		return nil, err
 	}
+	reply := make([]*biz.News, 0, len(newsList.News))
 	for _, item := range newsList.News {
 		reply = append(reply, &biz.News{
 			Id:     item.Id,

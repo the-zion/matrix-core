@@ -89,7 +89,6 @@ func (r *commentRepo) GetCommentUser(ctx context.Context, uuid string) (*biz.Com
 
 func (r *commentRepo) GetCommentList(ctx context.Context, page, creationId, creationType int32) ([]*biz.Comment, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("comment_%v_%v_%v", creationId, creationType, page), func() (interface{}, error) {
-		reply := make([]*biz.Comment, 0)
 		commentList, err := r.data.commc.GetCommentList(ctx, &commentV1.GetCommentListReq{
 			Page:         page,
 			CreationId:   creationId,
@@ -98,6 +97,7 @@ func (r *commentRepo) GetCommentList(ctx context.Context, page, creationId, crea
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.Comment, 0, len(commentList.Comment))
 		for _, item := range commentList.Comment {
 			reply = append(reply, &biz.Comment{
 				Id:   item.Id,
@@ -114,7 +114,6 @@ func (r *commentRepo) GetCommentList(ctx context.Context, page, creationId, crea
 
 func (r *commentRepo) GetSubCommentList(ctx context.Context, page, id int32) ([]*biz.SubComment, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("sub_comment_%v_%v", id, page), func() (interface{}, error) {
-		reply := make([]*biz.SubComment, 0)
 		subCommentList, err := r.data.commc.GetSubCommentList(ctx, &commentV1.GetSubCommentListReq{
 			Page: page,
 			Id:   id,
@@ -122,6 +121,7 @@ func (r *commentRepo) GetSubCommentList(ctx context.Context, page, id int32) ([]
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.SubComment, 0, len(subCommentList.Comment))
 		for _, item := range subCommentList.Comment {
 			reply = append(reply, &biz.SubComment{
 				Id:    item.Id,
@@ -139,7 +139,6 @@ func (r *commentRepo) GetSubCommentList(ctx context.Context, page, id int32) ([]
 
 func (r *commentRepo) GetCommentListHot(ctx context.Context, page, creationId, creationType int32) ([]*biz.Comment, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("comment_hot_%v_%v_%v", creationId, creationType, page), func() (interface{}, error) {
-		reply := make([]*biz.Comment, 0)
 		commentList, err := r.data.commc.GetCommentListHot(ctx, &commentV1.GetCommentListReq{
 			Page:         page,
 			CreationId:   creationId,
@@ -148,6 +147,7 @@ func (r *commentRepo) GetCommentListHot(ctx context.Context, page, creationId, c
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.Comment, 0, len(commentList.Comment))
 		for _, item := range commentList.Comment {
 			reply = append(reply, &biz.Comment{
 				Id:   item.Id,
@@ -163,18 +163,18 @@ func (r *commentRepo) GetCommentListHot(ctx context.Context, page, creationId, c
 }
 
 func (r *commentRepo) GetCommentListStatistic(ctx context.Context, page, creationId, creationType int32, key string, commentList []*biz.Comment) ([]*biz.CommentStatistic, error) {
-	ids := make([]int32, 0)
+	ids := make([]int32, 0, len(commentList))
 	for _, item := range commentList {
 		ids = append(ids, item.Id)
 	}
 	result, err, _ := r.sg.Do(fmt.Sprintf("%s_%v_%v_%v", key, creationId, creationType, page), func() (interface{}, error) {
-		reply := make([]*biz.CommentStatistic, 0)
 		commentListStatistic, err := r.data.commc.GetCommentListStatistic(ctx, &commentV1.GetCommentListStatisticReq{
 			Ids: ids,
 		})
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.CommentStatistic, 0, len(commentListStatistic.Count))
 		for _, item := range commentListStatistic.Count {
 			reply = append(reply, &biz.CommentStatistic{
 				Id:      item.Id,
@@ -191,18 +191,18 @@ func (r *commentRepo) GetCommentListStatistic(ctx context.Context, page, creatio
 }
 
 func (r *commentRepo) GetSubCommentListStatistic(ctx context.Context, page, id int32, commentList []*biz.SubComment) ([]*biz.CommentStatistic, error) {
-	ids := make([]int32, 0)
+	ids := make([]int32, 0, len(commentList))
 	for _, item := range commentList {
 		ids = append(ids, item.Id)
 	}
 	result, err, _ := r.sg.Do(fmt.Sprintf("sub_comment_%v_%v", id, page), func() (interface{}, error) {
-		reply := make([]*biz.CommentStatistic, 0)
 		commentListStatistic, err := r.data.commc.GetSubCommentListStatistic(ctx, &commentV1.GetCommentListStatisticReq{
 			Ids: ids,
 		})
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.CommentStatistic, 0, len(commentListStatistic.Count))
 		for _, item := range commentListStatistic.Count {
 			reply = append(reply, &biz.CommentStatistic{
 				Id:    item.Id,
@@ -218,7 +218,7 @@ func (r *commentRepo) GetSubCommentListStatistic(ctx context.Context, page, id i
 }
 
 func (r *commentRepo) GetUserProfileList(ctx context.Context, page, creationId, creationType int32, key string, commentList []*biz.Comment) (map[string]string, error) {
-	uuids := make([]string, 0)
+	uuids := make([]string, 0, len(commentList))
 	set := make(map[string]bool, 0)
 	for _, item := range commentList {
 		if _, ok := set[item.Uuid]; !ok {
@@ -246,7 +246,7 @@ func (r *commentRepo) GetUserProfileList(ctx context.Context, page, creationId, 
 }
 
 func (r *commentRepo) GetSubUserProfileList(ctx context.Context, page, id int32, subCommentList []*biz.SubComment) (map[string]string, error) {
-	uuids := make([]string, 0)
+	uuids := make([]string, 0, len(subCommentList))
 	set := make(map[string]bool, 0)
 	for _, item := range subCommentList {
 		if _, ok := set[item.Uuid]; !ok {
@@ -280,7 +280,6 @@ func (r *commentRepo) GetSubUserProfileList(ctx context.Context, page, id int32,
 
 func (r *commentRepo) GetUserCommentArticleReplyList(ctx context.Context, page int32, uuid string) ([]*biz.Comment, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_user_comment_article_reply_list_%v_%s", page, uuid), func() (interface{}, error) {
-		reply := make([]*biz.Comment, 0)
 		commentList, err := r.data.commc.GetUserCommentArticleReplyList(ctx, &commentV1.GetUserCommentArticleReplyListReq{
 			Page: page,
 			Uuid: uuid,
@@ -288,6 +287,7 @@ func (r *commentRepo) GetUserCommentArticleReplyList(ctx context.Context, page i
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.Comment, 0, len(commentList.List))
 		for _, item := range commentList.List {
 			reply = append(reply, &biz.Comment{
 				Id:             item.Id,
@@ -305,7 +305,6 @@ func (r *commentRepo) GetUserCommentArticleReplyList(ctx context.Context, page i
 
 func (r *commentRepo) GetUserSubCommentArticleReplyList(ctx context.Context, page int32, uuid string) ([]*biz.SubComment, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_user_sub_comment_article_reply_list_%v_%s", page, uuid), func() (interface{}, error) {
-		reply := make([]*biz.SubComment, 0)
 		commentList, err := r.data.commc.GetUserSubCommentArticleReplyList(ctx, &commentV1.GetUserSubCommentArticleReplyListReq{
 			Page: page,
 			Uuid: uuid,
@@ -313,6 +312,7 @@ func (r *commentRepo) GetUserSubCommentArticleReplyList(ctx context.Context, pag
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.SubComment, 0, len(commentList.List))
 		for _, item := range commentList.List {
 			reply = append(reply, &biz.SubComment{
 				Id:             item.Id,
@@ -333,7 +333,7 @@ func (r *commentRepo) GetUserSubCommentArticleReplyList(ctx context.Context, pag
 }
 
 func (r *commentRepo) GetUserSubCommentProfileList(ctx context.Context, page int32, key, uuid string, subCommentList []*biz.SubComment) (map[string]string, error) {
-	uuids := make([]string, 0)
+	uuids := make([]string, 0, len(subCommentList))
 	set := make(map[string]bool, 0)
 	for _, item := range subCommentList {
 		if _, ok := set[item.Uuid]; item.Uuid != "" && !ok {
@@ -371,7 +371,7 @@ func (r *commentRepo) GetUserSubCommentProfileList(ctx context.Context, page int
 }
 
 func (r *commentRepo) GetUserCommentProfileList(ctx context.Context, page int32, key, uuid string, commentList []*biz.Comment) (map[string]string, error) {
-	uuids := make([]string, 0)
+	uuids := make([]string, 0, len(commentList))
 	set := make(map[string]bool, 0)
 	for _, item := range commentList {
 		if _, ok := set[item.Uuid]; item.Uuid != "" && !ok {
@@ -400,7 +400,6 @@ func (r *commentRepo) GetUserCommentProfileList(ctx context.Context, page int32,
 
 func (r *commentRepo) GetUserCommentTalkReplyList(ctx context.Context, page int32, uuid string) ([]*biz.Comment, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_user_comment_talk_reply_list_%v_%s", page, uuid), func() (interface{}, error) {
-		reply := make([]*biz.Comment, 0)
 		commentList, err := r.data.commc.GetUserCommentTalkReplyList(ctx, &commentV1.GetUserCommentTalkReplyListReq{
 			Page: page,
 			Uuid: uuid,
@@ -408,6 +407,7 @@ func (r *commentRepo) GetUserCommentTalkReplyList(ctx context.Context, page int3
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.Comment, 0, len(commentList.List))
 		for _, item := range commentList.List {
 			reply = append(reply, &biz.Comment{
 				Id:             item.Id,
@@ -425,7 +425,6 @@ func (r *commentRepo) GetUserCommentTalkReplyList(ctx context.Context, page int3
 
 func (r *commentRepo) GetUserSubCommentTalkReplyList(ctx context.Context, page int32, uuid string) ([]*biz.SubComment, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_user_sub_comment_talk_reply_list_%v_%s", page, uuid), func() (interface{}, error) {
-		reply := make([]*biz.SubComment, 0)
 		commentList, err := r.data.commc.GetUserSubCommentTalkReplyList(ctx, &commentV1.GetUserSubCommentTalkReplyListReq{
 			Page: page,
 			Uuid: uuid,
@@ -433,6 +432,7 @@ func (r *commentRepo) GetUserSubCommentTalkReplyList(ctx context.Context, page i
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.SubComment, 0, len(commentList.List))
 		for _, item := range commentList.List {
 			reply = append(reply, &biz.SubComment{
 				Id:             item.Id,
@@ -454,7 +454,6 @@ func (r *commentRepo) GetUserSubCommentTalkReplyList(ctx context.Context, page i
 
 func (r *commentRepo) GetUserCommentArticleRepliedList(ctx context.Context, page int32, uuid string) ([]*biz.Comment, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_user_comment_article_replied_list_%v_%s", page, uuid), func() (interface{}, error) {
-		reply := make([]*biz.Comment, 0)
 		commentList, err := r.data.commc.GetUserCommentArticleRepliedList(ctx, &commentV1.GetUserCommentArticleRepliedListReq{
 			Page: page,
 			Uuid: uuid,
@@ -462,6 +461,7 @@ func (r *commentRepo) GetUserCommentArticleRepliedList(ctx context.Context, page
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.Comment, 0, len(commentList.List))
 		for _, item := range commentList.List {
 			reply = append(reply, &biz.Comment{
 				Id:         item.Id,
@@ -479,7 +479,6 @@ func (r *commentRepo) GetUserCommentArticleRepliedList(ctx context.Context, page
 
 func (r *commentRepo) GetUserSubCommentArticleRepliedList(ctx context.Context, page int32, uuid string) ([]*biz.SubComment, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_user_sub_comment_article_replied_list_%v_%s", page, uuid), func() (interface{}, error) {
-		reply := make([]*biz.SubComment, 0)
 		commentList, err := r.data.commc.GetUserSubCommentArticleRepliedList(ctx, &commentV1.GetUserSubCommentArticleRepliedListReq{
 			Page: page,
 			Uuid: uuid,
@@ -487,6 +486,7 @@ func (r *commentRepo) GetUserSubCommentArticleRepliedList(ctx context.Context, p
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.SubComment, 0, len(commentList.List))
 		for _, item := range commentList.List {
 			reply = append(reply, &biz.SubComment{
 				Id:             item.Id,
@@ -509,7 +509,6 @@ func (r *commentRepo) GetUserSubCommentArticleRepliedList(ctx context.Context, p
 
 func (r *commentRepo) GetUserCommentTalkRepliedList(ctx context.Context, page int32, uuid string) ([]*biz.Comment, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_user_comment_talk_replied_list_%v_%s", page, uuid), func() (interface{}, error) {
-		reply := make([]*biz.Comment, 0)
 		commentList, err := r.data.commc.GetUserCommentTalkRepliedList(ctx, &commentV1.GetUserCommentTalkRepliedListReq{
 			Page: page,
 			Uuid: uuid,
@@ -517,6 +516,7 @@ func (r *commentRepo) GetUserCommentTalkRepliedList(ctx context.Context, page in
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.Comment, 0, len(commentList.List))
 		for _, item := range commentList.List {
 			reply = append(reply, &biz.Comment{
 				Id:         item.Id,
@@ -534,7 +534,6 @@ func (r *commentRepo) GetUserCommentTalkRepliedList(ctx context.Context, page in
 
 func (r *commentRepo) GetUserSubCommentTalkRepliedList(ctx context.Context, page int32, uuid string) ([]*biz.SubComment, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_user_sub_comment_talk_replied_list_%v_%s", page, uuid), func() (interface{}, error) {
-		reply := make([]*biz.SubComment, 0)
 		commentList, err := r.data.commc.GetUserSubCommentTalkRepliedList(ctx, &commentV1.GetUserSubCommentTalkRepliedListReq{
 			Page: page,
 			Uuid: uuid,
@@ -542,6 +541,7 @@ func (r *commentRepo) GetUserSubCommentTalkRepliedList(ctx context.Context, page
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.SubComment, 0, len(commentList.List))
 		for _, item := range commentList.List {
 			reply = append(reply, &biz.SubComment{
 				Id:             item.Id,
@@ -564,7 +564,6 @@ func (r *commentRepo) GetUserSubCommentTalkRepliedList(ctx context.Context, page
 
 func (r *commentRepo) GetUserCommentRepliedList(ctx context.Context, page int32, uuid string) ([]*biz.Comment, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_user_comment_replied_list_%v_%s", page, uuid), func() (interface{}, error) {
-		reply := make([]*biz.Comment, 0)
 		commentList, err := r.data.commc.GetUserCommentRepliedList(ctx, &commentV1.GetUserCommentRepliedListReq{
 			Page: page,
 			Uuid: uuid,
@@ -572,6 +571,7 @@ func (r *commentRepo) GetUserCommentRepliedList(ctx context.Context, page int32,
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.Comment, 0, len(commentList.List))
 		for _, item := range commentList.List {
 			reply = append(reply, &biz.Comment{
 				Id:           item.Id,
@@ -590,7 +590,6 @@ func (r *commentRepo) GetUserCommentRepliedList(ctx context.Context, page int32,
 
 func (r *commentRepo) GetUserSubCommentRepliedList(ctx context.Context, page int32, uuid string) ([]*biz.SubComment, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_user_sub_comment_replied_list_%v_%s", page, uuid), func() (interface{}, error) {
-		reply := make([]*biz.SubComment, 0)
 		commentList, err := r.data.commc.GetUserSubCommentRepliedList(ctx, &commentV1.GetUserSubCommentRepliedListReq{
 			Page: page,
 			Uuid: uuid,
@@ -598,6 +597,7 @@ func (r *commentRepo) GetUserSubCommentRepliedList(ctx context.Context, page int
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.SubComment, 0, len(commentList.List))
 		for _, item := range commentList.List {
 			reply = append(reply, &biz.SubComment{
 				Id:             item.Id,
@@ -621,7 +621,6 @@ func (r *commentRepo) GetUserSubCommentRepliedList(ctx context.Context, page int
 
 func (r *commentRepo) GetCommentContentReview(ctx context.Context, page int32, uuid string) ([]*biz.CommentContentReview, error) {
 	result, err, _ := r.sg.Do(fmt.Sprintf("get_comment_content_review_%s_%v", uuid, page), func() (interface{}, error) {
-		reply := make([]*biz.CommentContentReview, 0)
 		reviewReply, err := r.data.commc.GetCommentContentReview(ctx, &commentV1.GetCommentContentReviewReq{
 			Page: page,
 			Uuid: uuid,
@@ -629,6 +628,7 @@ func (r *commentRepo) GetCommentContentReview(ctx context.Context, page int32, u
 		if err != nil {
 			return nil, err
 		}
+		reply := make([]*biz.CommentContentReview, 0, len(reviewReply.Review))
 		for _, item := range reviewReply.Review {
 			reply = append(reply, &biz.CommentContentReview{
 				Id:        item.Id,

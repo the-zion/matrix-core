@@ -37,7 +37,7 @@ func (r *MessageUseCase) GetMessageNotification(ctx context.Context) (*Notificat
 	if err != nil {
 		return nil, err
 	}
-	follows := make([]string, 0)
+	follows := make([]string, 0, len(uuidMap))
 	for key := range uuidMap {
 		follows = append(follows, key)
 	}
