@@ -38,3 +38,10 @@ type Medal struct {
 type Active struct {
 	Agree int32
 }
+
+//easyjson:json
+type CommentMap struct {
+	Uuid  string
+	Medal string
+	Mode  string
+}

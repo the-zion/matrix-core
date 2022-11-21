@@ -2,7 +2,6 @@ package data
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/apache/rocketmq-client-go/v2/primitive"
 	"github.com/go-kratos/kratos/v2/log"
@@ -791,12 +790,13 @@ func (r *achievementRepo) setActiveToCache(key string, active *biz.Active) {
 }
 
 func (r *achievementRepo) SendMedalToMq(ctx context.Context, medal, uuid, mode string) error {
-	commentMap := map[string]interface{}{}
-	commentMap["uuid"] = uuid
-	commentMap["medal"] = medal
-	commentMap["mode"] = mode
+	commentMap := &biz.CommentMap{
+		Uuid:  uuid,
+		Medal: medal,
+		Mode:  mode,
+	}
 
-	data, err := json.Marshal(commentMap)
+	data, err := commentMap.MarshalJSON()
 	if err != nil {
 		return err
 	}
