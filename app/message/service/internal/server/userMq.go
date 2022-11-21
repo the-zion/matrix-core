@@ -233,12 +233,12 @@ func NewPictureMqConsumerServer(conf *conf.Server, messageService *service.Messa
 				return consumer.ConsumeRetryLater, nil
 			}
 
-			mode := m["Mode"].(string)
+			mode := m["mode"].(string)
 			switch mode {
 			case "add_avatar_review_db_and_cache":
-				err = messageService.AddAvatarReviewDbAndCache(ctx, int32(m["Score"].(float64)), int32(m["Result"].(float64)), m["Uuid"].(string), m["JobId"].(string), m["Label"].(string), m["Category"].(string), m["SubLabel"].(string))
+				err = messageService.AddAvatarReviewDbAndCache(ctx, int32(m["score"].(float64)), int32(m["result"].(float64)), m["uuid"].(string), m["jobId"].(string), m["label"].(string), m["category"].(string), m["subLabel"].(string))
 			case "add_cover_review_db_and_cache":
-				err = messageService.AddCoverReviewDbAndCache(ctx, int32(m["Score"].(float64)), int32(m["Result"].(float64)), m["Uuid"].(string), m["JobId"].(string), m["Label"].(string), m["Category"].(string), m["SubLabel"].(string))
+				err = messageService.AddCoverReviewDbAndCache(ctx, int32(m["score"].(float64)), int32(m["result"].(float64)), m["uuid"].(string), m["jobId"].(string), m["label"].(string), m["category"].(string), m["subLabel"].(string))
 			}
 
 			if err != nil {

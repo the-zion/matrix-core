@@ -2,7 +2,6 @@ package data
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-redis/redis/v8"
@@ -147,7 +146,7 @@ func (r *messageRepo) getMessageSystemNotificationFromCache(ctx context.Context,
 	notificationList := make([]*biz.SystemNotification, 0, len(list))
 	for _, item := range list {
 		var notification = &biz.SystemNotification{}
-		err = json.Unmarshal([]byte(item), notification)
+		err = notification.UnmarshalJSON([]byte(item))
 		if err != nil {
 			return nil, errors.Wrapf(err, fmt.Sprintf("json unmarshal error: notification(%v)", item))
 		}
@@ -205,7 +204,7 @@ func (r *messageRepo) setMessageSystemNotificationToCache(key string, notificati
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		list := make([]interface{}, 0, len(notification))
 		for _, item := range notification {
-			m, err := json.Marshal(item)
+			m, err := item.MarshalJSON()
 			if err != nil {
 				return errors.Wrapf(err, fmt.Sprintf("fail to marshal avatar review: notification(%v)", item))
 			}
@@ -286,7 +285,7 @@ func (r *messageRepo) AddMailBoxSystemNotification(ctx context.Context, contentI
 }
 
 func (r *messageRepo) AddMailBoxSystemNotificationToCache(ctx context.Context, notification *biz.SystemNotification) error {
-	marshal, err := json.Marshal(notification)
+	marshal, err := notification.MarshalJSON()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set system notification to json: json.Marshal(%v)", notification))
 	}

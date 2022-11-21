@@ -31,12 +31,12 @@ func NewUserRepo(data *Data, logger log.Logger) biz.UserRepo {
 }
 
 func (r *userRepo) UploadProfileToCos(msg *primitive.MessageExt) error {
-	m := map[string]interface{}{"Uuid": ""}
+	m := map[string]interface{}{"uuid": ""}
 	err := json.Unmarshal(msg.Body, &m)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to unmarshal profile: profile(%v)", msg.Body))
 	}
-	key := "profile/" + m["Uuid"].(string)
+	key := "profile/" + m["uuid"].(string)
 
 	opt := &cos.ObjectPutOptions{
 		ObjectPutHeaderOptions: &cos.ObjectPutHeaderOptions{
@@ -45,8 +45,8 @@ func (r *userRepo) UploadProfileToCos(msg *primitive.MessageExt) error {
 		},
 	}
 
-	opt.XCosMetaXXX.Add("x-cos-meta-uuid", m["Uuid"].(string))
-	opt.XCosMetaXXX.Add("x-cos-meta-update", m["Updated"].(string))
+	opt.XCosMetaXXX.Add("x-cos-meta-uuid", m["uuid"].(string))
+	opt.XCosMetaXXX.Add("x-cos-meta-update", m["updated"].(string))
 
 	f := strings.NewReader(string(msg.Body))
 	_, err = r.data.cosUserCli.cos.Object.Put(

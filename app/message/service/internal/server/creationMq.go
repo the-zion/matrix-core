@@ -50,12 +50,12 @@ func NewArticleReviewMqConsumerServer(conf *conf.Server, messageService *service
 			return consumer.ConsumeRetryLater, nil
 		}
 
-		mode := m["Mode"].(string)
+		mode := m["mode"].(string)
 		switch mode {
 		case "create":
-			err = messageService.ToReviewCreateArticle(int32(m["Id"].(float64)), m["Uuid"].(string))
+			err = messageService.ToReviewCreateArticle(int32(m["id"].(float64)), m["uuid"].(string))
 		case "edit":
-			err = messageService.ToReviewEditArticle(int32(m["Id"].(float64)), m["Uuid"].(string))
+			err = messageService.ToReviewEditArticle(int32(m["id"].(float64)), m["uuid"].(string))
 		}
 
 		if err != nil {
@@ -141,9 +141,9 @@ func NewArticleMqConsumerServer(conf *conf.Server, messageService *service.Messa
 		case "cancel_article_collect_db_and_cache":
 			err = messageService.CancelArticleCollectDbAndCache(ctx, int32(m["id"].(float64)), m["uuid"].(string), m["userUuid"].(string))
 		case "add_article_image_review_db_and_cache":
-			err = messageService.AddArticleImageReviewDbAndCache(ctx, int32(m["creation_id"].(float64)), int32(m["score"].(float64)), int32(m["result"].(float64)), m["kind"].(string), m["uid"].(string), m["uuid"].(string), m["job_id"].(string), m["label"].(string), m["category"].(string), m["sub_label"].(string))
+			err = messageService.AddArticleImageReviewDbAndCache(ctx, int32(m["creationId"].(float64)), int32(m["score"].(float64)), int32(m["result"].(float64)), m["kind"].(string), m["uid"].(string), m["uuid"].(string), m["jobId"].(string), m["label"].(string), m["category"].(string), m["subLabel"].(string))
 		case "add_article_content_review_db_and_cache":
-			err = messageService.AddArticleContentReviewDbAndCache(ctx, int32(m["creation_id"].(float64)), int32(m["result"].(float64)), m["uuid"].(string), m["job_id"].(string), m["label"].(string), m["title"].(string), m["kind"].(string), m["section"].(string))
+			err = messageService.AddArticleContentReviewDbAndCache(ctx, int32(m["creationId"].(float64)), int32(m["result"].(float64)), m["uuid"].(string), m["jobId"].(string), m["label"].(string), m["title"].(string), m["kind"].(string), m["section"].(string))
 		}
 
 		if err != nil {
@@ -210,12 +210,12 @@ func NewTalkReviewMqConsumerServer(conf *conf.Server, messageService *service.Me
 			return consumer.ConsumeRetryLater, nil
 		}
 
-		mode := m["Mode"].(string)
+		mode := m["mode"].(string)
 		switch mode {
 		case "create":
-			err = messageService.ToReviewCreateTalk(int32(m["Id"].(float64)), m["Uuid"].(string))
+			err = messageService.ToReviewCreateTalk(int32(m["id"].(float64)), m["uuid"].(string))
 		case "edit":
-			err = messageService.ToReviewEditTalk(int32(m["Id"].(float64)), m["Uuid"].(string))
+			err = messageService.ToReviewEditTalk(int32(m["id"].(float64)), m["uuid"].(string))
 		}
 
 		if err != nil {
@@ -301,9 +301,9 @@ func NewTalkMqConsumerServer(conf *conf.Server, messageService *service.MessageS
 		case "cancel_talk_collect_db_and_cache":
 			err = messageService.CancelTalkCollectDbAndCache(ctx, int32(m["id"].(float64)), m["uuid"].(string), m["userUuid"].(string))
 		case "add_talk_image_review_db_and_cache":
-			err = messageService.AddTalkImageReviewDbAndCache(ctx, int32(m["creation_id"].(float64)), int32(m["score"].(float64)), int32(m["result"].(float64)), m["kind"].(string), m["uid"].(string), m["uuid"].(string), m["job_id"].(string), m["label"].(string), m["category"].(string), m["sub_label"].(string))
+			err = messageService.AddTalkImageReviewDbAndCache(ctx, int32(m["creationId"].(float64)), int32(m["score"].(float64)), int32(m["result"].(float64)), m["kind"].(string), m["uid"].(string), m["uuid"].(string), m["jobId"].(string), m["label"].(string), m["category"].(string), m["subLabel"].(string))
 		case "add_talk_content_review_db_and_cache":
-			err = messageService.AddTalkContentReviewDbAndCache(ctx, int32(m["creation_id"].(float64)), int32(m["result"].(float64)), m["uuid"].(string), m["job_id"].(string), m["label"].(string), m["title"].(string), m["kind"].(string), m["section"].(string))
+			err = messageService.AddTalkContentReviewDbAndCache(ctx, int32(m["creationId"].(float64)), int32(m["result"].(float64)), m["uuid"].(string), m["jobId"].(string), m["label"].(string), m["title"].(string), m["kind"].(string), m["section"].(string))
 		}
 
 		if err != nil {
@@ -370,12 +370,12 @@ func NewColumnReviewMqConsumerServer(conf *conf.Server, messageService *service.
 			return consumer.ConsumeRetryLater, nil
 		}
 
-		mode := m["Mode"].(string)
+		mode := m["mode"].(string)
 		switch mode {
 		case "create":
-			err = messageService.ToReviewCreateColumn(int32(m["Id"].(float64)), m["Uuid"].(string))
+			err = messageService.ToReviewCreateColumn(int32(m["id"].(float64)), m["uuid"].(string))
 		case "edit":
-			err = messageService.ToReviewEditColumn(int32(m["Id"].(float64)), m["Uuid"].(string))
+			err = messageService.ToReviewEditColumn(int32(m["id"].(float64)), m["uuid"].(string))
 		}
 
 		if err != nil {
@@ -469,9 +469,9 @@ func NewColumnMqConsumerServer(conf *conf.Server, messageService *service.Messag
 		case "cancel_column_subscribe_db_and_cache":
 			err = messageService.CancelColumnSubscribeDbAndCache(ctx, int32(m["id"].(float64)), m["uuid"].(string))
 		case "add_column_image_review_db_and_cache":
-			err = messageService.AddColumnImageReviewDbAndCache(ctx, int32(m["creation_id"].(float64)), int32(m["score"].(float64)), int32(m["result"].(float64)), m["kind"].(string), m["uid"].(string), m["uuid"].(string), m["job_id"].(string), m["label"].(string), m["category"].(string), m["sub_label"].(string))
+			err = messageService.AddColumnImageReviewDbAndCache(ctx, int32(m["creationId"].(float64)), int32(m["score"].(float64)), int32(m["result"].(float64)), m["kind"].(string), m["uid"].(string), m["uuid"].(string), m["jobId"].(string), m["label"].(string), m["category"].(string), m["subLabel"].(string))
 		case "add_column_content_review_db_and_cache":
-			err = messageService.AddColumnContentReviewDbAndCache(ctx, int32(m["creation_id"].(float64)), int32(m["result"].(float64)), m["uuid"].(string), m["job_id"].(string), m["label"].(string), m["title"].(string), m["kind"].(string), m["section"].(string))
+			err = messageService.AddColumnContentReviewDbAndCache(ctx, int32(m["creationId"].(float64)), int32(m["result"].(float64)), m["uuid"].(string), m["jobId"].(string), m["label"].(string), m["title"].(string), m["kind"].(string), m["section"].(string))
 		}
 
 		if err != nil {
@@ -538,12 +538,12 @@ func NewCollectionsReviewMqConsumerServer(conf *conf.Server, messageService *ser
 			return consumer.ConsumeRetryLater, nil
 		}
 
-		mode := m["Mode"].(string)
+		mode := m["mode"].(string)
 		switch mode {
 		case "create":
-			err = messageService.ToReviewCreateCollections(int32(m["Id"].(float64)), m["Uuid"].(string))
+			err = messageService.ToReviewCreateCollections(int32(m["id"].(float64)), m["uuid"].(string))
 		case "edit":
-			err = messageService.ToReviewEditCollections(int32(m["Id"].(float64)), m["Uuid"].(string))
+			err = messageService.ToReviewEditCollections(int32(m["id"].(float64)), m["uuid"].(string))
 		}
 
 		if err != nil {
@@ -619,7 +619,7 @@ func NewCollectionsMqConsumerServer(conf *conf.Server, messageService *service.M
 		case "delete_collections_cache":
 			err = messageService.DeleteCollectionsCache(ctx, int32(m["id"].(float64)), m["uuid"].(string))
 		case "add_collections_content_review_db_and_cache":
-			err = messageService.AddCollectionsContentReviewDbAndCache(ctx, int32(m["creation_id"].(float64)), int32(m["result"].(float64)), m["uuid"].(string), m["job_id"].(string), m["label"].(string), m["title"].(string), m["kind"].(string), m["section"].(string))
+			err = messageService.AddCollectionsContentReviewDbAndCache(ctx, int32(m["creationId"].(float64)), int32(m["result"].(float64)), m["uuid"].(string), m["jobId"].(string), m["label"].(string), m["title"].(string), m["kind"].(string), m["section"].(string))
 		}
 
 		if err != nil {

@@ -101,6 +101,7 @@ type Notification struct {
 	SystemNotification int32
 }
 
+//easyjson:json
 type SystemNotification struct {
 	Id               int32
 	ContentId        int32
