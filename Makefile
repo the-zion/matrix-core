@@ -62,6 +62,11 @@ generate:
 wire:
 	go generate ./...
 
+.PHONY: easyjson
+# easyjson
+easyjson:
+	go get github.com/mailru/easyjson/easyjson
+
 .PHONY: all
 # generate all
 all:
