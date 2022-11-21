@@ -848,7 +848,7 @@ func (r *userRepo) setAvatarReviewToCache(key string, review []*biz.ImageReview)
 }
 
 func (r *userRepo) SetAvatarIrregularToCache(ctx context.Context, review *biz.ImageReview) error {
-	marshal, err := json.Marshal(review)
+	marshal, err := review.MarshalJSON()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set avatar irregular to json: json.Marshal(%v)", review))
 	}
