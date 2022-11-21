@@ -87,12 +87,12 @@ func (r *userRepo) GetProfile(ctx context.Context, uuid string) (*biz.Profile, e
 }
 
 func (r *userRepo) GetProfileList(ctx context.Context, uuids []string) ([]*biz.Profile, error) {
-	profileList := make([]*biz.Profile, 0)
 	exists, unExists, err := r.profileListExist(ctx, uuids)
 	if err != nil {
 		return nil, err
 	}
 
+	profileList := make([]*biz.Profile, 0, cap(exists))
 	g, _ := errgroup.WithContext(ctx)
 	g.Go(r.data.GroupRecover(ctx, func(ctx context.Context) error {
 		if len(exists) == 0 {
@@ -116,8 +116,6 @@ func (r *userRepo) GetProfileList(ctx context.Context, uuids []string) ([]*biz.P
 }
 
 func (r *userRepo) profileListExist(ctx context.Context, uuids []string) ([]string, []string, error) {
-	exists := make([]string, 0)
-	unExists := make([]string, 0)
 	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		for _, item := range uuids {
 			pipe.Exists(ctx, "profile_"+item)
@@ -128,6 +126,8 @@ func (r *userRepo) profileListExist(ctx context.Context, uuids []string) ([]stri
 		return nil, nil, errors.Wrapf(err, fmt.Sprintf("fail to check if user profile exist from cache: uuids(%v)", uuids))
 	}
 
+	exists := make([]string, 0, len(cmd))
+	unExists := make([]string, 0, len(cmd))
 	for index, item := range cmd {
 		exist := item.(*redis.IntCmd).Val()
 		if exist == 1 {
@@ -167,7 +167,7 @@ func (r *userRepo) getProfileListFromCache(ctx context.Context, exists []string,
 }
 
 func (r *userRepo) getProfileListFromDb(ctx context.Context, unExists []string, profileList *[]*biz.Profile) error {
-	list := make([]*Profile, 0)
+	list := make([]*Profile, 0, cap(unExists))
 	err := r.data.db.WithContext(ctx).Where("uuid IN ?", unExists).Find(&list).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to get profile list from db: uuids(%v)", unExists))
@@ -266,7 +266,7 @@ func (r *userRepo) getFollowListFromCache(ctx context.Context, page int32, uuid 
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user follow from cache: uuid(%s), page(%v)", uuid, page))
 	}
 
-	follow := make([]*biz.Follow, 0)
+	follow := make([]*biz.Follow, 0, len(list))
 	for _, item := range list {
 		follow = append(follow, &biz.Follow{
 			Follow: item,
@@ -286,7 +286,7 @@ func (r *userRepo) getFollowFromDB(ctx context.Context, page int32, uuid string)
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get follow list from db: uuid(%s)", uuid))
 	}
-	follows := make([]*biz.Follow, 0)
+	follows := make([]*biz.Follow, 0, len(list))
 	for _, item := range list {
 		follows = append(follows, &biz.Follow{
 			Follow: item.Follow,
@@ -300,7 +300,7 @@ func (r *userRepo) getFollowFromDB(ctx context.Context, page int32, uuid string)
 func (r *userRepo) setFollowToCache(uuid string, follow []*biz.Follow) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		z := make([]*redis.Z, 0)
+		z := make([]*redis.Z, 0, len(follow))
 		for _, item := range follow {
 			z = append(z, &redis.Z{
 				//Score:  float64(item.Id),
@@ -361,7 +361,7 @@ func (r *userRepo) getFollowedListFromCache(ctx context.Context, page int32, uui
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user followed from cache: uuid(%s), page(%v)", uuid, page))
 	}
 
-	followed := make([]*biz.Follow, 0)
+	followed := make([]*biz.Follow, 0, len(list))
 	for _, item := range list {
 		followed = append(followed, &biz.Follow{
 			Followed: item,
@@ -381,7 +381,7 @@ func (r *userRepo) getFollowedFromDB(ctx context.Context, page int32, uuid strin
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get followed list from db: uuid(%s)", uuid))
 	}
-	follows := make([]*biz.Follow, 0)
+	follows := make([]*biz.Follow, 0, len(list))
 	for _, item := range list {
 		follows = append(follows, &biz.Follow{
 			Followed: item.Followed,
@@ -395,7 +395,7 @@ func (r *userRepo) getFollowedFromDB(ctx context.Context, page int32, uuid strin
 func (r *userRepo) setFollowedToCache(uuid string, followed []*biz.Follow) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		z := make([]*redis.Z, 0)
+		z := make([]*redis.Z, 0, len(followed))
 		for _, item := range followed {
 			z = append(z, &redis.Z{
 				Score:  float64(item.Update.Unix()),
@@ -731,7 +731,7 @@ func (r *userRepo) getUserFollowsFromDB(ctx context.Context, uuid string) ([]str
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user follows from db: uuid(%s)", uuid))
 	}
 
-	follows := make([]string, 0)
+	follows := make([]string, 0, len(list))
 	for _, item := range list {
 		follows = append(follows, item.Follow)
 	}
@@ -774,7 +774,7 @@ func (r *userRepo) getAvatarReviewFromCache(ctx context.Context, page int32, key
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get avatar irregular list from cache: key(%s), page(%v)", key, page))
 	}
 
-	review := make([]*biz.ImageReview, 0)
+	review := make([]*biz.ImageReview, 0, len(list))
 	for _index, item := range list {
 		var avatarReview = &biz.ImageReview{}
 		err = json.Unmarshal([]byte(item), avatarReview)
@@ -808,7 +808,7 @@ func (r *userRepo) getAvatarReviewFromDB(ctx context.Context, page int32, uuid s
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get avatar review from db: page(%v), uuid(%s)", page, uuid))
 	}
 
-	review := make([]*biz.ImageReview, 0)
+	review := make([]*biz.ImageReview, 0, len(list))
 	for _index, item := range list {
 		review = append(review, &biz.ImageReview{
 			Id:       int32(_index+1) + (page-1)*20,
@@ -829,7 +829,7 @@ func (r *userRepo) getAvatarReviewFromDB(ctx context.Context, page int32, uuid s
 func (r *userRepo) setAvatarReviewToCache(key string, review []*biz.ImageReview) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		list := make([]interface{}, 0)
+		list := make([]interface{}, 0, len(review))
 		for _, item := range review {
 			m, err := json.Marshal(item)
 			if err != nil {
@@ -925,7 +925,7 @@ func (r *userRepo) getCoverReviewFromCache(ctx context.Context, page int32, key 
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get cover irregular list from cache: key(%s), page(%v)", key, page))
 	}
 
-	review := make([]*biz.ImageReview, 0)
+	review := make([]*biz.ImageReview, 0, len(list))
 	for _index, item := range list {
 		var avatarReview = &biz.ImageReview{}
 		err = json.Unmarshal([]byte(item), avatarReview)
@@ -959,7 +959,7 @@ func (r *userRepo) getCoverReviewFromDB(ctx context.Context, page int32, uuid st
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get cover review from db: page(%v), uuid(%s)", page, uuid))
 	}
 
-	review := make([]*biz.ImageReview, 0)
+	review := make([]*biz.ImageReview, 0, len(list))
 	for _index, item := range list {
 		review = append(review, &biz.ImageReview{
 			Id:       int32(_index+1) + (page-1)*20,
@@ -980,7 +980,7 @@ func (r *userRepo) getCoverReviewFromDB(ctx context.Context, page int32, uuid st
 func (r *userRepo) setCoverReviewToCache(key string, review []*biz.ImageReview) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		list := make([]interface{}, 0)
+		list := make([]interface{}, 0, len(review))
 		for _, item := range review {
 			m, err := json.Marshal(item)
 			if err != nil {
@@ -1041,7 +1041,7 @@ func (r *userRepo) SetCoverIrregularToCache(ctx context.Context, review *biz.Ima
 }
 
 func (r *userRepo) setUserFollowsToCache(uuid string, follows []string) {
-	members := make([]interface{}, 0)
+	members := make([]interface{}, 0, len(follows))
 	ctx := context.Background()
 	for _, item := range follows {
 		members = append(members, item)

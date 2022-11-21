@@ -42,11 +42,11 @@ func (s *UserService) GetProfile(ctx context.Context, req *v1.GetProfileReq) (*v
 }
 
 func (s *UserService) GetProfileList(ctx context.Context, req *v1.GetProfileListReq) (*v1.GetProfileListReply, error) {
-	reply := &v1.GetProfileListReply{Profile: make([]*v1.GetProfileListReply_Profile, 0)}
 	profileList, err := s.uc.GetProfileList(ctx, req.Uuids)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetProfileListReply{Profile: make([]*v1.GetProfileListReply_Profile, 0, len(profileList))}
 	for _, item := range profileList {
 		reply.Profile = append(reply.Profile, &v1.GetProfileListReply_Profile{
 			Uuid:      item.Uuid,
@@ -85,11 +85,11 @@ func (s *UserService) GetUserFollow(ctx context.Context, req *v1.GetUserFollowRe
 }
 
 func (s *UserService) GetFollowList(ctx context.Context, req *v1.GetFollowListReq) (*v1.GetFollowListReply, error) {
-	reply := &v1.GetFollowListReply{Follow: make([]*v1.GetFollowListReply_Follow, 0)}
 	followList, err := s.uc.GetFollowList(ctx, req.Page, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetFollowListReply{Follow: make([]*v1.GetFollowListReply_Follow, 0, len(followList))}
 	for _, item := range followList {
 		reply.Follow = append(reply.Follow, &v1.GetFollowListReply_Follow{
 			Uuid: item.Follow,
@@ -109,11 +109,11 @@ func (s *UserService) GetFollowListCount(ctx context.Context, req *v1.GetFollowL
 }
 
 func (s *UserService) GetFollowedList(ctx context.Context, req *v1.GetFollowedListReq) (*v1.GetFollowedListReply, error) {
-	reply := &v1.GetFollowedListReply{Follow: make([]*v1.GetFollowedListReply_Follow, 0)}
 	followedList, err := s.uc.GetFollowedList(ctx, req.Page, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetFollowedListReply{Follow: make([]*v1.GetFollowedListReply_Follow, 0, len(followedList))}
 	for _, item := range followedList {
 		reply.Follow = append(reply.Follow, &v1.GetFollowedListReply_Follow{
 			Uuid: item.Followed,
@@ -143,11 +143,11 @@ func (s *UserService) GetUserFollows(ctx context.Context, req *v1.GetUserFollows
 }
 
 func (s *UserService) GetUserSearch(ctx context.Context, req *v1.GetUserSearchReq) (*v1.GetUserSearchReply, error) {
-	reply := &v1.GetUserSearchReply{List: make([]*v1.GetUserSearchReply_List, 0)}
 	userList, total, err := s.uc.GetUserSearch(ctx, req.Page, req.Search)
 	if err != nil {
-		return reply, err
+		return nil, err
 	}
+	reply := &v1.GetUserSearchReply{List: make([]*v1.GetUserSearchReply_List, 0, len(userList))}
 	for _, item := range userList {
 		reply.List = append(reply.List, &v1.GetUserSearchReply_List{
 			Uuid:      item.Uuid,
@@ -160,11 +160,11 @@ func (s *UserService) GetUserSearch(ctx context.Context, req *v1.GetUserSearchRe
 }
 
 func (s *UserService) GetAvatarReview(ctx context.Context, req *v1.GetAvatarReviewReq) (*v1.GetAvatarReviewReply, error) {
-	reply := &v1.GetAvatarReviewReply{Review: make([]*v1.GetAvatarReviewReply_Review, 0)}
 	reviewList, err := s.uc.GetAvatarReview(ctx, req.Page, req.Uuid)
 	if err != nil {
-		return reply, err
+		return nil, err
 	}
+	reply := &v1.GetAvatarReviewReply{Review: make([]*v1.GetAvatarReviewReply_Review, 0, len(reviewList))}
 	for _, item := range reviewList {
 		reply.Review = append(reply.Review, &v1.GetAvatarReviewReply_Review{
 			Id:       item.Id,
@@ -183,11 +183,11 @@ func (s *UserService) GetAvatarReview(ctx context.Context, req *v1.GetAvatarRevi
 }
 
 func (s *UserService) GetCoverReview(ctx context.Context, req *v1.GetCoverReviewReq) (*v1.GetCoverReviewReply, error) {
-	reply := &v1.GetCoverReviewReply{Review: make([]*v1.GetCoverReviewReply_Review, 0)}
 	reviewList, err := s.uc.GetCoverReview(ctx, req.Page, req.Uuid)
 	if err != nil {
-		return reply, err
+		return nil, err
 	}
+	reply := &v1.GetCoverReviewReply{Review: make([]*v1.GetCoverReviewReply_Review, 0, len(reviewList))}
 	for _, item := range reviewList {
 		reply.Review = append(reply.Review, &v1.GetCoverReviewReply_Review{
 			Id:       item.Id,
