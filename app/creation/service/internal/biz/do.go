@@ -63,12 +63,14 @@ type TalkDraft struct {
 	Uuid   string
 }
 
+//easyjson:json
 type ArticleReview struct {
 	Uuid string
 	Id   int32
 	Mode string
 }
 
+//easyjson:json
 type TalkReview struct {
 	Uuid string
 	Id   int32
@@ -97,6 +99,7 @@ type CollectionsDraft struct {
 	Uuid   string
 }
 
+//easyjson:json
 type CollectionsReview struct {
 	Uuid string
 	Id   int32
@@ -115,6 +118,7 @@ type ColumnDraft struct {
 	Uuid   string
 }
 
+//easyjson:json
 type ColumnReview struct {
 	Uuid string
 	Id   int32
@@ -195,6 +199,7 @@ type CreationUser struct {
 	Subscribe   int32
 }
 
+//easyjson:json
 type ImageReview struct {
 	Id         int32
 	CreationId int32
@@ -212,6 +217,7 @@ type ImageReview struct {
 	Score      int32
 }
 
+//easyjson:json
 type TextReview struct {
 	Id         int32
 	CreationId int32
@@ -224,4 +230,88 @@ type TextReview struct {
 	Uuid       string
 	Mode       string
 	Section    string
+}
+
+//easyjson:json
+type SendCollectionMap struct {
+	Uuid string
+	Id   int32
+	Auth int32
+	Mode string
+}
+
+//easyjson:json
+type SendScoreMap struct {
+	Uuid  string
+	Score int32
+	Mode  string
+}
+
+//easyjson:json
+type SendArticleMap struct {
+	Uuid string
+	Id   int32
+	Auth int32
+	Mode string
+}
+
+//easyjson:json
+type SendStatisticMap struct {
+	Id            int32
+	CollectionsId int32
+	Uuid          string
+	UserUuid      string
+	Mode          string
+}
+
+//easyjson:json
+type SendArticleStatisticMap struct {
+	Uuid     string
+	UserUuid string
+	Mode     string
+}
+
+//easyjson:json
+type SendColumnMap struct {
+	Uuid string
+	Id   int32
+	Auth int32
+	Mode string
+}
+
+//easyjson:json
+type SendColumnIncludesMap struct {
+	Id        int32
+	ArticleId int32
+	Uuid      string
+	Mode      string
+}
+
+//easyjson:json
+type SendColumnSubscribeMap struct {
+	Id   int32
+	Uuid string
+	Mode string
+}
+
+//easyjson:json
+type SendColumnStatisticMap struct {
+	Uuid     string
+	UserUuid string
+	Mode     string
+}
+
+//easyjson:json
+type SendTalkMap struct {
+	Uuid string
+	Id   int32
+	Auth int32
+	Mode string
+}
+
+//easyjson:json
+type SendTalkStatisticMap struct {
+	Uuid     string
+	UserUuid string
+	Mode     string
 }

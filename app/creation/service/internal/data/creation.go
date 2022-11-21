@@ -2,7 +2,6 @@ package data
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/apache/rocketmq-client-go/v2/primitive"
 	kerrors "github.com/go-kratos/kratos/v2/errors"
@@ -112,7 +111,7 @@ func (r *creationRepo) getCollectionsContentReviewFromCache(ctx context.Context,
 	review := make([]*biz.TextReview, 0, len(list))
 	for _index, item := range list {
 		var textReview = &biz.TextReview{}
-		err = json.Unmarshal([]byte(item), textReview)
+		err = textReview.UnmarshalJSON([]byte(item))
 		if err != nil {
 			return nil, errors.Wrapf(err, fmt.Sprintf("json unmarshal error: contentReview(%v)", item))
 		}
@@ -166,7 +165,7 @@ func (r *creationRepo) setCollectionsContentReviewToCache(key string, review []*
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		list := make([]interface{}, 0, len(review))
 		for _, item := range review {
-			m, err := json.Marshal(item)
+			m, err := item.MarshalJSON()
 			if err != nil {
 				r.log.Errorf("fail to marshal avatar review: contentReview(%v), err(%v)", review, err)
 			}
@@ -1224,17 +1223,18 @@ func (r *creationRepo) SendCollections(ctx context.Context, id int32, uuid strin
 }
 
 func (r *creationRepo) SendCollectionsContentIrregularToMq(ctx context.Context, review *biz.TextReview) error {
-	m := make(map[string]interface{}, 0)
-	m["creation_id"] = review.CreationId
-	m["result"] = review.Result
-	m["uuid"] = review.Uuid
-	m["job_id"] = review.JobId
-	m["label"] = review.Label
-	m["title"] = review.Title
-	m["kind"] = review.Kind
-	m["section"] = review.Section
-	m["mode"] = review.Mode
-	data, err := json.Marshal(m)
+	m := &biz.TextReview{
+		CreationId: review.CreationId,
+		Result:     review.Result,
+		Uuid:       review.Uuid,
+		JobId:      review.JobId,
+		Label:      review.Label,
+		Title:      review.Title,
+		Kind:       review.Kind,
+		Section:    review.Section,
+		Mode:       review.Mode,
+	}
+	data, err := m.MarshalJSON()
 	if err != nil {
 		return err
 	}
@@ -1271,7 +1271,7 @@ func (r *creationRepo) SetCollectionsContentIrregular(ctx context.Context, revie
 }
 
 func (r *creationRepo) SetCollectionsContentIrregularToCache(ctx context.Context, review *biz.TextReview) error {
-	marshal, err := json.Marshal(review)
+	marshal, err := review.MarshalJSON()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set collections content irregular to json: json.Marshal(%v)", review))
 	}
@@ -1644,7 +1644,7 @@ func (r *creationRepo) SetLeaderBoardToCache(ctx context.Context, boardList []*b
 }
 
 func (r *creationRepo) SendReviewToMq(ctx context.Context, review *biz.CollectionsReview) error {
-	data, err := json.Marshal(review)
+	data, err := review.MarshalJSON()
 	if err != nil {
 		return err
 	}
@@ -1661,13 +1661,14 @@ func (r *creationRepo) SendReviewToMq(ctx context.Context, review *biz.Collectio
 }
 
 func (r *creationRepo) SendCollectionsToMq(ctx context.Context, collections *biz.Collections, mode string) error {
-	collectionsMap := map[string]interface{}{}
-	collectionsMap["uuid"] = collections.Uuid
-	collectionsMap["id"] = collections.CollectionsId
-	collectionsMap["auth"] = collections.Auth
-	collectionsMap["mode"] = mode
+	collectionsMap := &biz.SendCollectionMap{
+		Uuid: collections.Uuid,
+		Id:   collections.CollectionsId,
+		Auth: collections.Auth,
+		Mode: mode,
+	}
 
-	data, err := json.Marshal(collectionsMap)
+	data, err := collectionsMap.MarshalJSON()
 	if err != nil {
 		return err
 	}

@@ -999,7 +999,7 @@ func (r *talkRepo) getTalkImageReviewFromCache(ctx context.Context, page int32, 
 	review := make([]*biz.ImageReview, 0, len(list))
 	for _index, item := range list {
 		var imageReview = &biz.ImageReview{}
-		err = json.Unmarshal([]byte(item), imageReview)
+		err = imageReview.UnmarshalJSON([]byte(item))
 		if err != nil {
 			return nil, errors.Wrapf(err, fmt.Sprintf("json unmarshal error: imageReview(%v)", item))
 		}
@@ -1059,7 +1059,7 @@ func (r *talkRepo) setTalkImageReviewToCache(key string, review []*biz.ImageRevi
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		list := make([]interface{}, 0, len(review))
 		for _, item := range review {
-			m, err := json.Marshal(item)
+			m, err := item.MarshalJSON()
 			if err != nil {
 				return errors.Wrapf(err, fmt.Sprintf("fail to marshal avatar review: imageReview(%v)", review))
 			}
@@ -1113,7 +1113,7 @@ func (r *talkRepo) getTalkContentReviewFromCache(ctx context.Context, page int32
 	review := make([]*biz.TextReview, 0, len(list))
 	for _index, item := range list {
 		var textReview = &biz.TextReview{}
-		err = json.Unmarshal([]byte(item), textReview)
+		err = textReview.UnmarshalJSON([]byte(item))
 		if err != nil {
 			return nil, errors.Wrapf(err, fmt.Sprintf("json unmarshal error: contentReview(%v)", item))
 		}
@@ -1167,7 +1167,7 @@ func (r *talkRepo) setTalkContentReviewToCache(key string, review []*biz.TextRev
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		list := make([]interface{}, 0, len(review))
 		for _, item := range review {
-			m, err := json.Marshal(item)
+			m, err := item.MarshalJSON()
 			if err != nil {
 				return errors.Wrapf(err, fmt.Sprintf("fail to marshal avatar review: contentReview(%v)", review))
 			}
@@ -1217,7 +1217,7 @@ func (r *talkRepo) SendTalk(ctx context.Context, id int32, uuid string) (*biz.Ta
 }
 
 func (r *talkRepo) SendReviewToMq(ctx context.Context, review *biz.TalkReview) error {
-	data, err := json.Marshal(review)
+	data, err := review.MarshalJSON()
 	if err != nil {
 		return err
 	}
@@ -1388,13 +1388,13 @@ func (r *talkRepo) CreateTalkStatistic(ctx context.Context, id, auth int32, uuid
 }
 
 func (r *talkRepo) SendTalkToMq(ctx context.Context, talk *biz.Talk, mode string) error {
-	talkMap := map[string]interface{}{}
-	talkMap["uuid"] = talk.Uuid
-	talkMap["id"] = talk.TalkId
-	talkMap["auth"] = talk.Auth
-	talkMap["mode"] = mode
-
-	data, err := json.Marshal(talkMap)
+	talkMap := &biz.SendTalkMap{
+		Uuid: talk.Uuid,
+		Id:   talk.TalkId,
+		Auth: talk.Auth,
+		Mode: mode,
+	}
+	data, err := talkMap.MarshalJSON()
 	if err != nil {
 		return err
 	}
@@ -1714,12 +1714,12 @@ func (r *talkRepo) EditTalkCosIntroduce(ctx context.Context, id int32, uuid stri
 }
 
 func (r *talkRepo) SendTalkStatisticToMq(ctx context.Context, uuid, userUuid, mode string) error {
-	achievement := map[string]interface{}{}
-	achievement["uuid"] = uuid
-	achievement["userUuid"] = userUuid
-	achievement["mode"] = mode
-
-	data, err := json.Marshal(achievement)
+	achievement := &biz.SendTalkStatisticMap{
+		Uuid:     uuid,
+		UserUuid: userUuid,
+		Mode:     mode,
+	}
+	data, err := achievement.MarshalJSON()
 	if err != nil {
 		return err
 	}
@@ -1736,12 +1736,12 @@ func (r *talkRepo) SendTalkStatisticToMq(ctx context.Context, uuid, userUuid, mo
 }
 
 func (r *talkRepo) SendScoreToMq(ctx context.Context, score int32, uuid, mode string) error {
-	scoreMap := map[string]interface{}{}
-	scoreMap["uuid"] = uuid
-	scoreMap["score"] = score
-	scoreMap["mode"] = mode
-
-	data, err := json.Marshal(scoreMap)
+	scoreMap := &biz.SendScoreMap{
+		Uuid:  uuid,
+		Score: score,
+		Mode:  mode,
+	}
+	data, err := scoreMap.MarshalJSON()
 	if err != nil {
 		return err
 	}
@@ -1758,14 +1758,14 @@ func (r *talkRepo) SendScoreToMq(ctx context.Context, score int32, uuid, mode st
 }
 
 func (r *talkRepo) SendStatisticToMq(ctx context.Context, id, collectionsId int32, uuid, userUuid, mode string) error {
-	statisticMap := map[string]interface{}{}
-	statisticMap["id"] = id
-	statisticMap["collectionsId"] = collectionsId
-	statisticMap["uuid"] = uuid
-	statisticMap["userUuid"] = userUuid
-	statisticMap["mode"] = mode
-
-	data, err := json.Marshal(statisticMap)
+	statisticMap := &biz.SendStatisticMap{
+		Id:            id,
+		CollectionsId: collectionsId,
+		Uuid:          uuid,
+		UserUuid:      userUuid,
+		Mode:          mode,
+	}
+	data, err := statisticMap.MarshalJSON()
 	if err != nil {
 		return err
 	}
@@ -1782,19 +1782,7 @@ func (r *talkRepo) SendStatisticToMq(ctx context.Context, id, collectionsId int3
 }
 
 func (r *talkRepo) SendTalkImageIrregularToMq(ctx context.Context, review *biz.ImageReview) error {
-	m := make(map[string]interface{}, 0)
-	m["creation_id"] = review.CreationId
-	m["score"] = review.Score
-	m["result"] = review.Result
-	m["kind"] = review.Kind
-	m["uid"] = review.Uid
-	m["uuid"] = review.Uuid
-	m["job_id"] = review.JobId
-	m["label"] = review.Label
-	m["category"] = review.Category
-	m["sub_label"] = review.SubLabel
-	m["mode"] = review.Mode
-	data, err := json.Marshal(m)
+	data, err := review.MarshalJSON()
 	if err != nil {
 		return err
 	}
@@ -1811,17 +1799,7 @@ func (r *talkRepo) SendTalkImageIrregularToMq(ctx context.Context, review *biz.I
 }
 
 func (r *talkRepo) SendTalkContentIrregularToMq(ctx context.Context, review *biz.TextReview) error {
-	m := make(map[string]interface{}, 0)
-	m["creation_id"] = review.CreationId
-	m["result"] = review.Result
-	m["uuid"] = review.Uuid
-	m["job_id"] = review.JobId
-	m["label"] = review.Label
-	m["title"] = review.Title
-	m["kind"] = review.Kind
-	m["section"] = review.Section
-	m["mode"] = review.Mode
-	data, err := json.Marshal(m)
+	data, err := review.MarshalJSON()
 	if err != nil {
 		return err
 	}
@@ -2032,7 +2010,7 @@ func (r *talkRepo) SetTalkImageIrregular(ctx context.Context, review *biz.ImageR
 }
 
 func (r *talkRepo) SetTalkImageIrregularToCache(ctx context.Context, review *biz.ImageReview) error {
-	marshal, err := json.Marshal(review)
+	marshal, err := review.MarshalJSON()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set talk image irregular to json: json.Marshal(%v)", review))
 	}
@@ -2075,7 +2053,7 @@ func (r *talkRepo) SetTalkContentIrregular(ctx context.Context, review *biz.Text
 }
 
 func (r *talkRepo) SetTalkContentIrregularToCache(ctx context.Context, review *biz.TextReview) error {
-	marshal, err := json.Marshal(review)
+	marshal, err := review.MarshalJSON()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set talk content irregular to json: json.Marshal(%v)", review))
 	}

@@ -246,13 +246,14 @@ func (r *columnRepo) CreateColumnStatistic(ctx context.Context, id, auth int32, 
 }
 
 func (r *columnRepo) SendColumnToMq(ctx context.Context, column *biz.Column, mode string) error {
-	columnMap := map[string]interface{}{}
-	columnMap["uuid"] = column.Uuid
-	columnMap["id"] = column.ColumnId
-	columnMap["auth"] = column.Auth
-	columnMap["mode"] = mode
+	columnMap := &biz.SendColumnMap{
+		Uuid: column.Uuid,
+		Id:   column.ColumnId,
+		Auth: column.Auth,
+		Mode: mode,
+	}
 
-	data, err := json.Marshal(columnMap)
+	data, err := columnMap.MarshalJSON()
 	if err != nil {
 		return err
 	}
@@ -269,7 +270,7 @@ func (r *columnRepo) SendColumnToMq(ctx context.Context, column *biz.Column, mod
 }
 
 func (r *columnRepo) SendReviewToMq(ctx context.Context, review *biz.ColumnReview) error {
-	data, err := json.Marshal(review)
+	data, err := review.MarshalJSON()
 	if err != nil {
 		return err
 	}
@@ -286,12 +287,12 @@ func (r *columnRepo) SendReviewToMq(ctx context.Context, review *biz.ColumnRevie
 }
 
 func (r *columnRepo) SendScoreToMq(ctx context.Context, score int32, uuid, mode string) error {
-	scoreMap := map[string]interface{}{}
-	scoreMap["uuid"] = uuid
-	scoreMap["score"] = score
-	scoreMap["mode"] = mode
-
-	data, err := json.Marshal(scoreMap)
+	scoreMap := &biz.SendScoreMap{
+		Uuid:  uuid,
+		Score: score,
+		Mode:  mode,
+	}
+	data, err := scoreMap.MarshalJSON()
 	if err != nil {
 		return err
 	}
@@ -308,14 +309,15 @@ func (r *columnRepo) SendScoreToMq(ctx context.Context, score int32, uuid, mode 
 }
 
 func (r *columnRepo) SendStatisticToMq(ctx context.Context, id, collectionsId int32, uuid, userUuid, mode string) error {
-	statisticMap := map[string]interface{}{}
-	statisticMap["id"] = id
-	statisticMap["collectionsId"] = collectionsId
-	statisticMap["uuid"] = uuid
-	statisticMap["userUuid"] = userUuid
-	statisticMap["mode"] = mode
+	statisticMap := &biz.SendStatisticMap{
+		Id:            id,
+		CollectionsId: collectionsId,
+		Uuid:          uuid,
+		UserUuid:      userUuid,
+		Mode:          mode,
+	}
 
-	data, err := json.Marshal(statisticMap)
+	data, err := statisticMap.MarshalJSON()
 	if err != nil {
 		return err
 	}
@@ -332,13 +334,13 @@ func (r *columnRepo) SendStatisticToMq(ctx context.Context, id, collectionsId in
 }
 
 func (r *columnRepo) SendColumnIncludesToMq(ctx context.Context, id, articleId int32, uuid, mode string) error {
-	includesMap := map[string]interface{}{}
-	includesMap["id"] = id
-	includesMap["articleId"] = articleId
-	includesMap["uuid"] = uuid
-	includesMap["mode"] = mode
-
-	data, err := json.Marshal(includesMap)
+	includesMap := &biz.SendColumnIncludesMap{
+		Id:        id,
+		ArticleId: articleId,
+		Uuid:      uuid,
+		Mode:      mode,
+	}
+	data, err := includesMap.MarshalJSON()
 	if err != nil {
 		return err
 	}
@@ -355,12 +357,12 @@ func (r *columnRepo) SendColumnIncludesToMq(ctx context.Context, id, articleId i
 }
 
 func (r *columnRepo) SendColumnSubscribeToMq(ctx context.Context, id int32, uuid, mode string) error {
-	subscribeMap := map[string]interface{}{}
-	subscribeMap["id"] = id
-	subscribeMap["uuid"] = uuid
-	subscribeMap["mode"] = mode
-
-	data, err := json.Marshal(subscribeMap)
+	subscribeMap := &biz.SendColumnSubscribeMap{
+		Id:   id,
+		Uuid: uuid,
+		Mode: mode,
+	}
+	data, err := subscribeMap.MarshalJSON()
 	if err != nil {
 		return err
 	}
@@ -377,19 +379,7 @@ func (r *columnRepo) SendColumnSubscribeToMq(ctx context.Context, id int32, uuid
 }
 
 func (r *columnRepo) SendColumnImageIrregularToMq(ctx context.Context, review *biz.ImageReview) error {
-	m := make(map[string]interface{}, 0)
-	m["creation_id"] = review.CreationId
-	m["score"] = review.Score
-	m["result"] = review.Result
-	m["kind"] = review.Kind
-	m["uid"] = review.Uid
-	m["uuid"] = review.Uuid
-	m["job_id"] = review.JobId
-	m["label"] = review.Label
-	m["category"] = review.Category
-	m["sub_label"] = review.SubLabel
-	m["mode"] = review.Mode
-	data, err := json.Marshal(m)
+	data, err := review.MarshalJSON()
 	if err != nil {
 		return err
 	}
@@ -406,17 +396,7 @@ func (r *columnRepo) SendColumnImageIrregularToMq(ctx context.Context, review *b
 }
 
 func (r *columnRepo) SendColumnContentIrregularToMq(ctx context.Context, review *biz.TextReview) error {
-	m := make(map[string]interface{}, 0)
-	m["creation_id"] = review.CreationId
-	m["result"] = review.Result
-	m["uuid"] = review.Uuid
-	m["job_id"] = review.JobId
-	m["label"] = review.Label
-	m["title"] = review.Title
-	m["kind"] = review.Kind
-	m["section"] = review.Section
-	m["mode"] = review.Mode
-	data, err := json.Marshal(m)
+	data, err := review.MarshalJSON()
 	if err != nil {
 		return err
 	}
@@ -1698,12 +1678,12 @@ func (r *columnRepo) SetColumnAgreeToCache(ctx context.Context, id int32, uuid, 
 }
 
 func (r *columnRepo) SendColumnStatisticToMq(ctx context.Context, uuid, userUuid, mode string) error {
-	achievement := map[string]interface{}{}
-	achievement["uuid"] = uuid
-	achievement["userUuid"] = userUuid
-	achievement["mode"] = mode
-
-	data, err := json.Marshal(achievement)
+	achievement := &biz.SendColumnStatisticMap{
+		Uuid:     uuid,
+		UserUuid: userUuid,
+		Mode:     mode,
+	}
+	data, err := achievement.MarshalJSON()
 	if err != nil {
 		return err
 	}
@@ -2112,7 +2092,7 @@ func (r *columnRepo) SetColumnImageIrregular(ctx context.Context, review *biz.Im
 }
 
 func (r *columnRepo) SetColumnImageIrregularToCache(ctx context.Context, review *biz.ImageReview) error {
-	marshal, err := json.Marshal(review)
+	marshal, err := review.MarshalJSON()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set column image irregular to json: json.Marshal(%v)", review))
 	}
@@ -2155,7 +2135,7 @@ func (r *columnRepo) SetColumnContentIrregular(ctx context.Context, review *biz.
 }
 
 func (r *columnRepo) SetColumnContentIrregularToCache(ctx context.Context, review *biz.TextReview) error {
-	marshal, err := json.Marshal(review)
+	marshal, err := review.MarshalJSON()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set column content irregular to json: json.Marshal(%v)", review))
 	}
@@ -2624,7 +2604,7 @@ func (r *columnRepo) getColumnImageReviewFromCache(ctx context.Context, page int
 	review := make([]*biz.ImageReview, 0, len(list))
 	for _index, item := range list {
 		var imageReview = &biz.ImageReview{}
-		err = json.Unmarshal([]byte(item), imageReview)
+		err = imageReview.UnmarshalJSON([]byte(item))
 		if err != nil {
 			return nil, errors.Wrapf(err, fmt.Sprintf("json unmarshal error: imageReview(%v)", item))
 		}
@@ -2684,7 +2664,7 @@ func (r *columnRepo) setColumnImageReviewToCache(key string, review []*biz.Image
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		list := make([]interface{}, 0, len(review))
 		for _, item := range review {
-			m, err := json.Marshal(item)
+			m, err := item.MarshalJSON()
 			if err != nil {
 				return errors.Wrapf(err, fmt.Sprintf("fail to marshal avatar review: imageReview(%v)", review))
 			}
@@ -2738,7 +2718,7 @@ func (r *columnRepo) getColumnContentReviewFromCache(ctx context.Context, page i
 	review := make([]*biz.TextReview, 0, len(list))
 	for _index, item := range list {
 		var textReview = &biz.TextReview{}
-		err = json.Unmarshal([]byte(item), textReview)
+		err = textReview.UnmarshalJSON([]byte(item))
 		if err != nil {
 			return nil, errors.Wrapf(err, fmt.Sprintf("json unmarshal error: contentReview(%v)", item))
 		}
@@ -2792,7 +2772,7 @@ func (r *columnRepo) setColumnContentReviewToCache(key string, review []*biz.Tex
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		list := make([]interface{}, 0, len(review))
 		for _, item := range review {
-			m, err := json.Marshal(item)
+			m, err := item.MarshalJSON()
 			if err != nil {
 				return errors.Wrapf(err, fmt.Sprintf("fail to marshal avatar review: contentReview(%v)", review))
 			}
