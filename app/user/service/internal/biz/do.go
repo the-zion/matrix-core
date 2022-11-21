@@ -34,6 +34,7 @@ type UserSearch struct {
 	Introduce string
 }
 
+//easyjson:json
 type ProfileUpdate struct {
 	Profile
 	Status int32
@@ -60,6 +61,7 @@ type Follows struct {
 	Follow int32
 }
 
+//easyjson:json
 type ImageReview struct {
 	Id       int32
 	CreateAt string
@@ -72,4 +74,30 @@ type ImageReview struct {
 	SubLabel string
 	Mode     string
 	Score    int32
+}
+
+//easyjson:json
+type UserSearchMap struct {
+	Username  string
+	Introduce string
+}
+
+//easyjson:json
+type ProfileUpdateMap struct {
+	Username  string
+	Introduce string
+}
+
+//easyjson:json
+type SendUserStatisticMap struct {
+	Follow   string
+	Followed string
+	Mode     string
+}
+
+//easyjson:json
+type SetFollowMap struct {
+	Uuid   string
+	UserId string
+	Mode   string
 }

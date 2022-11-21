@@ -17,6 +17,7 @@ type User struct {
 	Password string `gorm:"size:500"`
 }
 
+//easyjson:json
 type Profile struct {
 	CreatedAt time.Time
 	Updated   int64

@@ -153,7 +153,7 @@ func (r *userRepo) getProfileListFromCache(ctx context.Context, exists []string,
 	for _, item := range cmd {
 		var cacheProfile = &Profile{}
 		result := item.(*redis.StringCmd).Val()
-		err = json.Unmarshal([]byte(result), cacheProfile)
+		err = cacheProfile.UnmarshalJSON([]byte(result))
 		if err != nil {
 			return errors.Wrapf(err, fmt.Sprintf("json unmarshal error: profile(%v)", result))
 		}
@@ -194,7 +194,7 @@ func (r *userRepo) setProfileListToCache(profileList []*Profile) {
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		for _, item := range profileList {
 			key := "profile_" + item.Uuid
-			marshal, err := json.Marshal(item)
+			marshal, err := item.MarshalJSON()
 			if err != nil {
 				r.log.Errorf("fail to set user profile to json: json.Marshal(%v), error(%v)", item, err)
 			}
@@ -519,10 +519,11 @@ func (r *userRepo) GetUserSearch(ctx context.Context, page int32, search string)
 }
 
 func (r *userRepo) EditUserSearch(ctx context.Context, uuid string, profile *biz.ProfileUpdate) error {
-	user := map[string]string{}
-	user["username"] = profile.Username
-	user["introduce"] = profile.Introduce
-	body, err := json.Marshal(user)
+	user := &biz.ProfileUpdateMap{
+		Username:  profile.Username,
+		Introduce: profile.Introduce,
+	}
+	body, err := user.MarshalJSON()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("error marshaling document: account(%s), uuid(%s)", profile.Username, uuid))
 	}
@@ -596,7 +597,7 @@ func (r *userRepo) SetProfileUpdate(ctx context.Context, profile *biz.ProfileUpd
 }
 
 func (r *userRepo) SendProfileToMq(ctx context.Context, profile *biz.ProfileUpdate) error {
-	data, err := json.Marshal(profile)
+	data, err := profile.MarshalJSON()
 	if err != nil {
 		return err
 	}
@@ -613,7 +614,7 @@ func (r *userRepo) SendProfileToMq(ctx context.Context, profile *biz.ProfileUpda
 }
 
 func (r *userRepo) SendImageIrregularToMq(ctx context.Context, review *biz.ImageReview) error {
-	data, err := json.Marshal(review)
+	data, err := review.MarshalJSON()
 	if err != nil {
 		return err
 	}
@@ -630,12 +631,12 @@ func (r *userRepo) SendImageIrregularToMq(ctx context.Context, review *biz.Image
 }
 
 func (r *userRepo) SendUserStatisticToMq(ctx context.Context, uuid, userUuid, mode string) error {
-	achievement := map[string]string{}
-	achievement["follow"] = uuid
-	achievement["followed"] = userUuid
-	achievement["mode"] = mode
-
-	data, err := json.Marshal(achievement)
+	achievement := &biz.SendUserStatisticMap{
+		Follow:   uuid,
+		Followed: userUuid,
+		Mode:     mode,
+	}
+	data, err := achievement.MarshalJSON()
 	if err != nil {
 		return err
 	}
@@ -672,7 +673,7 @@ func (r *userRepo) getProfileFromCache(ctx context.Context, key string) (*Profil
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get profile from cache: redis.Get(%v)", key))
 	}
 	var cacheProfile = &Profile{}
-	err = json.Unmarshal([]byte(result), cacheProfile)
+	err = cacheProfile.UnmarshalJSON([]byte(result))
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("json unmarshal error: profile(%v)", result))
 	}
@@ -777,7 +778,7 @@ func (r *userRepo) getAvatarReviewFromCache(ctx context.Context, page int32, key
 	review := make([]*biz.ImageReview, 0, len(list))
 	for _index, item := range list {
 		var avatarReview = &biz.ImageReview{}
-		err = json.Unmarshal([]byte(item), avatarReview)
+		err = avatarReview.UnmarshalJSON([]byte(item))
 		if err != nil {
 			return nil, errors.Wrapf(err, fmt.Sprintf("json unmarshal error: avatarReview(%v)", item))
 		}
@@ -831,7 +832,7 @@ func (r *userRepo) setAvatarReviewToCache(key string, review []*biz.ImageReview)
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		list := make([]interface{}, 0, len(review))
 		for _, item := range review {
-			m, err := json.Marshal(item)
+			m, err := item.MarshalJSON()
 			if err != nil {
 				return errors.Wrapf(err, fmt.Sprintf("fail to marshal avatar review: avatarReview(%v)", review))
 			}
@@ -928,7 +929,7 @@ func (r *userRepo) getCoverReviewFromCache(ctx context.Context, page int32, key 
 	review := make([]*biz.ImageReview, 0, len(list))
 	for _index, item := range list {
 		var avatarReview = &biz.ImageReview{}
-		err = json.Unmarshal([]byte(item), avatarReview)
+		err = avatarReview.UnmarshalJSON([]byte(item))
 		if err != nil {
 			return nil, errors.Wrapf(err, fmt.Sprintf("json unmarshal error: coverReview(%v)", item))
 		}
@@ -982,7 +983,7 @@ func (r *userRepo) setCoverReviewToCache(key string, review []*biz.ImageReview) 
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		list := make([]interface{}, 0, len(review))
 		for _, item := range review {
-			m, err := json.Marshal(item)
+			m, err := item.MarshalJSON()
 			if err != nil {
 				return errors.Wrapf(err, fmt.Sprintf("fail to marshal cover review: coverReview(%v)", review))
 			}
@@ -1018,7 +1019,7 @@ func (r *userRepo) SetCoverIrregular(ctx context.Context, review *biz.ImageRevie
 }
 
 func (r *userRepo) SetCoverIrregularToCache(ctx context.Context, review *biz.ImageReview) error {
-	marshal, err := json.Marshal(review)
+	marshal, err := review.MarshalJSON()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set cover irregular to json: json.Marshal(%v)", review))
 	}
@@ -1057,7 +1058,7 @@ func (r *userRepo) setUserFollowsToCache(uuid string, follows []string) {
 }
 
 func (r *userRepo) setProfileToCache(ctx context.Context, profile *Profile, key string) {
-	marshal, err := json.Marshal(profile)
+	marshal, err := profile.MarshalJSON()
 	if err != nil {
 		r.log.Errorf("fail to set user profile to json: json.Marshal(%v), error(%v)", profile, err)
 	}
@@ -1068,7 +1069,7 @@ func (r *userRepo) setProfileToCache(ctx context.Context, profile *Profile, key 
 }
 
 func (r *userRepo) updateProfileToCache(ctx context.Context, profile *Profile, key string) {
-	marshal, err := json.Marshal(profile)
+	marshal, err := profile.MarshalJSON()
 	if err != nil {
 		r.log.Errorf("fail to set user profile to json: json.Marshal(%v), error(%v)", profile, err)
 	}
@@ -1159,12 +1160,12 @@ func (r *userRepo) CancelUserFollowFromCache(ctx context.Context, uuid, userUuid
 }
 
 func (r *userRepo) SetFollowToMq(ctx context.Context, follow *biz.Follow, mode string) error {
-	followMap := map[string]interface{}{}
-	followMap["uuid"] = follow.Follow
-	followMap["userId"] = follow.Followed
-	followMap["mode"] = mode
-
-	data, err := json.Marshal(followMap)
+	followMap := &biz.SetFollowMap{
+		Uuid:   follow.Follow,
+		UserId: follow.Followed,
+		Mode:   mode,
+	}
+	data, err := followMap.MarshalJSON()
 	if err != nil {
 		return err
 	}

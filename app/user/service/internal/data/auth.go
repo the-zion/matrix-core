@@ -151,10 +151,11 @@ func (r *authRepo) CreateUserProfileUpdate(ctx context.Context, account, uuid st
 }
 
 func (r *authRepo) CreateUserSearch(ctx context.Context, account, uuid string) error {
-	user := map[string]string{}
-	user["username"] = account
-	user["introduce"] = ""
-	body, err := json.Marshal(user)
+	user := &biz.UserSearchMap{
+		Username:  account,
+		Introduce: "",
+	}
+	body, err := user.MarshalJSON()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("error marshaling document: account(%s), uuid(%s)", account, uuid))
 	}
