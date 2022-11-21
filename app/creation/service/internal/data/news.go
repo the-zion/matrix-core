@@ -50,7 +50,7 @@ func (r *newRepo) GetNews(_ context.Context, page int32) ([]*biz.News, error) {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to unmarshal news: page(%v)", page))
 	}
 
-	news := make([]*biz.News, 0)
+	news := make([]*biz.News, 0, len(data["Data"].([]interface{})))
 	for _, item := range data["Data"].([]interface{}) {
 		news = append(news, &biz.News{
 			Id:     item.(map[string]interface{})["ArticleId"].(string),
@@ -65,7 +65,7 @@ func (r *newRepo) GetNews(_ context.Context, page int32) ([]*biz.News, error) {
 }
 
 func (r *newRepo) getTags(tags []interface{}) string {
-	box := make([]string, 0)
+	box := make([]string, 0, len(tags))
 	for _, item := range tags {
 		box = append(box, item.(map[string]interface{})["TagName"].(string))
 	}

@@ -211,11 +211,11 @@ func (s *CreationService) DeleteColumnCacheAndSearch(ctx context.Context, req *v
 }
 
 func (s *CreationService) GetColumnList(ctx context.Context, req *v1.GetColumnListReq) (*v1.GetColumnListReply, error) {
-	reply := &v1.GetColumnListReply{Column: make([]*v1.GetColumnListReply_Column, 0)}
 	columnList, err := s.coc.GetColumnList(ctx, req.Page)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetColumnListReply{Column: make([]*v1.GetColumnListReply_Column, 0, len(columnList))}
 	for _, item := range columnList {
 		reply.Column = append(reply.Column, &v1.GetColumnListReply_Column{
 			Id:   item.ColumnId,
@@ -226,11 +226,11 @@ func (s *CreationService) GetColumnList(ctx context.Context, req *v1.GetColumnLi
 }
 
 func (s *CreationService) GetColumnListHot(ctx context.Context, req *v1.GetColumnListHotReq) (*v1.GetColumnListHotReply, error) {
-	reply := &v1.GetColumnListHotReply{Column: make([]*v1.GetColumnListHotReply_Column, 0)}
 	columnList, err := s.coc.GetColumnListHot(ctx, req.Page)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetColumnListHotReply{Column: make([]*v1.GetColumnListHotReply_Column, 0, len(columnList))}
 	for _, item := range columnList {
 		reply.Column = append(reply.Column, &v1.GetColumnListHotReply_Column{
 			Id:   item.ColumnId,
@@ -241,11 +241,11 @@ func (s *CreationService) GetColumnListHot(ctx context.Context, req *v1.GetColum
 }
 
 func (s *CreationService) GetUserColumnList(ctx context.Context, req *v1.GetUserColumnListReq) (*v1.GetColumnListReply, error) {
-	reply := &v1.GetColumnListReply{Column: make([]*v1.GetColumnListReply_Column, 0)}
 	columnList, err := s.coc.GetUserColumnList(ctx, req.Page, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetColumnListReply{Column: make([]*v1.GetColumnListReply_Column, 0, len(columnList))}
 	for _, item := range columnList {
 		reply.Column = append(reply.Column, &v1.GetColumnListReply_Column{
 			Id:   item.ColumnId,
@@ -256,11 +256,11 @@ func (s *CreationService) GetUserColumnList(ctx context.Context, req *v1.GetUser
 }
 
 func (s *CreationService) GetUserColumnListVisitor(ctx context.Context, req *v1.GetUserColumnListVisitorReq) (*v1.GetColumnListReply, error) {
-	reply := &v1.GetColumnListReply{Column: make([]*v1.GetColumnListReply_Column, 0)}
 	columnList, err := s.coc.GetUserColumnListVisitor(ctx, req.Page, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetColumnListReply{Column: make([]*v1.GetColumnListReply_Column, 0, len(columnList))}
 	for _, item := range columnList {
 		reply.Column = append(reply.Column, &v1.GetColumnListReply_Column{
 			Id:   item.ColumnId,
@@ -291,11 +291,11 @@ func (s *CreationService) GetColumnCountVisitor(ctx context.Context, req *v1.Get
 }
 
 func (s *CreationService) GetColumnListStatistic(ctx context.Context, req *v1.GetColumnListStatisticReq) (*v1.GetColumnListStatisticReply, error) {
-	reply := &v1.GetColumnListStatisticReply{Count: make([]*v1.GetColumnListStatisticReply_Count, 0)}
 	statisticList, err := s.coc.GetColumnListStatistic(ctx, req.Ids)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetColumnListStatisticReply{Count: make([]*v1.GetColumnListStatisticReply_Count, 0, len(statisticList))}
 	for _, item := range statisticList {
 		reply.Count = append(reply.Count, &v1.GetColumnListStatisticReply_Count{
 			Id:      item.ColumnId,
@@ -332,11 +332,11 @@ func (s *CreationService) ColumnStatisticJudge(ctx context.Context, req *v1.Colu
 }
 
 func (s *CreationService) GetSubscribeList(ctx context.Context, req *v1.GetSubscribeListReq) (*v1.GetSubscribeListReply, error) {
-	reply := &v1.GetSubscribeListReply{Subscribe: make([]*v1.GetSubscribeListReply_Subscribe, 0)}
 	statisticList, err := s.coc.GetSubscribeList(ctx, req.Page, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetSubscribeListReply{Subscribe: make([]*v1.GetSubscribeListReply_Subscribe, 0, len(statisticList))}
 	for _, item := range statisticList {
 		reply.Subscribe = append(reply.Subscribe, &v1.GetSubscribeListReply_Subscribe{
 			Id:   item.ColumnId,
@@ -357,11 +357,11 @@ func (s *CreationService) GetSubscribeListCount(ctx context.Context, req *v1.Get
 }
 
 func (s *CreationService) GetColumnSubscribes(ctx context.Context, req *v1.GetColumnSubscribesReq) (*v1.GetColumnSubscribesReply, error) {
-	reply := &v1.GetColumnSubscribesReply{Subscribes: make([]*v1.GetColumnSubscribesReply_Subscribes, 0)}
 	subscribesList, err := s.coc.GetColumnSubscribes(ctx, req.Uuid, req.Ids)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetColumnSubscribesReply{Subscribes: make([]*v1.GetColumnSubscribesReply_Subscribes, 0, len(subscribesList))}
 	for _, item := range subscribesList {
 		reply.Subscribes = append(reply.Subscribes, &v1.GetColumnSubscribesReply_Subscribes{
 			Id:             item.ColumnId,
@@ -372,11 +372,11 @@ func (s *CreationService) GetColumnSubscribes(ctx context.Context, req *v1.GetCo
 }
 
 func (s *CreationService) GetColumnSearch(ctx context.Context, req *v1.GetColumnSearchReq) (*v1.GetColumnSearchReply, error) {
-	reply := &v1.GetColumnSearchReply{List: make([]*v1.GetColumnSearchReply_List, 0)}
 	columnList, total, err := s.coc.GetColumnSearch(ctx, req.Page, req.Search, req.Time)
 	if err != nil {
-		return reply, err
+		return nil, err
 	}
+	reply := &v1.GetColumnSearchReply{List: make([]*v1.GetColumnSearchReply_List, 0, len(columnList))}
 	for _, item := range columnList {
 		reply.List = append(reply.List, &v1.GetColumnSearchReply_List{
 			Id:        item.Id,
@@ -423,11 +423,11 @@ func (s *CreationService) GetUserSubscribeColumn(ctx context.Context, req *v1.Ge
 }
 
 func (s *CreationService) GetColumnImageReview(ctx context.Context, req *v1.GetColumnImageReviewReq) (*v1.GetColumnImageReviewReply, error) {
-	reply := &v1.GetColumnImageReviewReply{Review: make([]*v1.GetColumnImageReviewReply_Review, 0)}
 	reviewList, err := s.coc.GetColumnImageReview(ctx, req.Page, req.Uuid)
 	if err != nil {
-		return reply, err
+		return nil, err
 	}
+	reply := &v1.GetColumnImageReviewReply{Review: make([]*v1.GetColumnImageReviewReply_Review, 0, len(reviewList))}
 	for _, item := range reviewList {
 		reply.Review = append(reply.Review, &v1.GetColumnImageReviewReply_Review{
 			Id:         item.Id,
@@ -449,11 +449,11 @@ func (s *CreationService) GetColumnImageReview(ctx context.Context, req *v1.GetC
 }
 
 func (s *CreationService) GetColumnContentReview(ctx context.Context, req *v1.GetColumnContentReviewReq) (*v1.GetColumnContentReviewReply, error) {
-	reply := &v1.GetColumnContentReviewReply{Review: make([]*v1.GetColumnContentReviewReply_Review, 0)}
 	reviewList, err := s.coc.GetColumnContentReview(ctx, req.Page, req.Uuid)
 	if err != nil {
-		return reply, err
+		return nil, err
 	}
+	reply := &v1.GetColumnContentReviewReply{Review: make([]*v1.GetColumnContentReviewReply_Review, 0, len(reviewList))}
 	for _, item := range reviewList {
 		reply.Review = append(reply.Review, &v1.GetColumnContentReviewReply_Review{
 			Id:         item.Id,

@@ -133,7 +133,7 @@ func (r *talkRepo) getUserTalkListFromCache(ctx context.Context, page int32, uui
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user talk list visitor from cache: key(%s), page(%v)", "user_talk_list_"+uuid, page))
 	}
 
-	talk := make([]*biz.Talk, 0)
+	talk := make([]*biz.Talk, 0, len(list))
 	for _, item := range list {
 		member := strings.Split(item, "%")
 		id, err := strconv.ParseInt(member[0], 10, 32)
@@ -159,7 +159,7 @@ func (r *talkRepo) getUserTalkListFromDB(ctx context.Context, page int32, uuid s
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user talk from db: page(%v), uuid(%s)", page, uuid))
 	}
 
-	talk := make([]*biz.Talk, 0)
+	talk := make([]*biz.Talk, 0, len(list))
 	for _, item := range list {
 		talk = append(talk, &biz.Talk{
 			TalkId: item.TalkId,
@@ -204,7 +204,7 @@ func (r *talkRepo) getUserTalkListVisitorFromCache(ctx context.Context, page int
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user talk list visitor from cache: key(%s), page(%v)", "user_talk_list_visitor_"+uuid, page))
 	}
 
-	talk := make([]*biz.Talk, 0)
+	talk := make([]*biz.Talk, 0, len(list))
 	for _, item := range list {
 		member := strings.Split(item, "%")
 		id, err := strconv.ParseInt(member[0], 10, 32)
@@ -230,7 +230,7 @@ func (r *talkRepo) getUserTalkListVisitorFromDB(ctx context.Context, page int32,
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user talk visitor from db: page(%v), uuid(%s)", page, uuid))
 	}
 
-	talk := make([]*biz.Talk, 0)
+	talk := make([]*biz.Talk, 0, len(list))
 	for _, item := range list {
 		talk = append(talk, &biz.Talk{
 			TalkId: item.TalkId,
@@ -243,7 +243,7 @@ func (r *talkRepo) getUserTalkListVisitorFromDB(ctx context.Context, page int32,
 func (r *talkRepo) setUserTalkListToCache(key string, talk []*biz.Talk) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		z := make([]*redis.Z, 0)
+		z := make([]*redis.Z, 0, len(talk))
 		for _, item := range talk {
 			z = append(z, &redis.Z{
 				Score:  float64(item.TalkId),
@@ -280,7 +280,7 @@ func (r *talkRepo) GetTalkCountVisitor(ctx context.Context, uuid string) (int32,
 func (r *talkRepo) setTalkHotToCache(key string, talk []*biz.TalkStatistic) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		z := make([]*redis.Z, 0)
+		z := make([]*redis.Z, 0, len(talk))
 		for _, item := range talk {
 			z = append(z, &redis.Z{
 				Score:  float64(item.Agree),
@@ -305,7 +305,7 @@ func (r *talkRepo) getTalkHotFromCache(ctx context.Context, page int32) ([]*biz.
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get talk hot from cache: key(%s), page(%v)", "talk_hot", page))
 	}
 
-	talk := make([]*biz.TalkStatistic, 0)
+	talk := make([]*biz.TalkStatistic, 0, len(list))
 	for _, item := range list {
 		member := strings.Split(item, "%")
 		id, err := strconv.ParseInt(member[0], 10, 32)
@@ -331,7 +331,7 @@ func (r *talkRepo) GetTalkHotFromDB(ctx context.Context, page int32) ([]*biz.Tal
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get talk statistic from db: page(%v)", page))
 	}
 
-	talk := make([]*biz.TalkStatistic, 0)
+	talk := make([]*biz.TalkStatistic, 0, len(list))
 	for _, item := range list {
 		talk = append(talk, &biz.TalkStatistic{
 			TalkId: item.TalkId,
@@ -352,7 +352,7 @@ func (r *talkRepo) getTalkFromCache(ctx context.Context, page int32) ([]*biz.Tal
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get talk from cache: key(%s), page(%v)", "talk", page))
 	}
 
-	talk := make([]*biz.Talk, 0)
+	talk := make([]*biz.Talk, 0, len(list))
 	for _, item := range list {
 		member := strings.Split(item, "%")
 		id, err := strconv.ParseInt(member[0], 10, 32)
@@ -378,7 +378,7 @@ func (r *talkRepo) getTalkFromDB(ctx context.Context, page int32) ([]*biz.Talk, 
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get talk from db: page(%v)", page))
 	}
 
-	talk := make([]*biz.Talk, 0)
+	talk := make([]*biz.Talk, 0, len(list))
 	for _, item := range list {
 		talk = append(talk, &biz.Talk{
 			TalkId: item.TalkId,
@@ -391,7 +391,7 @@ func (r *talkRepo) getTalkFromDB(ctx context.Context, page int32) ([]*biz.Talk, 
 func (r *talkRepo) setTalkToCache(key string, talk []*biz.Talk) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		z := make([]*redis.Z, 0)
+		z := make([]*redis.Z, 0, len(talk))
 		for _, item := range talk {
 			z = append(z, &redis.Z{
 				Score:  float64(item.TalkId),
@@ -407,12 +407,12 @@ func (r *talkRepo) setTalkToCache(key string, talk []*biz.Talk) {
 }
 
 func (r *talkRepo) GetTalkListStatistic(ctx context.Context, ids []int32) ([]*biz.TalkStatistic, error) {
-	talkListStatistic := make([]*biz.TalkStatistic, 0)
 	exists, unExists, err := r.talkListStatisticExist(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
 
+	talkListStatistic := make([]*biz.TalkStatistic, 0, cap(exists))
 	g, _ := errgroup.WithContext(ctx)
 	g.Go(r.data.GroupRecover(ctx, func(ctx context.Context) error {
 		if len(exists) == 0 {
@@ -436,8 +436,6 @@ func (r *talkRepo) GetTalkListStatistic(ctx context.Context, ids []int32) ([]*bi
 }
 
 func (r *talkRepo) talkListStatisticExist(ctx context.Context, ids []int32) ([]int32, []int32, error) {
-	exists := make([]int32, 0)
-	unExists := make([]int32, 0)
 	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		for _, item := range ids {
 			pipe.Exists(ctx, "talk_"+strconv.Itoa(int(item)))
@@ -448,6 +446,8 @@ func (r *talkRepo) talkListStatisticExist(ctx context.Context, ids []int32) ([]i
 		return nil, nil, errors.Wrapf(err, fmt.Sprintf("fail to check if talk statistic exist from cache: ids(%v)", ids))
 	}
 
+	exists := make([]int32, 0, len(cmd))
+	unExists := make([]int32, 0, len(cmd))
 	for index, item := range cmd {
 		exist := item.(*redis.IntCmd).Val()
 		if exist == 1 {
@@ -494,7 +494,7 @@ func (r *talkRepo) getTalkListStatisticFromCache(ctx context.Context, exists []i
 }
 
 func (r *talkRepo) getTalkListStatisticFromDb(ctx context.Context, unExists []int32, talkListStatistic *[]*biz.TalkStatistic) error {
-	list := make([]*TalkStatistic, 0)
+	list := make([]*TalkStatistic, 0, cap(unExists))
 	err := r.data.db.WithContext(ctx).Where("talk_id IN ?", unExists).Find(&list).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to get talk statistic list from db: ids(%v)", unExists))
@@ -853,7 +853,7 @@ func (r *talkRepo) getUserTalkAgreeFromDb(ctx context.Context, uuid string) (map
 func (r *talkRepo) setUserTalkAgreeToCache(uuid string, agreeList []*TalkAgree) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		set := make([]interface{}, 0)
+		set := make([]interface{}, 0, len(agreeList))
 		key := "user_talk_agree_" + uuid
 		for _, item := range agreeList {
 			set = append(set, item.TalkId)
@@ -928,7 +928,7 @@ func (r *talkRepo) getUserTalkCollectFromDb(ctx context.Context, uuid string) (m
 func (r *talkRepo) setUserTalkCollectToCache(uuid string, collectList []*TalkCollect) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		set := make([]interface{}, 0)
+		set := make([]interface{}, 0, len(collectList))
 		key := "user_talk_collect_" + uuid
 		for _, item := range collectList {
 			set = append(set, item.TalkId)
@@ -996,7 +996,7 @@ func (r *talkRepo) getTalkImageReviewFromCache(ctx context.Context, page int32, 
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get talk image irregular list from cache: key(%s), page(%v)", key, page))
 	}
 
-	review := make([]*biz.ImageReview, 0)
+	review := make([]*biz.ImageReview, 0, len(list))
 	for _index, item := range list {
 		var imageReview = &biz.ImageReview{}
 		err = json.Unmarshal([]byte(item), imageReview)
@@ -1033,7 +1033,7 @@ func (r *talkRepo) getTalkImageReviewFromDB(ctx context.Context, page int32, uui
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get talk image review from db: page(%v), uuid(%s)", page, uuid))
 	}
 
-	review := make([]*biz.ImageReview, 0)
+	review := make([]*biz.ImageReview, 0, len(list))
 	for _index, item := range list {
 		review = append(review, &biz.ImageReview{
 			Id:         int32(_index+1) + (page-1)*20,
@@ -1057,7 +1057,7 @@ func (r *talkRepo) getTalkImageReviewFromDB(ctx context.Context, page int32, uui
 func (r *talkRepo) setTalkImageReviewToCache(key string, review []*biz.ImageReview) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		list := make([]interface{}, 0)
+		list := make([]interface{}, 0, len(review))
 		for _, item := range review {
 			m, err := json.Marshal(item)
 			if err != nil {
@@ -1110,7 +1110,7 @@ func (r *talkRepo) getTalkContentReviewFromCache(ctx context.Context, page int32
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get talk content irregular list from cache: key(%s), page(%v)", key, page))
 	}
 
-	review := make([]*biz.TextReview, 0)
+	review := make([]*biz.TextReview, 0, len(list))
 	for _index, item := range list {
 		var textReview = &biz.TextReview{}
 		err = json.Unmarshal([]byte(item), textReview)
@@ -1144,7 +1144,7 @@ func (r *talkRepo) getTalkContentReviewFromDB(ctx context.Context, page int32, u
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get talk content review from db: page(%v), uuid(%s)", page, uuid))
 	}
 
-	review := make([]*biz.TextReview, 0)
+	review := make([]*biz.TextReview, 0, len(list))
 	for _index, item := range list {
 		review = append(review, &biz.TextReview{
 			Id:         int32(_index+1) + (page-1)*20,
@@ -1165,7 +1165,7 @@ func (r *talkRepo) getTalkContentReviewFromDB(ctx context.Context, page int32, u
 func (r *talkRepo) setTalkContentReviewToCache(key string, review []*biz.TextReview) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		list := make([]interface{}, 0)
+		list := make([]interface{}, 0, len(review))
 		for _, item := range review {
 			m, err := json.Marshal(item)
 			if err != nil {

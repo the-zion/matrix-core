@@ -8,11 +8,11 @@ import (
 )
 
 func (s *CreationService) GetArticleList(ctx context.Context, req *v1.GetArticleListReq) (*v1.GetArticleListReply, error) {
-	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0)}
 	articleList, err := s.ac.GetArticleList(ctx, req.Page)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0, len(articleList))}
 	for _, item := range articleList {
 		reply.Article = append(reply.Article, &v1.GetArticleListReply_Article{
 			Id:   item.ArticleId,
@@ -23,11 +23,11 @@ func (s *CreationService) GetArticleList(ctx context.Context, req *v1.GetArticle
 }
 
 func (s *CreationService) GetArticleListHot(ctx context.Context, req *v1.GetArticleListHotReq) (*v1.GetArticleListHotReply, error) {
-	reply := &v1.GetArticleListHotReply{Article: make([]*v1.GetArticleListHotReply_Article, 0)}
 	articleList, err := s.ac.GetArticleListHot(ctx, req.Page)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetArticleListHotReply{Article: make([]*v1.GetArticleListHotReply_Article, 0, len(articleList))}
 	for _, item := range articleList {
 		reply.Article = append(reply.Article, &v1.GetArticleListHotReply_Article{
 			Id:   item.ArticleId,
@@ -38,11 +38,11 @@ func (s *CreationService) GetArticleListHot(ctx context.Context, req *v1.GetArti
 }
 
 func (s *CreationService) GetColumnArticleList(ctx context.Context, req *v1.GetColumnArticleListReq) (*v1.GetArticleListReply, error) {
-	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0)}
 	articleList, err := s.ac.GetColumnArticleList(ctx, req.Id)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0, len(articleList))}
 	for _, item := range articleList {
 		reply.Article = append(reply.Article, &v1.GetArticleListReply_Article{
 			Id:   item.ArticleId,
@@ -73,11 +73,11 @@ func (s *CreationService) GetArticleCountVisitor(ctx context.Context, req *v1.Ge
 }
 
 func (s *CreationService) GetUserArticleList(ctx context.Context, req *v1.GetUserArticleListReq) (*v1.GetArticleListReply, error) {
-	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0)}
 	articleList, err := s.ac.GetUserArticleList(ctx, req.Page, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0, len(articleList))}
 	for _, item := range articleList {
 		reply.Article = append(reply.Article, &v1.GetArticleListReply_Article{
 			Id:   item.ArticleId,
@@ -88,11 +88,11 @@ func (s *CreationService) GetUserArticleList(ctx context.Context, req *v1.GetUse
 }
 
 func (s *CreationService) GetUserArticleListVisitor(ctx context.Context, req *v1.GetUserArticleListVisitorReq) (*v1.GetArticleListReply, error) {
-	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0)}
 	articleList, err := s.ac.GetUserArticleListVisitor(ctx, req.Page, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0, len(articleList))}
 	for _, item := range articleList {
 		reply.Article = append(reply.Article, &v1.GetArticleListReply_Article{
 			Id:   item.ArticleId,
@@ -103,11 +103,11 @@ func (s *CreationService) GetUserArticleListVisitor(ctx context.Context, req *v1
 }
 
 func (s *CreationService) GetUserArticleListAll(ctx context.Context, req *v1.GetUserArticleListAllReq) (*v1.GetArticleListReply, error) {
-	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0)}
 	articleList, err := s.ac.GetUserArticleListAll(ctx, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0, len(articleList))}
 	for _, item := range articleList {
 		reply.Article = append(reply.Article, &v1.GetArticleListReply_Article{
 			Id:   item.ArticleId,
@@ -152,11 +152,11 @@ func (s *CreationService) GetUserArticleCollect(ctx context.Context, req *v1.Get
 }
 
 func (s *CreationService) GetArticleListStatistic(ctx context.Context, req *v1.GetArticleListStatisticReq) (*v1.GetArticleListStatisticReply, error) {
-	reply := &v1.GetArticleListStatisticReply{Count: make([]*v1.GetArticleListStatisticReply_Count, 0)}
 	statisticList, err := s.ac.GetArticleListStatistic(ctx, req.Ids)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetArticleListStatisticReply{Count: make([]*v1.GetArticleListStatisticReply_Count, 0, len(statisticList))}
 	for _, item := range statisticList {
 		reply.Count = append(reply.Count, &v1.GetArticleListStatisticReply_Count{
 			Id:      item.ArticleId,
@@ -181,11 +181,11 @@ func (s *CreationService) GetLastArticleDraft(ctx context.Context, req *v1.GetLa
 }
 
 func (s *CreationService) GetArticleSearch(ctx context.Context, req *v1.GetArticleSearchReq) (*v1.GetArticleSearchReply, error) {
-	reply := &v1.GetArticleSearchReply{List: make([]*v1.GetArticleSearchReply_List, 0)}
 	articleList, total, err := s.ac.GetArticleSearch(ctx, req.Page, req.Search, req.Time)
 	if err != nil {
-		return reply, err
+		return nil, err
 	}
+	reply := &v1.GetArticleSearchReply{List: make([]*v1.GetArticleSearchReply_List, 0, len(articleList))}
 	for _, item := range articleList {
 		reply.List = append(reply.List, &v1.GetArticleSearchReply_List{
 			Id:     item.Id,
@@ -202,11 +202,11 @@ func (s *CreationService) GetArticleSearch(ctx context.Context, req *v1.GetArtic
 }
 
 func (s *CreationService) GetArticleImageReview(ctx context.Context, req *v1.GetArticleImageReviewReq) (*v1.GetArticleImageReviewReply, error) {
-	reply := &v1.GetArticleImageReviewReply{Review: make([]*v1.GetArticleImageReviewReply_Review, 0)}
 	reviewList, err := s.ac.GetArticleImageReview(ctx, req.Page, req.Uuid)
 	if err != nil {
-		return reply, err
+		return nil, err
 	}
+	reply := &v1.GetArticleImageReviewReply{Review: make([]*v1.GetArticleImageReviewReply_Review, 0, len(reviewList))}
 	for _, item := range reviewList {
 		reply.Review = append(reply.Review, &v1.GetArticleImageReviewReply_Review{
 			Id:         item.Id,
@@ -228,11 +228,11 @@ func (s *CreationService) GetArticleImageReview(ctx context.Context, req *v1.Get
 }
 
 func (s *CreationService) GetArticleContentReview(ctx context.Context, req *v1.GetArticleContentReviewReq) (*v1.GetArticleContentReviewReply, error) {
-	reply := &v1.GetArticleContentReviewReply{Review: make([]*v1.GetArticleContentReviewReply_Review, 0)}
 	reviewList, err := s.ac.GetArticleContentReview(ctx, req.Page, req.Uuid)
 	if err != nil {
-		return reply, err
+		return nil, err
 	}
+	reply := &v1.GetArticleContentReviewReply{Review: make([]*v1.GetArticleContentReviewReply_Review, 0, len(reviewList))}
 	for _, item := range reviewList {
 		reply.Review = append(reply.Review, &v1.GetArticleContentReviewReply_Review{
 			Id:         item.Id,
@@ -393,11 +393,11 @@ func (s *CreationService) ArticleDraftMark(ctx context.Context, req *v1.ArticleD
 }
 
 func (s *CreationService) GetArticleDraftList(ctx context.Context, req *v1.GetArticleDraftListReq) (*v1.GetArticleDraftListReply, error) {
-	reply := &v1.GetArticleDraftListReply{Draft: make([]*v1.GetArticleDraftListReply_Draft, 0)}
 	draftList, err := s.ac.GetArticleDraftList(ctx, req.Uuid)
 	if err != nil {
-		return reply, err
+		return nil, err
 	}
+	reply := &v1.GetArticleDraftListReply{Draft: make([]*v1.GetArticleDraftListReply_Draft, 0, len(draftList))}
 	for _, item := range draftList {
 		reply.Draft = append(reply.Draft, &v1.GetArticleDraftListReply_Draft{
 			Id: item.Id,

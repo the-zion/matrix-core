@@ -19,11 +19,11 @@ func (s *CreationService) GetLastTalkDraft(ctx context.Context, req *v1.GetLastT
 }
 
 func (s *CreationService) GetTalkList(ctx context.Context, req *v1.GetTalkListReq) (*v1.GetTalkListReply, error) {
-	reply := &v1.GetTalkListReply{Talk: make([]*v1.GetTalkListReply_Talk, 0)}
 	talkList, err := s.tc.GetTalkList(ctx, req.Page)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetTalkListReply{Talk: make([]*v1.GetTalkListReply_Talk, 0, len(talkList))}
 	for _, item := range talkList {
 		reply.Talk = append(reply.Talk, &v1.GetTalkListReply_Talk{
 			Id:   item.TalkId,
@@ -34,11 +34,11 @@ func (s *CreationService) GetTalkList(ctx context.Context, req *v1.GetTalkListRe
 }
 
 func (s *CreationService) GetTalkListHot(ctx context.Context, req *v1.GetTalkListHotReq) (*v1.GetTalkListHotReply, error) {
-	reply := &v1.GetTalkListHotReply{Talk: make([]*v1.GetTalkListHotReply_Talk, 0)}
 	talkList, err := s.tc.GetTalkListHot(ctx, req.Page)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetTalkListHotReply{Talk: make([]*v1.GetTalkListHotReply_Talk, 0, len(talkList))}
 	for _, item := range talkList {
 		reply.Talk = append(reply.Talk, &v1.GetTalkListHotReply_Talk{
 			Id:   item.TalkId,
@@ -49,11 +49,11 @@ func (s *CreationService) GetTalkListHot(ctx context.Context, req *v1.GetTalkLis
 }
 
 func (s *CreationService) GetUserTalkList(ctx context.Context, req *v1.GetUserTalkListReq) (*v1.GetTalkListReply, error) {
-	reply := &v1.GetTalkListReply{Talk: make([]*v1.GetTalkListReply_Talk, 0)}
 	talkList, err := s.tc.GetUserTalkList(ctx, req.Page, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetTalkListReply{Talk: make([]*v1.GetTalkListReply_Talk, 0, len(talkList))}
 	for _, item := range talkList {
 		reply.Talk = append(reply.Talk, &v1.GetTalkListReply_Talk{
 			Id:   item.TalkId,
@@ -64,11 +64,11 @@ func (s *CreationService) GetUserTalkList(ctx context.Context, req *v1.GetUserTa
 }
 
 func (s *CreationService) GetUserTalkListVisitor(ctx context.Context, req *v1.GetUserTalkListVisitorReq) (*v1.GetTalkListReply, error) {
-	reply := &v1.GetTalkListReply{Talk: make([]*v1.GetTalkListReply_Talk, 0)}
 	talkList, err := s.tc.GetUserTalkListVisitor(ctx, req.Page, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetTalkListReply{Talk: make([]*v1.GetTalkListReply_Talk, 0, len(talkList))}
 	for _, item := range talkList {
 		reply.Talk = append(reply.Talk, &v1.GetTalkListReply_Talk{
 			Id:   item.TalkId,
@@ -99,11 +99,11 @@ func (s *CreationService) GetTalkCountVisitor(ctx context.Context, req *v1.GetTa
 }
 
 func (s *CreationService) GetTalkListStatistic(ctx context.Context, req *v1.GetTalkListStatisticReq) (*v1.GetTalkListStatisticReply, error) {
-	reply := &v1.GetTalkListStatisticReply{Count: make([]*v1.GetTalkListStatisticReply_Count, 0)}
 	statisticList, err := s.tc.GetTalkListStatistic(ctx, req.Ids)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetTalkListStatisticReply{Count: make([]*v1.GetTalkListStatisticReply_Count, 0, len(statisticList))}
 	for _, item := range statisticList {
 		reply.Count = append(reply.Count, &v1.GetTalkListStatisticReply_Count{
 			Id:      item.TalkId,
@@ -131,11 +131,11 @@ func (s *CreationService) GetTalkStatistic(ctx context.Context, req *v1.GetTalkS
 }
 
 func (s *CreationService) GetTalkSearch(ctx context.Context, req *v1.GetTalkSearchReq) (*v1.GetTalkSearchReply, error) {
-	reply := &v1.GetTalkSearchReply{List: make([]*v1.GetTalkSearchReply_List, 0)}
 	talkList, total, err := s.tc.GetTalkSearch(ctx, req.Page, req.Search, req.Time)
 	if err != nil {
-		return reply, err
+		return nil, err
 	}
+	reply := &v1.GetTalkSearchReply{List: make([]*v1.GetTalkSearchReply_List, 0, len(talkList))}
 	for _, item := range talkList {
 		reply.List = append(reply.List, &v1.GetTalkSearchReply_List{
 			Id:     item.Id,
@@ -172,11 +172,11 @@ func (s *CreationService) GetUserTalkCollect(ctx context.Context, req *v1.GetUse
 }
 
 func (s *CreationService) GetTalkImageReview(ctx context.Context, req *v1.GetTalkImageReviewReq) (*v1.GetTalkImageReviewReply, error) {
-	reply := &v1.GetTalkImageReviewReply{Review: make([]*v1.GetTalkImageReviewReply_Review, 0)}
 	reviewList, err := s.tc.GetTalkImageReview(ctx, req.Page, req.Uuid)
 	if err != nil {
-		return reply, err
+		return nil, err
 	}
+	reply := &v1.GetTalkImageReviewReply{Review: make([]*v1.GetTalkImageReviewReply_Review, 0, len(reviewList))}
 	for _, item := range reviewList {
 		reply.Review = append(reply.Review, &v1.GetTalkImageReviewReply_Review{
 			Id:         item.Id,
@@ -198,11 +198,11 @@ func (s *CreationService) GetTalkImageReview(ctx context.Context, req *v1.GetTal
 }
 
 func (s *CreationService) GetTalkContentReview(ctx context.Context, req *v1.GetTalkContentReviewReq) (*v1.GetTalkContentReviewReply, error) {
-	reply := &v1.GetTalkContentReviewReply{Review: make([]*v1.GetTalkContentReviewReply_Review, 0)}
 	reviewList, err := s.tc.GetTalkContentReview(ctx, req.Page, req.Uuid)
 	if err != nil {
-		return reply, err
+		return nil, err
 	}
+	reply := &v1.GetTalkContentReviewReply{Review: make([]*v1.GetTalkContentReviewReply_Review, 0, len(reviewList))}
 	for _, item := range reviewList {
 		reply.Review = append(reply.Review, &v1.GetTalkContentReviewReply_Review{
 			Id:         item.Id,

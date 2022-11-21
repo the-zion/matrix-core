@@ -117,7 +117,7 @@ func (r *articleRepo) getArticleFromDB(ctx context.Context, page int32) ([]*biz.
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get article from db: page(%v)", page))
 	}
 
-	article := make([]*biz.Article, 0)
+	article := make([]*biz.Article, 0, len(list))
 	for _, item := range list {
 		article = append(article, &biz.Article{
 			ArticleId: item.ArticleId,
@@ -230,7 +230,7 @@ func (r *articleRepo) getUserArticleListFromCache(ctx context.Context, page int3
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user article list from cache: key(%s), page(%v)", "user_article_list_"+uuid, page))
 	}
 
-	article := make([]*biz.Article, 0)
+	article := make([]*biz.Article, 0, len(list))
 	for _, item := range list {
 		member := strings.Split(item, "%")
 		id, err := strconv.ParseInt(member[0], 10, 32)
@@ -256,7 +256,7 @@ func (r *articleRepo) getUserArticleListFromDB(ctx context.Context, page int32, 
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user article from db: page(%v), uuid(%s)", page, uuid))
 	}
 
-	article := make([]*biz.Article, 0)
+	article := make([]*biz.Article, 0, len(list))
 	for _, item := range list {
 		article = append(article, &biz.Article{
 			ArticleId: item.ArticleId,
@@ -297,7 +297,7 @@ func (r *articleRepo) getUserArticleListAllFromCache(ctx context.Context, uuid s
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user article list all from cache: key(%s)", "user_article_list_all_"+uuid))
 	}
 
-	article := make([]*biz.Article, 0)
+	article := make([]*biz.Article, 0, len(list))
 	for _, item := range list {
 		member := strings.Split(item, "%")
 		id, err := strconv.ParseInt(member[0], 10, 32)
@@ -319,7 +319,7 @@ func (r *articleRepo) getUserArticleListAllFromDB(ctx context.Context, uuid stri
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user article all from db:, uuid(%s)", uuid))
 	}
 
-	article := make([]*biz.Article, 0)
+	article := make([]*biz.Article, 0, len(list))
 	for _, item := range list {
 		article = append(article, &biz.Article{
 			ArticleId: item.ArticleId,
@@ -364,7 +364,7 @@ func (r *articleRepo) getUserArticleListVisitorFromCache(ctx context.Context, pa
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user article list visitor from cache: key(%s), page(%v)", "user_article_list_visitor_"+uuid, page))
 	}
 
-	article := make([]*biz.Article, 0)
+	article := make([]*biz.Article, 0, len(list))
 	for _, item := range list {
 		member := strings.Split(item, "%")
 		id, err := strconv.ParseInt(member[0], 10, 32)
@@ -390,7 +390,7 @@ func (r *articleRepo) getUserArticleListVisitorFromDB(ctx context.Context, page 
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user article visitor from db: page(%v), uuid(%s)", page, uuid))
 	}
 
-	article := make([]*biz.Article, 0)
+	article := make([]*biz.Article, 0, len(list))
 	for _, item := range list {
 		article = append(article, &biz.Article{
 			ArticleId: item.ArticleId,
@@ -403,7 +403,7 @@ func (r *articleRepo) getUserArticleListVisitorFromDB(ctx context.Context, page 
 func (r *articleRepo) setUserArticleListToCache(key string, article []*biz.Article) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		z := make([]*redis.Z, 0)
+		z := make([]*redis.Z, 0, len(article))
 		for _, item := range article {
 			z = append(z, &redis.Z{
 				Score:  float64(item.ArticleId),
@@ -430,7 +430,7 @@ func (r *articleRepo) GetArticleHotFromDB(ctx context.Context, page int32) ([]*b
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get article statistic from db: page(%v)", page))
 	}
 
-	article := make([]*biz.ArticleStatistic, 0)
+	article := make([]*biz.ArticleStatistic, 0, len(list))
 	for _, item := range list {
 		article = append(article, &biz.ArticleStatistic{
 			ArticleId: item.ArticleId,
@@ -490,12 +490,12 @@ func (r *articleRepo) getArticleStatisticFromDB(ctx context.Context, id int32) (
 }
 
 func (r *articleRepo) GetArticleListStatistic(ctx context.Context, ids []int32) ([]*biz.ArticleStatistic, error) {
-	articleListStatistic := make([]*biz.ArticleStatistic, 0)
 	exists, unExists, err := r.articleListStatisticExist(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
 
+	articleListStatistic := make([]*biz.ArticleStatistic, 0, cap(exists))
 	g, _ := errgroup.WithContext(ctx)
 	g.Go(r.data.GroupRecover(ctx, func(ctx context.Context) error {
 		if len(exists) == 0 {
@@ -519,8 +519,6 @@ func (r *articleRepo) GetArticleListStatistic(ctx context.Context, ids []int32) 
 }
 
 func (r *articleRepo) articleListStatisticExist(ctx context.Context, ids []int32) ([]int32, []int32, error) {
-	exists := make([]int32, 0)
-	unExists := make([]int32, 0)
 	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		for _, item := range ids {
 			pipe.Exists(ctx, "article_"+strconv.Itoa(int(item)))
@@ -531,6 +529,8 @@ func (r *articleRepo) articleListStatisticExist(ctx context.Context, ids []int32
 		return nil, nil, errors.Wrapf(err, fmt.Sprintf("fail to check if article statistic exist from cache: ids(%v)", ids))
 	}
 
+	exists := make([]int32, 0, len(cmd))
+	unExists := make([]int32, 0, len(cmd))
 	for index, item := range cmd {
 		exist := item.(*redis.IntCmd).Val()
 		if exist == 1 {
@@ -577,7 +577,7 @@ func (r *articleRepo) getArticleListStatisticFromCache(ctx context.Context, exis
 }
 
 func (r *articleRepo) getArticleListStatisticFromDb(ctx context.Context, unExists []int32, articleListStatistic *[]*biz.ArticleStatistic) error {
-	list := make([]*ArticleStatistic, 0)
+	list := make([]*ArticleStatistic, 0, cap(unExists))
 	err := r.data.db.WithContext(ctx).Where("article_id IN ?", unExists).Find(&list).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to get article statistic list from db: ids(%v)", unExists))
@@ -626,12 +626,12 @@ func (r *articleRepo) setArticleListStatisticToCache(commentList []*ArticleStati
 }
 
 func (r *articleRepo) GetArticleDraftList(ctx context.Context, uuid string) ([]*biz.ArticleDraft, error) {
-	reply := make([]*biz.ArticleDraft, 0)
 	draftList := make([]*ArticleDraft, 0)
 	err := r.data.db.WithContext(ctx).Where("uuid = ? and status = ?", uuid, 3).Order("id desc").Find(&draftList).Error
 	if err != nil {
-		return reply, errors.Wrapf(err, fmt.Sprintf("fail to get draft list : uuid(%s)", uuid))
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get draft list : uuid(%s)", uuid))
 	}
+	reply := make([]*biz.ArticleDraft, 0, len(draftList))
 	for _, item := range draftList {
 		reply = append(reply, &biz.ArticleDraft{
 			Id: int32(item.ID),
@@ -858,7 +858,7 @@ func (r *articleRepo) getUserArticleAgreeFromDb(ctx context.Context, uuid string
 func (r *articleRepo) setUserArticleAgreeToCache(uuid string, agreeList []*ArticleAgree) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		set := make([]interface{}, 0)
+		set := make([]interface{}, 0, len(agreeList))
 		key := "user_article_agree_" + uuid
 		for _, item := range agreeList {
 			set = append(set, item.ArticleId)
@@ -933,7 +933,7 @@ func (r *articleRepo) getUserArticleCollectFromDb(ctx context.Context, uuid stri
 func (r *articleRepo) setUserArticleCollectToCache(uuid string, collectList []*ArticleCollect) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		set := make([]interface{}, 0)
+		set := make([]interface{}, 0, len(collectList))
 		key := "user_article_collect_" + uuid
 		for _, item := range collectList {
 			set = append(set, item.ArticleId)
@@ -1081,7 +1081,7 @@ func (r *articleRepo) getArticleImageReviewFromCache(ctx context.Context, page i
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get article image irregular list from cache: key(%s), page(%v)", key, page))
 	}
 
-	review := make([]*biz.ImageReview, 0)
+	review := make([]*biz.ImageReview, 0, len(list))
 	for _index, item := range list {
 		var imageReview = &biz.ImageReview{}
 		err = json.Unmarshal([]byte(item), imageReview)
@@ -1118,7 +1118,7 @@ func (r *articleRepo) getArticleImageReviewFromDB(ctx context.Context, page int3
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get article image review from db: page(%v), uuid(%s)", page, uuid))
 	}
 
-	review := make([]*biz.ImageReview, 0)
+	review := make([]*biz.ImageReview, 0, len(list))
 	for _index, item := range list {
 		review = append(review, &biz.ImageReview{
 			Id:         int32(_index+1) + (page-1)*20,
@@ -1142,7 +1142,7 @@ func (r *articleRepo) getArticleImageReviewFromDB(ctx context.Context, page int3
 func (r *articleRepo) setArticleImageReviewToCache(key string, review []*biz.ImageReview) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		list := make([]interface{}, 0)
+		list := make([]interface{}, 0, len(review))
 		for _, item := range review {
 			m, err := json.Marshal(item)
 			if err != nil {
@@ -1195,7 +1195,7 @@ func (r *articleRepo) getArticleContentReviewFromCache(ctx context.Context, page
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get article content irregular list from cache: key(%s), page(%v)", key, page))
 	}
 
-	review := make([]*biz.TextReview, 0)
+	review := make([]*biz.TextReview, 0, len(list))
 	for _index, item := range list {
 		var textReview = &biz.TextReview{}
 		err = json.Unmarshal([]byte(item), textReview)
@@ -1229,7 +1229,7 @@ func (r *articleRepo) getArticleContentReviewFromDB(ctx context.Context, page in
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get article content review from db: page(%v), uuid(%s)", page, uuid))
 	}
 
-	review := make([]*biz.TextReview, 0)
+	review := make([]*biz.TextReview, 0, len(list))
 	for _index, item := range list {
 		review = append(review, &biz.TextReview{
 			Id:         int32(_index+1) + (page-1)*20,
@@ -1250,7 +1250,7 @@ func (r *articleRepo) getArticleContentReviewFromDB(ctx context.Context, page in
 func (r *articleRepo) setArticleContentReviewToCache(key string, review []*biz.TextReview) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		list := make([]interface{}, 0)
+		list := make([]interface{}, 0, len(review))
 		for _, item := range review {
 			m, err := json.Marshal(item)
 			if err != nil {
@@ -2401,7 +2401,7 @@ func (r *articleRepo) getArticleFromCache(ctx context.Context, page int32) ([]*b
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get article from cache: key(%s), page(%v)", "article", page))
 	}
 
-	article := make([]*biz.Article, 0)
+	article := make([]*biz.Article, 0, len(list))
 	for _, item := range list {
 		member := strings.Split(item, "%")
 		id, err := strconv.ParseInt(member[0], 10, 32)
@@ -2426,7 +2426,7 @@ func (r *articleRepo) getArticleHotFromCache(ctx context.Context, page int32) ([
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get article hot from cache: key(%s), page(%v)", "article_hot", page))
 	}
 
-	article := make([]*biz.ArticleStatistic, 0)
+	article := make([]*biz.ArticleStatistic, 0, len(list))
 	for _, item := range list {
 		member := strings.Split(item, "%")
 		id, err := strconv.ParseInt(member[0], 10, 32)
@@ -2448,7 +2448,7 @@ func (r *articleRepo) getColumnArticleFromCache(ctx context.Context, id int32) (
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get column article from cache: columnId(%v)", id))
 	}
 
-	article := make([]*biz.Article, 0)
+	article := make([]*biz.Article, 0, len(list))
 	for _, item := range list {
 		member := strings.Split(item, "%")
 		articleId, err := strconv.ParseInt(member[0], 10, 32)
@@ -2470,7 +2470,7 @@ func (r *articleRepo) getColumnArticleFromDB(ctx context.Context, id int32) ([]*
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get column article from db: columnId(%v)", id))
 	}
 
-	article := make([]*biz.Article, 0)
+	article := make([]*biz.Article, 0, len(list))
 	for _, item := range list {
 		article = append(article, &biz.Article{
 			ArticleId: item.ArticleId,
@@ -2483,7 +2483,7 @@ func (r *articleRepo) getColumnArticleFromDB(ctx context.Context, id int32) ([]*
 func (r *articleRepo) setArticleToCache(key string, article []*biz.Article) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		z := make([]*redis.Z, 0)
+		z := make([]*redis.Z, 0, len(article))
 		for _, item := range article {
 			z = append(z, &redis.Z{
 				Score:  float64(item.ArticleId),
@@ -2501,7 +2501,7 @@ func (r *articleRepo) setArticleToCache(key string, article []*biz.Article) {
 func (r *articleRepo) setArticleHotToCache(key string, article []*biz.ArticleStatistic) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		z := make([]*redis.Z, 0)
+		z := make([]*redis.Z, 0, len(article))
 		for _, item := range article {
 			z = append(z, &redis.Z{
 				Score:  float64(item.Agree),
@@ -2521,7 +2521,7 @@ func (r *articleRepo) setColumnArticleToCache(id int32, article []*biz.Article) 
 	length := len(article)
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		z := make([]*redis.Z, 0)
+		z := make([]*redis.Z, 0, len(article))
 		for index, item := range article {
 			z = append(z, &redis.Z{
 				Score:  float64(length - index),

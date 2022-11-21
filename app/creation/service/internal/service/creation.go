@@ -8,11 +8,11 @@ import (
 )
 
 func (s *CreationService) GetLeaderBoard(ctx context.Context, _ *emptypb.Empty) (*v1.GetLeaderBoardReply, error) {
-	reply := &v1.GetLeaderBoardReply{Board: make([]*v1.GetLeaderBoardReply_Board, 0)}
 	boardList, err := s.cc.GetLeaderBoard(ctx)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetLeaderBoardReply{Board: make([]*v1.GetLeaderBoardReply_Board, 0, len(boardList))}
 	for _, item := range boardList {
 		reply.Board = append(reply.Board, &v1.GetLeaderBoardReply_Board{
 			Id:   item.Id,
@@ -35,11 +35,11 @@ func (s *CreationService) GetLastCollectionsDraft(ctx context.Context, req *v1.G
 }
 
 func (s *CreationService) GetCollectionsContentReview(ctx context.Context, req *v1.GetCollectionsContentReviewReq) (*v1.GetCollectionsContentReviewReply, error) {
-	reply := &v1.GetCollectionsContentReviewReply{Review: make([]*v1.GetCollectionsContentReviewReply_Review, 0)}
 	reviewList, err := s.cc.GetCollectionsContentReview(ctx, req.Page, req.Uuid)
 	if err != nil {
-		return reply, err
+		return nil, err
 	}
+	reply := &v1.GetCollectionsContentReviewReply{Review: make([]*v1.GetCollectionsContentReviewReply_Review, 0, len(reviewList))}
 	for _, item := range reviewList {
 		reply.Review = append(reply.Review, &v1.GetCollectionsContentReviewReply_Review{
 			Id:         item.Id,
@@ -58,11 +58,11 @@ func (s *CreationService) GetCollectionsContentReview(ctx context.Context, req *
 }
 
 func (s *CreationService) GetCollectArticleList(ctx context.Context, req *v1.GetCollectArticleListReq) (*v1.GetArticleListReply, error) {
-	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0)}
 	articleList, err := s.cc.GetCollectArticleList(ctx, req.Id, req.Page)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0, len(articleList))}
 	for _, item := range articleList {
 		reply.Article = append(reply.Article, &v1.GetArticleListReply_Article{
 			Id:   item.ArticleId,
@@ -83,11 +83,11 @@ func (s *CreationService) GetCollectArticleCount(ctx context.Context, req *v1.Ge
 }
 
 func (s *CreationService) GetCollectTalkList(ctx context.Context, req *v1.GetCollectTalkListReq) (*v1.GetTalkListReply, error) {
-	reply := &v1.GetTalkListReply{Talk: make([]*v1.GetTalkListReply_Talk, 0)}
 	talkList, err := s.cc.GetCollectTalkList(ctx, req.Id, req.Page)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetTalkListReply{Talk: make([]*v1.GetTalkListReply_Talk, 0, len(talkList))}
 	for _, item := range talkList {
 		reply.Talk = append(reply.Talk, &v1.GetTalkListReply_Talk{
 			Id:   item.TalkId,
@@ -108,11 +108,11 @@ func (s *CreationService) GetCollectTalkCount(ctx context.Context, req *v1.GetCo
 }
 
 func (s *CreationService) GetCollectColumnList(ctx context.Context, req *v1.GetCollectColumnListReq) (*v1.GetColumnListReply, error) {
-	reply := &v1.GetColumnListReply{Column: make([]*v1.GetColumnListReply_Column, 0)}
 	columnList, err := s.cc.GetCollectColumnList(ctx, req.Id, req.Page)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetColumnListReply{Column: make([]*v1.GetColumnListReply_Column, 0, len(columnList))}
 	for _, item := range columnList {
 		reply.Column = append(reply.Column, &v1.GetColumnListReply_Column{
 			Id:   item.ColumnId,
@@ -147,11 +147,11 @@ func (s *CreationService) GetCollections(ctx context.Context, req *v1.GetCollect
 }
 
 func (s *CreationService) GetCollectionListInfo(ctx context.Context, req *v1.GetCollectionListInfoReq) (*v1.GetCollectionsListReply, error) {
-	reply := &v1.GetCollectionsListReply{Collections: make([]*v1.GetCollectionsListReply_Collections, 0)}
 	collectionsListInfo, err := s.cc.GetCollectionListInfo(ctx, req.Ids)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetCollectionsListReply{Collections: make([]*v1.GetCollectionsListReply_Collections, 0, len(collectionsListInfo))}
 	for _, item := range collectionsListInfo {
 		reply.Collections = append(reply.Collections, &v1.GetCollectionsListReply_Collections{
 			Id: item.CollectionsId,
@@ -161,11 +161,11 @@ func (s *CreationService) GetCollectionListInfo(ctx context.Context, req *v1.Get
 }
 
 func (s *CreationService) GetCollectionsList(ctx context.Context, req *v1.GetCollectionsListReq) (*v1.GetCollectionsListReply, error) {
-	reply := &v1.GetCollectionsListReply{Collections: make([]*v1.GetCollectionsListReply_Collections, 0)}
 	collections, err := s.cc.GetCollectionsList(ctx, req.Uuid, req.Page)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetCollectionsListReply{Collections: make([]*v1.GetCollectionsListReply_Collections, 0, len(collections))}
 	for _, item := range collections {
 		reply.Collections = append(reply.Collections, &v1.GetCollectionsListReply_Collections{
 			Id: item.CollectionsId,
@@ -175,11 +175,11 @@ func (s *CreationService) GetCollectionsList(ctx context.Context, req *v1.GetCol
 }
 
 func (s *CreationService) GetCollectionsListAll(ctx context.Context, req *v1.GetCollectionsListAllReq) (*v1.GetCollectionsListReply, error) {
-	reply := &v1.GetCollectionsListReply{Collections: make([]*v1.GetCollectionsListReply_Collections, 0)}
 	collections, err := s.cc.GetCollectionsListAll(ctx, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetCollectionsListReply{Collections: make([]*v1.GetCollectionsListReply_Collections, 0, len(collections))}
 	for _, item := range collections {
 		reply.Collections = append(reply.Collections, &v1.GetCollectionsListReply_Collections{
 			Id: item.CollectionsId,
@@ -189,11 +189,11 @@ func (s *CreationService) GetCollectionsListAll(ctx context.Context, req *v1.Get
 }
 
 func (s *CreationService) GetCollectionsListByVisitor(ctx context.Context, req *v1.GetCollectionsListReq) (*v1.GetCollectionsListReply, error) {
-	reply := &v1.GetCollectionsListReply{Collections: make([]*v1.GetCollectionsListReply_Collections, 0)}
 	collections, err := s.cc.GetCollectionsListByVisitor(ctx, req.Uuid, req.Page)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetCollectionsListReply{Collections: make([]*v1.GetCollectionsListReply_Collections, 0, len(collections))}
 	for _, item := range collections {
 		reply.Collections = append(reply.Collections, &v1.GetCollectionsListReply_Collections{
 			Id: item.CollectionsId,
@@ -251,11 +251,11 @@ func (s *CreationService) GetCreationUserVisitor(ctx context.Context, req *v1.Ge
 }
 
 func (s *CreationService) GetUserTimeLineList(ctx context.Context, req *v1.GetUserTimeLineListReq) (*v1.GetUserTimeLineListReply, error) {
-	reply := &v1.GetUserTimeLineListReply{Timeline: make([]*v1.GetUserTimeLineListReply_TimeLine, 0)}
 	timeline, err := s.cc.GetUserTimeLineList(ctx, req.Page, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetUserTimeLineListReply{Timeline: make([]*v1.GetUserTimeLineListReply_TimeLine, 0, len(timeline))}
 	for _, item := range timeline {
 		reply.Timeline = append(reply.Timeline, &v1.GetUserTimeLineListReply_TimeLine{
 			Id:         item.Id,

@@ -631,7 +631,7 @@ func (r *columnRepo) getColumnFromCache(ctx context.Context, page int32) ([]*biz
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get column from cache: key(%s), page(%v)", "column", page))
 	}
 
-	column := make([]*biz.Column, 0)
+	column := make([]*biz.Column, 0, len(list))
 	for _, item := range list {
 		member := strings.Split(item, "%")
 		id, err := strconv.ParseInt(member[0], 10, 32)
@@ -657,7 +657,7 @@ func (r *columnRepo) getColumnFromDB(ctx context.Context, page int32) ([]*biz.Co
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get column from db: page(%v)", page))
 	}
 
-	column := make([]*biz.Column, 0)
+	column := make([]*biz.Column, 0, len(list))
 	for _, item := range list {
 		column = append(column, &biz.Column{
 			ColumnId: item.ColumnId,
@@ -670,7 +670,7 @@ func (r *columnRepo) getColumnFromDB(ctx context.Context, page int32) ([]*biz.Co
 func (r *columnRepo) setColumnToCache(key string, column []*biz.Column) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		z := make([]*redis.Z, 0)
+		z := make([]*redis.Z, 0, len(column))
 		for _, item := range column {
 			z = append(z, &redis.Z{
 				Score:  float64(item.ColumnId),
@@ -745,7 +745,7 @@ func (r *columnRepo) getUserColumnListFromCache(ctx context.Context, page int32,
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user column list visitor from cache: key(%s), page(%v)", "user_column_list_"+uuid, page))
 	}
 
-	column := make([]*biz.Column, 0)
+	column := make([]*biz.Column, 0, len(list))
 	for _, item := range list {
 		member := strings.Split(item, "%")
 		id, err := strconv.ParseInt(member[0], 10, 32)
@@ -771,7 +771,7 @@ func (r *columnRepo) getUserColumnListFromDB(ctx context.Context, page int32, uu
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user column from db: page(%v), uuid(%s)", page, uuid))
 	}
 
-	column := make([]*biz.Column, 0)
+	column := make([]*biz.Column, 0, len(list))
 	for _, item := range list {
 		column = append(column, &biz.Column{
 			ColumnId: item.ColumnId,
@@ -816,7 +816,7 @@ func (r *columnRepo) getUserColumnListVisitorFromCache(ctx context.Context, page
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user column list visitor from cache: key(%s), page(%v)", "user_column_list_visitor_"+uuid, page))
 	}
 
-	column := make([]*biz.Column, 0)
+	column := make([]*biz.Column, 0, len(list))
 	for _, item := range list {
 		member := strings.Split(item, "%")
 		id, err := strconv.ParseInt(member[0], 10, 32)
@@ -842,7 +842,7 @@ func (r *columnRepo) getUserColumnListVisitorFromDB(ctx context.Context, page in
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user column visitor from db: page(%v), uuid(%s)", page, uuid))
 	}
 
-	column := make([]*biz.Column, 0)
+	column := make([]*biz.Column, 0, len(list))
 	for _, item := range list {
 		column = append(column, &biz.Column{
 			ColumnId: item.ColumnId,
@@ -854,7 +854,7 @@ func (r *columnRepo) getUserColumnListVisitorFromDB(ctx context.Context, page in
 
 func (r *columnRepo) setUserColumnListToCache(key string, column []*biz.Column) {
 	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
-		z := make([]*redis.Z, 0)
+		z := make([]*redis.Z, 0, len(column))
 		for _, item := range column {
 			z = append(z, &redis.Z{
 				Score:  float64(item.ColumnId),
@@ -898,7 +898,7 @@ func (r *columnRepo) getColumnHotFromCache(ctx context.Context, page int32) ([]*
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get column hot from cache: key(%s), page(%v)", "column_hot", page))
 	}
 
-	column := make([]*biz.ColumnStatistic, 0)
+	column := make([]*biz.ColumnStatistic, 0, len(list))
 	for _, item := range list {
 		member := strings.Split(item, "%")
 		id, err := strconv.ParseInt(member[0], 10, 32)
@@ -924,7 +924,7 @@ func (r *columnRepo) GetColumnHotFromDB(ctx context.Context, page int32) ([]*biz
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get column statistic from db: page(%v)", page))
 	}
 
-	column := make([]*biz.ColumnStatistic, 0)
+	column := make([]*biz.ColumnStatistic, 0, len(list))
 	for _, item := range list {
 		column = append(column, &biz.ColumnStatistic{
 			ColumnId: item.ColumnId,
@@ -937,7 +937,7 @@ func (r *columnRepo) GetColumnHotFromDB(ctx context.Context, page int32) ([]*biz
 
 func (r *columnRepo) setColumnHotToCache(key string, column []*biz.ColumnStatistic) {
 	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
-		z := make([]*redis.Z, 0)
+		z := make([]*redis.Z, 0, len(column))
 		for _, item := range column {
 			z = append(z, &redis.Z{
 				Score:  float64(item.Agree),
@@ -953,12 +953,12 @@ func (r *columnRepo) setColumnHotToCache(key string, column []*biz.ColumnStatist
 }
 
 func (r *columnRepo) GetColumnListStatistic(ctx context.Context, ids []int32) ([]*biz.ColumnStatistic, error) {
-	columnListStatistic := make([]*biz.ColumnStatistic, 0)
 	exists, unExists, err := r.columnListStatisticExist(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
 
+	columnListStatistic := make([]*biz.ColumnStatistic, 0, cap(exists))
 	g, _ := errgroup.WithContext(ctx)
 	g.Go(r.data.GroupRecover(ctx, func(ctx context.Context) error {
 		if len(exists) == 0 {
@@ -982,8 +982,6 @@ func (r *columnRepo) GetColumnListStatistic(ctx context.Context, ids []int32) ([
 }
 
 func (r *columnRepo) columnListStatisticExist(ctx context.Context, ids []int32) ([]int32, []int32, error) {
-	exists := make([]int32, 0)
-	unExists := make([]int32, 0)
 	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		for _, item := range ids {
 			pipe.Exists(ctx, "column_"+strconv.Itoa(int(item)))
@@ -994,6 +992,8 @@ func (r *columnRepo) columnListStatisticExist(ctx context.Context, ids []int32) 
 		return nil, nil, errors.Wrapf(err, fmt.Sprintf("fail to check if column statistic exist from cache: ids(%v)", ids))
 	}
 
+	exists := make([]int32, 0, len(cmd))
+	unExists := make([]int32, 0, len(cmd))
 	for index, item := range cmd {
 		exist := item.(*redis.IntCmd).Val()
 		if exist == 1 {
@@ -1039,7 +1039,7 @@ func (r *columnRepo) getColumnListStatisticFromCache(ctx context.Context, exists
 }
 
 func (r *columnRepo) getColumnListStatisticFromDb(ctx context.Context, unExists []int32, columnListStatistic *[]*biz.ColumnStatistic) error {
-	list := make([]*ColumnStatistic, 0)
+	list := make([]*ColumnStatistic, 0, cap(unExists))
 	err := r.data.db.WithContext(ctx).Where("column_id IN ?", unExists).Find(&list).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to get column statistic list from db: ids(%v)", unExists))
@@ -1308,7 +1308,7 @@ func (r *columnRepo) getUserSubscribeListFromCache(ctx context.Context, page int
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user column subscribe list from cache: key(%s), page(%v)", "user_column_subscribe_list_"+uuid, page))
 	}
 
-	subscribe := make([]*biz.Subscribe, 0)
+	subscribe := make([]*biz.Subscribe, 0, len(list))
 	for _, item := range list {
 		member := strings.Split(item, "%")
 		id, err := strconv.ParseInt(member[0], 10, 32)
@@ -1334,7 +1334,7 @@ func (r *columnRepo) getUserSubscribeListFromDB(ctx context.Context, page int32,
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get subscribe column from db: page(%v)", page))
 	}
 
-	subscribe := make([]*biz.Subscribe, 0)
+	subscribe := make([]*biz.Subscribe, 0, len(list))
 	for _, item := range list {
 		subscribe = append(subscribe, &biz.Subscribe{
 			ColumnId: item.ColumnId,
@@ -1346,7 +1346,7 @@ func (r *columnRepo) getUserSubscribeListFromDB(ctx context.Context, page int32,
 
 func (r *columnRepo) setUserSubscribeListToCache(key string, subscribe []*biz.Subscribe) {
 	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
-		z := make([]*redis.Z, 0)
+		z := make([]*redis.Z, 0, len(subscribe))
 		for _, item := range subscribe {
 			z = append(z, &redis.Z{
 				Score:  float64(item.ColumnId),
@@ -1378,7 +1378,7 @@ func (r *columnRepo) GetColumnSubscribes(ctx context.Context, uuid string, ids [
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get column subscribe from db: uuid(%s), ids(%v)", uuid, ids))
 	}
 
-	subscribes := make([]*biz.Subscribe, 0)
+	subscribes := make([]*biz.Subscribe, 0, len(list))
 	for _, item := range list {
 		subscribes = append(subscribes, &biz.Subscribe{
 			ColumnId: item.ColumnId,
@@ -2413,7 +2413,7 @@ func (r *columnRepo) getUserColumnAgreeFromDb(ctx context.Context, uuid string) 
 func (r *columnRepo) setUserColumnAgreeToCache(uuid string, agreeList []*ColumnAgree) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		set := make([]interface{}, 0)
+		set := make([]interface{}, 0, len(agreeList))
 		key := "user_column_agree_" + uuid
 		for _, item := range agreeList {
 			set = append(set, item.ColumnId)
@@ -2488,7 +2488,7 @@ func (r *columnRepo) getUserColumnCollectFromDb(ctx context.Context, uuid string
 func (r *columnRepo) setUserColumnCollectToCache(uuid string, collectList []*ColumnCollect) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		set := make([]interface{}, 0)
+		set := make([]interface{}, 0, len(collectList))
 		key := "user_column_collect_" + uuid
 		for _, item := range collectList {
 			set = append(set, item.ColumnId)
@@ -2562,7 +2562,7 @@ func (r *columnRepo) getUserColumnSubscribeFromDb(ctx context.Context, uuid stri
 func (r *columnRepo) setUserColumnSubscribeToCache(uuid string, subscribeList []*Subscribe) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		set := make([]interface{}, 0)
+		set := make([]interface{}, 0, len(subscribeList))
 		key := "user_column_subscribe_" + uuid
 		for _, item := range subscribeList {
 			set = append(set, item.ColumnId)
@@ -2621,7 +2621,7 @@ func (r *columnRepo) getColumnImageReviewFromCache(ctx context.Context, page int
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get column image irregular list from cache: key(%s), page(%v)", key, page))
 	}
 
-	review := make([]*biz.ImageReview, 0)
+	review := make([]*biz.ImageReview, 0, len(list))
 	for _index, item := range list {
 		var imageReview = &biz.ImageReview{}
 		err = json.Unmarshal([]byte(item), imageReview)
@@ -2658,7 +2658,7 @@ func (r *columnRepo) getColumnImageReviewFromDB(ctx context.Context, page int32,
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get column image review from db: page(%v), uuid(%s)", page, uuid))
 	}
 
-	review := make([]*biz.ImageReview, 0)
+	review := make([]*biz.ImageReview, 0, len(list))
 	for _index, item := range list {
 		review = append(review, &biz.ImageReview{
 			Id:         int32(_index+1) + (page-1)*20,
@@ -2682,7 +2682,7 @@ func (r *columnRepo) getColumnImageReviewFromDB(ctx context.Context, page int32,
 func (r *columnRepo) setColumnImageReviewToCache(key string, review []*biz.ImageReview) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		list := make([]interface{}, 0)
+		list := make([]interface{}, 0, len(review))
 		for _, item := range review {
 			m, err := json.Marshal(item)
 			if err != nil {
@@ -2735,7 +2735,7 @@ func (r *columnRepo) getColumnContentReviewFromCache(ctx context.Context, page i
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get column content irregular list from cache: key(%s), page(%v)", key, page))
 	}
 
-	review := make([]*biz.TextReview, 0)
+	review := make([]*biz.TextReview, 0, len(list))
 	for _index, item := range list {
 		var textReview = &biz.TextReview{}
 		err = json.Unmarshal([]byte(item), textReview)
@@ -2769,7 +2769,7 @@ func (r *columnRepo) getColumnContentReviewFromDB(ctx context.Context, page int3
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get column content review from db: page(%v), uuid(%s)", page, uuid))
 	}
 
-	review := make([]*biz.TextReview, 0)
+	review := make([]*biz.TextReview, 0, len(list))
 	for _index, item := range list {
 		review = append(review, &biz.TextReview{
 			Id:         int32(_index+1) + (page-1)*20,
@@ -2790,7 +2790,7 @@ func (r *columnRepo) getColumnContentReviewFromDB(ctx context.Context, page int3
 func (r *columnRepo) setColumnContentReviewToCache(key string, review []*biz.TextReview) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		list := make([]interface{}, 0)
+		list := make([]interface{}, 0, len(review))
 		for _, item := range review {
 			m, err := json.Marshal(item)
 			if err != nil {
