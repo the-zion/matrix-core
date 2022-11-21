@@ -144,7 +144,7 @@ func (r *messageRepo) getMessageSystemNotificationFromCache(ctx context.Context,
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get message system notification from cache: key(%s), page(%v)", key, page))
 	}
 
-	notificationList := make([]*biz.SystemNotification, 0)
+	notificationList := make([]*biz.SystemNotification, 0, len(list))
 	for _, item := range list {
 		var notification = &biz.SystemNotification{}
 		err = json.Unmarshal([]byte(item), notification)
@@ -180,7 +180,7 @@ func (r *messageRepo) getMessageSystemNotificationFromDB(ctx context.Context, pa
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get message system notification from db: page(%v), uuid(%s)", page, uuid))
 	}
 
-	notification := make([]*biz.SystemNotification, 0)
+	notification := make([]*biz.SystemNotification, 0, len(list))
 	for _, item := range list {
 		notification = append(notification, &biz.SystemNotification{
 			Id:               int32(item.ID),
@@ -203,7 +203,7 @@ func (r *messageRepo) getMessageSystemNotificationFromDB(ctx context.Context, pa
 func (r *messageRepo) setMessageSystemNotificationToCache(key string, notification []*biz.SystemNotification) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		list := make([]interface{}, 0)
+		list := make([]interface{}, 0, len(notification))
 		for _, item := range notification {
 			m, err := json.Marshal(item)
 			if err != nil {
