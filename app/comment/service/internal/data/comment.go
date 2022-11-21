@@ -109,7 +109,7 @@ func (r *commentRepo) getUserCommentAgreeFromDb(ctx context.Context, uuid string
 func (r *commentRepo) setUserCommentAgreeToCache(uuid string, agreeList []*CommentAgree) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		set := make([]interface{}, 0)
+		set := make([]interface{}, 0, len(agreeList))
 		key := "user_comment_agree_" + uuid
 		for _, item := range agreeList {
 			set = append(set, item.CommentId)
@@ -272,7 +272,7 @@ func (r *commentRepo) getCommentFromCache(ctx context.Context, page, creationId,
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get comment from cache: key(%s), page(%v)", key, page))
 	}
 
-	comment := make([]*biz.Comment, 0)
+	comment := make([]*biz.Comment, 0, len(list))
 	for _, item := range list {
 		member := strings.Split(item, "%")
 		id, err := strconv.ParseInt(member[0], 10, 32)
@@ -298,7 +298,7 @@ func (r *commentRepo) getSubCommentFromCache(ctx context.Context, page, id int32
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get sub comment from cache: key(%s), page(%v)", key, page))
 	}
 
-	subComment := make([]*biz.SubComment, 0)
+	subComment := make([]*biz.SubComment, 0, len(list))
 	for _, item := range list {
 		member := strings.Split(item, "%")
 		id, err := strconv.ParseInt(member[0], 10, 32)
@@ -325,7 +325,7 @@ func (r *commentRepo) getCommentFromDB(ctx context.Context, page, creationId, cr
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get comment from db: page(%v)", page))
 	}
 
-	comment := make([]*biz.Comment, 0)
+	comment := make([]*biz.Comment, 0, len(list))
 	for _, item := range list {
 		comment = append(comment, &biz.Comment{
 			UpdatedAt: int32(item.UpdatedAt.Unix()),
@@ -347,7 +347,7 @@ func (r *commentRepo) getSubCommentFromDB(ctx context.Context, page, id int32) (
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get sub comment from db: page(%v)", page))
 	}
 
-	subComment := make([]*biz.SubComment, 0)
+	subComment := make([]*biz.SubComment, 0, len(list))
 	for _, item := range list {
 		subComment = append(subComment, &biz.SubComment{
 			CommentId: item.CommentId,
@@ -362,7 +362,7 @@ func (r *commentRepo) getSubCommentFromDB(ctx context.Context, page, id int32) (
 func (r *commentRepo) setCommentToCache(creationId, creationType int32, comment []*biz.Comment) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		z := make([]*redis.Z, 0)
+		z := make([]*redis.Z, 0, len(comment))
 		key := fmt.Sprintf("comment_%v_%v", creationId, creationType)
 		for _, item := range comment {
 			z = append(z, &redis.Z{
@@ -382,7 +382,7 @@ func (r *commentRepo) setCommentToCache(creationId, creationType int32, comment 
 func (r *commentRepo) setSubCommentToCache(id int32, subComment []*biz.SubComment) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		z := make([]*redis.Z, 0)
+		z := make([]*redis.Z, 0, len(subComment))
 		key := fmt.Sprintf("sub_comment_%v", id)
 		for _, item := range subComment {
 			z = append(z, &redis.Z{
@@ -435,7 +435,7 @@ func (r *commentRepo) getCommentHotFromCache(ctx context.Context, page, creation
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get comment from cache: key(%s), page(%v)", key, page))
 	}
 
-	comment := make([]*biz.Comment, 0)
+	comment := make([]*biz.Comment, 0, len(list))
 	for _, item := range list {
 		member := strings.Split(item, "%")
 		id, err := strconv.ParseInt(member[0], 10, 32)
@@ -461,7 +461,7 @@ func (r *commentRepo) getCommentHotFromDB(ctx context.Context, page, creationId,
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get comment hot from db: page(%v)", page))
 	}
 
-	comment := make([]*biz.Comment, 0)
+	comment := make([]*biz.Comment, 0, len(list))
 	for _, item := range list {
 		comment = append(comment, &biz.Comment{
 			CommentId: item.CommentId,
@@ -474,7 +474,7 @@ func (r *commentRepo) getCommentHotFromDB(ctx context.Context, page, creationId,
 
 func (r *commentRepo) setCommentHotToCache(creationId, creationType int32, comment []*biz.Comment) {
 	_, err := r.data.redisCli.TxPipelined(context.Background(), func(pipe redis.Pipeliner) error {
-		z := make([]*redis.Z, 0)
+		z := make([]*redis.Z, 0, len(comment))
 		key := fmt.Sprintf("comment_%v_%v_hot", creationId, creationType)
 		for _, item := range comment {
 			z = append(z, &redis.Z{
@@ -492,12 +492,12 @@ func (r *commentRepo) setCommentHotToCache(creationId, creationType int32, comme
 }
 
 func (r *commentRepo) GetCommentListStatistic(ctx context.Context, ids []int32) ([]*biz.CommentStatistic, error) {
-	commentListStatistic := make([]*biz.CommentStatistic, 0)
 	exists, unExists, err := r.commentStatisticExist(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
 
+	commentListStatistic := make([]*biz.CommentStatistic, 0, cap(exists))
 	g, _ := errgroup.WithContext(ctx)
 	g.Go(r.data.GroupRecover(ctx, func(ctx context.Context) error {
 		if len(exists) == 0 {
@@ -521,12 +521,12 @@ func (r *commentRepo) GetCommentListStatistic(ctx context.Context, ids []int32) 
 }
 
 func (r *commentRepo) GetSubCommentListStatistic(ctx context.Context, ids []int32) ([]*biz.CommentStatistic, error) {
-	commentListStatistic := make([]*biz.CommentStatistic, 0)
 	exists, unExists, err := r.commentStatisticExist(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
 
+	commentListStatistic := make([]*biz.CommentStatistic, 0, cap(exists))
 	g, _ := errgroup.WithContext(ctx)
 	g.Go(r.data.GroupRecover(ctx, func(ctx context.Context) error {
 		if len(exists) == 0 {
@@ -585,7 +585,7 @@ func (r *commentRepo) getUserCommentArticleReplyListFromCache(ctx context.Contex
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user comment article reply list from cache: key(%s), page(%v)", key, page))
 	}
 
-	comment := make([]*biz.Comment, 0)
+	comment := make([]*biz.Comment, 0, len(list))
 	for _, item := range list {
 		member := strings.Split(item, "%")
 		id, err := strconv.ParseInt(member[0], 10, 32)
@@ -616,7 +616,7 @@ func (r *commentRepo) getUserCommentArticleReplyListFromDB(ctx context.Context, 
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user comment article reply list from db: page(%v)", page))
 	}
 
-	comment := make([]*biz.Comment, 0)
+	comment := make([]*biz.Comment, 0, len(list))
 	for _, item := range list {
 		comment = append(comment, &biz.Comment{
 			CommentId:      item.CommentId,
@@ -631,7 +631,7 @@ func (r *commentRepo) getUserCommentArticleReplyListFromDB(ctx context.Context, 
 func (r *commentRepo) setUserCommentArticleReplyListToCache(uuid string, comment []*biz.Comment) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		z := make([]*redis.Z, 0)
+		z := make([]*redis.Z, 0, len(comment))
 		key := fmt.Sprintf("user_comment_article_reply_list_%s", uuid)
 		for _, item := range comment {
 			z = append(z, &redis.Z{
@@ -684,7 +684,7 @@ func (r *commentRepo) getUserSubCommentArticleReplyListFromCache(ctx context.Con
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user sub comment article reply list from cache: key(%s), page(%v)", key, page))
 	}
 
-	comment := make([]*biz.SubComment, 0)
+	comment := make([]*biz.SubComment, 0, len(list))
 	for _, item := range list {
 		member := strings.Split(item, "%")
 		id, err := strconv.ParseInt(member[0], 10, 32)
@@ -727,7 +727,7 @@ func (r *commentRepo) getUserSubCommentArticleReplyListFromDB(ctx context.Contex
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user sub comment article reply list from db: page(%v)", page))
 	}
 
-	comment := make([]*biz.SubComment, 0)
+	comment := make([]*biz.SubComment, 0, len(list))
 	for _, item := range list {
 		comment = append(comment, &biz.SubComment{
 			CommentId:      item.CommentId,
@@ -746,7 +746,7 @@ func (r *commentRepo) getUserSubCommentArticleReplyListFromDB(ctx context.Contex
 func (r *commentRepo) setUserSubCommentArticleReplyListToCache(uuid string, comment []*biz.SubComment) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		z := make([]*redis.Z, 0)
+		z := make([]*redis.Z, 0, len(comment))
 		key := fmt.Sprintf("user_sub_comment_article_reply_list_%s", uuid)
 		for _, item := range comment {
 			z = append(z, &redis.Z{
@@ -799,7 +799,7 @@ func (r *commentRepo) getUserCommentTalkReplyListFromCache(ctx context.Context, 
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user comment talk reply list from cache: key(%s), page(%v)", key, page))
 	}
 
-	comment := make([]*biz.Comment, 0)
+	comment := make([]*biz.Comment, 0, len(list))
 	for _, item := range list {
 		member := strings.Split(item, "%")
 		id, err := strconv.ParseInt(member[0], 10, 32)
@@ -830,7 +830,7 @@ func (r *commentRepo) getUserCommentTalkReplyListFromDB(ctx context.Context, pag
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user comment talk reply list from db: page(%v)", page))
 	}
 
-	comment := make([]*biz.Comment, 0)
+	comment := make([]*biz.Comment, 0, len(list))
 	for _, item := range list {
 		comment = append(comment, &biz.Comment{
 			CommentId:      item.CommentId,
@@ -845,7 +845,7 @@ func (r *commentRepo) getUserCommentTalkReplyListFromDB(ctx context.Context, pag
 func (r *commentRepo) setUserCommentTalkReplyListToCache(uuid string, comment []*biz.Comment) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		z := make([]*redis.Z, 0)
+		z := make([]*redis.Z, 0, len(comment))
 		key := fmt.Sprintf("user_comment_talk_reply_list_%s", uuid)
 		for _, item := range comment {
 			z = append(z, &redis.Z{
@@ -898,7 +898,7 @@ func (r *commentRepo) getUserSubCommentTalkReplyListFromCache(ctx context.Contex
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user sub comment talk reply list from cache: key(%s), page(%v)", key, page))
 	}
 
-	comment := make([]*biz.SubComment, 0)
+	comment := make([]*biz.SubComment, 0, len(list))
 	for _, item := range list {
 		member := strings.Split(item, "%")
 		id, err := strconv.ParseInt(member[0], 10, 32)
@@ -941,7 +941,7 @@ func (r *commentRepo) getUserSubCommentTalkReplyListFromDB(ctx context.Context, 
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user sub comment talk reply list from db: page(%v)", page))
 	}
 
-	comment := make([]*biz.SubComment, 0)
+	comment := make([]*biz.SubComment, 0, len(list))
 	for _, item := range list {
 		comment = append(comment, &biz.SubComment{
 			CommentId:      item.CommentId,
@@ -960,7 +960,7 @@ func (r *commentRepo) getUserSubCommentTalkReplyListFromDB(ctx context.Context, 
 func (r *commentRepo) setUserSubCommentTalkReplyListToCache(uuid string, comment []*biz.SubComment) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		z := make([]*redis.Z, 0)
+		z := make([]*redis.Z, 0, len(comment))
 		key := fmt.Sprintf("user_sub_comment_talk_reply_list_%s", uuid)
 		for _, item := range comment {
 			z = append(z, &redis.Z{
@@ -1013,7 +1013,7 @@ func (r *commentRepo) getUserCommentArticleRepliedListFromCache(ctx context.Cont
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user comment article replied list from cache: key(%s), page(%v)", key, page))
 	}
 
-	comment := make([]*biz.Comment, 0)
+	comment := make([]*biz.Comment, 0, len(list))
 	for _, item := range list {
 		member := strings.Split(item, "%")
 		id, err := strconv.ParseInt(member[0], 10, 32)
@@ -1044,7 +1044,7 @@ func (r *commentRepo) getUserCommentArticleRepliedListFromDB(ctx context.Context
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user comment article replied list from db: page(%v)", page))
 	}
 
-	comment := make([]*biz.Comment, 0)
+	comment := make([]*biz.Comment, 0, len(list))
 	for _, item := range list {
 		comment = append(comment, &biz.Comment{
 			CommentId:  item.CommentId,
@@ -1059,7 +1059,7 @@ func (r *commentRepo) getUserCommentArticleRepliedListFromDB(ctx context.Context
 func (r *commentRepo) setUserCommentArticleRepliedListToCache(uuid string, comment []*biz.Comment) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		z := make([]*redis.Z, 0)
+		z := make([]*redis.Z, 0, len(comment))
 		key := fmt.Sprintf("user_comment_article_replied_list_%s", uuid)
 		for _, item := range comment {
 			z = append(z, &redis.Z{
@@ -1112,7 +1112,7 @@ func (r *commentRepo) getUserSubCommentArticleRepliedListFromCache(ctx context.C
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user sub comment article replied list from cache: key(%s), page(%v)", key, page))
 	}
 
-	comment := make([]*biz.SubComment, 0)
+	comment := make([]*biz.SubComment, 0, len(list))
 	for _, item := range list {
 		member := strings.Split(item, "%")
 		id, err := strconv.ParseInt(member[0], 10, 32)
@@ -1156,7 +1156,7 @@ func (r *commentRepo) getUserSubCommentArticleRepliedListFromDB(ctx context.Cont
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user sub comment article replied list from db: page(%v)", page))
 	}
 
-	comment := make([]*biz.SubComment, 0)
+	comment := make([]*biz.SubComment, 0, len(list))
 	for _, item := range list {
 		comment = append(comment, &biz.SubComment{
 			CommentId:      item.CommentId,
@@ -1176,7 +1176,7 @@ func (r *commentRepo) getUserSubCommentArticleRepliedListFromDB(ctx context.Cont
 func (r *commentRepo) setUserSubCommentArticleRepliedListToCache(uuid string, comment []*biz.SubComment) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		z := make([]*redis.Z, 0)
+		z := make([]*redis.Z, 0, len(comment))
 		key := fmt.Sprintf("user_sub_comment_article_replied_list_%s", uuid)
 		for _, item := range comment {
 			z = append(z, &redis.Z{
@@ -1229,7 +1229,7 @@ func (r *commentRepo) getUserCommentTalkRepliedListFromCache(ctx context.Context
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user comment talk replied list from cache: key(%s), page(%v)", key, page))
 	}
 
-	comment := make([]*biz.Comment, 0)
+	comment := make([]*biz.Comment, 0, len(list))
 	for _, item := range list {
 		member := strings.Split(item, "%")
 		id, err := strconv.ParseInt(member[0], 10, 32)
@@ -1260,7 +1260,7 @@ func (r *commentRepo) getUserCommentTalkRepliedListFromDB(ctx context.Context, p
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user comment talk replied list from db: page(%v)", page))
 	}
 
-	comment := make([]*biz.Comment, 0)
+	comment := make([]*biz.Comment, 0, len(list))
 	for _, item := range list {
 		comment = append(comment, &biz.Comment{
 			CommentId:  item.CommentId,
@@ -1275,7 +1275,7 @@ func (r *commentRepo) getUserCommentTalkRepliedListFromDB(ctx context.Context, p
 func (r *commentRepo) setUserCommentTalkRepliedListToCache(uuid string, comment []*biz.Comment) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		z := make([]*redis.Z, 0)
+		z := make([]*redis.Z, 0, len(comment))
 		key := fmt.Sprintf("user_comment_talk_replied_list_%s", uuid)
 		for _, item := range comment {
 			z = append(z, &redis.Z{
@@ -1328,7 +1328,7 @@ func (r *commentRepo) getUserSubCommentTalkRepliedListFromCache(ctx context.Cont
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user sub comment talk replied list from cache: key(%s), page(%v)", key, page))
 	}
 
-	comment := make([]*biz.SubComment, 0)
+	comment := make([]*biz.SubComment, 0, len(list))
 	for _, item := range list {
 		member := strings.Split(item, "%")
 		id, err := strconv.ParseInt(member[0], 10, 32)
@@ -1372,7 +1372,7 @@ func (r *commentRepo) getUserSubCommentTalkRepliedListFromDB(ctx context.Context
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user sub comment talk replied list from db: page(%v)", page))
 	}
 
-	comment := make([]*biz.SubComment, 0)
+	comment := make([]*biz.SubComment, 0, len(list))
 	for _, item := range list {
 		comment = append(comment, &biz.SubComment{
 			CommentId:      item.CommentId,
@@ -1392,7 +1392,7 @@ func (r *commentRepo) getUserSubCommentTalkRepliedListFromDB(ctx context.Context
 func (r *commentRepo) setUserSubCommentTalkRepliedListToCache(uuid string, comment []*biz.SubComment) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		z := make([]*redis.Z, 0)
+		z := make([]*redis.Z, 0, len(comment))
 		key := fmt.Sprintf("user_sub_comment_talk_replied_list_%s", uuid)
 		for _, item := range comment {
 			z = append(z, &redis.Z{
@@ -1445,7 +1445,7 @@ func (r *commentRepo) getUserCommentRepliedListFromCache(ctx context.Context, pa
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user comment replied list from cache: key(%s), page(%v)", key, page))
 	}
 
-	comment := make([]*biz.Comment, 0)
+	comment := make([]*biz.Comment, 0, len(list))
 	for _, item := range list {
 		member := strings.Split(item, "%")
 		id, err := strconv.ParseInt(member[0], 10, 32)
@@ -1481,7 +1481,7 @@ func (r *commentRepo) getUserCommentRepliedListFromDB(ctx context.Context, page 
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user comment replied list from db: page(%v)", page))
 	}
 
-	comment := make([]*biz.Comment, 0)
+	comment := make([]*biz.Comment, 0, len(list))
 	for _, item := range list {
 		comment = append(comment, &biz.Comment{
 			CommentId:    item.CommentId,
@@ -1497,7 +1497,7 @@ func (r *commentRepo) getUserCommentRepliedListFromDB(ctx context.Context, page 
 func (r *commentRepo) setUserCommentRepliedListToCache(uuid string, comment []*biz.Comment) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		z := make([]*redis.Z, 0)
+		z := make([]*redis.Z, 0, len(comment))
 		key := fmt.Sprintf("user_comment_replied_list_%s", uuid)
 		for _, item := range comment {
 			z = append(z, &redis.Z{
@@ -1550,7 +1550,7 @@ func (r *commentRepo) getUserSubCommentRepliedListFromCache(ctx context.Context,
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user sub comment replied list from cache: key(%s), page(%v)", key, page))
 	}
 
-	comment := make([]*biz.SubComment, 0)
+	comment := make([]*biz.SubComment, 0, len(list))
 	for _, item := range list {
 		member := strings.Split(item, "%")
 		id, err := strconv.ParseInt(member[0], 10, 32)
@@ -1599,7 +1599,7 @@ func (r *commentRepo) getUserSubCommentRepliedListFromDB(ctx context.Context, pa
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user sub comment replied list from db: page(%v)", page))
 	}
 
-	comment := make([]*biz.SubComment, 0)
+	comment := make([]*biz.SubComment, 0, len(list))
 	for _, item := range list {
 		comment = append(comment, &biz.SubComment{
 			CommentId:      item.CommentId,
@@ -1620,7 +1620,7 @@ func (r *commentRepo) getUserSubCommentRepliedListFromDB(ctx context.Context, pa
 func (r *commentRepo) setUserSubCommentRepliedListToCache(uuid string, comment []*biz.SubComment) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		z := make([]*redis.Z, 0)
+		z := make([]*redis.Z, 0, len(comment))
 		key := fmt.Sprintf("user_sub_comment_replied_list_%s", uuid)
 		for _, item := range comment {
 			z = append(z, &redis.Z{
@@ -1673,7 +1673,7 @@ func (r *commentRepo) getCommentContentReviewFromCache(ctx context.Context, page
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get comment content irregular list from cache: key(%s), page(%v)", key, page))
 	}
 
-	review := make([]*biz.TextReview, 0)
+	review := make([]*biz.TextReview, 0, len(list))
 	for _index, item := range list {
 		var textReview = &biz.TextReview{}
 		err = json.Unmarshal([]byte(item), textReview)
@@ -1707,7 +1707,7 @@ func (r *commentRepo) getCommentContentReviewFromDB(ctx context.Context, page in
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get comment content review from db: page(%v), uuid(%s)", page, uuid))
 	}
 
-	review := make([]*biz.TextReview, 0)
+	review := make([]*biz.TextReview, 0, len(list))
 	for _index, item := range list {
 		review = append(review, &biz.TextReview{
 			Id:        int32(_index+1) + (page-1)*20,
@@ -1728,7 +1728,7 @@ func (r *commentRepo) getCommentContentReviewFromDB(ctx context.Context, page in
 func (r *commentRepo) setCommentContentReviewToCache(key string, review []*biz.TextReview) {
 	ctx := context.Background()
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		list := make([]interface{}, 0)
+		list := make([]interface{}, 0, len(review))
 		for _, item := range review {
 			m, err := json.Marshal(item)
 			if err != nil {
@@ -1816,8 +1816,6 @@ func (r *commentRepo) GetTalkAuthor(ctx context.Context, id int32) (string, erro
 }
 
 func (r *commentRepo) commentStatisticExist(ctx context.Context, ids []int32) ([]int32, []int32, error) {
-	exists := make([]int32, 0)
-	unExists := make([]int32, 0)
 	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		for _, item := range ids {
 			pipe.Exists(ctx, "comment_"+strconv.Itoa(int(item)))
@@ -1828,6 +1826,8 @@ func (r *commentRepo) commentStatisticExist(ctx context.Context, ids []int32) ([
 		return nil, nil, errors.Wrapf(err, fmt.Sprintf("fail to check if comment statistic exist from cache: ids(%v)", ids))
 	}
 
+	exists := make([]int32, 0, len(cmd))
+	unExists := make([]int32, 0, len(cmd))
 	for index, item := range cmd {
 		exist := item.(*redis.IntCmd).Val()
 		if exist == 1 {
@@ -1901,7 +1901,7 @@ func (r *commentRepo) getSubCommentStatisticFromCache(ctx context.Context, exist
 }
 
 func (r *commentRepo) getCommentStatisticFromDb(ctx context.Context, unExists []int32, commentListStatistic *[]*biz.CommentStatistic) error {
-	list := make([]*Comment, 0)
+	list := make([]*Comment, 0, cap(unExists))
 	err := r.data.db.WithContext(ctx).Where("comment_id IN ?", unExists).Find(&list).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to get comment statistic list from db: ids(%v)", unExists))
@@ -1925,7 +1925,7 @@ func (r *commentRepo) getCommentStatisticFromDb(ctx context.Context, unExists []
 }
 
 func (r *commentRepo) getSubCommentStatisticFromDb(ctx context.Context, unExists []int32, commentListStatistic *[]*biz.CommentStatistic) error {
-	list := make([]*SubComment, 0)
+	list := make([]*SubComment, 0, cap(unExists))
 	err := r.data.db.WithContext(ctx).Where("comment_id IN ?", unExists).Find(&list).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to get sub comment statistic list from db: ids(%v)", unExists))
@@ -3041,7 +3041,6 @@ func (r *commentRepo) AddTalkSubCommentUser(ctx context.Context, parentId int32,
 }
 
 func (r *commentRepo) subCommentCacheExist(ctx context.Context, ids, rootIds string) (int32, int32, error) {
-	exists := make([]int32, 0)
 	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		pipe.Exists(ctx, "sub_comment_"+rootIds)
 		pipe.Exists(ctx, "comment_"+rootIds)
@@ -3051,6 +3050,7 @@ func (r *commentRepo) subCommentCacheExist(ctx context.Context, ids, rootIds str
 		return 0, 0, errors.Wrapf(err, fmt.Sprintf("fail to check if sub comment exist from cache: commentId(%s),rootId(%s)", ids, rootIds))
 	}
 
+	exists := make([]int32, 0, len(cmd))
 	for _, item := range cmd {
 		exist := item.(*redis.IntCmd).Val()
 		exists = append(exists, int32(exist))

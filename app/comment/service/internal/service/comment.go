@@ -47,11 +47,11 @@ func (s *CommentService) GetCommentUser(ctx context.Context, req *v1.GetCommentU
 }
 
 func (s *CommentService) GetCommentList(ctx context.Context, req *v1.GetCommentListReq) (*v1.GetCommentListReply, error) {
-	reply := &v1.GetCommentListReply{Comment: make([]*v1.GetCommentListReply_Comment, 0)}
 	commentList, err := s.cc.GetCommentList(ctx, req.Page, req.CreationId, req.CreationType)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetCommentListReply{Comment: make([]*v1.GetCommentListReply_Comment, 0, len(commentList))}
 	for _, item := range commentList {
 		reply.Comment = append(reply.Comment, &v1.GetCommentListReply_Comment{
 			Id:   item.CommentId,
@@ -62,11 +62,11 @@ func (s *CommentService) GetCommentList(ctx context.Context, req *v1.GetCommentL
 }
 
 func (s *CommentService) GetSubCommentList(ctx context.Context, req *v1.GetSubCommentListReq) (*v1.GetSubCommentListReply, error) {
-	reply := &v1.GetSubCommentListReply{Comment: make([]*v1.GetSubCommentListReply_Comment, 0)}
 	subCommentList, err := s.cc.GetSubCommentList(ctx, req.Page, req.Id)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetSubCommentListReply{Comment: make([]*v1.GetSubCommentListReply_Comment, 0, len(subCommentList))}
 	for _, item := range subCommentList {
 		reply.Comment = append(reply.Comment, &v1.GetSubCommentListReply_Comment{
 			Id:    item.CommentId,
@@ -78,11 +78,11 @@ func (s *CommentService) GetSubCommentList(ctx context.Context, req *v1.GetSubCo
 }
 
 func (s *CommentService) GetCommentListHot(ctx context.Context, req *v1.GetCommentListReq) (*v1.GetCommentListReply, error) {
-	reply := &v1.GetCommentListReply{Comment: make([]*v1.GetCommentListReply_Comment, 0)}
 	commentList, err := s.cc.GetCommentListHot(ctx, req.Page, req.CreationId, req.CreationType)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetCommentListReply{Comment: make([]*v1.GetCommentListReply_Comment, 0, len(commentList))}
 	for _, item := range commentList {
 		reply.Comment = append(reply.Comment, &v1.GetCommentListReply_Comment{
 			Id:   item.CommentId,
@@ -93,11 +93,11 @@ func (s *CommentService) GetCommentListHot(ctx context.Context, req *v1.GetComme
 }
 
 func (s *CommentService) GetCommentListStatistic(ctx context.Context, req *v1.GetCommentListStatisticReq) (*v1.GetCommentListStatisticReply, error) {
-	reply := &v1.GetCommentListStatisticReply{Count: make([]*v1.GetCommentListStatisticReply_Count, 0)}
 	commentListStatistic, err := s.cc.GetCommentListStatistic(ctx, req.Ids)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetCommentListStatisticReply{Count: make([]*v1.GetCommentListStatisticReply_Count, 0, len(commentListStatistic))}
 	for _, item := range commentListStatistic {
 		reply.Count = append(reply.Count, &v1.GetCommentListStatisticReply_Count{
 			Id:      item.CommentId,
@@ -109,11 +109,11 @@ func (s *CommentService) GetCommentListStatistic(ctx context.Context, req *v1.Ge
 }
 
 func (s *CommentService) GetSubCommentListStatistic(ctx context.Context, req *v1.GetCommentListStatisticReq) (*v1.GetCommentListStatisticReply, error) {
-	reply := &v1.GetCommentListStatisticReply{Count: make([]*v1.GetCommentListStatisticReply_Count, 0)}
 	commentListStatistic, err := s.cc.GetSubCommentListStatistic(ctx, req.Ids)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetCommentListStatisticReply{Count: make([]*v1.GetCommentListStatisticReply_Count, 0, len(commentListStatistic))}
 	for _, item := range commentListStatistic {
 		reply.Count = append(reply.Count, &v1.GetCommentListStatisticReply_Count{
 			Id:    item.CommentId,
@@ -124,11 +124,11 @@ func (s *CommentService) GetSubCommentListStatistic(ctx context.Context, req *v1
 }
 
 func (s *CommentService) GetUserCommentArticleReplyList(ctx context.Context, req *v1.GetUserCommentArticleReplyListReq) (*v1.GetUserCommentArticleReplyListReply, error) {
-	reply := &v1.GetUserCommentArticleReplyListReply{List: make([]*v1.GetUserCommentArticleReplyListReply_List, 0)}
 	commentList, err := s.cc.GetUserCommentArticleReplyList(ctx, req.Page, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetUserCommentArticleReplyListReply{List: make([]*v1.GetUserCommentArticleReplyListReply_List, 0, len(commentList))}
 	for _, item := range commentList {
 		reply.List = append(reply.List, &v1.GetUserCommentArticleReplyListReply_List{
 			Id:             item.CommentId,
@@ -140,11 +140,11 @@ func (s *CommentService) GetUserCommentArticleReplyList(ctx context.Context, req
 }
 
 func (s *CommentService) GetUserSubCommentArticleReplyList(ctx context.Context, req *v1.GetUserSubCommentArticleReplyListReq) (*v1.GetUserSubCommentArticleReplyListReply, error) {
-	reply := &v1.GetUserSubCommentArticleReplyListReply{List: make([]*v1.GetUserSubCommentArticleReplyListReply_List, 0)}
 	commentList, err := s.cc.GetUserSubCommentArticleReplyList(ctx, req.Page, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetUserSubCommentArticleReplyListReply{List: make([]*v1.GetUserSubCommentArticleReplyListReply_List, 0, len(commentList))}
 	for _, item := range commentList {
 		reply.List = append(reply.List, &v1.GetUserSubCommentArticleReplyListReply_List{
 			Id:             item.CommentId,
@@ -160,11 +160,11 @@ func (s *CommentService) GetUserSubCommentArticleReplyList(ctx context.Context, 
 }
 
 func (s *CommentService) GetUserCommentTalkReplyList(ctx context.Context, req *v1.GetUserCommentTalkReplyListReq) (*v1.GetUserCommentTalkReplyListReply, error) {
-	reply := &v1.GetUserCommentTalkReplyListReply{List: make([]*v1.GetUserCommentTalkReplyListReply_List, 0)}
 	commentList, err := s.cc.GetUserCommentTalkReplyList(ctx, req.Page, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetUserCommentTalkReplyListReply{List: make([]*v1.GetUserCommentTalkReplyListReply_List, 0, len(commentList))}
 	for _, item := range commentList {
 		reply.List = append(reply.List, &v1.GetUserCommentTalkReplyListReply_List{
 			Id:             item.CommentId,
@@ -176,11 +176,11 @@ func (s *CommentService) GetUserCommentTalkReplyList(ctx context.Context, req *v
 }
 
 func (s *CommentService) GetUserSubCommentTalkReplyList(ctx context.Context, req *v1.GetUserSubCommentTalkReplyListReq) (*v1.GetUserSubCommentTalkReplyListReply, error) {
-	reply := &v1.GetUserSubCommentTalkReplyListReply{List: make([]*v1.GetUserSubCommentTalkReplyListReply_List, 0)}
 	commentList, err := s.cc.GetUserSubCommentTalkReplyList(ctx, req.Page, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetUserSubCommentTalkReplyListReply{List: make([]*v1.GetUserSubCommentTalkReplyListReply_List, 0, len(commentList))}
 	for _, item := range commentList {
 		reply.List = append(reply.List, &v1.GetUserSubCommentTalkReplyListReply_List{
 			Id:             item.CommentId,
@@ -196,11 +196,11 @@ func (s *CommentService) GetUserSubCommentTalkReplyList(ctx context.Context, req
 }
 
 func (s *CommentService) GetUserCommentArticleRepliedList(ctx context.Context, req *v1.GetUserCommentArticleRepliedListReq) (*v1.GetUserCommentArticleRepliedListReply, error) {
-	reply := &v1.GetUserCommentArticleRepliedListReply{List: make([]*v1.GetUserCommentArticleRepliedListReply_List, 0)}
 	commentList, err := s.cc.GetUserCommentArticleRepliedList(ctx, req.Page, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetUserCommentArticleRepliedListReply{List: make([]*v1.GetUserCommentArticleRepliedListReply_List, 0, len(commentList))}
 	for _, item := range commentList {
 		reply.List = append(reply.List, &v1.GetUserCommentArticleRepliedListReply_List{
 			Id:         item.CommentId,
@@ -212,11 +212,11 @@ func (s *CommentService) GetUserCommentArticleRepliedList(ctx context.Context, r
 }
 
 func (s *CommentService) GetUserSubCommentArticleRepliedList(ctx context.Context, req *v1.GetUserSubCommentArticleRepliedListReq) (*v1.GetUserSubCommentArticleRepliedListReply, error) {
-	reply := &v1.GetUserSubCommentArticleRepliedListReply{List: make([]*v1.GetUserSubCommentArticleRepliedListReply_List, 0)}
 	commentList, err := s.cc.GetUserSubCommentArticleRepliedList(ctx, req.Page, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetUserSubCommentArticleRepliedListReply{List: make([]*v1.GetUserSubCommentArticleRepliedListReply_List, 0, len(commentList))}
 	for _, item := range commentList {
 		reply.List = append(reply.List, &v1.GetUserSubCommentArticleRepliedListReply_List{
 			Id:             item.CommentId,
@@ -236,11 +236,11 @@ func (s *CommentService) GetUserSubCommentArticleRepliedList(ctx context.Context
 }
 
 func (s *CommentService) GetUserCommentTalkRepliedList(ctx context.Context, req *v1.GetUserCommentTalkRepliedListReq) (*v1.GetUserCommentTalkRepliedListReply, error) {
-	reply := &v1.GetUserCommentTalkRepliedListReply{List: make([]*v1.GetUserCommentTalkRepliedListReply_List, 0)}
 	commentList, err := s.cc.GetUserCommentTalkRepliedList(ctx, req.Page, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetUserCommentTalkRepliedListReply{List: make([]*v1.GetUserCommentTalkRepliedListReply_List, 0, len(commentList))}
 	for _, item := range commentList {
 		reply.List = append(reply.List, &v1.GetUserCommentTalkRepliedListReply_List{
 			Id:         item.CommentId,
@@ -252,11 +252,11 @@ func (s *CommentService) GetUserCommentTalkRepliedList(ctx context.Context, req 
 }
 
 func (s *CommentService) GetUserSubCommentTalkRepliedList(ctx context.Context, req *v1.GetUserSubCommentTalkRepliedListReq) (*v1.GetUserSubCommentTalkRepliedListReply, error) {
-	reply := &v1.GetUserSubCommentTalkRepliedListReply{List: make([]*v1.GetUserSubCommentTalkRepliedListReply_List, 0)}
 	commentList, err := s.cc.GetUserSubCommentTalkRepliedList(ctx, req.Page, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetUserSubCommentTalkRepliedListReply{List: make([]*v1.GetUserSubCommentTalkRepliedListReply_List, 0, len(commentList))}
 	for _, item := range commentList {
 		reply.List = append(reply.List, &v1.GetUserSubCommentTalkRepliedListReply_List{
 			Id:             item.CommentId,
@@ -276,11 +276,11 @@ func (s *CommentService) GetUserSubCommentTalkRepliedList(ctx context.Context, r
 }
 
 func (s *CommentService) GetUserCommentRepliedList(ctx context.Context, req *v1.GetUserCommentRepliedListReq) (*v1.GetUserCommentRepliedListReply, error) {
-	reply := &v1.GetUserCommentRepliedListReply{List: make([]*v1.GetUserCommentRepliedListReply_List, 0)}
 	commentList, err := s.cc.GetUserCommentRepliedList(ctx, req.Page, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetUserCommentRepliedListReply{List: make([]*v1.GetUserCommentRepliedListReply_List, 0, len(commentList))}
 	for _, item := range commentList {
 		reply.List = append(reply.List, &v1.GetUserCommentRepliedListReply_List{
 			Id:           item.CommentId,
@@ -293,11 +293,11 @@ func (s *CommentService) GetUserCommentRepliedList(ctx context.Context, req *v1.
 }
 
 func (s *CommentService) GetUserSubCommentRepliedList(ctx context.Context, req *v1.GetUserSubCommentRepliedListReq) (*v1.GetUserSubCommentRepliedListReply, error) {
-	reply := &v1.GetUserSubCommentRepliedListReply{List: make([]*v1.GetUserSubCommentRepliedListReply_List, 0)}
 	commentList, err := s.cc.GetUserSubCommentRepliedList(ctx, req.Page, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
+	reply := &v1.GetUserSubCommentRepliedListReply{List: make([]*v1.GetUserSubCommentRepliedListReply_List, 0, len(commentList))}
 	for _, item := range commentList {
 		reply.List = append(reply.List, &v1.GetUserSubCommentRepliedListReply_List{
 			Id:             item.CommentId,
@@ -318,11 +318,11 @@ func (s *CommentService) GetUserSubCommentRepliedList(ctx context.Context, req *
 }
 
 func (s *CommentService) GetCommentContentReview(ctx context.Context, req *v1.GetCommentContentReviewReq) (*v1.GetCommentContentReviewReply, error) {
-	reply := &v1.GetCommentContentReviewReply{Review: make([]*v1.GetCommentContentReviewReply_Review, 0)}
 	reviewList, err := s.cc.GetCommentContentReview(ctx, req.Page, req.Uuid)
 	if err != nil {
-		return reply, err
+		return nil, err
 	}
+	reply := &v1.GetCommentContentReviewReply{Review: make([]*v1.GetCommentContentReviewReply_Review, 0, len(reviewList))}
 	for _, item := range reviewList {
 		reply.Review = append(reply.Review, &v1.GetCommentContentReviewReply_Review{
 			Id:        item.Id,
