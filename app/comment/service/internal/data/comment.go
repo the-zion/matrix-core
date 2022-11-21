@@ -2,7 +2,6 @@ package data
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/apache/rocketmq-client-go/v2/primitive"
 	kerrors "github.com/go-kratos/kratos/v2/errors"
@@ -1676,7 +1675,7 @@ func (r *commentRepo) getCommentContentReviewFromCache(ctx context.Context, page
 	review := make([]*biz.TextReview, 0, len(list))
 	for _index, item := range list {
 		var textReview = &biz.TextReview{}
-		err = json.Unmarshal([]byte(item), textReview)
+		err = textReview.UnmarshalJSON([]byte(item))
 		if err != nil {
 			return nil, errors.Wrapf(err, fmt.Sprintf("json unmarshal error: contentReview(%v)", item))
 		}
@@ -1730,7 +1729,7 @@ func (r *commentRepo) setCommentContentReviewToCache(key string, review []*biz.T
 	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		list := make([]interface{}, 0, len(review))
 		for _, item := range review {
-			m, err := json.Marshal(item)
+			m, err := item.MarshalJSON()
 			if err != nil {
 				return errors.Wrapf(err, fmt.Sprintf("fail to marshal avatar review: contentReview(%v)", review))
 			}
@@ -2173,7 +2172,7 @@ func (r *commentRepo) SetCommentContentIrregular(ctx context.Context, review *bi
 }
 
 func (r *commentRepo) SetCommentContentIrregularToCache(ctx context.Context, review *biz.TextReview) error {
-	marshal, err := json.Marshal(review)
+	marshal, err := review.MarshalJSON()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set comment content irregular to json: json.Marshal(%v)", review))
 	}
@@ -2290,11 +2289,7 @@ func (r *commentRepo) CancelSubCommentAgreeFromCache(ctx context.Context, id int
 }
 
 func (r *commentRepo) SendReviewToMq(ctx context.Context, review *biz.CommentReview) error {
-	reviewMap := map[string]interface{}{}
-	reviewMap["uuid"] = review.Uuid
-	reviewMap["id"] = review.Id
-	reviewMap["mode"] = review.Mode
-	data, err := json.Marshal(reviewMap)
+	data, err := review.MarshalJSON()
 	if err != nil {
 		return err
 	}
@@ -2311,14 +2306,14 @@ func (r *commentRepo) SendReviewToMq(ctx context.Context, review *biz.CommentRev
 }
 
 func (r *commentRepo) SendCommentToMq(ctx context.Context, comment *biz.Comment, mode string) error {
-	commentMap := map[string]interface{}{}
-	commentMap["uuid"] = comment.Uuid
-	commentMap["id"] = comment.CommentId
-	commentMap["creationId"] = comment.CreationId
-	commentMap["creationType"] = comment.CreationType
-	commentMap["mode"] = mode
-
-	data, err := json.Marshal(commentMap)
+	commentMap := &biz.SendCommentMap{
+		Uuid:         comment.Uuid,
+		Id:           comment.CommentId,
+		CreationId:   comment.CreationId,
+		CreationType: comment.CreationType,
+		Mode:         mode,
+	}
+	data, err := commentMap.MarshalJSON()
 	if err != nil {
 		return err
 	}
@@ -2335,17 +2330,7 @@ func (r *commentRepo) SendCommentToMq(ctx context.Context, comment *biz.Comment,
 }
 
 func (r *commentRepo) SendCommentContentIrregularToMq(ctx context.Context, review *biz.TextReview) error {
-	m := make(map[string]interface{}, 0)
-	m["comment_id"] = review.CommentId
-	m["result"] = review.Result
-	m["uuid"] = review.Uuid
-	m["job_id"] = review.JobId
-	m["label"] = review.Label
-	m["comment"] = review.Comment
-	m["kind"] = review.Kind
-	m["section"] = review.Section
-	m["mode"] = review.Mode
-	data, err := json.Marshal(m)
+	data, err := review.MarshalJSON()
 	if err != nil {
 		return err
 	}
@@ -2362,14 +2347,14 @@ func (r *commentRepo) SendCommentContentIrregularToMq(ctx context.Context, revie
 }
 
 func (r *commentRepo) SendSubCommentToMq(ctx context.Context, comment *biz.SubComment, mode string) error {
-	commentMap := map[string]interface{}{}
-	commentMap["uuid"] = comment.Uuid
-	commentMap["id"] = comment.CommentId
-	commentMap["rootId"] = comment.RootId
-	commentMap["parentId"] = comment.ParentId
-	commentMap["mode"] = mode
-
-	data, err := json.Marshal(commentMap)
+	commentMap := &biz.SendSubCommentMap{
+		Uuid:     comment.Uuid,
+		Id:       comment.CommentId,
+		RootId:   comment.RootId,
+		ParentId: comment.ParentId,
+		Mode:     mode,
+	}
+	data, err := commentMap.MarshalJSON()
 	if err != nil {
 		return err
 	}
@@ -2386,15 +2371,15 @@ func (r *commentRepo) SendSubCommentToMq(ctx context.Context, comment *biz.SubCo
 }
 
 func (r *commentRepo) SendCommentAgreeToMq(ctx context.Context, id, creationId, creationType int32, uuid, userUuid, mode string) error {
-	commentMap := map[string]interface{}{}
-	commentMap["uuid"] = uuid
-	commentMap["id"] = id
-	commentMap["creationId"] = creationId
-	commentMap["creationType"] = creationType
-	commentMap["userUuid"] = userUuid
-	commentMap["mode"] = mode
-
-	data, err := json.Marshal(commentMap)
+	commentMap := &biz.SendCommentAgreeMap{
+		Uuid:         uuid,
+		Id:           id,
+		CreationId:   creationId,
+		CreationType: creationType,
+		UserUuid:     userUuid,
+		Mode:         mode,
+	}
+	data, err := commentMap.MarshalJSON()
 	if err != nil {
 		return err
 	}
@@ -2411,13 +2396,13 @@ func (r *commentRepo) SendCommentAgreeToMq(ctx context.Context, id, creationId, 
 }
 
 func (r *commentRepo) SendSubCommentAgreeToMq(ctx context.Context, id int32, uuid, userUuid, mode string) error {
-	commentMap := map[string]interface{}{}
-	commentMap["uuid"] = uuid
-	commentMap["id"] = id
-	commentMap["userUuid"] = userUuid
-	commentMap["mode"] = mode
-
-	data, err := json.Marshal(commentMap)
+	commentMap := &biz.SendSubCommentAgreeMap{
+		Uuid:     uuid,
+		Id:       id,
+		UserUuid: userUuid,
+		Mode:     mode,
+	}
+	data, err := commentMap.MarshalJSON()
 	if err != nil {
 		return err
 	}
@@ -2434,12 +2419,12 @@ func (r *commentRepo) SendSubCommentAgreeToMq(ctx context.Context, id int32, uui
 }
 
 func (r *commentRepo) SendCommentStatisticToMq(ctx context.Context, uuid, userUuid, mode string) error {
-	achievement := map[string]interface{}{}
-	achievement["uuid"] = uuid
-	achievement["userUuid"] = userUuid
-	achievement["mode"] = mode
-
-	data, err := json.Marshal(achievement)
+	achievement := &biz.SendCommentStatisticMap{
+		Uuid:     uuid,
+		UserUuid: userUuid,
+		Mode:     mode,
+	}
+	data, err := achievement.MarshalJSON()
 	if err != nil {
 		return err
 	}
@@ -2456,12 +2441,12 @@ func (r *commentRepo) SendCommentStatisticToMq(ctx context.Context, uuid, userUu
 }
 
 func (r *commentRepo) SendScoreToMq(ctx context.Context, score int32, uuid, mode string) error {
-	scoreMap := map[string]interface{}{}
-	scoreMap["uuid"] = uuid
-	scoreMap["score"] = score
-	scoreMap["mode"] = mode
-
-	data, err := json.Marshal(scoreMap)
+	scoreMap := &biz.SendScoreMap{
+		Uuid:  uuid,
+		Score: score,
+		Mode:  mode,
+	}
+	data, err := scoreMap.MarshalJSON()
 	if err != nil {
 		return err
 	}

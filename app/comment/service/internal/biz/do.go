@@ -6,6 +6,7 @@ type CommentDraft struct {
 	Status int32
 }
 
+//easyjson:json
 type CommentReview struct {
 	Uuid string
 	Id   int32
@@ -59,6 +60,7 @@ type CommentStatistic struct {
 	Comment   int32
 }
 
+//easyjson:json
 type TextReview struct {
 	Id        int32
 	CommentId int32
@@ -71,4 +73,54 @@ type TextReview struct {
 	Uuid      string
 	Mode      string
 	Section   string
+}
+
+//easyjson:json
+type SendCommentMap struct {
+	Uuid         string
+	Id           int32
+	CreationId   int32
+	CreationType int32
+	Mode         string
+}
+
+//easyjson:json
+type SendSubCommentMap struct {
+	Uuid     string
+	Id       int32
+	RootId   int32
+	ParentId int32
+	Mode     string
+}
+
+//easyjson:json
+type SendCommentAgreeMap struct {
+	Uuid         string
+	Id           int32
+	CreationId   int32
+	CreationType int32
+	UserUuid     string
+	Mode         string
+}
+
+//easyjson:json
+type SendSubCommentAgreeMap struct {
+	Uuid     string
+	Id       int32
+	UserUuid string
+	Mode     string
+}
+
+//easyjson:json
+type SendCommentStatisticMap struct {
+	Uuid     string
+	UserUuid string
+	Mode     string
+}
+
+//easyjson:json
+type SendScoreMap struct {
+	Uuid  string
+	Score int32
+	Mode  string
 }
