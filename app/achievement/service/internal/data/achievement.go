@@ -356,11 +356,12 @@ func (r *achievementRepo) CancelUserMedal(ctx context.Context, medal, uuid strin
 }
 
 func (r *achievementRepo) GetAchievementList(ctx context.Context, uuids []string) ([]*biz.Achievement, error) {
-	achievementList := make([]*biz.Achievement, 0)
 	exists, unExists, err := r.achievementListExist(ctx, uuids)
 	if err != nil {
 		return nil, err
 	}
+
+	achievementList := make([]*biz.Achievement, 0, cap(exists))
 
 	g, _ := errgroup.WithContext(ctx)
 	g.Go(r.data.GroupRecover(ctx, func(ctx context.Context) error {
@@ -384,8 +385,6 @@ func (r *achievementRepo) GetAchievementList(ctx context.Context, uuids []string
 }
 
 func (r *achievementRepo) achievementListExist(ctx context.Context, uuids []string) ([]string, []string, error) {
-	exists := make([]string, 0)
-	unExists := make([]string, 0)
 	cmd, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		for _, item := range uuids {
 			pipe.Exists(ctx, item)
@@ -396,6 +395,8 @@ func (r *achievementRepo) achievementListExist(ctx context.Context, uuids []stri
 		return nil, nil, errors.Wrapf(err, fmt.Sprintf("fail to check if achievement exist from cache: uuids(%v)", uuids))
 	}
 
+	exists := make([]string, 0, len(cmd))
+	unExists := make([]string, 0, len(cmd))
 	for index, item := range cmd {
 		exist := item.(*redis.IntCmd).Val()
 		if exist == 1 {
@@ -443,7 +444,7 @@ func (r *achievementRepo) getAchievementListFromCache(ctx context.Context, exist
 }
 
 func (r *achievementRepo) getAchievementListFromDb(ctx context.Context, unExists []string, achievementList *[]*biz.Achievement) error {
-	list := make([]*Achievement, 0)
+	list := make([]*Achievement, 0, cap(unExists))
 	err := r.data.db.WithContext(ctx).Where("uuid IN ?", unExists).Find(&list).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to get achievement list from db: uuids(%v)", unExists))
