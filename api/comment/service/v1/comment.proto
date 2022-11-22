@@ -9,13 +9,6 @@ import "validate/validate.proto";
 option go_package = "api/comment/service/v1;v1";
 
 service Comment {
-
-  rpc GetHealth(google.protobuf.Empty) returns (google.protobuf.Empty){
-    option (google.api.http) = {
-      get: "/v1/get/comment/healthz"
-    };
-  }
-
   rpc GetLastCommentDraft(GetLastCommentDraftReq) returns (GetLastCommentDraftReply){}
 
   rpc GetUserCommentAgree(GetUserCommentAgreeReq) returns (GetUserCommentAgreeReply){}
