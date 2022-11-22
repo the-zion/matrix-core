@@ -23,7 +23,6 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CommentClient interface {
-	GetHealth(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetLastCommentDraft(ctx context.Context, in *GetLastCommentDraftReq, opts ...grpc.CallOption) (*GetLastCommentDraftReply, error)
 	GetUserCommentAgree(ctx context.Context, in *GetUserCommentAgreeReq, opts ...grpc.CallOption) (*GetUserCommentAgreeReply, error)
 	GetCommentUser(ctx context.Context, in *GetCommentUserReq, opts ...grpc.CallOption) (*GetCommentUserReply, error)
@@ -72,15 +71,6 @@ type commentClient struct {
 
 func NewCommentClient(cc grpc.ClientConnInterface) CommentClient {
 	return &commentClient{cc}
-}
-
-func (c *commentClient) GetHealth(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/comment.v1.Comment/GetHealth", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *commentClient) GetLastCommentDraft(ctx context.Context, in *GetLastCommentDraftReq, opts ...grpc.CallOption) (*GetLastCommentDraftReply, error) {
@@ -447,7 +437,6 @@ func (c *commentClient) RemoveSubCommentDbAndCache(ctx context.Context, in *Remo
 // All implementations must embed UnimplementedCommentServer
 // for forward compatibility
 type CommentServer interface {
-	GetHealth(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	GetLastCommentDraft(context.Context, *GetLastCommentDraftReq) (*GetLastCommentDraftReply, error)
 	GetUserCommentAgree(context.Context, *GetUserCommentAgreeReq) (*GetUserCommentAgreeReply, error)
 	GetCommentUser(context.Context, *GetCommentUserReq) (*GetCommentUserReply, error)
@@ -495,9 +484,6 @@ type CommentServer interface {
 type UnimplementedCommentServer struct {
 }
 
-func (UnimplementedCommentServer) GetHealth(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetHealth not implemented")
-}
 func (UnimplementedCommentServer) GetLastCommentDraft(context.Context, *GetLastCommentDraftReq) (*GetLastCommentDraftReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLastCommentDraft not implemented")
 }
@@ -629,24 +615,6 @@ type UnsafeCommentServer interface {
 
 func RegisterCommentServer(s grpc.ServiceRegistrar, srv CommentServer) {
 	s.RegisterService(&Comment_ServiceDesc, srv)
-}
-
-func _Comment_GetHealth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CommentServer).GetHealth(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/comment.v1.Comment/GetHealth",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CommentServer).GetHealth(ctx, req.(*emptypb.Empty))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _Comment_GetLastCommentDraft_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -1376,10 +1344,6 @@ var Comment_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "comment.v1.Comment",
 	HandlerType: (*CommentServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "GetHealth",
-			Handler:    _Comment_GetHealth_Handler,
-		},
 		{
 			MethodName: "GetLastCommentDraft",
 			Handler:    _Comment_GetLastCommentDraft_Handler,

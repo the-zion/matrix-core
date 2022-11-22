@@ -40,7 +40,6 @@ type AchievementClient interface {
 	GetUserAchievement(ctx context.Context, in *GetUserAchievementReq, opts ...grpc.CallOption) (*GetUserAchievementReply, error)
 	GetUserMedal(ctx context.Context, in *GetUserMedalReq, opts ...grpc.CallOption) (*GetUserMedalReply, error)
 	GetUserActive(ctx context.Context, in *GetUserActiveReq, opts ...grpc.CallOption) (*GetUserActiveReply, error)
-	GetHealth(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	AddAchievementScore(ctx context.Context, in *AddAchievementScoreReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
@@ -205,15 +204,6 @@ func (c *achievementClient) GetUserActive(ctx context.Context, in *GetUserActive
 	return out, nil
 }
 
-func (c *achievementClient) GetHealth(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/achievement.v1.Achievement/GetHealth", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *achievementClient) AddAchievementScore(ctx context.Context, in *AddAchievementScoreReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/achievement.v1.Achievement/AddAchievementScore", in, out, opts...)
@@ -244,7 +234,6 @@ type AchievementServer interface {
 	GetUserAchievement(context.Context, *GetUserAchievementReq) (*GetUserAchievementReply, error)
 	GetUserMedal(context.Context, *GetUserMedalReq) (*GetUserMedalReply, error)
 	GetUserActive(context.Context, *GetUserActiveReq) (*GetUserActiveReply, error)
-	GetHealth(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	AddAchievementScore(context.Context, *AddAchievementScoreReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedAchievementServer()
 }
@@ -303,9 +292,6 @@ func (UnimplementedAchievementServer) GetUserMedal(context.Context, *GetUserMeda
 }
 func (UnimplementedAchievementServer) GetUserActive(context.Context, *GetUserActiveReq) (*GetUserActiveReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserActive not implemented")
-}
-func (UnimplementedAchievementServer) GetHealth(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetHealth not implemented")
 }
 func (UnimplementedAchievementServer) AddAchievementScore(context.Context, *AddAchievementScoreReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddAchievementScore not implemented")
@@ -629,24 +615,6 @@ func _Achievement_GetUserActive_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Achievement_GetHealth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AchievementServer).GetHealth(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/achievement.v1.Achievement/GetHealth",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AchievementServer).GetHealth(ctx, req.(*emptypb.Empty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Achievement_AddAchievementScore_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddAchievementScoreReq)
 	if err := dec(in); err != nil {
@@ -739,10 +707,6 @@ var Achievement_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserActive",
 			Handler:    _Achievement_GetUserActive_Handler,
-		},
-		{
-			MethodName: "GetHealth",
-			Handler:    _Achievement_GetHealth_Handler,
 		},
 		{
 			MethodName: "AddAchievementScore",
