@@ -37,4 +37,5 @@ func NewGRPCServer(c *conf.Server, creationService *service.CreationService, log
 	srv := grpc.NewServer(opts...)
 	v1.RegisterCreationServer(srv, creationService)
 	return srv
+
 }
