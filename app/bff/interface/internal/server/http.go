@@ -22,7 +22,8 @@ func NewHTTPServer(c *conf.Server, bffService *service.BffService, logger log.Lo
 			ratelimit.Server(),
 			tracing.Server(),
 			request.Server(),
-			logging.Server(log.NewFilter(logger, log.FilterLevel(log.LevelError))),
+			//logging.Server(log.NewFilter(logger, log.FilterLevel(log.LevelError))),
+			logging.Server(logger),
 			validate.Validator(),
 		),
 	}

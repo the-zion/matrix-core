@@ -537,7 +537,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.POST("/v1/set/column/view", _Bff_SetColumnView0_HTTP_Handler(srv))
 	r.POST("/v1/add/column/includes", _Bff_AddColumnIncludes0_HTTP_Handler(srv))
 	r.POST("/v1/delete/column/includes", _Bff_DeleteColumnIncludes0_HTTP_Handler(srv))
-	r.GET("/v1/get/news", _Bff_GetNews0_HTTP_Handler(srv))
+	r.GET("/v1/get/news", _Bff_GetNews1_HTTP_Handler(srv))
 	r.GET("/v1/get/achievement/list", _Bff_GetAchievementList0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/achievement", _Bff_GetUserAchievement0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/medal", _Bff_GetUserMedal0_HTTP_Handler(srv))
@@ -3297,7 +3297,7 @@ func _Bff_DeleteColumnIncludes0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Co
 	}
 }
 
-func _Bff_GetNews0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+func _Bff_GetNews1_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in GetNewsReq
 		if err := ctx.BindQuery(&in); err != nil {

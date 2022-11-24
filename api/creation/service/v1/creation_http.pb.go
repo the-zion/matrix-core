@@ -21,14 +21,36 @@ var _ = binding.EncodeURL
 const _ = http.SupportPackageIsVersion1
 
 const OperationCreationGetHealth = "/creation.v1.Creation/GetHealth"
+const OperationCreationGetNews = "/creation.v1.Creation/GetNews"
 
 type CreationHTTPServer interface {
 	GetHealth(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
+	GetNews(context.Context, *GetNewsReq) (*GetNewsReply, error)
 }
 
 func RegisterCreationHTTPServer(s *http.Server, srv CreationHTTPServer) {
 	r := s.Route("/")
+	r.GET("/v1/get/news", _Creation_GetNews0_HTTP_Handler(srv))
 	r.GET("/v1/get/health", _Creation_GetHealth4_HTTP_Handler(srv))
+}
+
+func _Creation_GetNews0_HTTP_Handler(srv CreationHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetNewsReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationCreationGetNews)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetNews(ctx, req.(*GetNewsReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetNewsReply)
+		return ctx.Result(200, reply)
+	}
 }
 
 func _Creation_GetHealth4_HTTP_Handler(srv CreationHTTPServer) func(ctx http.Context) error {
@@ -52,6 +74,7 @@ func _Creation_GetHealth4_HTTP_Handler(srv CreationHTTPServer) func(ctx http.Con
 
 type CreationHTTPClient interface {
 	GetHealth(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	GetNews(ctx context.Context, req *GetNewsReq, opts ...http.CallOption) (rsp *GetNewsReply, err error)
 }
 
 type CreationHTTPClientImpl struct {
@@ -67,6 +90,19 @@ func (c *CreationHTTPClientImpl) GetHealth(ctx context.Context, in *emptypb.Empt
 	pattern := "/v1/get/health"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationCreationGetHealth))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *CreationHTTPClientImpl) GetNews(ctx context.Context, in *GetNewsReq, opts ...http.CallOption) (*GetNewsReply, error) {
+	var out GetNewsReply
+	pattern := "/v1/get/news"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationCreationGetNews))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

@@ -21,7 +21,8 @@ func NewGRPCServer(c *conf.Server, creationService *service.CreationService, log
 			ratelimit.Server(),
 			tracing.Server(),
 			responce.Server(),
-			logging.Server(log.NewFilter(logger, log.FilterLevel(log.LevelError))),
+			//logging.Server(log.NewFilter(logger, log.FilterLevel(log.LevelError))),
+			logging.Server(logger),
 			validate.Validator(),
 		),
 	}

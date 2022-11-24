@@ -333,7 +333,11 @@ service Creation {
 
   rpc CancelColumnSubscribeDbAndCache(CancelColumnSubscribeDbAndCacheReq)returns (google.protobuf.Empty){}
 
-  rpc GetNews(GetNewsReq) returns (GetNewsReply){}
+  rpc GetNews(GetNewsReq) returns (GetNewsReply){
+    option (google.api.http) = {
+      get: "/v1/get/news"
+    };
+  }
 
   rpc AddCreationComment(AddCreationCommentReq) returns (google.protobuf.Empty){}
 
