@@ -94,6 +94,7 @@ const OperationBffGetFollowList = "/bff.v1.Bff/GetFollowList"
 const OperationBffGetFollowListCount = "/bff.v1.Bff/GetFollowListCount"
 const OperationBffGetFollowedList = "/bff.v1.Bff/GetFollowedList"
 const OperationBffGetFollowedListCount = "/bff.v1.Bff/GetFollowedListCount"
+const OperationBffGetHealth = "/bff.v1.Bff/GetHealth"
 const OperationBffGetLastArticleDraft = "/bff.v1.Bff/GetLastArticleDraft"
 const OperationBffGetLastCollectionsDraft = "/bff.v1.Bff/GetLastCollectionsDraft"
 const OperationBffGetLastColumnDraft = "/bff.v1.Bff/GetLastColumnDraft"
@@ -279,6 +280,7 @@ type BffHTTPServer interface {
 	GetFollowListCount(context.Context, *GetFollowListCountReq) (*GetFollowListCountReply, error)
 	GetFollowedList(context.Context, *GetFollowedListReq) (*GetFollowedListReply, error)
 	GetFollowedListCount(context.Context, *GetFollowedListCountReq) (*GetFollowedListCountReply, error)
+	GetHealth(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	GetLastArticleDraft(context.Context, *emptypb.Empty) (*GetLastArticleDraftReply, error)
 	GetLastCollectionsDraft(context.Context, *emptypb.Empty) (*GetLastCollectionsDraftReply, error)
 	GetLastColumnDraft(context.Context, *emptypb.Empty) (*GetLastColumnDraftReply, error)
@@ -392,6 +394,7 @@ type BffHTTPServer interface {
 
 func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r := s.Route("/")
+	r.GET("/v1/get/health", _Bff_GetHealth5_HTTP_Handler(srv))
 	r.POST("/v1/user/register", _Bff_UserRegister0_HTTP_Handler(srv))
 	r.POST("/v1/user/login/password", _Bff_LoginByPassword0_HTTP_Handler(srv))
 	r.POST("/v1/user/login/code", _Bff_LoginByCode0_HTTP_Handler(srv))
@@ -575,6 +578,25 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.POST("/v1/remove/mailbox/comment/count", _Bff_RemoveMailBoxCommentCount0_HTTP_Handler(srv))
 	r.POST("/v1/remove/mailbox/subcomment/count", _Bff_RemoveMailBoxSubCommentCount0_HTTP_Handler(srv))
 	r.POST("/v1/remove/mailbox/system/notification", _Bff_RemoveMailBoxSystemNotificationCount0_HTTP_Handler(srv))
+}
+
+func _Bff_GetHealth5_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in emptypb.Empty
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetHealth)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetHealth(ctx, req.(*emptypb.Empty))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
 }
 
 func _Bff_UserRegister0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
@@ -4129,6 +4151,7 @@ type BffHTTPClient interface {
 	GetFollowListCount(ctx context.Context, req *GetFollowListCountReq, opts ...http.CallOption) (rsp *GetFollowListCountReply, err error)
 	GetFollowedList(ctx context.Context, req *GetFollowedListReq, opts ...http.CallOption) (rsp *GetFollowedListReply, err error)
 	GetFollowedListCount(ctx context.Context, req *GetFollowedListCountReq, opts ...http.CallOption) (rsp *GetFollowedListCountReply, err error)
+	GetHealth(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	GetLastArticleDraft(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetLastArticleDraftReply, err error)
 	GetLastCollectionsDraft(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetLastCollectionsDraftReply, err error)
 	GetLastColumnDraft(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetLastColumnDraftReply, err error)
@@ -5202,6 +5225,19 @@ func (c *BffHTTPClientImpl) GetFollowedListCount(ctx context.Context, in *GetFol
 	pattern := "/v1/get/followed/list/count"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationBffGetFollowedListCount))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetHealth(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/get/health"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationBffGetHealth))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

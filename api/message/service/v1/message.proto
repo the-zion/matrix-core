@@ -121,6 +121,12 @@ service Message {
     };
   }
 
+  rpc GetHealth(google.protobuf.Empty) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      get: "/v1/get/health"
+    };
+  }
+
   rpc GetMessageNotification(GetMessageNotificationReq) returns (GetMessageNotificationReply){}
 
   rpc GetMailBoxLastTime(GetMailBoxLastTimeReq) returns (GetMailBoxLastTimeReply){}

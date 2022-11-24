@@ -1,10 +1,12 @@
 package service
 
 import (
+	"context"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
 	v1 "github.com/the-zion/matrix-core/api/bff/interface/v1"
 	"github.com/the-zion/matrix-core/app/bff/interface/internal/biz"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 var ProviderSet = wire.NewSet(NewBffService)
@@ -36,4 +38,8 @@ func NewBffService(uc *biz.UserUseCase, cc *biz.CreationUseCase, tc *biz.TalkUse
 		mc:    mc,
 		commc: commc,
 	}
+}
+
+func (s *BffService) GetHealth(_ context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
+	return &emptypb.Empty{}, nil
 }

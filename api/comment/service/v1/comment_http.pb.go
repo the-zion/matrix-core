@@ -28,7 +28,7 @@ type CommentHTTPServer interface {
 
 func RegisterCommentHTTPServer(s *http.Server, srv CommentHTTPServer) {
 	r := s.Route("/")
-	r.GET("/v1/get/comment/health", _Comment_GetHealth1_HTTP_Handler(srv))
+	r.GET("/v1/get/health", _Comment_GetHealth1_HTTP_Handler(srv))
 }
 
 func _Comment_GetHealth1_HTTP_Handler(srv CommentHTTPServer) func(ctx http.Context) error {
@@ -64,7 +64,7 @@ func NewCommentHTTPClient(client *http.Client) CommentHTTPClient {
 
 func (c *CommentHTTPClientImpl) GetHealth(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/v1/get/comment/health"
+	pattern := "/v1/get/health"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationCommentGetHealth))
 	opts = append(opts, http.PathTemplate(pattern))

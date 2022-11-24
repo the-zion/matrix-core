@@ -63,6 +63,7 @@ type CommentClient interface {
 	RemoveSubComment(ctx context.Context, in *RemoveSubCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	RemoveCommentDbAndCache(ctx context.Context, in *RemoveCommentDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	RemoveSubCommentDbAndCache(ctx context.Context, in *RemoveSubCommentDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetHealth(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type commentClient struct {
@@ -433,6 +434,15 @@ func (c *commentClient) RemoveSubCommentDbAndCache(ctx context.Context, in *Remo
 	return out, nil
 }
 
+func (c *commentClient) GetHealth(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/comment.v1.Comment/GetHealth", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CommentServer is the server API for Comment service.
 // All implementations must embed UnimplementedCommentServer
 // for forward compatibility
@@ -477,6 +487,7 @@ type CommentServer interface {
 	RemoveSubComment(context.Context, *RemoveSubCommentReq) (*emptypb.Empty, error)
 	RemoveCommentDbAndCache(context.Context, *RemoveCommentDbAndCacheReq) (*emptypb.Empty, error)
 	RemoveSubCommentDbAndCache(context.Context, *RemoveSubCommentDbAndCacheReq) (*emptypb.Empty, error)
+	GetHealth(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	mustEmbedUnimplementedCommentServer()
 }
 
@@ -603,6 +614,9 @@ func (UnimplementedCommentServer) RemoveCommentDbAndCache(context.Context, *Remo
 }
 func (UnimplementedCommentServer) RemoveSubCommentDbAndCache(context.Context, *RemoveSubCommentDbAndCacheReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveSubCommentDbAndCache not implemented")
+}
+func (UnimplementedCommentServer) GetHealth(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetHealth not implemented")
 }
 func (UnimplementedCommentServer) mustEmbedUnimplementedCommentServer() {}
 
@@ -1337,6 +1351,24 @@ func _Comment_RemoveSubCommentDbAndCache_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Comment_GetHealth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommentServer).GetHealth(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/comment.v1.Comment/GetHealth",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommentServer).GetHealth(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Comment_ServiceDesc is the grpc.ServiceDesc for Comment service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1503,6 +1535,10 @@ var Comment_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RemoveSubCommentDbAndCache",
 			Handler:    _Comment_RemoveSubCommentDbAndCache_Handler,
+		},
+		{
+			MethodName: "GetHealth",
+			Handler:    _Comment_GetHealth_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

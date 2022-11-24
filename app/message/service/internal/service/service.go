@@ -1,11 +1,13 @@
 package service
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
 	v1 "github.com/the-zion/matrix-core/api/message/service/v1"
 	"github.com/the-zion/matrix-core/app/message/service/internal/biz"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 var ProviderSet = wire.NewSet(NewMessageService)
@@ -69,4 +71,8 @@ func (s *MessageService) TextReview(req *v1.TextReviewReq) (*biz.TextReview, err
 
 	tr.Section = string(sectionMap)
 	return tr, nil
+}
+
+func (s *MessageService) GetHealth(_ context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
+	return &emptypb.Empty{}, nil
 }

@@ -31,6 +31,7 @@ const OperationMessageColumnEditReview = "/message.v1.Message/ColumnEditReview"
 const OperationMessageColumnImageReview = "/message.v1.Message/ColumnImageReview"
 const OperationMessageCommentCreateReview = "/message.v1.Message/CommentCreateReview"
 const OperationMessageCoverReview = "/message.v1.Message/CoverReview"
+const OperationMessageGetHealth = "/message.v1.Message/GetHealth"
 const OperationMessageProfileReview = "/message.v1.Message/ProfileReview"
 const OperationMessageSubCommentCreateReview = "/message.v1.Message/SubCommentCreateReview"
 const OperationMessageTalkCreateReview = "/message.v1.Message/TalkCreateReview"
@@ -49,6 +50,7 @@ type MessageHTTPServer interface {
 	ColumnImageReview(context.Context, *ImageReviewReq) (*emptypb.Empty, error)
 	CommentCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	CoverReview(context.Context, *ImageReviewReq) (*emptypb.Empty, error)
+	GetHealth(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	ProfileReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	SubCommentCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
 	TalkCreateReview(context.Context, *TextReviewReq) (*emptypb.Empty, error)
@@ -74,6 +76,7 @@ func RegisterMessageHTTPServer(s *http.Server, srv MessageHTTPServer) {
 	r.POST("/tx/message/collections/edit/review", _Message_CollectionsEditReview0_HTTP_Handler(srv))
 	r.POST("/tx/message/comment/create/review", _Message_CommentCreateReview0_HTTP_Handler(srv))
 	r.POST("/tx/message/subcomment/create/review", _Message_SubCommentCreateReview0_HTTP_Handler(srv))
+	r.GET("/v1/get/health", _Message_GetHealth2_HTTP_Handler(srv))
 }
 
 func _Message_AvatarReview0_HTTP_Handler(srv MessageHTTPServer) func(ctx http.Context) error {
@@ -380,6 +383,25 @@ func _Message_SubCommentCreateReview0_HTTP_Handler(srv MessageHTTPServer) func(c
 	}
 }
 
+func _Message_GetHealth2_HTTP_Handler(srv MessageHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in emptypb.Empty
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationMessageGetHealth)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetHealth(ctx, req.(*emptypb.Empty))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
 type MessageHTTPClient interface {
 	ArticleCreateReview(ctx context.Context, req *TextReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	ArticleEditReview(ctx context.Context, req *TextReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -392,6 +414,7 @@ type MessageHTTPClient interface {
 	ColumnImageReview(ctx context.Context, req *ImageReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	CommentCreateReview(ctx context.Context, req *TextReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	CoverReview(ctx context.Context, req *ImageReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	GetHealth(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	ProfileReview(ctx context.Context, req *TextReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SubCommentCreateReview(ctx context.Context, req *TextReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	TalkCreateReview(ctx context.Context, req *TextReviewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -544,6 +567,19 @@ func (c *MessageHTTPClientImpl) CoverReview(ctx context.Context, in *ImageReview
 	opts = append(opts, http.Operation(OperationMessageCoverReview))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *MessageHTTPClientImpl) GetHealth(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/get/health"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationMessageGetHealth))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

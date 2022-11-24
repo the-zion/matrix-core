@@ -28,7 +28,7 @@ type AchievementHTTPServer interface {
 
 func RegisterAchievementHTTPServer(s *http.Server, srv AchievementHTTPServer) {
 	r := s.Route("/")
-	r.GET("/v1/get/achievement/health", _Achievement_GetHealth0_HTTP_Handler(srv))
+	r.GET("/v1/get/health", _Achievement_GetHealth0_HTTP_Handler(srv))
 }
 
 func _Achievement_GetHealth0_HTTP_Handler(srv AchievementHTTPServer) func(ctx http.Context) error {
@@ -64,7 +64,7 @@ func NewAchievementHTTPClient(client *http.Client) AchievementHTTPClient {
 
 func (c *AchievementHTTPClientImpl) GetHealth(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/v1/get/achievement/health"
+	pattern := "/v1/get/health"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationAchievementGetHealth))
 	opts = append(opts, http.PathTemplate(pattern))

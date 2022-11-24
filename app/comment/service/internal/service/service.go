@@ -1,10 +1,12 @@
 package service
 
 import (
+	"context"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
 	v1 "github.com/the-zion/matrix-core/api/comment/service/v1"
 	"github.com/the-zion/matrix-core/app/comment/service/internal/biz"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 var ProviderSet = wire.NewSet(NewCommentService)
@@ -20,4 +22,8 @@ func NewCommentService(cc *biz.CommentUseCase, logger log.Logger) *CommentServic
 		log: log.NewHelper(log.With(logger, "module", "comment/service")),
 		cc:  cc,
 	}
+}
+
+func (s *CommentService) GetHealth(_ context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
+	return &emptypb.Empty{}, nil
 }

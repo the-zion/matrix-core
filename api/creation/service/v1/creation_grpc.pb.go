@@ -187,6 +187,7 @@ type CreationClient interface {
 	GetNews(ctx context.Context, in *GetNewsReq, opts ...grpc.CallOption) (*GetNewsReply, error)
 	AddCreationComment(ctx context.Context, in *AddCreationCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ReduceCreationComment(ctx context.Context, in *ReduceCreationCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetHealth(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type creationClient struct {
@@ -1673,6 +1674,15 @@ func (c *creationClient) ReduceCreationComment(ctx context.Context, in *ReduceCr
 	return out, nil
 }
 
+func (c *creationClient) GetHealth(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetHealth", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CreationServer is the server API for Creation service.
 // All implementations must embed UnimplementedCreationServer
 // for forward compatibility
@@ -1841,6 +1851,7 @@ type CreationServer interface {
 	GetNews(context.Context, *GetNewsReq) (*GetNewsReply, error)
 	AddCreationComment(context.Context, *AddCreationCommentReq) (*emptypb.Empty, error)
 	ReduceCreationComment(context.Context, *ReduceCreationCommentReq) (*emptypb.Empty, error)
+	GetHealth(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	mustEmbedUnimplementedCreationServer()
 }
 
@@ -2339,6 +2350,9 @@ func (UnimplementedCreationServer) AddCreationComment(context.Context, *AddCreat
 }
 func (UnimplementedCreationServer) ReduceCreationComment(context.Context, *ReduceCreationCommentReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ReduceCreationComment not implemented")
+}
+func (UnimplementedCreationServer) GetHealth(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetHealth not implemented")
 }
 func (UnimplementedCreationServer) mustEmbedUnimplementedCreationServer() {}
 
@@ -5305,6 +5319,24 @@ func _Creation_ReduceCreationComment_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Creation_GetHealth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetHealth(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetHealth",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetHealth(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Creation_ServiceDesc is the grpc.ServiceDesc for Creation service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -5967,6 +5999,10 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ReduceCreationComment",
 			Handler:    _Creation_ReduceCreationComment_Handler,
+		},
+		{
+			MethodName: "GetHealth",
+			Handler:    _Creation_GetHealth_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -1,10 +1,12 @@
 package service
 
 import (
+	"context"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
 	v1 "github.com/the-zion/matrix-core/api/creation/service/v1"
 	"github.com/the-zion/matrix-core/app/creation/service/internal/biz"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 var ProviderSet = wire.NewSet(NewCreationService)
@@ -28,4 +30,8 @@ func NewCreationService(ac *biz.ArticleUseCase, tc *biz.TalkUseCase, cc *biz.Cre
 		coc: coc,
 		nc:  nc,
 	}
+}
+
+func (s *CreationService) GetHealth(_ context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
+	return &emptypb.Empty{}, nil
 }

@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BffClient interface {
+	GetHealth(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	UserRegister(ctx context.Context, in *UserRegisterReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	LoginByPassword(ctx context.Context, in *LoginByPasswordReq, opts ...grpc.CallOption) (*LoginReply, error)
 	LoginByCode(ctx context.Context, in *LoginByCodeReq, opts ...grpc.CallOption) (*LoginReply, error)
@@ -215,6 +216,15 @@ type bffClient struct {
 
 func NewBffClient(cc grpc.ClientConnInterface) BffClient {
 	return &bffClient{cc}
+}
+
+func (c *bffClient) GetHealth(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetHealth", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *bffClient) UserRegister(ctx context.Context, in *UserRegisterReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
@@ -1868,6 +1878,7 @@ func (c *bffClient) RemoveMailBoxSystemNotificationCount(ctx context.Context, in
 // All implementations must embed UnimplementedBffServer
 // for forward compatibility
 type BffServer interface {
+	GetHealth(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	UserRegister(context.Context, *UserRegisterReq) (*emptypb.Empty, error)
 	LoginByPassword(context.Context, *LoginByPasswordReq) (*LoginReply, error)
 	LoginByCode(context.Context, *LoginByCodeReq) (*LoginReply, error)
@@ -2059,6 +2070,9 @@ type BffServer interface {
 type UnimplementedBffServer struct {
 }
 
+func (UnimplementedBffServer) GetHealth(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetHealth not implemented")
+}
 func (UnimplementedBffServer) UserRegister(context.Context, *UserRegisterReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UserRegister not implemented")
 }
@@ -2619,6 +2633,24 @@ type UnsafeBffServer interface {
 
 func RegisterBffServer(s grpc.ServiceRegistrar, srv BffServer) {
 	s.RegisterService(&Bff_ServiceDesc, srv)
+}
+
+func _Bff_GetHealth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetHealth(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetHealth",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetHealth(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Bff_UserRegister_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -5922,6 +5954,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "bff.v1.Bff",
 	HandlerType: (*BffServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetHealth",
+			Handler:    _Bff_GetHealth_Handler,
+		},
 		{
 			MethodName: "UserRegister",
 			Handler:    _Bff_UserRegister_Handler,

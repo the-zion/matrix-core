@@ -87,6 +87,12 @@ service User {
   rpc UnbindUserPhone (UnbindUserPhoneReq) returns (google.protobuf.Empty){}
 
   rpc UnbindUserEmail (UnbindUserEmailReq) returns (google.protobuf.Empty){}
+
+  rpc GetHealth(google.protobuf.Empty) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      get: "/v1/get/health"
+    };
+  }
 }
 
 message UserRegisterReq{

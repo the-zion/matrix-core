@@ -338,6 +338,12 @@ service Creation {
   rpc AddCreationComment(AddCreationCommentReq) returns (google.protobuf.Empty){}
 
   rpc ReduceCreationComment(ReduceCreationCommentReq) returns (google.protobuf.Empty){}
+
+  rpc GetHealth(google.protobuf.Empty) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      get: "/v1/get/health"
+    };
+  }
 }
 
 message GetLeaderBoardReply{

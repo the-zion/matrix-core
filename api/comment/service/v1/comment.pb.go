@@ -4920,7 +4920,7 @@ var file_comment_service_v1_comment_proto_rawDesc = []byte{
 	0x6f, 0x6d, 0x6d, 0x65, 0x6e, 0x74, 0x52, 0x65, 0x71, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18,
 	0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x02, 0x69, 0x64, 0x12, 0x1c, 0x0a, 0x04, 0x75, 0x75, 0x69,
 	0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x42, 0x08, 0xfa, 0x42, 0x05, 0x72, 0x03, 0xb0, 0x01,
-	0x01, 0x52, 0x04, 0x75, 0x75, 0x69, 0x64, 0x32, 0x81, 0x20, 0x0a, 0x07, 0x43, 0x6f, 0x6d, 0x6d,
+	0x01, 0x52, 0x04, 0x75, 0x75, 0x69, 0x64, 0x32, 0xd6, 0x20, 0x0a, 0x07, 0x43, 0x6f, 0x6d, 0x6d,
 	0x65, 0x6e, 0x74, 0x12, 0x61, 0x0a, 0x13, 0x47, 0x65, 0x74, 0x4c, 0x61, 0x73, 0x74, 0x43, 0x6f,
 	0x6d, 0x6d, 0x65, 0x6e, 0x74, 0x44, 0x72, 0x61, 0x66, 0x74, 0x12, 0x22, 0x2e, 0x63, 0x6f, 0x6d,
 	0x6d, 0x65, 0x6e, 0x74, 0x2e, 0x76, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x4c, 0x61, 0x73, 0x74, 0x43,
@@ -5176,9 +5176,15 @@ var file_comment_service_v1_comment_proto_rawDesc = []byte{
 	0x2e, 0x76, 0x31, 0x2e, 0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65, 0x53, 0x75, 0x62, 0x43, 0x6f, 0x6d,
 	0x6d, 0x65, 0x6e, 0x74, 0x44, 0x62, 0x41, 0x6e, 0x64, 0x43, 0x61, 0x63, 0x68, 0x65, 0x52, 0x65,
 	0x71, 0x1a, 0x16, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
-	0x62, 0x75, 0x66, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x22, 0x00, 0x42, 0x1b, 0x5a, 0x19, 0x61,
-	0x70, 0x69, 0x2f, 0x63, 0x6f, 0x6d, 0x6d, 0x65, 0x6e, 0x74, 0x2f, 0x73, 0x65, 0x72, 0x76, 0x69,
-	0x63, 0x65, 0x2f, 0x76, 0x31, 0x3b, 0x76, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x62, 0x75, 0x66, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x22, 0x00, 0x12, 0x53, 0x0a, 0x09, 0x47,
+	0x65, 0x74, 0x48, 0x65, 0x61, 0x6c, 0x74, 0x68, 0x12, 0x16, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c,
+	0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79,
+	0x1a, 0x16, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62,
+	0x75, 0x66, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x22, 0x16, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x10,
+	0x12, 0x0e, 0x2f, 0x76, 0x31, 0x2f, 0x67, 0x65, 0x74, 0x2f, 0x68, 0x65, 0x61, 0x6c, 0x74, 0x68,
+	0x42, 0x1b, 0x5a, 0x19, 0x61, 0x70, 0x69, 0x2f, 0x63, 0x6f, 0x6d, 0x6d, 0x65, 0x6e, 0x74, 0x2f,
+	0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x2f, 0x76, 0x31, 0x3b, 0x76, 0x31, 0x62, 0x06, 0x70,
+	0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -5322,48 +5328,50 @@ var file_comment_service_v1_comment_proto_depIdxs = []int32{
 	53, // 52: comment.v1.Comment.RemoveSubComment:input_type -> comment.v1.RemoveSubCommentReq
 	20, // 53: comment.v1.Comment.RemoveCommentDbAndCache:input_type -> comment.v1.RemoveCommentDbAndCacheReq
 	21, // 54: comment.v1.Comment.RemoveSubCommentDbAndCache:input_type -> comment.v1.RemoveSubCommentDbAndCacheReq
-	3,  // 55: comment.v1.Comment.GetLastCommentDraft:output_type -> comment.v1.GetLastCommentDraftReply
-	5,  // 56: comment.v1.Comment.GetUserCommentAgree:output_type -> comment.v1.GetUserCommentAgreeReply
-	7,  // 57: comment.v1.Comment.GetCommentUser:output_type -> comment.v1.GetCommentUserReply
-	18, // 58: comment.v1.Comment.GetCommentList:output_type -> comment.v1.GetCommentListReply
-	19, // 59: comment.v1.Comment.GetSubCommentList:output_type -> comment.v1.GetSubCommentListReply
-	18, // 60: comment.v1.Comment.GetCommentListHot:output_type -> comment.v1.GetCommentListReply
-	46, // 61: comment.v1.Comment.GetCommentListStatistic:output_type -> comment.v1.GetCommentListStatisticReply
-	46, // 62: comment.v1.Comment.GetSubCommentListStatistic:output_type -> comment.v1.GetCommentListStatisticReply
-	24, // 63: comment.v1.Comment.GetUserCommentArticleReplyList:output_type -> comment.v1.GetUserCommentArticleReplyListReply
-	26, // 64: comment.v1.Comment.GetUserSubCommentArticleReplyList:output_type -> comment.v1.GetUserSubCommentArticleReplyListReply
-	28, // 65: comment.v1.Comment.GetUserCommentTalkReplyList:output_type -> comment.v1.GetUserCommentTalkReplyListReply
-	30, // 66: comment.v1.Comment.GetUserSubCommentTalkReplyList:output_type -> comment.v1.GetUserSubCommentTalkReplyListReply
-	32, // 67: comment.v1.Comment.GetUserCommentArticleRepliedList:output_type -> comment.v1.GetUserCommentArticleRepliedListReply
-	34, // 68: comment.v1.Comment.GetUserSubCommentArticleRepliedList:output_type -> comment.v1.GetUserSubCommentArticleRepliedListReply
-	36, // 69: comment.v1.Comment.GetUserCommentTalkRepliedList:output_type -> comment.v1.GetUserCommentTalkRepliedListReply
-	38, // 70: comment.v1.Comment.GetUserSubCommentTalkRepliedList:output_type -> comment.v1.GetUserSubCommentTalkRepliedListReply
-	40, // 71: comment.v1.Comment.GetUserCommentRepliedList:output_type -> comment.v1.GetUserCommentRepliedListReply
-	42, // 72: comment.v1.Comment.GetUserSubCommentRepliedList:output_type -> comment.v1.GetUserSubCommentRepliedListReply
-	44, // 73: comment.v1.Comment.GetCommentContentReview:output_type -> comment.v1.GetCommentContentReviewReply
-	69, // 74: comment.v1.Comment.CommentContentIrregular:output_type -> google.protobuf.Empty
-	1,  // 75: comment.v1.Comment.CreateCommentDraft:output_type -> comment.v1.CreateCommentDraftReply
-	69, // 76: comment.v1.Comment.CreateComment:output_type -> google.protobuf.Empty
-	69, // 77: comment.v1.Comment.CreateSubComment:output_type -> google.protobuf.Empty
-	13, // 78: comment.v1.Comment.CreateCommentDbAndCache:output_type -> comment.v1.CreateCommentDbAndCacheReply
-	15, // 79: comment.v1.Comment.CreateSubCommentDbAndCache:output_type -> comment.v1.CreateSubCommentDbAndCacheReply
-	69, // 80: comment.v1.Comment.SendComment:output_type -> google.protobuf.Empty
-	69, // 81: comment.v1.Comment.SendSubComment:output_type -> google.protobuf.Empty
-	69, // 82: comment.v1.Comment.SetCommentAgree:output_type -> google.protobuf.Empty
-	69, // 83: comment.v1.Comment.SetSubCommentAgree:output_type -> google.protobuf.Empty
-	69, // 84: comment.v1.Comment.SetCommentAgreeDbAndCache:output_type -> google.protobuf.Empty
-	69, // 85: comment.v1.Comment.SetSubCommentAgreeDbAndCache:output_type -> google.protobuf.Empty
-	69, // 86: comment.v1.Comment.CancelCommentAgree:output_type -> google.protobuf.Empty
-	69, // 87: comment.v1.Comment.CancelSubCommentAgree:output_type -> google.protobuf.Empty
-	69, // 88: comment.v1.Comment.CancelCommentAgreeDbAndCache:output_type -> google.protobuf.Empty
-	69, // 89: comment.v1.Comment.CancelSubCommentAgreeDbAndCache:output_type -> google.protobuf.Empty
-	69, // 90: comment.v1.Comment.AddCommentContentReviewDbAndCache:output_type -> google.protobuf.Empty
-	69, // 91: comment.v1.Comment.RemoveComment:output_type -> google.protobuf.Empty
-	69, // 92: comment.v1.Comment.RemoveSubComment:output_type -> google.protobuf.Empty
-	69, // 93: comment.v1.Comment.RemoveCommentDbAndCache:output_type -> google.protobuf.Empty
-	69, // 94: comment.v1.Comment.RemoveSubCommentDbAndCache:output_type -> google.protobuf.Empty
-	55, // [55:95] is the sub-list for method output_type
-	15, // [15:55] is the sub-list for method input_type
+	69, // 55: comment.v1.Comment.GetHealth:input_type -> google.protobuf.Empty
+	3,  // 56: comment.v1.Comment.GetLastCommentDraft:output_type -> comment.v1.GetLastCommentDraftReply
+	5,  // 57: comment.v1.Comment.GetUserCommentAgree:output_type -> comment.v1.GetUserCommentAgreeReply
+	7,  // 58: comment.v1.Comment.GetCommentUser:output_type -> comment.v1.GetCommentUserReply
+	18, // 59: comment.v1.Comment.GetCommentList:output_type -> comment.v1.GetCommentListReply
+	19, // 60: comment.v1.Comment.GetSubCommentList:output_type -> comment.v1.GetSubCommentListReply
+	18, // 61: comment.v1.Comment.GetCommentListHot:output_type -> comment.v1.GetCommentListReply
+	46, // 62: comment.v1.Comment.GetCommentListStatistic:output_type -> comment.v1.GetCommentListStatisticReply
+	46, // 63: comment.v1.Comment.GetSubCommentListStatistic:output_type -> comment.v1.GetCommentListStatisticReply
+	24, // 64: comment.v1.Comment.GetUserCommentArticleReplyList:output_type -> comment.v1.GetUserCommentArticleReplyListReply
+	26, // 65: comment.v1.Comment.GetUserSubCommentArticleReplyList:output_type -> comment.v1.GetUserSubCommentArticleReplyListReply
+	28, // 66: comment.v1.Comment.GetUserCommentTalkReplyList:output_type -> comment.v1.GetUserCommentTalkReplyListReply
+	30, // 67: comment.v1.Comment.GetUserSubCommentTalkReplyList:output_type -> comment.v1.GetUserSubCommentTalkReplyListReply
+	32, // 68: comment.v1.Comment.GetUserCommentArticleRepliedList:output_type -> comment.v1.GetUserCommentArticleRepliedListReply
+	34, // 69: comment.v1.Comment.GetUserSubCommentArticleRepliedList:output_type -> comment.v1.GetUserSubCommentArticleRepliedListReply
+	36, // 70: comment.v1.Comment.GetUserCommentTalkRepliedList:output_type -> comment.v1.GetUserCommentTalkRepliedListReply
+	38, // 71: comment.v1.Comment.GetUserSubCommentTalkRepliedList:output_type -> comment.v1.GetUserSubCommentTalkRepliedListReply
+	40, // 72: comment.v1.Comment.GetUserCommentRepliedList:output_type -> comment.v1.GetUserCommentRepliedListReply
+	42, // 73: comment.v1.Comment.GetUserSubCommentRepliedList:output_type -> comment.v1.GetUserSubCommentRepliedListReply
+	44, // 74: comment.v1.Comment.GetCommentContentReview:output_type -> comment.v1.GetCommentContentReviewReply
+	69, // 75: comment.v1.Comment.CommentContentIrregular:output_type -> google.protobuf.Empty
+	1,  // 76: comment.v1.Comment.CreateCommentDraft:output_type -> comment.v1.CreateCommentDraftReply
+	69, // 77: comment.v1.Comment.CreateComment:output_type -> google.protobuf.Empty
+	69, // 78: comment.v1.Comment.CreateSubComment:output_type -> google.protobuf.Empty
+	13, // 79: comment.v1.Comment.CreateCommentDbAndCache:output_type -> comment.v1.CreateCommentDbAndCacheReply
+	15, // 80: comment.v1.Comment.CreateSubCommentDbAndCache:output_type -> comment.v1.CreateSubCommentDbAndCacheReply
+	69, // 81: comment.v1.Comment.SendComment:output_type -> google.protobuf.Empty
+	69, // 82: comment.v1.Comment.SendSubComment:output_type -> google.protobuf.Empty
+	69, // 83: comment.v1.Comment.SetCommentAgree:output_type -> google.protobuf.Empty
+	69, // 84: comment.v1.Comment.SetSubCommentAgree:output_type -> google.protobuf.Empty
+	69, // 85: comment.v1.Comment.SetCommentAgreeDbAndCache:output_type -> google.protobuf.Empty
+	69, // 86: comment.v1.Comment.SetSubCommentAgreeDbAndCache:output_type -> google.protobuf.Empty
+	69, // 87: comment.v1.Comment.CancelCommentAgree:output_type -> google.protobuf.Empty
+	69, // 88: comment.v1.Comment.CancelSubCommentAgree:output_type -> google.protobuf.Empty
+	69, // 89: comment.v1.Comment.CancelCommentAgreeDbAndCache:output_type -> google.protobuf.Empty
+	69, // 90: comment.v1.Comment.CancelSubCommentAgreeDbAndCache:output_type -> google.protobuf.Empty
+	69, // 91: comment.v1.Comment.AddCommentContentReviewDbAndCache:output_type -> google.protobuf.Empty
+	69, // 92: comment.v1.Comment.RemoveComment:output_type -> google.protobuf.Empty
+	69, // 93: comment.v1.Comment.RemoveSubComment:output_type -> google.protobuf.Empty
+	69, // 94: comment.v1.Comment.RemoveCommentDbAndCache:output_type -> google.protobuf.Empty
+	69, // 95: comment.v1.Comment.RemoveSubCommentDbAndCache:output_type -> google.protobuf.Empty
+	69, // 96: comment.v1.Comment.GetHealth:output_type -> google.protobuf.Empty
+	56, // [56:97] is the sub-list for method output_type
+	15, // [15:56] is the sub-list for method input_type
 	15, // [15:15] is the sub-list for extension type_name
 	15, // [15:15] is the sub-list for extension extendee
 	0,  // [0:15] is the sub-list for field type_name

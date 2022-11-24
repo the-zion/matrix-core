@@ -62,6 +62,7 @@ type UserClient interface {
 	ChangeUserPassword(ctx context.Context, in *ChangeUserPasswordReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	UnbindUserPhone(ctx context.Context, in *UnbindUserPhoneReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	UnbindUserEmail(ctx context.Context, in *UnbindUserEmailReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetHealth(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type userClient struct {
@@ -423,6 +424,15 @@ func (c *userClient) UnbindUserEmail(ctx context.Context, in *UnbindUserEmailReq
 	return out, nil
 }
 
+func (c *userClient) GetHealth(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/user.v1.User/GetHealth", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServer is the server API for User service.
 // All implementations must embed UnimplementedUserServer
 // for forward compatibility
@@ -466,6 +476,7 @@ type UserServer interface {
 	ChangeUserPassword(context.Context, *ChangeUserPasswordReq) (*emptypb.Empty, error)
 	UnbindUserPhone(context.Context, *UnbindUserPhoneReq) (*emptypb.Empty, error)
 	UnbindUserEmail(context.Context, *UnbindUserEmailReq) (*emptypb.Empty, error)
+	GetHealth(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	mustEmbedUnimplementedUserServer()
 }
 
@@ -589,6 +600,9 @@ func (UnimplementedUserServer) UnbindUserPhone(context.Context, *UnbindUserPhone
 }
 func (UnimplementedUserServer) UnbindUserEmail(context.Context, *UnbindUserEmailReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UnbindUserEmail not implemented")
+}
+func (UnimplementedUserServer) GetHealth(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetHealth not implemented")
 }
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}
 
@@ -1305,6 +1319,24 @@ func _User_UnbindUserEmail_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _User_GetHealth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetHealth(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/GetHealth",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetHealth(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // User_ServiceDesc is the grpc.ServiceDesc for User service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1467,6 +1499,10 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UnbindUserEmail",
 			Handler:    _User_UnbindUserEmail_Handler,
+		},
+		{
+			MethodName: "GetHealth",
+			Handler:    _User_GetHealth_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

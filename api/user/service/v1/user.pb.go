@@ -4226,7 +4226,7 @@ var file_user_service_v1_user_proto_rawDesc = []byte{
 	0x22, 0x37, 0x0a, 0x17, 0x50, 0x72, 0x6f, 0x66, 0x69, 0x6c, 0x65, 0x52, 0x65, 0x76, 0x69, 0x65,
 	0x77, 0x4e, 0x6f, 0x74, 0x50, 0x61, 0x73, 0x73, 0x52, 0x65, 0x71, 0x12, 0x1c, 0x0a, 0x04, 0x75,
 	0x75, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x08, 0xfa, 0x42, 0x05, 0x72, 0x03,
-	0xb0, 0x01, 0x01, 0x52, 0x04, 0x75, 0x75, 0x69, 0x64, 0x32, 0xb1, 0x17, 0x0a, 0x04, 0x55, 0x73,
+	0xb0, 0x01, 0x01, 0x52, 0x04, 0x75, 0x75, 0x69, 0x64, 0x32, 0x86, 0x18, 0x0a, 0x04, 0x55, 0x73,
 	0x65, 0x72, 0x12, 0x42, 0x0a, 0x0c, 0x55, 0x73, 0x65, 0x72, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74,
 	0x65, 0x72, 0x12, 0x18, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x55, 0x73, 0x65,
 	0x72, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x71, 0x1a, 0x16, 0x2e, 0x67,
@@ -4413,9 +4413,15 @@ var file_user_service_v1_user_proto_rawDesc = []byte{
 	0x72, 0x45, 0x6d, 0x61, 0x69, 0x6c, 0x12, 0x1b, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x76, 0x31,
 	0x2e, 0x55, 0x6e, 0x62, 0x69, 0x6e, 0x64, 0x55, 0x73, 0x65, 0x72, 0x45, 0x6d, 0x61, 0x69, 0x6c,
 	0x52, 0x65, 0x71, 0x1a, 0x16, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f,
-	0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x22, 0x00, 0x42, 0x18, 0x5a,
-	0x16, 0x61, 0x70, 0x69, 0x2f, 0x75, 0x73, 0x65, 0x72, 0x2f, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63,
-	0x65, 0x2f, 0x76, 0x31, 0x3b, 0x76, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x22, 0x00, 0x12, 0x53, 0x0a,
+	0x09, 0x47, 0x65, 0x74, 0x48, 0x65, 0x61, 0x6c, 0x74, 0x68, 0x12, 0x16, 0x2e, 0x67, 0x6f, 0x6f,
+	0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x45, 0x6d, 0x70,
+	0x74, 0x79, 0x1a, 0x16, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x62, 0x75, 0x66, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x22, 0x16, 0x82, 0xd3, 0xe4, 0x93,
+	0x02, 0x10, 0x12, 0x0e, 0x2f, 0x76, 0x31, 0x2f, 0x67, 0x65, 0x74, 0x2f, 0x68, 0x65, 0x61, 0x6c,
+	0x74, 0x68, 0x42, 0x18, 0x5a, 0x16, 0x61, 0x70, 0x69, 0x2f, 0x75, 0x73, 0x65, 0x72, 0x2f, 0x73,
+	0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x2f, 0x76, 0x31, 0x3b, 0x76, 0x31, 0x62, 0x06, 0x70, 0x72,
+	0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -4542,47 +4548,49 @@ var file_user_service_v1_user_proto_depIdxs = []int32{
 	22, // 43: user.v1.User.ChangeUserPassword:input_type -> user.v1.ChangeUserPasswordReq
 	23, // 44: user.v1.User.UnbindUserPhone:input_type -> user.v1.UnbindUserPhoneReq
 	24, // 45: user.v1.User.UnbindUserEmail:input_type -> user.v1.UnbindUserEmailReq
-	61, // 46: user.v1.User.UserRegister:output_type -> google.protobuf.Empty
-	61, // 47: user.v1.User.AvatarIrregular:output_type -> google.protobuf.Empty
-	61, // 48: user.v1.User.AddAvatarReviewDbAndCache:output_type -> google.protobuf.Empty
-	61, // 49: user.v1.User.CoverIrregular:output_type -> google.protobuf.Empty
-	61, // 50: user.v1.User.AddCoverReviewDbAndCache:output_type -> google.protobuf.Empty
-	7,  // 51: user.v1.User.LoginByPassword:output_type -> user.v1.LoginReply
-	7,  // 52: user.v1.User.LoginByCode:output_type -> user.v1.LoginReply
-	7,  // 53: user.v1.User.LoginByWeChat:output_type -> user.v1.LoginReply
-	7,  // 54: user.v1.User.LoginByGithub:output_type -> user.v1.LoginReply
-	61, // 55: user.v1.User.LoginPasswordReset:output_type -> google.protobuf.Empty
-	61, // 56: user.v1.User.SendPhoneCode:output_type -> google.protobuf.Empty
-	61, // 57: user.v1.User.SendEmailCode:output_type -> google.protobuf.Empty
-	14, // 58: user.v1.User.GetCosSessionKey:output_type -> user.v1.GetCosSessionKeyReply
-	61, // 59: user.v1.User.SetUserPhone:output_type -> google.protobuf.Empty
-	61, // 60: user.v1.User.SetUserEmail:output_type -> google.protobuf.Empty
-	61, // 61: user.v1.User.SetUserPassword:output_type -> google.protobuf.Empty
-	61, // 62: user.v1.User.SetUserFollow:output_type -> google.protobuf.Empty
-	61, // 63: user.v1.User.SetFollowDbAndCache:output_type -> google.protobuf.Empty
-	61, // 64: user.v1.User.CancelUserFollow:output_type -> google.protobuf.Empty
-	61, // 65: user.v1.User.CancelFollowDbAndCache:output_type -> google.protobuf.Empty
-	26, // 66: user.v1.User.GetAccount:output_type -> user.v1.GetAccountReply
-	28, // 67: user.v1.User.GetProfile:output_type -> user.v1.GetProfileReply
-	30, // 68: user.v1.User.GetProfileList:output_type -> user.v1.GetProfileListReply
-	32, // 69: user.v1.User.GetProfileUpdate:output_type -> user.v1.GetProfileUpdateReply
-	34, // 70: user.v1.User.GetUserFollow:output_type -> user.v1.GetUserFollowReply
-	36, // 71: user.v1.User.GetFollowList:output_type -> user.v1.GetFollowListReply
-	38, // 72: user.v1.User.GetFollowListCount:output_type -> user.v1.GetFollowListCountReply
-	40, // 73: user.v1.User.GetFollowedList:output_type -> user.v1.GetFollowedListReply
-	42, // 74: user.v1.User.GetFollowedListCount:output_type -> user.v1.GetFollowedListCountReply
-	44, // 75: user.v1.User.GetUserFollows:output_type -> user.v1.GetUserFollowsReply
-	46, // 76: user.v1.User.GetUserSearch:output_type -> user.v1.GetUserSearchReply
-	48, // 77: user.v1.User.GetAvatarReview:output_type -> user.v1.GetAvatarReviewReply
-	50, // 78: user.v1.User.GetCoverReview:output_type -> user.v1.GetCoverReviewReply
-	61, // 79: user.v1.User.SetProfileUpdate:output_type -> google.protobuf.Empty
-	61, // 80: user.v1.User.ProfileReviewPass:output_type -> google.protobuf.Empty
-	61, // 81: user.v1.User.ProfileReviewNotPass:output_type -> google.protobuf.Empty
-	61, // 82: user.v1.User.ChangeUserPassword:output_type -> google.protobuf.Empty
-	61, // 83: user.v1.User.UnbindUserPhone:output_type -> google.protobuf.Empty
-	61, // 84: user.v1.User.UnbindUserEmail:output_type -> google.protobuf.Empty
-	46, // [46:85] is the sub-list for method output_type
-	7,  // [7:46] is the sub-list for method input_type
+	61, // 46: user.v1.User.GetHealth:input_type -> google.protobuf.Empty
+	61, // 47: user.v1.User.UserRegister:output_type -> google.protobuf.Empty
+	61, // 48: user.v1.User.AvatarIrregular:output_type -> google.protobuf.Empty
+	61, // 49: user.v1.User.AddAvatarReviewDbAndCache:output_type -> google.protobuf.Empty
+	61, // 50: user.v1.User.CoverIrregular:output_type -> google.protobuf.Empty
+	61, // 51: user.v1.User.AddCoverReviewDbAndCache:output_type -> google.protobuf.Empty
+	7,  // 52: user.v1.User.LoginByPassword:output_type -> user.v1.LoginReply
+	7,  // 53: user.v1.User.LoginByCode:output_type -> user.v1.LoginReply
+	7,  // 54: user.v1.User.LoginByWeChat:output_type -> user.v1.LoginReply
+	7,  // 55: user.v1.User.LoginByGithub:output_type -> user.v1.LoginReply
+	61, // 56: user.v1.User.LoginPasswordReset:output_type -> google.protobuf.Empty
+	61, // 57: user.v1.User.SendPhoneCode:output_type -> google.protobuf.Empty
+	61, // 58: user.v1.User.SendEmailCode:output_type -> google.protobuf.Empty
+	14, // 59: user.v1.User.GetCosSessionKey:output_type -> user.v1.GetCosSessionKeyReply
+	61, // 60: user.v1.User.SetUserPhone:output_type -> google.protobuf.Empty
+	61, // 61: user.v1.User.SetUserEmail:output_type -> google.protobuf.Empty
+	61, // 62: user.v1.User.SetUserPassword:output_type -> google.protobuf.Empty
+	61, // 63: user.v1.User.SetUserFollow:output_type -> google.protobuf.Empty
+	61, // 64: user.v1.User.SetFollowDbAndCache:output_type -> google.protobuf.Empty
+	61, // 65: user.v1.User.CancelUserFollow:output_type -> google.protobuf.Empty
+	61, // 66: user.v1.User.CancelFollowDbAndCache:output_type -> google.protobuf.Empty
+	26, // 67: user.v1.User.GetAccount:output_type -> user.v1.GetAccountReply
+	28, // 68: user.v1.User.GetProfile:output_type -> user.v1.GetProfileReply
+	30, // 69: user.v1.User.GetProfileList:output_type -> user.v1.GetProfileListReply
+	32, // 70: user.v1.User.GetProfileUpdate:output_type -> user.v1.GetProfileUpdateReply
+	34, // 71: user.v1.User.GetUserFollow:output_type -> user.v1.GetUserFollowReply
+	36, // 72: user.v1.User.GetFollowList:output_type -> user.v1.GetFollowListReply
+	38, // 73: user.v1.User.GetFollowListCount:output_type -> user.v1.GetFollowListCountReply
+	40, // 74: user.v1.User.GetFollowedList:output_type -> user.v1.GetFollowedListReply
+	42, // 75: user.v1.User.GetFollowedListCount:output_type -> user.v1.GetFollowedListCountReply
+	44, // 76: user.v1.User.GetUserFollows:output_type -> user.v1.GetUserFollowsReply
+	46, // 77: user.v1.User.GetUserSearch:output_type -> user.v1.GetUserSearchReply
+	48, // 78: user.v1.User.GetAvatarReview:output_type -> user.v1.GetAvatarReviewReply
+	50, // 79: user.v1.User.GetCoverReview:output_type -> user.v1.GetCoverReviewReply
+	61, // 80: user.v1.User.SetProfileUpdate:output_type -> google.protobuf.Empty
+	61, // 81: user.v1.User.ProfileReviewPass:output_type -> google.protobuf.Empty
+	61, // 82: user.v1.User.ProfileReviewNotPass:output_type -> google.protobuf.Empty
+	61, // 83: user.v1.User.ChangeUserPassword:output_type -> google.protobuf.Empty
+	61, // 84: user.v1.User.UnbindUserPhone:output_type -> google.protobuf.Empty
+	61, // 85: user.v1.User.UnbindUserEmail:output_type -> google.protobuf.Empty
+	61, // 86: user.v1.User.GetHealth:output_type -> google.protobuf.Empty
+	47, // [47:87] is the sub-list for method output_type
+	7,  // [7:47] is the sub-list for method input_type
 	7,  // [7:7] is the sub-list for extension type_name
 	7,  // [7:7] is the sub-list for extension extendee
 	0,  // [0:7] is the sub-list for field type_name
