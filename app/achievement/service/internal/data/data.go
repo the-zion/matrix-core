@@ -58,7 +58,7 @@ func (d *Data) GroupRecover(ctx context.Context, fn func(ctx context.Context) er
 				buf := make([]byte, 64<<10)
 				n := runtime.Stack(buf, false)
 				buf = buf[:n]
-				log.Context(ctx).Errorf("%v: %s\n", rerr, buf)
+				d.log.Errorf("%v: %s\n", rerr, buf)
 			}
 		}()
 		return fn(ctx)
@@ -72,7 +72,7 @@ func (d *Data) Recover(ctx context.Context, fn func(ctx context.Context)) func()
 				buf := make([]byte, 64<<10)
 				n := runtime.Stack(buf, false)
 				buf = buf[:n]
-				log.Context(ctx).Errorf("%v: %s\n", rerr, buf)
+				d.log.Errorf("%v: %s\n", rerr, buf)
 			}
 		}()
 		fn(ctx)
@@ -142,11 +142,12 @@ func NewRocketmqAchievementProducer(conf *conf.Data) *AchievementMqPro {
 	}
 }
 
-func NewData(db *gorm.DB, redisCmd redis.Cmdable, achievementMqPro *AchievementMqPro) (*Data, func(), error) {
+func NewData(db *gorm.DB, redisCmd redis.Cmdable, achievementMqPro *AchievementMqPro, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(log.GetLogger(), "module", "achievement/data/new-data"))
 
 	d := &Data{
 		db:               db,
+		log:              log.NewHelper(log.With(logger, "module", "creation/data")),
 		redisCli:         redisCmd,
 		achievementMqPro: achievementMqPro,
 	}

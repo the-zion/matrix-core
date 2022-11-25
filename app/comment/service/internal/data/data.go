@@ -85,7 +85,7 @@ func (d *Data) GroupRecover(ctx context.Context, fn func(ctx context.Context) er
 				buf := make([]byte, 64<<10)
 				n := runtime.Stack(buf, false)
 				buf = buf[:n]
-				log.Context(ctx).Errorf("%v: %s\n", rerr, buf)
+				d.log.Errorf("%v: %s\n", rerr, buf)
 			}
 		}()
 		return fn(ctx)
@@ -99,7 +99,7 @@ func (d *Data) Recover(ctx context.Context, fn func(ctx context.Context)) func()
 				buf := make([]byte, 64<<10)
 				n := runtime.Stack(buf, false)
 				buf = buf[:n]
-				log.Context(ctx).Errorf("%v: %s\n", rerr, buf)
+				d.log.Errorf("%v: %s\n", rerr, buf)
 			}
 		}()
 		fn(ctx)
@@ -256,10 +256,11 @@ func NewCreationServiceClient(r *nacos.Registry) creationv1.CreationClient {
 	return c
 }
 
-func NewData(db *gorm.DB, cos *cos.Client, redisCmd redis.Cmdable, rm *ReviewMqPro, cm *CommentMqPro, ap *AchievementMqPro, cc creationv1.CreationClient) (*Data, func(), error) {
+func NewData(db *gorm.DB, cos *cos.Client, redisCmd redis.Cmdable, rm *ReviewMqPro, cm *CommentMqPro, ap *AchievementMqPro, cc creationv1.CreationClient, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(log.GetLogger(), "module", "comment/data/new-data"))
 	selector.SetGlobalSelector(p2c.NewBuilder())
 	d := &Data{
+		log:              log.NewHelper(log.With(logger, "module", "creation/data")),
 		db:               db,
 		redisCli:         redisCmd,
 		cosCli:           cos,

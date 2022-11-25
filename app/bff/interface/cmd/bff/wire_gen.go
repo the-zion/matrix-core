@@ -26,7 +26,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logLogger log.Logger,
 	messageClient := data.NewMessageServiceClient(registry)
 	achievementClient := data.NewAchievementServiceClient(registry)
 	commentClient := data.NewCommentServiceClient(registry)
-	dataData, cleanup2, err := data.NewData(userClient, creationClient, messageClient, achievementClient, commentClient)
+	dataData, cleanup2, err := data.NewData(userClient, creationClient, messageClient, achievementClient, commentClient, logLogger)
 	if err != nil {
 		return nil, nil, err
 	}

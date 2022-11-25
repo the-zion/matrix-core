@@ -50,6 +50,7 @@ type ElasticSearch struct {
 }
 
 type Data struct {
+	log              *log.Helper
 	db               *gorm.DB
 	redisCli         redis.Cmdable
 	codeMqPro        *CodeMqPro
@@ -89,7 +90,7 @@ func (d *Data) GroupRecover(ctx context.Context, fn func(ctx context.Context) er
 				buf := make([]byte, 64<<10)
 				n := runtime.Stack(buf, false)
 				buf = buf[:n]
-				log.Context(ctx).Errorf("%v: %s\n", rerr, buf)
+				d.log.Errorf("%v: %s\n", rerr, buf)
 			}
 		}()
 		return fn(ctx)
@@ -103,7 +104,7 @@ func (d *Data) Recover(ctx context.Context, fn func(ctx context.Context)) func()
 				buf := make([]byte, 64<<10)
 				n := runtime.Stack(buf, false)
 				buf = buf[:n]
-				log.Context(ctx).Errorf("%v: %s\n", rerr, buf)
+				d.log.Errorf("%v: %s\n", rerr, buf)
 			}
 		}()
 		fn(ctx)
@@ -330,10 +331,11 @@ func NewElasticsearch(conf *conf.Data) *ElasticSearch {
 	}
 }
 
-func NewData(db *gorm.DB, redisCmd redis.Cmdable, cp *CodeMqPro, es *ElasticSearch, pp *ProfileMqPro, fp *FollowMqPro, pip *PictureMqPro, aq *AchievementMqPro, cos *Cos) (*Data, func(), error) {
+func NewData(db *gorm.DB, redisCmd redis.Cmdable, cp *CodeMqPro, es *ElasticSearch, pp *ProfileMqPro, fp *FollowMqPro, pip *PictureMqPro, aq *AchievementMqPro, cos *Cos, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(log.GetLogger(), "module", "user/data/new-data"))
 
 	d := &Data{
+		log:              log.NewHelper(log.With(logger, "module", "creation/data")),
 		db:               db,
 		codeMqPro:        cp,
 		profileMqPro:     pp,

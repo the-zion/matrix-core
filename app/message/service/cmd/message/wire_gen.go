@@ -33,7 +33,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logLogger log.Logger,
 	cosComment := data.NewCosCommentClient(confData)
 	txCode := data.NewPhoneCode(confData)
 	goMail := data.NewGoMail(confData)
-	dataData, cleanup2, err := data.NewData(db, cmdable, userClient, creationClient, commentClient, achievementClient, jwt, cosUser, cosCreation, cosComment, txCode, goMail)
+	dataData, cleanup2, err := data.NewData(db, cmdable, userClient, creationClient, commentClient, achievementClient, jwt, cosUser, cosCreation, cosComment, txCode, goMail, logLogger)
 	if err != nil {
 		return nil, nil, err
 	}

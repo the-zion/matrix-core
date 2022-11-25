@@ -113,7 +113,13 @@ func (r *CreationUseCase) GetLeaderBoard(ctx context.Context) ([]*LeaderBoard, e
 		return nil, err
 	}
 
-	go r.repo.SetLeaderBoardToCache(context.Background(), boardList)
+	if len(boardList) != 0 {
+		r.re.GroupRecover(ctx, func(ctx context.Context) error {
+			r.repo.SetLeaderBoardToCache(context.Background(), boardList)
+			return nil
+		})
+	}
+
 	sort.SliceStable(boardList, func(i, j int) bool {
 		return boardList[i].Agree > boardList[j].Agree
 	})

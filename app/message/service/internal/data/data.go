@@ -98,7 +98,7 @@ func (d *Data) GroupRecover(ctx context.Context, fn func(ctx context.Context) er
 				buf := make([]byte, 64<<10)
 				n := runtime.Stack(buf, false)
 				buf = buf[:n]
-				log.Context(ctx).Errorf("%v: %s\n", rerr, buf)
+				d.log.Errorf("%v: %s\n", rerr, buf)
 			}
 		}()
 		return fn(ctx)
@@ -112,7 +112,7 @@ func (d *Data) Recover(ctx context.Context, fn func(ctx context.Context)) func()
 				buf := make([]byte, 64<<10)
 				n := runtime.Stack(buf, false)
 				buf = buf[:n]
-				log.Context(ctx).Errorf("%v: %s\n", rerr, buf)
+				d.log.Errorf("%v: %s\n", rerr, buf)
 			}
 		}()
 		fn(ctx)
@@ -326,12 +326,12 @@ func NewRedis(conf *conf.Data) redis.Cmdable {
 	return client
 }
 
-func NewData(db *gorm.DB, redisCmd redis.Cmdable, uc userv1.UserClient, cc creationv1.CreationClient, commc commentv1.CommentClient, ac achievementv1.AchievementClient, jwt Jwt, cosUser *CosUser, cosCreation *CosCreation, cosComment *CosComment, phoneCodeCli *TxCode, goMailCli *GoMail) (*Data, func(), error) {
+func NewData(db *gorm.DB, redisCmd redis.Cmdable, uc userv1.UserClient, cc creationv1.CreationClient, commc commentv1.CommentClient, ac achievementv1.AchievementClient, jwt Jwt, cosUser *CosUser, cosCreation *CosCreation, cosComment *CosComment, phoneCodeCli *TxCode, goMailCli *GoMail, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(log.GetLogger(), "module", "message/data"))
 	selector.SetGlobalSelector(p2c.NewBuilder())
 	d := &Data{
 		db:             db,
-		log:            l,
+		log:            log.NewHelper(log.With(logger, "module", "creation/data")),
 		redisCli:       redisCmd,
 		uc:             uc,
 		cc:             cc,

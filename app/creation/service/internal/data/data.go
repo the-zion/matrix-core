@@ -108,7 +108,7 @@ func (d *Data) GroupRecover(ctx context.Context, fn func(ctx context.Context) er
 				buf := make([]byte, 64<<10)
 				n := runtime.Stack(buf, false)
 				buf = buf[:n]
-				log.Context(ctx).Errorf("%v: %s\n", rerr, buf)
+				d.log.Errorf("%v: %s\n", rerr, buf)
 			}
 		}()
 		return fn(ctx)
@@ -122,7 +122,7 @@ func (d *Data) Recover(ctx context.Context, fn func(ctx context.Context)) func()
 				buf := make([]byte, 64<<10)
 				n := runtime.Stack(buf, false)
 				buf = buf[:n]
-				log.Context(ctx).Errorf("%v: %s\n", rerr, buf)
+				d.log.Errorf("%v: %s\n", rerr, buf)
 			}
 		}()
 		fn(ctx)
@@ -454,11 +454,12 @@ func NewNewsClient(conf *conf.Data) *News {
 	}
 }
 
-func NewData(db *gorm.DB, redisCmd redis.Cmdable, cos *cos.Client, es *ElasticSearch, amp *ArticleMqPro, arp *ArticleReviewMqPro, tmp *TalkMqPro, trp *TalkReviewMqPro, cmp *ColumnMqPro, crq *ColumnReviewMqPro, cormq *CollectionsReviewMqPro, cmq *CollectionsMqPro, ap *AchievementMqPro, news *News) (*Data, func(), error) {
+func NewData(db *gorm.DB, redisCmd redis.Cmdable, cos *cos.Client, es *ElasticSearch, amp *ArticleMqPro, arp *ArticleReviewMqPro, tmp *TalkMqPro, trp *TalkReviewMqPro, cmp *ColumnMqPro, crq *ColumnReviewMqPro, cormq *CollectionsReviewMqPro, cmq *CollectionsMqPro, ap *AchievementMqPro, news *News, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/new-data"))
 
 	d := &Data{
 		db:                     db,
+		log:                    log.NewHelper(log.With(logger, "module", "creation/data")),
 		cosCli:                 cos,
 		redisCli:               redisCmd,
 		articleMqPro:           amp,

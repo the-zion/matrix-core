@@ -42,7 +42,7 @@ func (d *Data) GroupRecover(ctx context.Context, fn func(ctx context.Context) er
 				buf := make([]byte, 64<<10)
 				n := runtime.Stack(buf, false)
 				buf = buf[:n]
-				log.Context(ctx).Errorf("%v: %s\n", rerr, buf)
+				d.log.Errorf("%v: %s\n", rerr, buf)
 			}
 		}()
 		return fn(ctx)
@@ -53,11 +53,11 @@ func NewRecovery(d *Data) biz.Recovery {
 	return d
 }
 
-func NewData(uc userv1.UserClient, cc creationv1.CreationClient, mc messagev1.MessageClient, ac achievementv1.AchievementClient, commc commentv1.CommentClient) (*Data, func(), error) {
+func NewData(uc userv1.UserClient, cc creationv1.CreationClient, mc messagev1.MessageClient, ac achievementv1.AchievementClient, commc commentv1.CommentClient, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(log.GetLogger(), "module", "bff/data"))
 	selector.SetGlobalSelector(p2c.NewBuilder())
 	d := &Data{
-		log:   l,
+		log:   log.NewHelper(log.With(logger, "module", "creation/data")),
 		uc:    uc,
 		cc:    cc,
 		mc:    mc,
