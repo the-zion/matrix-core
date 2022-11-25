@@ -2030,14 +2030,12 @@ func (r *columnRepo) DeleteColumnIncludes(ctx context.Context, id, articleId int
 }
 
 func (r *newsRepo) GetNews(ctx context.Context, page int32) ([]*biz.News, error) {
-	fmt.Println("before get news")
 	newsList, err := r.data.cc.GetNews(ctx, &creationV1.GetNewsReq{
 		Page: page,
 	})
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("after get news")
 	reply := make([]*biz.News, 0, len(newsList.News))
 	for _, item := range newsList.News {
 		reply = append(reply, &biz.News{

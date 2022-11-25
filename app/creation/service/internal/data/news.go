@@ -28,7 +28,6 @@ func NewNewsRepo(data *Data, logger log.Logger) biz.NewsRepo {
 }
 
 func (r *newRepo) GetNews(_ context.Context, page int32) ([]*biz.News, error) {
-	fmt.Println("the page is: ", page)
 	data := map[string]interface{}{}
 	url := r.data.newsCli.url + strconv.Itoa(int(page))
 	method := "GET"
@@ -40,9 +39,6 @@ func (r *newRepo) GetNews(_ context.Context, page int32) ([]*biz.News, error) {
 	}
 
 	res, err := client.Do(req)
-	fmt.Println("the res is: ", res)
-	fmt.Println("the err is: ", err)
-	fmt.Println("the res.body is: ", res.Body)
 	defer res.Body.Close()
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get news: page(%v)", page))
