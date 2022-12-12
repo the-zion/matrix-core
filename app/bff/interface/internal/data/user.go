@@ -74,6 +74,16 @@ func (r *userRepo) LoginPasswordReset(ctx context.Context, account, password, co
 	return nil
 }
 
+func (r *userRepo) LoginByGithub(ctx context.Context, code string) (string, error) {
+	reply, err := r.data.uc.LoginByGithub(ctx, &userV1.LoginByGithubReq{
+		Code: code,
+	})
+	if err != nil {
+		return "", err
+	}
+	return reply.Token, nil
+}
+
 func (r *userRepo) SendPhoneCode(ctx context.Context, template, phone string) error {
 	_, err := r.data.uc.SendPhoneCode(ctx, &userV1.SendPhoneCodeReq{
 		Template: template,
@@ -152,6 +162,7 @@ func (r *userRepo) GetProfile(ctx context.Context, uuid string) (*biz.UserProfil
 			Company:   reply.Company,
 			Job:       reply.Job,
 			Homepage:  reply.Homepage,
+			Github:    reply.Github,
 			Introduce: reply.Introduce,
 		}, nil
 	})
@@ -220,6 +231,7 @@ func (r *userRepo) GetProfileUpdate(ctx context.Context, uuid string) (*biz.User
 		pu.Company = reply.Company
 		pu.Job = reply.Job
 		pu.Homepage = reply.Homepage
+		pu.Github = reply.Github
 		pu.Introduce = reply.Introduce
 		pu.Status = reply.Status
 		return pu, nil
@@ -544,6 +556,7 @@ func (r *userRepo) SetProfileUpdate(ctx context.Context, profile *biz.UserProfil
 		Company:   profile.Company,
 		Job:       profile.Job,
 		Homepage:  profile.Homepage,
+		Github:    profile.Github,
 		Introduce: profile.Introduce,
 	})
 	if err != nil {

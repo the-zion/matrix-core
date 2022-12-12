@@ -11,6 +11,7 @@ type UserRepo interface {
 	LoginByPassword(ctx context.Context, account, password, mode string) (string, error)
 	LoginByCode(ctx context.Context, phone, code string) (string, error)
 	LoginPasswordReset(ctx context.Context, account, password, code, mode string) error
+	LoginByGithub(ctx context.Context, code string) (string, error)
 	SendPhoneCode(ctx context.Context, template, phone string) error
 	SendEmailCode(ctx context.Context, template, email string) error
 	GetCosSessionKey(ctx context.Context, uuid string) (*Credentials, error)
@@ -76,6 +77,10 @@ func (r *UserUseCase) LoginByCode(ctx context.Context, phone, code string) (stri
 
 func (r *UserUseCase) LoginPasswordReset(ctx context.Context, account, password, code, mode string) error {
 	return r.repo.LoginPasswordReset(ctx, account, password, code, mode)
+}
+
+func (r *UserUseCase) LoginByGithub(ctx context.Context, code string) (string, error) {
+	return r.repo.LoginByGithub(ctx, code)
 }
 
 func (r *UserUseCase) SendPhoneCode(ctx context.Context, template, phone string) error {

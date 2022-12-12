@@ -11,7 +11,7 @@ type User struct {
 	Qq       string
 	Wechat   string
 	Weibo    string
-	Github   string
+	Github   int32
 	Password string
 }
 
@@ -25,6 +25,7 @@ type Profile struct {
 	Company   string
 	Job       string
 	Homepage  string
+	Github    string
 	Introduce string
 }
 
@@ -100,4 +101,8 @@ type SetFollowMap struct {
 	Uuid   string
 	UserId string
 	Mode   string
+}
+
+//easyjson:json
+type Github struct {
 }

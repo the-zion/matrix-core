@@ -18,7 +18,7 @@ import (
 	"time"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewDB, NewTransaction, NewRedis, NewRocketmqCodeProducer, NewRocketmqProfileProducer, NewRocketmqFollowProducer, NewRocketmqPictureProducer, NewRocketmqAchievementProducer, NewCosClient, NewUserRepo, NewAuthRepo, NewElasticsearch, NewRecovery)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewTransaction, NewRedis, NewRocketmqCodeProducer, NewRocketmqProfileProducer, NewRocketmqFollowProducer, NewRocketmqPictureProducer, NewRocketmqAchievementProducer, NewCosClient, NewUserRepo, NewAuthRepo, NewElasticsearch, NewGithub, NewRecovery)
 
 type Cos struct {
 	client *sts.Client
@@ -49,6 +49,11 @@ type ElasticSearch struct {
 	es *elasticsearch.Client
 }
 
+type Github struct {
+	clientId     string
+	clientSecret string
+}
+
 type Data struct {
 	log              *log.Helper
 	db               *gorm.DB
@@ -60,6 +65,7 @@ type Data struct {
 	achievementMqPro *AchievementMqPro
 	elasticSearch    *ElasticSearch
 	cos              *Cos
+	github           *Github
 }
 
 type contextTxKey struct{}
@@ -331,7 +337,14 @@ func NewElasticsearch(conf *conf.Data) *ElasticSearch {
 	}
 }
 
-func NewData(db *gorm.DB, redisCmd redis.Cmdable, cp *CodeMqPro, es *ElasticSearch, pp *ProfileMqPro, fp *FollowMqPro, pip *PictureMqPro, aq *AchievementMqPro, cos *Cos, logger log.Logger) (*Data, func(), error) {
+func NewGithub(conf *conf.Data) *Github {
+	return &Github{
+		clientId:     conf.Github.ClientId,
+		clientSecret: conf.Github.ClientSecret,
+	}
+}
+
+func NewData(db *gorm.DB, redisCmd redis.Cmdable, cp *CodeMqPro, es *ElasticSearch, pp *ProfileMqPro, fp *FollowMqPro, pip *PictureMqPro, aq *AchievementMqPro, cos *Cos, github *Github, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(log.GetLogger(), "module", "user/data/new-data"))
 
 	d := &Data{
@@ -345,6 +358,7 @@ func NewData(db *gorm.DB, redisCmd redis.Cmdable, cp *CodeMqPro, es *ElasticSear
 		redisCli:         redisCmd,
 		elasticSearch:    es,
 		cos:              cos,
+		github:           github,
 	}
 	return d, func() {
 		var err error

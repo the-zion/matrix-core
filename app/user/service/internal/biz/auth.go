@@ -14,11 +14,16 @@ import (
 )
 
 type AuthRepo interface {
+	GetGithubAccessToken(ctx context.Context, code string) (string, error)
+	GetGithubUserInfo(ctx context.Context, token string) (map[string]interface{}, error)
 	FindUserByPhone(ctx context.Context, phone string) (*User, error)
 	FindUserByEmail(ctx context.Context, email string) (*User, error)
+	FindUserByGithub(ctx context.Context, github int32) (*User, error)
 	CreateUserWithPhone(ctx context.Context, phone string) (*User, error)
 	CreateUserWithEmail(ctx context.Context, email, password string) (*User, error)
+	CreateUserWithGithub(ctx context.Context, github int32) (*User, error)
 	CreateUserProfile(ctx context.Context, account, uuid string) error
+	CreateUserProfileWithGithub(ctx context.Context, account, github, uuid string) error
 	CreateUserProfileUpdate(ctx context.Context, account, uuid string) error
 	CreateUserSearch(ctx context.Context, account, uuid string) error
 	SetUserPhone(ctx context.Context, uuid, phone string) error
@@ -124,6 +129,57 @@ func (r *AuthUseCase) LoginByCode(ctx context.Context, phone, code string) (stri
 				return err
 			}
 			err = r.repo.CreateUserSearch(ctx, phone, user.Uuid)
+			if err != nil {
+				return err
+			}
+			return nil
+		})
+		if err != nil {
+			return "", v1.ErrorLoginFailed("login failed: %s", err.Error())
+		}
+	}
+	if err != nil {
+		return "", v1.ErrorLoginFailed("login failed: %s", err.Error())
+	}
+
+	token, err := signToken(user.Uuid, r.key)
+	if err != nil {
+		return "", v1.ErrorLoginFailed("login failed: %s", err.Error())
+	}
+
+	return token, nil
+}
+
+func (r *AuthUseCase) LoginByGithub(ctx context.Context, code string) (string, error) {
+	accessToken, err := r.repo.GetGithubAccessToken(ctx, code)
+	if err != nil {
+		return "", v1.ErrorLoginFailed("fail to get github access token: %s", err.Error())
+	}
+
+	userInfo, err := r.repo.GetGithubUserInfo(ctx, accessToken)
+	if err != nil {
+		return "", v1.ErrorLoginFailed("fail to get github user info: %s", err.Error())
+	}
+
+	githubId := int32(userInfo["id"].(float64))
+	github := userInfo["html_url"].(string)
+	name := fmt.Sprintf("%s-%v", userInfo["name"].(string), githubId)
+	user, err := r.repo.FindUserByGithub(ctx, githubId)
+	if kerrors.IsNotFound(err) {
+		err = r.tm.ExecTx(ctx, func(ctx context.Context) error {
+			user, err = r.repo.CreateUserWithGithub(ctx, githubId)
+			if err != nil {
+				return err
+			}
+			err = r.repo.CreateUserProfileWithGithub(ctx, name, github, user.Uuid)
+			if err != nil {
+				return err
+			}
+			err = r.repo.CreateUserProfileUpdate(ctx, name, user.Uuid)
+			if err != nil {
+				return err
+			}
+			err = r.repo.CreateUserSearch(ctx, name, user.Uuid)
 			if err != nil {
 				return err
 			}
@@ -272,7 +328,7 @@ func (r *AuthUseCase) UnbindUserPhone(ctx context.Context, uuid, phone, code str
 		return v1.ErrorUnbindEmailFailed("fail to get account: %s", err.Error())
 	}
 
-	if account.Email == "" && account.Qq == "" && account.Weibo == "" && account.Wechat == "" && account.Github == "" {
+	if account.Email == "" && account.Qq == "" && account.Weibo == "" && account.Wechat == "" && account.Github == 0 {
 		return v1.ErrorUniqueAccount("unbind user email failed: unique account")
 	}
 
@@ -294,7 +350,7 @@ func (r *AuthUseCase) UnbindUserEmail(ctx context.Context, uuid, email, code str
 		return v1.ErrorUnbindEmailFailed("fail to get account: %s", err.Error())
 	}
 
-	if account.Phone == "" && account.Qq == "" && account.Weibo == "" && account.Wechat == "" && account.Github == "" {
+	if account.Phone == "" && account.Qq == "" && account.Weibo == "" && account.Wechat == "" && account.Github == 0 {
 		return v1.ErrorUniqueAccount("unbind user email failed: unique account")
 	}
 

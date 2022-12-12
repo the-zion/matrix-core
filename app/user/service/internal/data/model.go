@@ -13,7 +13,7 @@ type User struct {
 	Wechat   string `gorm:"uniqueIndex;size:100"`
 	Qq       string `gorm:"uniqueIndex;size:100"`
 	Weibo    string `gorm:"uniqueIndex;size:100"`
-	Github   string `gorm:"uniqueIndex;size:100"`
+	Github   int32  `gorm:"uniqueIndex"`
 	Password string `gorm:"size:500"`
 }
 
@@ -28,6 +28,7 @@ type Profile struct {
 	Company   string `gorm:"size:50"`
 	Job       string `gorm:"size:50"`
 	Homepage  string `gorm:"size:100"`
+	Github    string `gorm:"size:100"`
 	Introduce string `gorm:"size:100"`
 }
 

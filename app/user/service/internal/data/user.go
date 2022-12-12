@@ -82,6 +82,7 @@ func (r *userRepo) GetProfile(ctx context.Context, uuid string) (*biz.Profile, e
 		Company:   target.Company,
 		Job:       target.Job,
 		Homepage:  target.Homepage,
+		Github:    target.Github,
 		Introduce: target.Introduce,
 	}, nil
 }
@@ -227,6 +228,7 @@ func (r *userRepo) GetProfileUpdate(ctx context.Context, uuid string) (*biz.Prof
 	pu.Job = profile.Job
 	pu.Homepage = profile.Homepage
 	pu.Introduce = profile.Introduce
+	pu.Github = profile.Github
 	pu.Status = profile.Status
 	return pu, nil
 }
@@ -581,6 +583,7 @@ func (r *userRepo) SetProfileUpdate(ctx context.Context, profile *biz.ProfileUpd
 	pu.Company = profile.Company
 	pu.Job = profile.Job
 	pu.Homepage = profile.Homepage
+	pu.Github = profile.Github
 	pu.Introduce = profile.Introduce
 	pu.Status = status
 	err := r.data.DB(ctx).Model(&ProfileUpdate{}).Where("uuid = ?", profile.Uuid).Updates(pu).Error

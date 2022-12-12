@@ -43,6 +43,16 @@ func (s *BffService) LoginPasswordReset(ctx context.Context, req *v1.LoginPasswo
 	return &emptypb.Empty{}, nil
 }
 
+func (s *BffService) LoginByGithub(ctx context.Context, req *v1.LoginByGithubReq) (*v1.LoginReply, error) {
+	token, err := s.uc.LoginByGithub(ctx, req.Code)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.LoginReply{
+		Token: token,
+	}, nil
+}
+
 func (s *BffService) SendPhoneCode(ctx context.Context, req *v1.SendPhoneCodeReq) (*emptypb.Empty, error) {
 	err := s.uc.SendPhoneCode(ctx, req.Template, req.Phone)
 	if err != nil {
@@ -102,6 +112,7 @@ func (s *BffService) GetProfile(ctx context.Context, _ *emptypb.Empty) (*v1.GetP
 		Company:   userProfile.Company,
 		Job:       userProfile.Job,
 		Homepage:  userProfile.Homepage,
+		Github:    userProfile.Github,
 		Introduce: userProfile.Introduce,
 	}, nil
 }
@@ -188,6 +199,7 @@ func (s *BffService) GetProfileUpdate(ctx context.Context, _ *emptypb.Empty) (*v
 		Job:       userProfile.Job,
 		Homepage:  userProfile.Homepage,
 		Introduce: userProfile.Introduce,
+		Github:    userProfile.Github,
 		Status:    userProfile.Status,
 	}, nil
 }
@@ -361,6 +373,7 @@ func (s *BffService) SetProfileUpdate(ctx context.Context, req *v1.SetProfileUpd
 	profile.Company = req.Company
 	profile.Job = req.Job
 	profile.Homepage = req.Homepage
+	profile.Github = req.Github
 	profile.Introduce = req.Introduce
 	err := s.uc.SetUserProfile(ctx, profile)
 	if err != nil {

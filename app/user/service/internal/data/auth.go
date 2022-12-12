@@ -15,6 +15,8 @@ import (
 	"github.com/the-zion/matrix-core/app/user/service/internal/biz"
 	"github.com/the-zion/matrix-core/app/user/service/internal/pkg/util"
 	"gorm.io/gorm"
+	"io/ioutil"
+	"net/http"
 	"strings"
 	"time"
 )
@@ -60,6 +62,25 @@ func (r *authRepo) FindUserByEmail(ctx context.Context, email string) (*biz.User
 	}
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to find user by email: email(%s)", email))
+	}
+	return &biz.User{
+		Uuid:     user.Uuid,
+		Password: user.Password,
+		Phone:    user.Phone,
+		Email:    user.Email,
+		Wechat:   user.Wechat,
+		Github:   user.Github,
+	}, nil
+}
+
+func (r *authRepo) FindUserByGithub(ctx context.Context, github int32) (*biz.User, error) {
+	user := &User{}
+	err := r.data.db.WithContext(ctx).Where("github = ?", github).First(user).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, kerrors.NotFound("github not found from db", fmt.Sprintf("github(%v)", github))
+	}
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to find user by github: github(%v)", github))
 	}
 	return &biz.User{
 		Uuid:     user.Uuid,
@@ -125,6 +146,32 @@ func (r *authRepo) CreateUserWithEmail(ctx context.Context, email, password stri
 	}, nil
 }
 
+func (r *authRepo) CreateUserWithGithub(ctx context.Context, github int32) (*biz.User, error) {
+	uuid, err := util.UUIdV4()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to create uuid: uuid(%s)", uuid))
+	}
+
+	user := &User{
+		Uuid:   uuid,
+		Github: github,
+	}
+	err = r.data.DB(ctx).Select("Github", "Uuid").Create(user).Error
+	if err != nil {
+		e := err.Error()
+		if strings.Contains(e, "Duplicate") {
+			return nil, kerrors.Conflict("github conflict", fmt.Sprintf("github(%v)", github))
+		} else {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to create a user: github(%v)", github))
+		}
+	}
+
+	return &biz.User{
+		Uuid:   uuid,
+		Github: github,
+	}, nil
+}
+
 func (r *authRepo) CreateUserProfile(ctx context.Context, account, uuid string) error {
 	p := &Profile{
 		Uuid:     uuid,
@@ -132,6 +179,20 @@ func (r *authRepo) CreateUserProfile(ctx context.Context, account, uuid string) 
 		Updated:  time.Now().Unix(),
 	}
 	err := r.data.DB(ctx).Select("Uuid", "Username", "Updated").Create(p).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to register a profile: uuid(%s)", uuid))
+	}
+	return nil
+}
+
+func (r *authRepo) CreateUserProfileWithGithub(ctx context.Context, account, github, uuid string) error {
+	p := &Profile{
+		Uuid:     uuid,
+		Username: account,
+		Github:   github,
+		Updated:  time.Now().Unix(),
+	}
+	err := r.data.DB(ctx).Select("Uuid", "Username", "Github", "Updated").Create(p).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to register a profile: uuid(%s)", uuid))
 	}
@@ -380,6 +441,66 @@ func (r *authRepo) UnbindUserEmail(ctx context.Context, uuid string) error {
 		return errors.Wrapf(err, fmt.Sprintf("fail to unbind user email: uuid(%s)", uuid))
 	}
 	return nil
+}
+
+func (r *authRepo) GetGithubAccessToken(ctx context.Context, code string) (string, error) {
+	url := "https://github.com/login/oauth/access_token?client_id=" + r.data.github.clientId + "&client_secret=" + r.data.github.clientSecret + "&code=" + code
+	method := "GET"
+	client := &http.Client{}
+
+	req, err := http.NewRequestWithContext(ctx, method, url, nil)
+	if err != nil {
+		return "", errors.Wrapf(err, fmt.Sprintf("fail to new github access token request: code(%s)", code))
+	}
+
+	req.Header.Set("Accept", "application/json")
+	res, err := client.Do(req)
+	if err != nil {
+		return "", errors.Wrapf(err, fmt.Sprintf("fail to get github access token: code(%s)", code))
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("invalid status code: %d", res.StatusCode)
+	}
+
+	data := map[string]string{}
+	body, err := ioutil.ReadAll(res.Body)
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		return "", errors.Wrapf(err, fmt.Sprintf("fail to unmarshal responce data: code(%s)", code))
+	}
+	token := data["access_token"]
+	return token, nil
+}
+
+func (r *authRepo) GetGithubUserInfo(ctx context.Context, token string) (map[string]interface{}, error) {
+	url := "https://api.github.com/user"
+	method := "GET"
+	client := &http.Client{}
+
+	req, err := http.NewRequestWithContext(ctx, method, url, nil)
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to new request: token(%s)", token))
+	}
+
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("Authorization", "token "+token)
+	res, err := client.Do(req)
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get github user info: token(%s)", token))
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("invalid status code: %d", res.StatusCode)
+	}
+
+	data := map[string]interface{}{}
+	body, err := ioutil.ReadAll(res.Body)
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to unmarshal responce data: token(%s)", token))
+	}
+	return data, nil
 }
 
 func (r *authRepo) setCodeToCache(ctx context.Context, key, code string) error {
