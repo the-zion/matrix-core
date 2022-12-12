@@ -1266,7 +1266,7 @@ message LoginByWeChatReq{
 }
 
 message LoginByGithubReq{
-  string github = 1;
+  string code = 1;
 }
 
 message LoginReply {
@@ -1344,7 +1344,7 @@ message GetAccountReply{
   string qq = 3;
   string wechat = 4;
   string weibo = 5;
-  string github = 6;
+  int32 github = 6;
   string password = 7;
 }
 
@@ -1357,6 +1357,7 @@ message GetProfileReply{
   string job = 6;
   string homepage = 7;
   string introduce = 8;
+  string github = 9;
 }
 
 message GetProfileListReq{
@@ -1478,7 +1479,8 @@ message GetProfileUpdateReply{
   string job = 5;
   string homepage = 6;
   string introduce = 7;
-  int32 status = 8;
+  string github = 8;
+  int32 status = 9;
 }
 
 message GetUserSearchReq{
@@ -1506,7 +1508,8 @@ message SetProfileUpdateReq{
   string company = 3;
   string job = 4;
   string homepage = 5;
-  string introduce = 6;
+  string github = 6;
+  string introduce = 7;
 }
 
 message SetUserPhoneReq{

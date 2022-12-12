@@ -477,7 +477,7 @@ func (m *LoginByGithubReq) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Github
+	// no validation rules for Code
 
 	if len(errors) > 0 {
 		return LoginByGithubReqMultiError(errors)
@@ -1719,6 +1719,8 @@ func (m *GetProfileReply) validate(all bool) error {
 	// no validation rules for Homepage
 
 	// no validation rules for Introduce
+
+	// no validation rules for Github
 
 	if len(errors) > 0 {
 		return GetProfileReplyMultiError(errors)
@@ -3656,6 +3658,8 @@ func (m *GetProfileUpdateReply) validate(all bool) error {
 
 	// no validation rules for Introduce
 
+	// no validation rules for Github
+
 	// no validation rules for Status
 
 	if len(errors) > 0 {
@@ -4011,6 +4015,8 @@ func (m *SetProfileUpdateReq) validate(all bool) error {
 	// no validation rules for Job
 
 	// no validation rules for Homepage
+
+	// no validation rules for Github
 
 	// no validation rules for Introduce
 
