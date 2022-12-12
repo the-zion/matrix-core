@@ -1290,7 +1290,7 @@ func (m *LoginByGithubReq) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Github
+	// no validation rules for Code
 
 	if len(errors) > 0 {
 		return LoginByGithubReqMultiError(errors)
@@ -3892,6 +3892,8 @@ func (m *GetProfileReply) validate(all bool) error {
 
 	// no validation rules for Created
 
+	// no validation rules for Github
+
 	if len(errors) > 0 {
 		return GetProfileReplyMultiError(errors)
 	}
@@ -4365,6 +4367,8 @@ func (m *GetProfileUpdateReply) validate(all bool) error {
 	// no validation rules for Homepage
 
 	// no validation rules for Introduce
+
+	// no validation rules for Github
 
 	// no validation rules for Status
 
@@ -6723,6 +6727,17 @@ func (m *SetProfileUpdateReq) validate(all bool) error {
 	if l := utf8.RuneCountInString(m.GetHomepage()); l < 0 || l > 100 {
 		err := SetProfileUpdateReqValidationError{
 			field:  "Homepage",
+			reason: "value length must be between 0 and 100 runes, inclusive",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if l := utf8.RuneCountInString(m.GetGithub()); l < 0 || l > 100 {
+		err := SetProfileUpdateReqValidationError{
+			field:  "Github",
 			reason: "value length must be between 0 and 100 runes, inclusive",
 		}
 		if !all {

@@ -165,7 +165,7 @@ message LoginByWeChatReq{
 }
 
 message LoginByGithubReq{
-  string github = 1;
+  string code = 1;
 }
 
 message LoginPasswordResetReq{
@@ -262,7 +262,7 @@ message GetAccountReply{
   string qq = 3;
   string wechat = 4;
   string weibo = 5;
-  string github = 6;
+  int32 github = 6;
   string password = 7;
 }
 
@@ -280,6 +280,7 @@ message GetProfileReply{
   string homepage = 7;
   string introduce = 8;
   string created = 9;
+  string github = 10;
 }
 
 message GetProfileListReq{
@@ -307,7 +308,8 @@ message GetProfileUpdateReply{
   string job = 5;
   string homepage = 6;
   string introduce = 7;
-  int32 status = 8;
+  string github = 8;
+  int32 status = 9;
 }
 
 message GetUserFollowReq{
@@ -431,7 +433,8 @@ message SetProfileUpdateReq{
   string company = 4 [(validate.rules).string = {min_len:0, max_len: 50}];
   string job = 5 [(validate.rules).string = {min_len:0, max_len: 50}];
   string homepage = 6 [(validate.rules).string = {min_len:0, max_len: 100}];
-  string introduce = 7 [(validate.rules).string = {min_len:0, max_len: 100}];
+  string github = 7 [(validate.rules).string = {min_len:0, max_len: 100}];
+  string introduce = 8 [(validate.rules).string = {min_len:0, max_len: 100}];
 }
 
 message ProfileReviewPassReq{
