@@ -94,12 +94,17 @@ message Data {
     string user = 2;
     string password = 3;
   }
+  message Github{
+    string clientId = 1;
+    string clientSecret = 2;
+  }
   Database database = 1;
   Redis redis = 2;
   Rocketmq rocketmq = 5;
   AchievementMq achievementMq = 6;
   ElasticSearch elasticSearch = 7;
   Cos cos = 8;
+  Github github = 9;
 }
 
 message Auth {
