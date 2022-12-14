@@ -50,6 +50,13 @@ type UserProfileUpdate struct {
 	Status int32
 }
 
+type Github struct {
+	Token    string
+	Avatar   string
+	Register bool
+	Uuid     string
+}
+
 type Credentials struct {
 	TmpSecretID  string
 	TmpSecretKey string

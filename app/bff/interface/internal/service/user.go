@@ -43,13 +43,33 @@ func (s *BffService) LoginPasswordReset(ctx context.Context, req *v1.LoginPasswo
 	return &emptypb.Empty{}, nil
 }
 
-func (s *BffService) LoginByGithub(ctx context.Context, req *v1.LoginByGithubReq) (*v1.LoginReply, error) {
-	token, err := s.uc.LoginByGithub(ctx, req.Code)
+func (s *BffService) LoginByWeChat(ctx context.Context, req *v1.LoginByWeChatReq) (*v1.LoginReply, error) {
+	token, err := s.uc.LoginByWechat(ctx, req.Code)
 	if err != nil {
 		return nil, err
 	}
 	return &v1.LoginReply{
 		Token: token,
+	}, nil
+}
+
+func (s *BffService) LoginByQQ(ctx context.Context, req *v1.LoginByQQReq) (*v1.LoginReply, error) {
+	token, err := s.uc.LoginByQQ(ctx, req.Code)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.LoginReply{
+		Token: token,
+	}, nil
+}
+
+func (s *BffService) LoginByGithub(ctx context.Context, req *v1.LoginByGithubReq) (*v1.LoginReply, error) {
+	github, err := s.uc.LoginByGithub(ctx, req.Code)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.LoginReply{
+		Token: github.Token,
 	}, nil
 }
 

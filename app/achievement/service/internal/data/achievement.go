@@ -461,7 +461,8 @@ func (r *achievementRepo) getAchievementListFromDb(ctx context.Context, unExists
 	}
 
 	if len(list) != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setAchievementListToCache(list)
 		})()
 	}
@@ -509,7 +510,8 @@ func (r *achievementRepo) GetUserAchievement(ctx context.Context, uuid string) (
 		return nil, err
 	}
 
-	go r.data.Recover(context.Background(), func(ctx context.Context) {
+	newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+	go r.data.Recover(newCtx, func(ctx context.Context) {
 		r.setAchievementToCache(key, achievement)
 	})()
 
@@ -598,7 +600,8 @@ func (r *achievementRepo) GetUserMedal(ctx context.Context, uuid string) (*biz.M
 		return nil, err
 	}
 
-	go r.data.Recover(context.Background(), func(ctx context.Context) {
+	newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+	go r.data.Recover(newCtx, func(ctx context.Context) {
 		r.setMedalToCache(key, medal)
 	})()
 
@@ -738,7 +741,8 @@ func (r *achievementRepo) GetUserActive(ctx context.Context, uuid string) (*biz.
 		return nil, err
 	}
 
-	go r.data.Recover(context.Background(), func(ctx context.Context) {
+	newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+	go r.data.Recover(newCtx, func(ctx context.Context) {
 		r.setActiveToCache(key, active)
 	})()
 

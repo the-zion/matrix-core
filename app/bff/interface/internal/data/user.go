@@ -74,14 +74,36 @@ func (r *userRepo) LoginPasswordReset(ctx context.Context, account, password, co
 	return nil
 }
 
-func (r *userRepo) LoginByGithub(ctx context.Context, code string) (string, error) {
-	reply, err := r.data.uc.LoginByGithub(ctx, &userV1.LoginByGithubReq{
+func (r *userRepo) LoginByWechat(ctx context.Context, code string) (string, error) {
+	reply, err := r.data.uc.LoginByWeChat(ctx, &userV1.LoginByWeChatReq{
 		Code: code,
 	})
 	if err != nil {
 		return "", err
 	}
 	return reply.Token, nil
+}
+
+func (r *userRepo) LoginByQQ(ctx context.Context, code string) (string, error) {
+	reply, err := r.data.uc.LoginByQQ(ctx, &userV1.LoginByQQReq{
+		Code: code,
+	})
+	if err != nil {
+		return "", err
+	}
+	return reply.Token, nil
+}
+
+func (r *userRepo) LoginByGithub(ctx context.Context, code string) (*biz.Github, error) {
+	reply, err := r.data.uc.LoginByGithub(ctx, &userV1.LoginByGithubReq{
+		Code: code,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &biz.Github{
+		Token: reply.Token,
+	}, nil
 }
 
 func (r *userRepo) SendPhoneCode(ctx context.Context, template, phone string) error {
