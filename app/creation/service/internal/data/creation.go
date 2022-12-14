@@ -91,7 +91,8 @@ func (r *creationRepo) GetCollectionsContentReview(ctx context.Context, page int
 
 	size = len(review)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setCollectionsContentReviewToCache(key, review)
 		})()
 	}
@@ -167,7 +168,7 @@ func (r *creationRepo) setCollectionsContentReviewToCache(key string, review []*
 		for _, item := range review {
 			m, err := item.MarshalJSON()
 			if err != nil {
-				r.log.Errorf("fail to marshal avatar review: contentReview(%v), err(%v)", review, err)
+				return errors.Wrapf(err, "fail to marshal avatar review: contentReview(%v), err(%v)", review, err)
 			}
 			list = append(list, m)
 		}
@@ -199,7 +200,8 @@ func (r *creationRepo) GetCollectArticleList(ctx context.Context, id, page int32
 
 	size = len(articleList)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setCollectArticleListToCache(key, articleList)
 		})()
 	}
@@ -299,7 +301,8 @@ func (r *creationRepo) GetCollectTalkList(ctx context.Context, id, page int32) (
 
 	size = len(talkList)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setCollectTalkListToCache(key, talkList)
 		})()
 	}
@@ -399,7 +402,8 @@ func (r *creationRepo) GetCollectColumnList(ctx context.Context, id, page int32)
 
 	size = len(columnList)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setCollectColumnListToCache(key, columnList)
 		})()
 	}
@@ -501,7 +505,8 @@ func (r *creationRepo) GetCollections(ctx context.Context, id int32, uuid string
 		return nil, err
 	}
 
-	go r.data.Recover(context.Background(), func(ctx context.Context) {
+	newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+	go r.data.Recover(newCtx, func(ctx context.Context) {
 		r.setCollectionsToCache(key, collections)
 	})()
 
@@ -662,7 +667,8 @@ func (r *creationRepo) getCollectionsListInfoFromDb(ctx context.Context, unExist
 	}
 
 	if len(list) != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setCollectionsListInfoToCache(list)
 		})()
 	}
@@ -713,7 +719,8 @@ func (r *creationRepo) GetCollectionsList(ctx context.Context, uuid string, page
 
 	size = len(collections)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setUserCollectionsListToCache("user_collections_list_"+uuid, collections)
 		})()
 	}
@@ -781,7 +788,8 @@ func (r *creationRepo) GetCollectionsListByVisitor(ctx context.Context, uuid str
 
 	size = len(collections)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setUserCollectionsListToCache("user_collections_list_visitor_"+uuid, collections)
 		})()
 	}
@@ -868,7 +876,8 @@ func (r *creationRepo) GetCollectionsListAll(ctx context.Context, uuid string) (
 
 	size = len(collections)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setUserCollectionsListToCache("user_collections_list_all_"+uuid, collections)
 		})()
 	}
@@ -949,7 +958,8 @@ func (r *creationRepo) GetCreationUser(ctx context.Context, uuid string) (*biz.C
 		return nil, err
 	}
 
-	go r.data.Recover(context.Background(), func(ctx context.Context) {
+	newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+	go r.data.Recover(newCtx, func(ctx context.Context) {
 		r.setCreationUserToCache(key, creationUser)
 	})()
 
@@ -1031,7 +1041,8 @@ func (r *creationRepo) GetCreationUserVisitor(ctx context.Context, uuid string) 
 		return nil, err
 	}
 
-	go r.data.Recover(context.Background(), func(ctx context.Context) {
+	newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+	go r.data.Recover(newCtx, func(ctx context.Context) {
 		r.setCreationUserVisitorToCache(key, creationUser)
 	})()
 
@@ -1056,7 +1067,8 @@ func (r *creationRepo) GetUserTimeLineList(ctx context.Context, page int32, uuid
 
 	size = len(timeline)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setUserTimeLineListToCache("user_timeline_list_"+uuid, timeline)
 		})()
 	}

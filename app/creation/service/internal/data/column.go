@@ -594,7 +594,8 @@ func (r *columnRepo) GetColumnList(ctx context.Context, page int32) ([]*biz.Colu
 
 	size = len(column)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setColumnToCache("column", column)
 		})()
 	}
@@ -683,7 +684,8 @@ func (r *columnRepo) GetColumnListHot(ctx context.Context, page int32) ([]*biz.C
 
 	size = len(column)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setColumnHotToCache("column_hot", column)
 		})()
 	}
@@ -708,7 +710,8 @@ func (r *columnRepo) GetUserColumnList(ctx context.Context, page int32, uuid str
 
 	size = len(column)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setUserColumnListToCache("user_column_list_"+uuid, column)
 		})()
 	}
@@ -779,7 +782,8 @@ func (r *columnRepo) GetUserColumnListVisitor(ctx context.Context, page int32, u
 
 	size = len(column)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setUserColumnListToCache("user_column_list_visitor_"+uuid, column)
 		})()
 	}
@@ -1037,7 +1041,8 @@ func (r *columnRepo) getColumnListStatisticFromDb(ctx context.Context, unExists 
 	}
 
 	if len(list) != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setColumnListStatisticToCache(list)
 		})()
 	}
@@ -1085,7 +1090,8 @@ func (r *columnRepo) GetColumnStatistic(ctx context.Context, id int32, uuid stri
 		return nil, err
 	}
 
-	go r.data.Recover(context.Background(), func(ctx context.Context) {
+	newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+	go r.data.Recover(newCtx, func(ctx context.Context) {
 		r.setColumnStatisticToCache(key, statistic)
 	})()
 
@@ -1271,7 +1277,8 @@ func (r *columnRepo) GetSubscribeList(ctx context.Context, page int32, uuid stri
 
 	size = len(subscribe)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setUserSubscribeListToCache("user_column_subscribe_list_"+uuid, subscribe)
 		})()
 	}
@@ -2383,7 +2390,8 @@ func (r *columnRepo) getUserColumnAgreeFromDb(ctx context.Context, uuid string) 
 		agreeMap[item.ColumnId] = true
 	}
 	if len(list) != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setUserColumnAgreeToCache(uuid, list)
 		})()
 	}
@@ -2458,7 +2466,8 @@ func (r *columnRepo) getUserColumnCollectFromDb(ctx context.Context, uuid string
 		collectMap[item.ColumnId] = true
 	}
 	if len(list) != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setUserColumnCollectToCache(uuid, list)
 		})()
 	}
@@ -2532,7 +2541,8 @@ func (r *columnRepo) getUserColumnSubscribeFromDb(ctx context.Context, uuid stri
 		subscribeMap[item.ColumnId] = true
 	}
 	if len(list) != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setUserColumnSubscribeToCache(uuid, list)
 		})()
 	}
@@ -2584,7 +2594,8 @@ func (r *columnRepo) GetColumnImageReview(ctx context.Context, page int32, uuid 
 
 	size = len(review)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setColumnImageReviewToCache(key, review)
 		})()
 	}
@@ -2698,7 +2709,8 @@ func (r *columnRepo) GetColumnContentReview(ctx context.Context, page int32, uui
 
 	size = len(review)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setColumnContentReviewToCache(key, review)
 		})()
 	}

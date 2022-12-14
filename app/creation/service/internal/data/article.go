@@ -81,7 +81,8 @@ func (r *articleRepo) GetArticleList(ctx context.Context, page int32) ([]*biz.Ar
 
 	size = len(article)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setArticleToCache("article", article)
 		})()
 	}
@@ -145,7 +146,8 @@ func (r *articleRepo) GetArticleListHot(ctx context.Context, page int32) ([]*biz
 
 	size = len(article)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setArticleHotToCache("article_hot", article)
 		})()
 	}
@@ -170,7 +172,8 @@ func (r *articleRepo) GetColumnArticleList(ctx context.Context, id int32) ([]*bi
 
 	size = len(article)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setColumnArticleToCache(id, article)
 		})()
 	}
@@ -284,7 +287,8 @@ func (r *articleRepo) GetUserArticleListAll(ctx context.Context, uuid string) ([
 
 	size = len(article)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setUserArticleListToCache("user_article_list_all_"+uuid, article)
 		})()
 	}
@@ -347,7 +351,8 @@ func (r *articleRepo) GetUserArticleListVisitor(ctx context.Context, page int32,
 
 	size = len(article)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setUserArticleListToCache("user_article_list_visitor_"+uuid, article)
 		})()
 	}
@@ -462,7 +467,8 @@ func (r *articleRepo) GetArticleStatistic(ctx context.Context, id int32, uuid st
 		return nil, err
 	}
 
-	go r.data.Recover(context.Background(), func(ctx context.Context) {
+	newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+	go r.data.Recover(newCtx, func(ctx context.Context) {
 		r.setArticleStatisticToCache(key, statistic)
 	})()
 
@@ -596,7 +602,8 @@ func (r *articleRepo) getArticleListStatisticFromDb(ctx context.Context, unExist
 	}
 
 	if len(list) != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setArticleListStatisticToCache(list)
 		})()
 	}
@@ -848,7 +855,8 @@ func (r *articleRepo) getUserArticleAgreeFromDb(ctx context.Context, uuid string
 		agreeMap[item.ArticleId] = true
 	}
 	if len(list) != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setUserArticleAgreeToCache(uuid, list)
 		})()
 	}
@@ -923,7 +931,8 @@ func (r *articleRepo) getUserArticleCollectFromDb(ctx context.Context, uuid stri
 		collectMap[item.ArticleId] = true
 	}
 	if len(list) != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setUserArticleCollectToCache(uuid, list)
 		})()
 	}
@@ -1064,7 +1073,8 @@ func (r *articleRepo) GetArticleImageReview(ctx context.Context, page int32, uui
 
 	size = len(review)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setArticleImageReviewToCache(key, review)
 		})()
 	}
@@ -1178,7 +1188,8 @@ func (r *articleRepo) GetArticleContentReview(ctx context.Context, page int32, u
 
 	size = len(review)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setArticleContentReviewToCache(key, review)
 		})()
 	}

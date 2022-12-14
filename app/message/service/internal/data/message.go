@@ -126,7 +126,8 @@ func (r *messageRepo) GetMessageSystemNotification(ctx context.Context, page int
 
 	size = len(review)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setMessageSystemNotificationToCache(key, review)
 		})()
 	}

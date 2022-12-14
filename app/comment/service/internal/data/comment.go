@@ -98,7 +98,8 @@ func (r *commentRepo) getUserCommentAgreeFromDb(ctx context.Context, uuid string
 		agreeMap[item.CommentId] = true
 	}
 	if len(list) != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setUserCommentAgreeToCache(uuid, list)
 		})()
 	}
@@ -143,7 +144,8 @@ func (r *commentRepo) GetCommentUser(ctx context.Context, uuid string) (*biz.Com
 		return nil, err
 	}
 
-	go r.data.Recover(context.Background(), func(ctx context.Context) {
+	newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+	go r.data.Recover(newCtx, func(ctx context.Context) {
 		r.setCommentUserToCache(key, commentUser)
 	})()
 
@@ -228,7 +230,8 @@ func (r *commentRepo) GetCommentList(ctx context.Context, page, creationId, crea
 
 	size = len(comment)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setCommentToCache(creationId, creationType, comment)
 		})()
 	}
@@ -253,7 +256,8 @@ func (r *commentRepo) GetSubCommentList(ctx context.Context, page, id int32) ([]
 
 	size = len(subComment)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setSubCommentToCache(id, subComment)
 		})()
 	}
@@ -416,7 +420,8 @@ func (r *commentRepo) GetCommentListHot(ctx context.Context, page, creationId, c
 
 	size = len(comment)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setCommentHotToCache(creationId, creationType, comment)
 		})()
 	}
@@ -566,7 +571,8 @@ func (r *commentRepo) GetUserCommentArticleReplyList(ctx context.Context, page i
 
 	size = len(commentList)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setUserCommentArticleReplyListToCache(uuid, commentList)
 		})()
 	}
@@ -665,7 +671,8 @@ func (r *commentRepo) GetUserSubCommentArticleReplyList(ctx context.Context, pag
 
 	size = len(commentList)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setUserSubCommentArticleReplyListToCache(uuid, commentList)
 		})()
 	}
@@ -780,7 +787,8 @@ func (r *commentRepo) GetUserCommentTalkReplyList(ctx context.Context, page int3
 
 	size = len(commentList)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setUserCommentTalkReplyListToCache(uuid, commentList)
 		})()
 	}
@@ -879,7 +887,8 @@ func (r *commentRepo) GetUserSubCommentTalkReplyList(ctx context.Context, page i
 
 	size = len(commentList)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setUserSubCommentTalkReplyListToCache(uuid, commentList)
 		})()
 	}
@@ -994,7 +1003,8 @@ func (r *commentRepo) GetUserCommentArticleRepliedList(ctx context.Context, page
 
 	size = len(commentList)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setUserCommentArticleRepliedListToCache(uuid, commentList)
 		})()
 	}
@@ -1093,7 +1103,8 @@ func (r *commentRepo) GetUserSubCommentArticleRepliedList(ctx context.Context, p
 
 	size = len(commentList)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setUserSubCommentArticleRepliedListToCache(uuid, commentList)
 		})()
 	}
@@ -1210,7 +1221,8 @@ func (r *commentRepo) GetUserCommentTalkRepliedList(ctx context.Context, page in
 
 	size = len(commentList)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setUserCommentTalkRepliedListToCache(uuid, commentList)
 		})()
 	}
@@ -1309,7 +1321,8 @@ func (r *commentRepo) GetUserSubCommentTalkRepliedList(ctx context.Context, page
 
 	size = len(commentList)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setUserSubCommentTalkRepliedListToCache(uuid, commentList)
 		})()
 	}
@@ -1426,7 +1439,8 @@ func (r *commentRepo) GetUserCommentRepliedList(ctx context.Context, page int32,
 
 	size = len(commentList)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setUserCommentRepliedListToCache(uuid, commentList)
 		})()
 	}
@@ -1531,7 +1545,8 @@ func (r *commentRepo) GetUserSubCommentRepliedList(ctx context.Context, page int
 
 	size = len(commentList)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setUserSubCommentRepliedListToCache(uuid, commentList)
 		})()
 	}
@@ -1655,7 +1670,8 @@ func (r *commentRepo) GetCommentContentReview(ctx context.Context, page int32, u
 
 	size = len(review)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setCommentContentReviewToCache(key, review)
 		})()
 	}
@@ -1915,7 +1931,8 @@ func (r *commentRepo) getCommentStatisticFromDb(ctx context.Context, unExists []
 	}
 
 	if len(list) != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setCommentStatisticToCache(list)
 		})()
 	}
@@ -1938,7 +1955,8 @@ func (r *commentRepo) getSubCommentStatisticFromDb(ctx context.Context, unExists
 	}
 
 	if len(list) != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setSubCommentStatisticToCache(list)
 		})()
 	}

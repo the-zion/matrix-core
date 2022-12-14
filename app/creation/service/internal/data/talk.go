@@ -66,7 +66,8 @@ func (r *talkRepo) GetTalkList(ctx context.Context, page int32) ([]*biz.Talk, er
 
 	size = len(talk)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setTalkToCache("talk", talk)
 		})()
 	}
@@ -91,7 +92,8 @@ func (r *talkRepo) GetTalkListHot(ctx context.Context, page int32) ([]*biz.TalkS
 
 	size = len(talk)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setTalkHotToCache("talk_hot", talk)
 		})()
 	}
@@ -116,7 +118,8 @@ func (r *talkRepo) GetUserTalkList(ctx context.Context, page int32, uuid string)
 
 	size = len(talk)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setUserTalkListToCache("user_talk_list_"+uuid, talk)
 		})()
 	}
@@ -187,7 +190,8 @@ func (r *talkRepo) GetUserTalkListVisitor(ctx context.Context, page int32, uuid 
 
 	size = len(talk)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setUserTalkListToCache("user_talk_list_visitor_"+uuid, talk)
 		})()
 	}
@@ -513,7 +517,8 @@ func (r *talkRepo) getTalkListStatisticFromDb(ctx context.Context, unExists []in
 	}
 
 	if len(list) != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setTalkListStatisticToCache(list)
 		})()
 	}
@@ -563,7 +568,8 @@ func (r *talkRepo) GetTalkStatistic(ctx context.Context, id int32, uuid string) 
 		return nil, err
 	}
 
-	go r.data.Recover(context.Background(), func(ctx context.Context) {
+	newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+	go r.data.Recover(newCtx, func(ctx context.Context) {
 		r.setTalkStatisticToCache(key, statistic)
 	})()
 
@@ -843,7 +849,8 @@ func (r *talkRepo) getUserTalkAgreeFromDb(ctx context.Context, uuid string) (map
 		agreeMap[item.TalkId] = true
 	}
 	if len(list) != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setUserTalkAgreeToCache(uuid, list)
 		})()
 	}
@@ -918,7 +925,8 @@ func (r *talkRepo) getUserTalkCollectFromDb(ctx context.Context, uuid string) (m
 		collectMap[item.TalkId] = true
 	}
 	if len(list) != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setUserTalkCollectToCache(uuid, list)
 		})()
 	}
@@ -979,7 +987,8 @@ func (r *talkRepo) GetTalkImageReview(ctx context.Context, page int32, uuid stri
 
 	size = len(review)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setTalkImageReviewToCache(key, review)
 		})()
 	}
@@ -1093,7 +1102,8 @@ func (r *talkRepo) GetTalkContentReview(ctx context.Context, page int32, uuid st
 
 	size = len(review)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setTalkContentReviewToCache(key, review)
 		})()
 	}
