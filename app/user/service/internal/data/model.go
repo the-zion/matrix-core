@@ -22,7 +22,7 @@ type Profile struct {
 	CreatedAt time.Time
 	Updated   int64
 	Uuid      string `gorm:"primaryKey;size:36"`
-	Username  string `gorm:"uniqueIndex;not null;size:20"`
+	Username  string `gorm:"uniqueIndex;not null;size:100"`
 	Avatar    string `gorm:"size:200"`
 	School    string `gorm:"size:50"`
 	Company   string `gorm:"size:50"`

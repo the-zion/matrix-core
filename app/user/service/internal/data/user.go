@@ -183,7 +183,8 @@ func (r *userRepo) getProfileListFromDb(ctx context.Context, unExists []string, 
 	}
 
 	if len(list) != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setProfileListToCache(list)
 		})()
 	}
@@ -197,7 +198,7 @@ func (r *userRepo) setProfileListToCache(profileList []*Profile) {
 			key := "profile_" + item.Uuid
 			marshal, err := item.MarshalJSON()
 			if err != nil {
-				r.log.Errorf("fail to set user profile to json: json.Marshal(%v), error(%v)", item, err)
+				return errors.Wrapf(err, "fail to set user profile to json: json.Marshal(%v), error(%v)", item, err)
 			}
 			pipe.SetNX(ctx, key, marshal, time.Minute*30)
 		}
@@ -251,7 +252,8 @@ func (r *userRepo) GetFollowList(ctx context.Context, page int32, uuid string) (
 
 	size = len(follow)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setFollowToCache(uuid, follow)
 		})()
 	}
@@ -346,7 +348,8 @@ func (r *userRepo) GetFollowedList(ctx context.Context, page int32, uuid string)
 
 	size = len(followed)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setFollowedToCache(uuid, followed)
 		})()
 	}
@@ -713,7 +716,8 @@ func (r *userRepo) GetUserFollows(ctx context.Context, uuid string) ([]string, e
 
 	size = len(follows)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setUserFollowsToCache(uuid, follows)
 		})()
 	}
@@ -761,7 +765,8 @@ func (r *userRepo) GetAvatarReview(ctx context.Context, page int32, uuid string)
 
 	size = len(review)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setAvatarReviewToCache(key, review)
 		})()
 	}
@@ -912,7 +917,8 @@ func (r *userRepo) GetCoverReview(ctx context.Context, page int32, uuid string) 
 
 	size = len(review)
 	if size != 0 {
-		go r.data.Recover(context.Background(), func(ctx context.Context) {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
 			r.setCoverReviewToCache(key, review)
 		})()
 	}
@@ -1064,6 +1070,7 @@ func (r *userRepo) setProfileToCache(ctx context.Context, profile *Profile, key 
 	marshal, err := profile.MarshalJSON()
 	if err != nil {
 		r.log.Errorf("fail to set user profile to json: json.Marshal(%v), error(%v)", profile, err)
+		return
 	}
 	err = r.data.redisCli.SetNX(ctx, key, string(marshal), time.Minute*30).Err()
 	if err != nil {
@@ -1075,6 +1082,7 @@ func (r *userRepo) updateProfileToCache(ctx context.Context, profile *Profile, k
 	marshal, err := profile.MarshalJSON()
 	if err != nil {
 		r.log.Errorf("fail to set user profile to json: json.Marshal(%v), error(%v)", profile, err)
+		return
 	}
 	err = r.data.redisCli.Set(ctx, key, string(marshal), time.Minute*30).Err()
 	if err != nil {

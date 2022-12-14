@@ -41,6 +41,13 @@ type ProfileUpdate struct {
 	Status int32
 }
 
+type Github struct {
+	Token    string
+	Avatar   string
+	Register bool
+	Uuid     string
+}
+
 type Credentials struct {
 	TmpSecretID  string
 	TmpSecretKey string
@@ -101,8 +108,4 @@ type SetFollowMap struct {
 	Uuid   string
 	UserId string
 	Mode   string
-}
-
-//easyjson:json
-type Github struct {
 }

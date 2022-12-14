@@ -84,10 +84,11 @@ message Data {
     message Policy{
       repeated Statement statement = 1;
     }
-    string secret_id = 1;
-    string secret_key = 2;
-    string region = 3;
-    Policy policy = 4;
+    string url = 1;
+    string secret_id = 2;
+    string secret_key = 3;
+    string region = 4;
+    Policy policy = 5;
   }
   message ElasticSearch{
     string endpoint = 1;
@@ -95,8 +96,26 @@ message Data {
     string password = 3;
   }
   message Github{
-    string clientId = 1;
-    string clientSecret = 2;
+    string accessTokenUrl = 1;
+    string userInfoUrl = 2;
+    string clientId = 3;
+    string clientSecret = 4;
+  }
+  message Wechat{
+    string accessTokenUrl = 1;
+    string userInfoUrl = 2;
+    string appid = 3;
+    string secret = 4;
+    string grantType = 5;
+  }
+  message QQ{
+    string accessTokenUrl = 1;
+    string openIdUrl = 2;
+    string userInfoUrl = 3;
+    string clientId = 4;
+    string clientSecret = 5;
+    string grantType = 6;
+    string redirectUri = 7;
   }
   Database database = 1;
   Redis redis = 2;
@@ -105,6 +124,8 @@ message Data {
   ElasticSearch elasticSearch = 7;
   Cos cos = 8;
   Github github = 9;
+  Wechat wechat = 10;
+  QQ qq = 11;
 }
 
 message Auth {

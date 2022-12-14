@@ -14,13 +14,22 @@ import (
 )
 
 type AuthRepo interface {
+	GetWechatAccessToken(ctx context.Context, code string) (string, string, error)
+	GetQQAccessToken(ctx context.Context, code string) (string, error)
+	GetQQOpenId(ctx context.Context, token string) (string, error)
 	GetGithubAccessToken(ctx context.Context, code string) (string, error)
+	GetWechatUserInfo(ctx context.Context, token, openid string) (map[string]interface{}, error)
+	GetQQUserInfo(ctx context.Context, token, openId string) (map[string]interface{}, error)
 	GetGithubUserInfo(ctx context.Context, token string) (map[string]interface{}, error)
 	FindUserByPhone(ctx context.Context, phone string) (*User, error)
 	FindUserByEmail(ctx context.Context, email string) (*User, error)
+	FindUserByWechat(ctx context.Context, wechat string) (*User, error)
+	FindUserByQQ(ctx context.Context, qq string) (*User, error)
 	FindUserByGithub(ctx context.Context, github int32) (*User, error)
 	CreateUserWithPhone(ctx context.Context, phone string) (*User, error)
 	CreateUserWithEmail(ctx context.Context, email, password string) (*User, error)
+	CreateUserWithWechat(ctx context.Context, wechat string) (*User, error)
+	CreateUserWithQQ(ctx context.Context, qq string) (*User, error)
 	CreateUserWithGithub(ctx context.Context, github int32) (*User, error)
 	CreateUserProfile(ctx context.Context, account, uuid string) error
 	CreateUserProfileWithGithub(ctx context.Context, account, github, uuid string) error
@@ -29,6 +38,7 @@ type AuthRepo interface {
 	SetUserPhone(ctx context.Context, uuid, phone string) error
 	SetUserEmail(ctx context.Context, uuid, email string) error
 	SetUserPassword(ctx context.Context, uuid, password string) error
+	SetUserAvatar(ctx context.Context, uuid, avatar string)
 	SendPhoneCode(ctx context.Context, template, phone string) error
 	SendEmailCode(ctx context.Context, template, phone string) error
 	VerifyPhoneCode(ctx context.Context, phone, code string) error
@@ -150,19 +160,139 @@ func (r *AuthUseCase) LoginByCode(ctx context.Context, phone, code string) (stri
 	return token, nil
 }
 
-func (r *AuthUseCase) LoginByGithub(ctx context.Context, code string) (string, error) {
+func (r *AuthUseCase) LoginByWechat(ctx context.Context, code string) (string, error) {
+	accessToken, openId, err := r.repo.GetWechatAccessToken(ctx, code)
+	if err != nil {
+		return "", v1.ErrorLoginFailed("fail to get wechat access token: %s", err.Error())
+	}
+
+	userInfo, err := r.repo.GetWechatUserInfo(ctx, accessToken, openId)
+	if err != nil {
+		return "", v1.ErrorLoginFailed("fail to get wechat user info: %s", err.Error())
+	}
+
+	wechatId := userInfo["unionid"].(string)
+	avatar := userInfo["headimgurl"].(string)
+	name := fmt.Sprintf("%s-%v", userInfo["nickname"].(string), wechatId)
+
+	user, err := r.repo.FindUserByWechat(ctx, wechatId)
+	if kerrors.IsNotFound(err) {
+		err = r.tm.ExecTx(ctx, func(ctx context.Context) error {
+			user, err = r.repo.CreateUserWithWechat(ctx, wechatId)
+			if err != nil {
+				return err
+			}
+			err = r.repo.CreateUserProfile(ctx, name, user.Uuid)
+			if err != nil {
+				return err
+			}
+			err = r.repo.CreateUserProfileUpdate(ctx, name, user.Uuid)
+			if err != nil {
+				return err
+			}
+			err = r.repo.CreateUserSearch(ctx, name, user.Uuid)
+			if err != nil {
+				return err
+			}
+			return nil
+		})
+		if err != nil {
+			return "", v1.ErrorLoginFailed("login failed: %s", err.Error())
+		}
+		r.repo.SetUserAvatar(ctx, user.Uuid, avatar)
+	}
+	if err != nil {
+		return "", v1.ErrorLoginFailed("login failed: %s", err.Error())
+	}
+
+	token, err := signToken(user.Uuid, r.key)
+	if err != nil {
+		return "", v1.ErrorLoginFailed("login failed: %s", err.Error())
+	}
+
+	return token, nil
+}
+
+func (r *AuthUseCase) LoginByQQ(ctx context.Context, code string) (string, error) {
+	accessToken, err := r.repo.GetQQAccessToken(ctx, code)
+	if err != nil {
+		return "", v1.ErrorLoginFailed("fail to get qq access token: %s", err.Error())
+	}
+
+	openId, err := r.repo.GetQQOpenId(ctx, accessToken)
+	if err != nil {
+		return "", v1.ErrorLoginFailed("fail to get qq openid: %s", err.Error())
+	}
+
+	userInfo, err := r.repo.GetQQUserInfo(ctx, accessToken, openId)
+	if err != nil {
+		return "", v1.ErrorLoginFailed("fail to get qq user info: %s", err.Error())
+	}
+
+	qqId := openId
+	avatar := userInfo["figureurl_qq"].(string)
+	avatarSize40 := userInfo["figureurl_qq_1"].(string)
+	avatarSize100 := userInfo["figureurl_qq_2"].(string)
+	name := fmt.Sprintf("%s-%v", userInfo["nickname"].(string), qqId)
+
+	user, err := r.repo.FindUserByQQ(ctx, qqId)
+	if kerrors.IsNotFound(err) {
+		err = r.tm.ExecTx(ctx, func(ctx context.Context) error {
+			user, err = r.repo.CreateUserWithQQ(ctx, qqId)
+			if err != nil {
+				return err
+			}
+			err = r.repo.CreateUserProfile(ctx, name, user.Uuid)
+			if err != nil {
+				return err
+			}
+			err = r.repo.CreateUserProfileUpdate(ctx, name, user.Uuid)
+			if err != nil {
+				return err
+			}
+			err = r.repo.CreateUserSearch(ctx, name, user.Uuid)
+			if err != nil {
+				return err
+			}
+			return nil
+		})
+		if err != nil {
+			return "", v1.ErrorLoginFailed("login failed: %s", err.Error())
+		}
+		if avatar != "" {
+			r.repo.SetUserAvatar(ctx, user.Uuid, avatar)
+		} else if avatarSize100 != "" {
+			r.repo.SetUserAvatar(ctx, user.Uuid, avatarSize100)
+		} else {
+			r.repo.SetUserAvatar(ctx, user.Uuid, avatarSize40)
+		}
+	}
+	if err != nil {
+		return "", v1.ErrorLoginFailed("login failed: %s", err.Error())
+	}
+
+	token, err := signToken(user.Uuid, r.key)
+	if err != nil {
+		return "", v1.ErrorLoginFailed("login failed: %s", err.Error())
+	}
+
+	return token, nil
+}
+
+func (r *AuthUseCase) LoginByGithub(ctx context.Context, code string) (*Github, error) {
 	accessToken, err := r.repo.GetGithubAccessToken(ctx, code)
 	if err != nil {
-		return "", v1.ErrorLoginFailed("fail to get github access token: %s", err.Error())
+		return nil, v1.ErrorLoginFailed("fail to get github access token: %s", err.Error())
 	}
 
 	userInfo, err := r.repo.GetGithubUserInfo(ctx, accessToken)
 	if err != nil {
-		return "", v1.ErrorLoginFailed("fail to get github user info: %s", err.Error())
+		return nil, v1.ErrorLoginFailed("fail to get github user info: %s", err.Error())
 	}
 
 	githubId := int32(userInfo["id"].(float64))
 	github := userInfo["html_url"].(string)
+	avatar := userInfo["avatar_url"].(string)
 	name := fmt.Sprintf("%s-%v", userInfo["name"].(string), githubId)
 	user, err := r.repo.FindUserByGithub(ctx, githubId)
 	if kerrors.IsNotFound(err) {
@@ -186,19 +316,22 @@ func (r *AuthUseCase) LoginByGithub(ctx context.Context, code string) (string, e
 			return nil
 		})
 		if err != nil {
-			return "", v1.ErrorLoginFailed("login failed: %s", err.Error())
+			return nil, v1.ErrorLoginFailed("login failed: %s", err.Error())
 		}
+		r.repo.SetUserAvatar(ctx, user.Uuid, avatar)
 	}
 	if err != nil {
-		return "", v1.ErrorLoginFailed("login failed: %s", err.Error())
+		return nil, v1.ErrorLoginFailed("login failed: %s", err.Error())
 	}
 
 	token, err := signToken(user.Uuid, r.key)
 	if err != nil {
-		return "", v1.ErrorLoginFailed("login failed: %s", err.Error())
+		return nil, v1.ErrorLoginFailed("login failed: %s", err.Error())
 	}
 
-	return token, nil
+	return &Github{
+		Token: token,
+	}, nil
 }
 
 func (r *AuthUseCase) LoginPasswordReset(ctx context.Context, account, password, code, mode string) error {

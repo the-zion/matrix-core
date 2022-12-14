@@ -9,16 +9,19 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-redis/redis/v8"
 	"github.com/google/wire"
+	"github.com/tencentyun/cos-go-sdk-v5"
 	"github.com/tencentyun/qcloud-cos-sts-sdk/go"
 	"github.com/the-zion/matrix-core/app/user/service/internal/biz"
 	"github.com/the-zion/matrix-core/app/user/service/internal/conf"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"net/http"
+	"net/url"
 	"runtime"
 	"time"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewDB, NewTransaction, NewRedis, NewRocketmqCodeProducer, NewRocketmqProfileProducer, NewRocketmqFollowProducer, NewRocketmqPictureProducer, NewRocketmqAchievementProducer, NewCosClient, NewUserRepo, NewAuthRepo, NewElasticsearch, NewGithub, NewRecovery)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewTransaction, NewRedis, NewRocketmqCodeProducer, NewRocketmqProfileProducer, NewRocketmqFollowProducer, NewRocketmqPictureProducer, NewRocketmqAchievementProducer, NewCosClient, NewCosServiceClient, NewUserRepo, NewAuthRepo, NewElasticsearch, NewGithub, NewWechat, NewQQ, NewRecovery)
 
 type Cos struct {
 	client *sts.Client
@@ -50,14 +53,35 @@ type ElasticSearch struct {
 }
 
 type Github struct {
-	clientId     string
-	clientSecret string
+	accessTokenUrl string
+	userInfoUrl    string
+	clientId       string
+	clientSecret   string
+}
+
+type Wechat struct {
+	accessTokenUrl string
+	userInfoUrl    string
+	appid          string
+	secret         string
+	grantType      string
+}
+
+type QQ struct {
+	accessTokenUrl string
+	openIdUrl      string
+	userInfoUrl    string
+	clientId       string
+	clientSecret   string
+	grantType      string
+	redirectUri    string
 }
 
 type Data struct {
 	log              *log.Helper
 	db               *gorm.DB
 	redisCli         redis.Cmdable
+	cosCli           *cos.Client
 	codeMqPro        *CodeMqPro
 	profileMqPro     *ProfileMqPro
 	followMqPro      *FollowMqPro
@@ -66,6 +90,8 @@ type Data struct {
 	elasticSearch    *ElasticSearch
 	cos              *Cos
 	github           *Github
+	wechat           *Wechat
+	qq               *QQ
 }
 
 type contextTxKey struct{}
@@ -308,6 +334,21 @@ func NewCosClient(conf *conf.Data) *Cos {
 	}
 }
 
+func NewCosServiceClient(conf *conf.Data) *cos.Client {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "user/data/new-cos-client"))
+	u, err := url.Parse(conf.Cos.Url)
+	if err != nil {
+		l.Errorf("fail to init cos server, error: %v", err)
+	}
+	b := &cos.BaseURL{BucketURL: u}
+	return cos.NewClient(b, &http.Client{
+		Transport: &cos.AuthorizationTransport{
+			SecretID:  conf.Cos.SecretId,
+			SecretKey: conf.Cos.SecretKey,
+		},
+	})
+}
+
 func NewElasticsearch(conf *conf.Data) *ElasticSearch {
 	l := log.NewHelper(log.With(log.GetLogger(), "module", "user/data/elastic-search"))
 	cfg := elasticsearch.Config{
@@ -339,12 +380,36 @@ func NewElasticsearch(conf *conf.Data) *ElasticSearch {
 
 func NewGithub(conf *conf.Data) *Github {
 	return &Github{
-		clientId:     conf.Github.ClientId,
-		clientSecret: conf.Github.ClientSecret,
+		accessTokenUrl: conf.Github.AccessTokenUrl,
+		userInfoUrl:    conf.Github.UserInfoUrl,
+		clientId:       conf.Github.ClientId,
+		clientSecret:   conf.Github.ClientSecret,
 	}
 }
 
-func NewData(db *gorm.DB, redisCmd redis.Cmdable, cp *CodeMqPro, es *ElasticSearch, pp *ProfileMqPro, fp *FollowMqPro, pip *PictureMqPro, aq *AchievementMqPro, cos *Cos, github *Github, logger log.Logger) (*Data, func(), error) {
+func NewWechat(conf *conf.Data) *Wechat {
+	return &Wechat{
+		accessTokenUrl: conf.Wechat.AccessTokenUrl,
+		userInfoUrl:    conf.Wechat.UserInfoUrl,
+		appid:          conf.Wechat.Appid,
+		secret:         conf.Wechat.Secret,
+		grantType:      conf.Wechat.GrantType,
+	}
+}
+
+func NewQQ(conf *conf.Data) *QQ {
+	return &QQ{
+		accessTokenUrl: conf.Qq.AccessTokenUrl,
+		openIdUrl:      conf.Qq.OpenIdUrl,
+		userInfoUrl:    conf.Qq.UserInfoUrl,
+		clientId:       conf.Qq.ClientId,
+		clientSecret:   conf.Qq.ClientSecret,
+		grantType:      conf.Qq.GrantType,
+		redirectUri:    conf.Qq.RedirectUri,
+	}
+}
+
+func NewData(db *gorm.DB, redisCmd redis.Cmdable, cp *CodeMqPro, es *ElasticSearch, pp *ProfileMqPro, fp *FollowMqPro, pip *PictureMqPro, aq *AchievementMqPro, cos *Cos, cosCli *cos.Client, github *Github, wechat *Wechat, qq *QQ, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(log.GetLogger(), "module", "user/data/new-data"))
 
 	d := &Data{
@@ -358,7 +423,10 @@ func NewData(db *gorm.DB, redisCmd redis.Cmdable, cp *CodeMqPro, es *ElasticSear
 		redisCli:         redisCmd,
 		elasticSearch:    es,
 		cos:              cos,
+		cosCli:           cosCli,
 		github:           github,
+		wechat:           wechat,
+		qq:               qq,
 	}
 	return d, func() {
 		var err error

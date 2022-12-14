@@ -34,13 +34,33 @@ func (s *UserService) LoginByCode(ctx context.Context, req *v1.LoginByCodeReq) (
 	}, nil
 }
 
-func (s *UserService) LoginByGithub(ctx context.Context, req *v1.LoginByGithubReq) (*v1.LoginReply, error) {
-	token, err := s.ac.LoginByGithub(ctx, req.Code)
+func (s *UserService) LoginByWeChat(ctx context.Context, req *v1.LoginByWeChatReq) (*v1.LoginReply, error) {
+	token, err := s.ac.LoginByWechat(ctx, req.Code)
 	if err != nil {
 		return nil, err
 	}
 	return &v1.LoginReply{
 		Token: token,
+	}, nil
+}
+
+func (s *UserService) LoginByQQ(ctx context.Context, req *v1.LoginByQQReq) (*v1.LoginReply, error) {
+	token, err := s.ac.LoginByQQ(ctx, req.Code)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.LoginReply{
+		Token: token,
+	}, nil
+}
+
+func (s *UserService) LoginByGithub(ctx context.Context, req *v1.LoginByGithubReq) (*v1.LoginReply, error) {
+	github, err := s.ac.LoginByGithub(ctx, req.Code)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.LoginReply{
+		Token: github.Token,
 	}, nil
 }
 

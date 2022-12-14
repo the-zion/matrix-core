@@ -11,6 +11,7 @@ import (
 	kerrors "github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/pkg/errors"
+	"github.com/tencentyun/cos-go-sdk-v5"
 	sts "github.com/tencentyun/qcloud-cos-sts-sdk/go"
 	"github.com/the-zion/matrix-core/app/user/service/internal/biz"
 	"github.com/the-zion/matrix-core/app/user/service/internal/pkg/util"
@@ -50,6 +51,7 @@ func (r *authRepo) FindUserByPhone(ctx context.Context, phone string) (*biz.User
 		Phone:    user.Phone,
 		Email:    user.Email,
 		Wechat:   user.Wechat,
+		Qq:       user.Qq,
 		Github:   user.Github,
 	}, nil
 }
@@ -69,6 +71,47 @@ func (r *authRepo) FindUserByEmail(ctx context.Context, email string) (*biz.User
 		Phone:    user.Phone,
 		Email:    user.Email,
 		Wechat:   user.Wechat,
+		Qq:       user.Qq,
+		Github:   user.Github,
+	}, nil
+}
+
+func (r *authRepo) FindUserByWechat(ctx context.Context, wechat string) (*biz.User, error) {
+	user := &User{}
+	err := r.data.db.WithContext(ctx).Where("wechat = ?", wechat).First(user).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, kerrors.NotFound("wechat not found from db", fmt.Sprintf("wechat(%s)", wechat))
+	}
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to find user by wechat: wechat(%s)", wechat))
+	}
+	return &biz.User{
+		Uuid:     user.Uuid,
+		Password: user.Password,
+		Phone:    user.Phone,
+		Email:    user.Email,
+		Wechat:   user.Wechat,
+		Qq:       user.Qq,
+		Github:   user.Github,
+	}, nil
+}
+
+func (r *authRepo) FindUserByQQ(ctx context.Context, qq string) (*biz.User, error) {
+	user := &User{}
+	err := r.data.db.WithContext(ctx).Where("qq = ?", qq).First(user).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, kerrors.NotFound("qq not found from db", fmt.Sprintf("qq(%s)", qq))
+	}
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to find user by qq: qq(%s)", qq))
+	}
+	return &biz.User{
+		Uuid:     user.Uuid,
+		Password: user.Password,
+		Phone:    user.Phone,
+		Email:    user.Email,
+		Wechat:   user.Wechat,
+		Qq:       user.Qq,
 		Github:   user.Github,
 	}, nil
 }
@@ -88,6 +131,7 @@ func (r *authRepo) FindUserByGithub(ctx context.Context, github int32) (*biz.Use
 		Phone:    user.Phone,
 		Email:    user.Email,
 		Wechat:   user.Wechat,
+		Qq:       user.Qq,
 		Github:   user.Github,
 	}, nil
 }
@@ -143,6 +187,58 @@ func (r *authRepo) CreateUserWithEmail(ctx context.Context, email, password stri
 		Uuid:     uuid,
 		Email:    email,
 		Password: hashPassword,
+	}, nil
+}
+
+func (r *authRepo) CreateUserWithWechat(ctx context.Context, wechat string) (*biz.User, error) {
+	uuid, err := util.UUIdV4()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to create uuid: uuid(%s)", uuid))
+	}
+
+	user := &User{
+		Uuid:   uuid,
+		Wechat: wechat,
+	}
+	err = r.data.DB(ctx).Select("Wechat", "Uuid").Create(user).Error
+	if err != nil {
+		e := err.Error()
+		if strings.Contains(e, "Duplicate") {
+			return nil, kerrors.Conflict("github conflict", fmt.Sprintf("wechat(%v)", wechat))
+		} else {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to create a user: wechat(%v)", wechat))
+		}
+	}
+
+	return &biz.User{
+		Uuid:   uuid,
+		Wechat: wechat,
+	}, nil
+}
+
+func (r *authRepo) CreateUserWithQQ(ctx context.Context, qq string) (*biz.User, error) {
+	uuid, err := util.UUIdV4()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to create uuid: uuid(%s)", uuid))
+	}
+
+	user := &User{
+		Uuid: uuid,
+		Qq:   qq,
+	}
+	err = r.data.DB(ctx).Select("Qq", "Uuid").Create(user).Error
+	if err != nil {
+		e := err.Error()
+		if strings.Contains(e, "Duplicate") {
+			return nil, kerrors.Conflict("github conflict", fmt.Sprintf("qq(%s)", qq))
+		} else {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to create a user: qq(%s)", qq))
+		}
+	}
+
+	return &biz.User{
+		Uuid: uuid,
+		Qq:   qq,
 	}, nil
 }
 
@@ -281,6 +377,65 @@ func (r *authRepo) SetUserPassword(ctx context.Context, uuid, password string) e
 		return errors.Wrapf(err, fmt.Sprintf("fail to set user password: uuid(%s), password(%s)", uuid, password))
 	}
 	return nil
+}
+
+func (r *authRepo) SetUserAvatar(ctx context.Context, uuid, avatar string) {
+	if avatar == "" {
+		return
+	}
+
+	newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+	go r.data.Recover(newCtx, func(ctx context.Context) {
+		r.userAvatarUpload(ctx, uuid, avatar)
+	})()
+}
+
+func (r *authRepo) userAvatarUpload(ctx context.Context, uuid, avatar string) {
+	avatarUrl := avatar
+	method := "GET"
+	client := &http.Client{}
+
+	req, err := http.NewRequestWithContext(ctx, method, avatarUrl, nil)
+	if err != nil {
+		r.log.Errorf("fail to new an avatar request, uuid(%s), avatar_url(%s), error(%v)", uuid, avatarUrl, err)
+		return
+	}
+
+	res, err := client.Do(req)
+	if err != nil {
+		r.log.Errorf("fail to get github user avatar, uuid(%s), avatar_url(%s), error(%v)", uuid, avatarUrl, err)
+		return
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		r.log.Errorf("fail to get github user avatar, uuid(%s), avatar_url(%s), status_code(%v)", uuid, avatarUrl, res.StatusCode)
+		return
+	}
+
+	key := "avatar/" + uuid + "/avatar.png"
+	operation := "imageMogr2/format/webp/interlace/0/quality/100"
+	pic := &cos.PicOperations{
+		IsPicInfo: 1,
+		Rules: []cos.PicOperationsRules{
+			{
+				FileId: "avatar.webp",
+				Rule:   operation,
+			},
+		},
+	}
+
+	opt := &cos.ObjectPutOptions{
+		ObjectPutHeaderOptions: &cos.ObjectPutHeaderOptions{
+			ContentType:   "image/png",
+			XOptionHeader: &http.Header{},
+		},
+	}
+	opt.XOptionHeader.Add("Pic-Operations", cos.EncodePicOperations(pic))
+	_, err = r.data.cosCli.Object.Put(context.Background(), key, res.Body, opt)
+	if err != nil {
+		r.log.Errorf("fail to send github user avatar to cos, uuid(%s), avatar_url(%s), err(%v)", uuid, avatarUrl, err)
+	}
+	return
 }
 
 func (r *authRepo) SendPhoneCode(ctx context.Context, template, phone string) error {
@@ -443,8 +598,111 @@ func (r *authRepo) UnbindUserEmail(ctx context.Context, uuid string) error {
 	return nil
 }
 
+func (r *authRepo) GetWechatAccessToken(ctx context.Context, code string) (string, string, error) {
+	url := r.data.wechat.accessTokenUrl + "?appid=" + r.data.wechat.appid + "&secret=" + r.data.wechat.secret + "&code=" + code + "&grant_type=" + r.data.wechat.grantType
+	method := "GET"
+	client := &http.Client{}
+
+	req, err := http.NewRequestWithContext(ctx, method, url, nil)
+	if err != nil {
+		return "", "", errors.Wrapf(err, fmt.Sprintf("fail to new wechat access token request: code(%s)", code))
+	}
+
+	req.Header.Set("Accept", "application/json")
+	res, err := client.Do(req)
+	if err != nil {
+		return "", "", errors.Wrapf(err, fmt.Sprintf("fail to get wechat access token: code(%s)", code))
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		return "", "", fmt.Errorf("invalid status code: %d", res.StatusCode)
+	}
+
+	data := map[string]interface{}{}
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return "", "", errors.Wrapf(err, fmt.Sprintf("fail to  read body from responce data: code(%s)", code))
+	}
+
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		return "", "", errors.Wrapf(err, fmt.Sprintf("fail to unmarshal responce data: code(%s)", code))
+	}
+	token := data["access_token"].(string)
+	openId := data["openid"].(string)
+	return token, openId, nil
+}
+
+func (r *authRepo) GetQQAccessToken(ctx context.Context, code string) (string, error) {
+	url := r.data.qq.accessTokenUrl + "?client_id=" + r.data.qq.clientId + "&client_secret=" + r.data.qq.clientSecret + "&code=" + code + "&grant_type=" + r.data.qq.grantType + "&redirect_uri=" + r.data.qq.redirectUri + "&fmt=json"
+	method := "GET"
+	client := &http.Client{}
+
+	req, err := http.NewRequestWithContext(ctx, method, url, nil)
+	if err != nil {
+		return "", errors.Wrapf(err, fmt.Sprintf("fail to new qq access token request: code(%s)", code))
+	}
+
+	req.Header.Set("Accept", "application/json")
+	res, err := client.Do(req)
+	if err != nil {
+		return "", errors.Wrapf(err, fmt.Sprintf("fail to get qq access token: code(%s)", code))
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("invalid status code: %d", res.StatusCode)
+	}
+
+	data := map[string]interface{}{}
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return "", errors.Wrapf(err, fmt.Sprintf("fail to read body from responce data: code(%s)", code))
+	}
+
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		return "", errors.Wrapf(err, fmt.Sprintf("fail to unmarshal responce data: code(%s)", code))
+	}
+	token := data["access_token"].(string)
+	return token, nil
+}
+
+func (r *authRepo) GetQQOpenId(ctx context.Context, token string) (string, error) {
+	url := r.data.qq.openIdUrl + "?access_token=" + token + "&fmt=json"
+	method := "GET"
+	client := &http.Client{}
+
+	req, err := http.NewRequestWithContext(ctx, method, url, nil)
+	if err != nil {
+		return "", errors.Wrapf(err, fmt.Sprintf("fail to new qq open id request: token(%s)", token))
+	}
+
+	req.Header.Set("Accept", "application/json")
+	res, err := client.Do(req)
+	if err != nil {
+		return "", errors.Wrapf(err, fmt.Sprintf("fail to get qq openid: token(%s)", token))
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("invalid status code: %d", res.StatusCode)
+	}
+
+	data := map[string]string{}
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return "", errors.Wrapf(err, fmt.Sprintf("fail to read body from responce data: token(%s)", token))
+	}
+
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		return "", errors.Wrapf(err, fmt.Sprintf("fail to unmarshal responce data: token(%s)", token))
+	}
+	openId := data["openid"]
+	return openId, nil
+}
+
 func (r *authRepo) GetGithubAccessToken(ctx context.Context, code string) (string, error) {
-	url := "https://github.com/login/oauth/access_token?client_id=" + r.data.github.clientId + "&client_secret=" + r.data.github.clientSecret + "&code=" + code
+	url := r.data.github.accessTokenUrl + "?client_id=" + r.data.github.clientId + "&client_secret=" + r.data.github.clientSecret + "&code=" + code
 	method := "GET"
 	client := &http.Client{}
 
@@ -465,6 +723,10 @@ func (r *authRepo) GetGithubAccessToken(ctx context.Context, code string) (strin
 
 	data := map[string]string{}
 	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return "", errors.Wrapf(err, fmt.Sprintf("fail to  read body from responce data: code(%s)", code))
+	}
+
 	err = json.Unmarshal(body, &data)
 	if err != nil {
 		return "", errors.Wrapf(err, fmt.Sprintf("fail to unmarshal responce data: code(%s)", code))
@@ -473,8 +735,76 @@ func (r *authRepo) GetGithubAccessToken(ctx context.Context, code string) (strin
 	return token, nil
 }
 
+func (r *authRepo) GetWechatUserInfo(ctx context.Context, token, openid string) (map[string]interface{}, error) {
+	url := r.data.wechat.userInfoUrl + "?access_token=" + token + "&openid=" + openid
+	method := "GET"
+	client := &http.Client{}
+
+	req, err := http.NewRequestWithContext(ctx, method, url, nil)
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to new request: token(%s)", token))
+	}
+
+	req.Header.Set("Accept", "application/json")
+
+	res, err := client.Do(req)
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get wechat user info: token(%s)", token))
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("invalid status code: %d", res.StatusCode)
+	}
+
+	data := map[string]interface{}{}
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to  read body from responce data: token(%s)", token))
+	}
+
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to unmarshal responce data: token(%s)", token))
+	}
+	return data, nil
+}
+
+func (r *authRepo) GetQQUserInfo(ctx context.Context, token, openid string) (map[string]interface{}, error) {
+	url := r.data.qq.userInfoUrl + "?access_token=" + token + "&oauth_consumer_key=" + r.data.qq.clientId + "&openid=" + openid
+	method := "GET"
+	client := &http.Client{}
+
+	req, err := http.NewRequestWithContext(ctx, method, url, nil)
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to new request: token(%s) openid(%s)", token, openid))
+	}
+
+	req.Header.Set("Accept", "application/json")
+
+	res, err := client.Do(req)
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get qq user info: token(%s) openid(%s)", token, openid))
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("invalid status code: %d", res.StatusCode)
+	}
+
+	data := map[string]interface{}{}
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to  read body from responce data: token(%s) openid(%s)", token, openid))
+	}
+
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to unmarshal responce data: token(%s) openid(%s)", token, openid))
+	}
+	return data, nil
+}
+
 func (r *authRepo) GetGithubUserInfo(ctx context.Context, token string) (map[string]interface{}, error) {
-	url := "https://api.github.com/user"
+	url := r.data.github.userInfoUrl
 	method := "GET"
 	client := &http.Client{}
 
@@ -496,6 +826,10 @@ func (r *authRepo) GetGithubUserInfo(ctx context.Context, token string) (map[str
 
 	data := map[string]interface{}{}
 	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to  read body from responce data: token(%s)", token))
+	}
+
 	err = json.Unmarshal(body, &data)
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to unmarshal responce data: token(%s)", token))
