@@ -44,6 +44,13 @@ service Bff{
     };
   }
 
+  rpc LoginByQQ (LoginByQQReq) returns (LoginReply) {
+    option (google.api.http) = {
+      post: "/v1/user/login/qq"
+      body: "*"
+    };
+  }
+
   rpc LoginByGithub (LoginByGithubReq) returns (LoginReply) {
     option (google.api.http) = {
       post: "/v1/user/login/github"
@@ -1262,7 +1269,11 @@ message LoginByCodeReq {
 }
 
 message LoginByWeChatReq{
-  string wechat = 1;
+  string code = 1;
+}
+
+message LoginByQQReq{
+  string code = 1;
 }
 
 message LoginByGithubReq{

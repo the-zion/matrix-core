@@ -26,6 +26,8 @@ service User {
 
   rpc LoginByWeChat (LoginByWeChatReq) returns (LoginReply) {}
 
+  rpc LoginByQQ (LoginByQQReq) returns (LoginReply) {}
+
   rpc LoginByGithub (LoginByGithubReq) returns (LoginReply) {}
 
   rpc LoginPasswordReset(LoginPasswordResetReq) returns (google.protobuf.Empty){}
@@ -161,11 +163,15 @@ message LoginReply {
 }
 
 message LoginByWeChatReq{
-  string wechat = 1;
+  string code = 1 [(validate.rules).string = {min_len:1, max_len: 100}];
+}
+
+message LoginByQQReq{
+  string code = 1 [(validate.rules).string = {min_len:1, max_len: 100}];
 }
 
 message LoginByGithubReq{
-  string code = 1;
+  string code = 1 [(validate.rules).string = {min_len:1, max_len: 100}];
 }
 
 message LoginPasswordResetReq{

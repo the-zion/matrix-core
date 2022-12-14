@@ -31,6 +31,7 @@ type UserClient interface {
 	LoginByPassword(ctx context.Context, in *LoginByPasswordReq, opts ...grpc.CallOption) (*LoginReply, error)
 	LoginByCode(ctx context.Context, in *LoginByCodeReq, opts ...grpc.CallOption) (*LoginReply, error)
 	LoginByWeChat(ctx context.Context, in *LoginByWeChatReq, opts ...grpc.CallOption) (*LoginReply, error)
+	LoginByQQ(ctx context.Context, in *LoginByQQReq, opts ...grpc.CallOption) (*LoginReply, error)
 	LoginByGithub(ctx context.Context, in *LoginByGithubReq, opts ...grpc.CallOption) (*LoginReply, error)
 	LoginPasswordReset(ctx context.Context, in *LoginPasswordResetReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SendPhoneCode(ctx context.Context, in *SendPhoneCodeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -139,6 +140,15 @@ func (c *userClient) LoginByCode(ctx context.Context, in *LoginByCodeReq, opts .
 func (c *userClient) LoginByWeChat(ctx context.Context, in *LoginByWeChatReq, opts ...grpc.CallOption) (*LoginReply, error) {
 	out := new(LoginReply)
 	err := c.cc.Invoke(ctx, "/user.v1.User/LoginByWeChat", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) LoginByQQ(ctx context.Context, in *LoginByQQReq, opts ...grpc.CallOption) (*LoginReply, error) {
+	out := new(LoginReply)
+	err := c.cc.Invoke(ctx, "/user.v1.User/LoginByQQ", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -445,6 +455,7 @@ type UserServer interface {
 	LoginByPassword(context.Context, *LoginByPasswordReq) (*LoginReply, error)
 	LoginByCode(context.Context, *LoginByCodeReq) (*LoginReply, error)
 	LoginByWeChat(context.Context, *LoginByWeChatReq) (*LoginReply, error)
+	LoginByQQ(context.Context, *LoginByQQReq) (*LoginReply, error)
 	LoginByGithub(context.Context, *LoginByGithubReq) (*LoginReply, error)
 	LoginPasswordReset(context.Context, *LoginPasswordResetReq) (*emptypb.Empty, error)
 	SendPhoneCode(context.Context, *SendPhoneCodeReq) (*emptypb.Empty, error)
@@ -507,6 +518,9 @@ func (UnimplementedUserServer) LoginByCode(context.Context, *LoginByCodeReq) (*L
 }
 func (UnimplementedUserServer) LoginByWeChat(context.Context, *LoginByWeChatReq) (*LoginReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoginByWeChat not implemented")
+}
+func (UnimplementedUserServer) LoginByQQ(context.Context, *LoginByQQReq) (*LoginReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LoginByQQ not implemented")
 }
 func (UnimplementedUserServer) LoginByGithub(context.Context, *LoginByGithubReq) (*LoginReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoginByGithub not implemented")
@@ -757,6 +771,24 @@ func _User_LoginByWeChat_Handler(srv interface{}, ctx context.Context, dec func(
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServer).LoginByWeChat(ctx, req.(*LoginByWeChatReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_LoginByQQ_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LoginByQQReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).LoginByQQ(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/LoginByQQ",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).LoginByQQ(ctx, req.(*LoginByQQReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1375,6 +1407,10 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "LoginByWeChat",
 			Handler:    _User_LoginByWeChat_Handler,
+		},
+		{
+			MethodName: "LoginByQQ",
+			Handler:    _User_LoginByQQ_Handler,
 		},
 		{
 			MethodName: "LoginByGithub",

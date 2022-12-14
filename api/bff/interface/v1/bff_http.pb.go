@@ -161,6 +161,7 @@ const OperationBffGetUserTimeLineListVisitor = "/bff.v1.Bff/GetUserTimeLineListV
 const OperationBffLoginByCode = "/bff.v1.Bff/LoginByCode"
 const OperationBffLoginByGithub = "/bff.v1.Bff/LoginByGithub"
 const OperationBffLoginByPassword = "/bff.v1.Bff/LoginByPassword"
+const OperationBffLoginByQQ = "/bff.v1.Bff/LoginByQQ"
 const OperationBffLoginByWeChat = "/bff.v1.Bff/LoginByWeChat"
 const OperationBffLoginPasswordReset = "/bff.v1.Bff/LoginPasswordReset"
 const OperationBffRemoveComment = "/bff.v1.Bff/RemoveComment"
@@ -347,6 +348,7 @@ type BffHTTPServer interface {
 	LoginByCode(context.Context, *LoginByCodeReq) (*LoginReply, error)
 	LoginByGithub(context.Context, *LoginByGithubReq) (*LoginReply, error)
 	LoginByPassword(context.Context, *LoginByPasswordReq) (*LoginReply, error)
+	LoginByQQ(context.Context, *LoginByQQReq) (*LoginReply, error)
 	LoginByWeChat(context.Context, *LoginByWeChatReq) (*LoginReply, error)
 	LoginPasswordReset(context.Context, *LoginPasswordResetReq) (*emptypb.Empty, error)
 	RemoveComment(context.Context, *RemoveCommentReq) (*emptypb.Empty, error)
@@ -399,6 +401,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.POST("/v1/user/login/password", _Bff_LoginByPassword0_HTTP_Handler(srv))
 	r.POST("/v1/user/login/code", _Bff_LoginByCode0_HTTP_Handler(srv))
 	r.POST("/v1/user/login/wechat", _Bff_LoginByWeChat0_HTTP_Handler(srv))
+	r.POST("/v1/user/login/qq", _Bff_LoginByQQ0_HTTP_Handler(srv))
 	r.POST("/v1/user/login/github", _Bff_LoginByGithub0_HTTP_Handler(srv))
 	r.POST("/v1/user/login/password/reset", _Bff_LoginPasswordReset0_HTTP_Handler(srv))
 	r.POST("/v1/user/code/phone", _Bff_SendPhoneCode0_HTTP_Handler(srv))
@@ -665,6 +668,25 @@ func _Bff_LoginByWeChat0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) 
 		http.SetOperation(ctx, OperationBffLoginByWeChat)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.LoginByWeChat(ctx, req.(*LoginByWeChatReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*LoginReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_LoginByQQ0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in LoginByQQReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffLoginByQQ)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.LoginByQQ(ctx, req.(*LoginByQQReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -4218,6 +4240,7 @@ type BffHTTPClient interface {
 	LoginByCode(ctx context.Context, req *LoginByCodeReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginByGithub(ctx context.Context, req *LoginByGithubReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginByPassword(ctx context.Context, req *LoginByPasswordReq, opts ...http.CallOption) (rsp *LoginReply, err error)
+	LoginByQQ(ctx context.Context, req *LoginByQQReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginByWeChat(ctx context.Context, req *LoginByWeChatReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginPasswordReset(ctx context.Context, req *LoginPasswordResetReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	RemoveComment(ctx context.Context, req *RemoveCommentReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -6096,6 +6119,19 @@ func (c *BffHTTPClientImpl) LoginByPassword(ctx context.Context, in *LoginByPass
 	pattern := "/v1/user/login/password"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationBffLoginByPassword))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) LoginByQQ(ctx context.Context, in *LoginByQQReq, opts ...http.CallOption) (*LoginReply, error) {
+	var out LoginReply
+	pattern := "/v1/user/login/qq"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffLoginByQQ))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

@@ -28,6 +28,7 @@ type BffClient interface {
 	LoginByPassword(ctx context.Context, in *LoginByPasswordReq, opts ...grpc.CallOption) (*LoginReply, error)
 	LoginByCode(ctx context.Context, in *LoginByCodeReq, opts ...grpc.CallOption) (*LoginReply, error)
 	LoginByWeChat(ctx context.Context, in *LoginByWeChatReq, opts ...grpc.CallOption) (*LoginReply, error)
+	LoginByQQ(ctx context.Context, in *LoginByQQReq, opts ...grpc.CallOption) (*LoginReply, error)
 	LoginByGithub(ctx context.Context, in *LoginByGithubReq, opts ...grpc.CallOption) (*LoginReply, error)
 	LoginPasswordReset(ctx context.Context, in *LoginPasswordResetReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SendPhoneCode(ctx context.Context, in *SendPhoneCodeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -257,6 +258,15 @@ func (c *bffClient) LoginByCode(ctx context.Context, in *LoginByCodeReq, opts ..
 func (c *bffClient) LoginByWeChat(ctx context.Context, in *LoginByWeChatReq, opts ...grpc.CallOption) (*LoginReply, error) {
 	out := new(LoginReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/LoginByWeChat", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) LoginByQQ(ctx context.Context, in *LoginByQQReq, opts ...grpc.CallOption) (*LoginReply, error) {
+	out := new(LoginReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/LoginByQQ", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1883,6 +1893,7 @@ type BffServer interface {
 	LoginByPassword(context.Context, *LoginByPasswordReq) (*LoginReply, error)
 	LoginByCode(context.Context, *LoginByCodeReq) (*LoginReply, error)
 	LoginByWeChat(context.Context, *LoginByWeChatReq) (*LoginReply, error)
+	LoginByQQ(context.Context, *LoginByQQReq) (*LoginReply, error)
 	LoginByGithub(context.Context, *LoginByGithubReq) (*LoginReply, error)
 	LoginPasswordReset(context.Context, *LoginPasswordResetReq) (*emptypb.Empty, error)
 	SendPhoneCode(context.Context, *SendPhoneCodeReq) (*emptypb.Empty, error)
@@ -2084,6 +2095,9 @@ func (UnimplementedBffServer) LoginByCode(context.Context, *LoginByCodeReq) (*Lo
 }
 func (UnimplementedBffServer) LoginByWeChat(context.Context, *LoginByWeChatReq) (*LoginReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoginByWeChat not implemented")
+}
+func (UnimplementedBffServer) LoginByQQ(context.Context, *LoginByQQReq) (*LoginReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LoginByQQ not implemented")
 }
 func (UnimplementedBffServer) LoginByGithub(context.Context, *LoginByGithubReq) (*LoginReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoginByGithub not implemented")
@@ -2721,6 +2735,24 @@ func _Bff_LoginByWeChat_Handler(srv interface{}, ctx context.Context, dec func(i
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BffServer).LoginByWeChat(ctx, req.(*LoginByWeChatReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_LoginByQQ_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LoginByQQReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).LoginByQQ(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/LoginByQQ",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).LoginByQQ(ctx, req.(*LoginByQQReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -5973,6 +6005,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "LoginByWeChat",
 			Handler:    _Bff_LoginByWeChat_Handler,
+		},
+		{
+			MethodName: "LoginByQQ",
+			Handler:    _Bff_LoginByQQ_Handler,
 		},
 		{
 			MethodName: "LoginByGithub",
