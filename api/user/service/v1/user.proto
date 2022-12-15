@@ -30,6 +30,8 @@ service User {
 
   rpc LoginByGithub (LoginByGithubReq) returns (LoginReply) {}
 
+  rpc LoginByGitee (LoginByGiteeReq) returns (LoginReply) {}
+
   rpc LoginPasswordReset(LoginPasswordResetReq) returns (google.protobuf.Empty){}
 
   rpc SendPhoneCode (SendPhoneCodeReq) returns (google.protobuf.Empty){}
@@ -104,7 +106,7 @@ message UserRegisterReq{
 }
 
 message AvatarIrregularReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   string job_id = 2 [(validate.rules).string = {max_len: 1000}];
   string url = 3 [(validate.rules).string = {max_len: 1000}];
   string label = 4 [(validate.rules).string = {max_len: 1000}];
@@ -126,7 +128,7 @@ message AddAvatarReviewDbAndCacheReq{
 }
 
 message CoverIrregularReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   string job_id = 2 [(validate.rules).string = {max_len: 1000}];
   string url = 3 [(validate.rules).string = {max_len: 1000}];
   string label = 4 [(validate.rules).string = {max_len: 1000}];
@@ -174,6 +176,10 @@ message LoginByGithubReq{
   string code = 1 [(validate.rules).string = {min_len:1, max_len: 100}];
 }
 
+message LoginByGiteeReq{
+  string code = 1 [(validate.rules).string = {min_len:1, max_len: 100}];
+}
+
 message LoginPasswordResetReq{
   string account = 1 [(validate.rules).string = {pattern: "^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(17[0,3,5-8])|(18[0-9])|166|198|199|(147))\\d{8}$|\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*", max_len:50}];
   string code = 2 [(validate.rules).string.pattern = "^[0-9]{6}$"];
@@ -192,7 +198,7 @@ message SendEmailCodeReq{
 }
 
 message GetCosSessionKeyReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetCosSessionKeyReply{
@@ -204,62 +210,62 @@ message GetCosSessionKeyReply{
 }
 
 message SetUserPhoneReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   string phone = 2 [(validate.rules).string = {pattern: "^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(17[0,3,5-8])|(18[0-9])|166|198|199|(147))\\d{8}$", min_len:1, max_len:50}];
   string code = 3 [(validate.rules).string.pattern = "^[0-9]{6}$"];
 }
 
 message SetUserEmailReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   string email = 2 [(validate.rules).string = {pattern: "\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*", max_len: 50}];
   string code = 3 [(validate.rules).string.pattern = "^[0-9]{6}$"];
 }
 
 message SetUserPasswordReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   string password = 2 [(validate.rules).string = {min_len:1, max_len: 20}];
 }
 
 message SetUserFollowReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
-  string user_uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
+  string user_uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message SetFollowDbAndCacheReq{
-  string uuid = 1[(validate.rules).string.uuid = true];
-  string user_uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 1[(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
+  string user_uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message CancelUserFollowReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
-  string user_uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
+  string user_uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message CancelFollowDbAndCacheReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
-  string user_uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
+  string user_uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message ChangeUserPasswordReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   string oldpassword = 2 [(validate.rules).string = {min_len:1, max_len: 20}];
   string password = 3 [(validate.rules).string = {min_len:1, max_len: 20}];
 }
 
 message UnbindUserPhoneReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   string phone = 2 [(validate.rules).string = {pattern: "^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(17[0,3,5-8])|(18[0-9])|166|198|199|(147))\\d{8}$", min_len:1, max_len:50}];
   string code = 3 [(validate.rules).string.pattern = "^[0-9]{6}$"];
 }
 
 message UnbindUserEmailReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   string email = 2 [(validate.rules).string = {pattern: "\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*", max_len: 50}];
   string code = 3 [(validate.rules).string.pattern = "^[0-9]{6}$"];
 }
 
 message GetAccountReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetAccountReply{
@@ -267,13 +273,13 @@ message GetAccountReply{
   string email = 2;
   string qq = 3;
   string wechat = 4;
-  string weibo = 5;
+  int32 gitee = 5;
   int32 github = 6;
   string password = 7;
 }
 
 message GetProfileReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetProfileReply{
@@ -287,6 +293,7 @@ message GetProfileReply{
   string introduce = 8;
   string created = 9;
   string github = 10;
+  string gitee = 11;
 }
 
 message GetProfileListReq{
@@ -303,7 +310,7 @@ message GetProfileListReply{
 }
 
 message GetProfileUpdateReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetProfileUpdateReply{
@@ -315,12 +322,13 @@ message GetProfileUpdateReply{
   string homepage = 6;
   string introduce = 7;
   string github = 8;
-  int32 status = 9;
+  string gitee = 9;
+  int32 status = 10;
 }
 
 message GetUserFollowReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
-  string user_uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
+  string user_uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetUserFollowReply{
@@ -329,7 +337,7 @@ message GetUserFollowReply{
 
 message GetFollowListReq{
   int32 page = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetFollowListReply{
@@ -340,7 +348,7 @@ message GetFollowListReply{
 }
 
 message GetFollowListCountReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetFollowListCountReply{
@@ -349,7 +357,7 @@ message GetFollowListCountReply{
 
 message GetFollowedListReq{
   int32 page = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetFollowedListReply{
@@ -360,7 +368,7 @@ message GetFollowedListReply{
 }
 
 message GetFollowedListCountReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetFollowedListCountReply{
@@ -368,7 +376,7 @@ message GetFollowedListCountReply{
 }
 
 message GetUserFollowsReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetUserFollowsReply{
@@ -392,7 +400,7 @@ message GetUserSearchReply{
 
 message GetAvatarReviewReq{
   int32 page = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetAvatarReviewReply{
@@ -413,7 +421,7 @@ message GetAvatarReviewReply{
 
 message GetCoverReviewReq{
   int32 page = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetCoverReviewReply{
@@ -433,21 +441,22 @@ message GetCoverReviewReply{
 }
 
 message SetProfileUpdateReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   string username = 2 [(validate.rules).string = {min_len:1, max_len: 20}];
   string school = 3 [(validate.rules).string = {min_len:0, max_len: 50}];
   string company = 4 [(validate.rules).string = {min_len:0, max_len: 50}];
   string job = 5 [(validate.rules).string = {min_len:0, max_len: 50}];
   string homepage = 6 [(validate.rules).string = {min_len:0, max_len: 100}];
   string github = 7 [(validate.rules).string = {min_len:0, max_len: 100}];
-  string introduce = 8 [(validate.rules).string = {min_len:0, max_len: 100}];
+  string gitee = 8 [(validate.rules).string = {min_len:0, max_len: 100}];
+  string introduce = 9 [(validate.rules).string = {min_len:0, max_len: 100}];
 }
 
 message ProfileReviewPassReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   string update = 2 [(validate.rules).string = {max_len: 20}];
 }
 
 message ProfileReviewNotPassReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
