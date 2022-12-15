@@ -106,6 +106,16 @@ func (r *userRepo) LoginByGithub(ctx context.Context, code string) (*biz.Github,
 	}, nil
 }
 
+func (r *userRepo) LoginByGitee(ctx context.Context, code string) (string, error) {
+	reply, err := r.data.uc.LoginByGitee(ctx, &userV1.LoginByGiteeReq{
+		Code: code,
+	})
+	if err != nil {
+		return "", err
+	}
+	return reply.Token, nil
+}
+
 func (r *userRepo) SendPhoneCode(ctx context.Context, template, phone string) error {
 	_, err := r.data.uc.SendPhoneCode(ctx, &userV1.SendPhoneCodeReq{
 		Template: template,
@@ -157,7 +167,7 @@ func (r *userRepo) GetAccount(ctx context.Context, uuid string) (*biz.UserAccoun
 			Email:    account.Email,
 			Qq:       account.Qq,
 			Wechat:   account.Wechat,
-			Weibo:    account.Weibo,
+			Gitee:    account.Gitee,
 			Github:   account.Github,
 			Password: account.Password,
 		}, nil
@@ -185,6 +195,7 @@ func (r *userRepo) GetProfile(ctx context.Context, uuid string) (*biz.UserProfil
 			Job:       reply.Job,
 			Homepage:  reply.Homepage,
 			Github:    reply.Github,
+			Gitee:     reply.Gitee,
 			Introduce: reply.Introduce,
 		}, nil
 	})
@@ -228,6 +239,8 @@ func (r *userRepo) GetUserInfo(ctx context.Context, uuid string) (*biz.UserProfi
 			Company:   reply.Company,
 			Job:       reply.Job,
 			Homepage:  reply.Homepage,
+			Github:    reply.Github,
+			Gitee:     reply.Gitee,
 			Introduce: reply.Introduce,
 			Created:   reply.Created,
 		}, nil
@@ -254,6 +267,7 @@ func (r *userRepo) GetProfileUpdate(ctx context.Context, uuid string) (*biz.User
 		pu.Job = reply.Job
 		pu.Homepage = reply.Homepage
 		pu.Github = reply.Github
+		pu.Gitee = reply.Gitee
 		pu.Introduce = reply.Introduce
 		pu.Status = reply.Status
 		return pu, nil
@@ -579,6 +593,7 @@ func (r *userRepo) SetProfileUpdate(ctx context.Context, profile *biz.UserProfil
 		Job:       profile.Job,
 		Homepage:  profile.Homepage,
 		Github:    profile.Github,
+		Gitee:     profile.Gitee,
 		Introduce: profile.Introduce,
 	})
 	if err != nil {

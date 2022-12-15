@@ -73,6 +73,16 @@ func (s *BffService) LoginByGithub(ctx context.Context, req *v1.LoginByGithubReq
 	}, nil
 }
 
+func (s *BffService) LoginByGitee(ctx context.Context, req *v1.LoginByGiteeReq) (*v1.LoginReply, error) {
+	token, err := s.uc.LoginByGitee(ctx, req.Code)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.LoginReply{
+		Token: token,
+	}, nil
+}
+
 func (s *BffService) SendPhoneCode(ctx context.Context, req *v1.SendPhoneCodeReq) (*emptypb.Empty, error) {
 	err := s.uc.SendPhoneCode(ctx, req.Template, req.Phone)
 	if err != nil {
@@ -113,7 +123,7 @@ func (s *BffService) GetAccount(ctx context.Context, _ *emptypb.Empty) (*v1.GetA
 		Email:    userAccount.Email,
 		Qq:       userAccount.Qq,
 		Wechat:   userAccount.Wechat,
-		Weibo:    userAccount.Weibo,
+		Gitee:    userAccount.Gitee,
 		Github:   userAccount.Github,
 		Password: userAccount.Password,
 	}, nil
@@ -133,6 +143,7 @@ func (s *BffService) GetProfile(ctx context.Context, _ *emptypb.Empty) (*v1.GetP
 		Job:       userProfile.Job,
 		Homepage:  userProfile.Homepage,
 		Github:    userProfile.Github,
+		Gitee:     userProfile.Gitee,
 		Introduce: userProfile.Introduce,
 	}, nil
 }
@@ -163,6 +174,8 @@ func (s *BffService) GetUserInfo(ctx context.Context, _ *emptypb.Empty) (*v1.Get
 		School:      userProfile.School,
 		Company:     userProfile.Company,
 		Job:         userProfile.Job,
+		Gitee:       userProfile.Gitee,
+		Github:      userProfile.Github,
 		Homepage:    userProfile.Homepage,
 		Introduce:   userProfile.Introduce,
 		Created:     userProfile.Created,
@@ -191,6 +204,8 @@ func (s *BffService) GetUserInfoVisitor(ctx context.Context, req *v1.GetUserInfo
 		Company:     userProfile.Company,
 		Job:         userProfile.Job,
 		Homepage:    userProfile.Homepage,
+		Github:      userProfile.Github,
+		Gitee:       userProfile.Gitee,
 		Introduce:   userProfile.Introduce,
 		Created:     userProfile.Created,
 		Score:       userProfile.Score,
@@ -220,6 +235,7 @@ func (s *BffService) GetProfileUpdate(ctx context.Context, _ *emptypb.Empty) (*v
 		Homepage:  userProfile.Homepage,
 		Introduce: userProfile.Introduce,
 		Github:    userProfile.Github,
+		Gitee:     userProfile.Gitee,
 		Status:    userProfile.Status,
 	}, nil
 }
@@ -394,6 +410,7 @@ func (s *BffService) SetProfileUpdate(ctx context.Context, req *v1.SetProfileUpd
 	profile.Job = req.Job
 	profile.Homepage = req.Homepage
 	profile.Github = req.Github
+	profile.Gitee = req.Gitee
 	profile.Introduce = req.Introduce
 	err := s.uc.SetUserProfile(ctx, profile)
 	if err != nil {

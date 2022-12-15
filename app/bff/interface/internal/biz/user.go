@@ -14,6 +14,7 @@ type UserRepo interface {
 	LoginByWechat(ctx context.Context, code string) (string, error)
 	LoginByQQ(ctx context.Context, code string) (string, error)
 	LoginByGithub(ctx context.Context, code string) (*Github, error)
+	LoginByGitee(ctx context.Context, code string) (string, error)
 	SendPhoneCode(ctx context.Context, template, phone string) error
 	SendEmailCode(ctx context.Context, template, email string) error
 	GetCosSessionKey(ctx context.Context, uuid string) (*Credentials, error)
@@ -93,6 +94,10 @@ func (r *UserUseCase) LoginByGithub(ctx context.Context, code string) (*Github, 
 	return r.repo.LoginByGithub(ctx, code)
 }
 
+func (r *UserUseCase) LoginByGitee(ctx context.Context, code string) (string, error) {
+	return r.repo.LoginByGitee(ctx, code)
+}
+
 func (r *UserUseCase) SendPhoneCode(ctx context.Context, template, phone string) error {
 	return r.repo.SendPhoneCode(ctx, template, phone)
 }
@@ -135,6 +140,8 @@ func (r *UserUseCase) GetUserInfo(ctx context.Context) (*UserProfile, error) {
 		userProfile.Company = profile.Company
 		userProfile.Job = profile.Job
 		userProfile.Homepage = profile.Homepage
+		userProfile.Gitee = profile.Gitee
+		userProfile.Github = profile.Github
 		userProfile.Introduce = profile.Introduce
 		userProfile.Created = profile.Created
 		return nil
@@ -185,6 +192,8 @@ func (r *UserUseCase) GetUserInfoVisitor(ctx context.Context, uuid string) (*Use
 		userProfile.Company = profile.Company
 		userProfile.Job = profile.Job
 		userProfile.Homepage = profile.Homepage
+		userProfile.Gitee = profile.Gitee
+		userProfile.Github = profile.Github
 		userProfile.Introduce = profile.Introduce
 		userProfile.Created = profile.Created
 		return nil

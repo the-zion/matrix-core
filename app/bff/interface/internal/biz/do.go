@@ -5,7 +5,7 @@ type UserAccount struct {
 	Email    string
 	Qq       string
 	Wechat   string
-	Weibo    string
+	Gitee    int32
 	Github   int32
 	Password string
 }
@@ -19,6 +19,7 @@ type UserProfile struct {
 	Job         string
 	Homepage    string
 	Github      string
+	Gitee       string
 	Introduce   string
 	Created     string
 	Score       int32
