@@ -159,6 +159,7 @@ const OperationBffGetUserTalkListSimple = "/bff.v1.Bff/GetUserTalkListSimple"
 const OperationBffGetUserTalkListVisitor = "/bff.v1.Bff/GetUserTalkListVisitor"
 const OperationBffGetUserTimeLineListVisitor = "/bff.v1.Bff/GetUserTimeLineListVisitor"
 const OperationBffLoginByCode = "/bff.v1.Bff/LoginByCode"
+const OperationBffLoginByGitee = "/bff.v1.Bff/LoginByGitee"
 const OperationBffLoginByGithub = "/bff.v1.Bff/LoginByGithub"
 const OperationBffLoginByPassword = "/bff.v1.Bff/LoginByPassword"
 const OperationBffLoginByQQ = "/bff.v1.Bff/LoginByQQ"
@@ -346,6 +347,7 @@ type BffHTTPServer interface {
 	GetUserTalkListVisitor(context.Context, *GetUserTalkListVisitorReq) (*GetTalkListReply, error)
 	GetUserTimeLineListVisitor(context.Context, *GetUserTimeLineListReq) (*GetUserTimeLineListReply, error)
 	LoginByCode(context.Context, *LoginByCodeReq) (*LoginReply, error)
+	LoginByGitee(context.Context, *LoginByGiteeReq) (*LoginReply, error)
 	LoginByGithub(context.Context, *LoginByGithubReq) (*LoginReply, error)
 	LoginByPassword(context.Context, *LoginByPasswordReq) (*LoginReply, error)
 	LoginByQQ(context.Context, *LoginByQQReq) (*LoginReply, error)
@@ -403,6 +405,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.POST("/v1/user/login/wechat", _Bff_LoginByWeChat0_HTTP_Handler(srv))
 	r.POST("/v1/user/login/qq", _Bff_LoginByQQ0_HTTP_Handler(srv))
 	r.POST("/v1/user/login/github", _Bff_LoginByGithub0_HTTP_Handler(srv))
+	r.POST("/v1/user/login/gitee", _Bff_LoginByGitee0_HTTP_Handler(srv))
 	r.POST("/v1/user/login/password/reset", _Bff_LoginPasswordReset0_HTTP_Handler(srv))
 	r.POST("/v1/user/code/phone", _Bff_SendPhoneCode0_HTTP_Handler(srv))
 	r.POST("/v1/user/code/email", _Bff_SendEmailCode0_HTTP_Handler(srv))
@@ -706,6 +709,25 @@ func _Bff_LoginByGithub0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) 
 		http.SetOperation(ctx, OperationBffLoginByGithub)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.LoginByGithub(ctx, req.(*LoginByGithubReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*LoginReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_LoginByGitee0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in LoginByGiteeReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffLoginByGitee)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.LoginByGitee(ctx, req.(*LoginByGiteeReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -4238,6 +4260,7 @@ type BffHTTPClient interface {
 	GetUserTalkListVisitor(ctx context.Context, req *GetUserTalkListVisitorReq, opts ...http.CallOption) (rsp *GetTalkListReply, err error)
 	GetUserTimeLineListVisitor(ctx context.Context, req *GetUserTimeLineListReq, opts ...http.CallOption) (rsp *GetUserTimeLineListReply, err error)
 	LoginByCode(ctx context.Context, req *LoginByCodeReq, opts ...http.CallOption) (rsp *LoginReply, err error)
+	LoginByGitee(ctx context.Context, req *LoginByGiteeReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginByGithub(ctx context.Context, req *LoginByGithubReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginByPassword(ctx context.Context, req *LoginByPasswordReq, opts ...http.CallOption) (rsp *LoginReply, err error)
 	LoginByQQ(ctx context.Context, req *LoginByQQReq, opts ...http.CallOption) (rsp *LoginReply, err error)
@@ -6093,6 +6116,19 @@ func (c *BffHTTPClientImpl) LoginByCode(ctx context.Context, in *LoginByCodeReq,
 	pattern := "/v1/user/login/code"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationBffLoginByCode))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) LoginByGitee(ctx context.Context, in *LoginByGiteeReq, opts ...http.CallOption) (*LoginReply, error) {
+	var out LoginReply
+	pattern := "/v1/user/login/gitee"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffLoginByGitee))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

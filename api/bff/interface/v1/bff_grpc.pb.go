@@ -30,6 +30,7 @@ type BffClient interface {
 	LoginByWeChat(ctx context.Context, in *LoginByWeChatReq, opts ...grpc.CallOption) (*LoginReply, error)
 	LoginByQQ(ctx context.Context, in *LoginByQQReq, opts ...grpc.CallOption) (*LoginReply, error)
 	LoginByGithub(ctx context.Context, in *LoginByGithubReq, opts ...grpc.CallOption) (*LoginReply, error)
+	LoginByGitee(ctx context.Context, in *LoginByGiteeReq, opts ...grpc.CallOption) (*LoginReply, error)
 	LoginPasswordReset(ctx context.Context, in *LoginPasswordResetReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SendPhoneCode(ctx context.Context, in *SendPhoneCodeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SendEmailCode(ctx context.Context, in *SendEmailCodeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -276,6 +277,15 @@ func (c *bffClient) LoginByQQ(ctx context.Context, in *LoginByQQReq, opts ...grp
 func (c *bffClient) LoginByGithub(ctx context.Context, in *LoginByGithubReq, opts ...grpc.CallOption) (*LoginReply, error) {
 	out := new(LoginReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/LoginByGithub", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) LoginByGitee(ctx context.Context, in *LoginByGiteeReq, opts ...grpc.CallOption) (*LoginReply, error) {
+	out := new(LoginReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/LoginByGitee", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1895,6 +1905,7 @@ type BffServer interface {
 	LoginByWeChat(context.Context, *LoginByWeChatReq) (*LoginReply, error)
 	LoginByQQ(context.Context, *LoginByQQReq) (*LoginReply, error)
 	LoginByGithub(context.Context, *LoginByGithubReq) (*LoginReply, error)
+	LoginByGitee(context.Context, *LoginByGiteeReq) (*LoginReply, error)
 	LoginPasswordReset(context.Context, *LoginPasswordResetReq) (*emptypb.Empty, error)
 	SendPhoneCode(context.Context, *SendPhoneCodeReq) (*emptypb.Empty, error)
 	SendEmailCode(context.Context, *SendEmailCodeReq) (*emptypb.Empty, error)
@@ -2101,6 +2112,9 @@ func (UnimplementedBffServer) LoginByQQ(context.Context, *LoginByQQReq) (*LoginR
 }
 func (UnimplementedBffServer) LoginByGithub(context.Context, *LoginByGithubReq) (*LoginReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoginByGithub not implemented")
+}
+func (UnimplementedBffServer) LoginByGitee(context.Context, *LoginByGiteeReq) (*LoginReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LoginByGitee not implemented")
 }
 func (UnimplementedBffServer) LoginPasswordReset(context.Context, *LoginPasswordResetReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoginPasswordReset not implemented")
@@ -2771,6 +2785,24 @@ func _Bff_LoginByGithub_Handler(srv interface{}, ctx context.Context, dec func(i
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BffServer).LoginByGithub(ctx, req.(*LoginByGithubReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_LoginByGitee_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LoginByGiteeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).LoginByGitee(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/LoginByGitee",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).LoginByGitee(ctx, req.(*LoginByGiteeReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -6013,6 +6045,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "LoginByGithub",
 			Handler:    _Bff_LoginByGithub_Handler,
+		},
+		{
+			MethodName: "LoginByGitee",
+			Handler:    _Bff_LoginByGitee_Handler,
 		},
 		{
 			MethodName: "LoginPasswordReset",

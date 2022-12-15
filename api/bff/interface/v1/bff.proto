@@ -58,6 +58,13 @@ service Bff{
     };
   }
 
+  rpc LoginByGitee (LoginByGiteeReq) returns (LoginReply) {
+    option (google.api.http) = {
+      post: "/v1/user/login/gitee"
+      body: "*"
+    };
+  }
+
   rpc LoginPasswordReset(LoginPasswordResetReq) returns (google.protobuf.Empty){
     option (google.api.http) = {
       post: "/v1/user/login/password/reset"
@@ -1280,6 +1287,10 @@ message LoginByGithubReq{
   string code = 1;
 }
 
+message LoginByGiteeReq{
+  string code = 1;
+}
+
 message LoginReply {
   string token = 1;
 }
@@ -1354,7 +1365,7 @@ message GetAccountReply{
   string email = 2;
   string qq = 3;
   string wechat = 4;
-  string weibo = 5;
+  int32 gitee = 5;
   int32 github = 6;
   string password = 7;
 }
@@ -1369,6 +1380,7 @@ message GetProfileReply{
   string homepage = 7;
   string introduce = 8;
   string github = 9;
+  string gitee = 10;
 }
 
 message GetProfileListReq{
@@ -1395,19 +1407,21 @@ message GetUserInfoReply{
   string company = 4;
   string job = 5;
   string homepage = 6;
-  string introduce = 7;
-  string created = 8;
-  int32 score = 9;
-  int32 agree = 10;
-  int32 collect = 11;
-  int32 view = 12;
-  int32 follow = 13;
-  int32 followed = 14;
-  int32 article = 15;
-  int32 column = 16;
-  int32 talk = 17;
-  int32 collections = 18;
-  int32 subscribe = 19;
+  string github = 7;
+  string gitee = 8;
+  string introduce = 9;
+  string created = 10;
+  int32 score = 11;
+  int32 agree = 12;
+  int32 collect = 13;
+  int32 view = 14;
+  int32 follow = 15;
+  int32 followed = 16;
+  int32 article = 17;
+  int32 column = 18;
+  int32 talk = 19;
+  int32 collections = 20;
+  int32 subscribe = 21;
 }
 
 message GetUserFollowReq{
@@ -1491,7 +1505,8 @@ message GetProfileUpdateReply{
   string homepage = 6;
   string introduce = 7;
   string github = 8;
-  int32 status = 9;
+  string gitee = 9;
+  int32 status = 10;
 }
 
 message GetUserSearchReq{
@@ -1520,7 +1535,8 @@ message SetProfileUpdateReq{
   string job = 4;
   string homepage = 5;
   string github = 6;
-  string introduce = 7;
+  string gitee = 7;
+  string introduce = 8;
 }
 
 message SetUserPhoneReq{

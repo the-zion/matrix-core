@@ -658,6 +658,108 @@ var _ interface {
 	ErrorName() string
 } = LoginByGithubReqValidationError{}
 
+// Validate checks the field values on LoginByGiteeReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *LoginByGiteeReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on LoginByGiteeReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// LoginByGiteeReqMultiError, or nil if none found.
+func (m *LoginByGiteeReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *LoginByGiteeReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Code
+
+	if len(errors) > 0 {
+		return LoginByGiteeReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// LoginByGiteeReqMultiError is an error wrapping multiple validation errors
+// returned by LoginByGiteeReq.ValidateAll() if the designated constraints
+// aren't met.
+type LoginByGiteeReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m LoginByGiteeReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m LoginByGiteeReqMultiError) AllErrors() []error { return m }
+
+// LoginByGiteeReqValidationError is the validation error returned by
+// LoginByGiteeReq.Validate if the designated constraints aren't met.
+type LoginByGiteeReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e LoginByGiteeReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e LoginByGiteeReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e LoginByGiteeReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e LoginByGiteeReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e LoginByGiteeReqValidationError) ErrorName() string { return "LoginByGiteeReqValidationError" }
+
+// Error satisfies the builtin error interface
+func (e LoginByGiteeReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sLoginByGiteeReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = LoginByGiteeReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = LoginByGiteeReqValidationError{}
+
 // Validate checks the field values on LoginReply with the rules defined in the
 // proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
@@ -1699,7 +1801,7 @@ func (m *GetAccountReply) validate(all bool) error {
 
 	// no validation rules for Wechat
 
-	// no validation rules for Weibo
+	// no validation rules for Gitee
 
 	// no validation rules for Github
 
@@ -1822,6 +1924,8 @@ func (m *GetProfileReply) validate(all bool) error {
 	// no validation rules for Introduce
 
 	// no validation rules for Github
+
+	// no validation rules for Gitee
 
 	if len(errors) > 0 {
 		return GetProfileReplyMultiError(errors)
@@ -2276,6 +2380,10 @@ func (m *GetUserInfoReply) validate(all bool) error {
 	// no validation rules for Job
 
 	// no validation rules for Homepage
+
+	// no validation rules for Github
+
+	// no validation rules for Gitee
 
 	// no validation rules for Introduce
 
@@ -3761,6 +3869,8 @@ func (m *GetProfileUpdateReply) validate(all bool) error {
 
 	// no validation rules for Github
 
+	// no validation rules for Gitee
+
 	// no validation rules for Status
 
 	if len(errors) > 0 {
@@ -4118,6 +4228,8 @@ func (m *SetProfileUpdateReq) validate(all bool) error {
 	// no validation rules for Homepage
 
 	// no validation rules for Github
+
+	// no validation rules for Gitee
 
 	// no validation rules for Introduce
 
