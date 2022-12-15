@@ -16,7 +16,6 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -48,7 +47,7 @@ func (r *userRepo) GetAccount(ctx context.Context, uuid string) (*biz.User, erro
 		Email:    user.Email,
 		Qq:       user.Qq,
 		Wechat:   user.Wechat,
-		Weibo:    user.Weibo,
+		Gitee:    user.Gitee,
 		Github:   user.Github,
 		Password: user.Password,
 	}, nil
@@ -83,6 +82,7 @@ func (r *userRepo) GetProfile(ctx context.Context, uuid string) (*biz.Profile, e
 		Job:       target.Job,
 		Homepage:  target.Homepage,
 		Github:    target.Github,
+		Gitee:     target.Gitee,
 		Introduce: target.Introduce,
 	}, nil
 }
@@ -230,6 +230,7 @@ func (r *userRepo) GetProfileUpdate(ctx context.Context, uuid string) (*biz.Prof
 	pu.Homepage = profile.Homepage
 	pu.Introduce = profile.Introduce
 	pu.Github = profile.Github
+	pu.Gitee = profile.Gitee
 	pu.Status = profile.Status
 	return pu, nil
 }
@@ -587,16 +588,12 @@ func (r *userRepo) SetProfileUpdate(ctx context.Context, profile *biz.ProfileUpd
 	pu.Job = profile.Job
 	pu.Homepage = profile.Homepage
 	pu.Github = profile.Github
+	pu.Gitee = profile.Gitee
 	pu.Introduce = profile.Introduce
 	pu.Status = status
 	err := r.data.DB(ctx).Model(&ProfileUpdate{}).Where("uuid = ?", profile.Uuid).Updates(pu).Error
 	if err != nil {
-		e := err.Error()
-		if strings.Contains(e, "Duplicate") {
-			return nil, kerrors.Conflict("username conflict", fmt.Sprintf("profile(%v)", profile))
-		} else {
-			return nil, errors.Wrapf(err, fmt.Sprintf("fail to update a profile: profile(%v)", profile))
-		}
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to update a profile: profile(%v)", profile))
 	}
 	profile.Updated = strconv.FormatInt(pu.Updated, 10)
 	return profile, nil

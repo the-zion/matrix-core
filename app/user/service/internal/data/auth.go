@@ -11,6 +11,7 @@ import (
 	kerrors "github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/pkg/errors"
+	"github.com/rs/xid"
 	"github.com/tencentyun/cos-go-sdk-v5"
 	sts "github.com/tencentyun/qcloud-cos-sts-sdk/go"
 	"github.com/the-zion/matrix-core/app/user/service/internal/biz"
@@ -53,6 +54,7 @@ func (r *authRepo) FindUserByPhone(ctx context.Context, phone string) (*biz.User
 		Wechat:   user.Wechat,
 		Qq:       user.Qq,
 		Github:   user.Github,
+		Gitee:    user.Gitee,
 	}, nil
 }
 
@@ -73,6 +75,7 @@ func (r *authRepo) FindUserByEmail(ctx context.Context, email string) (*biz.User
 		Wechat:   user.Wechat,
 		Qq:       user.Qq,
 		Github:   user.Github,
+		Gitee:    user.Gitee,
 	}, nil
 }
 
@@ -93,6 +96,7 @@ func (r *authRepo) FindUserByWechat(ctx context.Context, wechat string) (*biz.Us
 		Wechat:   user.Wechat,
 		Qq:       user.Qq,
 		Github:   user.Github,
+		Gitee:    user.Gitee,
 	}, nil
 }
 
@@ -113,6 +117,7 @@ func (r *authRepo) FindUserByQQ(ctx context.Context, qq string) (*biz.User, erro
 		Wechat:   user.Wechat,
 		Qq:       user.Qq,
 		Github:   user.Github,
+		Gitee:    user.Gitee,
 	}, nil
 }
 
@@ -133,20 +138,38 @@ func (r *authRepo) FindUserByGithub(ctx context.Context, github int32) (*biz.Use
 		Wechat:   user.Wechat,
 		Qq:       user.Qq,
 		Github:   user.Github,
+		Gitee:    user.Gitee,
+	}, nil
+}
+
+func (r *authRepo) FindUserByGitee(ctx context.Context, gitee int32) (*biz.User, error) {
+	user := &User{}
+	err := r.data.db.WithContext(ctx).Where("gitee = ?", gitee).First(user).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, kerrors.NotFound("gitee not found from db", fmt.Sprintf("gitee(%v)", gitee))
+	}
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to find user by gitee: gitee(%v)", gitee))
+	}
+	return &biz.User{
+		Uuid:     user.Uuid,
+		Password: user.Password,
+		Phone:    user.Phone,
+		Email:    user.Email,
+		Wechat:   user.Wechat,
+		Qq:       user.Qq,
+		Github:   user.Github,
+		Gitee:    user.Gitee,
 	}, nil
 }
 
 func (r *authRepo) CreateUserWithPhone(ctx context.Context, phone string) (*biz.User, error) {
-	uuid, err := util.UUIdV4()
-	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("fail to create uuid: uuid(%s)", uuid))
-	}
-
+	uuid := xid.New().String()
 	user := &User{
 		Uuid:  uuid,
 		Phone: phone,
 	}
-	err = r.data.DB(ctx).Select("Phone", "Uuid").Create(user).Error
+	err := r.data.DB(ctx).Select("Phone", "Uuid").Create(user).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to create a user: phone(%s)", phone))
 	}
@@ -158,10 +181,7 @@ func (r *authRepo) CreateUserWithPhone(ctx context.Context, phone string) (*biz.
 }
 
 func (r *authRepo) CreateUserWithEmail(ctx context.Context, email, password string) (*biz.User, error) {
-	uuid, err := util.UUIdV4()
-	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("fail to create uuid: uuid(%s)", uuid))
-	}
+	uuid := xid.New().String()
 
 	hashPassword, err := util.HashPassword(password)
 	if err != nil {
@@ -191,16 +211,12 @@ func (r *authRepo) CreateUserWithEmail(ctx context.Context, email, password stri
 }
 
 func (r *authRepo) CreateUserWithWechat(ctx context.Context, wechat string) (*biz.User, error) {
-	uuid, err := util.UUIdV4()
-	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("fail to create uuid: uuid(%s)", uuid))
-	}
-
+	uuid := xid.New().String()
 	user := &User{
 		Uuid:   uuid,
 		Wechat: wechat,
 	}
-	err = r.data.DB(ctx).Select("Wechat", "Uuid").Create(user).Error
+	err := r.data.DB(ctx).Select("Wechat", "Uuid").Create(user).Error
 	if err != nil {
 		e := err.Error()
 		if strings.Contains(e, "Duplicate") {
@@ -217,16 +233,13 @@ func (r *authRepo) CreateUserWithWechat(ctx context.Context, wechat string) (*bi
 }
 
 func (r *authRepo) CreateUserWithQQ(ctx context.Context, qq string) (*biz.User, error) {
-	uuid, err := util.UUIdV4()
-	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("fail to create uuid: uuid(%s)", uuid))
-	}
+	uuid := xid.New().String()
 
 	user := &User{
 		Uuid: uuid,
 		Qq:   qq,
 	}
-	err = r.data.DB(ctx).Select("Qq", "Uuid").Create(user).Error
+	err := r.data.DB(ctx).Select("Qq", "Uuid").Create(user).Error
 	if err != nil {
 		e := err.Error()
 		if strings.Contains(e, "Duplicate") {
@@ -243,16 +256,13 @@ func (r *authRepo) CreateUserWithQQ(ctx context.Context, qq string) (*biz.User, 
 }
 
 func (r *authRepo) CreateUserWithGithub(ctx context.Context, github int32) (*biz.User, error) {
-	uuid, err := util.UUIdV4()
-	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("fail to create uuid: uuid(%s)", uuid))
-	}
+	uuid := xid.New().String()
 
 	user := &User{
 		Uuid:   uuid,
 		Github: github,
 	}
-	err = r.data.DB(ctx).Select("Github", "Uuid").Create(user).Error
+	err := r.data.DB(ctx).Select("Github", "Uuid").Create(user).Error
 	if err != nil {
 		e := err.Error()
 		if strings.Contains(e, "Duplicate") {
@@ -265,6 +275,29 @@ func (r *authRepo) CreateUserWithGithub(ctx context.Context, github int32) (*biz
 	return &biz.User{
 		Uuid:   uuid,
 		Github: github,
+	}, nil
+}
+
+func (r *authRepo) CreateUserWithGitee(ctx context.Context, gitee int32) (*biz.User, error) {
+	uuid := xid.New().String()
+
+	user := &User{
+		Uuid:  uuid,
+		Gitee: gitee,
+	}
+	err := r.data.DB(ctx).Select("Gitee", "Uuid").Create(user).Error
+	if err != nil {
+		e := err.Error()
+		if strings.Contains(e, "Duplicate") {
+			return nil, kerrors.Conflict("github conflict", fmt.Sprintf("gitee(%v)", gitee))
+		} else {
+			return nil, errors.Wrapf(err, fmt.Sprintf("fail to create a user: gitee(%v)", gitee))
+		}
+	}
+
+	return &biz.User{
+		Uuid:   uuid,
+		Github: gitee,
 	}, nil
 }
 
@@ -295,12 +328,52 @@ func (r *authRepo) CreateUserProfileWithGithub(ctx context.Context, account, git
 	return nil
 }
 
+func (r *authRepo) CreateUserProfileWithGitee(ctx context.Context, account, gitee, uuid string) error {
+	p := &Profile{
+		Uuid:     uuid,
+		Username: account,
+		Gitee:    gitee,
+		Updated:  time.Now().Unix(),
+	}
+	err := r.data.DB(ctx).Select("Uuid", "Username", "Gitee", "Updated").Create(p).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to register a profile: uuid(%s)", uuid))
+	}
+	return nil
+}
+
 func (r *authRepo) CreateUserProfileUpdate(ctx context.Context, account, uuid string) error {
 	pu := &ProfileUpdate{}
 	pu.Uuid = uuid
 	pu.Username = account
 	pu.Updated = time.Now().Unix()
 	err := r.data.DB(ctx).Select("Uuid", "Username", "Updated").Create(pu).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to create table: profile_update, uuid(%s)", uuid))
+	}
+	return nil
+}
+
+func (r *authRepo) CreateUserProfileUpdateWithGithub(ctx context.Context, account, uuid, github string) error {
+	pu := &ProfileUpdate{}
+	pu.Uuid = uuid
+	pu.Username = account
+	pu.Github = github
+	pu.Updated = time.Now().Unix()
+	err := r.data.DB(ctx).Select("Uuid", "Username", "Github", "Updated").Create(pu).Error
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to create table: profile_update, uuid(%s)", uuid))
+	}
+	return nil
+}
+
+func (r *authRepo) CreateUserProfileUpdateWithGitee(ctx context.Context, account, uuid, gitee string) error {
+	pu := &ProfileUpdate{}
+	pu.Uuid = uuid
+	pu.Username = account
+	pu.Gitee = gitee
+	pu.Updated = time.Now().Unix()
+	err := r.data.DB(ctx).Select("Uuid", "Username", "Gitee", "Updated").Create(pu).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to create table: profile_update, uuid(%s)", uuid))
 	}
@@ -735,6 +808,40 @@ func (r *authRepo) GetGithubAccessToken(ctx context.Context, code string) (strin
 	return token, nil
 }
 
+func (r *authRepo) GetGiteeAccessToken(ctx context.Context, code string) (string, error) {
+	url := r.data.gitee.accessTokenUrl + "?client_id=" + r.data.gitee.clientId + "&client_secret=" + r.data.gitee.clientSecret + "&code=" + code + "&redirect_uri=" + r.data.gitee.redirectUri + "&grant_type=" + r.data.gitee.grantType
+	method := "POST"
+	client := &http.Client{}
+
+	req, err := http.NewRequestWithContext(ctx, method, url, nil)
+	if err != nil {
+		return "", errors.Wrapf(err, fmt.Sprintf("fail to new gitee access token request: code(%s)", code))
+	}
+
+	req.Header.Set("Accept", "application/json")
+	res, err := client.Do(req)
+	if err != nil {
+		return "", errors.Wrapf(err, fmt.Sprintf("fail to get gitee access token: code(%s)", code))
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("invalid status code: %d", res.StatusCode)
+	}
+
+	data := map[string]interface{}{}
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return "", errors.Wrapf(err, fmt.Sprintf("fail to read body from responce data: code(%s)", code))
+	}
+
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		return "", errors.Wrapf(err, fmt.Sprintf("fail to unmarshal responce data: code(%s)", code))
+	}
+	token := data["access_token"].(string)
+	return token, nil
+}
+
 func (r *authRepo) GetWechatUserInfo(ctx context.Context, token, openid string) (map[string]interface{}, error) {
 	url := r.data.wechat.userInfoUrl + "?access_token=" + token + "&openid=" + openid
 	method := "GET"
@@ -828,6 +935,39 @@ func (r *authRepo) GetGithubUserInfo(ctx context.Context, token string) (map[str
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to  read body from responce data: token(%s)", token))
+	}
+
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to unmarshal responce data: token(%s)", token))
+	}
+	return data, nil
+}
+
+func (r *authRepo) GetGiteeUserInfo(ctx context.Context, token string) (map[string]interface{}, error) {
+	url := r.data.gitee.userInfoUrl + "?access_token=" + token
+	method := "GET"
+	client := &http.Client{}
+
+	req, err := http.NewRequestWithContext(ctx, method, url, nil)
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to new request: token(%s)", token))
+	}
+
+	req.Header.Set("Accept", "application/json")
+	res, err := client.Do(req)
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get gitee user info: token(%s)", token))
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("invalid status code: %d", res.StatusCode)
+	}
+
+	data := map[string]interface{}{}
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to read body from responce data: token(%s)", token))
 	}
 
 	err = json.Unmarshal(body, &data)

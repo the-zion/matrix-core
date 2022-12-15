@@ -21,7 +21,7 @@ import (
 	"time"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewDB, NewTransaction, NewRedis, NewRocketmqCodeProducer, NewRocketmqProfileProducer, NewRocketmqFollowProducer, NewRocketmqPictureProducer, NewRocketmqAchievementProducer, NewCosClient, NewCosServiceClient, NewUserRepo, NewAuthRepo, NewElasticsearch, NewGithub, NewWechat, NewQQ, NewRecovery)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewTransaction, NewRedis, NewRocketmqCodeProducer, NewRocketmqProfileProducer, NewRocketmqFollowProducer, NewRocketmqPictureProducer, NewRocketmqAchievementProducer, NewCosClient, NewCosServiceClient, NewUserRepo, NewAuthRepo, NewElasticsearch, NewGithub, NewWechat, NewQQ, NewGitee, NewRecovery)
 
 type Cos struct {
 	client *sts.Client
@@ -77,6 +77,15 @@ type QQ struct {
 	redirectUri    string
 }
 
+type Gitee struct {
+	accessTokenUrl string
+	userInfoUrl    string
+	clientId       string
+	clientSecret   string
+	grantType      string
+	redirectUri    string
+}
+
 type Data struct {
 	log              *log.Helper
 	db               *gorm.DB
@@ -90,6 +99,7 @@ type Data struct {
 	elasticSearch    *ElasticSearch
 	cos              *Cos
 	github           *Github
+	gitee            *Gitee
 	wechat           *Wechat
 	qq               *QQ
 }
@@ -409,7 +419,18 @@ func NewQQ(conf *conf.Data) *QQ {
 	}
 }
 
-func NewData(db *gorm.DB, redisCmd redis.Cmdable, cp *CodeMqPro, es *ElasticSearch, pp *ProfileMqPro, fp *FollowMqPro, pip *PictureMqPro, aq *AchievementMqPro, cos *Cos, cosCli *cos.Client, github *Github, wechat *Wechat, qq *QQ, logger log.Logger) (*Data, func(), error) {
+func NewGitee(conf *conf.Data) *Gitee {
+	return &Gitee{
+		accessTokenUrl: conf.Gitee.AccessTokenUrl,
+		userInfoUrl:    conf.Gitee.UserInfoUrl,
+		clientId:       conf.Gitee.ClientId,
+		clientSecret:   conf.Gitee.ClientSecret,
+		grantType:      conf.Gitee.GrantType,
+		redirectUri:    conf.Gitee.RedirectUri,
+	}
+}
+
+func NewData(db *gorm.DB, redisCmd redis.Cmdable, cp *CodeMqPro, es *ElasticSearch, pp *ProfileMqPro, fp *FollowMqPro, pip *PictureMqPro, aq *AchievementMqPro, cos *Cos, cosCli *cos.Client, github *Github, wechat *Wechat, qq *QQ, gitee *Gitee, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(log.GetLogger(), "module", "user/data/new-data"))
 
 	d := &Data{
@@ -427,6 +448,7 @@ func NewData(db *gorm.DB, redisCmd redis.Cmdable, cp *CodeMqPro, es *ElasticSear
 		github:           github,
 		wechat:           wechat,
 		qq:               qq,
+		gitee:            gitee,
 	}
 	return d, func() {
 		var err error

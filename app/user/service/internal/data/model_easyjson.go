@@ -56,6 +56,10 @@ func easyjsonC80ae7adDecodeGithubComTheZionMatrixCoreAppUserServiceInternalData(
 			out.Job = string(in.String())
 		case "homepage":
 			out.Homepage = string(in.String())
+		case "github":
+			out.Github = string(in.String())
+		case "gitee":
+			out.Gitee = string(in.String())
 		case "introduce":
 			out.Introduce = string(in.String())
 		default:
@@ -116,6 +120,16 @@ func easyjsonC80ae7adEncodeGithubComTheZionMatrixCoreAppUserServiceInternalData(
 		const prefix string = ",\"homepage\":"
 		out.RawString(prefix)
 		out.String(string(in.Homepage))
+	}
+	{
+		const prefix string = ",\"github\":"
+		out.RawString(prefix)
+		out.String(string(in.Github))
+	}
+	{
+		const prefix string = ",\"gitee\":"
+		out.RawString(prefix)
+		out.String(string(in.Gitee))
 	}
 	{
 		const prefix string = ",\"introduce\":"

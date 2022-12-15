@@ -10,7 +10,7 @@ type User struct {
 	Email    string
 	Qq       string
 	Wechat   string
-	Weibo    string
+	Gitee    int32
 	Github   int32
 	Password string
 }
@@ -26,6 +26,7 @@ type Profile struct {
 	Job       string
 	Homepage  string
 	Github    string
+	Gitee     string
 	Introduce string
 }
 
