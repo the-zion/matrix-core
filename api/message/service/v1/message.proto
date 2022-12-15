@@ -169,12 +169,12 @@ message TextReviewReq{
 }
 
 message GetMessageNotificationReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   repeated string follows = 2;
 }
 
 message GetMailBoxLastTimeReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetMessageNotificationReply{
@@ -190,7 +190,7 @@ message GetMailBoxLastTimeReply{
 
 message GetMessageSystemNotificationReq{
   int32 page = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetMessageSystemNotificationReply{
@@ -212,20 +212,20 @@ message GetMessageSystemNotificationReply{
 }
 
 message SetMailBoxLastTimeReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   int32 time = 2;
 }
 
 message RemoveMailBoxCommentCountReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message RemoveMailBoxSubCommentCountReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message RemoveMailBoxSystemNotificationCountReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 // --------------------text review message define-------------------------

@@ -35,9 +35,6 @@ var (
 	_ = sort.Sort
 )
 
-// define the regex for a UUID once up-front
-var _message_uuidPattern = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
-
 // Validate checks the field values on ImageReviewReq with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
@@ -340,11 +337,10 @@ func (m *GetMessageNotificationReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetMessageNotificationReqValidationError{
+	if !_GetMessageNotificationReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetMessageNotificationReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -354,14 +350,6 @@ func (m *GetMessageNotificationReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetMessageNotificationReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetMessageNotificationReq) _validateUuid(uuid string) error {
-	if matched := _message_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -440,6 +428,8 @@ var _ interface {
 	ErrorName() string
 } = GetMessageNotificationReqValidationError{}
 
+var _GetMessageNotificationReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on GetMailBoxLastTimeReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -462,11 +452,10 @@ func (m *GetMailBoxLastTimeReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetMailBoxLastTimeReqValidationError{
+	if !_GetMailBoxLastTimeReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetMailBoxLastTimeReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -476,14 +465,6 @@ func (m *GetMailBoxLastTimeReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetMailBoxLastTimeReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetMailBoxLastTimeReq) _validateUuid(uuid string) error {
-	if matched := _message_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -561,6 +542,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetMailBoxLastTimeReqValidationError{}
+
+var _GetMailBoxLastTimeReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetMessageNotificationReply with the
 // rules defined in the proto definition for this message. If any rules are
@@ -801,11 +784,10 @@ func (m *GetMessageSystemNotificationReq) validate(all bool) error {
 
 	// no validation rules for Page
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetMessageSystemNotificationReqValidationError{
+	if !_GetMessageSystemNotificationReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetMessageSystemNotificationReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -815,14 +797,6 @@ func (m *GetMessageSystemNotificationReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetMessageSystemNotificationReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetMessageSystemNotificationReq) _validateUuid(uuid string) error {
-	if matched := _message_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -901,6 +875,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetMessageSystemNotificationReqValidationError{}
+
+var _GetMessageSystemNotificationReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetMessageSystemNotificationReply with
 // the rules defined in the proto definition for this message. If any rules
@@ -1063,11 +1039,10 @@ func (m *SetMailBoxLastTimeReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = SetMailBoxLastTimeReqValidationError{
+	if !_SetMailBoxLastTimeReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := SetMailBoxLastTimeReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -1079,14 +1054,6 @@ func (m *SetMailBoxLastTimeReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return SetMailBoxLastTimeReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *SetMailBoxLastTimeReq) _validateUuid(uuid string) error {
-	if matched := _message_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -1165,6 +1132,8 @@ var _ interface {
 	ErrorName() string
 } = SetMailBoxLastTimeReqValidationError{}
 
+var _SetMailBoxLastTimeReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on RemoveMailBoxCommentCountReq with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -1187,11 +1156,10 @@ func (m *RemoveMailBoxCommentCountReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = RemoveMailBoxCommentCountReqValidationError{
+	if !_RemoveMailBoxCommentCountReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := RemoveMailBoxCommentCountReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -1201,14 +1169,6 @@ func (m *RemoveMailBoxCommentCountReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return RemoveMailBoxCommentCountReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *RemoveMailBoxCommentCountReq) _validateUuid(uuid string) error {
-	if matched := _message_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -1288,6 +1248,8 @@ var _ interface {
 	ErrorName() string
 } = RemoveMailBoxCommentCountReqValidationError{}
 
+var _RemoveMailBoxCommentCountReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on RemoveMailBoxSubCommentCountReq with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -1310,11 +1272,10 @@ func (m *RemoveMailBoxSubCommentCountReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = RemoveMailBoxSubCommentCountReqValidationError{
+	if !_RemoveMailBoxSubCommentCountReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := RemoveMailBoxSubCommentCountReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -1324,14 +1285,6 @@ func (m *RemoveMailBoxSubCommentCountReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return RemoveMailBoxSubCommentCountReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *RemoveMailBoxSubCommentCountReq) _validateUuid(uuid string) error {
-	if matched := _message_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -1411,6 +1364,8 @@ var _ interface {
 	ErrorName() string
 } = RemoveMailBoxSubCommentCountReqValidationError{}
 
+var _RemoveMailBoxSubCommentCountReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on RemoveMailBoxSystemNotificationCountReq
 // with the rules defined in the proto definition for this message. If any
 // rules are violated, the first error encountered is returned, or nil if
@@ -1435,11 +1390,10 @@ func (m *RemoveMailBoxSystemNotificationCountReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = RemoveMailBoxSystemNotificationCountReqValidationError{
+	if !_RemoveMailBoxSystemNotificationCountReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := RemoveMailBoxSystemNotificationCountReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -1449,14 +1403,6 @@ func (m *RemoveMailBoxSystemNotificationCountReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return RemoveMailBoxSystemNotificationCountReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *RemoveMailBoxSystemNotificationCountReq) _validateUuid(uuid string) error {
-	if matched := _message_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -1536,6 +1482,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = RemoveMailBoxSystemNotificationCountReqValidationError{}
+
+var _RemoveMailBoxSystemNotificationCountReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on SectionPornInfoStruct with the rules
 // defined in the proto definition for this message. If any rules are
