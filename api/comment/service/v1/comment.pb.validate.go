@@ -35,9 +35,6 @@ var (
 	_ = sort.Sort
 )
 
-// define the regex for a UUID once up-front
-var _comment_uuidPattern = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
-
 // Validate checks the field values on CreateCommentDraftReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -60,11 +57,10 @@ func (m *CreateCommentDraftReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = CreateCommentDraftReqValidationError{
+	if !_CreateCommentDraftReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := CreateCommentDraftReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -74,14 +70,6 @@ func (m *CreateCommentDraftReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return CreateCommentDraftReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *CreateCommentDraftReq) _validateUuid(uuid string) error {
-	if matched := _comment_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -159,6 +147,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CreateCommentDraftReqValidationError{}
+
+var _CreateCommentDraftReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on CreateCommentDraftReply with the rules
 // defined in the proto definition for this message. If any rules are
@@ -286,11 +276,10 @@ func (m *GetLastCommentDraftReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetLastCommentDraftReqValidationError{
+	if !_GetLastCommentDraftReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetLastCommentDraftReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -300,14 +289,6 @@ func (m *GetLastCommentDraftReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetLastCommentDraftReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetLastCommentDraftReq) _validateUuid(uuid string) error {
-	if matched := _comment_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -385,6 +366,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetLastCommentDraftReqValidationError{}
+
+var _GetLastCommentDraftReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetLastCommentDraftReply with the rules
 // defined in the proto definition for this message. If any rules are
@@ -514,11 +497,10 @@ func (m *GetUserCommentAgreeReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetUserCommentAgreeReqValidationError{
+	if !_GetUserCommentAgreeReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetUserCommentAgreeReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -528,14 +510,6 @@ func (m *GetUserCommentAgreeReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetUserCommentAgreeReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetUserCommentAgreeReq) _validateUuid(uuid string) error {
-	if matched := _comment_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -613,6 +587,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetUserCommentAgreeReqValidationError{}
+
+var _GetUserCommentAgreeReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetUserCommentAgreeReply with the rules
 // defined in the proto definition for this message. If any rules are
@@ -740,11 +716,10 @@ func (m *GetCommentUserReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetCommentUserReqValidationError{
+	if !_GetCommentUserReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetCommentUserReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -754,14 +729,6 @@ func (m *GetCommentUserReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetCommentUserReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetCommentUserReq) _validateUuid(uuid string) error {
-	if matched := _comment_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -839,6 +806,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetCommentUserReqValidationError{}
+
+var _GetCommentUserReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetCommentUserReply with the rules
 // defined in the proto definition for this message. If any rules are
@@ -984,11 +953,10 @@ func (m *SendCommentReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = SendCommentReqValidationError{
+	if !_SendCommentReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := SendCommentReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -1009,14 +977,6 @@ func (m *SendCommentReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return SendCommentReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *SendCommentReq) _validateUuid(uuid string) error {
-	if matched := _comment_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -1093,6 +1053,8 @@ var _ interface {
 	ErrorName() string
 } = SendCommentReqValidationError{}
 
+var _SendCommentReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on SendSubCommentReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -1117,11 +1079,10 @@ func (m *SendSubCommentReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = SendSubCommentReqValidationError{
+	if !_SendSubCommentReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := SendSubCommentReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -1142,14 +1103,6 @@ func (m *SendSubCommentReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return SendSubCommentReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *SendSubCommentReq) _validateUuid(uuid string) error {
-	if matched := _comment_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -1228,6 +1181,8 @@ var _ interface {
 	ErrorName() string
 } = SendSubCommentReqValidationError{}
 
+var _SendSubCommentReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on CreateCommentReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -1256,11 +1211,10 @@ func (m *CreateCommentReq) validate(all bool) error {
 
 	// no validation rules for CreationType
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = CreateCommentReqValidationError{
+	if !_CreateCommentReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := CreateCommentReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -1270,14 +1224,6 @@ func (m *CreateCommentReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return CreateCommentReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *CreateCommentReq) _validateUuid(uuid string) error {
-	if matched := _comment_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -1354,6 +1300,8 @@ var _ interface {
 	ErrorName() string
 } = CreateCommentReqValidationError{}
 
+var _CreateCommentReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on CreateSubCommentReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -1382,11 +1330,10 @@ func (m *CreateSubCommentReq) validate(all bool) error {
 
 	// no validation rules for ParentId
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = CreateSubCommentReqValidationError{
+	if !_CreateSubCommentReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := CreateSubCommentReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -1396,14 +1343,6 @@ func (m *CreateSubCommentReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return CreateSubCommentReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *CreateSubCommentReq) _validateUuid(uuid string) error {
-	if matched := _comment_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -1482,6 +1421,8 @@ var _ interface {
 	ErrorName() string
 } = CreateSubCommentReqValidationError{}
 
+var _CreateSubCommentReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on CreateCommentDbAndCacheReq with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -1510,11 +1451,10 @@ func (m *CreateCommentDbAndCacheReq) validate(all bool) error {
 
 	// no validation rules for CreationType
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = CreateCommentDbAndCacheReqValidationError{
+	if !_CreateCommentDbAndCacheReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := CreateCommentDbAndCacheReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -1524,14 +1464,6 @@ func (m *CreateCommentDbAndCacheReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return CreateCommentDbAndCacheReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *CreateCommentDbAndCacheReq) _validateUuid(uuid string) error {
-	if matched := _comment_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -1609,6 +1541,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CreateCommentDbAndCacheReqValidationError{}
+
+var _CreateCommentDbAndCacheReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on CreateCommentDbAndCacheReply with the
 // rules defined in the proto definition for this message. If any rules are
@@ -1743,11 +1677,10 @@ func (m *CreateSubCommentDbAndCacheReq) validate(all bool) error {
 
 	// no validation rules for ParentId
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = CreateSubCommentDbAndCacheReqValidationError{
+	if !_CreateSubCommentDbAndCacheReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := CreateSubCommentDbAndCacheReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -1757,14 +1690,6 @@ func (m *CreateSubCommentDbAndCacheReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return CreateSubCommentDbAndCacheReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *CreateSubCommentDbAndCacheReq) _validateUuid(uuid string) error {
-	if matched := _comment_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -1843,6 +1768,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CreateSubCommentDbAndCacheReqValidationError{}
+
+var _CreateSubCommentDbAndCacheReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on CreateSubCommentDbAndCacheReply with the
 // rules defined in the proto definition for this message. If any rules are
@@ -2465,11 +2392,10 @@ func (m *RemoveCommentDbAndCacheReq) validate(all bool) error {
 
 	// no validation rules for CreationType
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = RemoveCommentDbAndCacheReqValidationError{
+	if !_RemoveCommentDbAndCacheReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := RemoveCommentDbAndCacheReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -2479,14 +2405,6 @@ func (m *RemoveCommentDbAndCacheReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return RemoveCommentDbAndCacheReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *RemoveCommentDbAndCacheReq) _validateUuid(uuid string) error {
-	if matched := _comment_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -2565,6 +2483,8 @@ var _ interface {
 	ErrorName() string
 } = RemoveCommentDbAndCacheReqValidationError{}
 
+var _RemoveCommentDbAndCacheReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on RemoveSubCommentDbAndCacheReq with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -2589,11 +2509,10 @@ func (m *RemoveSubCommentDbAndCacheReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = RemoveSubCommentDbAndCacheReqValidationError{
+	if !_RemoveSubCommentDbAndCacheReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := RemoveSubCommentDbAndCacheReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -2603,14 +2522,6 @@ func (m *RemoveSubCommentDbAndCacheReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return RemoveSubCommentDbAndCacheReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *RemoveSubCommentDbAndCacheReq) _validateUuid(uuid string) error {
-	if matched := _comment_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -2689,6 +2600,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = RemoveSubCommentDbAndCacheReqValidationError{}
+
+var _RemoveSubCommentDbAndCacheReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetCommentListStatisticReq with the
 // rules defined in the proto definition for this message. If any rules are
@@ -2817,11 +2730,10 @@ func (m *GetUserCommentArticleReplyListReq) validate(all bool) error {
 
 	// no validation rules for Page
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetUserCommentArticleReplyListReqValidationError{
+	if !_GetUserCommentArticleReplyListReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetUserCommentArticleReplyListReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -2831,14 +2743,6 @@ func (m *GetUserCommentArticleReplyListReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetUserCommentArticleReplyListReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetUserCommentArticleReplyListReq) _validateUuid(uuid string) error {
-	if matched := _comment_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -2918,6 +2822,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetUserCommentArticleReplyListReqValidationError{}
+
+var _GetUserCommentArticleReplyListReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetUserCommentArticleReplyListReply with
 // the rules defined in the proto definition for this message. If any rules
@@ -3083,11 +2989,10 @@ func (m *GetUserSubCommentArticleReplyListReq) validate(all bool) error {
 
 	// no validation rules for Page
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetUserSubCommentArticleReplyListReqValidationError{
+	if !_GetUserSubCommentArticleReplyListReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetUserSubCommentArticleReplyListReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -3097,14 +3002,6 @@ func (m *GetUserSubCommentArticleReplyListReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetUserSubCommentArticleReplyListReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetUserSubCommentArticleReplyListReq) _validateUuid(uuid string) error {
-	if matched := _comment_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -3184,6 +3081,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetUserSubCommentArticleReplyListReqValidationError{}
+
+var _GetUserSubCommentArticleReplyListReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetUserSubCommentArticleReplyListReply
 // with the rules defined in the proto definition for this message. If any
@@ -3349,11 +3248,10 @@ func (m *GetUserCommentTalkReplyListReq) validate(all bool) error {
 
 	// no validation rules for Page
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetUserCommentTalkReplyListReqValidationError{
+	if !_GetUserCommentTalkReplyListReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetUserCommentTalkReplyListReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -3363,14 +3261,6 @@ func (m *GetUserCommentTalkReplyListReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetUserCommentTalkReplyListReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetUserCommentTalkReplyListReq) _validateUuid(uuid string) error {
-	if matched := _comment_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -3449,6 +3339,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetUserCommentTalkReplyListReqValidationError{}
+
+var _GetUserCommentTalkReplyListReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetUserCommentTalkReplyListReply with
 // the rules defined in the proto definition for this message. If any rules
@@ -3614,11 +3506,10 @@ func (m *GetUserSubCommentTalkReplyListReq) validate(all bool) error {
 
 	// no validation rules for Page
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetUserSubCommentTalkReplyListReqValidationError{
+	if !_GetUserSubCommentTalkReplyListReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetUserSubCommentTalkReplyListReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -3628,14 +3519,6 @@ func (m *GetUserSubCommentTalkReplyListReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetUserSubCommentTalkReplyListReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetUserSubCommentTalkReplyListReq) _validateUuid(uuid string) error {
-	if matched := _comment_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -3715,6 +3598,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetUserSubCommentTalkReplyListReqValidationError{}
+
+var _GetUserSubCommentTalkReplyListReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetUserSubCommentTalkReplyListReply with
 // the rules defined in the proto definition for this message. If any rules
@@ -3880,11 +3765,10 @@ func (m *GetUserCommentArticleRepliedListReq) validate(all bool) error {
 
 	// no validation rules for Page
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetUserCommentArticleRepliedListReqValidationError{
+	if !_GetUserCommentArticleRepliedListReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetUserCommentArticleRepliedListReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -3894,14 +3778,6 @@ func (m *GetUserCommentArticleRepliedListReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetUserCommentArticleRepliedListReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetUserCommentArticleRepliedListReq) _validateUuid(uuid string) error {
-	if matched := _comment_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -3981,6 +3857,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetUserCommentArticleRepliedListReqValidationError{}
+
+var _GetUserCommentArticleRepliedListReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetUserCommentArticleRepliedListReply
 // with the rules defined in the proto definition for this message. If any
@@ -4396,11 +4274,10 @@ func (m *GetUserCommentTalkRepliedListReq) validate(all bool) error {
 
 	// no validation rules for Page
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetUserCommentTalkRepliedListReqValidationError{
+	if !_GetUserCommentTalkRepliedListReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetUserCommentTalkRepliedListReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -4410,14 +4287,6 @@ func (m *GetUserCommentTalkRepliedListReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetUserCommentTalkRepliedListReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetUserCommentTalkRepliedListReq) _validateUuid(uuid string) error {
-	if matched := _comment_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -4497,6 +4366,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetUserCommentTalkRepliedListReqValidationError{}
+
+var _GetUserCommentTalkRepliedListReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetUserCommentTalkRepliedListReply with
 // the rules defined in the proto definition for this message. If any rules
@@ -4909,11 +4780,10 @@ func (m *GetUserCommentRepliedListReq) validate(all bool) error {
 
 	// no validation rules for Page
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetUserCommentRepliedListReqValidationError{
+	if !_GetUserCommentRepliedListReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetUserCommentRepliedListReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -4923,14 +4793,6 @@ func (m *GetUserCommentRepliedListReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetUserCommentRepliedListReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetUserCommentRepliedListReq) _validateUuid(uuid string) error {
-	if matched := _comment_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -5009,6 +4871,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetUserCommentRepliedListReqValidationError{}
+
+var _GetUserCommentRepliedListReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetUserCommentRepliedListReply with the
 // rules defined in the proto definition for this message. If any rules are
@@ -5417,11 +5281,10 @@ func (m *GetCommentContentReviewReq) validate(all bool) error {
 
 	// no validation rules for Page
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetCommentContentReviewReqValidationError{
+	if !_GetCommentContentReviewReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetCommentContentReviewReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -5431,14 +5294,6 @@ func (m *GetCommentContentReviewReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetCommentContentReviewReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetCommentContentReviewReq) _validateUuid(uuid string) error {
-	if matched := _comment_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -5516,6 +5371,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetCommentContentReviewReqValidationError{}
+
+var _GetCommentContentReviewReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetCommentContentReviewReply with the
 // rules defined in the proto definition for this message. If any rules are
@@ -5676,11 +5533,10 @@ func (m *CommentContentIrregularReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = CommentContentIrregularReqValidationError{
+	if !_CommentContentIrregularReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := CommentContentIrregularReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -5740,14 +5596,6 @@ func (m *CommentContentIrregularReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return CommentContentIrregularReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *CommentContentIrregularReq) _validateUuid(uuid string) error {
-	if matched := _comment_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -5825,6 +5673,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CommentContentIrregularReqValidationError{}
+
+var _CommentContentIrregularReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 var _CommentContentIrregularReq_Kind_InLookup = map[string]struct{}{
 	"comment":     {},
@@ -5992,11 +5842,10 @@ func (m *SetCommentAgreeReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = SetCommentAgreeReqValidationError{
+	if !_SetCommentAgreeReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := SetCommentAgreeReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -6004,11 +5853,10 @@ func (m *SetCommentAgreeReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if err := m._validateUuid(m.GetUserUuid()); err != nil {
-		err = SetCommentAgreeReqValidationError{
+	if !_SetCommentAgreeReq_UserUuid_Pattern.MatchString(m.GetUserUuid()) {
+		err := SetCommentAgreeReqValidationError{
 			field:  "UserUuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -6022,14 +5870,6 @@ func (m *SetCommentAgreeReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return SetCommentAgreeReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *SetCommentAgreeReq) _validateUuid(uuid string) error {
-	if matched := _comment_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -6108,6 +5948,10 @@ var _ interface {
 	ErrorName() string
 } = SetCommentAgreeReqValidationError{}
 
+var _SetCommentAgreeReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
+var _SetCommentAgreeReq_UserUuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on SetSubCommentAgreeReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -6132,11 +5976,10 @@ func (m *SetSubCommentAgreeReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = SetSubCommentAgreeReqValidationError{
+	if !_SetSubCommentAgreeReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := SetSubCommentAgreeReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -6144,11 +5987,10 @@ func (m *SetSubCommentAgreeReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if err := m._validateUuid(m.GetUserUuid()); err != nil {
-		err = SetSubCommentAgreeReqValidationError{
+	if !_SetSubCommentAgreeReq_UserUuid_Pattern.MatchString(m.GetUserUuid()) {
+		err := SetSubCommentAgreeReqValidationError{
 			field:  "UserUuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -6158,14 +6000,6 @@ func (m *SetSubCommentAgreeReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return SetSubCommentAgreeReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *SetSubCommentAgreeReq) _validateUuid(uuid string) error {
-	if matched := _comment_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -6244,6 +6078,10 @@ var _ interface {
 	ErrorName() string
 } = SetSubCommentAgreeReqValidationError{}
 
+var _SetSubCommentAgreeReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
+var _SetSubCommentAgreeReq_UserUuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on CancelCommentAgreeReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -6268,11 +6106,10 @@ func (m *CancelCommentAgreeReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = CancelCommentAgreeReqValidationError{
+	if !_CancelCommentAgreeReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := CancelCommentAgreeReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -6280,11 +6117,10 @@ func (m *CancelCommentAgreeReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if err := m._validateUuid(m.GetUserUuid()); err != nil {
-		err = CancelCommentAgreeReqValidationError{
+	if !_CancelCommentAgreeReq_UserUuid_Pattern.MatchString(m.GetUserUuid()) {
+		err := CancelCommentAgreeReqValidationError{
 			field:  "UserUuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -6298,14 +6134,6 @@ func (m *CancelCommentAgreeReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return CancelCommentAgreeReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *CancelCommentAgreeReq) _validateUuid(uuid string) error {
-	if matched := _comment_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -6384,6 +6212,10 @@ var _ interface {
 	ErrorName() string
 } = CancelCommentAgreeReqValidationError{}
 
+var _CancelCommentAgreeReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
+var _CancelCommentAgreeReq_UserUuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on CancelSubCommentAgreeReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -6408,11 +6240,10 @@ func (m *CancelSubCommentAgreeReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = CancelSubCommentAgreeReqValidationError{
+	if !_CancelSubCommentAgreeReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := CancelSubCommentAgreeReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -6420,11 +6251,10 @@ func (m *CancelSubCommentAgreeReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if err := m._validateUuid(m.GetUserUuid()); err != nil {
-		err = CancelSubCommentAgreeReqValidationError{
+	if !_CancelSubCommentAgreeReq_UserUuid_Pattern.MatchString(m.GetUserUuid()) {
+		err := CancelSubCommentAgreeReqValidationError{
 			field:  "UserUuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -6434,14 +6264,6 @@ func (m *CancelSubCommentAgreeReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return CancelSubCommentAgreeReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *CancelSubCommentAgreeReq) _validateUuid(uuid string) error {
-	if matched := _comment_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -6520,6 +6342,10 @@ var _ interface {
 	ErrorName() string
 } = CancelSubCommentAgreeReqValidationError{}
 
+var _CancelSubCommentAgreeReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
+var _CancelSubCommentAgreeReq_UserUuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on AddCommentContentReviewDbAndCacheReq
 // with the rules defined in the proto definition for this message. If any
 // rules are violated, the first error encountered is returned, or nil if
@@ -6543,11 +6369,10 @@ func (m *AddCommentContentReviewDbAndCacheReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = AddCommentContentReviewDbAndCacheReqValidationError{
+	if !_AddCommentContentReviewDbAndCacheReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := AddCommentContentReviewDbAndCacheReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -6607,14 +6432,6 @@ func (m *AddCommentContentReviewDbAndCacheReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return AddCommentContentReviewDbAndCacheReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *AddCommentContentReviewDbAndCacheReq) _validateUuid(uuid string) error {
-	if matched := _comment_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -6695,6 +6512,8 @@ var _ interface {
 	ErrorName() string
 } = AddCommentContentReviewDbAndCacheReqValidationError{}
 
+var _AddCommentContentReviewDbAndCacheReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 var _AddCommentContentReviewDbAndCacheReq_Kind_InLookup = map[string]struct{}{
 	"comment":     {},
 	"sub_comment": {},
@@ -6724,11 +6543,10 @@ func (m *RemoveCommentReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = RemoveCommentReqValidationError{
+	if !_RemoveCommentReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := RemoveCommentReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -6738,14 +6556,6 @@ func (m *RemoveCommentReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return RemoveCommentReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *RemoveCommentReq) _validateUuid(uuid string) error {
-	if matched := _comment_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -6822,6 +6632,8 @@ var _ interface {
 	ErrorName() string
 } = RemoveCommentReqValidationError{}
 
+var _RemoveCommentReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on RemoveSubCommentReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -6846,11 +6658,10 @@ func (m *RemoveSubCommentReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = RemoveSubCommentReqValidationError{
+	if !_RemoveSubCommentReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := RemoveSubCommentReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -6860,14 +6671,6 @@ func (m *RemoveSubCommentReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return RemoveSubCommentReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *RemoveSubCommentReq) _validateUuid(uuid string) error {
-	if matched := _comment_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -6945,6 +6748,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = RemoveSubCommentReqValidationError{}
+
+var _RemoveSubCommentReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetCommentListReply_Comment with the
 // rules defined in the proto definition for this message. If any rules are

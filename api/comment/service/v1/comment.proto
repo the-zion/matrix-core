@@ -98,7 +98,7 @@ service Comment {
 }
 
 message CreateCommentDraftReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message CreateCommentDraftReply{
@@ -106,7 +106,7 @@ message CreateCommentDraftReply{
 }
 
 message GetLastCommentDraftReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetLastCommentDraftReply{
@@ -115,7 +115,7 @@ message GetLastCommentDraftReply{
 }
 
 message GetUserCommentAgreeReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetUserCommentAgreeReply{
@@ -123,7 +123,7 @@ message GetUserCommentAgreeReply{
 }
 
 message GetCommentUserReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetCommentUserReply{
@@ -140,13 +140,13 @@ message GetCommentUserReply{
 
 message SendCommentReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   string ip = 3 [(validate.rules).string.ip = true];
 }
 
 message SendSubCommentReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   string ip = 3 [(validate.rules).string.ip = true];
 }
 
@@ -154,21 +154,21 @@ message CreateCommentReq{
   int32 id = 1;
   int32 creationId = 2;
   int32 creationType = 3;
-  string uuid = 4 [(validate.rules).string.uuid = true];
+  string uuid = 4 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message CreateSubCommentReq{
   int32 id = 1;
   int32 rootId = 2;
   int32 parentId = 3;
-  string uuid = 4 [(validate.rules).string.uuid = true];
+  string uuid = 4 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message CreateCommentDbAndCacheReq{
   int32 id = 1;
   int32 creationId = 2;
   int32 creationType = 3;
-  string uuid = 4 [(validate.rules).string.uuid = true];
+  string uuid = 4 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message CreateCommentDbAndCacheReply{
@@ -179,7 +179,7 @@ message CreateSubCommentDbAndCacheReq{
   int32 id = 1;
   int32 rootId = 2;
   int32 parentId = 3;
-  string uuid = 4 [(validate.rules).string.uuid = true];
+  string uuid = 4 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message CreateSubCommentDbAndCacheReply{
@@ -219,12 +219,12 @@ message RemoveCommentDbAndCacheReq{
   int32 id = 1;
   int32 creationId = 2;
   int32 creationType = 3;
-  string uuid = 4 [(validate.rules).string.uuid = true];
+  string uuid = 4 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message RemoveSubCommentDbAndCacheReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetCommentListStatisticReq{
@@ -233,7 +233,7 @@ message GetCommentListStatisticReq{
 
 message GetUserCommentArticleReplyListReq{
   int32 page = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 
@@ -248,7 +248,7 @@ message GetUserCommentArticleReplyListReply{
 
 message GetUserSubCommentArticleReplyListReq{
   int32 page = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetUserSubCommentArticleReplyListReply{
@@ -269,7 +269,7 @@ message GetUserSubCommentArticleReplyListReply{
 
 message GetUserCommentTalkReplyListReq{
   int32 page = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetUserCommentTalkReplyListReply{
@@ -283,7 +283,7 @@ message GetUserCommentTalkReplyListReply{
 
 message GetUserSubCommentTalkReplyListReq{
   int32 page = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetUserSubCommentTalkReplyListReply{
@@ -304,7 +304,7 @@ message GetUserSubCommentTalkReplyListReply{
 
 message GetUserCommentArticleRepliedListReq{
   int32 page = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetUserCommentArticleRepliedListReply{
@@ -340,7 +340,7 @@ message GetUserSubCommentArticleRepliedListReply{
 
 message GetUserCommentTalkRepliedListReq{
   int32 page = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetUserCommentTalkRepliedListReply{
@@ -376,7 +376,7 @@ message GetUserSubCommentTalkRepliedListReply{
 
 message GetUserCommentRepliedListReq{
   int32 page = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetUserCommentRepliedListReply{
@@ -414,7 +414,7 @@ message GetUserSubCommentRepliedListReply{
 
 message GetCommentContentReviewReq{
   int32 page = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetCommentContentReviewReply{
@@ -434,7 +434,7 @@ message GetCommentContentReviewReply{
 }
 
 message CommentContentIrregularReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   string job_id = 2 [(validate.rules).string = {max_len: 1000}];
   string label = 3 [(validate.rules).string = {max_len: 1000}];
   string kind = 4 [(validate.rules).string = {in: ["comment", "sub_comment"]}];
@@ -455,35 +455,35 @@ message GetCommentListStatisticReply{
 
 message SetCommentAgreeReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
-  string user_uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
+  string user_uuid = 3 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   int32 creationId = 4;
   int32 creationType = 5;
 }
 
 message SetSubCommentAgreeReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
-  string user_uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
+  string user_uuid = 3 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message CancelCommentAgreeReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
-  string user_uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
+  string user_uuid = 3 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   int32 creationId = 4;
   int32 creationType = 5;
 }
 
 message CancelSubCommentAgreeReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
-  string user_uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
+  string user_uuid = 3 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 
 message AddCommentContentReviewDbAndCacheReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   string job_id = 2 [(validate.rules).string = {max_len: 1000}];
   string label = 3 [(validate.rules).string = {max_len: 1000}];
   string kind = 4 [(validate.rules).string = {in: ["comment", "sub_comment"]}];
@@ -495,10 +495,10 @@ message AddCommentContentReviewDbAndCacheReq{
 
 message RemoveCommentReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message RemoveSubCommentReq{
   int32 id = 1;
-  string uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 3 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
