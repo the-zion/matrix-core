@@ -64,6 +64,16 @@ func (s *UserService) LoginByGithub(ctx context.Context, req *v1.LoginByGithubRe
 	}, nil
 }
 
+func (s *UserService) LoginByGitee(ctx context.Context, req *v1.LoginByGiteeReq) (*v1.LoginReply, error) {
+	token, err := s.ac.LoginByGitee(ctx, req.Code)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.LoginReply{
+		Token: token,
+	}, nil
+}
+
 func (s *UserService) LoginPasswordReset(ctx context.Context, req *v1.LoginPasswordResetReq) (*emptypb.Empty, error) {
 	err := s.ac.LoginPasswordReset(ctx, req.Account, req.Password, req.Code, req.Mode)
 	if err != nil {

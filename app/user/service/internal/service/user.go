@@ -17,7 +17,7 @@ func (s *UserService) GetAccount(ctx context.Context, req *v1.GetAccountReq) (*v
 		Email:    user.Email,
 		Qq:       user.Qq,
 		Wechat:   user.Wechat,
-		Weibo:    user.Weibo,
+		Gitee:    user.Gitee,
 		Github:   user.Github,
 		Password: user.Password,
 	}, nil
@@ -38,6 +38,7 @@ func (s *UserService) GetProfile(ctx context.Context, req *v1.GetProfileReq) (*v
 		Homepage:  profile.Homepage,
 		Introduce: profile.Introduce,
 		Github:    profile.Github,
+		Gitee:     profile.Gitee,
 		Created:   profile.Created,
 	}, nil
 }
@@ -71,6 +72,7 @@ func (s *UserService) GetProfileUpdate(ctx context.Context, req *v1.GetProfileUp
 		Job:       profile.Job,
 		Homepage:  profile.Homepage,
 		Github:    profile.Github,
+		Gitee:     profile.Gitee,
 		Introduce: profile.Introduce,
 		Status:    profile.Status,
 	}, nil
@@ -286,6 +288,7 @@ func (s *UserService) SetProfileUpdate(ctx context.Context, req *v1.SetProfileUp
 	profile.Job = req.Job
 	profile.Homepage = req.Homepage
 	profile.Github = req.Github
+	profile.Gitee = req.Gitee
 	profile.Introduce = req.Introduce
 	err := s.uc.SetProfileUpdate(ctx, profile)
 	if err != nil {
