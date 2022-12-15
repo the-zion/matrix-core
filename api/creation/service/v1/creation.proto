@@ -356,7 +356,7 @@ message GetLeaderBoardReply{
 }
 
 message GetLastCollectionsDraftReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetLastCollectionsDraftReply{
@@ -366,7 +366,7 @@ message GetLastCollectionsDraftReply{
 
 message GetCollectionsContentReviewReq{
   int32 page = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetCollectionsContentReviewReply{
@@ -444,7 +444,7 @@ message GetCollectionListInfoReq{
 
 message GetCollectionsListReq{
   int32 page = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetCollectionsListReply{
@@ -455,11 +455,11 @@ message GetCollectionsListReply{
 }
 
 message GetCollectionsListAllReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetCollectionsCountReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetCollectionsCountReply{
@@ -467,7 +467,7 @@ message GetCollectionsCountReply{
 }
 
 message GetCreationUserReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetCreationUserReply{
@@ -481,7 +481,7 @@ message GetCreationUserReply{
 
 message GetUserTimeLineListReq{
   int32 page = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetUserTimeLineListReply{
@@ -500,12 +500,12 @@ message GetUserTimeLineListReply{
 
 message SendCollectionsReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   string ip = 3 [(validate.rules).string.ip = true];
 }
 
 message CreateCollectionsDraftReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message CreateCollectionsDraftReply{
@@ -526,7 +526,7 @@ message CreateCollectionsDbAndCacheReq{
 
 message SendCollectionsEditReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   string ip = 3 [(validate.rules).string.ip = true];
 }
 
@@ -544,7 +544,7 @@ message EditCollectionsCosReq{
 
 message DeleteCollectionsReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message DeleteCollectionsCacheReq{
@@ -553,7 +553,7 @@ message DeleteCollectionsCacheReq{
 }
 
 message CreationImageIrregularReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   string job_id = 2 [(validate.rules).string = {max_len: 1000}];
   string url = 3 [(validate.rules).string = {max_len: 1000}];
   string label = 4 [(validate.rules).string = {max_len: 1000}];
@@ -567,7 +567,7 @@ message CreationImageIrregularReq{
 }
 
 message CreationContentIrregularReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   string job_id = 2 [(validate.rules).string = {max_len: 1000}];
   string label = 3 [(validate.rules).string = {max_len: 1000}];
   string kind = 4 [(validate.rules).string = {in: ["create", "edit"]}];
@@ -578,7 +578,7 @@ message CreationContentIrregularReq{
 }
 
 message AddCreationImageReviewDbAndCacheReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   string job_id = 2 [(validate.rules).string = {max_len: 1000}];
   string url = 3 [(validate.rules).string = {max_len: 1000}];
   string label = 4 [(validate.rules).string = {max_len: 1000}];
@@ -592,7 +592,7 @@ message AddCreationImageReviewDbAndCacheReq{
 }
 
 message AddCreationContentReviewDbAndCacheReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   string job_id = 2 [(validate.rules).string = {max_len: 1000}];
   string label = 3 [(validate.rules).string = {max_len: 1000}];
   string kind = 4 [(validate.rules).string = {in: ["create", "edit"]}];
@@ -627,11 +627,11 @@ message GetArticleListHotReply{
 }
 
 message GetArticleCountReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetArticleCountVisitorReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetArticleCountReply{
@@ -640,16 +640,16 @@ message GetArticleCountReply{
 
 message GetUserArticleListReq{
   int32 page = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetUserArticleListVisitorReq{
   int32 page = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetUserArticleListAllReq{
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetArticleStatisticReq{
@@ -666,7 +666,7 @@ message GetArticleStatisticReply{
 }
 
 message GetUserArticleAgreeReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetUserArticleAgreeReply{
@@ -674,7 +674,7 @@ message GetUserArticleAgreeReply{
 }
 
 message GetUserArticleCollectReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetUserArticleCollectReply{
@@ -697,7 +697,7 @@ message GetArticleListStatisticReply{
 }
 
 message GetLastArticleDraftReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetLastArticleDraftReply{
@@ -727,7 +727,7 @@ message GetArticleSearchReply{
 
 message GetArticleImageReviewReq{
   int32 page = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetArticleImageReviewReply{
@@ -751,7 +751,7 @@ message GetArticleImageReviewReply{
 
 message GetArticleContentReviewReq{
   int32 page = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetArticleContentReviewReply{
@@ -773,13 +773,13 @@ message GetArticleContentReviewReply{
 message CreateArticleReq{
   int32 id = 1;
   int32 auth = 2;
-  string uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 3 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message EditArticleReq{
   int32 id = 1;
   int32 auth = 2;
-  string uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 3 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message CreateArticleDbCacheAndSearchReq{
@@ -818,7 +818,7 @@ message SetArticleCollectDbAndCacheReq{
 }
 
 message CreateArticleDraftReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message CreateArticleDraftReply{
@@ -827,11 +827,11 @@ message CreateArticleDraftReply{
 
 message ArticleDraftMarkReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetArticleDraftListReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetArticleDraftListReply{
@@ -843,43 +843,43 @@ message GetArticleDraftListReply{
 
 message SendArticleReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   string ip = 3 [(validate.rules).string.ip = true];
 }
 
 message SendArticleEditReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   string ip = 3 [(validate.rules).string.ip = true];
 }
 
 message DeleteArticleReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message SetArticleAgreeReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
-  string user_uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
+  string user_uuid = 3 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message SetArticleViewReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message SetArticleCollectReq{
   int32 id = 1;
   int32 collections_id = 2;
-  string uuid = 3 [(validate.rules).string.uuid = true];
-  string user_uuid = 4 [(validate.rules).string.uuid = true];
+  string uuid = 3 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
+  string user_uuid = 4 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message CancelArticleAgreeReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
-  string user_uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
+  string user_uuid = 3 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message CancelArticleAgreeDbAndCacheReq{
@@ -890,8 +890,8 @@ message CancelArticleAgreeDbAndCacheReq{
 
 message CancelArticleCollectReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
-  string user_uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
+  string user_uuid = 3 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message CancelArticleCollectDbAndCacheReq{
@@ -902,7 +902,7 @@ message CancelArticleCollectDbAndCacheReq{
 
 message ArticleStatisticJudgeReq{
   int32 id = 1;
-  string uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 3 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message ArticleStatisticJudgeReply{
@@ -923,11 +923,11 @@ message GetTalkListReply{
 }
 
 message GetTalkCountReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetTalkCountVisitorReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetTalkCountReply{
@@ -948,12 +948,12 @@ message GetTalkListHotReply{
 
 message GetUserTalkListReq{
   int32 page = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetUserTalkListVisitorReq{
   int32 page = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetTalkListStatisticReq{
@@ -985,7 +985,7 @@ message GetTalkStatisticReply{
 }
 
 message GetLastTalkDraftReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetLastTalkDraftReply{
@@ -1014,11 +1014,11 @@ message GetTalkSearchReply{
 }
 
 message GetUserTalkAgreeReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetUserTalkCollectReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetUserTalkAgreeReply{
@@ -1031,7 +1031,7 @@ message GetUserTalkCollectReply{
 
 message GetTalkImageReviewReq{
   int32 page = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetTalkImageReviewReply{
@@ -1055,7 +1055,7 @@ message GetTalkImageReviewReply{
 
 message GetTalkContentReviewReq{
   int32 page = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetTalkContentReviewReply{
@@ -1075,7 +1075,7 @@ message GetTalkContentReviewReply{
 }
 
 message CreateTalkDraftReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message CreateTalkDraftReply{
@@ -1084,31 +1084,31 @@ message CreateTalkDraftReply{
 
 message SendTalkReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   string ip = 3 [(validate.rules).string.ip = true];
 }
 
 message SendTalkEditReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   string ip = 3 [(validate.rules).string.ip = true];
 }
 
 message CreateTalkReq{
   int32 id = 1;
   int32 auth = 2;
-  string uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 3 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message EditTalkReq{
   int32 id = 1;
   int32 auth = 2;
-  string uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 3 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message DeleteTalkReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message CreateTalkDbCacheAndSearchReq{
@@ -1130,7 +1130,7 @@ message DeleteTalkCacheAndSearchReq{
 
 message SetTalkViewReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message SetTalkViewDbAndCacheReq{
@@ -1140,7 +1140,7 @@ message SetTalkViewDbAndCacheReq{
 
 message TalkStatisticJudgeReq{
   int32 id = 1;
-  string uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 3 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message TalkStatisticJudgeReply{
@@ -1150,8 +1150,8 @@ message TalkStatisticJudgeReply{
 
 message SetTalkAgreeReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
-  string user_uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
+  string user_uuid = 3 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message SetTalkAgreeDbAndCacheReq{
@@ -1163,8 +1163,8 @@ message SetTalkAgreeDbAndCacheReq{
 message SetTalkCollectReq{
   int32 id = 1;
   int32 collections_id = 2;
-  string uuid = 3 [(validate.rules).string.uuid = true];
-  string user_uuid = 4 [(validate.rules).string.uuid = true];
+  string uuid = 3 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
+  string user_uuid = 4 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message SetTalkCollectDbAndCacheReq{
@@ -1176,8 +1176,8 @@ message SetTalkCollectDbAndCacheReq{
 
 message CancelTalkAgreeReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
-  string user_uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
+  string user_uuid = 3 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message CancelTalkAgreeDbAndCacheReq{
@@ -1188,8 +1188,8 @@ message CancelTalkAgreeDbAndCacheReq{
 
 message CancelTalkCollectReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
-  string user_uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
+  string user_uuid = 3 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message CancelTalkCollectDbAndCacheReq{
@@ -1199,7 +1199,7 @@ message CancelTalkCollectDbAndCacheReq{
 }
 
 message GetLastColumnDraftReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetLastColumnDraftReply{
@@ -1229,7 +1229,7 @@ message GetColumnSearchReply{
 
 message GetColumnImageReviewReq{
   int32 page = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetColumnImageReviewReply{
@@ -1253,7 +1253,7 @@ message GetColumnImageReviewReply{
 
 message GetColumnContentReviewReq{
   int32 page = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetColumnContentReviewReply{
@@ -1273,7 +1273,7 @@ message GetColumnContentReviewReply{
 }
 
 message CreateColumnDraftReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message CreateColumnDraftReply{
@@ -1282,14 +1282,14 @@ message CreateColumnDraftReply{
 
 message SendColumnReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   string ip = 3 [(validate.rules).string.ip = true];
 }
 
 message CreateColumnReq{
   int32 id = 1;
   int32 auth = 2;
-  string uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 3 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message CreateColumnDbCacheAndSearchReq{
@@ -1300,17 +1300,17 @@ message CreateColumnDbCacheAndSearchReq{
 
 message SubscribeColumnReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message CancelSubscribeColumnReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message SubscribeJudgeReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message SubscribeJudgeReply{
@@ -1320,7 +1320,7 @@ message SubscribeJudgeReply{
 message EditColumnCosAndSearchReq{
   int32 id = 1;
   int32 auth = 2;
-  string uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 3 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetColumnListReq{
@@ -1375,12 +1375,12 @@ message GetColumnStatisticReply{
 
 message GetUserColumnListReq{
   int32 page = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetUserColumnListVisitorReq{
   int32 page = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetColumnArticleListReq{
@@ -1388,11 +1388,11 @@ message GetColumnArticleListReq{
 }
 
 message GetColumnCountReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetColumnCountVisitorReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetColumnCountReply{
@@ -1421,7 +1421,7 @@ message GetSubscribeListCountReply{
 }
 
 message GetColumnSubscribesReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   repeated int32 ids = 2;
 }
 
@@ -1434,11 +1434,11 @@ message GetColumnSubscribesReply{
 }
 
 message GetUserColumnAgreeReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetUserColumnCollectReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetUserColumnAgreeReply{
@@ -1450,7 +1450,7 @@ message GetUserColumnCollectReply{
 }
 
 message GetUserSubscribeColumnReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetUserSubscribeColumnReply{
@@ -1459,19 +1459,19 @@ message GetUserSubscribeColumnReply{
 
 message SendColumnEditReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   string ip = 3 [(validate.rules).string.ip = true];
 }
 
 message EditColumnReq{
   int32 id = 1;
   int32 auth = 2;
-  string uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 3 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message DeleteColumnReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message DeleteColumnCacheAndSearchReq{
@@ -1481,7 +1481,7 @@ message DeleteColumnCacheAndSearchReq{
 
 message ColumnStatisticJudgeReq{
   int32 id = 1;
-  string uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 3 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message ColumnStatisticJudgeReply{
@@ -1491,8 +1491,8 @@ message ColumnStatisticJudgeReply{
 
 message SetColumnAgreeReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
-  string user_uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
+  string user_uuid = 3 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message SetColumnAgreeDbAndCacheReq{
@@ -1503,8 +1503,8 @@ message SetColumnAgreeDbAndCacheReq{
 
 message CancelColumnAgreeReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
-  string user_uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
+  string user_uuid = 3 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message CancelColumnAgreeDbAndCacheReq{
@@ -1516,8 +1516,8 @@ message CancelColumnAgreeDbAndCacheReq{
 message SetColumnCollectReq{
   int32 id = 1;
   int32 collections_id = 2;
-  string uuid = 3 [(validate.rules).string.uuid = true];
-  string user_uuid = 4 [(validate.rules).string.uuid = true];
+  string uuid = 3 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
+  string user_uuid = 4 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message SetColumnCollectDbAndCacheReq{
@@ -1529,8 +1529,8 @@ message SetColumnCollectDbAndCacheReq{
 
 message CancelColumnCollectReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
-  string user_uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
+  string user_uuid = 3 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message CancelColumnCollectDbAndCacheReq{
@@ -1541,7 +1541,7 @@ message CancelColumnCollectDbAndCacheReq{
 
 message SetColumnViewReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string.uuid = true];
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message SetColumnViewDbAndCacheReq{
@@ -1552,7 +1552,7 @@ message SetColumnViewDbAndCacheReq{
 message AddColumnIncludesReq{
   int32 id = 1;
   int32 article_id = 2;
-  string uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 3 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message AddColumnIncludesDbAndCacheReq{
@@ -1564,7 +1564,7 @@ message AddColumnIncludesDbAndCacheReq{
 message DeleteColumnIncludesReq{
   int32 id = 1;
   int32 article_id = 2;
-  string uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 3 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message DeleteColumnIncludesDbAndCacheReq{
@@ -1604,11 +1604,11 @@ message GetNewsReply{
 message AddCreationCommentReq{
   int32 creationId = 1;
   int32 creationType = 2;
-  string uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 3 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message ReduceCreationCommentReq{
   int32 creationId = 1;
   int32 creationType = 2;
-  string uuid = 3 [(validate.rules).string.uuid = true];
+  string uuid = 3 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }

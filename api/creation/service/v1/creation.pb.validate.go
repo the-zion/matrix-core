@@ -196,11 +196,10 @@ func (m *GetLastCollectionsDraftReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetLastCollectionsDraftReqValidationError{
+	if !_GetLastCollectionsDraftReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetLastCollectionsDraftReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -210,14 +209,6 @@ func (m *GetLastCollectionsDraftReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetLastCollectionsDraftReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetLastCollectionsDraftReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -295,6 +286,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetLastCollectionsDraftReqValidationError{}
+
+var _GetLastCollectionsDraftReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetLastCollectionsDraftReply with the
 // rules defined in the proto definition for this message. If any rules are
@@ -427,11 +420,10 @@ func (m *GetCollectionsContentReviewReq) validate(all bool) error {
 
 	// no validation rules for Page
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetCollectionsContentReviewReqValidationError{
+	if !_GetCollectionsContentReviewReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetCollectionsContentReviewReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -441,14 +433,6 @@ func (m *GetCollectionsContentReviewReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetCollectionsContentReviewReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetCollectionsContentReviewReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -527,6 +511,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetCollectionsContentReviewReqValidationError{}
+
+var _GetCollectionsContentReviewReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetCollectionsContentReviewReply with
 // the rules defined in the proto definition for this message. If any rules
@@ -1976,11 +1962,10 @@ func (m *GetCollectionsListReq) validate(all bool) error {
 
 	// no validation rules for Page
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetCollectionsListReqValidationError{
+	if !_GetCollectionsListReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetCollectionsListReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -1990,14 +1975,6 @@ func (m *GetCollectionsListReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetCollectionsListReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetCollectionsListReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -2075,6 +2052,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetCollectionsListReqValidationError{}
+
+var _GetCollectionsListReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetCollectionsListReply with the rules
 // defined in the proto definition for this message. If any rules are
@@ -2234,11 +2213,10 @@ func (m *GetCollectionsListAllReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetCollectionsListAllReqValidationError{
+	if !_GetCollectionsListAllReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetCollectionsListAllReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -2248,14 +2226,6 @@ func (m *GetCollectionsListAllReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetCollectionsListAllReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetCollectionsListAllReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -2334,6 +2304,8 @@ var _ interface {
 	ErrorName() string
 } = GetCollectionsListAllReqValidationError{}
 
+var _GetCollectionsListAllReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on GetCollectionsCountReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -2356,11 +2328,10 @@ func (m *GetCollectionsCountReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetCollectionsCountReqValidationError{
+	if !_GetCollectionsCountReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetCollectionsCountReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -2370,14 +2341,6 @@ func (m *GetCollectionsCountReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetCollectionsCountReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetCollectionsCountReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -2455,6 +2418,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetCollectionsCountReqValidationError{}
+
+var _GetCollectionsCountReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetCollectionsCountReply with the rules
 // defined in the proto definition for this message. If any rules are
@@ -2582,11 +2547,10 @@ func (m *GetCreationUserReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetCreationUserReqValidationError{
+	if !_GetCreationUserReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetCreationUserReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -2596,14 +2560,6 @@ func (m *GetCreationUserReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetCreationUserReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetCreationUserReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -2681,6 +2637,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetCreationUserReqValidationError{}
+
+var _GetCreationUserReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetCreationUserReply with the rules
 // defined in the proto definition for this message. If any rules are
@@ -2820,11 +2778,10 @@ func (m *GetUserTimeLineListReq) validate(all bool) error {
 
 	// no validation rules for Page
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetUserTimeLineListReqValidationError{
+	if !_GetUserTimeLineListReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetUserTimeLineListReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -2834,14 +2791,6 @@ func (m *GetUserTimeLineListReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetUserTimeLineListReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetUserTimeLineListReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -2919,6 +2868,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetUserTimeLineListReqValidationError{}
+
+var _GetUserTimeLineListReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetUserTimeLineListReply with the rules
 // defined in the proto definition for this message. If any rules are
@@ -3080,11 +3031,10 @@ func (m *SendCollectionsReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = SendCollectionsReqValidationError{
+	if !_SendCollectionsReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := SendCollectionsReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -3105,14 +3055,6 @@ func (m *SendCollectionsReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return SendCollectionsReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *SendCollectionsReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -3191,6 +3133,8 @@ var _ interface {
 	ErrorName() string
 } = SendCollectionsReqValidationError{}
 
+var _SendCollectionsReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on CreateCollectionsDraftReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -3213,11 +3157,10 @@ func (m *CreateCollectionsDraftReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = CreateCollectionsDraftReqValidationError{
+	if !_CreateCollectionsDraftReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := CreateCollectionsDraftReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -3227,14 +3170,6 @@ func (m *CreateCollectionsDraftReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return CreateCollectionsDraftReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *CreateCollectionsDraftReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -3312,6 +3247,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CreateCollectionsDraftReqValidationError{}
+
+var _CreateCollectionsDraftReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on CreateCollectionsDraftReply with the
 // rules defined in the proto definition for this message. If any rules are
@@ -3659,11 +3596,10 @@ func (m *SendCollectionsEditReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = SendCollectionsEditReqValidationError{
+	if !_SendCollectionsEditReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := SendCollectionsEditReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -3684,14 +3620,6 @@ func (m *SendCollectionsEditReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return SendCollectionsEditReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *SendCollectionsEditReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -3769,6 +3697,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = SendCollectionsEditReqValidationError{}
+
+var _SendCollectionsEditReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on EditCollectionsReq with the rules
 // defined in the proto definition for this message. If any rules are
@@ -4010,11 +3940,10 @@ func (m *DeleteCollectionsReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = DeleteCollectionsReqValidationError{
+	if !_DeleteCollectionsReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := DeleteCollectionsReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -4024,14 +3953,6 @@ func (m *DeleteCollectionsReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return DeleteCollectionsReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *DeleteCollectionsReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -4109,6 +4030,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = DeleteCollectionsReqValidationError{}
+
+var _DeleteCollectionsReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on DeleteCollectionsCacheReq with the rules
 // defined in the proto definition for this message. If any rules are
@@ -4238,11 +4161,10 @@ func (m *CreationImageIrregularReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = CreationImageIrregularReqValidationError{
+	if !_CreationImageIrregularReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := CreationImageIrregularReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -4340,14 +4262,6 @@ func (m *CreationImageIrregularReq) validate(all bool) error {
 	return nil
 }
 
-func (m *CreationImageIrregularReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
-	}
-
-	return nil
-}
-
 // CreationImageIrregularReqMultiError is an error wrapping multiple validation
 // errors returned by CreationImageIrregularReq.ValidateAll() if the
 // designated constraints aren't met.
@@ -4421,6 +4335,8 @@ var _ interface {
 	ErrorName() string
 } = CreationImageIrregularReqValidationError{}
 
+var _CreationImageIrregularReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 var _CreationImageIrregularReq_Kind_InLookup = map[string]struct{}{
 	"content": {},
 	"cover":   {},
@@ -4448,11 +4364,10 @@ func (m *CreationContentIrregularReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = CreationContentIrregularReqValidationError{
+	if !_CreationContentIrregularReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := CreationContentIrregularReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -4512,14 +4427,6 @@ func (m *CreationContentIrregularReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return CreationContentIrregularReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *CreationContentIrregularReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -4599,6 +4506,8 @@ var _ interface {
 	ErrorName() string
 } = CreationContentIrregularReqValidationError{}
 
+var _CreationContentIrregularReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 var _CreationContentIrregularReq_Kind_InLookup = map[string]struct{}{
 	"create": {},
 	"edit":   {},
@@ -4627,11 +4536,10 @@ func (m *AddCreationImageReviewDbAndCacheReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = AddCreationImageReviewDbAndCacheReqValidationError{
+	if !_AddCreationImageReviewDbAndCacheReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := AddCreationImageReviewDbAndCacheReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -4729,14 +4637,6 @@ func (m *AddCreationImageReviewDbAndCacheReq) validate(all bool) error {
 	return nil
 }
 
-func (m *AddCreationImageReviewDbAndCacheReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
-	}
-
-	return nil
-}
-
 // AddCreationImageReviewDbAndCacheReqMultiError is an error wrapping multiple
 // validation errors returned by
 // AddCreationImageReviewDbAndCacheReq.ValidateAll() if the designated
@@ -4812,6 +4712,8 @@ var _ interface {
 	ErrorName() string
 } = AddCreationImageReviewDbAndCacheReqValidationError{}
 
+var _AddCreationImageReviewDbAndCacheReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 var _AddCreationImageReviewDbAndCacheReq_Kind_InLookup = map[string]struct{}{
 	"content": {},
 	"cover":   {},
@@ -4840,11 +4742,10 @@ func (m *AddCreationContentReviewDbAndCacheReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = AddCreationContentReviewDbAndCacheReqValidationError{
+	if !_AddCreationContentReviewDbAndCacheReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := AddCreationContentReviewDbAndCacheReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -4904,14 +4805,6 @@ func (m *AddCreationContentReviewDbAndCacheReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return AddCreationContentReviewDbAndCacheReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *AddCreationContentReviewDbAndCacheReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -4991,6 +4884,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = AddCreationContentReviewDbAndCacheReqValidationError{}
+
+var _AddCreationContentReviewDbAndCacheReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 var _AddCreationContentReviewDbAndCacheReq_Kind_InLookup = map[string]struct{}{
 	"create": {},
@@ -5499,11 +5394,10 @@ func (m *GetArticleCountReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetArticleCountReqValidationError{
+	if !_GetArticleCountReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetArticleCountReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -5513,14 +5407,6 @@ func (m *GetArticleCountReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetArticleCountReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetArticleCountReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -5599,6 +5485,8 @@ var _ interface {
 	ErrorName() string
 } = GetArticleCountReqValidationError{}
 
+var _GetArticleCountReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on GetArticleCountVisitorReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -5621,11 +5509,10 @@ func (m *GetArticleCountVisitorReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetArticleCountVisitorReqValidationError{
+	if !_GetArticleCountVisitorReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetArticleCountVisitorReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -5635,14 +5522,6 @@ func (m *GetArticleCountVisitorReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetArticleCountVisitorReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetArticleCountVisitorReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -5720,6 +5599,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetArticleCountVisitorReqValidationError{}
+
+var _GetArticleCountVisitorReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetArticleCountReply with the rules
 // defined in the proto definition for this message. If any rules are
@@ -5849,11 +5730,10 @@ func (m *GetUserArticleListReq) validate(all bool) error {
 
 	// no validation rules for Page
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetUserArticleListReqValidationError{
+	if !_GetUserArticleListReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetUserArticleListReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -5863,14 +5743,6 @@ func (m *GetUserArticleListReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetUserArticleListReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetUserArticleListReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -5949,6 +5821,8 @@ var _ interface {
 	ErrorName() string
 } = GetUserArticleListReqValidationError{}
 
+var _GetUserArticleListReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on GetUserArticleListVisitorReq with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -5973,11 +5847,10 @@ func (m *GetUserArticleListVisitorReq) validate(all bool) error {
 
 	// no validation rules for Page
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetUserArticleListVisitorReqValidationError{
+	if !_GetUserArticleListVisitorReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetUserArticleListVisitorReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -5987,14 +5860,6 @@ func (m *GetUserArticleListVisitorReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetUserArticleListVisitorReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetUserArticleListVisitorReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -6074,6 +5939,8 @@ var _ interface {
 	ErrorName() string
 } = GetUserArticleListVisitorReqValidationError{}
 
+var _GetUserArticleListVisitorReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on GetUserArticleListAllReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -6096,11 +5963,10 @@ func (m *GetUserArticleListAllReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetUserArticleListAllReqValidationError{
+	if !_GetUserArticleListAllReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetUserArticleListAllReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -6110,14 +5976,6 @@ func (m *GetUserArticleListAllReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetUserArticleListAllReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetUserArticleListAllReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -6195,6 +6053,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetUserArticleListAllReqValidationError{}
+
+var _GetUserArticleListAllReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetArticleStatisticReq with the rules
 // defined in the proto definition for this message. If any rules are
@@ -6458,11 +6318,10 @@ func (m *GetUserArticleAgreeReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetUserArticleAgreeReqValidationError{
+	if !_GetUserArticleAgreeReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetUserArticleAgreeReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -6472,14 +6331,6 @@ func (m *GetUserArticleAgreeReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetUserArticleAgreeReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetUserArticleAgreeReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -6557,6 +6408,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetUserArticleAgreeReqValidationError{}
+
+var _GetUserArticleAgreeReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetUserArticleAgreeReply with the rules
 // defined in the proto definition for this message. If any rules are
@@ -6684,11 +6537,10 @@ func (m *GetUserArticleCollectReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetUserArticleCollectReqValidationError{
+	if !_GetUserArticleCollectReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetUserArticleCollectReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -6698,14 +6550,6 @@ func (m *GetUserArticleCollectReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetUserArticleCollectReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetUserArticleCollectReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -6783,6 +6627,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetUserArticleCollectReqValidationError{}
+
+var _GetUserArticleCollectReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetUserArticleCollectReply with the
 // rules defined in the proto definition for this message. If any rules are
@@ -7149,11 +6995,10 @@ func (m *GetLastArticleDraftReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetLastArticleDraftReqValidationError{
+	if !_GetLastArticleDraftReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetLastArticleDraftReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -7163,14 +7008,6 @@ func (m *GetLastArticleDraftReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetLastArticleDraftReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetLastArticleDraftReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -7248,6 +7085,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetLastArticleDraftReqValidationError{}
+
+var _GetLastArticleDraftReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetLastArticleDraftReply with the rules
 // defined in the proto definition for this message. If any rules are
@@ -7643,11 +7482,10 @@ func (m *GetArticleImageReviewReq) validate(all bool) error {
 
 	// no validation rules for Page
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetArticleImageReviewReqValidationError{
+	if !_GetArticleImageReviewReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetArticleImageReviewReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -7657,14 +7495,6 @@ func (m *GetArticleImageReviewReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetArticleImageReviewReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetArticleImageReviewReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -7742,6 +7572,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetArticleImageReviewReqValidationError{}
+
+var _GetArticleImageReviewReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetArticleImageReviewReply with the
 // rules defined in the proto definition for this message. If any rules are
@@ -7903,11 +7735,10 @@ func (m *GetArticleContentReviewReq) validate(all bool) error {
 
 	// no validation rules for Page
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetArticleContentReviewReqValidationError{
+	if !_GetArticleContentReviewReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetArticleContentReviewReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -7917,14 +7748,6 @@ func (m *GetArticleContentReviewReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetArticleContentReviewReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetArticleContentReviewReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -8002,6 +7825,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetArticleContentReviewReqValidationError{}
+
+var _GetArticleContentReviewReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetArticleContentReviewReply with the
 // rules defined in the proto definition for this message. If any rules are
@@ -8166,11 +7991,10 @@ func (m *CreateArticleReq) validate(all bool) error {
 
 	// no validation rules for Auth
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = CreateArticleReqValidationError{
+	if !_CreateArticleReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := CreateArticleReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -8180,14 +8004,6 @@ func (m *CreateArticleReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return CreateArticleReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *CreateArticleReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -8264,6 +8080,8 @@ var _ interface {
 	ErrorName() string
 } = CreateArticleReqValidationError{}
 
+var _CreateArticleReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on EditArticleReq with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
@@ -8290,11 +8108,10 @@ func (m *EditArticleReq) validate(all bool) error {
 
 	// no validation rules for Auth
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = EditArticleReqValidationError{
+	if !_EditArticleReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := EditArticleReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -8304,14 +8121,6 @@ func (m *EditArticleReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return EditArticleReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *EditArticleReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -8387,6 +8196,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = EditArticleReqValidationError{}
+
+var _EditArticleReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on CreateArticleDbCacheAndSearchReq with
 // the rules defined in the proto definition for this message. If any rules
@@ -9063,11 +8874,10 @@ func (m *CreateArticleDraftReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = CreateArticleDraftReqValidationError{
+	if !_CreateArticleDraftReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := CreateArticleDraftReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -9077,14 +8887,6 @@ func (m *CreateArticleDraftReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return CreateArticleDraftReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *CreateArticleDraftReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -9162,6 +8964,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CreateArticleDraftReqValidationError{}
+
+var _CreateArticleDraftReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on CreateArticleDraftReply with the rules
 // defined in the proto definition for this message. If any rules are
@@ -9291,11 +9095,10 @@ func (m *ArticleDraftMarkReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = ArticleDraftMarkReqValidationError{
+	if !_ArticleDraftMarkReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := ArticleDraftMarkReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -9305,14 +9108,6 @@ func (m *ArticleDraftMarkReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return ArticleDraftMarkReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *ArticleDraftMarkReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -9391,6 +9186,8 @@ var _ interface {
 	ErrorName() string
 } = ArticleDraftMarkReqValidationError{}
 
+var _ArticleDraftMarkReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on GetArticleDraftListReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -9413,11 +9210,10 @@ func (m *GetArticleDraftListReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetArticleDraftListReqValidationError{
+	if !_GetArticleDraftListReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetArticleDraftListReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -9427,14 +9223,6 @@ func (m *GetArticleDraftListReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetArticleDraftListReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetArticleDraftListReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -9512,6 +9300,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetArticleDraftListReqValidationError{}
+
+var _GetArticleDraftListReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetArticleDraftListReply with the rules
 // defined in the proto definition for this message. If any rules are
@@ -9673,11 +9463,10 @@ func (m *SendArticleReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = SendArticleReqValidationError{
+	if !_SendArticleReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := SendArticleReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -9698,14 +9487,6 @@ func (m *SendArticleReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return SendArticleReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *SendArticleReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -9782,6 +9563,8 @@ var _ interface {
 	ErrorName() string
 } = SendArticleReqValidationError{}
 
+var _SendArticleReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on SendArticleEditReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -9806,11 +9589,10 @@ func (m *SendArticleEditReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = SendArticleEditReqValidationError{
+	if !_SendArticleEditReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := SendArticleEditReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -9831,14 +9613,6 @@ func (m *SendArticleEditReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return SendArticleEditReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *SendArticleEditReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -9917,6 +9691,8 @@ var _ interface {
 	ErrorName() string
 } = SendArticleEditReqValidationError{}
 
+var _SendArticleEditReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on DeleteArticleReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -9941,11 +9717,10 @@ func (m *DeleteArticleReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = DeleteArticleReqValidationError{
+	if !_DeleteArticleReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := DeleteArticleReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -9955,14 +9730,6 @@ func (m *DeleteArticleReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return DeleteArticleReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *DeleteArticleReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -10039,6 +9806,8 @@ var _ interface {
 	ErrorName() string
 } = DeleteArticleReqValidationError{}
 
+var _DeleteArticleReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on SetArticleAgreeReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -10063,11 +9832,10 @@ func (m *SetArticleAgreeReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = SetArticleAgreeReqValidationError{
+	if !_SetArticleAgreeReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := SetArticleAgreeReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -10075,11 +9843,10 @@ func (m *SetArticleAgreeReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if err := m._validateUuid(m.GetUserUuid()); err != nil {
-		err = SetArticleAgreeReqValidationError{
+	if !_SetArticleAgreeReq_UserUuid_Pattern.MatchString(m.GetUserUuid()) {
+		err := SetArticleAgreeReqValidationError{
 			field:  "UserUuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -10089,14 +9856,6 @@ func (m *SetArticleAgreeReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return SetArticleAgreeReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *SetArticleAgreeReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -10175,6 +9934,10 @@ var _ interface {
 	ErrorName() string
 } = SetArticleAgreeReqValidationError{}
 
+var _SetArticleAgreeReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
+var _SetArticleAgreeReq_UserUuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on SetArticleViewReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -10199,11 +9962,10 @@ func (m *SetArticleViewReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = SetArticleViewReqValidationError{
+	if !_SetArticleViewReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := SetArticleViewReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -10213,14 +9975,6 @@ func (m *SetArticleViewReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return SetArticleViewReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *SetArticleViewReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -10299,6 +10053,8 @@ var _ interface {
 	ErrorName() string
 } = SetArticleViewReqValidationError{}
 
+var _SetArticleViewReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on SetArticleCollectReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -10325,11 +10081,10 @@ func (m *SetArticleCollectReq) validate(all bool) error {
 
 	// no validation rules for CollectionsId
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = SetArticleCollectReqValidationError{
+	if !_SetArticleCollectReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := SetArticleCollectReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -10337,11 +10092,10 @@ func (m *SetArticleCollectReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if err := m._validateUuid(m.GetUserUuid()); err != nil {
-		err = SetArticleCollectReqValidationError{
+	if !_SetArticleCollectReq_UserUuid_Pattern.MatchString(m.GetUserUuid()) {
+		err := SetArticleCollectReqValidationError{
 			field:  "UserUuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -10351,14 +10105,6 @@ func (m *SetArticleCollectReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return SetArticleCollectReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *SetArticleCollectReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -10437,6 +10183,10 @@ var _ interface {
 	ErrorName() string
 } = SetArticleCollectReqValidationError{}
 
+var _SetArticleCollectReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
+var _SetArticleCollectReq_UserUuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on CancelArticleAgreeReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -10461,11 +10211,10 @@ func (m *CancelArticleAgreeReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = CancelArticleAgreeReqValidationError{
+	if !_CancelArticleAgreeReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := CancelArticleAgreeReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -10473,11 +10222,10 @@ func (m *CancelArticleAgreeReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if err := m._validateUuid(m.GetUserUuid()); err != nil {
-		err = CancelArticleAgreeReqValidationError{
+	if !_CancelArticleAgreeReq_UserUuid_Pattern.MatchString(m.GetUserUuid()) {
+		err := CancelArticleAgreeReqValidationError{
 			field:  "UserUuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -10487,14 +10235,6 @@ func (m *CancelArticleAgreeReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return CancelArticleAgreeReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *CancelArticleAgreeReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -10572,6 +10312,10 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CancelArticleAgreeReqValidationError{}
+
+var _CancelArticleAgreeReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
+var _CancelArticleAgreeReq_UserUuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on CancelArticleAgreeDbAndCacheReq with the
 // rules defined in the proto definition for this message. If any rules are
@@ -10706,11 +10450,10 @@ func (m *CancelArticleCollectReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = CancelArticleCollectReqValidationError{
+	if !_CancelArticleCollectReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := CancelArticleCollectReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -10718,11 +10461,10 @@ func (m *CancelArticleCollectReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if err := m._validateUuid(m.GetUserUuid()); err != nil {
-		err = CancelArticleCollectReqValidationError{
+	if !_CancelArticleCollectReq_UserUuid_Pattern.MatchString(m.GetUserUuid()) {
+		err := CancelArticleCollectReqValidationError{
 			field:  "UserUuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -10732,14 +10474,6 @@ func (m *CancelArticleCollectReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return CancelArticleCollectReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *CancelArticleCollectReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -10817,6 +10551,10 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CancelArticleCollectReqValidationError{}
+
+var _CancelArticleCollectReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
+var _CancelArticleCollectReq_UserUuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on CancelArticleCollectDbAndCacheReq with
 // the rules defined in the proto definition for this message. If any rules
@@ -10953,11 +10691,10 @@ func (m *ArticleStatisticJudgeReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = ArticleStatisticJudgeReqValidationError{
+	if !_ArticleStatisticJudgeReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := ArticleStatisticJudgeReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -10967,14 +10704,6 @@ func (m *ArticleStatisticJudgeReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return ArticleStatisticJudgeReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *ArticleStatisticJudgeReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -11052,6 +10781,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ArticleStatisticJudgeReqValidationError{}
+
+var _ArticleStatisticJudgeReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on ArticleStatisticJudgeReply with the
 // rules defined in the proto definition for this message. If any rules are
@@ -11417,11 +11148,10 @@ func (m *GetTalkCountReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetTalkCountReqValidationError{
+	if !_GetTalkCountReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetTalkCountReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -11431,14 +11161,6 @@ func (m *GetTalkCountReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetTalkCountReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetTalkCountReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -11515,6 +11237,8 @@ var _ interface {
 	ErrorName() string
 } = GetTalkCountReqValidationError{}
 
+var _GetTalkCountReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on GetTalkCountVisitorReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -11537,11 +11261,10 @@ func (m *GetTalkCountVisitorReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetTalkCountVisitorReqValidationError{
+	if !_GetTalkCountVisitorReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetTalkCountVisitorReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -11551,14 +11274,6 @@ func (m *GetTalkCountVisitorReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetTalkCountVisitorReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetTalkCountVisitorReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -11636,6 +11351,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetTalkCountVisitorReqValidationError{}
+
+var _GetTalkCountVisitorReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetTalkCountReply with the rules defined
 // in the proto definition for this message. If any rules are violated, the
@@ -12005,11 +11722,10 @@ func (m *GetUserTalkListReq) validate(all bool) error {
 
 	// no validation rules for Page
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetUserTalkListReqValidationError{
+	if !_GetUserTalkListReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetUserTalkListReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -12019,14 +11735,6 @@ func (m *GetUserTalkListReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetUserTalkListReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetUserTalkListReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -12105,6 +11813,8 @@ var _ interface {
 	ErrorName() string
 } = GetUserTalkListReqValidationError{}
 
+var _GetUserTalkListReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on GetUserTalkListVisitorReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -12129,11 +11839,10 @@ func (m *GetUserTalkListVisitorReq) validate(all bool) error {
 
 	// no validation rules for Page
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetUserTalkListVisitorReqValidationError{
+	if !_GetUserTalkListVisitorReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetUserTalkListVisitorReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -12143,14 +11852,6 @@ func (m *GetUserTalkListVisitorReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetUserTalkListVisitorReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetUserTalkListVisitorReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -12228,6 +11929,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetUserTalkListVisitorReqValidationError{}
+
+var _GetUserTalkListVisitorReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetTalkListStatisticReq with the rules
 // defined in the proto definition for this message. If any rules are
@@ -12729,11 +12432,10 @@ func (m *GetLastTalkDraftReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetLastTalkDraftReqValidationError{
+	if !_GetLastTalkDraftReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetLastTalkDraftReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -12743,14 +12445,6 @@ func (m *GetLastTalkDraftReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetLastTalkDraftReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetLastTalkDraftReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -12828,6 +12522,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetLastTalkDraftReqValidationError{}
+
+var _GetLastTalkDraftReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetLastTalkDraftReply with the rules
 // defined in the proto definition for this message. If any rules are
@@ -13201,11 +12897,10 @@ func (m *GetUserTalkAgreeReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetUserTalkAgreeReqValidationError{
+	if !_GetUserTalkAgreeReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetUserTalkAgreeReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -13215,14 +12910,6 @@ func (m *GetUserTalkAgreeReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetUserTalkAgreeReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetUserTalkAgreeReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -13301,6 +12988,8 @@ var _ interface {
 	ErrorName() string
 } = GetUserTalkAgreeReqValidationError{}
 
+var _GetUserTalkAgreeReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on GetUserTalkCollectReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -13323,11 +13012,10 @@ func (m *GetUserTalkCollectReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetUserTalkCollectReqValidationError{
+	if !_GetUserTalkCollectReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetUserTalkCollectReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -13337,14 +13025,6 @@ func (m *GetUserTalkCollectReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetUserTalkCollectReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetUserTalkCollectReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -13422,6 +13102,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetUserTalkCollectReqValidationError{}
+
+var _GetUserTalkCollectReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetUserTalkAgreeReply with the rules
 // defined in the proto definition for this message. If any rules are
@@ -13655,11 +13337,10 @@ func (m *GetTalkImageReviewReq) validate(all bool) error {
 
 	// no validation rules for Page
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetTalkImageReviewReqValidationError{
+	if !_GetTalkImageReviewReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetTalkImageReviewReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -13669,14 +13350,6 @@ func (m *GetTalkImageReviewReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetTalkImageReviewReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetTalkImageReviewReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -13754,6 +13427,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetTalkImageReviewReqValidationError{}
+
+var _GetTalkImageReviewReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetTalkImageReviewReply with the rules
 // defined in the proto definition for this message. If any rules are
@@ -13915,11 +13590,10 @@ func (m *GetTalkContentReviewReq) validate(all bool) error {
 
 	// no validation rules for Page
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetTalkContentReviewReqValidationError{
+	if !_GetTalkContentReviewReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetTalkContentReviewReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -13929,14 +13603,6 @@ func (m *GetTalkContentReviewReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetTalkContentReviewReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetTalkContentReviewReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -14014,6 +13680,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetTalkContentReviewReqValidationError{}
+
+var _GetTalkContentReviewReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetTalkContentReviewReply with the rules
 // defined in the proto definition for this message. If any rules are
@@ -14173,11 +13841,10 @@ func (m *CreateTalkDraftReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = CreateTalkDraftReqValidationError{
+	if !_CreateTalkDraftReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := CreateTalkDraftReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -14187,14 +13854,6 @@ func (m *CreateTalkDraftReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return CreateTalkDraftReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *CreateTalkDraftReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -14272,6 +13931,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CreateTalkDraftReqValidationError{}
+
+var _CreateTalkDraftReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on CreateTalkDraftReply with the rules
 // defined in the proto definition for this message. If any rules are
@@ -14401,11 +14062,10 @@ func (m *SendTalkReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = SendTalkReqValidationError{
+	if !_SendTalkReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := SendTalkReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -14426,14 +14086,6 @@ func (m *SendTalkReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return SendTalkReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *SendTalkReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -14509,6 +14161,8 @@ var _ interface {
 	ErrorName() string
 } = SendTalkReqValidationError{}
 
+var _SendTalkReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on SendTalkEditReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -14533,11 +14187,10 @@ func (m *SendTalkEditReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = SendTalkEditReqValidationError{
+	if !_SendTalkEditReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := SendTalkEditReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -14558,14 +14211,6 @@ func (m *SendTalkEditReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return SendTalkEditReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *SendTalkEditReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -14642,6 +14287,8 @@ var _ interface {
 	ErrorName() string
 } = SendTalkEditReqValidationError{}
 
+var _SendTalkEditReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on CreateTalkReq with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
@@ -14668,11 +14315,10 @@ func (m *CreateTalkReq) validate(all bool) error {
 
 	// no validation rules for Auth
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = CreateTalkReqValidationError{
+	if !_CreateTalkReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := CreateTalkReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -14682,14 +14328,6 @@ func (m *CreateTalkReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return CreateTalkReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *CreateTalkReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -14766,6 +14404,8 @@ var _ interface {
 	ErrorName() string
 } = CreateTalkReqValidationError{}
 
+var _CreateTalkReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on EditTalkReq with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
@@ -14792,11 +14432,10 @@ func (m *EditTalkReq) validate(all bool) error {
 
 	// no validation rules for Auth
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = EditTalkReqValidationError{
+	if !_EditTalkReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := EditTalkReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -14806,14 +14445,6 @@ func (m *EditTalkReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return EditTalkReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *EditTalkReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -14889,6 +14520,8 @@ var _ interface {
 	ErrorName() string
 } = EditTalkReqValidationError{}
 
+var _EditTalkReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on DeleteTalkReq with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
@@ -14913,11 +14546,10 @@ func (m *DeleteTalkReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = DeleteTalkReqValidationError{
+	if !_DeleteTalkReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := DeleteTalkReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -14927,14 +14559,6 @@ func (m *DeleteTalkReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return DeleteTalkReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *DeleteTalkReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -15010,6 +14634,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = DeleteTalkReqValidationError{}
+
+var _DeleteTalkReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on CreateTalkDbCacheAndSearchReq with the
 // rules defined in the proto definition for this message. If any rules are
@@ -15359,11 +14985,10 @@ func (m *SetTalkViewReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = SetTalkViewReqValidationError{
+	if !_SetTalkViewReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := SetTalkViewReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -15373,14 +14998,6 @@ func (m *SetTalkViewReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return SetTalkViewReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *SetTalkViewReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -15456,6 +15073,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = SetTalkViewReqValidationError{}
+
+var _SetTalkViewReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on SetTalkViewDbAndCacheReq with the rules
 // defined in the proto definition for this message. If any rules are
@@ -15587,11 +15206,10 @@ func (m *TalkStatisticJudgeReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = TalkStatisticJudgeReqValidationError{
+	if !_TalkStatisticJudgeReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := TalkStatisticJudgeReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -15601,14 +15219,6 @@ func (m *TalkStatisticJudgeReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return TalkStatisticJudgeReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *TalkStatisticJudgeReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -15686,6 +15296,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = TalkStatisticJudgeReqValidationError{}
+
+var _TalkStatisticJudgeReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on TalkStatisticJudgeReply with the rules
 // defined in the proto definition for this message. If any rules are
@@ -15817,11 +15429,10 @@ func (m *SetTalkAgreeReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = SetTalkAgreeReqValidationError{
+	if !_SetTalkAgreeReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := SetTalkAgreeReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -15829,11 +15440,10 @@ func (m *SetTalkAgreeReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if err := m._validateUuid(m.GetUserUuid()); err != nil {
-		err = SetTalkAgreeReqValidationError{
+	if !_SetTalkAgreeReq_UserUuid_Pattern.MatchString(m.GetUserUuid()) {
+		err := SetTalkAgreeReqValidationError{
 			field:  "UserUuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -15843,14 +15453,6 @@ func (m *SetTalkAgreeReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return SetTalkAgreeReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *SetTalkAgreeReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -15926,6 +15528,10 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = SetTalkAgreeReqValidationError{}
+
+var _SetTalkAgreeReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
+var _SetTalkAgreeReq_UserUuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on SetTalkAgreeDbAndCacheReq with the rules
 // defined in the proto definition for this message. If any rules are
@@ -16061,11 +15667,10 @@ func (m *SetTalkCollectReq) validate(all bool) error {
 
 	// no validation rules for CollectionsId
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = SetTalkCollectReqValidationError{
+	if !_SetTalkCollectReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := SetTalkCollectReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -16073,11 +15678,10 @@ func (m *SetTalkCollectReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if err := m._validateUuid(m.GetUserUuid()); err != nil {
-		err = SetTalkCollectReqValidationError{
+	if !_SetTalkCollectReq_UserUuid_Pattern.MatchString(m.GetUserUuid()) {
+		err := SetTalkCollectReqValidationError{
 			field:  "UserUuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -16087,14 +15691,6 @@ func (m *SetTalkCollectReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return SetTalkCollectReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *SetTalkCollectReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -16172,6 +15768,10 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = SetTalkCollectReqValidationError{}
+
+var _SetTalkCollectReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
+var _SetTalkCollectReq_UserUuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on SetTalkCollectDbAndCacheReq with the
 // rules defined in the proto definition for this message. If any rules are
@@ -16308,11 +15908,10 @@ func (m *CancelTalkAgreeReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = CancelTalkAgreeReqValidationError{
+	if !_CancelTalkAgreeReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := CancelTalkAgreeReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -16320,11 +15919,10 @@ func (m *CancelTalkAgreeReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if err := m._validateUuid(m.GetUserUuid()); err != nil {
-		err = CancelTalkAgreeReqValidationError{
+	if !_CancelTalkAgreeReq_UserUuid_Pattern.MatchString(m.GetUserUuid()) {
+		err := CancelTalkAgreeReqValidationError{
 			field:  "UserUuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -16334,14 +15932,6 @@ func (m *CancelTalkAgreeReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return CancelTalkAgreeReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *CancelTalkAgreeReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -16419,6 +16009,10 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CancelTalkAgreeReqValidationError{}
+
+var _CancelTalkAgreeReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
+var _CancelTalkAgreeReq_UserUuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on CancelTalkAgreeDbAndCacheReq with the
 // rules defined in the proto definition for this message. If any rules are
@@ -16553,11 +16147,10 @@ func (m *CancelTalkCollectReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = CancelTalkCollectReqValidationError{
+	if !_CancelTalkCollectReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := CancelTalkCollectReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -16565,11 +16158,10 @@ func (m *CancelTalkCollectReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if err := m._validateUuid(m.GetUserUuid()); err != nil {
-		err = CancelTalkCollectReqValidationError{
+	if !_CancelTalkCollectReq_UserUuid_Pattern.MatchString(m.GetUserUuid()) {
+		err := CancelTalkCollectReqValidationError{
 			field:  "UserUuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -16579,14 +16171,6 @@ func (m *CancelTalkCollectReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return CancelTalkCollectReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *CancelTalkCollectReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -16664,6 +16248,10 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CancelTalkCollectReqValidationError{}
+
+var _CancelTalkCollectReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
+var _CancelTalkCollectReq_UserUuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on CancelTalkCollectDbAndCacheReq with the
 // rules defined in the proto definition for this message. If any rules are
@@ -16796,11 +16384,10 @@ func (m *GetLastColumnDraftReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetLastColumnDraftReqValidationError{
+	if !_GetLastColumnDraftReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetLastColumnDraftReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -16810,14 +16397,6 @@ func (m *GetLastColumnDraftReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetLastColumnDraftReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetLastColumnDraftReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -16895,6 +16474,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetLastColumnDraftReqValidationError{}
+
+var _GetLastColumnDraftReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetLastColumnDraftReply with the rules
 // defined in the proto definition for this message. If any rules are
@@ -17272,11 +16853,10 @@ func (m *GetColumnImageReviewReq) validate(all bool) error {
 
 	// no validation rules for Page
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetColumnImageReviewReqValidationError{
+	if !_GetColumnImageReviewReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetColumnImageReviewReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -17286,14 +16866,6 @@ func (m *GetColumnImageReviewReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetColumnImageReviewReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetColumnImageReviewReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -17371,6 +16943,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetColumnImageReviewReqValidationError{}
+
+var _GetColumnImageReviewReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetColumnImageReviewReply with the rules
 // defined in the proto definition for this message. If any rules are
@@ -17532,11 +17106,10 @@ func (m *GetColumnContentReviewReq) validate(all bool) error {
 
 	// no validation rules for Page
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetColumnContentReviewReqValidationError{
+	if !_GetColumnContentReviewReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetColumnContentReviewReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -17546,14 +17119,6 @@ func (m *GetColumnContentReviewReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetColumnContentReviewReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetColumnContentReviewReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -17631,6 +17196,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetColumnContentReviewReqValidationError{}
+
+var _GetColumnContentReviewReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetColumnContentReviewReply with the
 // rules defined in the proto definition for this message. If any rules are
@@ -17791,11 +17358,10 @@ func (m *CreateColumnDraftReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = CreateColumnDraftReqValidationError{
+	if !_CreateColumnDraftReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := CreateColumnDraftReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -17805,14 +17371,6 @@ func (m *CreateColumnDraftReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return CreateColumnDraftReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *CreateColumnDraftReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -17890,6 +17448,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CreateColumnDraftReqValidationError{}
+
+var _CreateColumnDraftReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on CreateColumnDraftReply with the rules
 // defined in the proto definition for this message. If any rules are
@@ -18019,11 +17579,10 @@ func (m *SendColumnReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = SendColumnReqValidationError{
+	if !_SendColumnReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := SendColumnReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -18044,14 +17603,6 @@ func (m *SendColumnReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return SendColumnReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *SendColumnReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -18128,6 +17679,8 @@ var _ interface {
 	ErrorName() string
 } = SendColumnReqValidationError{}
 
+var _SendColumnReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on CreateColumnReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -18154,11 +17707,10 @@ func (m *CreateColumnReq) validate(all bool) error {
 
 	// no validation rules for Auth
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = CreateColumnReqValidationError{
+	if !_CreateColumnReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := CreateColumnReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -18168,14 +17720,6 @@ func (m *CreateColumnReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return CreateColumnReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *CreateColumnReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -18251,6 +17795,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CreateColumnReqValidationError{}
+
+var _CreateColumnReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on CreateColumnDbCacheAndSearchReq with the
 // rules defined in the proto definition for this message. If any rules are
@@ -18385,11 +17931,10 @@ func (m *SubscribeColumnReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = SubscribeColumnReqValidationError{
+	if !_SubscribeColumnReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := SubscribeColumnReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -18399,14 +17944,6 @@ func (m *SubscribeColumnReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return SubscribeColumnReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *SubscribeColumnReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -18485,6 +18022,8 @@ var _ interface {
 	ErrorName() string
 } = SubscribeColumnReqValidationError{}
 
+var _SubscribeColumnReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on CancelSubscribeColumnReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -18509,11 +18048,10 @@ func (m *CancelSubscribeColumnReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = CancelSubscribeColumnReqValidationError{
+	if !_CancelSubscribeColumnReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := CancelSubscribeColumnReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -18523,14 +18061,6 @@ func (m *CancelSubscribeColumnReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return CancelSubscribeColumnReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *CancelSubscribeColumnReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -18609,6 +18139,8 @@ var _ interface {
 	ErrorName() string
 } = CancelSubscribeColumnReqValidationError{}
 
+var _CancelSubscribeColumnReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on SubscribeJudgeReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -18633,11 +18165,10 @@ func (m *SubscribeJudgeReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = SubscribeJudgeReqValidationError{
+	if !_SubscribeJudgeReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := SubscribeJudgeReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -18647,14 +18178,6 @@ func (m *SubscribeJudgeReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return SubscribeJudgeReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *SubscribeJudgeReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -18732,6 +18255,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = SubscribeJudgeReqValidationError{}
+
+var _SubscribeJudgeReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on SubscribeJudgeReply with the rules
 // defined in the proto definition for this message. If any rules are
@@ -18863,11 +18388,10 @@ func (m *EditColumnCosAndSearchReq) validate(all bool) error {
 
 	// no validation rules for Auth
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = EditColumnCosAndSearchReqValidationError{
+	if !_EditColumnCosAndSearchReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := EditColumnCosAndSearchReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -18877,14 +18401,6 @@ func (m *EditColumnCosAndSearchReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return EditColumnCosAndSearchReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *EditColumnCosAndSearchReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -18962,6 +18478,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = EditColumnCosAndSearchReqValidationError{}
+
+var _EditColumnCosAndSearchReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetColumnListReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the
@@ -19942,11 +19460,10 @@ func (m *GetUserColumnListReq) validate(all bool) error {
 
 	// no validation rules for Page
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetUserColumnListReqValidationError{
+	if !_GetUserColumnListReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetUserColumnListReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -19956,14 +19473,6 @@ func (m *GetUserColumnListReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetUserColumnListReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetUserColumnListReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -20042,6 +19551,8 @@ var _ interface {
 	ErrorName() string
 } = GetUserColumnListReqValidationError{}
 
+var _GetUserColumnListReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on GetUserColumnListVisitorReq with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -20066,11 +19577,10 @@ func (m *GetUserColumnListVisitorReq) validate(all bool) error {
 
 	// no validation rules for Page
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetUserColumnListVisitorReqValidationError{
+	if !_GetUserColumnListVisitorReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetUserColumnListVisitorReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -20080,14 +19590,6 @@ func (m *GetUserColumnListVisitorReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetUserColumnListVisitorReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetUserColumnListVisitorReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -20166,6 +19668,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetUserColumnListVisitorReqValidationError{}
+
+var _GetUserColumnListVisitorReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetColumnArticleListReq with the rules
 // defined in the proto definition for this message. If any rules are
@@ -20293,11 +19797,10 @@ func (m *GetColumnCountReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetColumnCountReqValidationError{
+	if !_GetColumnCountReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetColumnCountReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -20307,14 +19810,6 @@ func (m *GetColumnCountReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetColumnCountReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetColumnCountReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -20393,6 +19888,8 @@ var _ interface {
 	ErrorName() string
 } = GetColumnCountReqValidationError{}
 
+var _GetColumnCountReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on GetColumnCountVisitorReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -20415,11 +19912,10 @@ func (m *GetColumnCountVisitorReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetColumnCountVisitorReqValidationError{
+	if !_GetColumnCountVisitorReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetColumnCountVisitorReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -20429,14 +19925,6 @@ func (m *GetColumnCountVisitorReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetColumnCountVisitorReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetColumnCountVisitorReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -20514,6 +20002,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetColumnCountVisitorReqValidationError{}
+
+var _GetColumnCountVisitorReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetColumnCountReply with the rules
 // defined in the proto definition for this message. If any rules are
@@ -21091,11 +20581,10 @@ func (m *GetColumnSubscribesReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetColumnSubscribesReqValidationError{
+	if !_GetColumnSubscribesReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetColumnSubscribesReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -21105,14 +20594,6 @@ func (m *GetColumnSubscribesReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetColumnSubscribesReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetColumnSubscribesReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -21190,6 +20671,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetColumnSubscribesReqValidationError{}
+
+var _GetColumnSubscribesReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetColumnSubscribesReply with the rules
 // defined in the proto definition for this message. If any rules are
@@ -21349,11 +20832,10 @@ func (m *GetUserColumnAgreeReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetUserColumnAgreeReqValidationError{
+	if !_GetUserColumnAgreeReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetUserColumnAgreeReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -21363,14 +20845,6 @@ func (m *GetUserColumnAgreeReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetUserColumnAgreeReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetUserColumnAgreeReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -21449,6 +20923,8 @@ var _ interface {
 	ErrorName() string
 } = GetUserColumnAgreeReqValidationError{}
 
+var _GetUserColumnAgreeReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on GetUserColumnCollectReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -21471,11 +20947,10 @@ func (m *GetUserColumnCollectReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetUserColumnCollectReqValidationError{
+	if !_GetUserColumnCollectReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetUserColumnCollectReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -21485,14 +20960,6 @@ func (m *GetUserColumnCollectReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetUserColumnCollectReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetUserColumnCollectReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -21570,6 +21037,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetUserColumnCollectReqValidationError{}
+
+var _GetUserColumnCollectReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetUserColumnAgreeReply with the rules
 // defined in the proto definition for this message. If any rules are
@@ -21801,11 +21270,10 @@ func (m *GetUserSubscribeColumnReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetUserSubscribeColumnReqValidationError{
+	if !_GetUserSubscribeColumnReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetUserSubscribeColumnReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -21815,14 +21283,6 @@ func (m *GetUserSubscribeColumnReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetUserSubscribeColumnReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetUserSubscribeColumnReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -21900,6 +21360,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetUserSubscribeColumnReqValidationError{}
+
+var _GetUserSubscribeColumnReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetUserSubscribeColumnReply with the
 // rules defined in the proto definition for this message. If any rules are
@@ -22030,11 +21492,10 @@ func (m *SendColumnEditReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = SendColumnEditReqValidationError{
+	if !_SendColumnEditReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := SendColumnEditReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -22055,14 +21516,6 @@ func (m *SendColumnEditReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return SendColumnEditReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *SendColumnEditReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -22141,6 +21594,8 @@ var _ interface {
 	ErrorName() string
 } = SendColumnEditReqValidationError{}
 
+var _SendColumnEditReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on EditColumnReq with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
@@ -22167,11 +21622,10 @@ func (m *EditColumnReq) validate(all bool) error {
 
 	// no validation rules for Auth
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = EditColumnReqValidationError{
+	if !_EditColumnReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := EditColumnReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -22181,14 +21635,6 @@ func (m *EditColumnReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return EditColumnReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *EditColumnReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -22265,6 +21711,8 @@ var _ interface {
 	ErrorName() string
 } = EditColumnReqValidationError{}
 
+var _EditColumnReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on DeleteColumnReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -22289,11 +21737,10 @@ func (m *DeleteColumnReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = DeleteColumnReqValidationError{
+	if !_DeleteColumnReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := DeleteColumnReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -22303,14 +21750,6 @@ func (m *DeleteColumnReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return DeleteColumnReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *DeleteColumnReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -22386,6 +21825,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = DeleteColumnReqValidationError{}
+
+var _DeleteColumnReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on DeleteColumnCacheAndSearchReq with the
 // rules defined in the proto definition for this message. If any rules are
@@ -22518,11 +21959,10 @@ func (m *ColumnStatisticJudgeReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = ColumnStatisticJudgeReqValidationError{
+	if !_ColumnStatisticJudgeReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := ColumnStatisticJudgeReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -22532,14 +21972,6 @@ func (m *ColumnStatisticJudgeReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return ColumnStatisticJudgeReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *ColumnStatisticJudgeReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -22617,6 +22049,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ColumnStatisticJudgeReqValidationError{}
+
+var _ColumnStatisticJudgeReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on ColumnStatisticJudgeReply with the rules
 // defined in the proto definition for this message. If any rules are
@@ -22748,11 +22182,10 @@ func (m *SetColumnAgreeReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = SetColumnAgreeReqValidationError{
+	if !_SetColumnAgreeReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := SetColumnAgreeReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -22760,11 +22193,10 @@ func (m *SetColumnAgreeReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if err := m._validateUuid(m.GetUserUuid()); err != nil {
-		err = SetColumnAgreeReqValidationError{
+	if !_SetColumnAgreeReq_UserUuid_Pattern.MatchString(m.GetUserUuid()) {
+		err := SetColumnAgreeReqValidationError{
 			field:  "UserUuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -22774,14 +22206,6 @@ func (m *SetColumnAgreeReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return SetColumnAgreeReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *SetColumnAgreeReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -22859,6 +22283,10 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = SetColumnAgreeReqValidationError{}
+
+var _SetColumnAgreeReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
+var _SetColumnAgreeReq_UserUuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on SetColumnAgreeDbAndCacheReq with the
 // rules defined in the proto definition for this message. If any rules are
@@ -22993,11 +22421,10 @@ func (m *CancelColumnAgreeReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = CancelColumnAgreeReqValidationError{
+	if !_CancelColumnAgreeReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := CancelColumnAgreeReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -23005,11 +22432,10 @@ func (m *CancelColumnAgreeReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if err := m._validateUuid(m.GetUserUuid()); err != nil {
-		err = CancelColumnAgreeReqValidationError{
+	if !_CancelColumnAgreeReq_UserUuid_Pattern.MatchString(m.GetUserUuid()) {
+		err := CancelColumnAgreeReqValidationError{
 			field:  "UserUuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -23019,14 +22445,6 @@ func (m *CancelColumnAgreeReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return CancelColumnAgreeReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *CancelColumnAgreeReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -23104,6 +22522,10 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CancelColumnAgreeReqValidationError{}
+
+var _CancelColumnAgreeReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
+var _CancelColumnAgreeReq_UserUuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on CancelColumnAgreeDbAndCacheReq with the
 // rules defined in the proto definition for this message. If any rules are
@@ -23240,11 +22662,10 @@ func (m *SetColumnCollectReq) validate(all bool) error {
 
 	// no validation rules for CollectionsId
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = SetColumnCollectReqValidationError{
+	if !_SetColumnCollectReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := SetColumnCollectReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -23252,11 +22673,10 @@ func (m *SetColumnCollectReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if err := m._validateUuid(m.GetUserUuid()); err != nil {
-		err = SetColumnCollectReqValidationError{
+	if !_SetColumnCollectReq_UserUuid_Pattern.MatchString(m.GetUserUuid()) {
+		err := SetColumnCollectReqValidationError{
 			field:  "UserUuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -23266,14 +22686,6 @@ func (m *SetColumnCollectReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return SetColumnCollectReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *SetColumnCollectReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -23351,6 +22763,10 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = SetColumnCollectReqValidationError{}
+
+var _SetColumnCollectReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
+var _SetColumnCollectReq_UserUuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on SetColumnCollectDbAndCacheReq with the
 // rules defined in the proto definition for this message. If any rules are
@@ -23487,11 +22903,10 @@ func (m *CancelColumnCollectReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = CancelColumnCollectReqValidationError{
+	if !_CancelColumnCollectReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := CancelColumnCollectReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -23499,11 +22914,10 @@ func (m *CancelColumnCollectReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if err := m._validateUuid(m.GetUserUuid()); err != nil {
-		err = CancelColumnCollectReqValidationError{
+	if !_CancelColumnCollectReq_UserUuid_Pattern.MatchString(m.GetUserUuid()) {
+		err := CancelColumnCollectReqValidationError{
 			field:  "UserUuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -23513,14 +22927,6 @@ func (m *CancelColumnCollectReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return CancelColumnCollectReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *CancelColumnCollectReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -23598,6 +23004,10 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CancelColumnCollectReqValidationError{}
+
+var _CancelColumnCollectReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
+var _CancelColumnCollectReq_UserUuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on CancelColumnCollectDbAndCacheReq with
 // the rules defined in the proto definition for this message. If any rules
@@ -23734,11 +23144,10 @@ func (m *SetColumnViewReq) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = SetColumnViewReqValidationError{
+	if !_SetColumnViewReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := SetColumnViewReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -23748,14 +23157,6 @@ func (m *SetColumnViewReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return SetColumnViewReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *SetColumnViewReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -23831,6 +23232,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = SetColumnViewReqValidationError{}
+
+var _SetColumnViewReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on SetColumnViewDbAndCacheReq with the
 // rules defined in the proto definition for this message. If any rules are
@@ -23964,11 +23367,10 @@ func (m *AddColumnIncludesReq) validate(all bool) error {
 
 	// no validation rules for ArticleId
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = AddColumnIncludesReqValidationError{
+	if !_AddColumnIncludesReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := AddColumnIncludesReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -23978,14 +23380,6 @@ func (m *AddColumnIncludesReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return AddColumnIncludesReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *AddColumnIncludesReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -24063,6 +23457,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = AddColumnIncludesReqValidationError{}
+
+var _AddColumnIncludesReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on AddColumnIncludesDbAndCacheReq with the
 // rules defined in the proto definition for this message. If any rules are
@@ -24199,11 +23595,10 @@ func (m *DeleteColumnIncludesReq) validate(all bool) error {
 
 	// no validation rules for ArticleId
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = DeleteColumnIncludesReqValidationError{
+	if !_DeleteColumnIncludesReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := DeleteColumnIncludesReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -24213,14 +23608,6 @@ func (m *DeleteColumnIncludesReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return DeleteColumnIncludesReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *DeleteColumnIncludesReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -24298,6 +23685,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = DeleteColumnIncludesReqValidationError{}
+
+var _DeleteColumnIncludesReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on DeleteColumnIncludesDbAndCacheReq with
 // the rules defined in the proto definition for this message. If any rules
@@ -24886,11 +24275,10 @@ func (m *AddCreationCommentReq) validate(all bool) error {
 
 	// no validation rules for CreationType
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = AddCreationCommentReqValidationError{
+	if !_AddCreationCommentReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := AddCreationCommentReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -24900,14 +24288,6 @@ func (m *AddCreationCommentReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return AddCreationCommentReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *AddCreationCommentReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -24986,6 +24366,8 @@ var _ interface {
 	ErrorName() string
 } = AddCreationCommentReqValidationError{}
 
+var _AddCreationCommentReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 // Validate checks the field values on ReduceCreationCommentReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -25012,11 +24394,10 @@ func (m *ReduceCreationCommentReq) validate(all bool) error {
 
 	// no validation rules for CreationType
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = ReduceCreationCommentReqValidationError{
+	if !_ReduceCreationCommentReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := ReduceCreationCommentReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -25026,14 +24407,6 @@ func (m *ReduceCreationCommentReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return ReduceCreationCommentReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *ReduceCreationCommentReq) _validateUuid(uuid string) error {
-	if matched := _creation_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -25111,6 +24484,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ReduceCreationCommentReqValidationError{}
+
+var _ReduceCreationCommentReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetLeaderBoardReply_Board with the rules
 // defined in the proto definition for this message. If any rules are
