@@ -8,7 +8,7 @@ type SystemNotification struct {
 	NotificationType string
 	Title            string `gorm:"size:100"`
 	Uid              string
-	Uuid             string `gorm:"index;size:36"`
+	Uuid             string `gorm:"index;size:20"`
 	Label            string `gorm:"size:100"`
 	Result           int32
 	Section          string
