@@ -67,7 +67,7 @@ message CancelAchievementFollowReq{
 }
 
 message SetUserMedalReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   string medal = 2 [(validate.rules).string = {in: [
     "creation1", "creation2", "creation3", "creation4", "creation5", "creation6", "creation7",
     "agree1", "agree2", "agree3", "agree4", "agree5", "agree6",
@@ -78,7 +78,7 @@ message SetUserMedalReq{
 }
 
 message CancelUserMedalSetReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   string medal = 2 [(validate.rules).string = {in: [
     "creation1", "creation2", "creation3", "creation4", "creation5", "creation6", "creation7",
     "agree1", "agree2", "agree3", "agree4", "agree5", "agree6",
@@ -99,7 +99,7 @@ message CancelUserMedalDbAndCacheReq{
 }
 
 message AccessUserMedalReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   string medal = 2 [(validate.rules).string = {in: [
     "creation1", "creation2", "creation3", "creation4", "creation5", "creation6", "creation7",
     "agree1", "agree2", "agree3", "agree4", "agree5", "agree6",
@@ -110,7 +110,7 @@ message AccessUserMedalReq{
 }
 
 message GetAchievementListReq{
-  repeated string uuids = 1 [(validate.rules).repeated.items.string.uuid = true];
+  repeated string uuids = 1 [(validate.rules).repeated.items.string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetAchievementListReply{
@@ -125,7 +125,7 @@ message GetAchievementListReply{
 }
 
 message GetUserAchievementReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetUserAchievementReply{
@@ -143,7 +143,7 @@ message AddAchievementScoreReq{
 }
 
 message GetUserMedalReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetUserMedalReply{
@@ -172,7 +172,7 @@ message GetUserMedalReply{
 }
 
 message GetUserActiveReq{
-  string uuid = 1 [(validate.rules).string.uuid = true];
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
 message GetUserActiveReply{

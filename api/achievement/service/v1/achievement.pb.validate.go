@@ -35,9 +35,6 @@ var (
 	_ = sort.Sort
 )
 
-// define the regex for a UUID once up-front
-var _achievement_uuidPattern = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
-
 // Validate checks the field values on SetAchievementAgreeReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -797,11 +794,10 @@ func (m *SetUserMedalReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = SetUserMedalReqValidationError{
+	if !_SetUserMedalReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := SetUserMedalReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -822,14 +818,6 @@ func (m *SetUserMedalReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return SetUserMedalReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *SetUserMedalReq) _validateUuid(uuid string) error {
-	if matched := _achievement_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -906,6 +894,8 @@ var _ interface {
 	ErrorName() string
 } = SetUserMedalReqValidationError{}
 
+var _SetUserMedalReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 var _SetUserMedalReq_Medal_InLookup = map[string]struct{}{
 	"creation1": {},
 	"creation2": {},
@@ -953,11 +943,10 @@ func (m *CancelUserMedalSetReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = CancelUserMedalSetReqValidationError{
+	if !_CancelUserMedalSetReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := CancelUserMedalSetReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -978,14 +967,6 @@ func (m *CancelUserMedalSetReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return CancelUserMedalSetReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *CancelUserMedalSetReq) _validateUuid(uuid string) error {
-	if matched := _achievement_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -1063,6 +1044,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CancelUserMedalSetReqValidationError{}
+
+var _CancelUserMedalSetReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 var _CancelUserMedalSetReq_Medal_InLookup = map[string]struct{}{
 	"creation1": {},
@@ -1324,11 +1307,10 @@ func (m *AccessUserMedalReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = AccessUserMedalReqValidationError{
+	if !_AccessUserMedalReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := AccessUserMedalReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -1349,14 +1331,6 @@ func (m *AccessUserMedalReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return AccessUserMedalReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *AccessUserMedalReq) _validateUuid(uuid string) error {
-	if matched := _achievement_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -1435,6 +1409,8 @@ var _ interface {
 	ErrorName() string
 } = AccessUserMedalReqValidationError{}
 
+var _AccessUserMedalReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
 var _AccessUserMedalReq_Medal_InLookup = map[string]struct{}{
 	"creation1": {},
 	"creation2": {},
@@ -1485,11 +1461,10 @@ func (m *GetAchievementListReq) validate(all bool) error {
 	for idx, item := range m.GetUuids() {
 		_, _ = idx, item
 
-		if err := m._validateUuid(item); err != nil {
-			err = GetAchievementListReqValidationError{
+		if !_GetAchievementListReq_Uuids_Pattern.MatchString(item) {
+			err := GetAchievementListReqValidationError{
 				field:  fmt.Sprintf("Uuids[%v]", idx),
-				reason: "value must be a valid UUID",
-				cause:  err,
+				reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 			}
 			if !all {
 				return err
@@ -1501,14 +1476,6 @@ func (m *GetAchievementListReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetAchievementListReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetAchievementListReq) _validateUuid(uuid string) error {
-	if matched := _achievement_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -1586,6 +1553,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetAchievementListReqValidationError{}
+
+var _GetAchievementListReq_Uuids_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetAchievementListReply with the rules
 // defined in the proto definition for this message. If any rules are
@@ -1745,11 +1714,10 @@ func (m *GetUserAchievementReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetUserAchievementReqValidationError{
+	if !_GetUserAchievementReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetUserAchievementReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -1759,14 +1727,6 @@ func (m *GetUserAchievementReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetUserAchievementReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetUserAchievementReq) _validateUuid(uuid string) error {
-	if matched := _achievement_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -1844,6 +1804,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetUserAchievementReqValidationError{}
+
+var _GetUserAchievementReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetUserAchievementReply with the rules
 // defined in the proto definition for this message. If any rules are
@@ -2087,11 +2049,10 @@ func (m *GetUserMedalReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetUserMedalReqValidationError{
+	if !_GetUserMedalReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetUserMedalReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -2101,14 +2062,6 @@ func (m *GetUserMedalReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetUserMedalReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetUserMedalReq) _validateUuid(uuid string) error {
-	if matched := _achievement_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -2184,6 +2137,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetUserMedalReqValidationError{}
+
+var _GetUserMedalReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetUserMedalReply with the rules defined
 // in the proto definition for this message. If any rules are violated, the
@@ -2353,11 +2308,10 @@ func (m *GetUserActiveReq) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetUuid()); err != nil {
-		err = GetUserActiveReqValidationError{
+	if !_GetUserActiveReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := GetUserActiveReqValidationError{
 			field:  "Uuid",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
 		}
 		if !all {
 			return err
@@ -2367,14 +2321,6 @@ func (m *GetUserActiveReq) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetUserActiveReqMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *GetUserActiveReq) _validateUuid(uuid string) error {
-	if matched := _achievement_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -2450,6 +2396,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetUserActiveReqValidationError{}
+
+var _GetUserActiveReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on GetUserActiveReply with the rules
 // defined in the proto definition for this message. If any rules are
