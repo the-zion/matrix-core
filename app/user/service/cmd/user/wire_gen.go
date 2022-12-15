@@ -34,7 +34,8 @@ func wireApp(confServer *conf.Server, confData *conf.Data, auth *conf.Auth, logL
 	github := data.NewGithub(confData)
 	wechat := data.NewWechat(confData)
 	qq := data.NewQQ(confData)
-	dataData, cleanup2, err := data.NewData(db, cmdable, codeMqPro, elasticSearch, profileMqPro, followMqPro, pictureMqPro, achievementMqPro, cos, client, github, wechat, qq, logLogger)
+	gitee := data.NewGitee(confData)
+	dataData, cleanup2, err := data.NewData(db, cmdable, codeMqPro, elasticSearch, profileMqPro, followMqPro, pictureMqPro, achievementMqPro, cos, client, github, wechat, qq, gitee, logLogger)
 	if err != nil {
 		return nil, nil, err
 	}
