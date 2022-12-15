@@ -101,6 +101,14 @@ message Data {
     string clientId = 3;
     string clientSecret = 4;
   }
+  message Gitee{
+    string accessTokenUrl = 1;
+    string userInfoUrl = 2;
+    string clientId = 3;
+    string clientSecret = 4;
+    string grantType = 5;
+    string redirectUri = 6;
+  }
   message Wechat{
     string accessTokenUrl = 1;
     string userInfoUrl = 2;
@@ -124,8 +132,9 @@ message Data {
   ElasticSearch elasticSearch = 7;
   Cos cos = 8;
   Github github = 9;
-  Wechat wechat = 10;
-  QQ qq = 11;
+  Gitee gitee = 10;
+  Wechat wechat = 11;
+  QQ qq = 12;
 }
 
 message Auth {
