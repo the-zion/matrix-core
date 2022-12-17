@@ -55,11 +55,19 @@ type BffClient interface {
 	SetUserPhone(ctx context.Context, in *SetUserPhoneReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetUserEmail(ctx context.Context, in *SetUserEmailReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetUserPassword(ctx context.Context, in *SetUserPasswordReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetUserWechat(ctx context.Context, in *SetUserWechatReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetUserQQ(ctx context.Context, in *SetUserQQReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetUserGitee(ctx context.Context, in *SetUserGiteeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetUserGithub(ctx context.Context, in *SetUserGithubReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetUserFollow(ctx context.Context, in *SetUserFollowReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelUserFollow(ctx context.Context, in *CancelUserFollowReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ChangeUserPassword(ctx context.Context, in *ChangeUserPasswordReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	UnbindUserPhone(ctx context.Context, in *UnbindUserPhoneReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	UnbindUserEmail(ctx context.Context, in *UnbindUserEmailReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UnbindUserPhone(ctx context.Context, in *UnbindUserAccountReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UnbindUserEmail(ctx context.Context, in *UnbindUserAccountReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UnbindUserWechat(ctx context.Context, in *UnbindUserAccountReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UnbindUserQQ(ctx context.Context, in *UnbindUserAccountReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UnbindUserGitee(ctx context.Context, in *UnbindUserAccountReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UnbindUserGithub(ctx context.Context, in *UnbindUserAccountReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// -------------------------creation----------------------------
 	GetLeaderBoard(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLeaderBoardReply, error)
 	GetCollectArticleList(ctx context.Context, in *GetCollectArticleListReq, opts ...grpc.CallOption) (*GetArticleListReply, error)
@@ -508,6 +516,42 @@ func (c *bffClient) SetUserPassword(ctx context.Context, in *SetUserPasswordReq,
 	return out, nil
 }
 
+func (c *bffClient) SetUserWechat(ctx context.Context, in *SetUserWechatReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SetUserWechat", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) SetUserQQ(ctx context.Context, in *SetUserQQReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SetUserQQ", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) SetUserGitee(ctx context.Context, in *SetUserGiteeReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SetUserGitee", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) SetUserGithub(ctx context.Context, in *SetUserGithubReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SetUserGithub", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) SetUserFollow(ctx context.Context, in *SetUserFollowReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/SetUserFollow", in, out, opts...)
@@ -535,7 +579,7 @@ func (c *bffClient) ChangeUserPassword(ctx context.Context, in *ChangeUserPasswo
 	return out, nil
 }
 
-func (c *bffClient) UnbindUserPhone(ctx context.Context, in *UnbindUserPhoneReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *bffClient) UnbindUserPhone(ctx context.Context, in *UnbindUserAccountReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/UnbindUserPhone", in, out, opts...)
 	if err != nil {
@@ -544,9 +588,45 @@ func (c *bffClient) UnbindUserPhone(ctx context.Context, in *UnbindUserPhoneReq,
 	return out, nil
 }
 
-func (c *bffClient) UnbindUserEmail(ctx context.Context, in *UnbindUserEmailReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *bffClient) UnbindUserEmail(ctx context.Context, in *UnbindUserAccountReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/UnbindUserEmail", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) UnbindUserWechat(ctx context.Context, in *UnbindUserAccountReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/UnbindUserWechat", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) UnbindUserQQ(ctx context.Context, in *UnbindUserAccountReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/UnbindUserQQ", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) UnbindUserGitee(ctx context.Context, in *UnbindUserAccountReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/UnbindUserGitee", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) UnbindUserGithub(ctx context.Context, in *UnbindUserAccountReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/UnbindUserGithub", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1930,11 +2010,19 @@ type BffServer interface {
 	SetUserPhone(context.Context, *SetUserPhoneReq) (*emptypb.Empty, error)
 	SetUserEmail(context.Context, *SetUserEmailReq) (*emptypb.Empty, error)
 	SetUserPassword(context.Context, *SetUserPasswordReq) (*emptypb.Empty, error)
+	SetUserWechat(context.Context, *SetUserWechatReq) (*emptypb.Empty, error)
+	SetUserQQ(context.Context, *SetUserQQReq) (*emptypb.Empty, error)
+	SetUserGitee(context.Context, *SetUserGiteeReq) (*emptypb.Empty, error)
+	SetUserGithub(context.Context, *SetUserGithubReq) (*emptypb.Empty, error)
 	SetUserFollow(context.Context, *SetUserFollowReq) (*emptypb.Empty, error)
 	CancelUserFollow(context.Context, *CancelUserFollowReq) (*emptypb.Empty, error)
 	ChangeUserPassword(context.Context, *ChangeUserPasswordReq) (*emptypb.Empty, error)
-	UnbindUserPhone(context.Context, *UnbindUserPhoneReq) (*emptypb.Empty, error)
-	UnbindUserEmail(context.Context, *UnbindUserEmailReq) (*emptypb.Empty, error)
+	UnbindUserPhone(context.Context, *UnbindUserAccountReq) (*emptypb.Empty, error)
+	UnbindUserEmail(context.Context, *UnbindUserAccountReq) (*emptypb.Empty, error)
+	UnbindUserWechat(context.Context, *UnbindUserAccountReq) (*emptypb.Empty, error)
+	UnbindUserQQ(context.Context, *UnbindUserAccountReq) (*emptypb.Empty, error)
+	UnbindUserGitee(context.Context, *UnbindUserAccountReq) (*emptypb.Empty, error)
+	UnbindUserGithub(context.Context, *UnbindUserAccountReq) (*emptypb.Empty, error)
 	// -------------------------creation----------------------------
 	GetLeaderBoard(context.Context, *emptypb.Empty) (*GetLeaderBoardReply, error)
 	GetCollectArticleList(context.Context, *GetCollectArticleListReq) (*GetArticleListReply, error)
@@ -2188,6 +2276,18 @@ func (UnimplementedBffServer) SetUserEmail(context.Context, *SetUserEmailReq) (*
 func (UnimplementedBffServer) SetUserPassword(context.Context, *SetUserPasswordReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetUserPassword not implemented")
 }
+func (UnimplementedBffServer) SetUserWechat(context.Context, *SetUserWechatReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetUserWechat not implemented")
+}
+func (UnimplementedBffServer) SetUserQQ(context.Context, *SetUserQQReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetUserQQ not implemented")
+}
+func (UnimplementedBffServer) SetUserGitee(context.Context, *SetUserGiteeReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetUserGitee not implemented")
+}
+func (UnimplementedBffServer) SetUserGithub(context.Context, *SetUserGithubReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetUserGithub not implemented")
+}
 func (UnimplementedBffServer) SetUserFollow(context.Context, *SetUserFollowReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetUserFollow not implemented")
 }
@@ -2197,11 +2297,23 @@ func (UnimplementedBffServer) CancelUserFollow(context.Context, *CancelUserFollo
 func (UnimplementedBffServer) ChangeUserPassword(context.Context, *ChangeUserPasswordReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeUserPassword not implemented")
 }
-func (UnimplementedBffServer) UnbindUserPhone(context.Context, *UnbindUserPhoneReq) (*emptypb.Empty, error) {
+func (UnimplementedBffServer) UnbindUserPhone(context.Context, *UnbindUserAccountReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UnbindUserPhone not implemented")
 }
-func (UnimplementedBffServer) UnbindUserEmail(context.Context, *UnbindUserEmailReq) (*emptypb.Empty, error) {
+func (UnimplementedBffServer) UnbindUserEmail(context.Context, *UnbindUserAccountReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UnbindUserEmail not implemented")
+}
+func (UnimplementedBffServer) UnbindUserWechat(context.Context, *UnbindUserAccountReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UnbindUserWechat not implemented")
+}
+func (UnimplementedBffServer) UnbindUserQQ(context.Context, *UnbindUserAccountReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UnbindUserQQ not implemented")
+}
+func (UnimplementedBffServer) UnbindUserGitee(context.Context, *UnbindUserAccountReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UnbindUserGitee not implemented")
+}
+func (UnimplementedBffServer) UnbindUserGithub(context.Context, *UnbindUserAccountReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UnbindUserGithub not implemented")
 }
 func (UnimplementedBffServer) GetLeaderBoard(context.Context, *emptypb.Empty) (*GetLeaderBoardReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLeaderBoard not implemented")
@@ -3239,6 +3351,78 @@ func _Bff_SetUserPassword_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_SetUserWechat_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetUserWechatReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).SetUserWechat(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/SetUserWechat",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).SetUserWechat(ctx, req.(*SetUserWechatReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_SetUserQQ_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetUserQQReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).SetUserQQ(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/SetUserQQ",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).SetUserQQ(ctx, req.(*SetUserQQReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_SetUserGitee_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetUserGiteeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).SetUserGitee(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/SetUserGitee",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).SetUserGitee(ctx, req.(*SetUserGiteeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_SetUserGithub_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetUserGithubReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).SetUserGithub(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/SetUserGithub",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).SetUserGithub(ctx, req.(*SetUserGithubReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_SetUserFollow_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SetUserFollowReq)
 	if err := dec(in); err != nil {
@@ -3294,7 +3478,7 @@ func _Bff_ChangeUserPassword_Handler(srv interface{}, ctx context.Context, dec f
 }
 
 func _Bff_UnbindUserPhone_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UnbindUserPhoneReq)
+	in := new(UnbindUserAccountReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -3306,13 +3490,13 @@ func _Bff_UnbindUserPhone_Handler(srv interface{}, ctx context.Context, dec func
 		FullMethod: "/bff.v1.Bff/UnbindUserPhone",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BffServer).UnbindUserPhone(ctx, req.(*UnbindUserPhoneReq))
+		return srv.(BffServer).UnbindUserPhone(ctx, req.(*UnbindUserAccountReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Bff_UnbindUserEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UnbindUserEmailReq)
+	in := new(UnbindUserAccountReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -3324,7 +3508,79 @@ func _Bff_UnbindUserEmail_Handler(srv interface{}, ctx context.Context, dec func
 		FullMethod: "/bff.v1.Bff/UnbindUserEmail",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BffServer).UnbindUserEmail(ctx, req.(*UnbindUserEmailReq))
+		return srv.(BffServer).UnbindUserEmail(ctx, req.(*UnbindUserAccountReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_UnbindUserWechat_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UnbindUserAccountReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).UnbindUserWechat(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/UnbindUserWechat",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).UnbindUserWechat(ctx, req.(*UnbindUserAccountReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_UnbindUserQQ_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UnbindUserAccountReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).UnbindUserQQ(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/UnbindUserQQ",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).UnbindUserQQ(ctx, req.(*UnbindUserAccountReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_UnbindUserGitee_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UnbindUserAccountReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).UnbindUserGitee(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/UnbindUserGitee",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).UnbindUserGitee(ctx, req.(*UnbindUserAccountReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_UnbindUserGithub_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UnbindUserAccountReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).UnbindUserGithub(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/UnbindUserGithub",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).UnbindUserGithub(ctx, req.(*UnbindUserAccountReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -6147,6 +6403,22 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Bff_SetUserPassword_Handler,
 		},
 		{
+			MethodName: "SetUserWechat",
+			Handler:    _Bff_SetUserWechat_Handler,
+		},
+		{
+			MethodName: "SetUserQQ",
+			Handler:    _Bff_SetUserQQ_Handler,
+		},
+		{
+			MethodName: "SetUserGitee",
+			Handler:    _Bff_SetUserGitee_Handler,
+		},
+		{
+			MethodName: "SetUserGithub",
+			Handler:    _Bff_SetUserGithub_Handler,
+		},
+		{
 			MethodName: "SetUserFollow",
 			Handler:    _Bff_SetUserFollow_Handler,
 		},
@@ -6165,6 +6437,22 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UnbindUserEmail",
 			Handler:    _Bff_UnbindUserEmail_Handler,
+		},
+		{
+			MethodName: "UnbindUserWechat",
+			Handler:    _Bff_UnbindUserWechat_Handler,
+		},
+		{
+			MethodName: "UnbindUserQQ",
+			Handler:    _Bff_UnbindUserQQ_Handler,
+		},
+		{
+			MethodName: "UnbindUserGitee",
+			Handler:    _Bff_UnbindUserGitee_Handler,
+		},
+		{
+			MethodName: "UnbindUserGithub",
+			Handler:    _Bff_UnbindUserGithub_Handler,
 		},
 		{
 			MethodName: "GetLeaderBoard",

@@ -197,14 +197,22 @@ const OperationBffSetTalkCollect = "/bff.v1.Bff/SetTalkCollect"
 const OperationBffSetTalkView = "/bff.v1.Bff/SetTalkView"
 const OperationBffSetUserEmail = "/bff.v1.Bff/SetUserEmail"
 const OperationBffSetUserFollow = "/bff.v1.Bff/SetUserFollow"
+const OperationBffSetUserGitee = "/bff.v1.Bff/SetUserGitee"
+const OperationBffSetUserGithub = "/bff.v1.Bff/SetUserGithub"
 const OperationBffSetUserMedal = "/bff.v1.Bff/SetUserMedal"
 const OperationBffSetUserPassword = "/bff.v1.Bff/SetUserPassword"
 const OperationBffSetUserPhone = "/bff.v1.Bff/SetUserPhone"
+const OperationBffSetUserQQ = "/bff.v1.Bff/SetUserQQ"
+const OperationBffSetUserWechat = "/bff.v1.Bff/SetUserWechat"
 const OperationBffSubscribeColumn = "/bff.v1.Bff/SubscribeColumn"
 const OperationBffSubscribeJudge = "/bff.v1.Bff/SubscribeJudge"
 const OperationBffTalkStatisticJudge = "/bff.v1.Bff/TalkStatisticJudge"
 const OperationBffUnbindUserEmail = "/bff.v1.Bff/UnbindUserEmail"
+const OperationBffUnbindUserGitee = "/bff.v1.Bff/UnbindUserGitee"
+const OperationBffUnbindUserGithub = "/bff.v1.Bff/UnbindUserGithub"
 const OperationBffUnbindUserPhone = "/bff.v1.Bff/UnbindUserPhone"
+const OperationBffUnbindUserQQ = "/bff.v1.Bff/UnbindUserQQ"
+const OperationBffUnbindUserWechat = "/bff.v1.Bff/UnbindUserWechat"
 const OperationBffUserRegister = "/bff.v1.Bff/UserRegister"
 
 type BffHTTPServer interface {
@@ -385,14 +393,22 @@ type BffHTTPServer interface {
 	SetTalkView(context.Context, *SetTalkViewReq) (*emptypb.Empty, error)
 	SetUserEmail(context.Context, *SetUserEmailReq) (*emptypb.Empty, error)
 	SetUserFollow(context.Context, *SetUserFollowReq) (*emptypb.Empty, error)
+	SetUserGitee(context.Context, *SetUserGiteeReq) (*emptypb.Empty, error)
+	SetUserGithub(context.Context, *SetUserGithubReq) (*emptypb.Empty, error)
 	SetUserMedal(context.Context, *SetUserMedalReq) (*emptypb.Empty, error)
 	SetUserPassword(context.Context, *SetUserPasswordReq) (*emptypb.Empty, error)
 	SetUserPhone(context.Context, *SetUserPhoneReq) (*emptypb.Empty, error)
+	SetUserQQ(context.Context, *SetUserQQReq) (*emptypb.Empty, error)
+	SetUserWechat(context.Context, *SetUserWechatReq) (*emptypb.Empty, error)
 	SubscribeColumn(context.Context, *SubscribeColumnReq) (*emptypb.Empty, error)
 	SubscribeJudge(context.Context, *SubscribeJudgeReq) (*SubscribeJudgeReply, error)
 	TalkStatisticJudge(context.Context, *TalkStatisticJudgeReq) (*TalkStatisticJudgeReply, error)
-	UnbindUserEmail(context.Context, *UnbindUserEmailReq) (*emptypb.Empty, error)
-	UnbindUserPhone(context.Context, *UnbindUserPhoneReq) (*emptypb.Empty, error)
+	UnbindUserEmail(context.Context, *UnbindUserAccountReq) (*emptypb.Empty, error)
+	UnbindUserGitee(context.Context, *UnbindUserAccountReq) (*emptypb.Empty, error)
+	UnbindUserGithub(context.Context, *UnbindUserAccountReq) (*emptypb.Empty, error)
+	UnbindUserPhone(context.Context, *UnbindUserAccountReq) (*emptypb.Empty, error)
+	UnbindUserQQ(context.Context, *UnbindUserAccountReq) (*emptypb.Empty, error)
+	UnbindUserWechat(context.Context, *UnbindUserAccountReq) (*emptypb.Empty, error)
 	UserRegister(context.Context, *UserRegisterReq) (*emptypb.Empty, error)
 }
 
@@ -430,11 +446,19 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.POST("/v1/set/user/phone", _Bff_SetUserPhone0_HTTP_Handler(srv))
 	r.POST("/v1/set/user/email", _Bff_SetUserEmail0_HTTP_Handler(srv))
 	r.POST("/v1/set/user/password", _Bff_SetUserPassword0_HTTP_Handler(srv))
+	r.POST("/v1/set/user/wechat", _Bff_SetUserWechat0_HTTP_Handler(srv))
+	r.POST("/v1/set/user/qq", _Bff_SetUserQQ0_HTTP_Handler(srv))
+	r.POST("/v1/set/user/gitee", _Bff_SetUserGitee0_HTTP_Handler(srv))
+	r.POST("/v1/set/user/github", _Bff_SetUserGithub0_HTTP_Handler(srv))
 	r.POST("/v1/set/user/follow", _Bff_SetUserFollow0_HTTP_Handler(srv))
 	r.POST("/v1/cancel/user/follow", _Bff_CancelUserFollow0_HTTP_Handler(srv))
 	r.POST("/v1/change/user/password", _Bff_ChangeUserPassword0_HTTP_Handler(srv))
 	r.POST("/v1/unbind/user/phone", _Bff_UnbindUserPhone0_HTTP_Handler(srv))
 	r.POST("/v1/unbind/user/email", _Bff_UnbindUserEmail0_HTTP_Handler(srv))
+	r.POST("/v1/unbind/user/wechat", _Bff_UnbindUserWechat0_HTTP_Handler(srv))
+	r.POST("/v1/unbind/user/qq", _Bff_UnbindUserQQ0_HTTP_Handler(srv))
+	r.POST("/v1/unbind/user/gitee", _Bff_UnbindUserGitee0_HTTP_Handler(srv))
+	r.POST("/v1/unbind/user/github", _Bff_UnbindUserGithub0_HTTP_Handler(srv))
 	r.GET("/v1/get/leaderboard", _Bff_GetLeaderBoard0_HTTP_Handler(srv))
 	r.GET("/v1/get/collect/article/list", _Bff_GetCollectArticleList0_HTTP_Handler(srv))
 	r.GET("/v1/get/collect/article/count", _Bff_GetCollectArticleCount0_HTTP_Handler(srv))
@@ -1194,6 +1218,82 @@ func _Bff_SetUserPassword0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context
 	}
 }
 
+func _Bff_SetUserWechat0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SetUserWechatReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffSetUserWechat)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SetUserWechat(ctx, req.(*SetUserWechatReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_SetUserQQ0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SetUserQQReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffSetUserQQ)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SetUserQQ(ctx, req.(*SetUserQQReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_SetUserGitee0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SetUserGiteeReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffSetUserGitee)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SetUserGitee(ctx, req.(*SetUserGiteeReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_SetUserGithub0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SetUserGithubReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffSetUserGithub)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SetUserGithub(ctx, req.(*SetUserGithubReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _Bff_SetUserFollow0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in SetUserFollowReq
@@ -1253,13 +1353,13 @@ func _Bff_ChangeUserPassword0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Cont
 
 func _Bff_UnbindUserPhone0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in UnbindUserPhoneReq
+		var in UnbindUserAccountReq
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, OperationBffUnbindUserPhone)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.UnbindUserPhone(ctx, req.(*UnbindUserPhoneReq))
+			return srv.UnbindUserPhone(ctx, req.(*UnbindUserAccountReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -1272,13 +1372,89 @@ func _Bff_UnbindUserPhone0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context
 
 func _Bff_UnbindUserEmail0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in UnbindUserEmailReq
+		var in UnbindUserAccountReq
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, OperationBffUnbindUserEmail)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.UnbindUserEmail(ctx, req.(*UnbindUserEmailReq))
+			return srv.UnbindUserEmail(ctx, req.(*UnbindUserAccountReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_UnbindUserWechat0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in UnbindUserAccountReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffUnbindUserWechat)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.UnbindUserWechat(ctx, req.(*UnbindUserAccountReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_UnbindUserQQ0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in UnbindUserAccountReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffUnbindUserQQ)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.UnbindUserQQ(ctx, req.(*UnbindUserAccountReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_UnbindUserGitee0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in UnbindUserAccountReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffUnbindUserGitee)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.UnbindUserGitee(ctx, req.(*UnbindUserAccountReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_UnbindUserGithub0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in UnbindUserAccountReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffUnbindUserGithub)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.UnbindUserGithub(ctx, req.(*UnbindUserAccountReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -4298,14 +4474,22 @@ type BffHTTPClient interface {
 	SetTalkView(ctx context.Context, req *SetTalkViewReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SetUserEmail(ctx context.Context, req *SetUserEmailReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SetUserFollow(ctx context.Context, req *SetUserFollowReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	SetUserGitee(ctx context.Context, req *SetUserGiteeReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	SetUserGithub(ctx context.Context, req *SetUserGithubReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SetUserMedal(ctx context.Context, req *SetUserMedalReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SetUserPassword(ctx context.Context, req *SetUserPasswordReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SetUserPhone(ctx context.Context, req *SetUserPhoneReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	SetUserQQ(ctx context.Context, req *SetUserQQReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	SetUserWechat(ctx context.Context, req *SetUserWechatReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SubscribeColumn(ctx context.Context, req *SubscribeColumnReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	SubscribeJudge(ctx context.Context, req *SubscribeJudgeReq, opts ...http.CallOption) (rsp *SubscribeJudgeReply, err error)
 	TalkStatisticJudge(ctx context.Context, req *TalkStatisticJudgeReq, opts ...http.CallOption) (rsp *TalkStatisticJudgeReply, err error)
-	UnbindUserEmail(ctx context.Context, req *UnbindUserEmailReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
-	UnbindUserPhone(ctx context.Context, req *UnbindUserPhoneReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	UnbindUserEmail(ctx context.Context, req *UnbindUserAccountReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	UnbindUserGitee(ctx context.Context, req *UnbindUserAccountReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	UnbindUserGithub(ctx context.Context, req *UnbindUserAccountReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	UnbindUserPhone(ctx context.Context, req *UnbindUserAccountReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	UnbindUserQQ(ctx context.Context, req *UnbindUserAccountReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	UnbindUserWechat(ctx context.Context, req *UnbindUserAccountReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	UserRegister(ctx context.Context, req *UserRegisterReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
 
@@ -6618,6 +6802,32 @@ func (c *BffHTTPClientImpl) SetUserFollow(ctx context.Context, in *SetUserFollow
 	return &out, err
 }
 
+func (c *BffHTTPClientImpl) SetUserGitee(ctx context.Context, in *SetUserGiteeReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/set/user/gitee"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffSetUserGitee))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) SetUserGithub(ctx context.Context, in *SetUserGithubReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/set/user/github"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffSetUserGithub))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
 func (c *BffHTTPClientImpl) SetUserMedal(ctx context.Context, in *SetUserMedalReq, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
 	pattern := "/v1/set/user/medal"
@@ -6649,6 +6859,32 @@ func (c *BffHTTPClientImpl) SetUserPhone(ctx context.Context, in *SetUserPhoneRe
 	pattern := "/v1/set/user/phone"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationBffSetUserPhone))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) SetUserQQ(ctx context.Context, in *SetUserQQReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/set/user/qq"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffSetUserQQ))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) SetUserWechat(ctx context.Context, in *SetUserWechatReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/set/user/wechat"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffSetUserWechat))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
@@ -6696,7 +6932,7 @@ func (c *BffHTTPClientImpl) TalkStatisticJudge(ctx context.Context, in *TalkStat
 	return &out, err
 }
 
-func (c *BffHTTPClientImpl) UnbindUserEmail(ctx context.Context, in *UnbindUserEmailReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+func (c *BffHTTPClientImpl) UnbindUserEmail(ctx context.Context, in *UnbindUserAccountReq, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
 	pattern := "/v1/unbind/user/email"
 	path := binding.EncodeURL(pattern, in, false)
@@ -6709,11 +6945,63 @@ func (c *BffHTTPClientImpl) UnbindUserEmail(ctx context.Context, in *UnbindUserE
 	return &out, err
 }
 
-func (c *BffHTTPClientImpl) UnbindUserPhone(ctx context.Context, in *UnbindUserPhoneReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+func (c *BffHTTPClientImpl) UnbindUserGitee(ctx context.Context, in *UnbindUserAccountReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/unbind/user/gitee"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffUnbindUserGitee))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) UnbindUserGithub(ctx context.Context, in *UnbindUserAccountReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/unbind/user/github"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffUnbindUserGithub))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) UnbindUserPhone(ctx context.Context, in *UnbindUserAccountReq, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
 	pattern := "/v1/unbind/user/phone"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationBffUnbindUserPhone))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) UnbindUserQQ(ctx context.Context, in *UnbindUserAccountReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/unbind/user/qq"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffUnbindUserQQ))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) UnbindUserWechat(ctx context.Context, in *UnbindUserAccountReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/unbind/user/wechat"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffUnbindUserWechat))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

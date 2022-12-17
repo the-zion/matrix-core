@@ -219,6 +219,34 @@ service Bff{
     };
   }
 
+  rpc SetUserWechat (SetUserWechatReq) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/set/user/wechat"
+      body: "*"
+    };
+  }
+
+  rpc SetUserQQ (SetUserQQReq) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/set/user/qq"
+      body: "*"
+    };
+  }
+
+  rpc SetUserGitee (SetUserGiteeReq) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/set/user/gitee"
+      body: "*"
+    };
+  }
+
+  rpc SetUserGithub (SetUserGithubReq) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/set/user/github"
+      body: "*"
+    };
+  }
+
   rpc SetUserFollow (SetUserFollowReq) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/v1/set/user/follow"
@@ -240,16 +268,44 @@ service Bff{
     };
   }
 
-  rpc UnbindUserPhone(UnbindUserPhoneReq) returns (google.protobuf.Empty) {
+  rpc UnbindUserPhone(UnbindUserAccountReq) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/v1/unbind/user/phone"
       body: "*"
     };
   }
 
-  rpc UnbindUserEmail(UnbindUserEmailReq) returns (google.protobuf.Empty) {
+  rpc UnbindUserEmail(UnbindUserAccountReq) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/v1/unbind/user/email"
+      body: "*"
+    };
+  }
+
+  rpc UnbindUserWechat(UnbindUserAccountReq) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/unbind/user/wechat"
+      body: "*"
+    };
+  }
+
+  rpc UnbindUserQQ(UnbindUserAccountReq) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/unbind/user/qq"
+      body: "*"
+    };
+  }
+
+  rpc UnbindUserGitee(UnbindUserAccountReq) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/unbind/user/gitee"
+      body: "*"
+    };
+  }
+
+  rpc UnbindUserGithub(UnbindUserAccountReq) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/unbind/user/github"
       body: "*"
     };
   }
@@ -1553,6 +1609,26 @@ message SetUserPasswordReq{
   string password = 1;
 }
 
+message SetUserWechatReq{
+  string code = 1;
+  string redirect_url = 2;
+}
+
+message SetUserQQReq{
+  string code = 1;
+  string redirect_url = 2;
+}
+
+message SetUserGiteeReq{
+  string code = 1;
+  string redirect_url = 2;
+}
+
+message SetUserGithubReq{
+  string code = 1;
+  string redirect_url = 2;
+}
+
 message SetUserFollowReq{
   string uuid = 1;
 }
@@ -1566,16 +1642,16 @@ message ChangeUserPasswordReq{
   string password = 2;
 }
 
-message UnbindUserPhoneReq{
+message UnbindUserAccountReq{
   string phone = 1;
-  string code = 2;
+  string email = 2;
+  string account = 3;
+  string password = 4;
+  string code = 5;
+  string choose = 6;
+  string mode = 7;
+  string redirect_uri = 8;
 }
-
-message UnbindUserEmailReq{
-  string email = 1;
-  string code = 2;
-}
-
 
 // --------------------creation service-------------------------
 
