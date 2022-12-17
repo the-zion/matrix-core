@@ -637,6 +637,54 @@ func (r *userRepo) SetUserPassword(ctx context.Context, uuid, password string) e
 	return nil
 }
 
+func (r *userRepo) SetUserWechat(ctx context.Context, uuid, code, redirectUrl string) error {
+	_, err := r.data.uc.SetUserWechat(ctx, &userV1.SetUserWechatReq{
+		Uuid:        uuid,
+		Code:        code,
+		RedirectUrl: redirectUrl,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *userRepo) SetUserQQ(ctx context.Context, uuid, code, redirectUrl string) error {
+	_, err := r.data.uc.SetUserQQ(ctx, &userV1.SetUserQQReq{
+		Uuid:        uuid,
+		Code:        code,
+		RedirectUrl: redirectUrl,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *userRepo) SetUserGitee(ctx context.Context, uuid, code, redirectUrl string) error {
+	_, err := r.data.uc.SetUserGitee(ctx, &userV1.SetUserGiteeReq{
+		Uuid:        uuid,
+		Code:        code,
+		RedirectUrl: redirectUrl,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *userRepo) SetUserGithub(ctx context.Context, uuid, code, redirectUrl string) error {
+	_, err := r.data.uc.SetUserGithub(ctx, &userV1.SetUserGithubReq{
+		Uuid:        uuid,
+		Code:        code,
+		RedirectUrl: redirectUrl,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *userRepo) SetUserFollow(ctx context.Context, uuid, userUuid string) error {
 	_, err := r.data.uc.SetUserFollow(ctx, &userV1.SetUserFollowReq{
 		Uuid:     uuid,
@@ -671,11 +719,17 @@ func (r *userRepo) ChangeUserPassword(ctx context.Context, uuid, oldpassword, pa
 	return nil
 }
 
-func (r *userRepo) UnbindUserPhone(ctx context.Context, uuid, phone, code string) error {
-	_, err := r.data.uc.UnbindUserPhone(ctx, &userV1.UnbindUserPhoneReq{
-		Uuid:  uuid,
-		Phone: phone,
-		Code:  code,
+func (r *userRepo) UnbindUserPhone(ctx context.Context, uuid, phone, email, account, password, code, choose, mode, redirectUri string) error {
+	_, err := r.data.uc.UnbindUserPhone(ctx, &userV1.UnbindUserAccountReq{
+		Uuid:        uuid,
+		Phone:       phone,
+		Email:       email,
+		Account:     account,
+		Password:    password,
+		Code:        code,
+		Choose:      choose,
+		Mode:        mode,
+		RedirectUri: redirectUri,
 	})
 	if err != nil {
 		return err
@@ -683,11 +737,89 @@ func (r *userRepo) UnbindUserPhone(ctx context.Context, uuid, phone, code string
 	return nil
 }
 
-func (r *userRepo) UnbindUserEmail(ctx context.Context, uuid, email, code string) error {
-	_, err := r.data.uc.UnbindUserEmail(ctx, &userV1.UnbindUserEmailReq{
-		Uuid:  uuid,
-		Email: email,
-		Code:  code,
+func (r *userRepo) UnbindUserEmail(ctx context.Context, uuid, phone, email, account, password, code, choose, mode, redirectUri string) error {
+	_, err := r.data.uc.UnbindUserEmail(ctx, &userV1.UnbindUserAccountReq{
+		Uuid:        uuid,
+		Phone:       phone,
+		Email:       email,
+		Account:     account,
+		Password:    password,
+		Code:        code,
+		Choose:      choose,
+		Mode:        mode,
+		RedirectUri: redirectUri,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *userRepo) UnbindUserWechat(ctx context.Context, uuid, phone, email, account, password, code, choose, mode, redirectUri string) error {
+	_, err := r.data.uc.UnbindUserWechat(ctx, &userV1.UnbindUserAccountReq{
+		Uuid:        uuid,
+		Phone:       phone,
+		Email:       email,
+		Account:     account,
+		Password:    password,
+		Code:        code,
+		Choose:      choose,
+		Mode:        mode,
+		RedirectUri: redirectUri,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *userRepo) UnbindUserQQ(ctx context.Context, uuid, phone, email, account, password, code, choose, mode, redirectUri string) error {
+	_, err := r.data.uc.UnbindUserQQ(ctx, &userV1.UnbindUserAccountReq{
+		Uuid:        uuid,
+		Phone:       phone,
+		Email:       email,
+		Account:     account,
+		Password:    password,
+		Code:        code,
+		Choose:      choose,
+		Mode:        mode,
+		RedirectUri: redirectUri,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *userRepo) UnbindUserGitee(ctx context.Context, uuid, phone, email, account, password, code, choose, mode, redirectUri string) error {
+	_, err := r.data.uc.UnbindUserGitee(ctx, &userV1.UnbindUserAccountReq{
+		Uuid:        uuid,
+		Phone:       phone,
+		Email:       email,
+		Account:     account,
+		Password:    password,
+		Code:        code,
+		Choose:      choose,
+		Mode:        mode,
+		RedirectUri: redirectUri,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *userRepo) UnbindUserGithub(ctx context.Context, uuid, phone, email, account, password, code, choose, mode, redirectUri string) error {
+	_, err := r.data.uc.UnbindUserGithub(ctx, &userV1.UnbindUserAccountReq{
+		Uuid:        uuid,
+		Phone:       phone,
+		Email:       email,
+		Account:     account,
+		Password:    password,
+		Code:        code,
+		Choose:      choose,
+		Mode:        mode,
+		RedirectUri: redirectUri,
 	})
 	if err != nil {
 		return err
