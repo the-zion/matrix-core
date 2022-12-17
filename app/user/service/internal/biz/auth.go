@@ -18,7 +18,7 @@ type AuthRepo interface {
 	GetQQAccessToken(ctx context.Context, code string) (string, error)
 	GetQQOpenId(ctx context.Context, token string) (string, error)
 	GetGithubAccessToken(ctx context.Context, code string) (string, error)
-	GetGiteeAccessToken(ctx context.Context, code string) (string, error)
+	GetGiteeAccessToken(ctx context.Context, code, redirectUrl string) (string, error)
 	GetWechatUserInfo(ctx context.Context, token, openid string) (map[string]interface{}, error)
 	GetQQUserInfo(ctx context.Context, token, openId string) (map[string]interface{}, error)
 	GetGithubUserInfo(ctx context.Context, token string) (map[string]interface{}, error)
@@ -45,6 +45,10 @@ type AuthRepo interface {
 	SetUserPhone(ctx context.Context, uuid, phone string) error
 	SetUserEmail(ctx context.Context, uuid, email string) error
 	SetUserPassword(ctx context.Context, uuid, password string) error
+	SetUserWechat(ctx context.Context, uuid, wechat string) error
+	SetUserQQ(ctx context.Context, uuid, qq string) error
+	SetUserGitee(ctx context.Context, uuid string, gitee int32) error
+	SetUserGithub(ctx context.Context, uuid string, github int32) error
 	SetUserAvatar(ctx context.Context, uuid, avatar string)
 	SendPhoneCode(ctx context.Context, template, phone string) error
 	SendEmailCode(ctx context.Context, template, phone string) error
@@ -56,6 +60,10 @@ type AuthRepo interface {
 	GetCosSessionKey(ctx context.Context, uuid string) (*Credentials, error)
 	UnbindUserPhone(ctx context.Context, uuid string) error
 	UnbindUserEmail(ctx context.Context, uuid string) error
+	UnbindUserWechat(ctx context.Context, uuid string) error
+	UnbindUserQQ(ctx context.Context, uuid string) error
+	UnbindUserGitee(ctx context.Context, uuid string) error
+	UnbindUserGithub(ctx context.Context, uuid string) error
 }
 
 type AuthUseCase struct {
@@ -168,20 +176,13 @@ func (r *AuthUseCase) LoginByCode(ctx context.Context, phone, code string) (stri
 }
 
 func (r *AuthUseCase) LoginByWechat(ctx context.Context, code string) (string, error) {
-	accessToken, openId, err := r.repo.GetWechatAccessToken(ctx, code)
+	userInfo, err := r.getWechatAccessTokenAndInfo(ctx, code)
 	if err != nil {
-		return "", v1.ErrorLoginFailed("fail to get wechat access token: %s", err.Error())
+		return "", err
 	}
-
-	userInfo, err := r.repo.GetWechatUserInfo(ctx, accessToken, openId)
-	if err != nil {
-		return "", v1.ErrorLoginFailed("fail to get wechat user info: %s", err.Error())
-	}
-
-	wechatId := userInfo["unionid"].(string)
+	wechatId := userInfo["openid"].(string)
 	avatar := userInfo["headimgurl"].(string)
 	name := userInfo["nickname"].(string)
-
 	user, err := r.repo.FindUserByWechat(ctx, wechatId)
 	if kerrors.IsNotFound(err) {
 		err = r.tm.ExecTx(ctx, func(ctx context.Context) error {
@@ -220,20 +221,23 @@ func (r *AuthUseCase) LoginByWechat(ctx context.Context, code string) (string, e
 	return token, nil
 }
 
+func (r *AuthUseCase) getWechatAccessTokenAndInfo(ctx context.Context, code string) (map[string]interface{}, error) {
+	accessToken, openId, err := r.repo.GetWechatAccessToken(ctx, code)
+	if err != nil {
+		return nil, v1.ErrorLoginFailed("fail to get wechat access token: %s", err.Error())
+	}
+
+	userInfo, err := r.repo.GetWechatUserInfo(ctx, accessToken, openId)
+	if err != nil {
+		return nil, v1.ErrorLoginFailed("fail to get wechat user info: %s", err.Error())
+	}
+	return userInfo, nil
+}
+
 func (r *AuthUseCase) LoginByQQ(ctx context.Context, code string) (string, error) {
-	accessToken, err := r.repo.GetQQAccessToken(ctx, code)
+	userInfo, openId, err := r.getQQAccessTokenAndInfo(ctx, code)
 	if err != nil {
-		return "", v1.ErrorLoginFailed("fail to get qq access token: %s", err.Error())
-	}
-
-	openId, err := r.repo.GetQQOpenId(ctx, accessToken)
-	if err != nil {
-		return "", v1.ErrorLoginFailed("fail to get qq openid: %s", err.Error())
-	}
-
-	userInfo, err := r.repo.GetQQUserInfo(ctx, accessToken, openId)
-	if err != nil {
-		return "", v1.ErrorLoginFailed("fail to get qq user info: %s", err.Error())
+		return "", err
 	}
 
 	qqId := openId
@@ -286,15 +290,28 @@ func (r *AuthUseCase) LoginByQQ(ctx context.Context, code string) (string, error
 	return token, nil
 }
 
-func (r *AuthUseCase) LoginByGithub(ctx context.Context, code string) (*Github, error) {
-	accessToken, err := r.repo.GetGithubAccessToken(ctx, code)
+func (r *AuthUseCase) getQQAccessTokenAndInfo(ctx context.Context, code string) (map[string]interface{}, string, error) {
+	accessToken, err := r.repo.GetQQAccessToken(ctx, code)
 	if err != nil {
-		return nil, v1.ErrorLoginFailed("fail to get github access token: %s", err.Error())
+		return nil, "", v1.ErrorLoginFailed("fail to get qq access token: %s", err.Error())
 	}
 
-	userInfo, err := r.repo.GetGithubUserInfo(ctx, accessToken)
+	openId, err := r.repo.GetQQOpenId(ctx, accessToken)
 	if err != nil {
-		return nil, v1.ErrorLoginFailed("fail to get github user info: %s", err.Error())
+		return nil, "", v1.ErrorLoginFailed("fail to get qq openid: %s", err.Error())
+	}
+
+	userInfo, err := r.repo.GetQQUserInfo(ctx, accessToken, openId)
+	if err != nil {
+		return nil, "", v1.ErrorLoginFailed("fail to get qq user info: %s", err.Error())
+	}
+	return userInfo, openId, nil
+}
+
+func (r *AuthUseCase) LoginByGithub(ctx context.Context, code string) (*Github, error) {
+	userInfo, err := r.getGithubAccessTokenAndInfo(ctx, code)
+	if err != nil {
+		return nil, err
 	}
 
 	githubId := int32(userInfo["id"].(float64))
@@ -341,15 +358,23 @@ func (r *AuthUseCase) LoginByGithub(ctx context.Context, code string) (*Github, 
 	}, nil
 }
 
-func (r *AuthUseCase) LoginByGitee(ctx context.Context, code string) (string, error) {
-	accessToken, err := r.repo.GetGiteeAccessToken(ctx, code)
+func (r *AuthUseCase) getGithubAccessTokenAndInfo(ctx context.Context, code string) (map[string]interface{}, error) {
+	accessToken, err := r.repo.GetGithubAccessToken(ctx, code)
 	if err != nil {
-		return "", v1.ErrorLoginFailed("fail to get gitee access token: %s", err.Error())
+		return nil, v1.ErrorLoginFailed("fail to get github access token: %s", err.Error())
 	}
 
-	userInfo, err := r.repo.GetGiteeUserInfo(ctx, accessToken)
+	userInfo, err := r.repo.GetGithubUserInfo(ctx, accessToken)
 	if err != nil {
-		return "", v1.ErrorLoginFailed("fail to get gitee user info: %s", err.Error())
+		return nil, v1.ErrorLoginFailed("fail to get github user info: %s", err.Error())
+	}
+	return userInfo, nil
+}
+
+func (r *AuthUseCase) LoginByGitee(ctx context.Context, code string) (string, error) {
+	userInfo, err := r.getGiteeAccessTokenAndInfo(ctx, code, "")
+	if err != nil {
+		return "", err
 	}
 
 	giteeId := int32(userInfo["id"].(float64))
@@ -392,6 +417,19 @@ func (r *AuthUseCase) LoginByGitee(ctx context.Context, code string) (string, er
 	}
 
 	return token, nil
+}
+
+func (r *AuthUseCase) getGiteeAccessTokenAndInfo(ctx context.Context, code, redirectUrl string) (map[string]interface{}, error) {
+	accessToken, err := r.repo.GetGiteeAccessToken(ctx, code, redirectUrl)
+	if err != nil {
+		return nil, v1.ErrorLoginFailed("fail to get gitee access token: %s", err.Error())
+	}
+
+	userInfo, err := r.repo.GetGiteeUserInfo(ctx, accessToken)
+	if err != nil {
+		return nil, v1.ErrorLoginFailed("fail to get gitee user info: %s", err.Error())
+	}
+	return userInfo, nil
 }
 
 func (r *AuthUseCase) LoginPasswordReset(ctx context.Context, account, password, code, mode string) error {
@@ -492,6 +530,71 @@ func (r *AuthUseCase) SetUserPassword(ctx context.Context, uuid, password string
 	return nil
 }
 
+func (r *AuthUseCase) SetUserWechat(ctx context.Context, uuid, code string) error {
+	userInfo, err := r.getWechatAccessTokenAndInfo(ctx, code)
+	if err != nil {
+		return err
+	}
+	wechatId := userInfo["openid"].(string)
+	err = r.repo.SetUserWechat(ctx, uuid, wechatId)
+	if kerrors.IsConflict(err) {
+		return v1.ErrorWechatConflict("set user wechat failed: %s", err.Error())
+	}
+	if err != nil {
+		return v1.ErrorSetWechatFailed("set user wechat failed: %s", err.Error())
+	}
+	return nil
+}
+
+func (r *AuthUseCase) SetUserQQ(ctx context.Context, uuid, code string) error {
+	_, openId, err := r.getQQAccessTokenAndInfo(ctx, code)
+	if err != nil {
+		return err
+	}
+	err = r.repo.SetUserQQ(ctx, uuid, openId)
+	if kerrors.IsConflict(err) {
+		return v1.ErrorQqConflict("set user qq failed: %s", err.Error())
+	}
+	if err != nil {
+		return v1.ErrorSetQqFailed("set user qq failed: %s", err.Error())
+	}
+	return nil
+}
+
+func (r *AuthUseCase) SetUserGitee(ctx context.Context, uuid, code, redirectUrl string) error {
+	userInfo, err := r.getGiteeAccessTokenAndInfo(ctx, code, redirectUrl)
+	if err != nil {
+		return err
+	}
+
+	giteeId := int32(userInfo["id"].(float64))
+	err = r.repo.SetUserGitee(ctx, uuid, giteeId)
+	if kerrors.IsConflict(err) {
+		return v1.ErrorGiteeConflict("set user gitee failed: %s", err.Error())
+	}
+	if err != nil {
+		return v1.ErrorSetGiteeFailed("set user gitee failed: %s", err.Error())
+	}
+	return nil
+}
+
+func (r *AuthUseCase) SetUserGithub(ctx context.Context, uuid, code string) error {
+	userInfo, err := r.getGithubAccessTokenAndInfo(ctx, code)
+	if err != nil {
+		return err
+	}
+
+	githubId := int32(userInfo["id"].(float64))
+	err = r.repo.SetUserGithub(ctx, uuid, githubId)
+	if kerrors.IsConflict(err) {
+		return v1.ErrorGithubConflict("set user github failed: %s", err.Error())
+	}
+	if err != nil {
+		return v1.ErrorSetGithubFailed("set user github failed: %s", err.Error())
+	}
+	return nil
+}
+
 func (r *AuthUseCase) ChangeUserPassword(ctx context.Context, uuid, oldpassword, password string) error {
 	account, err := r.userRepo.GetAccount(ctx, uuid)
 	if err != nil {
@@ -510,46 +613,184 @@ func (r *AuthUseCase) ChangeUserPassword(ctx context.Context, uuid, oldpassword,
 	return nil
 }
 
-func (r *AuthUseCase) UnbindUserPhone(ctx context.Context, uuid, phone, code string) error {
-	err := r.repo.VerifyPhoneCode(ctx, phone, code)
+func (r *AuthUseCase) VerifyAccount(ctx context.Context, uuid, phone, email, account, password, code, choose, mode, redirectUri string) (*User, error) {
+	switch choose {
+	case "phone":
+		err := r.repo.VerifyPhoneCode(ctx, phone, code)
+		if err != nil {
+			return nil, v1.ErrorVerifyCodeFailed("unbind user phone failed: %s", err.Error())
+		}
+
+		user, err := r.userRepo.GetAccount(ctx, uuid)
+		if err != nil {
+			return nil, v1.ErrorUnbindAccountFailed("fail to get account: %s", err.Error())
+		}
+		return user, nil
+	case "email":
+		err := r.repo.VerifyEmailCode(ctx, email, code)
+		if err != nil {
+			return nil, v1.ErrorVerifyCodeFailed("unbind user email failed: %s", err.Error())
+		}
+
+		user, err := r.userRepo.GetAccount(ctx, uuid)
+		if err != nil {
+			return nil, v1.ErrorUnbindAccountFailed("fail to get account: %s", err.Error())
+		}
+		return user, nil
+	case "password":
+		user, err := r.repo.VerifyPassword(ctx, account, password, mode)
+		if err != nil {
+			return nil, v1.ErrorVerifyPasswordFailed("fail to verify password: password(%s)", password)
+		}
+		return user, nil
+	case "wechat":
+		userInfo, err := r.getWechatAccessTokenAndInfo(ctx, code)
+		if err != nil {
+			return nil, err
+		}
+
+		wechatId := userInfo["openid"].(string)
+		user, err := r.repo.FindUserByWechat(ctx, wechatId)
+		if err != nil {
+			return nil, v1.ErrorUnbindAccountFailed("fail to get user by wechat: %s", err.Error())
+		}
+		return user, nil
+	case "qq":
+		_, openId, err := r.getQQAccessTokenAndInfo(ctx, code)
+		if err != nil {
+			return nil, err
+		}
+		user, err := r.repo.FindUserByQQ(ctx, openId)
+		if err != nil {
+			return nil, v1.ErrorUnbindAccountFailed("fail to get user by qq: %s", err.Error())
+		}
+		return user, nil
+	case "github":
+		userInfo, err := r.getGithubAccessTokenAndInfo(ctx, code)
+		if err != nil {
+			return nil, err
+		}
+		githubId := int32(userInfo["id"].(float64))
+		user, err := r.repo.FindUserByGithub(ctx, githubId)
+		if err != nil {
+			return nil, v1.ErrorUnbindAccountFailed("fail to get user by github: %s", err.Error())
+		}
+		return user, nil
+	case "gitee":
+		userInfo, err := r.getGiteeAccessTokenAndInfo(ctx, code, redirectUri)
+		if err != nil {
+			return nil, v1.ErrorLoginFailed("fail to get gitee user info: %s", err.Error())
+		}
+
+		giteeId := int32(userInfo["id"].(float64))
+		user, err := r.repo.FindUserByGitee(ctx, giteeId)
+		if err != nil {
+			return nil, v1.ErrorUnbindAccountFailed("fail to get user by gitee: %s", err.Error())
+		}
+		return user, nil
+	default:
+		return nil, v1.ErrorUnbindAccountFailed("fail to get user account: unknown")
+	}
+}
+
+func (r *AuthUseCase) UnbindUserPhone(ctx context.Context, uuid, phone, email, account, password, code, choose, mode, redirectUri string) error {
+	user, err := r.VerifyAccount(ctx, uuid, phone, email, account, password, code, choose, mode, redirectUri)
 	if err != nil {
-		return v1.ErrorVerifyCodeFailed("unbind user phone failed: %s", err.Error())
+		return err
 	}
 
-	account, err := r.userRepo.GetAccount(ctx, uuid)
-	if err != nil {
-		return v1.ErrorUnbindEmailFailed("fail to get account: %s", err.Error())
-	}
-
-	if account.Email == "" && account.Qq == "" && account.Gitee == 0 && account.Wechat == "" && account.Github == 0 {
-		return v1.ErrorUniqueAccount("unbind user email failed: unique account")
+	if user.Email == "" && user.Qq == "" && user.Gitee == 0 && user.Wechat == "" && user.Github == 0 {
+		return v1.ErrorUniqueAccount("unbind user phone failed: unique account")
 	}
 
 	err = r.repo.UnbindUserPhone(ctx, uuid)
 	if err != nil {
-		return v1.ErrorUnbindPhoneFailed("unbind user phone failed: %s", err.Error())
+		return v1.ErrorUnbindAccountFailed("unbind user phone failed: %s", err.Error())
 	}
 	return nil
 }
 
-func (r *AuthUseCase) UnbindUserEmail(ctx context.Context, uuid, email, code string) error {
-	err := r.repo.VerifyEmailCode(ctx, email, code)
+func (r *AuthUseCase) UnbindUserEmail(ctx context.Context, uuid, phone, email, account, password, code, choose, mode, redirectUri string) error {
+	user, err := r.VerifyAccount(ctx, uuid, phone, email, account, password, code, choose, mode, redirectUri)
 	if err != nil {
-		return v1.ErrorVerifyCodeFailed("unbind user email failed: %s", err.Error())
+		return err
 	}
 
-	account, err := r.userRepo.GetAccount(ctx, uuid)
-	if err != nil {
-		return v1.ErrorUnbindEmailFailed("fail to get account: %s", err.Error())
-	}
-
-	if account.Phone == "" && account.Qq == "" && account.Gitee == 0 && account.Wechat == "" && account.Github == 0 {
-		return v1.ErrorUniqueAccount("unbind user email failed: unique account")
+	if user.Phone == "" && user.Qq == "" && user.Gitee == 0 && user.Wechat == "" && user.Github == 0 {
+		return v1.ErrorUniqueAccount("unbind user phone failed: unique account")
 	}
 
 	err = r.repo.UnbindUserEmail(ctx, uuid)
 	if err != nil {
-		return v1.ErrorUnbindEmailFailed("unbind user email failed: %s", err.Error())
+		return v1.ErrorUnbindAccountFailed("unbind user email failed: %s", err.Error())
+	}
+	return nil
+}
+
+func (r *AuthUseCase) UnbindUserWechat(ctx context.Context, uuid, phone, email, account, password, code, choose, mode, redirectUri string) error {
+	user, err := r.VerifyAccount(ctx, uuid, phone, email, account, password, code, choose, mode, redirectUri)
+	if err != nil {
+		return err
+	}
+
+	if user.Email == "" && user.Qq == "" && user.Gitee == 0 && user.Phone == "" && user.Github == 0 {
+		return v1.ErrorUniqueAccount("unbind user phone failed: unique account")
+	}
+
+	err = r.repo.UnbindUserWechat(ctx, uuid)
+	if err != nil {
+		return v1.ErrorUnbindAccountFailed("unbind user wechat failed: %s", err.Error())
+	}
+	return nil
+}
+
+func (r *AuthUseCase) UnbindUserQQ(ctx context.Context, uuid, phone, email, account, password, code, choose, mode, redirectUri string) error {
+	user, err := r.VerifyAccount(ctx, uuid, phone, email, account, password, code, choose, mode, redirectUri)
+	if err != nil {
+		return err
+	}
+
+	if user.Email == "" && user.Phone == "" && user.Gitee == 0 && user.Wechat == "" && user.Github == 0 {
+		return v1.ErrorUniqueAccount("unbind user phone failed: unique account")
+	}
+
+	err = r.repo.UnbindUserQQ(ctx, uuid)
+	if err != nil {
+		return v1.ErrorUnbindAccountFailed("unbind user qq failed: %s", err.Error())
+	}
+	return nil
+}
+
+func (r *AuthUseCase) UnbindUserGitee(ctx context.Context, uuid, phone, email, account, password, code, choose, mode, redirectUri string) error {
+	user, err := r.VerifyAccount(ctx, uuid, phone, email, account, password, code, choose, mode, redirectUri)
+	if err != nil {
+		return err
+	}
+
+	if user.Email == "" && user.Qq == "" && user.Phone == "" && user.Wechat == "" && user.Github == 0 {
+		return v1.ErrorUniqueAccount("unbind user phone failed: unique account")
+	}
+
+	err = r.repo.UnbindUserGitee(ctx, uuid)
+	if err != nil {
+		return v1.ErrorUnbindAccountFailed("unbind user gitee failed: %s", err.Error())
+	}
+	return nil
+}
+
+func (r *AuthUseCase) UnbindUserGithub(ctx context.Context, uuid, phone, email, account, password, code, choose, mode, redirectUri string) error {
+	user, err := r.VerifyAccount(ctx, uuid, phone, email, account, password, code, choose, mode, redirectUri)
+	if err != nil {
+		return err
+	}
+
+	if user.Email == "" && user.Qq == "" && user.Gitee == 0 && user.Wechat == "" && user.Phone == "" {
+		return v1.ErrorUniqueAccount("unbind user phone failed: unique account")
+	}
+
+	err = r.repo.UnbindUserGithub(ctx, uuid)
+	if err != nil {
+		return v1.ErrorUnbindAccountFailed("unbind user github failed: %s", err.Error())
 	}
 	return nil
 }
