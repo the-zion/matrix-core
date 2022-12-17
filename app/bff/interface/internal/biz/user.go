@@ -40,12 +40,20 @@ type UserRepo interface {
 	SetProfileUpdate(ctx context.Context, profile *UserProfileUpdate) error
 	SetUserPhone(ctx context.Context, uuid, phone, code string) error
 	SetUserPassword(ctx context.Context, uuid, password string) error
+	SetUserWechat(ctx context.Context, uuid, code, redirectUrl string) error
+	SetUserQQ(ctx context.Context, uuid, code, redirectUrl string) error
+	SetUserGitee(ctx context.Context, uuid, code, redirectUrl string) error
+	SetUserGithub(ctx context.Context, uuid, code, redirectUrl string) error
 	SetUserEmail(ctx context.Context, uuid, email, code string) error
 	SetUserFollow(ctx context.Context, uuid, userUuid string) error
 	CancelUserFollow(ctx context.Context, uuid, userUuid string) error
 	ChangeUserPassword(ctx context.Context, uuid, oldpassword, password string) error
-	UnbindUserPhone(ctx context.Context, uuid, phone, code string) error
-	UnbindUserEmail(ctx context.Context, uuid, email, code string) error
+	UnbindUserPhone(ctx context.Context, uuid, phone, email, account, password, code, choose, mode, redirectUri string) error
+	UnbindUserEmail(ctx context.Context, uuid, phone, email, account, password, code, choose, mode, redirectUri string) error
+	UnbindUserWechat(ctx context.Context, uuid, phone, email, account, password, code, choose, mode, redirectUri string) error
+	UnbindUserQQ(ctx context.Context, uuid, phone, email, account, password, code, choose, mode, redirectUri string) error
+	UnbindUserGitee(ctx context.Context, uuid, phone, email, account, password, code, choose, mode, redirectUri string) error
+	UnbindUserGithub(ctx context.Context, uuid, phone, email, account, password, code, choose, mode, redirectUri string) error
 }
 
 type UserUseCase struct {
@@ -441,6 +449,26 @@ func (r *UserUseCase) SetUserPassword(ctx context.Context, password string) erro
 	return r.repo.SetUserPassword(ctx, uuid, password)
 }
 
+func (r *UserUseCase) SetUserWechat(ctx context.Context, code, redirectUrl string) error {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.SetUserWechat(ctx, uuid, code, redirectUrl)
+}
+
+func (r *UserUseCase) SetUserQQ(ctx context.Context, code, redirectUrl string) error {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.SetUserQQ(ctx, uuid, code, redirectUrl)
+}
+
+func (r *UserUseCase) SetUserGitee(ctx context.Context, code, redirectUrl string) error {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.SetUserGitee(ctx, uuid, code, redirectUrl)
+}
+
+func (r *UserUseCase) SetUserGithub(ctx context.Context, code, redirectUrl string) error {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.SetUserGithub(ctx, uuid, code, redirectUrl)
+}
+
 func (r *UserUseCase) SetUserFollow(ctx context.Context, uuid string) error {
 	userUuid := ctx.Value("uuid").(string)
 	return r.repo.SetUserFollow(ctx, uuid, userUuid)
@@ -456,12 +484,32 @@ func (r *UserUseCase) ChangeUserPassword(ctx context.Context, oldpassword, passw
 	return r.repo.ChangeUserPassword(ctx, uuid, oldpassword, password)
 }
 
-func (r *UserUseCase) UnbindUserPhone(ctx context.Context, phone, code string) error {
+func (r *UserUseCase) UnbindUserPhone(ctx context.Context, phone, email, account, password, code, choose, mode, redirectUri string) error {
 	uuid := ctx.Value("uuid").(string)
-	return r.repo.UnbindUserPhone(ctx, uuid, phone, code)
+	return r.repo.UnbindUserPhone(ctx, uuid, phone, email, account, password, code, choose, mode, redirectUri)
 }
 
-func (r *UserUseCase) UnbindUserEmail(ctx context.Context, email, code string) error {
+func (r *UserUseCase) UnbindUserEmail(ctx context.Context, phone, email, account, password, code, choose, mode, redirectUri string) error {
 	uuid := ctx.Value("uuid").(string)
-	return r.repo.UnbindUserEmail(ctx, uuid, email, code)
+	return r.repo.UnbindUserEmail(ctx, uuid, phone, email, account, password, code, choose, mode, redirectUri)
+}
+
+func (r *UserUseCase) UnbindUserWechat(ctx context.Context, phone, email, account, password, code, choose, mode, redirectUri string) error {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.UnbindUserWechat(ctx, uuid, phone, email, account, password, code, choose, mode, redirectUri)
+}
+
+func (r *UserUseCase) UnbindUserQQ(ctx context.Context, phone, email, account, password, code, choose, mode, redirectUri string) error {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.UnbindUserQQ(ctx, uuid, phone, email, account, password, code, choose, mode, redirectUri)
+}
+
+func (r *UserUseCase) UnbindUserGitee(ctx context.Context, phone, email, account, password, code, choose, mode, redirectUri string) error {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.UnbindUserGitee(ctx, uuid, phone, email, account, password, code, choose, mode, redirectUri)
+}
+
+func (r *UserUseCase) UnbindUserGithub(ctx context.Context, phone, email, account, password, code, choose, mode, redirectUri string) error {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.UnbindUserGithub(ctx, uuid, phone, email, account, password, code, choose, mode, redirectUri)
 }
