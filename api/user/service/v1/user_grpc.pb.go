@@ -41,6 +41,10 @@ type UserClient interface {
 	SetUserPhone(ctx context.Context, in *SetUserPhoneReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetUserEmail(ctx context.Context, in *SetUserEmailReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetUserPassword(ctx context.Context, in *SetUserPasswordReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetUserWechat(ctx context.Context, in *SetUserWechatReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetUserQQ(ctx context.Context, in *SetUserQQReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetUserGitee(ctx context.Context, in *SetUserGiteeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetUserGithub(ctx context.Context, in *SetUserGithubReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetUserFollow(ctx context.Context, in *SetUserFollowReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetFollowDbAndCache(ctx context.Context, in *SetFollowDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelUserFollow(ctx context.Context, in *CancelUserFollowReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -62,8 +66,12 @@ type UserClient interface {
 	ProfileReviewPass(ctx context.Context, in *ProfileReviewPassReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ProfileReviewNotPass(ctx context.Context, in *ProfileReviewNotPassReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ChangeUserPassword(ctx context.Context, in *ChangeUserPasswordReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	UnbindUserPhone(ctx context.Context, in *UnbindUserPhoneReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	UnbindUserEmail(ctx context.Context, in *UnbindUserEmailReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UnbindUserPhone(ctx context.Context, in *UnbindUserAccountReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UnbindUserEmail(ctx context.Context, in *UnbindUserAccountReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UnbindUserWechat(ctx context.Context, in *UnbindUserAccountReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UnbindUserQQ(ctx context.Context, in *UnbindUserAccountReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UnbindUserGitee(ctx context.Context, in *UnbindUserAccountReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UnbindUserGithub(ctx context.Context, in *UnbindUserAccountReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetHealth(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
@@ -231,6 +239,42 @@ func (c *userClient) SetUserEmail(ctx context.Context, in *SetUserEmailReq, opts
 func (c *userClient) SetUserPassword(ctx context.Context, in *SetUserPasswordReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/user.v1.User/SetUserPassword", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) SetUserWechat(ctx context.Context, in *SetUserWechatReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/user.v1.User/SetUserWechat", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) SetUserQQ(ctx context.Context, in *SetUserQQReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/user.v1.User/SetUserQQ", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) SetUserGitee(ctx context.Context, in *SetUserGiteeReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/user.v1.User/SetUserGitee", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) SetUserGithub(ctx context.Context, in *SetUserGithubReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/user.v1.User/SetUserGithub", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -426,7 +470,7 @@ func (c *userClient) ChangeUserPassword(ctx context.Context, in *ChangeUserPassw
 	return out, nil
 }
 
-func (c *userClient) UnbindUserPhone(ctx context.Context, in *UnbindUserPhoneReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *userClient) UnbindUserPhone(ctx context.Context, in *UnbindUserAccountReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/user.v1.User/UnbindUserPhone", in, out, opts...)
 	if err != nil {
@@ -435,9 +479,45 @@ func (c *userClient) UnbindUserPhone(ctx context.Context, in *UnbindUserPhoneReq
 	return out, nil
 }
 
-func (c *userClient) UnbindUserEmail(ctx context.Context, in *UnbindUserEmailReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *userClient) UnbindUserEmail(ctx context.Context, in *UnbindUserAccountReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/user.v1.User/UnbindUserEmail", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) UnbindUserWechat(ctx context.Context, in *UnbindUserAccountReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/user.v1.User/UnbindUserWechat", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) UnbindUserQQ(ctx context.Context, in *UnbindUserAccountReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/user.v1.User/UnbindUserQQ", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) UnbindUserGitee(ctx context.Context, in *UnbindUserAccountReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/user.v1.User/UnbindUserGitee", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) UnbindUserGithub(ctx context.Context, in *UnbindUserAccountReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/user.v1.User/UnbindUserGithub", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -475,6 +555,10 @@ type UserServer interface {
 	SetUserPhone(context.Context, *SetUserPhoneReq) (*emptypb.Empty, error)
 	SetUserEmail(context.Context, *SetUserEmailReq) (*emptypb.Empty, error)
 	SetUserPassword(context.Context, *SetUserPasswordReq) (*emptypb.Empty, error)
+	SetUserWechat(context.Context, *SetUserWechatReq) (*emptypb.Empty, error)
+	SetUserQQ(context.Context, *SetUserQQReq) (*emptypb.Empty, error)
+	SetUserGitee(context.Context, *SetUserGiteeReq) (*emptypb.Empty, error)
+	SetUserGithub(context.Context, *SetUserGithubReq) (*emptypb.Empty, error)
 	SetUserFollow(context.Context, *SetUserFollowReq) (*emptypb.Empty, error)
 	SetFollowDbAndCache(context.Context, *SetFollowDbAndCacheReq) (*emptypb.Empty, error)
 	CancelUserFollow(context.Context, *CancelUserFollowReq) (*emptypb.Empty, error)
@@ -496,8 +580,12 @@ type UserServer interface {
 	ProfileReviewPass(context.Context, *ProfileReviewPassReq) (*emptypb.Empty, error)
 	ProfileReviewNotPass(context.Context, *ProfileReviewNotPassReq) (*emptypb.Empty, error)
 	ChangeUserPassword(context.Context, *ChangeUserPasswordReq) (*emptypb.Empty, error)
-	UnbindUserPhone(context.Context, *UnbindUserPhoneReq) (*emptypb.Empty, error)
-	UnbindUserEmail(context.Context, *UnbindUserEmailReq) (*emptypb.Empty, error)
+	UnbindUserPhone(context.Context, *UnbindUserAccountReq) (*emptypb.Empty, error)
+	UnbindUserEmail(context.Context, *UnbindUserAccountReq) (*emptypb.Empty, error)
+	UnbindUserWechat(context.Context, *UnbindUserAccountReq) (*emptypb.Empty, error)
+	UnbindUserQQ(context.Context, *UnbindUserAccountReq) (*emptypb.Empty, error)
+	UnbindUserGitee(context.Context, *UnbindUserAccountReq) (*emptypb.Empty, error)
+	UnbindUserGithub(context.Context, *UnbindUserAccountReq) (*emptypb.Empty, error)
 	GetHealth(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	mustEmbedUnimplementedUserServer()
 }
@@ -559,6 +647,18 @@ func (UnimplementedUserServer) SetUserEmail(context.Context, *SetUserEmailReq) (
 }
 func (UnimplementedUserServer) SetUserPassword(context.Context, *SetUserPasswordReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetUserPassword not implemented")
+}
+func (UnimplementedUserServer) SetUserWechat(context.Context, *SetUserWechatReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetUserWechat not implemented")
+}
+func (UnimplementedUserServer) SetUserQQ(context.Context, *SetUserQQReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetUserQQ not implemented")
+}
+func (UnimplementedUserServer) SetUserGitee(context.Context, *SetUserGiteeReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetUserGitee not implemented")
+}
+func (UnimplementedUserServer) SetUserGithub(context.Context, *SetUserGithubReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetUserGithub not implemented")
 }
 func (UnimplementedUserServer) SetUserFollow(context.Context, *SetUserFollowReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetUserFollow not implemented")
@@ -623,11 +723,23 @@ func (UnimplementedUserServer) ProfileReviewNotPass(context.Context, *ProfileRev
 func (UnimplementedUserServer) ChangeUserPassword(context.Context, *ChangeUserPasswordReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeUserPassword not implemented")
 }
-func (UnimplementedUserServer) UnbindUserPhone(context.Context, *UnbindUserPhoneReq) (*emptypb.Empty, error) {
+func (UnimplementedUserServer) UnbindUserPhone(context.Context, *UnbindUserAccountReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UnbindUserPhone not implemented")
 }
-func (UnimplementedUserServer) UnbindUserEmail(context.Context, *UnbindUserEmailReq) (*emptypb.Empty, error) {
+func (UnimplementedUserServer) UnbindUserEmail(context.Context, *UnbindUserAccountReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UnbindUserEmail not implemented")
+}
+func (UnimplementedUserServer) UnbindUserWechat(context.Context, *UnbindUserAccountReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UnbindUserWechat not implemented")
+}
+func (UnimplementedUserServer) UnbindUserQQ(context.Context, *UnbindUserAccountReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UnbindUserQQ not implemented")
+}
+func (UnimplementedUserServer) UnbindUserGitee(context.Context, *UnbindUserAccountReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UnbindUserGitee not implemented")
+}
+func (UnimplementedUserServer) UnbindUserGithub(context.Context, *UnbindUserAccountReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UnbindUserGithub not implemented")
 }
 func (UnimplementedUserServer) GetHealth(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetHealth not implemented")
@@ -965,6 +1077,78 @@ func _User_SetUserPassword_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServer).SetUserPassword(ctx, req.(*SetUserPasswordReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_SetUserWechat_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetUserWechatReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).SetUserWechat(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/SetUserWechat",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).SetUserWechat(ctx, req.(*SetUserWechatReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_SetUserQQ_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetUserQQReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).SetUserQQ(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/SetUserQQ",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).SetUserQQ(ctx, req.(*SetUserQQReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_SetUserGitee_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetUserGiteeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).SetUserGitee(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/SetUserGitee",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).SetUserGitee(ctx, req.(*SetUserGiteeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_SetUserGithub_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetUserGithubReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).SetUserGithub(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/SetUserGithub",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).SetUserGithub(ctx, req.(*SetUserGithubReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1348,7 +1532,7 @@ func _User_ChangeUserPassword_Handler(srv interface{}, ctx context.Context, dec 
 }
 
 func _User_UnbindUserPhone_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UnbindUserPhoneReq)
+	in := new(UnbindUserAccountReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1360,13 +1544,13 @@ func _User_UnbindUserPhone_Handler(srv interface{}, ctx context.Context, dec fun
 		FullMethod: "/user.v1.User/UnbindUserPhone",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).UnbindUserPhone(ctx, req.(*UnbindUserPhoneReq))
+		return srv.(UserServer).UnbindUserPhone(ctx, req.(*UnbindUserAccountReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _User_UnbindUserEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UnbindUserEmailReq)
+	in := new(UnbindUserAccountReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1378,7 +1562,79 @@ func _User_UnbindUserEmail_Handler(srv interface{}, ctx context.Context, dec fun
 		FullMethod: "/user.v1.User/UnbindUserEmail",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).UnbindUserEmail(ctx, req.(*UnbindUserEmailReq))
+		return srv.(UserServer).UnbindUserEmail(ctx, req.(*UnbindUserAccountReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_UnbindUserWechat_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UnbindUserAccountReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).UnbindUserWechat(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/UnbindUserWechat",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).UnbindUserWechat(ctx, req.(*UnbindUserAccountReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_UnbindUserQQ_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UnbindUserAccountReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).UnbindUserQQ(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/UnbindUserQQ",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).UnbindUserQQ(ctx, req.(*UnbindUserAccountReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_UnbindUserGitee_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UnbindUserAccountReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).UnbindUserGitee(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/UnbindUserGitee",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).UnbindUserGitee(ctx, req.(*UnbindUserAccountReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_UnbindUserGithub_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UnbindUserAccountReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).UnbindUserGithub(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.User/UnbindUserGithub",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).UnbindUserGithub(ctx, req.(*UnbindUserAccountReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1481,6 +1737,22 @@ var User_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _User_SetUserPassword_Handler,
 		},
 		{
+			MethodName: "SetUserWechat",
+			Handler:    _User_SetUserWechat_Handler,
+		},
+		{
+			MethodName: "SetUserQQ",
+			Handler:    _User_SetUserQQ_Handler,
+		},
+		{
+			MethodName: "SetUserGitee",
+			Handler:    _User_SetUserGitee_Handler,
+		},
+		{
+			MethodName: "SetUserGithub",
+			Handler:    _User_SetUserGithub_Handler,
+		},
+		{
 			MethodName: "SetUserFollow",
 			Handler:    _User_SetUserFollow_Handler,
 		},
@@ -1571,6 +1843,22 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UnbindUserEmail",
 			Handler:    _User_UnbindUserEmail_Handler,
+		},
+		{
+			MethodName: "UnbindUserWechat",
+			Handler:    _User_UnbindUserWechat_Handler,
+		},
+		{
+			MethodName: "UnbindUserQQ",
+			Handler:    _User_UnbindUserQQ_Handler,
+		},
+		{
+			MethodName: "UnbindUserGitee",
+			Handler:    _User_UnbindUserGitee_Handler,
+		},
+		{
+			MethodName: "UnbindUserGithub",
+			Handler:    _User_UnbindUserGithub_Handler,
 		},
 		{
 			MethodName: "GetHealth",

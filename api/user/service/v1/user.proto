@@ -46,6 +46,14 @@ service User {
 
   rpc SetUserPassword (SetUserPasswordReq) returns (google.protobuf.Empty) {}
 
+  rpc SetUserWechat (SetUserWechatReq) returns (google.protobuf.Empty) {}
+
+  rpc SetUserQQ (SetUserQQReq) returns (google.protobuf.Empty) {}
+
+  rpc SetUserGitee (SetUserGiteeReq) returns (google.protobuf.Empty) {}
+
+  rpc SetUserGithub (SetUserGithubReq) returns (google.protobuf.Empty) {}
+
   rpc SetUserFollow (SetUserFollowReq) returns (google.protobuf.Empty) {}
 
   rpc SetFollowDbAndCache (SetFollowDbAndCacheReq) returns (google.protobuf.Empty) {}
@@ -88,9 +96,17 @@ service User {
 
   rpc ChangeUserPassword (ChangeUserPasswordReq) returns (google.protobuf.Empty) {}
 
-  rpc UnbindUserPhone (UnbindUserPhoneReq) returns (google.protobuf.Empty){}
+  rpc UnbindUserPhone (UnbindUserAccountReq) returns (google.protobuf.Empty){}
 
-  rpc UnbindUserEmail (UnbindUserEmailReq) returns (google.protobuf.Empty){}
+  rpc UnbindUserEmail (UnbindUserAccountReq) returns (google.protobuf.Empty){}
+
+  rpc UnbindUserWechat (UnbindUserAccountReq) returns (google.protobuf.Empty){}
+
+  rpc UnbindUserQQ (UnbindUserAccountReq) returns (google.protobuf.Empty){}
+
+  rpc UnbindUserGitee (UnbindUserAccountReq) returns (google.protobuf.Empty){}
+
+  rpc UnbindUserGithub (UnbindUserAccountReq) returns (google.protobuf.Empty){}
 
   rpc GetHealth(google.protobuf.Empty) returns (google.protobuf.Empty){
     option (google.api.http) = {
@@ -226,6 +242,30 @@ message SetUserPasswordReq{
   string password = 2 [(validate.rules).string = {min_len:1, max_len: 20}];
 }
 
+message SetUserWechatReq{
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
+  string code = 2 [(validate.rules).string = {min_len:1, max_len: 100}];
+  string redirect_url = 3 [(validate.rules).string = {ignore_empty:true, uri:true}];
+}
+
+message SetUserQQReq{
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
+  string code = 2 [(validate.rules).string = {min_len:1, max_len: 100}];
+  string redirect_url = 3 [(validate.rules).string = {ignore_empty:true, uri:true}];
+}
+
+message SetUserGiteeReq{
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
+  string code = 2 [(validate.rules).string = {min_len:1, max_len: 100}];
+  string redirect_url = 3 [(validate.rules).string = {ignore_empty:true, uri:true}];
+}
+
+message SetUserGithubReq{
+  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
+  string code = 2 [(validate.rules).string = {min_len:1, max_len: 100}];
+  string redirect_url = 3 [(validate.rules).string = {ignore_empty:true, uri:true}];
+}
+
 message SetUserFollowReq{
   string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
   string user_uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
@@ -252,16 +292,16 @@ message ChangeUserPasswordReq{
   string password = 3 [(validate.rules).string = {min_len:1, max_len: 20}];
 }
 
-message UnbindUserPhoneReq{
+message UnbindUserAccountReq{
   string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
-  string phone = 2 [(validate.rules).string = {pattern: "^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(17[0,3,5-8])|(18[0-9])|166|198|199|(147))\\d{8}$", min_len:1, max_len:50}];
-  string code = 3 [(validate.rules).string.pattern = "^[0-9]{6}$"];
-}
-
-message UnbindUserEmailReq{
-  string uuid = 1 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
-  string email = 2 [(validate.rules).string = {pattern: "\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*", max_len: 50}];
-  string code = 3 [(validate.rules).string.pattern = "^[0-9]{6}$"];
+  string phone = 2 [(validate.rules).string = {ignore_empty: true, pattern: "^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(17[0,3,5-8])|(18[0-9])|166|198|199|(147))\\d{8}$", min_len:1, max_len:50}];
+  string email = 3 [(validate.rules).string = {ignore_empty: true, pattern: "\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*", max_len: 50}];
+  string account = 5 [(validate.rules).string = {ignore_empty: true, min_len:1, max_len: 50}];
+  string password = 6 [(validate.rules).string = {ignore_empty: true, min_len:1, max_len: 20}];
+  string code = 7 [(validate.rules).string = {ignore_empty: true, min_len:1, max_len: 100}];
+  string choose = 8 [(validate.rules).string = {in: ["phone", "email", "password", "wechat", "qq", "gitee", "github"]}];
+  string mode = 9 [(validate.rules).string = {ignore_empty: true, in: ["phone", "email"]}];
+  string redirect_uri = 10 [(validate.rules).string = {ignore_empty: true, uri:true}];
 }
 
 message GetAccountReq{

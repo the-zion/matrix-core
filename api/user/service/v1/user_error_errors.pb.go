@@ -83,6 +83,54 @@ func ErrorEmailConflict(format string, args ...interface{}) *errors.Error {
 	return errors.New(409, UserErrorReason_EMAIL_CONFLICT.String(), fmt.Sprintf(format, args...))
 }
 
+func IsWechatConflict(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_WECHAT_CONFLICT.String() && e.Code == 409
+}
+
+func ErrorWechatConflict(format string, args ...interface{}) *errors.Error {
+	return errors.New(409, UserErrorReason_WECHAT_CONFLICT.String(), fmt.Sprintf(format, args...))
+}
+
+func IsQqConflict(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_QQ_CONFLICT.String() && e.Code == 409
+}
+
+func ErrorQqConflict(format string, args ...interface{}) *errors.Error {
+	return errors.New(409, UserErrorReason_QQ_CONFLICT.String(), fmt.Sprintf(format, args...))
+}
+
+func IsGiteeConflict(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_GITEE_CONFLICT.String() && e.Code == 409
+}
+
+func ErrorGiteeConflict(format string, args ...interface{}) *errors.Error {
+	return errors.New(409, UserErrorReason_GITEE_CONFLICT.String(), fmt.Sprintf(format, args...))
+}
+
+func IsGithubConflict(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_GITHUB_CONFLICT.String() && e.Code == 409
+}
+
+func ErrorGithubConflict(format string, args ...interface{}) *errors.Error {
+	return errors.New(409, UserErrorReason_GITHUB_CONFLICT.String(), fmt.Sprintf(format, args...))
+}
+
 func IsUserNameConflict(err error) bool {
 	if err == nil {
 		return false
@@ -335,6 +383,54 @@ func ErrorSetImageIrregularFailed(format string, args ...interface{}) *errors.Er
 	return errors.New(500, UserErrorReason_SET_IMAGE_IRREGULAR_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsSetWechatFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_SET_WECHAT_FAILED.String() && e.Code == 500
+}
+
+func ErrorSetWechatFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, UserErrorReason_SET_WECHAT_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsSetQqFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_SET_QQ_FAILED.String() && e.Code == 500
+}
+
+func ErrorSetQqFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, UserErrorReason_SET_QQ_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsSetGiteeFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_SET_GITEE_FAILED.String() && e.Code == 500
+}
+
+func ErrorSetGiteeFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, UserErrorReason_SET_GITEE_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsSetGithubFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserErrorReason_SET_GITHUB_FAILED.String() && e.Code == 500
+}
+
+func ErrorSetGithubFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, UserErrorReason_SET_GITHUB_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsCancelFollowFailed(err error) bool {
 	if err == nil {
 		return false
@@ -407,28 +503,16 @@ func ErrorProfileUpdateModifyFailed(format string, args ...interface{}) *errors.
 	return errors.New(500, UserErrorReason_PROFILE_UPDATE_MODIFY_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
-func IsUnbindPhoneFailed(err error) bool {
+func IsUnbindAccountFailed(err error) bool {
 	if err == nil {
 		return false
 	}
 	e := errors.FromError(err)
-	return e.Reason == UserErrorReason_UNBIND_PHONE_FAILED.String() && e.Code == 500
+	return e.Reason == UserErrorReason_UNBIND_ACCOUNT_FAILED.String() && e.Code == 500
 }
 
-func ErrorUnbindPhoneFailed(format string, args ...interface{}) *errors.Error {
-	return errors.New(500, UserErrorReason_UNBIND_PHONE_FAILED.String(), fmt.Sprintf(format, args...))
-}
-
-func IsUnbindEmailFailed(err error) bool {
-	if err == nil {
-		return false
-	}
-	e := errors.FromError(err)
-	return e.Reason == UserErrorReason_UNBIND_EMAIL_FAILED.String() && e.Code == 500
-}
-
-func ErrorUnbindEmailFailed(format string, args ...interface{}) *errors.Error {
-	return errors.New(500, UserErrorReason_UNBIND_EMAIL_FAILED.String(), fmt.Sprintf(format, args...))
+func ErrorUnbindAccountFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, UserErrorReason_UNBIND_ACCOUNT_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
 func IsUniqueAccount(err error) bool {
