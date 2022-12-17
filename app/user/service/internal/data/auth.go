@@ -439,6 +439,58 @@ func (r *authRepo) SetUserEmail(ctx context.Context, uuid, email string) error {
 	return nil
 }
 
+func (r *authRepo) SetUserWechat(ctx context.Context, uuid, wechat string) error {
+	err := r.data.db.WithContext(ctx).Model(&User{}).Where("uuid = ?", uuid).Update("wechat", wechat).Error
+	if err != nil {
+		e := err.Error()
+		if strings.Contains(e, "Duplicate") {
+			return kerrors.Conflict("wechat conflict", fmt.Sprintf("uuid(%s), wechat(%s)", uuid, wechat))
+		} else {
+			return errors.Wrapf(err, fmt.Sprintf("fail to set user wechat: uuid(%s), wechat(%s)", uuid, wechat))
+		}
+	}
+	return nil
+}
+
+func (r *authRepo) SetUserQQ(ctx context.Context, uuid, qq string) error {
+	err := r.data.db.WithContext(ctx).Model(&User{}).Where("uuid = ?", uuid).Update("qq", qq).Error
+	if err != nil {
+		e := err.Error()
+		if strings.Contains(e, "Duplicate") {
+			return kerrors.Conflict("qq conflict", fmt.Sprintf("uuid(%s), qq(%s)", uuid, qq))
+		} else {
+			return errors.Wrapf(err, fmt.Sprintf("fail to set user qq: uuid(%s), qq(%s)", uuid, qq))
+		}
+	}
+	return nil
+}
+
+func (r *authRepo) SetUserGitee(ctx context.Context, uuid string, gitee int32) error {
+	err := r.data.db.WithContext(ctx).Model(&User{}).Where("uuid = ?", uuid).Update("gitee", gitee).Error
+	if err != nil {
+		e := err.Error()
+		if strings.Contains(e, "Duplicate") {
+			return kerrors.Conflict("gitee conflict", fmt.Sprintf("uuid(%s), gitee(%s)", uuid, gitee))
+		} else {
+			return errors.Wrapf(err, fmt.Sprintf("fail to set user gitee: uuid(%s), gitee(%s)", uuid, gitee))
+		}
+	}
+	return nil
+}
+
+func (r *authRepo) SetUserGithub(ctx context.Context, uuid string, github int32) error {
+	err := r.data.db.WithContext(ctx).Model(&User{}).Where("uuid = ?", uuid).Update("github", github).Error
+	if err != nil {
+		e := err.Error()
+		if strings.Contains(e, "Duplicate") {
+			return kerrors.Conflict("github conflict", fmt.Sprintf("uuid(%s), github(%s)", uuid, github))
+		} else {
+			return errors.Wrapf(err, fmt.Sprintf("fail to set user github: uuid(%s), github(%s)", uuid, github))
+		}
+	}
+	return nil
+}
+
 func (r *authRepo) SetUserPassword(ctx context.Context, uuid, password string) error {
 	p, err := util.HashPassword(password)
 	if err != nil {
@@ -452,7 +504,7 @@ func (r *authRepo) SetUserPassword(ctx context.Context, uuid, password string) e
 	return nil
 }
 
-func (r *authRepo) SetUserAvatar(ctx context.Context, uuid, avatar string) {
+func (r *authRepo) SetUserAvatar(_ context.Context, uuid, avatar string) {
 	if avatar == "" {
 		return
 	}
@@ -656,17 +708,33 @@ func (r *authRepo) GetCosSessionKey(_ context.Context, uuid string) (*biz.Creden
 }
 
 func (r *authRepo) UnbindUserPhone(ctx context.Context, uuid string) error {
-	err := r.data.db.WithContext(ctx).Model(&User{}).Where("uuid = ?", uuid).Update("phone", nil).Error
-	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to unbind user phone: uuid(%s)", uuid))
-	}
-	return nil
+	return r.unbindUserAccount(ctx, "phone", uuid)
 }
 
 func (r *authRepo) UnbindUserEmail(ctx context.Context, uuid string) error {
-	err := r.data.db.WithContext(ctx).Model(&User{}).Where("uuid = ?", uuid).Update("email", nil).Error
+	return r.unbindUserAccount(ctx, "email", uuid)
+}
+
+func (r *authRepo) UnbindUserWechat(ctx context.Context, uuid string) error {
+	return r.unbindUserAccount(ctx, "wechat", uuid)
+}
+
+func (r *authRepo) UnbindUserQQ(ctx context.Context, uuid string) error {
+	return r.unbindUserAccount(ctx, "qq", uuid)
+}
+
+func (r *authRepo) UnbindUserGitee(ctx context.Context, uuid string) error {
+	return r.unbindUserAccount(ctx, "gitee", uuid)
+}
+
+func (r *authRepo) UnbindUserGithub(ctx context.Context, uuid string) error {
+	return r.unbindUserAccount(ctx, "github", uuid)
+}
+
+func (r *authRepo) unbindUserAccount(ctx context.Context, account, uuid string) error {
+	err := r.data.db.WithContext(ctx).Model(&User{}).Where("uuid = ?", uuid).Update(account, nil).Error
 	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to unbind user email: uuid(%s)", uuid))
+		return errors.Wrapf(err, fmt.Sprintf("fail to unbind user %s: uuid(%s)", account, uuid))
 	}
 	return nil
 }
@@ -808,8 +876,11 @@ func (r *authRepo) GetGithubAccessToken(ctx context.Context, code string) (strin
 	return token, nil
 }
 
-func (r *authRepo) GetGiteeAccessToken(ctx context.Context, code string) (string, error) {
-	url := r.data.gitee.accessTokenUrl + "?client_id=" + r.data.gitee.clientId + "&client_secret=" + r.data.gitee.clientSecret + "&code=" + code + "&redirect_uri=" + r.data.gitee.redirectUri + "&grant_type=" + r.data.gitee.grantType
+func (r *authRepo) GetGiteeAccessToken(ctx context.Context, code, redirectUrl string) (string, error) {
+	if redirectUrl == "" {
+		redirectUrl = r.data.gitee.redirectUri
+	}
+	url := r.data.gitee.accessTokenUrl + "?client_id=" + r.data.gitee.clientId + "&client_secret=" + r.data.gitee.clientSecret + "&code=" + code + "&redirect_uri=" + redirectUrl + "&grant_type=" + r.data.gitee.grantType
 	method := "POST"
 	client := &http.Client{}
 
