@@ -443,6 +443,38 @@ func (s *BffService) SetUserPassword(ctx context.Context, req *v1.SetUserPasswor
 	return &emptypb.Empty{}, nil
 }
 
+func (s *BffService) SetUserWechat(ctx context.Context, req *v1.SetUserWechatReq) (*emptypb.Empty, error) {
+	err := s.uc.SetUserWechat(ctx, req.Code, req.RedirectUrl)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) SetUserQQ(ctx context.Context, req *v1.SetUserQQReq) (*emptypb.Empty, error) {
+	err := s.uc.SetUserQQ(ctx, req.Code, req.RedirectUrl)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) SetUserGitee(ctx context.Context, req *v1.SetUserGiteeReq) (*emptypb.Empty, error) {
+	err := s.uc.SetUserGitee(ctx, req.Code, req.RedirectUrl)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) SetUserGithub(ctx context.Context, req *v1.SetUserGithubReq) (*emptypb.Empty, error) {
+	err := s.uc.SetUserGithub(ctx, req.Code, req.RedirectUrl)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *BffService) SetUserFollow(ctx context.Context, req *v1.SetUserFollowReq) (*emptypb.Empty, error) {
 	err := s.uc.SetUserFollow(ctx, req.Uuid)
 	if err != nil {
@@ -467,16 +499,48 @@ func (s *BffService) ChangeUserPassword(ctx context.Context, req *v1.ChangeUserP
 	return &emptypb.Empty{}, nil
 }
 
-func (s *BffService) UnbindUserPhone(ctx context.Context, req *v1.UnbindUserPhoneReq) (*emptypb.Empty, error) {
-	err := s.uc.UnbindUserPhone(ctx, req.Phone, req.Code)
+func (s *BffService) UnbindUserPhone(ctx context.Context, req *v1.UnbindUserAccountReq) (*emptypb.Empty, error) {
+	err := s.uc.UnbindUserPhone(ctx, req.Phone, req.Email, req.Account, req.Password, req.Code, req.Choose, req.Mode, req.RedirectUri)
 	if err != nil {
 		return nil, err
 	}
 	return &emptypb.Empty{}, nil
 }
 
-func (s *BffService) UnbindUserEmail(ctx context.Context, req *v1.UnbindUserEmailReq) (*emptypb.Empty, error) {
-	err := s.uc.UnbindUserEmail(ctx, req.Email, req.Code)
+func (s *BffService) UnbindUserEmail(ctx context.Context, req *v1.UnbindUserAccountReq) (*emptypb.Empty, error) {
+	err := s.uc.UnbindUserEmail(ctx, req.Phone, req.Email, req.Account, req.Password, req.Code, req.Choose, req.Mode, req.RedirectUri)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) UnbindUserWechat(ctx context.Context, req *v1.UnbindUserAccountReq) (*emptypb.Empty, error) {
+	err := s.uc.UnbindUserWechat(ctx, req.Phone, req.Email, req.Account, req.Password, req.Code, req.Choose, req.Mode, req.RedirectUri)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) UnbindUserQQ(ctx context.Context, req *v1.UnbindUserAccountReq) (*emptypb.Empty, error) {
+	err := s.uc.UnbindUserQQ(ctx, req.Phone, req.Email, req.Account, req.Password, req.Code, req.Choose, req.Mode, req.RedirectUri)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) UnbindUserGitee(ctx context.Context, req *v1.UnbindUserAccountReq) (*emptypb.Empty, error) {
+	err := s.uc.UnbindUserGitee(ctx, req.Phone, req.Email, req.Account, req.Password, req.Code, req.Choose, req.Mode, req.RedirectUri)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *BffService) UnbindUserGithub(ctx context.Context, req *v1.UnbindUserAccountReq) (*emptypb.Empty, error) {
+	err := s.uc.UnbindUserGithub(ctx, req.Phone, req.Email, req.Account, req.Password, req.Code, req.Choose, req.Mode, req.RedirectUri)
 	if err != nil {
 		return nil, err
 	}
