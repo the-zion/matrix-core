@@ -31,9 +31,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logLogger log.Logger,
 	cosUser := data.NewCosUserClient(confData)
 	cosCreation := data.NewCosCreationClient(confData)
 	cosComment := data.NewCosCommentClient(confData)
-	txCode := data.NewPhoneCode(confData)
-	goMail := data.NewGoMail(confData)
-	dataData, cleanup2, err := data.NewData(db, cmdable, userClient, creationClient, commentClient, achievementClient, jwt, cosUser, cosCreation, cosComment, txCode, goMail, logLogger)
+	dataData, cleanup2, err := data.NewData(db, cmdable, userClient, creationClient, commentClient, achievementClient, jwt, cosUser, cosCreation, cosComment, logLogger)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -53,22 +51,8 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logLogger log.Logger,
 	messageService := service.NewMessageService(userUseCase, creationUseCase, achievementUseCase, commentUseCase, messageUseCase, logLogger)
 	httpServer := server.NewHTTPServer(confServer, messageService, logLogger)
 	grpcServer := server.NewGRPCServer(confServer, messageService, logLogger)
-	codeMqConsumerServer := server.NewCodeMqConsumerServer(confServer, messageService, logLogger)
-	profileMqConsumerServer := server.NewProfileMqConsumerServer(confServer, messageService, logLogger)
-	pictureMqConsumerServer := server.NewPictureMqConsumerServer(confServer, messageService, logLogger)
-	followMqConsumerServer := server.NewFollowMqConsumerServer(confServer, messageService, logLogger)
-	articleReviewMqConsumerServer := server.NewArticleReviewMqConsumerServer(confServer, messageService, logLogger)
-	articleMqConsumerServer := server.NewArticleMqConsumerServer(confServer, messageService, logLogger)
-	talkReviewMqConsumerServer := server.NewTalkReviewMqConsumerServer(confServer, messageService, logLogger)
-	talkMqConsumerServer := server.NewTalkMqConsumerServer(confServer, messageService, logLogger)
-	columnReviewMqConsumerServer := server.NewColumnReviewMqConsumerServer(confServer, messageService, logLogger)
-	columnMqConsumerServer := server.NewColumnMqConsumerServer(confServer, messageService, logLogger)
-	achievementMqConsumerServer := server.NewAchievementMqConsumerServer(confServer, messageService, logLogger)
-	commentReviewMqConsumerServer := server.NewCommentReviewMqConsumerServer(confServer, messageService, logLogger)
-	commentMqConsumerServer := server.NewCommentMqConsumerServer(confServer, messageService, logLogger)
-	collectionsReviewMqConsumerServer := server.NewCollectionsReviewMqConsumerServer(confServer, messageService, logLogger)
-	collectionsMqConsumerServer := server.NewCollectionsMqConsumerServer(confServer, messageService, logLogger)
-	kratosApp := newApp(registry, httpServer, grpcServer, codeMqConsumerServer, profileMqConsumerServer, pictureMqConsumerServer, followMqConsumerServer, articleReviewMqConsumerServer, articleMqConsumerServer, talkReviewMqConsumerServer, talkMqConsumerServer, columnReviewMqConsumerServer, columnMqConsumerServer, achievementMqConsumerServer, commentReviewMqConsumerServer, commentMqConsumerServer, collectionsReviewMqConsumerServer, collectionsMqConsumerServer)
+	rocketMqConsumerServer := server.NewRocketMqConsumerServer(confServer, messageService, logLogger)
+	kratosApp := newApp(registry, httpServer, grpcServer, rocketMqConsumerServer)
 	return kratosApp, func() {
 		cleanup2()
 	}, nil

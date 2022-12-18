@@ -69,7 +69,7 @@ func init() {
 	flag.StringVar(&logSelect, "log", "default", "log select, eg: -log default")
 }
 
-func newApp(r *nacos.Registry, hs *http.Server, gs *grpc.Server, cmcs *server.CodeMqConsumerServer, pmcs *server.ProfileMqConsumerServer, pms *server.PictureMqConsumerServer, fmcs *server.FollowMqConsumerServer, arms *server.ArticleReviewMqConsumerServer, amcs *server.ArticleMqConsumerServer, trcs *server.TalkReviewMqConsumerServer, tmcs *server.TalkMqConsumerServer, crmcs *server.ColumnReviewMqConsumerServer, comcs *server.ColumnMqConsumerServer, achcs *server.AchievementMqConsumerServer, commrcs *server.CommentReviewMqConsumerServer, commcs *server.CommentMqConsumerServer, corms *server.CollectionsReviewMqConsumerServer, coms *server.CollectionsMqConsumerServer) *kratos.App {
+func newApp(r *nacos.Registry, hs *http.Server, gs *grpc.Server, mq *server.RocketMqConsumerServer) *kratos.App {
 	return kratos.New(
 		kratos.ID(id),
 		kratos.Name(Name),
@@ -79,21 +79,7 @@ func newApp(r *nacos.Registry, hs *http.Server, gs *grpc.Server, cmcs *server.Co
 		kratos.Server(
 			hs,
 			gs,
-			cmcs,
-			pmcs,
-			pms,
-			fmcs,
-			arms,
-			amcs,
-			achcs,
-			trcs,
-			crmcs,
-			comcs,
-			tmcs,
-			commrcs,
-			commcs,
-			corms,
-			coms,
+			mq,
 		),
 	)
 }
