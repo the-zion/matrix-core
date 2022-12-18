@@ -2,17 +2,12 @@ package service
 
 import (
 	"context"
-	"github.com/apache/rocketmq-client-go/v2/primitive"
 	"github.com/the-zion/matrix-core/api/message/service/v1"
 	"github.com/the-zion/matrix-core/app/message/service/internal/biz"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-func (s *MessageService) SendCode(msgs ...*primitive.MessageExt) {
-	s.uc.SendCode(msgs...)
-}
-
-func (s *MessageService) UploadProfileToCos(msg *primitive.MessageExt) error {
+func (s *MessageService) UploadProfileToCos(msg map[string]interface{}) error {
 	return s.uc.UploadProfileToCos(msg)
 }
 

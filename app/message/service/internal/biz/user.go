@@ -3,16 +3,14 @@ package biz
 import (
 	"context"
 	"fmt"
-	"github.com/apache/rocketmq-client-go/v2/primitive"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/pkg/errors"
 )
 
 type UserRepo interface {
-	SendCode(msgs ...*primitive.MessageExt)
 	AvatarIrregular(ctx context.Context, review *ImageReview, uuid string) error
 	CoverIrregular(ctx context.Context, review *ImageReview, uuid string) error
-	UploadProfileToCos(msg *primitive.MessageExt) error
+	UploadProfileToCos(msg map[string]interface{}) error
 	ProfileReviewPass(ctx context.Context, uuid, update string) error
 	ProfileReviewNotPass(ctx context.Context, uuid string) error
 	SetFollowDbAndCache(ctx context.Context, uuid, userId string) error
@@ -39,11 +37,7 @@ func NewUserUseCase(repo UserRepo, messageRepo MessageRepo, tm Transaction, jwt 
 	}
 }
 
-func (r *UserUseCase) SendCode(msgs ...*primitive.MessageExt) {
-	r.repo.SendCode(msgs...)
-}
-
-func (r *UserUseCase) UploadProfileToCos(msg *primitive.MessageExt) error {
+func (r *UserUseCase) UploadProfileToCos(msg map[string]interface{}) error {
 	return r.repo.UploadProfileToCos(msg)
 }
 
