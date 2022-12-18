@@ -605,11 +605,11 @@ func (r *userRepo) SendProfileToMq(ctx context.Context, profile *biz.ProfileUpda
 		return err
 	}
 	msg := &primitive.Message{
-		Topic: "profile",
+		Topic: "matrix",
 		Body:  data,
 	}
 	msg.WithKeys([]string{profile.Uuid})
-	_, err = r.data.profileMqPro.producer.SendSync(ctx, msg)
+	_, err = r.data.mqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send profile to mq: %v", err))
 	}
@@ -622,11 +622,11 @@ func (r *userRepo) SendImageIrregularToMq(ctx context.Context, review *biz.Image
 		return err
 	}
 	msg := &primitive.Message{
-		Topic: "picture",
+		Topic: "matrix",
 		Body:  data,
 	}
 	msg.WithKeys([]string{review.Uuid})
-	_, err = r.data.profileMqPro.producer.SendSync(ctx, msg)
+	_, err = r.data.mqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send picture review to mq: %v", err))
 	}
@@ -644,11 +644,11 @@ func (r *userRepo) SendUserStatisticToMq(ctx context.Context, uuid, userUuid, mo
 		return err
 	}
 	msg := &primitive.Message{
-		Topic: "achievement",
+		Topic: "matrix",
 		Body:  data,
 	}
 	msg.WithKeys([]string{uuid})
-	_, err = r.data.achievementMqPro.producer.SendSync(ctx, msg)
+	_, err = r.data.mqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send user statistic to mq: uuid(%s)", uuid))
 	}
@@ -1178,11 +1178,11 @@ func (r *userRepo) SetFollowToMq(ctx context.Context, follow *biz.Follow, mode s
 		return err
 	}
 	msg := &primitive.Message{
-		Topic: "follow",
+		Topic: "matrix",
 		Body:  data,
 	}
 	msg.WithKeys([]string{follow.Followed})
-	_, err = r.data.followMqPro.producer.SendSync(ctx, msg)
+	_, err = r.data.mqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send follow to mq: %v", follow))
 	}

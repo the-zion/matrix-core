@@ -258,11 +258,11 @@ func (r *columnRepo) SendColumnToMq(ctx context.Context, column *biz.Column, mod
 		return err
 	}
 	msg := &primitive.Message{
-		Topic: "column",
+		Topic: "matrix",
 		Body:  data,
 	}
 	msg.WithKeys([]string{column.Uuid})
-	_, err = r.data.columnMqPro.producer.SendSync(ctx, msg)
+	_, err = r.data.mqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send column to mq: %v", column))
 	}
@@ -275,11 +275,11 @@ func (r *columnRepo) SendReviewToMq(ctx context.Context, review *biz.ColumnRevie
 		return err
 	}
 	msg := &primitive.Message{
-		Topic: "column_review",
+		Topic: "matrix",
 		Body:  data,
 	}
 	msg.WithKeys([]string{review.Uuid})
-	_, err = r.data.columnReviewMqPro.producer.SendSync(ctx, msg)
+	_, err = r.data.mqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send review to mq: %v", err))
 	}
@@ -297,11 +297,11 @@ func (r *columnRepo) SendScoreToMq(ctx context.Context, score int32, uuid, mode 
 		return err
 	}
 	msg := &primitive.Message{
-		Topic: "achievement",
+		Topic: "matrix",
 		Body:  data,
 	}
 	msg.WithKeys([]string{uuid})
-	_, err = r.data.achievementMqPro.producer.SendSync(ctx, msg)
+	_, err = r.data.mqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send score to mq: uuid(%s)", uuid))
 	}
@@ -322,11 +322,11 @@ func (r *columnRepo) SendStatisticToMq(ctx context.Context, id, collectionsId in
 		return err
 	}
 	msg := &primitive.Message{
-		Topic: "column",
+		Topic: "matrix",
 		Body:  data,
 	}
 	msg.WithKeys([]string{uuid})
-	_, err = r.data.columnMqPro.producer.SendSync(ctx, msg)
+	_, err = r.data.mqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send column statistic to mq: map(%v)", statisticMap))
 	}
@@ -345,11 +345,11 @@ func (r *columnRepo) SendColumnIncludesToMq(ctx context.Context, id, articleId i
 		return err
 	}
 	msg := &primitive.Message{
-		Topic: "column",
+		Topic: "matrix",
 		Body:  data,
 	}
 	msg.WithKeys([]string{uuid})
-	_, err = r.data.columnMqPro.producer.SendSync(ctx, msg)
+	_, err = r.data.mqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to add column includes to mq: map(%v)", includesMap))
 	}
@@ -367,11 +367,11 @@ func (r *columnRepo) SendColumnSubscribeToMq(ctx context.Context, id int32, uuid
 		return err
 	}
 	msg := &primitive.Message{
-		Topic: "column",
+		Topic: "matrix",
 		Body:  data,
 	}
 	msg.WithKeys([]string{uuid})
-	_, err = r.data.columnMqPro.producer.SendSync(ctx, msg)
+	_, err = r.data.mqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set column subscribe to mq: map(%v)", subscribeMap))
 	}
@@ -384,11 +384,11 @@ func (r *columnRepo) SendColumnImageIrregularToMq(ctx context.Context, review *b
 		return err
 	}
 	msg := &primitive.Message{
-		Topic: "column",
+		Topic: "matrix",
 		Body:  data,
 	}
 	msg.WithKeys([]string{review.Uuid})
-	_, err = r.data.columnMqPro.producer.SendSync(ctx, msg)
+	_, err = r.data.mqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send column image review to mq: %v", err))
 	}
@@ -401,11 +401,11 @@ func (r *columnRepo) SendColumnContentIrregularToMq(ctx context.Context, review 
 		return err
 	}
 	msg := &primitive.Message{
-		Topic: "column",
+		Topic: "matrix",
 		Body:  data,
 	}
 	msg.WithKeys([]string{review.Uuid})
-	_, err = r.data.columnMqPro.producer.SendSync(ctx, msg)
+	_, err = r.data.mqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send column content review to mq: %v", err))
 	}
@@ -1695,11 +1695,11 @@ func (r *columnRepo) SendColumnStatisticToMq(ctx context.Context, uuid, userUuid
 		return err
 	}
 	msg := &primitive.Message{
-		Topic: "achievement",
+		Topic: "matrix",
 		Body:  data,
 	}
 	msg.WithKeys([]string{uuid})
-	_, err = r.data.achievementMqPro.producer.SendSync(ctx, msg)
+	_, err = r.data.mqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send column statistic to mq: uuid(%s)", uuid))
 	}

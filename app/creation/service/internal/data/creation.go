@@ -1251,11 +1251,11 @@ func (r *creationRepo) SendCollectionsContentIrregularToMq(ctx context.Context, 
 		return err
 	}
 	msg := &primitive.Message{
-		Topic: "collections",
+		Topic: "matrix",
 		Body:  data,
 	}
 	msg.WithKeys([]string{review.Uuid})
-	_, err = r.data.collectionsMqPro.producer.SendSync(ctx, msg)
+	_, err = r.data.mqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send collections content review to mq: %v", err))
 	}
@@ -1661,11 +1661,11 @@ func (r *creationRepo) SendReviewToMq(ctx context.Context, review *biz.Collectio
 		return err
 	}
 	msg := &primitive.Message{
-		Topic: "collections_review",
+		Topic: "matrix",
 		Body:  data,
 	}
 	msg.WithKeys([]string{review.Uuid})
-	_, err = r.data.collectionsReviewMqPro.producer.SendSync(ctx, msg)
+	_, err = r.data.mqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send review to mq: %v", err))
 	}
@@ -1685,11 +1685,11 @@ func (r *creationRepo) SendCollectionsToMq(ctx context.Context, collections *biz
 		return err
 	}
 	msg := &primitive.Message{
-		Topic: "collections",
+		Topic: "matrix",
 		Body:  data,
 	}
 	msg.WithKeys([]string{collections.Uuid})
-	_, err = r.data.collectionsMqPro.producer.SendSync(ctx, msg)
+	_, err = r.data.mqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send collections to mq: %v", collections))
 	}

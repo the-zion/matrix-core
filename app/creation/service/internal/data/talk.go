@@ -1232,11 +1232,11 @@ func (r *talkRepo) SendReviewToMq(ctx context.Context, review *biz.TalkReview) e
 		return err
 	}
 	msg := &primitive.Message{
-		Topic: "talk_review",
+		Topic: "matrix",
 		Body:  data,
 	}
 	msg.WithKeys([]string{review.Uuid})
-	_, err = r.data.talkReviewMqPro.producer.SendSync(ctx, msg)
+	_, err = r.data.mqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send review to mq: %v", err))
 	}
@@ -1409,11 +1409,11 @@ func (r *talkRepo) SendTalkToMq(ctx context.Context, talk *biz.Talk, mode string
 		return err
 	}
 	msg := &primitive.Message{
-		Topic: "talk",
+		Topic: "matrix",
 		Body:  data,
 	}
 	msg.WithKeys([]string{talk.Uuid})
-	_, err = r.data.talkMqPro.producer.SendSync(ctx, msg)
+	_, err = r.data.mqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send talk to mq: %v", talk))
 	}
@@ -1734,11 +1734,11 @@ func (r *talkRepo) SendTalkStatisticToMq(ctx context.Context, uuid, userUuid, mo
 		return err
 	}
 	msg := &primitive.Message{
-		Topic: "achievement",
+		Topic: "matrix",
 		Body:  data,
 	}
 	msg.WithKeys([]string{uuid})
-	_, err = r.data.achievementMqPro.producer.SendSync(ctx, msg)
+	_, err = r.data.mqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send talk statistic to mq: uuid(%s)", uuid))
 	}
@@ -1756,11 +1756,11 @@ func (r *talkRepo) SendScoreToMq(ctx context.Context, score int32, uuid, mode st
 		return err
 	}
 	msg := &primitive.Message{
-		Topic: "achievement",
+		Topic: "matrix",
 		Body:  data,
 	}
 	msg.WithKeys([]string{uuid})
-	_, err = r.data.achievementMqPro.producer.SendSync(ctx, msg)
+	_, err = r.data.mqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send score to mq: uuid(%s)", uuid))
 	}
@@ -1780,11 +1780,11 @@ func (r *talkRepo) SendStatisticToMq(ctx context.Context, id, collectionsId int3
 		return err
 	}
 	msg := &primitive.Message{
-		Topic: "talk",
+		Topic: "matrix",
 		Body:  data,
 	}
 	msg.WithKeys([]string{uuid})
-	_, err = r.data.talkMqPro.producer.SendSync(ctx, msg)
+	_, err = r.data.mqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send talk statistic to mq: map(%v)", statisticMap))
 	}
@@ -1797,11 +1797,11 @@ func (r *talkRepo) SendTalkImageIrregularToMq(ctx context.Context, review *biz.I
 		return err
 	}
 	msg := &primitive.Message{
-		Topic: "talk",
+		Topic: "matrix",
 		Body:  data,
 	}
 	msg.WithKeys([]string{review.Uuid})
-	_, err = r.data.talkMqPro.producer.SendSync(ctx, msg)
+	_, err = r.data.mqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send talk image review to mq: %v", err))
 	}
@@ -1814,11 +1814,11 @@ func (r *talkRepo) SendTalkContentIrregularToMq(ctx context.Context, review *biz
 		return err
 	}
 	msg := &primitive.Message{
-		Topic: "talk",
+		Topic: "matrix",
 		Body:  data,
 	}
 	msg.WithKeys([]string{review.Uuid})
-	_, err = r.data.talkMqPro.producer.SendSync(ctx, msg)
+	_, err = r.data.mqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send talk content review to mq: %v", err))
 	}

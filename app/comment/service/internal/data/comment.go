@@ -2312,11 +2312,11 @@ func (r *commentRepo) SendReviewToMq(ctx context.Context, review *biz.CommentRev
 		return err
 	}
 	msg := &primitive.Message{
-		Topic: "review",
+		Topic: "matrix",
 		Body:  data,
 	}
 	msg.WithKeys([]string{review.Uuid})
-	_, err = r.data.reviewMqPro.producer.SendSync(ctx, msg)
+	_, err = r.data.mqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send review to mq: %v", err))
 	}
@@ -2336,11 +2336,11 @@ func (r *commentRepo) SendCommentToMq(ctx context.Context, comment *biz.Comment,
 		return err
 	}
 	msg := &primitive.Message{
-		Topic: "comment",
+		Topic: "matrix",
 		Body:  data,
 	}
 	msg.WithKeys([]string{comment.Uuid})
-	_, err = r.data.commonMqPro.producer.SendSync(ctx, msg)
+	_, err = r.data.mqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send comment to mq: %v", comment))
 	}
@@ -2353,11 +2353,11 @@ func (r *commentRepo) SendCommentContentIrregularToMq(ctx context.Context, revie
 		return err
 	}
 	msg := &primitive.Message{
-		Topic: "comment",
+		Topic: "matrix",
 		Body:  data,
 	}
 	msg.WithKeys([]string{review.Uuid})
-	_, err = r.data.commonMqPro.producer.SendSync(ctx, msg)
+	_, err = r.data.mqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send comment content review to mq: %v", err))
 	}
@@ -2377,11 +2377,11 @@ func (r *commentRepo) SendSubCommentToMq(ctx context.Context, comment *biz.SubCo
 		return err
 	}
 	msg := &primitive.Message{
-		Topic: "comment",
+		Topic: "matrix",
 		Body:  data,
 	}
 	msg.WithKeys([]string{comment.Uuid})
-	_, err = r.data.commonMqPro.producer.SendSync(ctx, msg)
+	_, err = r.data.mqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send comment to mq: %v", comment))
 	}
@@ -2402,11 +2402,11 @@ func (r *commentRepo) SendCommentAgreeToMq(ctx context.Context, id, creationId, 
 		return err
 	}
 	msg := &primitive.Message{
-		Topic: "comment",
+		Topic: "matrix",
 		Body:  data,
 	}
 	msg.WithKeys([]string{userUuid})
-	_, err = r.data.commonMqPro.producer.SendSync(ctx, msg)
+	_, err = r.data.mqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set comment agree to mq: id(%v), uuid(%s), userUuid(%s), mode(%s)", id, uuid, userUuid, mode))
 	}
@@ -2425,11 +2425,11 @@ func (r *commentRepo) SendSubCommentAgreeToMq(ctx context.Context, id int32, uui
 		return err
 	}
 	msg := &primitive.Message{
-		Topic: "comment",
+		Topic: "matrix",
 		Body:  data,
 	}
 	msg.WithKeys([]string{userUuid})
-	_, err = r.data.commonMqPro.producer.SendSync(ctx, msg)
+	_, err = r.data.mqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set sub comment agree to mq: id(%v), uuid(%s), userUuid(%s), mode(%s)", id, uuid, userUuid, mode))
 	}
@@ -2447,11 +2447,11 @@ func (r *commentRepo) SendCommentStatisticToMq(ctx context.Context, uuid, userUu
 		return err
 	}
 	msg := &primitive.Message{
-		Topic: "achievement",
+		Topic: "matrix",
 		Body:  data,
 	}
 	msg.WithKeys([]string{uuid})
-	_, err = r.data.achievementMqPro.producer.SendSync(ctx, msg)
+	_, err = r.data.mqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send talk statistic to mq: uuid(%s)", uuid))
 	}
@@ -2469,11 +2469,11 @@ func (r *commentRepo) SendScoreToMq(ctx context.Context, score int32, uuid, mode
 		return err
 	}
 	msg := &primitive.Message{
-		Topic: "achievement",
+		Topic: "matrix",
 		Body:  data,
 	}
 	msg.WithKeys([]string{uuid})
-	_, err = r.data.achievementMqPro.producer.SendSync(ctx, msg)
+	_, err = r.data.mqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send score to mq: uuid(%s)", uuid))
 	}
