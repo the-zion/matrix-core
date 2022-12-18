@@ -12,9 +12,6 @@ import (
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/go-redis/redis/v8"
 	"github.com/google/wire"
-	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
-	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/profile"
-	sms "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms/v20210111"
 	"github.com/tencentyun/cos-go-sdk-v5"
 	_ "github.com/tencentyun/cos-go-sdk-v5"
 	achievementv1 "github.com/the-zion/matrix-core/api/achievement/service/v1"
@@ -26,7 +23,6 @@ import (
 	"github.com/the-zion/matrix-core/pkg/trace"
 	"go.opentelemetry.io/otel/propagation"
 	gooGrpc "google.golang.org/grpc"
-	"gopkg.in/gomail.v2"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"net/http"
@@ -35,18 +31,8 @@ import (
 	"time"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewCreationRepo, NewCommentRepo, NewMessageRepo, NewAchievementRepo, NewPhoneCode, NewGoMail, NewUserServiceClient, NewCreationServiceClient, NewAchievementServiceClient, NewCommentServiceClient, NewCosUserClient, NewCosCreationClient, NewCosCommentClient, NewJwtClient, NewJwt, NewRecovery, NewTransaction, NewRedis, NewDB)
+var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewCreationRepo, NewCommentRepo, NewMessageRepo, NewAchievementRepo, NewUserServiceClient, NewCreationServiceClient, NewAchievementServiceClient, NewCommentServiceClient, NewCosUserClient, NewCosCreationClient, NewCosCommentClient, NewJwtClient, NewJwt, NewRecovery, NewTransaction, NewRedis, NewDB)
 var connBox []*gooGrpc.ClientConn
-
-type TxCode struct {
-	client  *sms.Client
-	request *sms.SendSmsRequest
-}
-
-type GoMail struct {
-	message *gomail.Message
-	dialer  *gomail.Dialer
-}
 
 type CosUser struct {
 	cos *cos.Client
@@ -75,8 +61,6 @@ type Data struct {
 	commc          commentv1.CommentClient
 	ac             achievementv1.AchievementClient
 	jwt            Jwt
-	phoneCodeCli   *TxCode
-	goMailCli      *GoMail
 	cosUserCli     *CosUser
 	cosCreationCli *CosCreation
 	cosCommentCli  *CosComment
@@ -125,32 +109,6 @@ func NewRecovery(d *Data) biz.Recovery {
 
 func NewTransaction(d *Data) biz.Transaction {
 	return d
-}
-
-func NewPhoneCode(conf *conf.Data) *TxCode {
-	credential := common.NewCredential(
-		conf.Code.SecretId,
-		conf.Code.SecretKey,
-	)
-	cpf := profile.NewClientProfile()
-	client, _ := sms.NewClient(credential, "ap-guangzhou", cpf)
-	request := sms.NewSendSmsRequest()
-	request.SmsSdkAppId = common.StringPtr("1400590793")
-	request.SignName = common.StringPtr("魔方技术")
-	return &TxCode{
-		client:  client,
-		request: request,
-	}
-}
-
-func NewGoMail(conf *conf.Data) *GoMail {
-	m := gomail.NewMessage()
-	m.SetHeader("From", "matrixtechnology@163.com")
-	d := gomail.NewDialer("smtp.163.com", 465, "matrixtechnology@163.com", conf.Mail.Code)
-	return &GoMail{
-		message: m,
-		dialer:  d,
-	}
 }
 
 func NewUserServiceClient(r *nacos.Registry) userv1.UserClient {
@@ -326,7 +284,7 @@ func NewRedis(conf *conf.Data) redis.Cmdable {
 	return client
 }
 
-func NewData(db *gorm.DB, redisCmd redis.Cmdable, uc userv1.UserClient, cc creationv1.CreationClient, commc commentv1.CommentClient, ac achievementv1.AchievementClient, jwt Jwt, cosUser *CosUser, cosCreation *CosCreation, cosComment *CosComment, phoneCodeCli *TxCode, goMailCli *GoMail, logger log.Logger) (*Data, func(), error) {
+func NewData(db *gorm.DB, redisCmd redis.Cmdable, uc userv1.UserClient, cc creationv1.CreationClient, commc commentv1.CommentClient, ac achievementv1.AchievementClient, jwt Jwt, cosUser *CosUser, cosCreation *CosCreation, cosComment *CosComment, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(log.GetLogger(), "module", "message/data"))
 	selector.SetGlobalSelector(p2c.NewBuilder())
 	d := &Data{
@@ -338,25 +296,12 @@ func NewData(db *gorm.DB, redisCmd redis.Cmdable, uc userv1.UserClient, cc creat
 		commc:          commc,
 		ac:             ac,
 		jwt:            jwt,
-		phoneCodeCli:   phoneCodeCli,
-		goMailCli:      goMailCli,
 		cosUserCli:     cosUser,
 		cosCreationCli: cosCreation,
 		cosCommentCli:  cosComment,
 	}
 	return d, func() {
 		l.Info("closing the data resources")
-
-		goMailCli.message.Reset()
-		mail, err := goMailCli.dialer.Dial()
-		if err != nil {
-			l.Errorf("close goMail err: %v", err.Error())
-		}
-
-		err = mail.Close()
-		if err != nil {
-			l.Errorf("close goMail err: %v", err.Error())
-		}
 
 		sqlDB, err := db.DB()
 		if err != nil {

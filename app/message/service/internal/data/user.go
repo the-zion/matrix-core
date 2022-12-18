@@ -4,14 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/apache/rocketmq-client-go/v2/primitive"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/pkg/errors"
-	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
 	"github.com/tencentyun/cos-go-sdk-v5"
 	userV1 "github.com/the-zion/matrix-core/api/user/service/v1"
 	"github.com/the-zion/matrix-core/app/message/service/internal/biz"
-	"github.com/the-zion/matrix-core/app/message/service/internal/pkg/util"
 	"net/http"
 	"strings"
 )
@@ -30,13 +27,8 @@ func NewUserRepo(data *Data, logger log.Logger) biz.UserRepo {
 	}
 }
 
-func (r *userRepo) UploadProfileToCos(msg *primitive.MessageExt) error {
-	m := map[string]interface{}{"uuid": ""}
-	err := json.Unmarshal(msg.Body, &m)
-	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to unmarshal profile: profile(%v)", msg.Body))
-	}
-	key := "profile/" + m["uuid"].(string)
+func (r *userRepo) UploadProfileToCos(msg map[string]interface{}) error {
+	key := "profile/" + msg["uuid"].(string)
 
 	opt := &cos.ObjectPutOptions{
 		ObjectPutHeaderOptions: &cos.ObjectPutHeaderOptions{
@@ -45,15 +37,20 @@ func (r *userRepo) UploadProfileToCos(msg *primitive.MessageExt) error {
 		},
 	}
 
-	opt.XCosMetaXXX.Add("x-cos-meta-uuid", m["uuid"].(string))
-	opt.XCosMetaXXX.Add("x-cos-meta-update", m["updated"].(string))
+	opt.XCosMetaXXX.Add("x-cos-meta-uuid", msg["uuid"].(string))
+	opt.XCosMetaXXX.Add("x-cos-meta-update", msg["updated"].(string))
 
-	f := strings.NewReader(string(msg.Body))
+	m, err := json.Marshal(msg)
+	if err != nil {
+		return errors.Wrapf(err, fmt.Sprintf("fail to marshal profile message: profile(%v)", msg))
+	}
+
+	f := strings.NewReader(string(m))
 	_, err = r.data.cosUserCli.cos.Object.Put(
 		context.Background(), key, f, opt,
 	)
 	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to upload profile to cos: profile(%v)", msg.Body))
+		return errors.Wrapf(err, fmt.Sprintf("fail to upload profile to cos: profile(%v)", msg))
 	}
 	return nil
 }
@@ -77,35 +74,6 @@ func (r *userRepo) ProfileReviewNotPass(ctx context.Context, uuid string) error 
 		return err
 	}
 	return nil
-}
-
-func (r *userRepo) SendCode(msgs ...*primitive.MessageExt) {
-	for _, i := range msgs {
-		body := strings.Split(string(i.Body), ";")
-		if body[3] == "phone" {
-			request := r.data.phoneCodeCli.request
-			client := r.data.phoneCodeCli.client
-			request.TemplateId = common.StringPtr(util.GetPhoneTemplate(body[2]))
-			request.TemplateParamSet = common.StringPtrs([]string{body[1]})
-			request.PhoneNumberSet = common.StringPtrs([]string{body[0]})
-			_, err := client.SendSms(request)
-			if err != nil {
-				r.log.Errorf("fail to send phone code: code(%s) error: %v", body[1], err.Error())
-			}
-		}
-
-		if body[3] == "email" {
-			m := r.data.goMailCli.message
-			d := r.data.goMailCli.dialer
-			m.SetHeader("To", body[0])
-			m.SetHeader("Subject", "matrix 魔方技术")
-			m.SetBody("text/html", util.GetEmailTemplate(body[2], body[1]))
-			err := d.DialAndSend(m)
-			if err != nil {
-				r.log.Errorf("fail to send email code: code(%s) error: %v", body[1], err.Error())
-			}
-		}
-	}
 }
 
 func (r *userRepo) AvatarIrregular(ctx context.Context, review *biz.ImageReview, uuid string) error {
