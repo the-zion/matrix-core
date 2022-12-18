@@ -24,7 +24,7 @@ func NewCreationRepo(data *Data, logger log.Logger) biz.CreationRepo {
 	}
 }
 
-func (r *creationRepo) ToReviewCreateArticle(id int32, uuid string) error {
+func (r *creationRepo) ToReviewCreateArticle(ctx context.Context, id int32, uuid string) error {
 	opt := &cos.PutTextAuditingJobOptions{
 		InputObject: "article/" + uuid + "/" + strconv.Itoa(int(id)) + "/content",
 		Conf: &cos.TextAuditingJobConf{
@@ -33,14 +33,14 @@ func (r *creationRepo) ToReviewCreateArticle(id int32, uuid string) error {
 		},
 	}
 
-	_, _, err := r.data.cosCreationCli.cos.CI.PutTextAuditingJob(context.Background(), opt)
+	_, _, err := r.data.cosCreationCli.cos.CI.PutTextAuditingJob(ctx, opt)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send article create review request to cos: id(%v) uuid(%s)", id, uuid))
 	}
 	return nil
 }
 
-func (r *creationRepo) ToReviewEditArticle(id int32, uuid string) error {
+func (r *creationRepo) ToReviewEditArticle(ctx context.Context, id int32, uuid string) error {
 	opt := &cos.PutTextAuditingJobOptions{
 		InputObject: "article/" + uuid + "/" + strconv.Itoa(int(id)) + "/content-edit",
 		Conf: &cos.TextAuditingJobConf{
@@ -49,7 +49,7 @@ func (r *creationRepo) ToReviewEditArticle(id int32, uuid string) error {
 		},
 	}
 
-	_, _, err := r.data.cosCreationCli.cos.CI.PutTextAuditingJob(context.Background(), opt)
+	_, _, err := r.data.cosCreationCli.cos.CI.PutTextAuditingJob(ctx, opt)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send article edit review request to cos: id(%v) uuid(%s)", id, uuid))
 	}
