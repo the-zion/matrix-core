@@ -1,5 +1,5 @@
 INTERNAL_PROTO_FILES=$(shell find internal -name *.proto)
-INTERNAL_EASYJSON_FILES=$(shell find internal -name struct.go)
+INTERNAL_EASYJSON_FILES=$(shell find internal -name do.go)
 .PHONY: config
 # generate internal proto
 config:
@@ -11,4 +11,4 @@ config:
 .PHONY: easyjson
 # generate internal proto
 easyjson:
-	easyjson -snake_case -lower_camel_case $(INTERNAL_EASYJSON_FILES)
+	easyjson -lower_camel_case $(INTERNAL_EASYJSON_FILES)
