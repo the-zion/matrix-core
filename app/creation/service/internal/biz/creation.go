@@ -336,7 +336,7 @@ func (r *CreationUseCase) SendCollections(ctx context.Context, id int32, uuid, i
 		err = r.repo.SendReviewToMq(ctx, &CollectionsReview{
 			Uuid: draft.Uuid,
 			Id:   draft.Id,
-			Mode: "create",
+			Mode: "collections_create_review",
 		})
 		if err != nil {
 			return v1.ErrorCreateCollectionsFailed("send create review to mq failed: %s", err.Error())
@@ -446,7 +446,7 @@ func (r *CreationUseCase) SendCollectionsEdit(ctx context.Context, id int32, uui
 	err = r.repo.SendReviewToMq(ctx, &CollectionsReview{
 		Uuid: collections.Uuid,
 		Id:   id,
-		Mode: "edit",
+		Mode: "collections_edit_review",
 	})
 	if err != nil {
 		return v1.ErrorEditCollectionsFailed("send edit review to mq failed: %s", err.Error())

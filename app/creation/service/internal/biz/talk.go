@@ -266,7 +266,7 @@ func (r *TalkUseCase) SendTalk(ctx context.Context, id int32, uuid, ip string) e
 		err = r.repo.SendReviewToMq(ctx, &TalkReview{
 			Uuid: draft.Uuid,
 			Id:   draft.Id,
-			Mode: "create",
+			Mode: "talk_create_review",
 		})
 		if err != nil {
 			return v1.ErrorCreateTalkFailed("send create review to mq failed: %s", err.Error())
@@ -293,7 +293,7 @@ func (r *TalkUseCase) SendTalkEdit(ctx context.Context, id int32, uuid, ip strin
 	err = r.repo.SendReviewToMq(ctx, &TalkReview{
 		Uuid: talk.Uuid,
 		Id:   talk.TalkId,
-		Mode: "edit",
+		Mode: "talk_edit_review",
 	})
 	if err != nil {
 		return v1.ErrorEditTalkFailed("send edit review to mq failed: %s", err.Error())

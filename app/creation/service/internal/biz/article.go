@@ -524,7 +524,7 @@ func (r *ArticleUseCase) SendArticle(ctx context.Context, id int32, uuid, ip str
 		err = r.repo.SendReviewToMq(ctx, &ArticleReview{
 			Uuid: draft.Uuid,
 			Id:   draft.Id,
-			Mode: "create",
+			Mode: "article_create_review",
 		})
 		if err != nil {
 			return v1.ErrorCreateArticleFailed("send create review to mq failed: %s", err.Error())
@@ -551,7 +551,7 @@ func (r *ArticleUseCase) SendArticleEdit(ctx context.Context, id int32, uuid, ip
 	err = r.repo.SendReviewToMq(ctx, &ArticleReview{
 		Uuid: article.Uuid,
 		Id:   article.ArticleId,
-		Mode: "edit",
+		Mode: "article_edit_review",
 	})
 	if err != nil {
 		return v1.ErrorEditArticleFailed("send edit review to mq failed: %s", err.Error())

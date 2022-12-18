@@ -371,7 +371,7 @@ func (r *ColumnUseCase) SendColumn(ctx context.Context, id int32, uuid, ip strin
 		err = r.repo.SendReviewToMq(ctx, &ColumnReview{
 			Uuid: draft.Uuid,
 			Id:   draft.Id,
-			Mode: "create",
+			Mode: "column_create_review",
 		})
 		if err != nil {
 			return v1.ErrorCreateColumnFailed("send create review to mq failed: %s", err.Error())
@@ -398,7 +398,7 @@ func (r *ColumnUseCase) SendColumnEdit(ctx context.Context, id int32, uuid, ip s
 	err = r.repo.SendReviewToMq(ctx, &ColumnReview{
 		Uuid: column.Uuid,
 		Id:   column.ColumnId,
-		Mode: "edit",
+		Mode: "column_edit_review",
 	})
 	if err != nil {
 		return v1.ErrorGetColumnFailed("send edit review to mq failed: %s", err.Error())
