@@ -6,7 +6,9 @@ import (
 	"encoding/gob"
 	"encoding/json"
 	"fmt"
-	"github.com/apache/rocketmq-client-go/v2/primitive"
+	dysmsapi20170525 "github.com/alibabacloud-go/dysmsapi-20170525/v3/client"
+	utilService "github.com/alibabacloud-go/tea-utils/v2/service"
+	"github.com/alibabacloud-go/tea/tea"
 	"github.com/elastic/go-elasticsearch/v7/esapi"
 	kerrors "github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
@@ -567,20 +569,31 @@ func (r *authRepo) SendPhoneCode(ctx context.Context, template, phone string) er
 	code := util.RandomNumber()
 	err := r.setCodeToCache(ctx, "phone_"+phone, code)
 	if err != nil {
-		return err
+		return errors.Wrapf(err, "fail to send user phone code: phone(%s), code(%s), template(%s)", phone, code, template)
 	}
-
-	message := strings.Join([]string{phone, code, template, "phone"}, ";")
-	msg := &primitive.Message{
-		Topic: "code",
-		Body:  []byte(message),
-	}
-	msg.WithTag("phone")
-	err = r.data.codeMqPro.producer.SendOneWay(ctx, msg)
-	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to send code to producer: %s", message))
-	}
-
+	go r.data.Recover(ctx, func(ctx context.Context) {
+		sendSmsRequest := &dysmsapi20170525.SendSmsRequest{
+			SignName:      tea.String(r.data.aliCode.signName),
+			TemplateCode:  tea.String(util.GetPhoneTemplate(template)),
+			PhoneNumbers:  tea.String(phone),
+			TemplateParam: tea.String(fmt.Sprintf("{code:%s}", code)),
+		}
+		runtime := &utilService.RuntimeOptions{}
+		_, tryErr := r.data.aliCode.client.SendSmsWithOptions(sendSmsRequest, runtime)
+		if tryErr != nil {
+			var err = &tea.SDKError{}
+			if _t, ok := tryErr.(*tea.SDKError); ok {
+				err = _t
+			} else {
+				err.Message = tea.String(tryErr.Error())
+			}
+			msg, _err := utilService.AssertAsString(err.Message)
+			if _err != nil {
+				r.log.Errorf("fail to assert message as string: phone(%s), code(%s), template(%s), err(%v)", phone, code, template, err.Error())
+			}
+			r.log.Errorf("fail to send user phone code: phone(%s), code(%s), template(%s), err(%v)", phone, code, template, *msg)
+		}
+	})()
 	return nil
 }
 
@@ -588,20 +601,19 @@ func (r *authRepo) SendEmailCode(ctx context.Context, template, email string) er
 	code := util.RandomNumber()
 	err := r.setCodeToCache(ctx, "email_"+email, code)
 	if err != nil {
-		return err
+		return errors.Wrapf(err, "fail to send email code: email(%s) code(%s) template(%s)", email, code, template)
 	}
-
-	message := strings.Join([]string{email, code, template, "email"}, ";")
-	msg := &primitive.Message{
-		Topic: "code",
-		Body:  []byte(message),
-	}
-	msg.WithTag("email")
-	err = r.data.codeMqPro.producer.SendOneWay(ctx, msg)
-	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to send code to producer: %s", message))
-	}
-
+	go r.data.Recover(ctx, func(ctx context.Context) {
+		m := r.data.mail.message
+		d := r.data.mail.dialer
+		m.SetHeader("To", email)
+		m.SetHeader("Subject", "matrix 魔方技术")
+		m.SetBody("text/html", util.GetEmailTemplate(template, code))
+		err = d.DialAndSend(m)
+		if err != nil {
+			r.log.Errorf("fail to send email code: email(%s) code(%s) template(%s) error: %v", email, code, template, err.Error())
+		}
+	})()
 	return nil
 }
 
