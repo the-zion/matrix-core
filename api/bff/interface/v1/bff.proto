@@ -1262,7 +1262,7 @@ service Bff{
     };
   }
 
-  // --------------------comment service------------------------
+  // --------------------message service------------------------
 
   rpc GetMessageNotification(google.protobuf.Empty) returns (GetMessageNotificationReply){
     option (google.api.http) = {
