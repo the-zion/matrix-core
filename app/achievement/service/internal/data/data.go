@@ -17,17 +17,17 @@ import (
 	"time"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewTransaction, NewAchievementRepo, NewRecovery, NewRocketmqAchievementProducer)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewTransaction, NewAchievementRepo, NewRecovery, NewRocketmqProducer)
 
-type AchievementMqPro struct {
+type MqPro struct {
 	producer rocketmq.Producer
 }
 
 type Data struct {
-	db               *gorm.DB
-	log              *log.Helper
-	redisCli         redis.Cmdable
-	achievementMqPro *AchievementMqPro
+	db       *gorm.DB
+	log      *log.Helper
+	redisCli redis.Cmdable
+	mqPro    *MqPro
 }
 
 type contextTxKey struct{}
@@ -115,17 +115,16 @@ func NewRedis(conf *conf.Data) redis.Cmdable {
 	return client
 }
 
-func NewRocketmqAchievementProducer(conf *conf.Data) *AchievementMqPro {
-	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/rocketmq-achievement-producer"))
+func NewRocketmqProducer(conf *conf.Data) *MqPro {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/rocketmq-producer"))
 	p, err := rocketmq.NewProducer(
-		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.AchievementMq.ServerAddress})),
+		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.Rocketmq.ServerAddress})),
 		producer.WithCredentials(primitive.Credentials{
-			SecretKey: conf.AchievementMq.SecretKey,
-			AccessKey: conf.AchievementMq.AccessKey,
+			SecretKey: conf.Rocketmq.SecretKey,
+			AccessKey: conf.Rocketmq.AccessKey,
 		}),
-		producer.WithInstanceName("achievement"),
-		producer.WithGroupName(conf.AchievementMq.Achievement.GroupName),
-		producer.WithNamespace(conf.AchievementMq.NameSpace),
+		producer.WithGroupName(conf.Rocketmq.GroupName),
+		producer.WithNamespace(conf.Rocketmq.NameSpace),
 	)
 
 	if err != nil {
@@ -137,19 +136,19 @@ func NewRocketmqAchievementProducer(conf *conf.Data) *AchievementMqPro {
 		l.Fatalf("start producer error: %v", err)
 	}
 
-	return &AchievementMqPro{
+	return &MqPro{
 		producer: p,
 	}
 }
 
-func NewData(db *gorm.DB, redisCmd redis.Cmdable, achievementMqPro *AchievementMqPro, logger log.Logger) (*Data, func(), error) {
+func NewData(db *gorm.DB, redisCmd redis.Cmdable, mq *MqPro, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(log.GetLogger(), "module", "achievement/data/new-data"))
 
 	d := &Data{
-		db:               db,
-		log:              log.NewHelper(log.With(logger, "module", "creation/data")),
-		redisCli:         redisCmd,
-		achievementMqPro: achievementMqPro,
+		db:       db,
+		log:      log.NewHelper(log.With(logger, "module", "creation/data")),
+		redisCli: redisCmd,
+		mqPro:    mq,
 	}
 	return d, func() {
 		l.Info("closing the data resources")
@@ -169,9 +168,9 @@ func NewData(db *gorm.DB, redisCmd redis.Cmdable, achievementMqPro *AchievementM
 			l.Errorf("close redis error: %v", err.Error())
 		}
 
-		err = achievementMqPro.producer.Shutdown()
+		err = mq.producer.Shutdown()
 		if err != nil {
-			l.Errorf("shutdown achievement producer error: %v", err.Error())
+			l.Errorf("shutdown mq producer error: %v", err.Error())
 		}
 	}, nil
 }

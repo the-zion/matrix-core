@@ -805,11 +805,11 @@ func (r *achievementRepo) SendMedalToMq(ctx context.Context, medal, uuid, mode s
 		return err
 	}
 	msg := &primitive.Message{
-		Topic: "achievement",
+		Topic: "matrix",
 		Body:  data,
 	}
 	msg.WithKeys([]string{uuid})
-	_, err = r.data.achievementMqPro.producer.SendSync(ctx, msg)
+	_, err = r.data.mqPro.producer.SendSync(ctx, msg)
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to send medal to mq: %v", medal))
 	}
