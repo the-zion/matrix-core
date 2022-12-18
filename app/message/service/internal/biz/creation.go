@@ -10,8 +10,8 @@ import (
 )
 
 type CreationRepo interface {
-	ToReviewCreateArticle(id int32, uuid string) error
-	ToReviewEditArticle(id int32, uuid string) error
+	ToReviewCreateArticle(ctx context.Context, id int32, uuid string) error
+	ToReviewEditArticle(ctx context.Context, id int32, uuid string) error
 	ArticleCreateReviewPass(ctx context.Context, id, auth int32, uuid string) error
 	ArticleEditReviewPass(ctx context.Context, id, auth int32, uuid string) error
 	ArticleImageIrregular(ctx context.Context, review *ImageReview, id int32, kind, uid, uuid string) error
@@ -97,12 +97,12 @@ func NewCreationUseCase(repo CreationRepo, messageRepo MessageRepo, tm Transacti
 	}
 }
 
-func (r *CreationUseCase) ToReviewCreateArticle(id int32, uuid string) error {
-	return r.repo.ToReviewCreateArticle(id, uuid)
+func (r *CreationUseCase) ToReviewCreateArticle(ctx context.Context, id int32, uuid string) error {
+	return r.repo.ToReviewCreateArticle(ctx, id, uuid)
 }
 
-func (r *CreationUseCase) ToReviewEditArticle(id int32, uuid string) error {
-	return r.repo.ToReviewEditArticle(id, uuid)
+func (r *CreationUseCase) ToReviewEditArticle(ctx context.Context, id int32, uuid string) error {
+	return r.repo.ToReviewEditArticle(ctx, id, uuid)
 }
 
 func (r *CreationUseCase) ArticleCreateReview(ctx context.Context, tr *TextReview) error {

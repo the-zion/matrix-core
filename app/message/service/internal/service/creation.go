@@ -7,12 +7,12 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-func (s *MessageService) ToReviewCreateArticle(id int32, uuid string) error {
-	return s.cc.ToReviewCreateArticle(id, uuid)
+func (s *MessageService) ToReviewCreateArticle(ctx context.Context, id int32, uuid string) error {
+	return s.cc.ToReviewCreateArticle(ctx, id, uuid)
 }
 
-func (s *MessageService) ToReviewEditArticle(id int32, uuid string) error {
-	return s.cc.ToReviewEditArticle(id, uuid)
+func (s *MessageService) ToReviewEditArticle(ctx context.Context, id int32, uuid string) error {
+	return s.cc.ToReviewEditArticle(ctx, id, uuid)
 }
 
 func (s *MessageService) ArticleCreateReview(ctx context.Context, req *v1.TextReviewReq) (*emptypb.Empty, error) {
