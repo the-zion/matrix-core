@@ -342,6 +342,8 @@ func easyjson899f4d6bDecodeGithubComTheZionMatrixCoreAppUserServiceInternalBiz4(
 			continue
 		}
 		switch key {
+		case "mode":
+			out.Mode = string(in.String())
 		case "status":
 			out.Status = int32(in.Int32())
 		case "created":
@@ -383,8 +385,13 @@ func easyjson899f4d6bEncodeGithubComTheZionMatrixCoreAppUserServiceInternalBiz4(
 	first := true
 	_ = first
 	{
-		const prefix string = ",\"status\":"
+		const prefix string = ",\"mode\":"
 		out.RawString(prefix[1:])
+		out.String(string(in.Mode))
+	}
+	{
+		const prefix string = ",\"status\":"
+		out.RawString(prefix)
 		out.Int32(int32(in.Status))
 	}
 	{

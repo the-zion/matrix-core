@@ -23,19 +23,17 @@ import (
 func wireApp(confServer *conf.Server, confData *conf.Data, auth *conf.Auth, logLogger log.Logger, registry *nacos.Registry) (*kratos.App, func(), error) {
 	db := data.NewDB(confData)
 	cmdable := data.NewRedis(confData)
-	codeMqPro := data.NewRocketmqCodeProducer(confData)
+	mqPro := data.NewRocketmqProducer(confData)
 	elasticSearch := data.NewElasticsearch(confData)
-	profileMqPro := data.NewRocketmqProfileProducer(confData)
-	followMqPro := data.NewRocketmqFollowProducer(confData)
-	pictureMqPro := data.NewRocketmqPictureProducer(confData)
-	achievementMqPro := data.NewRocketmqAchievementProducer(confData)
 	cos := data.NewCosClient(confData)
 	client := data.NewCosServiceClient(confData)
 	github := data.NewGithub(confData)
 	wechat := data.NewWechat(confData)
 	qq := data.NewQQ(confData)
 	gitee := data.NewGitee(confData)
-	dataData, cleanup2, err := data.NewData(db, cmdable, codeMqPro, elasticSearch, profileMqPro, followMqPro, pictureMqPro, achievementMqPro, cos, client, github, wechat, qq, gitee, logLogger)
+	aliCode := data.NewPhoneCodeClient(confData)
+	mail := data.NewMail(confData)
+	dataData, cleanup2, err := data.NewData(db, cmdable, mqPro, elasticSearch, cos, client, github, wechat, qq, gitee, aliCode, mail, logLogger)
 	if err != nil {
 		return nil, nil, err
 	}

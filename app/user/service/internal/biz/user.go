@@ -173,6 +173,7 @@ func (r *UserUseCase) SetProfileUpdate(ctx context.Context, profile *ProfileUpda
 		if err != nil {
 			return err
 		}
+		p.Mode = "user_profile_update"
 		err = r.repo.SendProfileToMq(ctx, p)
 		if err != nil {
 			return err

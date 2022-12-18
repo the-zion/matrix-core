@@ -39,6 +39,7 @@ type UserSearch struct {
 //easyjson:json
 type ProfileUpdate struct {
 	Profile
+	Mode   string
 	Status int32
 }
 
