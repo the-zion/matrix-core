@@ -426,7 +426,7 @@ message GetCollectColumnCountReply{
 
 message GetCollectionsReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string = {ignore_empty:true, uuid:true}];
+  string uuid = 2 [(validate.rules).string = {ignore_empty:true, pattern:'^[a-zA-Z0-9]{20}$'}];
 }
 
 message GetCollectionsReply{
@@ -653,7 +653,7 @@ message GetUserArticleListAllReq{
 
 message GetArticleStatisticReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string = {ignore_empty:true, uuid:true}];
+  string uuid = 2 [(validate.rules).string = {ignore_empty:true, pattern:'^[a-zA-Z0-9]{20}$'}];
 }
 
 message GetArticleStatisticReply{
@@ -972,7 +972,7 @@ message GetTalkListStatisticReply{
 
 message GetTalkStatisticReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string = {ignore_empty:true, uuid:true}];
+  string uuid = 2 [(validate.rules).string = {ignore_empty:true, pattern:'^[a-zA-Z0-9]{20}$'}];
 }
 
 message GetTalkStatisticReply{
@@ -1362,7 +1362,7 @@ message GetColumnListStatisticReply{
 
 message GetColumnStatisticReq{
   int32 id = 1;
-  string uuid = 2 [(validate.rules).string = {ignore_empty:true, uuid:true}];
+  string uuid = 2 [(validate.rules).string = {ignore_empty:true, pattern:'^[a-zA-Z0-9]{20}$'}];
 }
 
 message GetColumnStatisticReply{
