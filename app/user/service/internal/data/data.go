@@ -2,6 +2,9 @@ package data
 
 import (
 	"context"
+	openapi "github.com/alibabacloud-go/darabonba-openapi/v2/client"
+	dysmsapi20170525 "github.com/alibabacloud-go/dysmsapi-20170525/v3/client"
+	"github.com/alibabacloud-go/tea/tea"
 	"github.com/apache/rocketmq-client-go/v2"
 	"github.com/apache/rocketmq-client-go/v2/primitive"
 	"github.com/apache/rocketmq-client-go/v2/producer"
@@ -13,6 +16,7 @@ import (
 	"github.com/tencentyun/qcloud-cos-sts-sdk/go"
 	"github.com/the-zion/matrix-core/app/user/service/internal/biz"
 	"github.com/the-zion/matrix-core/app/user/service/internal/conf"
+	"gopkg.in/gomail.v2"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"net/http"
@@ -21,30 +25,14 @@ import (
 	"time"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewDB, NewTransaction, NewRedis, NewRocketmqCodeProducer, NewRocketmqProfileProducer, NewRocketmqFollowProducer, NewRocketmqPictureProducer, NewRocketmqAchievementProducer, NewCosClient, NewCosServiceClient, NewUserRepo, NewAuthRepo, NewElasticsearch, NewGithub, NewWechat, NewQQ, NewGitee, NewRecovery)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewTransaction, NewRedis, NewRocketmqProducer, NewCosClient, NewCosServiceClient, NewUserRepo, NewAuthRepo, NewElasticsearch, NewGithub, NewWechat, NewQQ, NewGitee, NewPhoneCodeClient, NewMail, NewRecovery)
 
 type Cos struct {
 	client *sts.Client
 	opt    *sts.CredentialOptions
 }
 
-type CodeMqPro struct {
-	producer rocketmq.Producer
-}
-
-type ProfileMqPro struct {
-	producer rocketmq.Producer
-}
-
-type FollowMqPro struct {
-	producer rocketmq.Producer
-}
-
-type PictureMqPro struct {
-	producer rocketmq.Producer
-}
-
-type AchievementMqPro struct {
+type MqPro struct {
 	producer rocketmq.Producer
 }
 
@@ -86,22 +74,30 @@ type Gitee struct {
 	redirectUri    string
 }
 
+type AliCode struct {
+	client   *dysmsapi20170525.Client
+	signName string
+}
+
+type Mail struct {
+	message *gomail.Message
+	dialer  *gomail.Dialer
+}
+
 type Data struct {
-	log              *log.Helper
-	db               *gorm.DB
-	redisCli         redis.Cmdable
-	cosCli           *cos.Client
-	codeMqPro        *CodeMqPro
-	profileMqPro     *ProfileMqPro
-	followMqPro      *FollowMqPro
-	pictureMqPro     *PictureMqPro
-	achievementMqPro *AchievementMqPro
-	elasticSearch    *ElasticSearch
-	cos              *Cos
-	github           *Github
-	gitee            *Gitee
-	wechat           *Wechat
-	qq               *QQ
+	log           *log.Helper
+	db            *gorm.DB
+	redisCli      redis.Cmdable
+	cosCli        *cos.Client
+	mqPro         *MqPro
+	elasticSearch *ElasticSearch
+	cos           *Cos
+	github        *Github
+	gitee         *Gitee
+	wechat        *Wechat
+	qq            *QQ
+	aliCode       *AliCode
+	mail          *Mail
 }
 
 type contextTxKey struct{}
@@ -188,41 +184,15 @@ func NewRedis(conf *conf.Data) redis.Cmdable {
 	return client
 }
 
-func NewRocketmqCodeProducer(conf *conf.Data) *CodeMqPro {
-	l := log.NewHelper(log.With(log.GetLogger(), "module", "user/data/rocketmq-code-producer"))
+func NewRocketmqProducer(conf *conf.Data) *MqPro {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "user/data/rocketmq-producer"))
 	p, err := rocketmq.NewProducer(
 		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.Rocketmq.ServerAddress})),
 		producer.WithCredentials(primitive.Credentials{
 			SecretKey: conf.Rocketmq.SecretKey,
 			AccessKey: conf.Rocketmq.AccessKey,
 		}),
-		producer.WithInstanceName("user"),
-		producer.WithGroupName(conf.Rocketmq.Code.GroupName),
-		producer.WithNamespace(conf.Rocketmq.NameSpace),
-	)
-	if err != nil {
-		l.Fatalf("init producer error: %v", err)
-	}
-
-	err = p.Start()
-	if err != nil {
-		l.Fatalf("start producer error: %v", err)
-	}
-	return &CodeMqPro{
-		producer: p,
-	}
-}
-
-func NewRocketmqProfileProducer(conf *conf.Data) *ProfileMqPro {
-	l := log.NewHelper(log.With(log.GetLogger(), "module", "user/data/rocketmq-profile-producer"))
-	p, err := rocketmq.NewProducer(
-		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.Rocketmq.ServerAddress})),
-		producer.WithCredentials(primitive.Credentials{
-			SecretKey: conf.Rocketmq.SecretKey,
-			AccessKey: conf.Rocketmq.AccessKey,
-		}),
-		producer.WithInstanceName("user"),
-		producer.WithGroupName(conf.Rocketmq.Profile.GroupName),
+		producer.WithGroupName(conf.Rocketmq.GroupName),
 		producer.WithNamespace(conf.Rocketmq.NameSpace),
 	)
 
@@ -234,86 +204,7 @@ func NewRocketmqProfileProducer(conf *conf.Data) *ProfileMqPro {
 	if err != nil {
 		l.Fatalf("start producer error: %v", err)
 	}
-	return &ProfileMqPro{
-		producer: p,
-	}
-}
-
-func NewRocketmqFollowProducer(conf *conf.Data) *FollowMqPro {
-	l := log.NewHelper(log.With(log.GetLogger(), "module", "user/data/rocketmq-follow-producer"))
-	p, err := rocketmq.NewProducer(
-		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.Rocketmq.ServerAddress})),
-		producer.WithCredentials(primitive.Credentials{
-			SecretKey: conf.Rocketmq.SecretKey,
-			AccessKey: conf.Rocketmq.AccessKey,
-		}),
-		producer.WithInstanceName("user"),
-		producer.WithGroupName(conf.Rocketmq.Follow.GroupName),
-		producer.WithNamespace(conf.Rocketmq.NameSpace),
-	)
-
-	if err != nil {
-		l.Fatalf("init follow error: %v", err)
-	}
-
-	err = p.Start()
-	if err != nil {
-		l.Fatalf("start follow error: %v", err)
-	}
-	return &FollowMqPro{
-		producer: p,
-	}
-}
-
-func NewRocketmqPictureProducer(conf *conf.Data) *PictureMqPro {
-	l := log.NewHelper(log.With(log.GetLogger(), "module", "user/data/rocketmq-picture-producer"))
-	p, err := rocketmq.NewProducer(
-		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.Rocketmq.ServerAddress})),
-		producer.WithCredentials(primitive.Credentials{
-			SecretKey: conf.Rocketmq.SecretKey,
-			AccessKey: conf.Rocketmq.AccessKey,
-		}),
-		producer.WithInstanceName("user"),
-		producer.WithGroupName(conf.Rocketmq.Picture.GroupName),
-		producer.WithNamespace(conf.Rocketmq.NameSpace),
-	)
-
-	if err != nil {
-		l.Fatalf("init picture error: %v", err)
-	}
-
-	err = p.Start()
-	if err != nil {
-		l.Fatalf("start picture error: %v", err)
-	}
-	return &PictureMqPro{
-		producer: p,
-	}
-}
-
-func NewRocketmqAchievementProducer(conf *conf.Data) *AchievementMqPro {
-	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/rocketmq-achievement-producer"))
-	p, err := rocketmq.NewProducer(
-		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.AchievementMq.ServerAddress})),
-		producer.WithCredentials(primitive.Credentials{
-			SecretKey: conf.AchievementMq.SecretKey,
-			AccessKey: conf.AchievementMq.AccessKey,
-		}),
-		producer.WithInstanceName("achievement"),
-		producer.WithGroupName(conf.AchievementMq.Achievement.GroupName),
-		producer.WithNamespace(conf.AchievementMq.NameSpace),
-	)
-
-	if err != nil {
-		l.Fatalf("init producer error: %v", err)
-	}
-
-	err = p.Start()
-	if err != nil {
-		l.Fatalf("start producer error: %v", err)
-	}
-
-	return &AchievementMqPro{
+	return &MqPro{
 		producer: p,
 	}
 }
@@ -430,29 +321,65 @@ func NewGitee(conf *conf.Data) *Gitee {
 	}
 }
 
-func NewData(db *gorm.DB, redisCmd redis.Cmdable, cp *CodeMqPro, es *ElasticSearch, pp *ProfileMqPro, fp *FollowMqPro, pip *PictureMqPro, aq *AchievementMqPro, cos *Cos, cosCli *cos.Client, github *Github, wechat *Wechat, qq *QQ, gitee *Gitee, logger log.Logger) (*Data, func(), error) {
+func NewPhoneCodeClient(conf *conf.Data) *AliCode {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "user/data/message"))
+	config := &openapi.Config{
+		AccessKeyId:     &conf.AliCode.AccessKeyId,
+		AccessKeySecret: &conf.AliCode.AccessKeySecret,
+	}
+	config.Endpoint = tea.String(conf.AliCode.DomainUrl)
+	client, err := dysmsapi20170525.NewClient(config)
+	if err != nil {
+		l.Fatalf("error creating the msg client: %s", err)
+	}
+	return &AliCode{
+		client:   client,
+		signName: conf.AliCode.SignName,
+	}
+}
+
+func NewMail(conf *conf.Data) *Mail {
+	m := gomail.NewMessage()
+	m.SetHeader("From", "matrixtechnology@163.com")
+	d := gomail.NewDialer("smtp.163.com", 465, "matrixtechnology@163.com", conf.Mail.Code)
+	return &Mail{
+		message: m,
+		dialer:  d,
+	}
+}
+
+func NewData(db *gorm.DB, redisCmd redis.Cmdable, mp *MqPro, es *ElasticSearch, cos *Cos, cosCli *cos.Client, github *Github, wechat *Wechat, qq *QQ, gitee *Gitee, code *AliCode, mailCli *Mail, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(log.GetLogger(), "module", "user/data/new-data"))
 
 	d := &Data{
-		log:              log.NewHelper(log.With(logger, "module", "creation/data")),
-		db:               db,
-		codeMqPro:        cp,
-		profileMqPro:     pp,
-		achievementMqPro: aq,
-		followMqPro:      fp,
-		pictureMqPro:     pip,
-		redisCli:         redisCmd,
-		elasticSearch:    es,
-		cos:              cos,
-		cosCli:           cosCli,
-		github:           github,
-		wechat:           wechat,
-		qq:               qq,
-		gitee:            gitee,
+		log:           log.NewHelper(log.With(logger, "module", "creation/data")),
+		db:            db,
+		mqPro:         mp,
+		redisCli:      redisCmd,
+		elasticSearch: es,
+		cos:           cos,
+		cosCli:        cosCli,
+		github:        github,
+		wechat:        wechat,
+		qq:            qq,
+		gitee:         gitee,
+		aliCode:       code,
+		mail:          mailCli,
 	}
 	return d, func() {
 		var err error
 		l.Info("closing the data resources")
+
+		mailCli.message.Reset()
+		mail, err := mailCli.dialer.Dial()
+		if err != nil {
+			l.Errorf("close goMail err: %v", err.Error())
+		}
+
+		err = mail.Close()
+		if err != nil {
+			l.Errorf("close goMail err: %v", err.Error())
+		}
 
 		sqlDB, err := db.DB()
 		if err != nil {
@@ -469,29 +396,9 @@ func NewData(db *gorm.DB, redisCmd redis.Cmdable, cp *CodeMqPro, es *ElasticSear
 			l.Errorf("close redis err: %v", err.Error())
 		}
 
-		err = d.codeMqPro.producer.Shutdown()
+		err = d.mqPro.producer.Shutdown()
 		if err != nil {
-			l.Errorf("shutdown code producer error: %v", err.Error())
-		}
-
-		err = d.profileMqPro.producer.Shutdown()
-		if err != nil {
-			l.Errorf("shutdown profile producer error: %v", err.Error())
-		}
-
-		err = d.followMqPro.producer.Shutdown()
-		if err != nil {
-			l.Errorf("shutdown follow producer error: %v", err.Error())
-		}
-
-		err = d.pictureMqPro.producer.Shutdown()
-		if err != nil {
-			l.Errorf("shutdown picture producer error: %v", err.Error())
-		}
-
-		err = d.achievementMqPro.producer.Shutdown()
-		if err != nil {
-			l.Errorf("shutdown achievement producer error: %v", err.Error())
+			l.Errorf("shutdown mq producer error: %v", err.Error())
 		}
 	}, nil
 }

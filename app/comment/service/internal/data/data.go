@@ -31,30 +31,20 @@ import (
 	"time"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewTransaction, NewCommentRepo, NewRocketmqCommentProducer, NewRocketmqReviewProducer, NewRocketmqAchievementProducer, NewCosServiceClient, NewCreationServiceClient, NewRecovery)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewTransaction, NewCommentRepo, NewRocketMqProducer, NewCosServiceClient, NewCreationServiceClient, NewRecovery)
 var connBox []*gooGrpc.ClientConn
 
-type ReviewMqPro struct {
-	producer rocketmq.Producer
-}
-
-type CommentMqPro struct {
-	producer rocketmq.Producer
-}
-
-type AchievementMqPro struct {
+type MqPro struct {
 	producer rocketmq.Producer
 }
 
 type Data struct {
-	db               *gorm.DB
-	log              *log.Helper
-	cosCli           *cos.Client
-	redisCli         redis.Cmdable
-	cc               creationv1.CreationClient
-	reviewMqPro      *ReviewMqPro
-	commonMqPro      *CommentMqPro
-	achievementMqPro *AchievementMqPro
+	db       *gorm.DB
+	log      *log.Helper
+	cosCli   *cos.Client
+	redisCli redis.Cmdable
+	cc       creationv1.CreationClient
+	mqPro    *MqPro
 }
 
 type contextTxKey struct{}
@@ -142,17 +132,16 @@ func NewRedis(conf *conf.Data) redis.Cmdable {
 	return client
 }
 
-func NewRocketmqReviewProducer(conf *conf.Data) *ReviewMqPro {
-	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/rocketmq-review-producer"))
+func NewRocketMqProducer(conf *conf.Data) *MqPro {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/rocketmq-producer"))
 	p, err := rocketmq.NewProducer(
-		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.CommentMq.ServerAddress})),
+		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.Rocketmq.ServerAddress})),
 		producer.WithCredentials(primitive.Credentials{
-			SecretKey: conf.CommentMq.SecretKey,
-			AccessKey: conf.CommentMq.AccessKey,
+			SecretKey: conf.Rocketmq.SecretKey,
+			AccessKey: conf.Rocketmq.AccessKey,
 		}),
-		producer.WithInstanceName("comment"),
-		producer.WithGroupName(conf.CommentMq.CommentReview.GroupName),
-		producer.WithNamespace(conf.CommentMq.NameSpace),
+		producer.WithGroupName(conf.Rocketmq.GroupName),
+		producer.WithNamespace(conf.Rocketmq.NameSpace),
 	)
 
 	if err != nil {
@@ -163,7 +152,7 @@ func NewRocketmqReviewProducer(conf *conf.Data) *ReviewMqPro {
 	if err != nil {
 		l.Fatalf("start producer error: %v", err)
 	}
-	return &ReviewMqPro{
+	return &MqPro{
 		producer: p,
 	}
 }
@@ -181,59 +170,6 @@ func NewCosServiceClient(conf *conf.Data) *cos.Client {
 			SecretKey: conf.Cos.SecretKey,
 		},
 	})
-}
-
-func NewRocketmqCommentProducer(conf *conf.Data) *CommentMqPro {
-	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/rocketmq-comment-producer"))
-	p, err := rocketmq.NewProducer(
-		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.CommentMq.ServerAddress})),
-		producer.WithCredentials(primitive.Credentials{
-			SecretKey: conf.CommentMq.SecretKey,
-			AccessKey: conf.CommentMq.AccessKey,
-		}),
-		producer.WithInstanceName("comment"),
-		producer.WithGroupName(conf.CommentMq.Comment.GroupName),
-		producer.WithNamespace(conf.CommentMq.NameSpace),
-	)
-
-	if err != nil {
-		l.Fatalf("init producer error: %v", err)
-	}
-
-	err = p.Start()
-	if err != nil {
-		l.Fatalf("start producer error: %v", err)
-	}
-	return &CommentMqPro{
-		producer: p,
-	}
-}
-
-func NewRocketmqAchievementProducer(conf *conf.Data) *AchievementMqPro {
-	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/rocketmq-achievement-producer"))
-	p, err := rocketmq.NewProducer(
-		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.AchievementMq.ServerAddress})),
-		producer.WithCredentials(primitive.Credentials{
-			SecretKey: conf.AchievementMq.SecretKey,
-			AccessKey: conf.AchievementMq.AccessKey,
-		}),
-		producer.WithInstanceName("achievement"),
-		producer.WithGroupName(conf.AchievementMq.Achievement.GroupName),
-		producer.WithNamespace(conf.AchievementMq.NameSpace),
-	)
-
-	if err != nil {
-		l.Fatalf("init producer error: %v", err)
-	}
-
-	err = p.Start()
-	if err != nil {
-		l.Fatalf("start producer error: %v", err)
-	}
-
-	return &AchievementMqPro{
-		producer: p,
-	}
 }
 
 func NewCreationServiceClient(r *nacos.Registry) creationv1.CreationClient {
@@ -256,18 +192,16 @@ func NewCreationServiceClient(r *nacos.Registry) creationv1.CreationClient {
 	return c
 }
 
-func NewData(db *gorm.DB, cos *cos.Client, redisCmd redis.Cmdable, rm *ReviewMqPro, cm *CommentMqPro, ap *AchievementMqPro, cc creationv1.CreationClient, logger log.Logger) (*Data, func(), error) {
+func NewData(db *gorm.DB, cos *cos.Client, redisCmd redis.Cmdable, mq *MqPro, cc creationv1.CreationClient, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(log.GetLogger(), "module", "comment/data/new-data"))
 	selector.SetGlobalSelector(p2c.NewBuilder())
 	d := &Data{
-		log:              log.NewHelper(log.With(logger, "module", "creation/data")),
-		db:               db,
-		redisCli:         redisCmd,
-		cosCli:           cos,
-		cc:               cc,
-		reviewMqPro:      rm,
-		achievementMqPro: ap,
-		commonMqPro:      cm,
+		log:      log.NewHelper(log.With(logger, "module", "creation/data")),
+		db:       db,
+		redisCli: redisCmd,
+		cosCli:   cos,
+		cc:       cc,
+		mqPro:    mq,
 	}
 	return d, func() {
 		l.Info("closing the data resources")
@@ -287,19 +221,9 @@ func NewData(db *gorm.DB, cos *cos.Client, redisCmd redis.Cmdable, rm *ReviewMqP
 			l.Errorf("close redis err: %v", err.Error())
 		}
 
-		err = d.commonMqPro.producer.Shutdown()
+		err = d.mqPro.producer.Shutdown()
 		if err != nil {
-			l.Errorf("shutdown comment producer error: %v", err.Error())
-		}
-
-		err = d.reviewMqPro.producer.Shutdown()
-		if err != nil {
-			l.Errorf("shutdown comment review producer error: %v", err.Error())
-		}
-
-		err = d.achievementMqPro.producer.Shutdown()
-		if err != nil {
-			l.Errorf("shutdown achievement producer error: %v", err.Error())
+			l.Errorf("shutdown mq producer error: %v", err.Error())
 		}
 
 		for _, conn := range connBox {

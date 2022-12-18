@@ -20,41 +20,9 @@ import (
 	"time"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewTransaction, NewRocketmqArticleProducer, NewRocketmqArticleReviewProducer, NewRocketmqAchievementProducer, NewRocketmqTalkReviewProducer, NewRocketmqTalkProducer, NewRocketmqColumnReviewProducer, NewRocketmqColumnProducer, NewRocketmqCollectionsReviewProducer, NewRocketmqCollectionsProducer, NewCosServiceClient, NewElasticsearch, NewNewsClient, NewArticleRepo, NewTalkRepo, NewCreationRepo, NewColumnRepo, NewNewsRepo, NewRecovery)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewTransaction, NewRocketmqProducer, NewCosServiceClient, NewElasticsearch, NewNewsClient, NewArticleRepo, NewTalkRepo, NewCreationRepo, NewColumnRepo, NewNewsRepo, NewRecovery)
 
-type ArticleReviewMqPro struct {
-	producer rocketmq.Producer
-}
-
-type ArticleMqPro struct {
-	producer rocketmq.Producer
-}
-
-type TalkReviewMqPro struct {
-	producer rocketmq.Producer
-}
-
-type TalkMqPro struct {
-	producer rocketmq.Producer
-}
-
-type ColumnReviewMqPro struct {
-	producer rocketmq.Producer
-}
-
-type ColumnMqPro struct {
-	producer rocketmq.Producer
-}
-
-type CollectionsReviewMqPro struct {
-	producer rocketmq.Producer
-}
-
-type CollectionsMqPro struct {
-	producer rocketmq.Producer
-}
-
-type AchievementMqPro struct {
+type MqPro struct {
 	producer rocketmq.Producer
 }
 
@@ -67,21 +35,13 @@ type News struct {
 }
 
 type Data struct {
-	db                     *gorm.DB
-	log                    *log.Helper
-	redisCli               redis.Cmdable
-	articleMqPro           *ArticleMqPro
-	articleReviewMqPro     *ArticleReviewMqPro
-	talkMqPro              *TalkMqPro
-	talkReviewMqPro        *TalkReviewMqPro
-	columnReviewMqPro      *ColumnReviewMqPro
-	columnMqPro            *ColumnMqPro
-	collectionsReviewMqPro *CollectionsReviewMqPro
-	collectionsMqPro       *CollectionsMqPro
-	achievementMqPro       *AchievementMqPro
-	cosCli                 *cos.Client
-	elasticSearch          *ElasticSearch
-	newsCli                *News
+	db            *gorm.DB
+	log           *log.Helper
+	redisCli      redis.Cmdable
+	mqPro         *MqPro
+	cosCli        *cos.Client
+	elasticSearch *ElasticSearch
+	newsCli       *News
 }
 
 type contextTxKey struct{}
@@ -184,17 +144,16 @@ func NewCosServiceClient(conf *conf.Data) *cos.Client {
 	})
 }
 
-func NewRocketmqArticleReviewProducer(conf *conf.Data) *ArticleReviewMqPro {
-	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/rocketmq-article-review-producer"))
+func NewRocketmqProducer(conf *conf.Data) *MqPro {
+	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/rocketmq-producer"))
 	p, err := rocketmq.NewProducer(
-		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.CreationMq.ServerAddress})),
+		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.Rocketmq.ServerAddress})),
 		producer.WithCredentials(primitive.Credentials{
-			SecretKey: conf.CreationMq.SecretKey,
-			AccessKey: conf.CreationMq.AccessKey,
+			SecretKey: conf.Rocketmq.SecretKey,
+			AccessKey: conf.Rocketmq.AccessKey,
 		}),
-		producer.WithInstanceName("creation"),
-		producer.WithGroupName(conf.CreationMq.ArticleReview.GroupName),
-		producer.WithNamespace(conf.CreationMq.NameSpace),
+		producer.WithGroupName(conf.Rocketmq.GroupName),
+		producer.WithNamespace(conf.Rocketmq.NameSpace),
 	)
 
 	if err != nil {
@@ -205,216 +164,7 @@ func NewRocketmqArticleReviewProducer(conf *conf.Data) *ArticleReviewMqPro {
 	if err != nil {
 		l.Fatalf("start producer error: %v", err)
 	}
-	return &ArticleReviewMqPro{
-		producer: p,
-	}
-}
-
-func NewRocketmqArticleProducer(conf *conf.Data) *ArticleMqPro {
-	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/rocketmq-article-producer"))
-	p, err := rocketmq.NewProducer(
-		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.CreationMq.ServerAddress})),
-		producer.WithCredentials(primitive.Credentials{
-			SecretKey: conf.CreationMq.SecretKey,
-			AccessKey: conf.CreationMq.AccessKey,
-		}),
-		producer.WithInstanceName("creation"),
-		producer.WithGroupName(conf.CreationMq.Article.GroupName),
-		producer.WithNamespace(conf.CreationMq.NameSpace),
-	)
-
-	if err != nil {
-		l.Fatalf("init producer error: %v", err)
-	}
-
-	err = p.Start()
-	if err != nil {
-		l.Fatalf("start producer error: %v", err)
-	}
-	return &ArticleMqPro{
-		producer: p,
-	}
-}
-
-func NewRocketmqTalkReviewProducer(conf *conf.Data) *TalkReviewMqPro {
-	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/rocketmq-talk-review-producer"))
-	p, err := rocketmq.NewProducer(
-		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.CreationMq.ServerAddress})),
-		producer.WithCredentials(primitive.Credentials{
-			SecretKey: conf.CreationMq.SecretKey,
-			AccessKey: conf.CreationMq.AccessKey,
-		}),
-		producer.WithInstanceName("creation"),
-		producer.WithGroupName(conf.CreationMq.TalkReview.GroupName),
-		producer.WithNamespace(conf.CreationMq.NameSpace),
-	)
-
-	if err != nil {
-		l.Fatalf("init producer error: %v", err)
-	}
-
-	err = p.Start()
-	if err != nil {
-		l.Fatalf("start producer error: %v", err)
-	}
-	return &TalkReviewMqPro{
-		producer: p,
-	}
-}
-
-func NewRocketmqTalkProducer(conf *conf.Data) *TalkMqPro {
-	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/rocketmq-talk-producer"))
-	p, err := rocketmq.NewProducer(
-		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.CreationMq.ServerAddress})),
-		producer.WithCredentials(primitive.Credentials{
-			SecretKey: conf.CreationMq.SecretKey,
-			AccessKey: conf.CreationMq.AccessKey,
-		}),
-		producer.WithInstanceName("creation"),
-		producer.WithGroupName(conf.CreationMq.Talk.GroupName),
-		producer.WithNamespace(conf.CreationMq.NameSpace),
-	)
-
-	if err != nil {
-		l.Fatalf("init producer error: %v", err)
-	}
-
-	err = p.Start()
-	if err != nil {
-		l.Fatalf("start producer error: %v", err)
-	}
-	return &TalkMqPro{
-		producer: p,
-	}
-}
-
-func NewRocketmqColumnReviewProducer(conf *conf.Data) *ColumnReviewMqPro {
-	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/rocketmq-column-review-producer"))
-	p, err := rocketmq.NewProducer(
-		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.CreationMq.ServerAddress})),
-		producer.WithCredentials(primitive.Credentials{
-			SecretKey: conf.CreationMq.SecretKey,
-			AccessKey: conf.CreationMq.AccessKey,
-		}),
-		producer.WithInstanceName("creation"),
-		producer.WithGroupName(conf.CreationMq.ColumnReview.GroupName),
-		producer.WithNamespace(conf.CreationMq.NameSpace),
-	)
-
-	if err != nil {
-		l.Fatalf("init producer error: %v", err)
-	}
-
-	err = p.Start()
-	if err != nil {
-		l.Fatalf("start producer error: %v", err)
-	}
-	return &ColumnReviewMqPro{
-		producer: p,
-	}
-}
-
-func NewRocketmqColumnProducer(conf *conf.Data) *ColumnMqPro {
-	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/rocketmq-column-producer"))
-	p, err := rocketmq.NewProducer(
-		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.CreationMq.ServerAddress})),
-		producer.WithCredentials(primitive.Credentials{
-			SecretKey: conf.CreationMq.SecretKey,
-			AccessKey: conf.CreationMq.AccessKey,
-		}),
-		producer.WithInstanceName("creation"),
-		producer.WithGroupName(conf.CreationMq.Column.GroupName),
-		producer.WithNamespace(conf.CreationMq.NameSpace),
-	)
-
-	if err != nil {
-		l.Fatalf("init producer error: %v", err)
-	}
-
-	err = p.Start()
-	if err != nil {
-		l.Fatalf("start producer error: %v", err)
-	}
-	return &ColumnMqPro{
-		producer: p,
-	}
-}
-
-func NewRocketmqCollectionsReviewProducer(conf *conf.Data) *CollectionsReviewMqPro {
-	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/rocketmq-collections-review-producer"))
-	p, err := rocketmq.NewProducer(
-		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.CreationMq.ServerAddress})),
-		producer.WithCredentials(primitive.Credentials{
-			SecretKey: conf.CreationMq.SecretKey,
-			AccessKey: conf.CreationMq.AccessKey,
-		}),
-		producer.WithInstanceName("creation"),
-		producer.WithGroupName(conf.CreationMq.CollectionsReview.GroupName),
-		producer.WithNamespace(conf.CreationMq.NameSpace),
-	)
-
-	if err != nil {
-		l.Fatalf("init producer error: %v", err)
-	}
-
-	err = p.Start()
-	if err != nil {
-		l.Fatalf("start producer error: %v", err)
-	}
-	return &CollectionsReviewMqPro{
-		producer: p,
-	}
-}
-
-func NewRocketmqCollectionsProducer(conf *conf.Data) *CollectionsMqPro {
-	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/rocketmq-collections-producer"))
-	p, err := rocketmq.NewProducer(
-		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.CreationMq.ServerAddress})),
-		producer.WithCredentials(primitive.Credentials{
-			SecretKey: conf.CreationMq.SecretKey,
-			AccessKey: conf.CreationMq.AccessKey,
-		}),
-		producer.WithInstanceName("creation"),
-		producer.WithGroupName(conf.CreationMq.Collections.GroupName),
-		producer.WithNamespace(conf.CreationMq.NameSpace),
-	)
-
-	if err != nil {
-		l.Fatalf("init producer error: %v", err)
-	}
-
-	err = p.Start()
-	if err != nil {
-		l.Fatalf("start producer error: %v", err)
-	}
-	return &CollectionsMqPro{
-		producer: p,
-	}
-}
-
-func NewRocketmqAchievementProducer(conf *conf.Data) *AchievementMqPro {
-	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/rocketmq-achievement-producer"))
-	p, err := rocketmq.NewProducer(
-		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.AchievementMq.ServerAddress})),
-		producer.WithCredentials(primitive.Credentials{
-			SecretKey: conf.AchievementMq.SecretKey,
-			AccessKey: conf.AchievementMq.AccessKey,
-		}),
-		producer.WithInstanceName("achievement"),
-		producer.WithGroupName(conf.AchievementMq.Achievement.GroupName),
-		producer.WithNamespace(conf.AchievementMq.NameSpace),
-	)
-
-	if err != nil {
-		l.Fatalf("init producer error: %v", err)
-	}
-
-	err = p.Start()
-	if err != nil {
-		l.Fatalf("start producer error: %v", err)
-	}
-
-	return &AchievementMqPro{
+	return &MqPro{
 		producer: p,
 	}
 }
@@ -454,25 +204,17 @@ func NewNewsClient(conf *conf.Data) *News {
 	}
 }
 
-func NewData(db *gorm.DB, redisCmd redis.Cmdable, cos *cos.Client, es *ElasticSearch, amp *ArticleMqPro, arp *ArticleReviewMqPro, tmp *TalkMqPro, trp *TalkReviewMqPro, cmp *ColumnMqPro, crq *ColumnReviewMqPro, cormq *CollectionsReviewMqPro, cmq *CollectionsMqPro, ap *AchievementMqPro, news *News, logger log.Logger) (*Data, func(), error) {
+func NewData(db *gorm.DB, redisCmd redis.Cmdable, cos *cos.Client, es *ElasticSearch, mq *MqPro, news *News, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/new-data"))
 
 	d := &Data{
-		db:                     db,
-		log:                    log.NewHelper(log.With(logger, "module", "creation/data")),
-		cosCli:                 cos,
-		redisCli:               redisCmd,
-		articleMqPro:           amp,
-		articleReviewMqPro:     arp,
-		talkMqPro:              tmp,
-		talkReviewMqPro:        trp,
-		columnMqPro:            cmp,
-		columnReviewMqPro:      crq,
-		collectionsReviewMqPro: cormq,
-		collectionsMqPro:       cmq,
-		achievementMqPro:       ap,
-		elasticSearch:          es,
-		newsCli:                news,
+		db:            db,
+		log:           log.NewHelper(log.With(logger, "module", "creation/data")),
+		cosCli:        cos,
+		redisCli:      redisCmd,
+		mqPro:         mq,
+		elasticSearch: es,
+		newsCli:       news,
 	}
 	return d, func() {
 		l.Info("closing the data resources")
@@ -492,49 +234,9 @@ func NewData(db *gorm.DB, redisCmd redis.Cmdable, cos *cos.Client, es *ElasticSe
 			l.Errorf("close redis err: %v", err.Error())
 		}
 
-		err = d.articleMqPro.producer.Shutdown()
+		err = d.mqPro.producer.Shutdown()
 		if err != nil {
-			l.Errorf("shutdown article producer error: %v", err.Error())
-		}
-
-		err = d.articleReviewMqPro.producer.Shutdown()
-		if err != nil {
-			l.Errorf("shutdown article review producer error: %v", err.Error())
-		}
-
-		err = d.talkMqPro.producer.Shutdown()
-		if err != nil {
-			l.Errorf("shutdown talk producer error: %v", err.Error())
-		}
-
-		err = d.talkReviewMqPro.producer.Shutdown()
-		if err != nil {
-			l.Errorf("shutdown talk review producer error: %v", err.Error())
-		}
-
-		err = d.columnMqPro.producer.Shutdown()
-		if err != nil {
-			l.Errorf("shutdown column producer error: %v", err.Error())
-		}
-
-		err = d.columnReviewMqPro.producer.Shutdown()
-		if err != nil {
-			l.Errorf("shutdown column review producer error: %v", err.Error())
-		}
-
-		err = d.collectionsMqPro.producer.Shutdown()
-		if err != nil {
-			l.Errorf("shutdown collections producer error: %v", err.Error())
-		}
-
-		err = d.collectionsReviewMqPro.producer.Shutdown()
-		if err != nil {
-			l.Errorf("shutdown collections review producer error: %v", err.Error())
-		}
-
-		err = d.achievementMqPro.producer.Shutdown()
-		if err != nil {
-			l.Errorf("shutdown achievement producer error: %v", err.Error())
+			l.Errorf("shutdown mq producer error: %v", err.Error())
 		}
 	}, nil
 }
