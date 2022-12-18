@@ -42,29 +42,12 @@ message Data {
     google.protobuf.Duration read_timeout = 4;
     google.protobuf.Duration write_timeout = 5;
   }
-  message AchievementMq{
-    message Achievement{
-      string groupName = 1;
-    }
-    Achievement achievement = 1;
-    string serverAddress = 2;
-    string secretKey = 3;
-    string accessKey = 4;
-    string nameSpace = 5;
-  }
-  message CommentMq{
-    message CommentReview{
-      string groupName = 1;
-    }
-    message Comment{
-      string groupName = 1;
-    }
-    CommentReview commentReview = 1;
-    Comment comment = 2;
-    string serverAddress = 3;
-    string secretKey = 4;
-    string accessKey = 5;
-    string nameSpace = 6;
+  message RocketMq{
+    string serverAddress = 1;
+    string secretKey = 2;
+    string accessKey = 3;
+    string nameSpace = 4;
+    string groupName = 5;
   }
   message Cos{
     string url = 1;
@@ -73,9 +56,8 @@ message Data {
   }
   Database database = 1;
   Redis redis = 2;
-  CommentMq commentMq = 3;
-  AchievementMq achievementMq = 4;
-  Cos cos = 5;
+  RocketMq rocketmq = 3;
+  Cos cos = 4;
 }
 
 message Log {

@@ -26,97 +26,17 @@ message Server {
     string addr = 2;
     google.protobuf.Duration timeout = 3;
   }
-  message UserMq{
-    message Code{
-      string groupName = 1;
-    }
-    message Profile{
-      string groupName = 1;
-    }
-    message Follow{
-      string groupName = 1;
-    }
-    message Picture{
-      string groupName = 1;
-    }
-    Code code = 1;
-    Profile profile = 2;
-    Follow follow = 3;
-    Picture picture = 4;
-    string serverAddress = 5;
-    string secretKey = 6;
-    string accessKey = 7;
-    string nameSpace = 8;
-  }
-  message CreationMq{
-    message ArticleReview{
-      string groupName = 1;
-    }
-    message Article{
-      string groupName = 1;
-    }
-    message TalkReview{
-      string groupName = 1;
-    }
-    message Talk{
-      string groupName = 1;
-    }
-    message ColumnReview{
-      string groupName = 1;
-    }
-    message Column{
-      string groupName = 1;
-    }
-    message CollectionsReview{
-      string groupName = 1;
-    }
-    message Collections{
-      string groupName = 1;
-    }
-    ArticleReview articleReview = 1;
-    Article article = 2;
-    TalkReview talkReview = 3;
-    Talk talk = 4;
-    ColumnReview columnReview = 5;
-    Column column = 6;
-    CollectionsReview collectionsReview = 7;
-    Collections collections = 8;
-    string serverAddress = 9;
-    string secretKey = 10;
-    string accessKey = 11;
-    string nameSpace = 12;
-  }
-  message CommentMq{
-    message CommentReview{
-      string groupName = 1;
-    }
-    message Comment{
-      string groupName = 1;
-    }
-    CommentReview commentReview = 1;
-    Comment comment = 2;
-    string serverAddress = 3;
-    string secretKey = 4;
-    string accessKey = 5;
-    string nameSpace = 6;
-  }
-  message AchievementMq{
-    message Achievement{
-      string groupName = 1;
-    }
-    Achievement achievement = 1;
-    string serverAddress = 3;
-    string secretKey = 4;
-    string accessKey = 5;
-    string nameSpace = 6;
+  message RocketMq{
+    string serverAddress = 1;
+    string secretKey = 2;
+    string accessKey = 3;
+    string nameSpace = 4;
+    string groupName = 5;
   }
 
   HTTP http = 1;
   GRPC grpc = 2;
-  UserMq userMq = 3;
-  CreationMq creationMq = 4;
-  CommentMq commentMq = 5;
-  AchievementMq achievementMq = 6;
+  RocketMq rocketmq = 3;
 }
 
 message Data {
@@ -124,19 +44,12 @@ message Data {
     string driver = 1;
     string source = 2;
   }
-  message Code{
-    string secret_id = 1;
-    string secret_key = 2;
-  }
   message Redis {
     string network = 1;
     string addr = 2;
     string password = 3;
     google.protobuf.Duration read_timeout = 4;
     google.protobuf.Duration write_timeout = 5;
-  }
-  message Mail{
-    string code = 1;
   }
   message Jwt{
     string key = 1;
@@ -167,10 +80,8 @@ message Data {
   }
   Database database = 1;
   Jwt jwt = 2;
-  Code code = 3;
-  Mail mail = 4;
-  Cos cos = 5;
-  Redis redis = 6;
+  Cos cos = 3;
+  Redis redis = 4;
 }
 
 message Log {

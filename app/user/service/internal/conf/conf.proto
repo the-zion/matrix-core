@@ -43,37 +43,12 @@ message Data {
     google.protobuf.Duration read_timeout = 4;
     google.protobuf.Duration write_timeout = 5;
   }
-  message AchievementMq{
-    message Achievement{
-      string groupName = 1;
-    }
-    Achievement achievement = 1;
-    string serverAddress = 2;
-    string secretKey = 3;
-    string accessKey = 4;
-    string nameSpace = 5;
-  }
   message Rocketmq{
-    message Code{
-      string groupName = 1;
-    }
-    message Profile{
-      string groupName = 1;
-    }
-    message Follow{
-      string groupName = 1;
-    }
-    message Picture{
-      string groupName = 1;
-    }
-    Code code = 1;
-    Profile profile = 2;
-    Profile follow = 3;
-    Picture picture = 4;
-    string serverAddress = 5;
-    string secretKey = 6;
-    string accessKey = 7;
-    string nameSpace = 8;
+    string serverAddress = 1;
+    string secretKey = 2;
+    string accessKey = 3;
+    string nameSpace = 4;
+    string groupName = 5;
   }
   message Cos{
     message Statement{
@@ -125,16 +100,26 @@ message Data {
     string grantType = 6;
     string redirectUri = 7;
   }
+  message AliCode{
+    string domainUrl = 1;
+    string accessKeyId = 2;
+    string accessKeySecret = 3;
+    string signName = 4;
+  }
+  message Mail{
+    string code = 1;
+  }
   Database database = 1;
   Redis redis = 2;
-  Rocketmq rocketmq = 5;
-  AchievementMq achievementMq = 6;
-  ElasticSearch elasticSearch = 7;
-  Cos cos = 8;
-  Github github = 9;
-  Gitee gitee = 10;
-  Wechat wechat = 11;
-  QQ qq = 12;
+  Rocketmq rocketmq = 3;
+  ElasticSearch elasticSearch = 4;
+  Cos cos = 5;
+  Github github = 6;
+  Gitee gitee = 7;
+  Wechat wechat = 8;
+  QQ qq = 9;
+  AliCode aliCode = 10;
+  Mail mail = 11;
 }
 
 message Auth {
