@@ -112,6 +112,7 @@ type BffClient interface {
 	SendArticle(ctx context.Context, in *SendArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SendArticleEdit(ctx context.Context, in *SendArticleEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteArticle(ctx context.Context, in *DeleteArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DeleteArticleDraft(ctx context.Context, in *DeleteArticleDraftReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetArticleAgree(ctx context.Context, in *SetArticleAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetArticleView(ctx context.Context, in *SetArticleViewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetArticleCollect(ctx context.Context, in *SetArticleCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -1014,6 +1015,15 @@ func (c *bffClient) SendArticleEdit(ctx context.Context, in *SendArticleEditReq,
 func (c *bffClient) DeleteArticle(ctx context.Context, in *DeleteArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/DeleteArticle", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bffClient) DeleteArticleDraft(ctx context.Context, in *DeleteArticleDraftReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/DeleteArticleDraft", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -2067,6 +2077,7 @@ type BffServer interface {
 	SendArticle(context.Context, *SendArticleReq) (*emptypb.Empty, error)
 	SendArticleEdit(context.Context, *SendArticleEditReq) (*emptypb.Empty, error)
 	DeleteArticle(context.Context, *DeleteArticleReq) (*emptypb.Empty, error)
+	DeleteArticleDraft(context.Context, *DeleteArticleDraftReq) (*emptypb.Empty, error)
 	SetArticleAgree(context.Context, *SetArticleAgreeReq) (*emptypb.Empty, error)
 	SetArticleView(context.Context, *SetArticleViewReq) (*emptypb.Empty, error)
 	SetArticleCollect(context.Context, *SetArticleCollectReq) (*emptypb.Empty, error)
@@ -2443,6 +2454,9 @@ func (UnimplementedBffServer) SendArticleEdit(context.Context, *SendArticleEditR
 }
 func (UnimplementedBffServer) DeleteArticle(context.Context, *DeleteArticleReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteArticle not implemented")
+}
+func (UnimplementedBffServer) DeleteArticleDraft(context.Context, *DeleteArticleDraftReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteArticleDraft not implemented")
 }
 func (UnimplementedBffServer) SetArticleAgree(context.Context, *SetArticleAgreeReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetArticleAgree not implemented")
@@ -4355,6 +4369,24 @@ func _Bff_DeleteArticle_Handler(srv interface{}, ctx context.Context, dec func(i
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BffServer).DeleteArticle(ctx, req.(*DeleteArticleReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bff_DeleteArticleDraft_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteArticleDraftReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).DeleteArticleDraft(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/DeleteArticleDraft",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).DeleteArticleDraft(ctx, req.(*DeleteArticleDraftReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -6625,6 +6657,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteArticle",
 			Handler:    _Bff_DeleteArticle_Handler,
+		},
+		{
+			MethodName: "DeleteArticleDraft",
+			Handler:    _Bff_DeleteArticleDraft_Handler,
 		},
 		{
 			MethodName: "SetArticleAgree",

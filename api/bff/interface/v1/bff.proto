@@ -310,8 +310,6 @@ service Bff{
     };
   }
 
-  // --------------------creation service------------------------
-
   // -------------------------creation----------------------------
   rpc GetLeaderBoard(google.protobuf.Empty) returns (GetLeaderBoardReply){
     option (google.api.http) = {
@@ -588,6 +586,13 @@ service Bff{
   rpc DeleteArticle(DeleteArticleReq) returns (google.protobuf.Empty){
     option (google.api.http) = {
       post: "/v1/delete/article"
+      body: "*"
+    };
+  }
+
+  rpc DeleteArticleDraft(DeleteArticleDraftReq) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/v1/delete/article/draft"
       body: "*"
     };
   }
@@ -1986,6 +1991,10 @@ message SendArticleEditReq{
 }
 
 message DeleteArticleReq{
+  int32 id = 1;
+}
+
+message DeleteArticleDraftReq{
   int32 id = 1;
 }
 

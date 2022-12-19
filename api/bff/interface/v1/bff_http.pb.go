@@ -43,6 +43,7 @@ const OperationBffCreateColumnDraft = "/bff.v1.Bff/CreateColumnDraft"
 const OperationBffCreateCommentDraft = "/bff.v1.Bff/CreateCommentDraft"
 const OperationBffCreateTalkDraft = "/bff.v1.Bff/CreateTalkDraft"
 const OperationBffDeleteArticle = "/bff.v1.Bff/DeleteArticle"
+const OperationBffDeleteArticleDraft = "/bff.v1.Bff/DeleteArticleDraft"
 const OperationBffDeleteCollections = "/bff.v1.Bff/DeleteCollections"
 const OperationBffDeleteColumn = "/bff.v1.Bff/DeleteColumn"
 const OperationBffDeleteColumnIncludes = "/bff.v1.Bff/DeleteColumnIncludes"
@@ -239,6 +240,7 @@ type BffHTTPServer interface {
 	CreateCommentDraft(context.Context, *emptypb.Empty) (*CreateCommentDraftReply, error)
 	CreateTalkDraft(context.Context, *emptypb.Empty) (*CreateTalkDraftReply, error)
 	DeleteArticle(context.Context, *DeleteArticleReq) (*emptypb.Empty, error)
+	DeleteArticleDraft(context.Context, *DeleteArticleDraftReq) (*emptypb.Empty, error)
 	DeleteCollections(context.Context, *DeleteCollectionsReq) (*emptypb.Empty, error)
 	DeleteColumn(context.Context, *DeleteColumnReq) (*emptypb.Empty, error)
 	DeleteColumnIncludes(context.Context, *DeleteColumnIncludesReq) (*emptypb.Empty, error)
@@ -502,6 +504,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.POST("/v1/send/article", _Bff_SendArticle0_HTTP_Handler(srv))
 	r.POST("/v1/send/article/edit", _Bff_SendArticleEdit0_HTTP_Handler(srv))
 	r.POST("/v1/delete/article", _Bff_DeleteArticle0_HTTP_Handler(srv))
+	r.POST("/v1/delete/article/draft", _Bff_DeleteArticleDraft0_HTTP_Handler(srv))
 	r.POST("/v1/set/article/agree", _Bff_SetArticleAgree0_HTTP_Handler(srv))
 	r.POST("/v1/set/article/view", _Bff_SetArticleView0_HTTP_Handler(srv))
 	r.POST("/v1/set/article/collect", _Bff_SetArticleCollect0_HTTP_Handler(srv))
@@ -2272,6 +2275,25 @@ func _Bff_DeleteArticle0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) 
 		http.SetOperation(ctx, OperationBffDeleteArticle)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.DeleteArticle(ctx, req.(*DeleteArticleReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Bff_DeleteArticleDraft0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in DeleteArticleDraftReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffDeleteArticleDraft)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.DeleteArticleDraft(ctx, req.(*DeleteArticleDraftReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -4320,6 +4342,7 @@ type BffHTTPClient interface {
 	CreateCommentDraft(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *CreateCommentDraftReply, err error)
 	CreateTalkDraft(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *CreateTalkDraftReply, err error)
 	DeleteArticle(ctx context.Context, req *DeleteArticleReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	DeleteArticleDraft(ctx context.Context, req *DeleteArticleDraftReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	DeleteCollections(ctx context.Context, req *DeleteCollectionsReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	DeleteColumn(ctx context.Context, req *DeleteColumnReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	DeleteColumnIncludes(ctx context.Context, req *DeleteColumnIncludesReq, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -4792,6 +4815,19 @@ func (c *BffHTTPClientImpl) DeleteArticle(ctx context.Context, in *DeleteArticle
 	pattern := "/v1/delete/article"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationBffDeleteArticle))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) DeleteArticleDraft(ctx context.Context, in *DeleteArticleDraftReq, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/v1/delete/article/draft"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBffDeleteArticleDraft))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
