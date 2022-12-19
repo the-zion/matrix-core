@@ -781,15 +781,23 @@ func (r *articleRepo) GetArticleSearch(ctx context.Context, page int32, search, 
 			return nil, 0, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: page(%v), search(%s), time(%s)", page, search, time))
 		}
 
-		reply = append(reply, &biz.ArticleSearch{
+		article := &biz.ArticleSearch{
 			Id:     int32(id),
 			Tags:   hit.(map[string]interface{})["_source"].(map[string]interface{})["tags"].(string),
 			Update: hit.(map[string]interface{})["_source"].(map[string]interface{})["update"].(string),
 			Cover:  hit.(map[string]interface{})["_source"].(map[string]interface{})["cover"].(string),
 			Uuid:   hit.(map[string]interface{})["_source"].(map[string]interface{})["uuid"].(string),
-			Text:   hit.(map[string]interface{})["highlight"].(map[string]interface{})["text"].([]interface{})[0].(string),
-			Title:  hit.(map[string]interface{})["highlight"].(map[string]interface{})["title"].([]interface{})[0].(string),
-		})
+		}
+
+		if text, ok := hit.(map[string]interface{})["highlight"].(map[string]interface{})["text"]; ok {
+			article.Text = text.([]interface{})[0].(string)
+		}
+
+		if title, ok := hit.(map[string]interface{})["highlight"].(map[string]interface{})["title"]; ok {
+			article.Title = title.([]interface{})[0].(string)
+		}
+
+		reply = append(reply, article)
 	}
 	res.Body.Close()
 	return reply, int32(result["hits"].(map[string]interface{})["total"].(map[string]interface{})["value"].(float64)), nil
@@ -1402,7 +1410,7 @@ func (r *articleRepo) CreateArticleCache(ctx context.Context, id, auth int32, uu
 					end
 
 					if articleHotExist == 1 then
-						redis.call("ZADD", articleHot, id, member)
+						redis.call("ZADD", articleHot, 0, member)
 					end
 
 					if leaderboardExist == 1 then

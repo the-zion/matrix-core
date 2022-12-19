@@ -472,7 +472,7 @@ func (r *columnRepo) CreateColumnCache(ctx context.Context, id, auth int32, uuid
 					end
 
 					if columnHotExist == 1 then
-						redis.call("ZADD", columnHot, id, member)
+						redis.call("ZADD", columnHot, 0, member)
 					end
 
 					if leaderboardExist == 1 then
@@ -1509,15 +1509,23 @@ func (r *columnRepo) GetColumnSearch(ctx context.Context, page int32, search, ti
 			return nil, 0, errors.Wrapf(err, fmt.Sprintf("fail to covert string to int64: page(%v), search(%s), time(%s)", page, search, time))
 		}
 
-		reply = append(reply, &biz.ColumnSearch{
-			Id:        int32(id),
-			Tags:      hit.(map[string]interface{})["_source"].(map[string]interface{})["tags"].(string),
-			Update:    hit.(map[string]interface{})["_source"].(map[string]interface{})["update"].(string),
-			Cover:     hit.(map[string]interface{})["_source"].(map[string]interface{})["cover"].(string),
-			Uuid:      hit.(map[string]interface{})["_source"].(map[string]interface{})["uuid"].(string),
-			Introduce: hit.(map[string]interface{})["highlight"].(map[string]interface{})["introduce"].([]interface{})[0].(string),
-			Name:      hit.(map[string]interface{})["highlight"].(map[string]interface{})["name"].([]interface{})[0].(string),
-		})
+		column := &biz.ColumnSearch{
+			Id:     int32(id),
+			Tags:   hit.(map[string]interface{})["_source"].(map[string]interface{})["tags"].(string),
+			Update: hit.(map[string]interface{})["_source"].(map[string]interface{})["update"].(string),
+			Cover:  hit.(map[string]interface{})["_source"].(map[string]interface{})["cover"].(string),
+			Uuid:   hit.(map[string]interface{})["_source"].(map[string]interface{})["uuid"].(string),
+		}
+
+		if introduce, ok := hit.(map[string]interface{})["highlight"].(map[string]interface{})["introduce"]; ok {
+			column.Introduce = introduce.([]interface{})[0].(string)
+		}
+
+		if name, ok := hit.(map[string]interface{})["highlight"].(map[string]interface{})["name"]; ok {
+			column.Name = name.([]interface{})[0].(string)
+		}
+
+		reply = append(reply, column)
 	}
 	res.Body.Close()
 	return reply, int32(result["hits"].(map[string]interface{})["total"].(map[string]interface{})["value"].(float64)), nil
