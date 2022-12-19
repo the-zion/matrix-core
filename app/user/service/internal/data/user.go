@@ -514,11 +514,14 @@ func (r *userRepo) GetUserSearch(ctx context.Context, page int32, search string)
 	}
 
 	for _, hit := range result["hits"].(map[string]interface{})["hits"].([]interface{}) {
-		reply = append(reply, &biz.UserSearch{
+		user := &biz.UserSearch{
 			Uuid:      hit.(map[string]interface{})["_id"].(string),
 			Introduce: hit.(map[string]interface{})["_source"].(map[string]interface{})["introduce"].(string),
-			Username:  hit.(map[string]interface{})["highlight"].(map[string]interface{})["username"].([]interface{})[0].(string),
-		})
+		}
+		if username, ok := hit.(map[string]interface{})["highlight"].(map[string]interface{})["username"]; ok {
+			user.Username = username.([]interface{})[0].(string)
+		}
+		reply = append(reply, user)
 	}
 	res.Body.Close()
 	return reply, int32(result["hits"].(map[string]interface{})["total"].(map[string]interface{})["value"].(float64)), nil
@@ -571,6 +574,8 @@ func (r *userRepo) SetProfile(ctx context.Context, profile *biz.ProfileUpdate) e
 	p.Job = profile.Job
 	p.Homepage = profile.Homepage
 	p.Introduce = profile.Introduce
+	p.Gitee = profile.Gitee
+	p.Github = profile.Github
 	err = r.data.DB(ctx).Model(&Profile{}).Where("uuid = ?", profile.Uuid).Updates(p).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set profile: profile(%v)", profile))
@@ -591,7 +596,7 @@ func (r *userRepo) SetProfileUpdate(ctx context.Context, profile *biz.ProfileUpd
 	pu.Gitee = profile.Gitee
 	pu.Introduce = profile.Introduce
 	pu.Status = status
-	err := r.data.DB(ctx).Model(&ProfileUpdate{}).Where("uuid = ?", profile.Uuid).Updates(pu).Error
+	err := r.data.DB(ctx).Model(&ProfileUpdate{}).Select("updated", "username", "school", "company", "job", "homepage", "github", "gitee", "introduce", "status").Where("uuid = ?", profile.Uuid).Updates(pu).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to update a profile: profile(%v)", profile))
 	}
