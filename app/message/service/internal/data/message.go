@@ -43,6 +43,7 @@ func (r *messageRepo) GetMailBoxLastTime(ctx context.Context, uuid string) (*biz
 }
 
 func (r *messageRepo) GetMessageNotification(ctx context.Context, uuid string, follows []string) (*biz.Notification, error) {
+	follows = append(follows, "")
 	result, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		pipe.HMGet(context.Background(), "message_timeline", follows...)
 		pipe.HMGet(context.Background(), "message_comment", uuid)
