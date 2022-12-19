@@ -6572,7 +6572,16 @@ func (m *GetUserSearchReq) validate(all bool) error {
 
 	// no validation rules for Page
 
-	// no validation rules for Search
+	if utf8.RuneCountInString(m.GetSearch()) > 100 {
+		err := GetUserSearchReqValidationError{
+			field:  "Search",
+			reason: "value length must be at most 100 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GetUserSearchReqMultiError(errors)

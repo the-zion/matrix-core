@@ -425,7 +425,7 @@ message GetUserFollowsReply{
 
 message GetUserSearchReq{
   int32 page = 1;
-  string search = 2;
+  string search = 2 [(validate.rules).string.max_len = 100];
 }
 
 message GetUserSearchReply{
