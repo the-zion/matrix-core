@@ -87,6 +87,7 @@ type CreationClient interface {
 	SendArticle(ctx context.Context, in *SendArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SendArticleEdit(ctx context.Context, in *SendArticleEditReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteArticle(ctx context.Context, in *DeleteArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DeleteArticleDraft(ctx context.Context, in *DeleteArticleDraftReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetArticleAgree(ctx context.Context, in *SetArticleAgreeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetArticleView(ctx context.Context, in *SetArticleViewReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetArticleCollect(ctx context.Context, in *SetArticleCollectReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -768,6 +769,15 @@ func (c *creationClient) SendArticleEdit(ctx context.Context, in *SendArticleEdi
 func (c *creationClient) DeleteArticle(ctx context.Context, in *DeleteArticleReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/DeleteArticle", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creationClient) DeleteArticleDraft(ctx context.Context, in *DeleteArticleDraftReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/DeleteArticleDraft", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1751,6 +1761,7 @@ type CreationServer interface {
 	SendArticle(context.Context, *SendArticleReq) (*emptypb.Empty, error)
 	SendArticleEdit(context.Context, *SendArticleEditReq) (*emptypb.Empty, error)
 	DeleteArticle(context.Context, *DeleteArticleReq) (*emptypb.Empty, error)
+	DeleteArticleDraft(context.Context, *DeleteArticleDraftReq) (*emptypb.Empty, error)
 	SetArticleAgree(context.Context, *SetArticleAgreeReq) (*emptypb.Empty, error)
 	SetArticleView(context.Context, *SetArticleViewReq) (*emptypb.Empty, error)
 	SetArticleCollect(context.Context, *SetArticleCollectReq) (*emptypb.Empty, error)
@@ -2050,6 +2061,9 @@ func (UnimplementedCreationServer) SendArticleEdit(context.Context, *SendArticle
 }
 func (UnimplementedCreationServer) DeleteArticle(context.Context, *DeleteArticleReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteArticle not implemented")
+}
+func (UnimplementedCreationServer) DeleteArticleDraft(context.Context, *DeleteArticleDraftReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteArticleDraft not implemented")
 }
 func (UnimplementedCreationServer) SetArticleAgree(context.Context, *SetArticleAgreeReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetArticleAgree not implemented")
@@ -3515,6 +3529,24 @@ func _Creation_DeleteArticle_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CreationServer).DeleteArticle(ctx, req.(*DeleteArticleReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Creation_DeleteArticleDraft_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteArticleDraftReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).DeleteArticleDraft(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/DeleteArticleDraft",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).DeleteArticleDraft(ctx, req.(*DeleteArticleDraftReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -5599,6 +5631,10 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteArticle",
 			Handler:    _Creation_DeleteArticle_Handler,
+		},
+		{
+			MethodName: "DeleteArticleDraft",
+			Handler:    _Creation_DeleteArticleDraft_Handler,
 		},
 		{
 			MethodName: "SetArticleAgree",

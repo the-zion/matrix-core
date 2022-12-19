@@ -138,6 +138,8 @@ service Creation {
 
   rpc DeleteArticle(DeleteArticleReq) returns (google.protobuf.Empty){}
 
+  rpc DeleteArticleDraft(DeleteArticleDraftReq) returns (google.protobuf.Empty){}
+
   rpc SetArticleAgree(SetArticleAgreeReq) returns (google.protobuf.Empty){}
 
   rpc SetArticleView(SetArticleViewReq) returns (google.protobuf.Empty){}
@@ -706,8 +708,8 @@ message GetLastArticleDraftReply{
 
 message GetArticleSearchReq{
   int32 page = 1;
-  string search = 2 [(validate.rules).string = {min_len:0, max_len: 200}];
-  string time = 3 [(validate.rules).string = {min_len:0, max_len: 10}];
+  string search = 2 [(validate.rules).string = {max_len: 100}];
+  string time = 3 [(validate.rules).string = {max_len: 10}];
 }
 
 message GetArticleSearchReply{
@@ -857,6 +859,11 @@ message DeleteArticleReq{
   string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
 }
 
+message DeleteArticleDraftReq{
+  int32 id = 1;
+  string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
+}
+
 message SetArticleAgreeReq{
   int32 id = 1;
   string uuid = 2 [(validate.rules).string.pattern = '^[a-zA-Z0-9]{20}$'];
@@ -994,8 +1001,8 @@ message GetLastTalkDraftReply{
 
 message GetTalkSearchReq{
   int32 page = 1;
-  string search = 2;
-  string time = 3;
+  string search = 2 [(validate.rules).string.max_len = 100];
+  string time = 3 [(validate.rules).string.max_len = 10];
 }
 
 message GetTalkSearchReply{
@@ -1208,8 +1215,8 @@ message GetLastColumnDraftReply{
 
 message GetColumnSearchReq{
   int32 page = 1;
-  string search = 2;
-  string time = 3;
+  string search = 2 [(validate.rules).string.max_len = 100];
+  string time = 3 [(validate.rules).string.max_len = 10];
 }
 
 message GetColumnSearchReply{

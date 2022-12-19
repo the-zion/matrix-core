@@ -7201,10 +7201,10 @@ func (m *GetArticleSearchReq) validate(all bool) error {
 
 	// no validation rules for Page
 
-	if l := utf8.RuneCountInString(m.GetSearch()); l < 0 || l > 200 {
+	if utf8.RuneCountInString(m.GetSearch()) > 100 {
 		err := GetArticleSearchReqValidationError{
 			field:  "Search",
-			reason: "value length must be between 0 and 200 runes, inclusive",
+			reason: "value length must be at most 100 runes",
 		}
 		if !all {
 			return err
@@ -7212,10 +7212,10 @@ func (m *GetArticleSearchReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if l := utf8.RuneCountInString(m.GetTime()); l < 0 || l > 10 {
+	if utf8.RuneCountInString(m.GetTime()) > 10 {
 		err := GetArticleSearchReqValidationError{
 			field:  "Time",
-			reason: "value length must be between 0 and 10 runes, inclusive",
+			reason: "value length must be at most 10 runes",
 		}
 		if !all {
 			return err
@@ -9790,6 +9790,123 @@ var _ interface {
 } = DeleteArticleReqValidationError{}
 
 var _DeleteArticleReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
+
+// Validate checks the field values on DeleteArticleDraftReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *DeleteArticleDraftReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on DeleteArticleDraftReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// DeleteArticleDraftReqMultiError, or nil if none found.
+func (m *DeleteArticleDraftReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *DeleteArticleDraftReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	if !_DeleteArticleDraftReq_Uuid_Pattern.MatchString(m.GetUuid()) {
+		err := DeleteArticleDraftReqValidationError{
+			field:  "Uuid",
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{20}$\"",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return DeleteArticleDraftReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// DeleteArticleDraftReqMultiError is an error wrapping multiple validation
+// errors returned by DeleteArticleDraftReq.ValidateAll() if the designated
+// constraints aren't met.
+type DeleteArticleDraftReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m DeleteArticleDraftReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m DeleteArticleDraftReqMultiError) AllErrors() []error { return m }
+
+// DeleteArticleDraftReqValidationError is the validation error returned by
+// DeleteArticleDraftReq.Validate if the designated constraints aren't met.
+type DeleteArticleDraftReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e DeleteArticleDraftReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e DeleteArticleDraftReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e DeleteArticleDraftReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e DeleteArticleDraftReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e DeleteArticleDraftReqValidationError) ErrorName() string {
+	return "DeleteArticleDraftReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e DeleteArticleDraftReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sDeleteArticleDraftReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = DeleteArticleDraftReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = DeleteArticleDraftReqValidationError{}
+
+var _DeleteArticleDraftReq_Uuid_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{20}$")
 
 // Validate checks the field values on SetArticleAgreeReq with the rules
 // defined in the proto definition for this message. If any rules are
@@ -12631,9 +12748,27 @@ func (m *GetTalkSearchReq) validate(all bool) error {
 
 	// no validation rules for Page
 
-	// no validation rules for Search
+	if utf8.RuneCountInString(m.GetSearch()) > 100 {
+		err := GetTalkSearchReqValidationError{
+			field:  "Search",
+			reason: "value length must be at most 100 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Time
+	if utf8.RuneCountInString(m.GetTime()) > 10 {
+		err := GetTalkSearchReqValidationError{
+			field:  "Time",
+			reason: "value length must be at most 10 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GetTalkSearchReqMultiError(errors)
@@ -16583,9 +16718,27 @@ func (m *GetColumnSearchReq) validate(all bool) error {
 
 	// no validation rules for Page
 
-	// no validation rules for Search
+	if utf8.RuneCountInString(m.GetSearch()) > 100 {
+		err := GetColumnSearchReqValidationError{
+			field:  "Search",
+			reason: "value length must be at most 100 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Time
+	if utf8.RuneCountInString(m.GetTime()) > 10 {
+		err := GetColumnSearchReqValidationError{
+			field:  "Time",
+			reason: "value length must be at most 10 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GetColumnSearchReqMultiError(errors)
