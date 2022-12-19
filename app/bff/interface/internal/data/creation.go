@@ -964,6 +964,17 @@ func (r *articleRepo) DeleteArticle(ctx context.Context, id int32, uuid string) 
 	return nil
 }
 
+func (r *articleRepo) DeleteArticleDraft(ctx context.Context, id int32, uuid string) error {
+	_, err := r.data.cc.DeleteArticleDraft(ctx, &creationV1.DeleteArticleDraftReq{
+		Id:   id,
+		Uuid: uuid,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *articleRepo) SetArticleAgree(ctx context.Context, id int32, uuid, userUuid string) error {
 	_, err := r.data.cc.SetArticleAgree(ctx, &creationV1.SetArticleAgreeReq{
 		Uuid:     uuid,

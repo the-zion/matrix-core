@@ -235,6 +235,14 @@ func (r *ArticleUseCase) DeleteArticle(ctx context.Context, id int32, uuid strin
 	return nil
 }
 
+func (r *ArticleUseCase) DeleteArticleDraft(ctx context.Context, id int32, uuid string) error {
+	err := r.repo.DeleteArticleDraft(ctx, id, uuid)
+	if err != nil {
+		return v1.ErrorCreateArticleFailed("delete article draft failed: %s", err.Error())
+	}
+	return nil
+}
+
 func (r *ArticleUseCase) CreateArticleDbCacheAndSearch(ctx context.Context, id, auth int32, uuid string) error {
 	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
 		var err error

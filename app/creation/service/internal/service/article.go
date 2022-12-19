@@ -350,6 +350,14 @@ func (s *CreationService) DeleteArticle(ctx context.Context, req *v1.DeleteArtic
 	return &emptypb.Empty{}, nil
 }
 
+func (s *CreationService) DeleteArticleDraft(ctx context.Context, req *v1.DeleteArticleDraftReq) (*emptypb.Empty, error) {
+	err := s.ac.DeleteArticleDraft(ctx, req.Id, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *CreationService) CreateArticleDbCacheAndSearch(ctx context.Context, req *v1.CreateArticleDbCacheAndSearchReq) (*emptypb.Empty, error) {
 	err := s.ac.CreateArticleDbCacheAndSearch(ctx, req.Id, req.Auth, req.Uuid)
 	if err != nil {

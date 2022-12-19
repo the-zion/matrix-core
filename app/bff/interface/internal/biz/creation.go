@@ -55,6 +55,7 @@ type ArticleRepo interface {
 	SendArticle(ctx context.Context, id int32, uuid, ip string) error
 	SendArticleEdit(ctx context.Context, id int32, uuid, ip string) error
 	DeleteArticle(ctx context.Context, id int32, uuid string) error
+	DeleteArticleDraft(ctx context.Context, id int32, uuid string) error
 	SetArticleAgree(ctx context.Context, id int32, uuid, userUuid string) error
 	SetArticleView(ctx context.Context, id int32, uuid string) error
 	SetArticleCollect(ctx context.Context, id, collectionsId int32, uuid, userUuid string) error
@@ -691,6 +692,11 @@ func (r *ArticleUseCase) SendArticleEdit(ctx context.Context, id int32) error {
 func (r *ArticleUseCase) DeleteArticle(ctx context.Context, id int32) error {
 	uuid := ctx.Value("uuid").(string)
 	return r.repo.DeleteArticle(ctx, id, uuid)
+}
+
+func (r *ArticleUseCase) DeleteArticleDraft(ctx context.Context, id int32) error {
+	uuid := ctx.Value("uuid").(string)
+	return r.repo.DeleteArticleDraft(ctx, id, uuid)
 }
 
 func (r *ArticleUseCase) SetArticleAgree(ctx context.Context, id int32, uuid string) error {

@@ -619,6 +619,14 @@ func (s *BffService) DeleteArticle(ctx context.Context, req *v1.DeleteArticleReq
 	return &emptypb.Empty{}, nil
 }
 
+func (s *BffService) DeleteArticleDraft(ctx context.Context, req *v1.DeleteArticleDraftReq) (*emptypb.Empty, error) {
+	err := s.ac.DeleteArticleDraft(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *BffService) SetArticleAgree(ctx context.Context, req *v1.SetArticleAgreeReq) (*emptypb.Empty, error) {
 	err := s.ac.SetArticleAgree(ctx, req.Id, req.Uuid)
 	if err != nil {
