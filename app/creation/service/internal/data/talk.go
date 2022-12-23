@@ -1679,12 +1679,21 @@ func (r *talkRepo) SetTalkView(ctx context.Context, id int32, uuid string) error
 
 func (r *talkRepo) SetTalkViewToCache(ctx context.Context, id int32, uuid string) error {
 	ids := strconv.Itoa(int(id))
-	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.HIncrBy(ctx, "talk_"+ids, "view", 1)
-		return nil
-	})
+	var script = redis.NewScript(`
+					local key = KEYS[1]
+					local value = ARGV[1]
+					local exist = redis.call("EXISTS", key)
+					if exist == 1 then
+						redis.call("HINCRBY", key, "view", value)
+					end
+					return 0
+	`)
+	keys := []string{"talk_" + ids}
+	values := []interface{}{1}
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+
 	if err != nil {
-		r.log.Errorf("fail to add talk agree to cache: id(%v), uuid(%s), err(%v)", id, uuid, err)
+		return errors.Wrapf(err, fmt.Sprintf("fail to add talk view to cache: id(%v), uuid(%s)", id, uuid))
 	}
 	return nil
 }

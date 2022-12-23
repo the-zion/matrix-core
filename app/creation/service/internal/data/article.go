@@ -1965,7 +1965,7 @@ func (r *articleRepo) SetArticleViewToCache(ctx context.Context, id int32, uuid 
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
 
 	if err != nil {
-		return errors.Wrapf(err, fmt.Sprintf("fail to add article agree to cache: id(%v), uuid(%s)", id, uuid))
+		return errors.Wrapf(err, fmt.Sprintf("fail to add article view to cache: id(%v), uuid(%s)", id, uuid))
 	}
 	return nil
 }

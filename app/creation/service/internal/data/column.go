@@ -1636,12 +1636,21 @@ func (r *columnRepo) SetColumnView(ctx context.Context, id int32, uuid string) e
 
 func (r *columnRepo) SetColumnViewToCache(ctx context.Context, id int32, uuid string) error {
 	ids := strconv.Itoa(int(id))
-	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.HIncrBy(ctx, "column_"+ids, "view", 1)
-		return nil
-	})
+	var script = redis.NewScript(`
+					local key = KEYS[1]
+					local value = ARGV[1]
+					local exist = redis.call("EXISTS", key)
+					if exist == 1 then
+						redis.call("HINCRBY", key, "view", value)
+					end
+					return 0
+	`)
+	keys := []string{"column_" + ids}
+	values := []interface{}{1}
+	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+
 	if err != nil {
-		r.log.Errorf("fail to add column agree to cache: id(%v), uuid(%s), err(%v)", id, uuid, err)
+		return errors.Wrapf(err, fmt.Sprintf("fail to add column view to cache: id(%v), uuid(%s)", id, uuid))
 	}
 	return nil
 }

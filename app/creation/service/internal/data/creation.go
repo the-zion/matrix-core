@@ -1371,6 +1371,7 @@ func (r *creationRepo) CreateCollectionsCache(ctx context.Context, id, auth int3
 					redis.call("HSETNX", collectionsStatistic, "article", 0)
 					redis.call("HSETNX", collectionsStatistic, "column", 0)
 					redis.call("HSETNX", collectionsStatistic, "talk", 0)
+					redis.call("EXPIRE", collectionsStatistic, 1800)
 
 					if userCollectionsListExist == 1 then
 						redis.call("ZADD", userCollectionsList, id, ids)
