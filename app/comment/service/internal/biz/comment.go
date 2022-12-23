@@ -663,6 +663,7 @@ func (r *CommentUseCase) CreateSubCommentDbAndCache(ctx context.Context, id, roo
 
 		rootComment, err = r.repo.GetRootComment(ctx, rootId)
 		if err != nil {
+			rootComment = &Comment{}
 			return err
 		}
 
