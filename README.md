@@ -1,2 +1,3 @@
-# core of matrix base in kratos
+# System Architecture
 
+![image](architecture.jpeg)
