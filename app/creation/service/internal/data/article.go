@@ -38,7 +38,7 @@ func NewArticleRepo(data *Data, logger log.Logger) biz.ArticleRepo {
 
 func (r *articleRepo) GetLastArticleDraft(ctx context.Context, uuid string) (*biz.ArticleDraft, error) {
 	draft := &ArticleDraft{}
-	err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).Last(draft).Error
+	err := r.data.db.WithContext(ctx).Select("id", "status").Where("uuid = ?", uuid).Last(draft).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, kerrors.NotFound("article draft not found from db", fmt.Sprintf("uuid(%s)", uuid))
 	}
@@ -53,7 +53,7 @@ func (r *articleRepo) GetLastArticleDraft(ctx context.Context, uuid string) (*bi
 
 func (r *articleRepo) GetArticle(ctx context.Context, id int32) (*biz.Article, error) {
 	article := &Article{}
-	err := r.data.db.WithContext(ctx).Where("article_id = ?", id).First(article).Error
+	err := r.data.db.WithContext(ctx).Select("uuid").Where("article_id = ?", id).First(article).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get article from db: id(%v)", id))
 	}
@@ -113,7 +113,7 @@ func (r *articleRepo) getArticleFromDB(ctx context.Context, page int32) ([]*biz.
 	}
 	index := int(page - 1)
 	list := make([]*Article, 0)
-	err := r.data.db.WithContext(ctx).Where("auth", 1).Order("article_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("article_id", "uuid").Where("auth", 1).Order("article_id desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get article from db: page(%v)", page))
 	}
@@ -254,7 +254,7 @@ func (r *articleRepo) getUserArticleListFromDB(ctx context.Context, page int32, 
 	}
 	index := int(page - 1)
 	list := make([]*Article, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).Order("article_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("article_id", "uuid").Where("uuid = ?", uuid).Order("article_id desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user article from db: page(%v), uuid(%s)", page, uuid))
 	}
@@ -318,7 +318,7 @@ func (r *articleRepo) getUserArticleListAllFromCache(ctx context.Context, uuid s
 
 func (r *articleRepo) getUserArticleListAllFromDB(ctx context.Context, uuid string) ([]*biz.Article, error) {
 	list := make([]*Article, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).Order("article_id desc").Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("article_id", "uuid").Where("uuid = ?", uuid).Order("article_id desc").Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user article all from db:, uuid(%s)", uuid))
 	}
@@ -390,7 +390,7 @@ func (r *articleRepo) getUserArticleListVisitorFromDB(ctx context.Context, page 
 	}
 	index := int(page - 1)
 	list := make([]*Article, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid = ? and auth = ?", uuid, 1).Order("article_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("article_id", "uuid").Where("uuid = ? and auth = ?", uuid, 1).Order("article_id desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user article visitor from db: page(%v), uuid(%s)", page, uuid))
 	}
@@ -430,7 +430,7 @@ func (r *articleRepo) GetArticleHotFromDB(ctx context.Context, page int32) ([]*b
 	}
 	index := int(page - 1)
 	list := make([]*ArticleStatistic, 0)
-	err := r.data.db.WithContext(ctx).Where("auth", 1).Order("agree desc, article_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("article_id", "uuid", "agree").Where("auth", 1).Order("agree desc, article_id desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get article statistic from db: page(%v)", page))
 	}
@@ -481,7 +481,7 @@ func (r *articleRepo) GetArticleStatistic(ctx context.Context, id int32, uuid st
 
 func (r *articleRepo) getArticleStatisticFromDB(ctx context.Context, id int32) (*biz.ArticleStatistic, error) {
 	as := &ArticleStatistic{}
-	err := r.data.db.WithContext(ctx).Where("article_id = ?", id).First(as).Error
+	err := r.data.db.WithContext(ctx).Select("uuid", "agree", "collect", "view", "comment", "auth").Where("article_id = ?", id).First(as).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("faile to get statistic from db: id(%v)", id))
 	}
@@ -584,7 +584,7 @@ func (r *articleRepo) getArticleListStatisticFromCache(ctx context.Context, exis
 
 func (r *articleRepo) getArticleListStatisticFromDb(ctx context.Context, unExists []int32, articleListStatistic *[]*biz.ArticleStatistic) error {
 	list := make([]*ArticleStatistic, 0, cap(unExists))
-	err := r.data.db.WithContext(ctx).Where("article_id IN ?", unExists).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("article_id", "uuid", "agree", "comment", "collect", "view", "auth").Where("article_id IN ?", unExists).Find(&list).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to get article statistic list from db: ids(%v)", unExists))
 	}
@@ -634,7 +634,7 @@ func (r *articleRepo) setArticleListStatisticToCache(commentList []*ArticleStati
 
 func (r *articleRepo) GetArticleDraftList(ctx context.Context, uuid string) ([]*biz.ArticleDraft, error) {
 	draftList := make([]*ArticleDraft, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid = ? and status = ?", uuid, 3).Order("id desc").Find(&draftList).Error
+	err := r.data.db.WithContext(ctx).Select("id").Where("uuid = ? and status = ?", uuid, 3).Order("id desc").Find(&draftList).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get draft list : uuid(%s)", uuid))
 	}
@@ -805,7 +805,7 @@ func (r *articleRepo) GetArticleSearch(ctx context.Context, page int32, search, 
 
 func (r *articleRepo) GetArticleAuth(ctx context.Context, id int32) (int32, error) {
 	article := &Article{}
-	err := r.data.db.WithContext(ctx).Where("article_id = ?", id).First(article).Error
+	err := r.data.db.WithContext(ctx).Select("auth").Where("article_id = ?", id).First(article).Error
 	if err != nil {
 		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get article auth from db: id(%v)", id))
 	}
@@ -853,7 +853,7 @@ func (r *articleRepo) getUserArticleAgreeFromCache(ctx context.Context, uuid str
 
 func (r *articleRepo) getUserArticleAgreeFromDb(ctx context.Context, uuid string) (map[int32]bool, error) {
 	list := make([]*ArticleAgree, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid = ? and status = ?", uuid, 1).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("article_id").Where("uuid = ? and status = ?", uuid, 1).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user article agree from db: uuid(%s)", uuid))
 	}
@@ -929,7 +929,7 @@ func (r *articleRepo) getUserArticleCollectFromCache(ctx context.Context, uuid s
 
 func (r *articleRepo) getUserArticleCollectFromDb(ctx context.Context, uuid string) (map[int32]bool, error) {
 	list := make([]*ArticleCollect, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid = ? and status = ?", uuid, 1).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("article_id").Where("uuid = ? and status = ?", uuid, 1).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user article collect from db: uuid(%s)", uuid))
 	}
@@ -1055,7 +1055,7 @@ func (r *articleRepo) SetArticleContentIrregularToCache(ctx context.Context, rev
 
 func (r *articleRepo) GetCollectionsIdFromArticleCollect(ctx context.Context, id int32) (int32, error) {
 	collect := &Collect{}
-	err := r.data.db.WithContext(ctx).Where("creations_id = ? and mode = ?", id, 1).First(collect).Error
+	err := r.data.db.WithContext(ctx).Select("collections_id").Where("creations_id = ? and mode = ?", id, 1).First(collect).Error
 	if !errors.Is(err, gorm.ErrRecordNotFound) && err != nil {
 		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get collections id  from db: creationsId(%v)", id))
 	}
@@ -1131,7 +1131,7 @@ func (r *articleRepo) getArticleImageReviewFromDB(ctx context.Context, page int3
 	}
 	index := int(page - 1)
 	list := make([]*ArticleReview, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid", uuid).Order("id desc").Offset(index * 20).Limit(20).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("article_id", "kind", "uid", "uuid", "job_id", "created_at", "url", "label", "result", "category", "sub_label", "score").Where("uuid", uuid).Order("id desc").Offset(index * 20).Limit(20).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get article image review from db: page(%v), uuid(%s)", page, uuid))
 	}
@@ -1243,7 +1243,7 @@ func (r *articleRepo) getArticleContentReviewFromDB(ctx context.Context, page in
 	}
 	index := int(page - 1)
 	list := make([]*ArticleContentReview, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid", uuid).Order("id desc").Offset(index * 20).Limit(20).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("article_id", "kind", "title", "uuid", "job_id", "created_at", "label", "result", "section").Where("uuid", uuid).Order("id desc").Offset(index * 20).Limit(20).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get article content review from db: page(%v), uuid(%s)", page, uuid))
 	}
@@ -2462,7 +2462,7 @@ func (r *articleRepo) getColumnArticleFromCache(ctx context.Context, id int32) (
 
 func (r *articleRepo) getColumnArticleFromDB(ctx context.Context, id int32) ([]*biz.Article, error) {
 	list := make([]*ColumnInclusion, 0)
-	err := r.data.db.WithContext(ctx).Where("column_id = ? and status = ?", id, 1).Order("updated_at desc").Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("article_id", "uuid").Where("column_id = ? and status = ?", id, 1).Order("updated_at desc").Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get column article from db: columnId(%v)", id))
 	}

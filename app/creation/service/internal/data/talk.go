@@ -38,7 +38,7 @@ func NewTalkRepo(data *Data, logger log.Logger) biz.TalkRepo {
 
 func (r *talkRepo) GetTalk(ctx context.Context, id int32) (*biz.Talk, error) {
 	talk := &Talk{}
-	err := r.data.db.WithContext(ctx).Where("talk_id = ?", id).First(talk).Error
+	err := r.data.db.WithContext(ctx).Select("uuid").Where("talk_id = ?", id).First(talk).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get talk from db: id(%v)", id))
 	}
@@ -157,7 +157,7 @@ func (r *talkRepo) getUserTalkListFromDB(ctx context.Context, page int32, uuid s
 	}
 	index := int(page - 1)
 	list := make([]*Talk, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).Order("talk_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("talk_id", "uuid").Where("uuid = ?", uuid).Order("talk_id desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user talk from db: page(%v), uuid(%s)", page, uuid))
 	}
@@ -229,7 +229,7 @@ func (r *talkRepo) getUserTalkListVisitorFromDB(ctx context.Context, page int32,
 	}
 	index := int(page - 1)
 	list := make([]*Talk, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid = ? and auth = ?", uuid, 1).Order("talk_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("talk_id", "uuid").Where("uuid = ? and auth = ?", uuid, 1).Order("talk_id desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user talk visitor from db: page(%v), uuid(%s)", page, uuid))
 	}
@@ -330,7 +330,7 @@ func (r *talkRepo) GetTalkHotFromDB(ctx context.Context, page int32) ([]*biz.Tal
 	}
 	index := int(page - 1)
 	list := make([]*TalkStatistic, 0)
-	err := r.data.db.WithContext(ctx).Where("auth", 1).Order("agree desc, talk_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("talk_id", "uuid", "agree").Where("auth", 1).Order("agree desc, talk_id desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get talk statistic from db: page(%v)", page))
 	}
@@ -377,7 +377,7 @@ func (r *talkRepo) getTalkFromDB(ctx context.Context, page int32) ([]*biz.Talk, 
 	}
 	index := int(page - 1)
 	list := make([]*Talk, 0)
-	err := r.data.db.WithContext(ctx).Where("auth", 1).Order("talk_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("talk_id", "uuid").Where("auth", 1).Order("talk_id desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get talk from db: page(%v)", page))
 	}
@@ -499,7 +499,7 @@ func (r *talkRepo) getTalkListStatisticFromCache(ctx context.Context, exists []i
 
 func (r *talkRepo) getTalkListStatisticFromDb(ctx context.Context, unExists []int32, talkListStatistic *[]*biz.TalkStatistic) error {
 	list := make([]*TalkStatistic, 0, cap(unExists))
-	err := r.data.db.WithContext(ctx).Where("talk_id IN ?", unExists).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("talk_id", "uuid", "agree", "comment", "collect", "view", "auth").Where("talk_id IN ?", unExists).Find(&list).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to get talk statistic list from db: ids(%v)", unExists))
 	}
@@ -610,7 +610,7 @@ func (r *talkRepo) getTalkStatisticFromCache(ctx context.Context, key, uuid stri
 
 func (r *talkRepo) getTalkStatisticFromDB(ctx context.Context, id int32) (*biz.TalkStatistic, error) {
 	as := &TalkStatistic{}
-	err := r.data.db.WithContext(ctx).Where("talk_id = ?", id).First(as).Error
+	err := r.data.db.WithContext(ctx).Select("uuid", "agree", "collect", "view", "comment").Where("talk_id = ?", id).First(as).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("faile to get statistic from db: id(%v)", id))
 	}
@@ -637,7 +637,7 @@ func (r *talkRepo) setTalkStatisticToCache(key string, statistic *biz.TalkStatis
 
 func (r *talkRepo) GetLastTalkDraft(ctx context.Context, uuid string) (*biz.TalkDraft, error) {
 	draft := &TalkDraft{}
-	err := r.data.db.WithContext(ctx).Where("uuid = ? and status = ?", uuid, 1).Last(draft).Error
+	err := r.data.db.WithContext(ctx).Select("id", "status").Where("uuid = ? and status = ?", uuid, 1).Last(draft).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, kerrors.NotFound("talk draft not found from db", fmt.Sprintf("uuid(%s)", uuid))
 	}
@@ -847,7 +847,7 @@ func (r *talkRepo) getUserTalkAgreeFromCache(ctx context.Context, uuid string) (
 
 func (r *talkRepo) getUserTalkAgreeFromDb(ctx context.Context, uuid string) (map[int32]bool, error) {
 	list := make([]*TalkAgree, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid = ? and status = ?", uuid, 1).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("talk_id").Where("uuid = ? and status = ?", uuid, 1).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user talk agree from db: uuid(%s)", uuid))
 	}
@@ -923,7 +923,7 @@ func (r *talkRepo) getUserTalkCollectFromCache(ctx context.Context, uuid string)
 
 func (r *talkRepo) getUserTalkCollectFromDb(ctx context.Context, uuid string) (map[int32]bool, error) {
 	list := make([]*TalkCollect, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid = ? and status = ?", uuid, 1).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("talk_id").Where("uuid = ? and status = ?", uuid, 1).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user talk collect from db: uuid(%s)", uuid))
 	}
@@ -960,7 +960,7 @@ func (r *talkRepo) setUserTalkCollectToCache(uuid string, collectList []*TalkCol
 
 func (r *talkRepo) GetTalkAuth(ctx context.Context, id int32) (int32, error) {
 	talk := &Talk{}
-	err := r.data.db.WithContext(ctx).Where("talk_id = ?", id).First(talk).Error
+	err := r.data.db.WithContext(ctx).Select("auth").Where("talk_id = ?", id).First(talk).Error
 	if err != nil {
 		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get talk auth from db: id(%v)", id))
 	}
@@ -969,7 +969,7 @@ func (r *talkRepo) GetTalkAuth(ctx context.Context, id int32) (int32, error) {
 
 func (r *talkRepo) GetCollectionsIdFromTalkCollect(ctx context.Context, id int32) (int32, error) {
 	collect := &Collect{}
-	err := r.data.db.WithContext(ctx).Where("creations_id = ? and mode = ?", id, 3).First(collect).Error
+	err := r.data.db.WithContext(ctx).Select("collections_id").Where("creations_id = ? and mode = ?", id, 3).First(collect).Error
 	if !errors.Is(err, gorm.ErrRecordNotFound) && err != nil {
 		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get collections id  from db: creationsId(%v)", id))
 	}
@@ -1045,7 +1045,7 @@ func (r *talkRepo) getTalkImageReviewFromDB(ctx context.Context, page int32, uui
 	}
 	index := int(page - 1)
 	list := make([]*TalkReview, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid", uuid).Order("id desc").Offset(index * 20).Limit(20).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("talk_id", "kind", "uid", "uuid", "job_id", "created_at", "url", "label", "result", "category", "sub_label", "score").Where("uuid", uuid).Order("id desc").Offset(index * 20).Limit(20).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get talk image review from db: page(%v), uuid(%s)", page, uuid))
 	}
@@ -1157,7 +1157,7 @@ func (r *talkRepo) getTalkContentReviewFromDB(ctx context.Context, page int32, u
 	}
 	index := int(page - 1)
 	list := make([]*TalkContentReview, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid", uuid).Order("id desc").Offset(index * 20).Limit(20).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("talk_id", "kind", "title", "uuid", "job_id", "created_at", "label", "result", "section").Where("uuid", uuid).Order("id desc").Offset(index * 20).Limit(20).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get talk content review from db: page(%v), uuid(%s)", page, uuid))
 	}

@@ -34,7 +34,7 @@ func NewCommentRepo(data *Data, logger log.Logger) biz.CommentRepo {
 
 func (r *commentRepo) GetLastCommentDraft(ctx context.Context, uuid string) (*biz.CommentDraft, error) {
 	draft := &CommentDraft{}
-	err := r.data.db.WithContext(ctx).Where("uuid = ? and status = ?", uuid, 1).Last(draft).Error
+	err := r.data.db.WithContext(ctx).Select("id", "status").Where("uuid = ? and status = ?", uuid, 1).Last(draft).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, kerrors.NotFound("comment draft not found from db", fmt.Sprintf("uuid(%s)", uuid))
 	}
@@ -88,7 +88,7 @@ func (r *commentRepo) getUserCommentAgreeFromCache(ctx context.Context, uuid str
 
 func (r *commentRepo) getUserCommentAgreeFromDb(ctx context.Context, uuid string) (map[int32]bool, error) {
 	list := make([]*CommentAgree, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid = ? and status = ?", uuid, 1).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("comment_id").Where("uuid = ? and status = ?", uuid, 1).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user comment agree from db: uuid(%s)", uuid))
 	}
@@ -183,7 +183,7 @@ func (r *commentRepo) getCommentUserFromCache(ctx context.Context, key string) (
 
 func (r *commentRepo) getCommentUserFromDB(ctx context.Context, uuid string) (*biz.CommentUser, error) {
 	cu := &CommentUser{}
-	err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).First(cu).Error
+	err := r.data.db.WithContext(ctx).Select("comment", "article_reply", "article_reply_sub", "talk_reply", "talk_reply_sub", "article_replied", "article_replied_sub", "talk_replied", "talk_replied_sub").Where("uuid = ?", uuid).First(cu).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("faile to get comment user from db: uuid(%v)", uuid))
 	}
@@ -460,7 +460,7 @@ func (r *commentRepo) getCommentHotFromDB(ctx context.Context, page, creationId,
 	}
 	index := int(page - 1)
 	list := make([]*Comment, 0)
-	err := r.data.db.WithContext(ctx).Where("creation_id = ? and creation_type = ?", creationId, creationType).Order("agree desc, comment_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("comment_id", "uuid", "agree").Where("creation_id = ? and creation_type = ?", creationId, creationType).Order("agree desc, comment_id desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get comment hot from db: page(%v)", page))
 	}
@@ -1717,7 +1717,7 @@ func (r *commentRepo) getCommentContentReviewFromDB(ctx context.Context, page in
 	}
 	index := int(page - 1)
 	list := make([]*CommentContentReview, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid", uuid).Order("id desc").Offset(index * 20).Limit(20).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("comment_id", "kind", "comment", "uuid", "job_id", "create_at", "label", "result", "section").Where("uuid", uuid).Order("id desc").Offset(index * 20).Limit(20).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get comment content review from db: page(%v), uuid(%s)", page, uuid))
 	}
@@ -1762,7 +1762,7 @@ func (r *commentRepo) setCommentContentReviewToCache(key string, review []*biz.T
 
 func (r *commentRepo) GetRootComment(ctx context.Context, id int32) (*biz.Comment, error) {
 	sc := &Comment{}
-	err := r.data.DB(ctx).Where("comment_id = ?", id).First(sc).Error
+	err := r.data.DB(ctx).Select("creation_id", "creation_type", "creation_author", "uuid").Where("comment_id = ?", id).First(sc).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get root comment: rootId(%v)", id))
 	}
@@ -1776,7 +1776,7 @@ func (r *commentRepo) GetRootComment(ctx context.Context, id int32) (*biz.Commen
 
 func (r *commentRepo) GetSubComment(ctx context.Context, id int32) (*biz.SubComment, error) {
 	sc := &SubComment{}
-	err := r.data.DB(ctx).Where("comment_id = ?", id).First(sc).Error
+	err := r.data.DB(ctx).Select("creation_id", "root_id", "parent_id", "creation_type", "creation_author", "root_user", "uuid", "reply").Where("comment_id = ?", id).First(sc).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get sun comment: rootId(%v)", id))
 	}
@@ -1794,7 +1794,7 @@ func (r *commentRepo) GetSubComment(ctx context.Context, id int32) (*biz.SubComm
 
 func (r *commentRepo) GetParentCommentUserId(ctx context.Context, id, rootId int32) (string, error) {
 	sc := &SubComment{}
-	err := r.data.DB(ctx).Where("comment_id = ? and root_id = ?", id, rootId).First(sc).Error
+	err := r.data.DB(ctx).Select("uuid").Where("comment_id = ? and root_id = ?", id, rootId).First(sc).Error
 	if err != nil {
 		return "", errors.Wrapf(err, fmt.Sprintf("fail to get parent comment user id: parentId(%v)", id))
 	}
@@ -1803,7 +1803,7 @@ func (r *commentRepo) GetParentCommentUserId(ctx context.Context, id, rootId int
 
 func (r *commentRepo) GetSubCommentReply(ctx context.Context, id int32, uuid string) (string, error) {
 	sc := &SubComment{}
-	err := r.data.DB(ctx).Where("comment_id = ? and uuid = ?", id, uuid).First(sc).Error
+	err := r.data.DB(ctx).Select("reply").Where("comment_id = ? and uuid = ?", id, uuid).First(sc).Error
 	if err != nil {
 		return "", errors.Wrapf(err, fmt.Sprintf("fail to get sub comment reply: parentId(%v)", id))
 	}
@@ -1917,7 +1917,7 @@ func (r *commentRepo) getSubCommentStatisticFromCache(ctx context.Context, exist
 
 func (r *commentRepo) getCommentStatisticFromDb(ctx context.Context, unExists []int32, commentListStatistic *[]*biz.CommentStatistic) error {
 	list := make([]*Comment, 0, cap(unExists))
-	err := r.data.db.WithContext(ctx).Where("comment_id IN ?", unExists).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("comment_id", "agree", "comment").Where("comment_id IN ?", unExists).Find(&list).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to get comment statistic list from db: ids(%v)", unExists))
 	}
@@ -1942,7 +1942,7 @@ func (r *commentRepo) getCommentStatisticFromDb(ctx context.Context, unExists []
 
 func (r *commentRepo) getSubCommentStatisticFromDb(ctx context.Context, unExists []int32, commentListStatistic *[]*biz.CommentStatistic) error {
 	list := make([]*SubComment, 0, cap(unExists))
-	err := r.data.db.WithContext(ctx).Where("comment_id IN ?", unExists).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("commentId", "agree").Where("comment_id IN ?", unExists).Find(&list).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to get sub comment statistic list from db: ids(%v)", unExists))
 	}

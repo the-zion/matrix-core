@@ -59,7 +59,7 @@ func (r *creationRepo) getLeaderBoardFromCache(ctx context.Context) ([]*biz.Lead
 
 func (r *creationRepo) GetLastCollectionsDraft(ctx context.Context, uuid string) (*biz.CollectionsDraft, error) {
 	draft := &CollectionsDraft{}
-	err := r.data.db.WithContext(ctx).Where("uuid = ? and status = ?", uuid, 1).Last(draft).Error
+	err := r.data.db.WithContext(ctx).Select("id", "status").Where("uuid = ? and status = ?", uuid, 1).Last(draft).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, kerrors.NotFound("collections draft not found from db", fmt.Sprintf("uuid(%s)", uuid))
 	}
@@ -138,7 +138,7 @@ func (r *creationRepo) getCollectionsContentReviewFromDB(ctx context.Context, pa
 	}
 	index := int(page - 1)
 	list := make([]*CollectionsContentReview, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid", uuid).Order("id desc").Offset(index * 20).Limit(20).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("collections_id", "kind", "title", "uuid", "job_id", "created_at", "label", "result", "section").Where("uuid", uuid).Order("id desc").Offset(index * 20).Limit(20).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get collections content review from db: page(%v), uuid(%s)", page, uuid))
 	}
@@ -239,7 +239,7 @@ func (r *creationRepo) getCollectArticleListFromDB(ctx context.Context, id, page
 	}
 	index := int(page - 1)
 	list := make([]*Collect, 0)
-	err := r.data.db.WithContext(ctx).Where("collections_id = ? and mode = ? and status = ?", id, 1, 1).Order("updated_at desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("creations_id", "uuid").Where("collections_id = ? and mode = ? and status = ?", id, 1, 1).Order("updated_at desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user collect article list from db: id(%v), page(%v)", id, page))
 	}
@@ -340,7 +340,7 @@ func (r *creationRepo) getCollectTalkListFromDB(ctx context.Context, id, page in
 	}
 	index := int(page - 1)
 	list := make([]*Collect, 0)
-	err := r.data.db.WithContext(ctx).Where("collections_id = ? and mode = ? and status = ?", id, 3, 1).Order("updated_at desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("creations_id", "uuid").Where("collections_id = ? and mode = ? and status = ?", id, 3, 1).Order("updated_at desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user collect talk from db: id(%v), page(%v)", id, page))
 	}
@@ -441,7 +441,7 @@ func (r *creationRepo) getCollectColumnListFromDB(ctx context.Context, id, page 
 	}
 	index := int(page - 1)
 	list := make([]*Collect, 0)
-	err := r.data.db.WithContext(ctx).Where("collections_id = ? and mode = ? and status = ?", id, 2, 1).Order("updated_at desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("creations_id", "uuid").Where("collections_id = ? and mode = ? and status = ?", id, 2, 1).Order("updated_at desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user collect column list from db: id(%v), page(%v)", id, page))
 	}
@@ -547,7 +547,7 @@ func (r *creationRepo) getCollectionsFromCache(ctx context.Context, key, uuid st
 
 func (r *creationRepo) getCollectionsFromDB(ctx context.Context, id int32) (*biz.Collections, error) {
 	collections := &Collections{}
-	err := r.data.db.WithContext(ctx).Where("collections_id = ?", id).First(collections).Error
+	err := r.data.db.WithContext(ctx).Select("uuid", "article", "column", "talk", "auth").Where("collections_id = ?", id).First(collections).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("faile to get collections from db: id(%v)", id))
 	}
@@ -653,7 +653,7 @@ func (r *creationRepo) getCollectionsListInfoFromCache(ctx context.Context, exis
 
 func (r *creationRepo) getCollectionsListInfoFromDb(ctx context.Context, unExists []int32, collectionsListInfo *[]*biz.Collections) error {
 	list := make([]*Collections, 0, cap(unExists))
-	err := r.data.db.WithContext(ctx).Where("id IN ?", unExists).Order("id desc").Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("collections_id", "uuid", "auth").Where("id IN ?", unExists).Order("id desc").Find(&list).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to get collections list info from db: ids(%v)", unExists))
 	}
@@ -756,7 +756,7 @@ func (r *creationRepo) getUserCollectionsListFromDB(ctx context.Context, page in
 	}
 	index := int(page - 1)
 	list := make([]*Collections, 0)
-	handle := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).Order("collections_id desc").Offset(index * 10).Limit(10).Find(&list)
+	handle := r.data.db.WithContext(ctx).Select("collections_id").Where("uuid = ?", uuid).Order("collections_id desc").Offset(index * 10).Limit(10).Find(&list)
 	err := handle.Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get collections from db: uuid(%s)", uuid))
@@ -825,7 +825,7 @@ func (r *creationRepo) getUserCollectionsListVisitorFromDB(ctx context.Context, 
 	}
 	index := int(page - 1)
 	list := make([]*Collections, 0)
-	handle := r.data.db.WithContext(ctx).Where("uuid = ? and auth = ?", uuid, 1).Order("collections_id desc").Offset(index * 10).Limit(10).Find(&list)
+	handle := r.data.db.WithContext(ctx).Select("collections_id").Where("uuid = ? and auth = ?", uuid, 1).Order("collections_id desc").Offset(index * 10).Limit(10).Find(&list)
 	err := handle.Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get collections visitor from db: uuid(%s)", uuid))
@@ -905,7 +905,7 @@ func (r *creationRepo) getUserCollectionsListAllFromCache(ctx context.Context, u
 
 func (r *creationRepo) getUserCollectionsListAllFromDB(ctx context.Context, uuid string) ([]*biz.Collections, error) {
 	list := make([]*Collections, 0)
-	handle := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).Order("collections_id desc").Find(&list)
+	handle := r.data.db.WithContext(ctx).Select("collections_id").Where("uuid = ?", uuid).Order("collections_id desc").Find(&list)
 	err := handle.Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get collections from db: uuid(%s)", uuid))
@@ -994,7 +994,7 @@ func (r *creationRepo) getCreationUserFromCache(ctx context.Context, key string)
 
 func (r *creationRepo) getCreationUserFromDB(ctx context.Context, uuid string) (*biz.CreationUser, error) {
 	cuv := &CreationUser{}
-	err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).First(cuv).Error
+	err := r.data.db.WithContext(ctx).Select("article", "column", "collections", "talk", "collect", "subscribe").Where("uuid = ?", uuid).First(cuv).Error
 	if !errors.Is(err, gorm.ErrRecordNotFound) && err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("faile to get user creation from db: uuid(%v)", uuid))
 	}
@@ -1116,7 +1116,7 @@ func (r *creationRepo) getUserTimeLineListFromDB(ctx context.Context, page int32
 	}
 	index := int(page - 1)
 	list := make([]*TimeLine, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).Order("id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("id", "uuid", "creations_id", "mode").Where("uuid = ?", uuid).Order("id desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user timeline list from db: page(%v), uuid(%s)", page, uuid))
 	}
@@ -1154,7 +1154,7 @@ func (r *creationRepo) setUserTimeLineListToCache(key string, timeline []*biz.Ti
 
 func (r *creationRepo) GetCollectionsAuth(ctx context.Context, id int32) (int32, error) {
 	collections := &Collections{}
-	err := r.data.db.WithContext(ctx).Where("collections_id = ?", id).First(collections).Error
+	err := r.data.db.WithContext(ctx).Select("auth").Where("collections_id = ?", id).First(collections).Error
 	if err != nil {
 		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get collections auth from db: id(%v)", id))
 	}
@@ -1163,7 +1163,7 @@ func (r *creationRepo) GetCollectionsAuth(ctx context.Context, id int32) (int32,
 
 func (r *creationRepo) GetUserTimeLine(ctx context.Context, creationId, mode int32) (int32, error) {
 	timeline := &TimeLine{}
-	err := r.data.db.WithContext(ctx).Where("creations_id = ? and mode = ?", creationId, mode).First(timeline).Error
+	err := r.data.db.WithContext(ctx).Select("id").Where("creations_id = ? and mode = ?", creationId, mode).First(timeline).Error
 	if !errors.Is(err, gorm.ErrRecordNotFound) && err != nil {
 		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get user timeline from db: creationId(%v), mode(%v)", creationId, mode))
 	}
@@ -1196,7 +1196,7 @@ func (r *creationRepo) getCreationUserVisitorFromCache(ctx context.Context, key 
 
 func (r *creationRepo) getCreationUserVisitorFromDB(ctx context.Context, uuid string) (*biz.CreationUser, error) {
 	cuv := &CreationUserVisitor{}
-	err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).First(cuv).Error
+	err := r.data.db.WithContext(ctx).Select("article", "column", "collections", "talk").Where("uuid = ?", uuid).First(cuv).Error
 	if !errors.Is(err, gorm.ErrRecordNotFound) && err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("faile to get user creation from db: uuid(%v)", uuid))
 	}

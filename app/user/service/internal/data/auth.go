@@ -41,7 +41,7 @@ func NewAuthRepo(data *Data, logger log.Logger) biz.AuthRepo {
 
 func (r *authRepo) FindUserByPhone(ctx context.Context, phone string) (*biz.User, error) {
 	user := &User{}
-	err := r.data.db.WithContext(ctx).Where("phone = ?", phone).First(user).Error
+	err := r.data.db.WithContext(ctx).Select("uuid", "password", "phone", "email", "wechat", "qq", "github", "gitee").Where("phone = ?", phone).First(user).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, kerrors.NotFound("phone not found from db", fmt.Sprintf("phone(%s)", phone))
 	}
@@ -62,7 +62,7 @@ func (r *authRepo) FindUserByPhone(ctx context.Context, phone string) (*biz.User
 
 func (r *authRepo) FindUserByEmail(ctx context.Context, email string) (*biz.User, error) {
 	user := &User{}
-	err := r.data.db.WithContext(ctx).Where("email = ?", email).First(user).Error
+	err := r.data.db.WithContext(ctx).Select("uuid", "password", "phone", "email", "wechat", "qq", "github", "gitee").Where("email = ?", email).First(user).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, kerrors.NotFound("email not found from db", fmt.Sprintf("email(%s)", email))
 	}
@@ -83,7 +83,7 @@ func (r *authRepo) FindUserByEmail(ctx context.Context, email string) (*biz.User
 
 func (r *authRepo) FindUserByWechat(ctx context.Context, wechat string) (*biz.User, error) {
 	user := &User{}
-	err := r.data.db.WithContext(ctx).Where("wechat = ?", wechat).First(user).Error
+	err := r.data.db.WithContext(ctx).Select("uuid", "password", "phone", "email", "wechat", "qq", "github", "gitee").Where("wechat = ?", wechat).First(user).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, kerrors.NotFound("wechat not found from db", fmt.Sprintf("wechat(%s)", wechat))
 	}
@@ -104,7 +104,7 @@ func (r *authRepo) FindUserByWechat(ctx context.Context, wechat string) (*biz.Us
 
 func (r *authRepo) FindUserByQQ(ctx context.Context, qq string) (*biz.User, error) {
 	user := &User{}
-	err := r.data.db.WithContext(ctx).Where("qq = ?", qq).First(user).Error
+	err := r.data.db.WithContext(ctx).Select("uuid", "password", "phone", "email", "wechat", "qq", "github", "gitee").Where("qq = ?", qq).First(user).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, kerrors.NotFound("qq not found from db", fmt.Sprintf("qq(%s)", qq))
 	}
@@ -125,7 +125,7 @@ func (r *authRepo) FindUserByQQ(ctx context.Context, qq string) (*biz.User, erro
 
 func (r *authRepo) FindUserByGithub(ctx context.Context, github int32) (*biz.User, error) {
 	user := &User{}
-	err := r.data.db.WithContext(ctx).Where("github = ?", github).First(user).Error
+	err := r.data.db.WithContext(ctx).Select("uuid", "password", "phone", "email", "wechat", "qq", "github", "gitee").Where("github = ?", github).First(user).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, kerrors.NotFound("github not found from db", fmt.Sprintf("github(%v)", github))
 	}
@@ -146,7 +146,7 @@ func (r *authRepo) FindUserByGithub(ctx context.Context, github int32) (*biz.Use
 
 func (r *authRepo) FindUserByGitee(ctx context.Context, gitee int32) (*biz.User, error) {
 	user := &User{}
-	err := r.data.db.WithContext(ctx).Where("gitee = ?", gitee).First(user).Error
+	err := r.data.db.WithContext(ctx).Select("uuid", "password", "phone", "email", "wechat", "qq", "github", "gitee").Where("gitee = ?", gitee).First(user).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, kerrors.NotFound("gitee not found from db", fmt.Sprintf("gitee(%v)", gitee))
 	}

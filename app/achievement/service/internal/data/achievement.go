@@ -772,7 +772,7 @@ func (r *achievementRepo) getActiveFromCache(ctx context.Context, key string) (*
 
 func (r *achievementRepo) getActiveFromDB(ctx context.Context, uuid string) (*biz.Active, error) {
 	active := &Active{}
-	err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).First(active).Error
+	err := r.data.db.WithContext(ctx).Select("agree").Where("uuid = ?", uuid).First(active).Error
 	if !errors.Is(err, gorm.ErrRecordNotFound) && err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("faile to get active from db: uuid(%s)", uuid))
 	}

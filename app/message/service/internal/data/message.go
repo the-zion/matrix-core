@@ -176,7 +176,7 @@ func (r *messageRepo) getMessageSystemNotificationFromDB(ctx context.Context, pa
 	}
 	index := int(page - 1)
 	list := make([]*SystemNotification, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid", uuid).Order("id desc").Offset(index * 20).Limit(20).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("id", "content_id", "created_at", "notification_type", "title", "uid", "uuid", "label", "result", "section", "text", "comment").Where("uuid", uuid).Order("id desc").Offset(index * 20).Limit(20).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get message system notification from db: page(%v), uuid(%s)", page, uuid))
 	}

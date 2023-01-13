@@ -38,7 +38,7 @@ func NewColumnRepo(data *Data, logger log.Logger) biz.ColumnRepo {
 
 func (r *columnRepo) GetColumn(ctx context.Context, id int32) (*biz.Column, error) {
 	column := &Column{}
-	err := r.data.db.WithContext(ctx).Where("column_id = ?", id).First(column).Error
+	err := r.data.db.WithContext(ctx).Select("uuid").Where("column_id = ?", id).First(column).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get column from db: id(%v)", id))
 	}
@@ -50,7 +50,7 @@ func (r *columnRepo) GetColumn(ctx context.Context, id int32) (*biz.Column, erro
 
 func (r *columnRepo) GetLastColumnDraft(ctx context.Context, uuid string) (*biz.ColumnDraft, error) {
 	draft := &ColumnDraft{}
-	err := r.data.db.WithContext(ctx).Where("uuid = ? and status = ?", uuid, 1).Last(draft).Error
+	err := r.data.db.WithContext(ctx).Select("id", "status").Where("uuid = ? and status = ?", uuid, 1).Last(draft).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, kerrors.NotFound("column draft not found from db", fmt.Sprintf("uuid(%s)", uuid))
 	}
@@ -633,7 +633,7 @@ func (r *columnRepo) getColumnFromDB(ctx context.Context, page int32) ([]*biz.Co
 	}
 	index := int(page - 1)
 	list := make([]*Column, 0)
-	err := r.data.db.WithContext(ctx).Where("auth", 1).Order("column_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("column_id", "uuid").Where("auth", 1).Order("column_id desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get column from db: page(%v)", page))
 	}
@@ -749,7 +749,7 @@ func (r *columnRepo) getUserColumnListFromDB(ctx context.Context, page int32, uu
 	}
 	index := int(page - 1)
 	list := make([]*Column, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).Order("column_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("column_id", "uuid").Where("uuid = ?", uuid).Order("column_id desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user column from db: page(%v), uuid(%s)", page, uuid))
 	}
@@ -821,7 +821,7 @@ func (r *columnRepo) getUserColumnListVisitorFromDB(ctx context.Context, page in
 	}
 	index := int(page - 1)
 	list := make([]*Column, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid = ? and auth = ?", uuid, 1).Order("column_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("column_id", "uuid").Where("uuid = ? and auth = ?", uuid, 1).Order("column_id desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user column visitor from db: page(%v), uuid(%s)", page, uuid))
 	}
@@ -903,7 +903,7 @@ func (r *columnRepo) GetColumnHotFromDB(ctx context.Context, page int32) ([]*biz
 	}
 	index := int(page - 1)
 	list := make([]*ColumnStatistic, 0)
-	err := r.data.db.WithContext(ctx).Where("auth", 1).Order("agree desc, column_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("column_id", "uuid", "agree").Where("auth", 1).Order("agree desc, column_id desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get column statistic from db: page(%v)", page))
 	}
@@ -1024,7 +1024,7 @@ func (r *columnRepo) getColumnListStatisticFromCache(ctx context.Context, exists
 
 func (r *columnRepo) getColumnListStatisticFromDb(ctx context.Context, unExists []int32, columnListStatistic *[]*biz.ColumnStatistic) error {
 	list := make([]*ColumnStatistic, 0, cap(unExists))
-	err := r.data.db.WithContext(ctx).Where("column_id IN ?", unExists).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("column_id", "uuid", "agree", "collect", "view", "auth").Where("column_id IN ?", unExists).Find(&list).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to get column statistic list from db: ids(%v)", unExists))
 	}
@@ -1131,7 +1131,7 @@ func (r *columnRepo) getColumnStatisticFromCache(ctx context.Context, key, uuid 
 
 func (r *columnRepo) getColumnStatisticFromDB(ctx context.Context, id int32) (*biz.ColumnStatistic, error) {
 	cs := &ColumnStatistic{}
-	err := r.data.db.WithContext(ctx).Where("column_id = ?", id).First(cs).Error
+	err := r.data.db.WithContext(ctx).Select("uuid", "agree", "collect", "view").Where("column_id = ?", id).First(cs).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("faile to get statistic from db: id(%v)", id))
 	}
@@ -1316,7 +1316,7 @@ func (r *columnRepo) getUserSubscribeListFromDB(ctx context.Context, page int32,
 	}
 	index := int(page - 1)
 	list := make([]*Subscribe, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid = ? and status = ?", uuid, 1).Order("column_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("columnId", "authorId").Where("uuid = ? and status = ?", uuid, 1).Order("column_id desc").Offset(index * 10).Limit(10).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get subscribe column from db: page(%v)", page))
 	}
@@ -1360,7 +1360,7 @@ func (r *columnRepo) GetSubscribeListCount(ctx context.Context, uuid string) (in
 
 func (r *columnRepo) GetColumnSubscribes(ctx context.Context, uuid string, ids []int32) ([]*biz.Subscribe, error) {
 	list := make([]*Subscribe, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid = ? and column_id IN ?", uuid, ids).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("column_id", "status").Where("uuid = ? and column_id IN ?", uuid, ids).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get column subscribe from db: uuid(%s), ids(%v)", uuid, ids))
 	}
@@ -1533,7 +1533,7 @@ func (r *columnRepo) GetColumnSearch(ctx context.Context, page int32, search, ti
 
 func (r *columnRepo) GetColumnAuth(ctx context.Context, id int32) (int32, error) {
 	column := &Column{}
-	err := r.data.db.WithContext(ctx).Where("column_id = ?", id).First(column).Error
+	err := r.data.db.WithContext(ctx).Select("auth").Where("column_id = ?", id).First(column).Error
 	if err != nil {
 		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get column auth from db: id(%v)", id))
 	}
@@ -2349,7 +2349,7 @@ func (r *columnRepo) CancelUserColumnCollect(ctx context.Context, id int32, user
 
 func (r *columnRepo) GetCollectionsIdFromColumnCollect(ctx context.Context, id int32) (int32, error) {
 	collect := &Collect{}
-	err := r.data.db.WithContext(ctx).Where("creations_id = ? and mode = ?", id, 2).First(collect).Error
+	err := r.data.db.WithContext(ctx).Select("collections_id").Where("creations_id = ? and mode = ?", id, 2).First(collect).Error
 	if !errors.Is(err, gorm.ErrRecordNotFound) && err != nil {
 		return 0, errors.Wrapf(err, fmt.Sprintf("fail to get collections id  from db: creationsId(%v)", id))
 	}
@@ -2397,7 +2397,7 @@ func (r *columnRepo) getUserColumnAgreeFromCache(ctx context.Context, uuid strin
 
 func (r *columnRepo) getUserColumnAgreeFromDb(ctx context.Context, uuid string) (map[int32]bool, error) {
 	list := make([]*ColumnAgree, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid = ? and status = ?", uuid, 1).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("column_id").Where("uuid = ? and status = ?", uuid, 1).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user column agree from db: uuid(%s)", uuid))
 	}
@@ -2473,7 +2473,7 @@ func (r *columnRepo) getUserColumnCollectFromCache(ctx context.Context, uuid str
 
 func (r *columnRepo) getUserColumnCollectFromDb(ctx context.Context, uuid string) (map[int32]bool, error) {
 	list := make([]*ColumnCollect, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid = ? and status = ?", uuid, 1).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("column_id").Where("uuid = ? and status = ?", uuid, 1).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user column collect from db: uuid(%s)", uuid))
 	}
@@ -2548,7 +2548,7 @@ func (r *columnRepo) getUserColumnSubscribeFromCache(ctx context.Context, uuid s
 
 func (r *columnRepo) getUserColumnSubscribeFromDb(ctx context.Context, uuid string) (map[int32]bool, error) {
 	list := make([]*Subscribe, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid = ? and status = ?", uuid, 1).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("column_id").Where("uuid = ? and status = ?", uuid, 1).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user column subscribe from db: uuid(%s)", uuid))
 	}
@@ -2585,7 +2585,7 @@ func (r *columnRepo) setUserColumnSubscribeToCache(uuid string, subscribeList []
 
 func (r *columnRepo) GetAuthorFromSubscribe(ctx context.Context, id int32) (string, error) {
 	c := &Column{}
-	err := r.data.db.WithContext(ctx).Where("column_id = ?", id).First(c).Error
+	err := r.data.db.WithContext(ctx).Select("uuid").Where("column_id = ?", id).First(c).Error
 	if err != nil {
 		return "", errors.Wrapf(err, fmt.Sprintf("fail to get column author rom db: id(%v)", id))
 	}
@@ -2661,7 +2661,7 @@ func (r *columnRepo) getColumnImageReviewFromDB(ctx context.Context, page int32,
 	}
 	index := int(page - 1)
 	list := make([]*ColumnReview, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid", uuid).Order("id desc").Offset(index * 20).Limit(20).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("column_id", "kind", "uid", "uuid", "job_id", "created_at", "url", "label", "result", "category", "sub_label", "score").Where("uuid", uuid).Order("id desc").Offset(index * 20).Limit(20).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get column image review from db: page(%v), uuid(%s)", page, uuid))
 	}
@@ -2773,7 +2773,7 @@ func (r *columnRepo) getColumnContentReviewFromDB(ctx context.Context, page int3
 	}
 	index := int(page - 1)
 	list := make([]*ColumnContentReview, 0)
-	err := r.data.db.WithContext(ctx).Where("uuid", uuid).Order("id desc").Offset(index * 20).Limit(20).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("column_id", "kind", "title", "uuid", "job_id", "created_at", "label", "result", "section").Where("uuid", uuid).Order("id desc").Offset(index * 20).Limit(20).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get column content review from db: page(%v), uuid(%s)", page, uuid))
 	}

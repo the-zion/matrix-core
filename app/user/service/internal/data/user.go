@@ -35,7 +35,7 @@ func NewUserRepo(data *Data, logger log.Logger) biz.UserRepo {
 
 func (r *userRepo) GetAccount(ctx context.Context, uuid string) (*biz.User, error) {
 	user := &User{}
-	err := r.data.db.WithContext(ctx).Where("uuid = ?", uuid).First(user).Error
+	err := r.data.db.WithContext(ctx).Select("password", "phone", "email", "wechat", "qq", "github", "gitee").Where("uuid = ?", uuid).First(user).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, kerrors.NotFound("user not found from db", fmt.Sprintf("uuid(%v)", uuid))
 	}
@@ -169,7 +169,7 @@ func (r *userRepo) getProfileListFromCache(ctx context.Context, exists []string,
 
 func (r *userRepo) getProfileListFromDb(ctx context.Context, unExists []string, profileList *[]*biz.Profile) error {
 	list := make([]*Profile, 0, cap(unExists))
-	err := r.data.db.WithContext(ctx).Where("uuid IN ?", unExists).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("uuid", "username", "introduce").Where("uuid IN ?", unExists).Find(&list).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to get profile list from db: uuids(%v)", unExists))
 	}
@@ -286,7 +286,7 @@ func (r *userRepo) getFollowFromDB(ctx context.Context, page int32, uuid string)
 	}
 	index := int(page - 1)
 	list := make([]*Follow, 0)
-	handle := r.data.db.WithContext(ctx).Where("followed = ? and status = ?", uuid, 1).Order("updated_at desc").Offset(index * 10).Limit(10).Find(&list)
+	handle := r.data.db.WithContext(ctx).Select("follow", "id", "updated_at").Where("followed = ? and status = ?", uuid, 1).Order("updated_at desc").Offset(index * 10).Limit(10).Find(&list)
 	err := handle.Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get follow list from db: uuid(%s)", uuid))
@@ -382,7 +382,7 @@ func (r *userRepo) getFollowedFromDB(ctx context.Context, page int32, uuid strin
 	}
 	index := int(page - 1)
 	list := make([]*Follow, 0)
-	handle := r.data.db.WithContext(ctx).Where("follow = ? and status = ?", uuid, 1).Order("updated_at desc").Offset(index * 10).Limit(10).Find(&list)
+	handle := r.data.db.WithContext(ctx).Select("followed", "id", "updated_at").Where("follow = ? and status = ?", uuid, 1).Order("updated_at desc").Offset(index * 10).Limit(10).Find(&list)
 	err := handle.Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get followed list from db: uuid(%s)", uuid))
@@ -690,7 +690,7 @@ func (r *userRepo) getProfileFromCache(ctx context.Context, key string) (*Profil
 
 func (r *userRepo) GetUserFollow(ctx context.Context, uuid, userUuid string) (bool, error) {
 	f := &Follow{}
-	err := r.data.db.WithContext(ctx).Where("follow = ? and followed = ? and status = ?", uuid, userUuid, 1).First(f).Error
+	err := r.data.db.WithContext(ctx).Select("id").Where("follow = ? and followed = ? and status = ?", uuid, userUuid, 1).First(f).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return false, nil
 	}
@@ -736,7 +736,7 @@ func (r *userRepo) getUserFollowsFromCache(ctx context.Context, uuid string) ([]
 
 func (r *userRepo) getUserFollowsFromDB(ctx context.Context, uuid string) ([]string, error) {
 	list := make([]*Follow, 0)
-	err := r.data.db.WithContext(ctx).Where("followed = ? and status = 1", uuid).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("follow").Where("followed = ? and status = 1", uuid).Find(&list).Error
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get user follows from db: uuid(%s)", uuid))
 	}
