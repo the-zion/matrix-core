@@ -65,6 +65,6 @@ type CoverReview struct {
 type Follow struct {
 	gorm.Model
 	Follow   string `gorm:"uniqueIndex:idx_follow;size:20"`
-	Followed string `gorm:"uniqueIndex:idx_follow;size:20"`
+	Followed string `gorm:"uniqueIndex:idx_follow;index;size:20"`
 	Status   int32
 }

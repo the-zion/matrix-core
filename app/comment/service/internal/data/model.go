@@ -27,7 +27,7 @@ type Comment struct {
 type CommentAgree struct {
 	gorm.Model
 	CommentId int32  `gorm:"uniqueIndex:idx_unique"`
-	Uuid      string `gorm:"uniqueIndex:idx_unique;size:20"`
+	Uuid      string `gorm:"uniqueIndex:idx_unique;index;size:20"`
 	Status    int32  `gorm:"default:1"`
 }
 

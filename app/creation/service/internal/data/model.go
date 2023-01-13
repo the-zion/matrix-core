@@ -127,42 +127,42 @@ type TalkDraft struct {
 type ArticleAgree struct {
 	gorm.Model
 	ArticleId int32  `gorm:"uniqueIndex:idx_unique"`
-	Uuid      string `gorm:"uniqueIndex:idx_unique;size:20"`
+	Uuid      string `gorm:"uniqueIndex:idx_unique;index;size:20"`
 	Status    int32  `gorm:"default:1"`
 }
 
 type ArticleCollect struct {
 	gorm.Model
 	ArticleId int32  `gorm:"uniqueIndex:idx_unique"`
-	Uuid      string `gorm:"uniqueIndex:idx_unique;size:20"`
+	Uuid      string `gorm:"uniqueIndex:idx_unique;index;size:20"`
 	Status    int32  `gorm:"default:1"`
 }
 
 type TalkAgree struct {
 	gorm.Model
 	TalkId int32  `gorm:"uniqueIndex:idx_unique"`
-	Uuid   string `gorm:"uniqueIndex:idx_unique;size:20"`
+	Uuid   string `gorm:"uniqueIndex:idx_unique;index;size:20"`
 	Status int32  `gorm:"default:1"`
 }
 
 type TalkCollect struct {
 	gorm.Model
 	TalkId int32  `gorm:"uniqueIndex:idx_unique"`
-	Uuid   string `gorm:"uniqueIndex:idx_unique;size:20"`
+	Uuid   string `gorm:"uniqueIndex:idx_unique;index;size:20"`
 	Status int32  `gorm:"default:1"`
 }
 
 type ColumnAgree struct {
 	gorm.Model
 	ColumnId int32  `gorm:"uniqueIndex:idx_unique"`
-	Uuid     string `gorm:"uniqueIndex:idx_unique;size:20"`
+	Uuid     string `gorm:"uniqueIndex:idx_unique;index;size:20"`
 	Status   int32  `gorm:"default:1"`
 }
 
 type ColumnCollect struct {
 	gorm.Model
 	ColumnId int32  `gorm:"uniqueIndex:idx_unique"`
-	Uuid     string `gorm:"uniqueIndex:idx_unique;size:20"`
+	Uuid     string `gorm:"uniqueIndex:idx_unique;index;size:20"`
 	Status   int32  `gorm:"default:1"`
 }
 
@@ -179,12 +179,12 @@ type Collections struct {
 }
 
 type Collect struct {
-	CollectionsId int32 `gorm:"primarykey"`
+	CollectionsId int32 `gorm:"primarykey;index"`
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 	DeletedAt     gorm.DeletedAt `gorm:"index"`
 	Uuid          string         `gorm:"size:20"`
-	CreationsId   int32          `gorm:"primarykey"`
+	CreationsId   int32          `gorm:"primarykey;index"`
 	Mode          int32          `gorm:"primarykey;default:1"`
 	Status        int32          `gorm:"default:1"`
 }
