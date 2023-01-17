@@ -106,6 +106,7 @@ const OperationBffGetMailBoxLastTime = "/bff.v1.Bff/GetMailBoxLastTime"
 const OperationBffGetMessageNotification = "/bff.v1.Bff/GetMessageNotification"
 const OperationBffGetMessageSystemNotification = "/bff.v1.Bff/GetMessageSystemNotification"
 const OperationBffGetNews = "/bff.v1.Bff/GetNews"
+const OperationBffGetNewsSearch = "/bff.v1.Bff/GetNewsSearch"
 const OperationBffGetProfile = "/bff.v1.Bff/GetProfile"
 const OperationBffGetProfileList = "/bff.v1.Bff/GetProfileList"
 const OperationBffGetProfileUpdate = "/bff.v1.Bff/GetProfileUpdate"
@@ -303,6 +304,7 @@ type BffHTTPServer interface {
 	GetMessageNotification(context.Context, *emptypb.Empty) (*GetMessageNotificationReply, error)
 	GetMessageSystemNotification(context.Context, *GetMessageSystemNotificationReq) (*GetMessageSystemNotificationReply, error)
 	GetNews(context.Context, *GetNewsReq) (*GetNewsReply, error)
+	GetNewsSearch(context.Context, *GetNewsSearchReq) (*GetNewsSearchReply, error)
 	GetProfile(context.Context, *emptypb.Empty) (*GetProfileReply, error)
 	GetProfileList(context.Context, *GetProfileListReq) (*GetProfileListReply, error)
 	GetProfileUpdate(context.Context, *emptypb.Empty) (*GetProfileUpdateReply, error)
@@ -571,6 +573,7 @@ func RegisterBffHTTPServer(s *http.Server, srv BffHTTPServer) {
 	r.POST("/v1/add/column/includes", _Bff_AddColumnIncludes0_HTTP_Handler(srv))
 	r.POST("/v1/delete/column/includes", _Bff_DeleteColumnIncludes0_HTTP_Handler(srv))
 	r.GET("/v1/get/news", _Bff_GetNews0_HTTP_Handler(srv))
+	r.GET("/v1/get/news/search", _Bff_GetNewsSearch0_HTTP_Handler(srv))
 	r.GET("/v1/get/achievement/list", _Bff_GetAchievementList0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/achievement", _Bff_GetUserAchievement0_HTTP_Handler(srv))
 	r.GET("/v1/get/user/medal", _Bff_GetUserMedal0_HTTP_Handler(srv))
@@ -3558,6 +3561,25 @@ func _Bff_GetNews0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error 
 	}
 }
 
+func _Bff_GetNewsSearch0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetNewsSearchReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBffGetNewsSearch)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetNewsSearch(ctx, req.(*GetNewsSearchReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetNewsSearchReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _Bff_GetAchievementList0_HTTP_Handler(srv BffHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in GetAchievementListReq
@@ -4405,6 +4427,7 @@ type BffHTTPClient interface {
 	GetMessageNotification(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetMessageNotificationReply, err error)
 	GetMessageSystemNotification(ctx context.Context, req *GetMessageSystemNotificationReq, opts ...http.CallOption) (rsp *GetMessageSystemNotificationReply, err error)
 	GetNews(ctx context.Context, req *GetNewsReq, opts ...http.CallOption) (rsp *GetNewsReply, err error)
+	GetNewsSearch(ctx context.Context, req *GetNewsSearchReq, opts ...http.CallOption) (rsp *GetNewsSearchReply, err error)
 	GetProfile(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetProfileReply, err error)
 	GetProfileList(ctx context.Context, req *GetProfileListReq, opts ...http.CallOption) (rsp *GetProfileListReply, err error)
 	GetProfileUpdate(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetProfileUpdateReply, err error)
@@ -5634,6 +5657,19 @@ func (c *BffHTTPClientImpl) GetNews(ctx context.Context, in *GetNewsReq, opts ..
 	pattern := "/v1/get/news"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationBffGetNews))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BffHTTPClientImpl) GetNewsSearch(ctx context.Context, in *GetNewsSearchReq, opts ...http.CallOption) (*GetNewsSearchReply, error) {
+	var out GetNewsSearchReply
+	pattern := "/v1/get/news/search"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationBffGetNewsSearch))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

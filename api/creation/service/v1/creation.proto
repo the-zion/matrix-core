@@ -336,6 +336,8 @@ service Creation {
 
   rpc GetNews(GetNewsReq) returns (GetNewsReply){}
 
+  rpc GetNewsSearch(GetNewsSearchReq)returns (GetNewsSearchReply){}
+
   rpc AddCreationComment(AddCreationCommentReq) returns (google.protobuf.Empty){}
 
   rpc ReduceCreationComment(ReduceCreationCommentReq) returns (google.protobuf.Empty){}
@@ -1605,6 +1607,25 @@ message GetNewsReply{
     string url = 8;
   }
   repeated News news = 1;
+}
+
+message GetNewsSearchReq{
+  int32 page = 1;
+  string search = 2;
+  string time = 3;
+}
+
+message GetNewsSearchReply{
+  message List{
+    string id = 1;
+    string title = 2;
+    string tags = 3;
+    string author = 4;
+    string update = 6;
+    string url = 7;
+  }
+  repeated List list = 1;
+  int32 total = 2;
 }
 
 message AddCreationCommentReq{

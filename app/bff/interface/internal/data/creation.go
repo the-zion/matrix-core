@@ -2062,3 +2062,26 @@ func (r *newsRepo) GetNews(ctx context.Context, page int32) ([]*biz.News, error)
 	}
 	return reply, nil
 }
+
+func (r *newsRepo) GetNewsSearch(ctx context.Context, page int32, search, time string) ([]*biz.News, int32, error) {
+	searchReply, err := r.data.cc.GetNewsSearch(ctx, &creationV1.GetNewsSearchReq{
+		Page:   page,
+		Search: search,
+		Time:   time,
+	})
+	if err != nil {
+		return nil, 0, err
+	}
+	reply := make([]*biz.News, 0, len(searchReply.List))
+	for _, item := range searchReply.List {
+		reply = append(reply, &biz.News{
+			Id:     item.Id,
+			Tags:   item.Tags,
+			Title:  item.Title,
+			Author: item.Author,
+			Update: item.Update,
+			Url:    item.Url,
+		})
+	}
+	return reply, searchReply.Total, nil
+}

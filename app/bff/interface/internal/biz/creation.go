@@ -129,6 +129,7 @@ type ColumnRepo interface {
 
 type NewsRepo interface {
 	GetNews(ctx context.Context, page int32) ([]*News, error)
+	GetNewsSearch(ctx context.Context, page int32, search, time string) ([]*News, int32, error)
 }
 
 type CreationUseCase struct {
@@ -1265,4 +1266,12 @@ func (r *ColumnUseCase) DeleteColumnIncludes(ctx context.Context, id, articleId 
 
 func (r *NewsUseCase) GetNews(ctx context.Context, page int32) ([]*News, error) {
 	return r.repo.GetNews(ctx, page)
+}
+
+func (r *NewsUseCase) GetNewsSearch(ctx context.Context, page int32, search, time string) ([]*News, int32, error) {
+	newsList, total, err := r.repo.GetNewsSearch(ctx, page, search, time)
+	if err != nil {
+		return nil, 0, err
+	}
+	return newsList, total, nil
 }

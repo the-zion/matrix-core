@@ -611,6 +611,18 @@ func ErrorGetNewsFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, CreationErrorReason_GET_NEWS_FAILED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsGetNewsSearchFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == CreationErrorReason_GET_NEWS_SEARCH_FAILED.String() && e.Code == 500
+}
+
+func ErrorGetNewsSearchFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, CreationErrorReason_GET_NEWS_SEARCH_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsSetAgreeFailed(err error) bool {
 	if err == nil {
 		return false

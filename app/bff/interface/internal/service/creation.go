@@ -1463,3 +1463,23 @@ func (s *BffService) GetNews(ctx context.Context, req *v1.GetNewsReq) (*v1.GetNe
 	}
 	return reply, nil
 }
+
+func (s *BffService) GetNewsSearch(ctx context.Context, req *v1.GetNewsSearchReq) (*v1.GetNewsSearchReply, error) {
+	newsList, total, err := s.nc.GetNewsSearch(ctx, req.Page, req.Search, req.Time)
+	if err != nil {
+		return nil, err
+	}
+	reply := &v1.GetNewsSearchReply{List: make([]*v1.GetNewsSearchReply_List, 0, len(newsList))}
+	for _, item := range newsList {
+		reply.List = append(reply.List, &v1.GetNewsSearchReply_List{
+			Id:     item.Id,
+			Tags:   item.Tags,
+			Title:  item.Title,
+			Author: item.Author,
+			Update: item.Update,
+			Url:    item.Url,
+		})
+	}
+	reply.Total = total
+	return reply, nil
+}

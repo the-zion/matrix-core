@@ -179,6 +179,7 @@ type BffClient interface {
 	AddColumnIncludes(ctx context.Context, in *AddColumnIncludesReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteColumnIncludes(ctx context.Context, in *DeleteColumnIncludesReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetNews(ctx context.Context, in *GetNewsReq, opts ...grpc.CallOption) (*GetNewsReply, error)
+	GetNewsSearch(ctx context.Context, in *GetNewsSearchReq, opts ...grpc.CallOption) (*GetNewsSearchReply, error)
 	GetAchievementList(ctx context.Context, in *GetAchievementListReq, opts ...grpc.CallOption) (*GetAchievementListReply, error)
 	GetUserAchievement(ctx context.Context, in *GetUserAchievementReq, opts ...grpc.CallOption) (*GetUserAchievementReply, error)
 	GetUserMedal(ctx context.Context, in *GetUserMedalReq, opts ...grpc.CallOption) (*GetUserMedalReply, error)
@@ -1624,6 +1625,15 @@ func (c *bffClient) GetNews(ctx context.Context, in *GetNewsReq, opts ...grpc.Ca
 	return out, nil
 }
 
+func (c *bffClient) GetNewsSearch(ctx context.Context, in *GetNewsSearchReq, opts ...grpc.CallOption) (*GetNewsSearchReply, error) {
+	out := new(GetNewsSearchReply)
+	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetNewsSearch", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bffClient) GetAchievementList(ctx context.Context, in *GetAchievementListReq, opts ...grpc.CallOption) (*GetAchievementListReply, error) {
 	out := new(GetAchievementListReply)
 	err := c.cc.Invoke(ctx, "/bff.v1.Bff/GetAchievementList", in, out, opts...)
@@ -2144,6 +2154,7 @@ type BffServer interface {
 	AddColumnIncludes(context.Context, *AddColumnIncludesReq) (*emptypb.Empty, error)
 	DeleteColumnIncludes(context.Context, *DeleteColumnIncludesReq) (*emptypb.Empty, error)
 	GetNews(context.Context, *GetNewsReq) (*GetNewsReply, error)
+	GetNewsSearch(context.Context, *GetNewsSearchReq) (*GetNewsSearchReply, error)
 	GetAchievementList(context.Context, *GetAchievementListReq) (*GetAchievementListReply, error)
 	GetUserAchievement(context.Context, *GetUserAchievementReq) (*GetUserAchievementReply, error)
 	GetUserMedal(context.Context, *GetUserMedalReq) (*GetUserMedalReply, error)
@@ -2655,6 +2666,9 @@ func (UnimplementedBffServer) DeleteColumnIncludes(context.Context, *DeleteColum
 }
 func (UnimplementedBffServer) GetNews(context.Context, *GetNewsReq) (*GetNewsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetNews not implemented")
+}
+func (UnimplementedBffServer) GetNewsSearch(context.Context, *GetNewsSearchReq) (*GetNewsSearchReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetNewsSearch not implemented")
 }
 func (UnimplementedBffServer) GetAchievementList(context.Context, *GetAchievementListReq) (*GetAchievementListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAchievementList not implemented")
@@ -5579,6 +5593,24 @@ func _Bff_GetNews_Handler(srv interface{}, ctx context.Context, dec func(interfa
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bff_GetNewsSearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetNewsSearchReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BffServer).GetNewsSearch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bff.v1.Bff/GetNewsSearch",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BffServer).GetNewsSearch(ctx, req.(*GetNewsSearchReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Bff_GetAchievementList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetAchievementListReq)
 	if err := dec(in); err != nil {
@@ -6925,6 +6957,10 @@ var Bff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetNews",
 			Handler:    _Bff_GetNews_Handler,
+		},
+		{
+			MethodName: "GetNewsSearch",
+			Handler:    _Bff_GetNewsSearch_Handler,
 		},
 		{
 			MethodName: "GetAchievementList",

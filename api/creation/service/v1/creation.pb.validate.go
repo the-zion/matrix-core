@@ -24371,6 +24371,250 @@ var _ interface {
 	ErrorName() string
 } = GetNewsReplyValidationError{}
 
+// Validate checks the field values on GetNewsSearchReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *GetNewsSearchReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetNewsSearchReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetNewsSearchReqMultiError, or nil if none found.
+func (m *GetNewsSearchReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetNewsSearchReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Page
+
+	// no validation rules for Search
+
+	// no validation rules for Time
+
+	if len(errors) > 0 {
+		return GetNewsSearchReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetNewsSearchReqMultiError is an error wrapping multiple validation errors
+// returned by GetNewsSearchReq.ValidateAll() if the designated constraints
+// aren't met.
+type GetNewsSearchReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetNewsSearchReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetNewsSearchReqMultiError) AllErrors() []error { return m }
+
+// GetNewsSearchReqValidationError is the validation error returned by
+// GetNewsSearchReq.Validate if the designated constraints aren't met.
+type GetNewsSearchReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetNewsSearchReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetNewsSearchReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetNewsSearchReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetNewsSearchReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetNewsSearchReqValidationError) ErrorName() string { return "GetNewsSearchReqValidationError" }
+
+// Error satisfies the builtin error interface
+func (e GetNewsSearchReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetNewsSearchReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetNewsSearchReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetNewsSearchReqValidationError{}
+
+// Validate checks the field values on GetNewsSearchReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetNewsSearchReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetNewsSearchReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetNewsSearchReplyMultiError, or nil if none found.
+func (m *GetNewsSearchReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetNewsSearchReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetList() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetNewsSearchReplyValidationError{
+						field:  fmt.Sprintf("List[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetNewsSearchReplyValidationError{
+						field:  fmt.Sprintf("List[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetNewsSearchReplyValidationError{
+					field:  fmt.Sprintf("List[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	// no validation rules for Total
+
+	if len(errors) > 0 {
+		return GetNewsSearchReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetNewsSearchReplyMultiError is an error wrapping multiple validation errors
+// returned by GetNewsSearchReply.ValidateAll() if the designated constraints
+// aren't met.
+type GetNewsSearchReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetNewsSearchReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetNewsSearchReplyMultiError) AllErrors() []error { return m }
+
+// GetNewsSearchReplyValidationError is the validation error returned by
+// GetNewsSearchReply.Validate if the designated constraints aren't met.
+type GetNewsSearchReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetNewsSearchReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetNewsSearchReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetNewsSearchReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetNewsSearchReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetNewsSearchReplyValidationError) ErrorName() string {
+	return "GetNewsSearchReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetNewsSearchReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetNewsSearchReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetNewsSearchReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetNewsSearchReplyValidationError{}
+
 // Validate checks the field values on AddCreationCommentReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -27603,3 +27847,117 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetNewsReply_NewsValidationError{}
+
+// Validate checks the field values on GetNewsSearchReply_List with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetNewsSearchReply_List) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetNewsSearchReply_List with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetNewsSearchReply_ListMultiError, or nil if none found.
+func (m *GetNewsSearchReply_List) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetNewsSearchReply_List) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Title
+
+	// no validation rules for Tags
+
+	// no validation rules for Author
+
+	// no validation rules for Update
+
+	// no validation rules for Url
+
+	if len(errors) > 0 {
+		return GetNewsSearchReply_ListMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetNewsSearchReply_ListMultiError is an error wrapping multiple validation
+// errors returned by GetNewsSearchReply_List.ValidateAll() if the designated
+// constraints aren't met.
+type GetNewsSearchReply_ListMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetNewsSearchReply_ListMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetNewsSearchReply_ListMultiError) AllErrors() []error { return m }
+
+// GetNewsSearchReply_ListValidationError is the validation error returned by
+// GetNewsSearchReply_List.Validate if the designated constraints aren't met.
+type GetNewsSearchReply_ListValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetNewsSearchReply_ListValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetNewsSearchReply_ListValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetNewsSearchReply_ListValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetNewsSearchReply_ListValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetNewsSearchReply_ListValidationError) ErrorName() string {
+	return "GetNewsSearchReply_ListValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetNewsSearchReply_ListValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetNewsSearchReply_List.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetNewsSearchReply_ListValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetNewsSearchReply_ListValidationError{}

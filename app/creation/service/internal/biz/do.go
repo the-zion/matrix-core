@@ -190,6 +190,15 @@ type ColumnSearch struct {
 	Update    string
 }
 
+type NewsSearch struct {
+	Id     string
+	Update string
+	Title  string
+	Author string
+	Tags   string
+	Url    string
+}
+
 type CreationUser struct {
 	Article     int32
 	Column      int32

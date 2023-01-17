@@ -186,6 +186,7 @@ type CreationClient interface {
 	SetColumnSubscribeDbAndCache(ctx context.Context, in *SetColumnSubscribeDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CancelColumnSubscribeDbAndCache(ctx context.Context, in *CancelColumnSubscribeDbAndCacheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetNews(ctx context.Context, in *GetNewsReq, opts ...grpc.CallOption) (*GetNewsReply, error)
+	GetNewsSearch(ctx context.Context, in *GetNewsSearchReq, opts ...grpc.CallOption) (*GetNewsSearchReply, error)
 	AddCreationComment(ctx context.Context, in *AddCreationCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ReduceCreationComment(ctx context.Context, in *ReduceCreationCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetHealth(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -1666,6 +1667,15 @@ func (c *creationClient) GetNews(ctx context.Context, in *GetNewsReq, opts ...gr
 	return out, nil
 }
 
+func (c *creationClient) GetNewsSearch(ctx context.Context, in *GetNewsSearchReq, opts ...grpc.CallOption) (*GetNewsSearchReply, error) {
+	out := new(GetNewsSearchReply)
+	err := c.cc.Invoke(ctx, "/creation.v1.Creation/GetNewsSearch", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *creationClient) AddCreationComment(ctx context.Context, in *AddCreationCommentReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/creation.v1.Creation/AddCreationComment", in, out, opts...)
@@ -1860,6 +1870,7 @@ type CreationServer interface {
 	SetColumnSubscribeDbAndCache(context.Context, *SetColumnSubscribeDbAndCacheReq) (*emptypb.Empty, error)
 	CancelColumnSubscribeDbAndCache(context.Context, *CancelColumnSubscribeDbAndCacheReq) (*emptypb.Empty, error)
 	GetNews(context.Context, *GetNewsReq) (*GetNewsReply, error)
+	GetNewsSearch(context.Context, *GetNewsSearchReq) (*GetNewsSearchReply, error)
 	AddCreationComment(context.Context, *AddCreationCommentReq) (*emptypb.Empty, error)
 	ReduceCreationComment(context.Context, *ReduceCreationCommentReq) (*emptypb.Empty, error)
 	GetHealth(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
@@ -2358,6 +2369,9 @@ func (UnimplementedCreationServer) CancelColumnSubscribeDbAndCache(context.Conte
 }
 func (UnimplementedCreationServer) GetNews(context.Context, *GetNewsReq) (*GetNewsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetNews not implemented")
+}
+func (UnimplementedCreationServer) GetNewsSearch(context.Context, *GetNewsSearchReq) (*GetNewsSearchReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetNewsSearch not implemented")
 }
 func (UnimplementedCreationServer) AddCreationComment(context.Context, *AddCreationCommentReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddCreationComment not implemented")
@@ -5315,6 +5329,24 @@ func _Creation_GetNews_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Creation_GetNewsSearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetNewsSearchReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreationServer).GetNewsSearch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/creation.v1.Creation/GetNewsSearch",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreationServer).GetNewsSearch(ctx, req.(*GetNewsSearchReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Creation_AddCreationComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddCreationCommentReq)
 	if err := dec(in); err != nil {
@@ -6027,6 +6059,10 @@ var Creation_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetNews",
 			Handler:    _Creation_GetNews_Handler,
+		},
+		{
+			MethodName: "GetNewsSearch",
+			Handler:    _Creation_GetNewsSearch_Handler,
 		},
 		{
 			MethodName: "AddCreationComment",
