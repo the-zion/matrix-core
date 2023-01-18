@@ -26,8 +26,8 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logLogger log.Logger,
 	client := data.NewCosServiceClient(confData)
 	elasticSearch := data.NewElasticsearch(confData)
 	mqPro := data.NewRocketmqProducer(confData)
-	news := data.NewNewsClient(confData)
-	dataData, cleanup2, err := data.NewData(db, cmdable, client, elasticSearch, mqPro, news, logLogger)
+	newsClient := data.NewNewsClient(confData)
+	dataData, cleanup2, err := data.NewData(db, cmdable, client, elasticSearch, mqPro, newsClient, logLogger)
 	if err != nil {
 		return nil, nil, err
 	}
