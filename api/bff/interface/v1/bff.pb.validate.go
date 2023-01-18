@@ -31556,20 +31556,6 @@ func (m *GetNewsReply_News) validate(all bool) error {
 
 	// no validation rules for Id
 
-	// no validation rules for Update
-
-	// no validation rules for Author
-
-	// no validation rules for Title
-
-	// no validation rules for Text
-
-	// no validation rules for Tags
-
-	// no validation rules for Cover
-
-	// no validation rules for Url
-
 	if len(errors) > 0 {
 		return GetNewsReply_NewsMultiError(errors)
 	}
@@ -31683,6 +31669,10 @@ func (m *GetNewsSearchReply_List) validate(all bool) error {
 	// no validation rules for Update
 
 	// no validation rules for Url
+
+	// no validation rules for Content
+
+	// no validation rules for Cover
 
 	if len(errors) > 0 {
 		return GetNewsSearchReply_ListMultiError(errors)

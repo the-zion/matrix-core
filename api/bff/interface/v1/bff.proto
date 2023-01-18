@@ -2534,13 +2534,6 @@ message GetNewsReq{
 message GetNewsReply{
   message News{
     string id = 1;
-    string update = 2;
-    string author = 3;
-    string title = 4;
-    string text = 5;
-    string tags = 6;
-    string cover = 7;
-    string url = 8;
   }
   repeated News news = 1;
 }
@@ -2559,6 +2552,8 @@ message GetNewsSearchReply{
     string author = 4;
     string update = 6;
     string url = 7;
+    string content = 8;
+    string cover = 9;
   }
   repeated List list = 1;
   int32 total = 2;
