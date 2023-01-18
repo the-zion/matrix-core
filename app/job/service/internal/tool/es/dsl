@@ -1,0 +1,27 @@
+PUT news
+{
+  "mappings": {
+    "properties": {
+      "title": {
+        "type": "text",
+        "analyzer": "thulac"
+      },
+      "tags": {
+        "type": "text",
+        "analyzer": "thulac"
+      },
+      "author": {
+        "type": "text",
+        "index": false
+      },
+      "link": {
+        "type": "text",
+        "index": false
+      },
+      "update": {
+        "type": "date",
+        "format": "yyyy-M-d"
+      }
+    }
+  }
+}
