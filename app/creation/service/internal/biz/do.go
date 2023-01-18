@@ -191,12 +191,14 @@ type ColumnSearch struct {
 }
 
 type NewsSearch struct {
-	Id     string
-	Update string
-	Title  string
-	Author string
-	Tags   string
-	Url    string
+	Id      string
+	Update  string
+	Title   string
+	Author  string
+	Tags    string
+	Url     string
+	Content string
+	Cover   string
 }
 
 type CreationUser struct {
