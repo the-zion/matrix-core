@@ -6,12 +6,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-redis/redis/v8"
 	"github.com/pkg/errors"
 	"github.com/the-zion/matrix-core/app/creation/service/internal/biz"
-	"io/ioutil"
-	"net/http"
 	"strconv"
-	"strings"
+	"time"
 )
 
 var _ biz.NewsRepo = (*newRepo)(nil)
@@ -28,49 +27,91 @@ func NewNewsRepo(data *Data, logger log.Logger) biz.NewsRepo {
 	}
 }
 
-func (r *newRepo) GetNews(_ context.Context, page int32) ([]*biz.News, error) {
-	data := map[string]interface{}{}
-	url := r.data.newsCli.url + strconv.Itoa(int(page))
-	method := "GET"
-	client := &http.Client{}
-
-	req, err := http.NewRequest(method, url, nil)
+func (r *newRepo) GetNews(ctx context.Context, page int32) ([]*biz.News, error) {
+	news, err := r.getNewsFromCache(ctx, page)
 	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("fail to new a request: page(%v)", page))
+		return nil, err
 	}
 
-	res, err := client.Do(req)
-	defer res.Body.Close()
-	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get news: page(%v)", page))
+	size := len(news)
+	if size != 0 {
+		return news, nil
 	}
 
-	body, err := ioutil.ReadAll(res.Body)
-	err = json.Unmarshal(body, &data)
+	news, err = r.getNewsFromDB(ctx, page)
 	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("fail to unmarshal news: page(%v)", page))
+		return nil, err
 	}
 
-	news := make([]*biz.News, 0, len(data["Data"].([]interface{})))
-	for _, item := range data["Data"].([]interface{}) {
+	size = len(news)
+	if size != 0 {
+		newCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		go r.data.Recover(newCtx, func(ctx context.Context) {
+			r.setArticleToCache("news", news)
+		})()
+	}
+	return news, nil
+}
+
+func (r *newRepo) getNewsFromCache(ctx context.Context, page int32) ([]*biz.News, error) {
+	if page < 1 {
+		page = 1
+	}
+	index := int64(page - 1)
+	list, err := r.data.redisCli.ZRevRange(ctx, "news", index*10, index*10+9).Result()
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get news from cache: key(%s), page(%v)", "news", page))
+	}
+
+	news := make([]*biz.News, 0, len(list))
+	for _, item := range list {
 		news = append(news, &biz.News{
-			Id:     item.(map[string]interface{})["ArticleId"].(string),
-			Update: item.(map[string]interface{})["CreateDateTime"].(string),
-			Title:  item.(map[string]interface{})["ArticleTitle"].(string),
-			Author: item.(map[string]interface{})["ArticleAuthor"].(string),
-			Tags:   r.getTags(item.(map[string]interface{})["Tags"].([]interface{})),
-			Url:    item.(map[string]interface{})["ArticleSourceUrl"].(string),
+			Id: item,
 		})
 	}
 	return news, nil
 }
 
-func (r *newRepo) getTags(tags []interface{}) string {
-	box := make([]string, 0, len(tags))
-	for _, item := range tags {
-		box = append(box, item.(map[string]interface{})["TagName"].(string))
+func (r *newRepo) getNewsFromDB(ctx context.Context, page int32) ([]*biz.News, error) {
+	if page < 1 {
+		page = 1
 	}
-	return strings.Join(box, `;`)
+	index := int(page - 1)
+	list := make([]*News, 0)
+	err := r.data.db.WithContext(ctx).Select("id").Order("article_id desc").Offset(index * 10).Limit(10).Find(&list).Error
+	if err != nil {
+		return nil, errors.Wrapf(err, fmt.Sprintf("fail to get news from db: page(%v)", page))
+	}
+
+	news := make([]*biz.News, 0, len(list))
+	for _, item := range list {
+		news = append(news, &biz.News{
+			Id: item.Id,
+		})
+	}
+	return news, nil
+}
+
+func (r *newRepo) setArticleToCache(key string, news []*biz.News) {
+	ctx := context.Background()
+	_, err := r.data.redisCli.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		z := make([]*redis.Z, 0, len(news))
+		for _, item := range news {
+			id, err := strconv.Atoi(item.Id)
+			if err != nil {
+				return errors.Wrapf(err, fmt.Sprintf("cannot convert id %s from string to int", item.Id))
+			}
+			z = append(z, &redis.Z{
+				Score:  float64(id),
+				Member: item.Id,
+			})
+		}
+		pipe.ZAddNX(ctx, key, z...)
+		return nil
+	})
+	if err != nil {
+		r.log.Errorf("fail to set news to cache: news(%v), err(%v)", news, err)
+	}
 }
 
 func (r *newRepo) GetNewsSearch(ctx context.Context, page int32, search, time string) ([]*biz.NewsSearch, int32, error) {
@@ -86,13 +127,13 @@ func (r *newRepo) GetNewsSearch(ctx context.Context, page int32, search, time st
 		body = map[string]interface{}{
 			"from":    index * 10,
 			"size":    10,
-			"_source": []string{"update", "tags", "author", "url"},
+			"_source": []string{"update", "tags", "author", "url", "cover"},
 			"query": map[string]interface{}{
 				"bool": map[string]interface{}{
 					"must": []map[string]interface{}{
 						{"multi_match": map[string]interface{}{
 							"query":  search,
-							"fields": []string{"tags", "title"},
+							"fields": []string{"tags", "title", "content"},
 						}},
 					},
 					"filter": map[string]interface{}{
@@ -104,6 +145,13 @@ func (r *newRepo) GetNewsSearch(ctx context.Context, page int32, search, time st
 			},
 			"highlight": map[string]interface{}{
 				"fields": map[string]interface{}{
+					"content": map[string]interface{}{
+						"fragment_size":       300,
+						"number_of_fragments": 1,
+						"no_match_size":       300,
+						"pre_tags":            "<span style='color:red'>",
+						"post_tags":           "</span>",
+					},
 					"title": map[string]interface{}{
 						"pre_tags":      "<span style='color:red'>",
 						"post_tags":     "</span>",
@@ -116,7 +164,7 @@ func (r *newRepo) GetNewsSearch(ctx context.Context, page int32, search, time st
 		body = map[string]interface{}{
 			"from":    index * 10,
 			"size":    10,
-			"_source": []string{"update", "tags", "author", "url"},
+			"_source": []string{"update", "tags", "author", "url", "cover"},
 			"query": map[string]interface{}{
 				"bool": map[string]interface{}{
 					"must": []map[string]interface{}{
@@ -131,6 +179,13 @@ func (r *newRepo) GetNewsSearch(ctx context.Context, page int32, search, time st
 			},
 			"highlight": map[string]interface{}{
 				"fields": map[string]interface{}{
+					"content": map[string]interface{}{
+						"fragment_size":       300,
+						"number_of_fragments": 1,
+						"no_match_size":       300,
+						"pre_tags":            "<span style='color:red'>",
+						"post_tags":           "</span>",
+					},
 					"title": map[string]interface{}{
 						"pre_tags":      "<span style='color:red'>",
 						"post_tags":     "</span>",
@@ -194,6 +249,11 @@ func (r *newRepo) GetNewsSearch(ctx context.Context, page int32, search, time st
 			Update: hit.(map[string]interface{})["_source"].(map[string]interface{})["update"].(string),
 			Author: hit.(map[string]interface{})["_source"].(map[string]interface{})["author"].(string),
 			Url:    hit.(map[string]interface{})["_source"].(map[string]interface{})["url"].(string),
+			Cover:  hit.(map[string]interface{})["_source"].(map[string]interface{})["cover"].(string),
+		}
+
+		if content, ok := hit.(map[string]interface{})["highlight"].(map[string]interface{})["content"]; ok {
+			news.Content = content.([]interface{})[0].(string)
 		}
 
 		if title, ok := hit.(map[string]interface{})["highlight"].(map[string]interface{})["title"]; ok {

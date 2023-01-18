@@ -13,14 +13,7 @@ func (s *CreationService) GetNews(ctx context.Context, req *v1.GetNewsReq) (*v1.
 	reply := &v1.GetNewsReply{News: make([]*v1.GetNewsReply_News, 0, len(newsList))}
 	for _, item := range newsList {
 		reply.News = append(reply.News, &v1.GetNewsReply_News{
-			Id:     item.Id,
-			Update: item.Update,
-			Title:  item.Title,
-			Author: item.Author,
-			Text:   item.Text,
-			Tags:   item.Tags,
-			Cover:  item.Cover,
-			Url:    item.Url,
+			Id: item.Id,
 		})
 	}
 	return reply, nil
@@ -34,12 +27,14 @@ func (s *CreationService) GetNewsSearch(ctx context.Context, req *v1.GetNewsSear
 	reply := &v1.GetNewsSearchReply{List: make([]*v1.GetNewsSearchReply_List, 0, len(newsList))}
 	for _, item := range newsList {
 		reply.List = append(reply.List, &v1.GetNewsSearchReply_List{
-			Id:     item.Id,
-			Tags:   item.Tags,
-			Title:  item.Title,
-			Author: item.Author,
-			Update: item.Update,
-			Url:    item.Url,
+			Id:      item.Id,
+			Tags:    item.Tags,
+			Title:   item.Title,
+			Author:  item.Author,
+			Update:  item.Update,
+			Url:     item.Url,
+			Content: item.Content,
+			Cover:   item.Cover,
 		})
 	}
 	reply.Total = total
