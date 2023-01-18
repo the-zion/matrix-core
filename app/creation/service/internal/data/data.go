@@ -30,7 +30,7 @@ type ElasticSearch struct {
 	es *elasticsearch.Client
 }
 
-type News struct {
+type NewsClient struct {
 	url string
 }
 
@@ -41,7 +41,7 @@ type Data struct {
 	mqPro         *MqPro
 	cosCli        *cos.Client
 	elasticSearch *ElasticSearch
-	newsCli       *News
+	newsCli       *NewsClient
 }
 
 type contextTxKey struct{}
@@ -198,13 +198,13 @@ func NewElasticsearch(conf *conf.Data) *ElasticSearch {
 	}
 }
 
-func NewNewsClient(conf *conf.Data) *News {
-	return &News{
+func NewNewsClient(conf *conf.Data) *NewsClient {
+	return &NewsClient{
 		url: conf.News.Url,
 	}
 }
 
-func NewData(db *gorm.DB, redisCmd redis.Cmdable, cos *cos.Client, es *ElasticSearch, mq *MqPro, news *News, logger log.Logger) (*Data, func(), error) {
+func NewData(db *gorm.DB, redisCmd redis.Cmdable, cos *cos.Client, es *ElasticSearch, mq *MqPro, news *NewsClient, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(log.GetLogger(), "module", "creation/data/new-data"))
 
 	d := &Data{
