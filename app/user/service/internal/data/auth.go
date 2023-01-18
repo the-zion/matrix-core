@@ -558,7 +558,8 @@ func (r *authRepo) userAvatarUpload(ctx context.Context, uuid, avatar string) {
 		},
 	}
 	opt.XOptionHeader.Add("Pic-Operations", cos.EncodePicOperations(pic))
-	_, err = r.data.cosCli.Object.Put(context.Background(), key, res.Body, opt)
+	ctxNew, _ := context.WithTimeout(context.Background(), time.Second*5)
+	_, err = r.data.cosCli.Object.Put(ctxNew, key, res.Body, opt)
 	if err != nil {
 		r.log.Errorf("fail to send github user avatar to cos, uuid(%s), avatar_url(%s), err(%v)", uuid, avatarUrl, err)
 	}
