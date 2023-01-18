@@ -280,6 +280,10 @@ type Subscribe struct {
 	Status    int32  `gorm:"default:1"`
 }
 
+type News struct {
+	Id string `gorm:"primarykey"`
+}
+
 type Record struct {
 	gorm.Model
 	Uuid       string `gorm:"size:20"`
