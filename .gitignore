@@ -45,4 +45,5 @@ log/
 
 # db schema update
 update/
+lua/
 
