@@ -93,3 +93,39 @@ PUT column
     }
   }
 }
+
+PUT news
+{
+  "mappings": {
+    "properties": {
+      "title": {
+        "type": "text",
+        "analyzer": "thulac"
+      },
+      "tags": {
+        "type": "text",
+        "analyzer": "thulac"
+      },
+      "content": {
+        "type": "text",
+        "analyzer": "thulac"
+      },
+      "cover": {
+        "type": "text",
+        "index": false
+      },
+      "author": {
+        "type": "text",
+        "index": false
+      },
+      "url": {
+        "type": "text",
+        "index": false
+      },
+      "update": {
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ss"
+      }
+    }
+  }
+}
