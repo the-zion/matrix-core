@@ -1,7 +1,5 @@
 package main
 
-import "sync"
-
 func main() {
 	log, err := logInit()
 	if err != nil {
@@ -49,52 +47,46 @@ func main() {
 }
 
 func setNews(news []*News, cosCli *CosClient, es *ElasticSearch, db *DB, redis *Redis, config map[string]interface{}, log *Log) {
-	group := sync.WaitGroup{}
 	for _, n := range news {
-		group.Add(1)
-		go func(n *News) {
-			defer group.Done()
-			item := convertToMap(n)
+		item := convertToMap(n)
 
-			err := getContent(config, item)
-			if err != nil {
-				log.SendLog(err.Error())
-				return
-			}
+		err := getContent(config, item)
+		if err != nil {
+			log.SendLog(err.Error())
+			continue
+		}
 
-			err = getImages(config, item, cosCli)
-			if err != nil {
-				log.SendLog(err.Error())
-				return
-			}
+		err = getImages(config, item, cosCli)
+		if err != nil {
+			log.SendLog(err.Error())
+			continue
+		}
 
-			err = cosCli.setNews(item)
-			if err != nil {
-				log.SendLog(err.Error())
-				return
-			}
+		err = cosCli.setNews(item)
+		if err != nil {
+			log.SendLog(err.Error())
+			continue
+		}
 
-			err = db.setNews(item)
-			if err != nil {
-				log.SendLog(err.Error())
-				return
-			}
+		err = db.setNews(item)
+		if err != nil {
+			log.SendLog(err.Error())
+			continue
+		}
 
-			err = es.setNews(item)
-			if err != nil {
-				log.SendLog(err.Error())
-				return
-			}
+		err = es.setNews(item)
+		if err != nil {
+			log.SendLog(err.Error())
+			continue
+		}
 
-			err = redis.setNews(item)
-			if err != nil {
-				log.SendLog(err.Error())
-				return
-			}
-			return
-		}(n)
+		err = redis.setNews(item)
+		if err != nil {
+			log.SendLog(err.Error())
+			continue
+		}
+		return
 	}
-	group.Wait()
 }
 
 func convertToMap(news *News) map[string]string {
