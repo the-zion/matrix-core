@@ -862,15 +862,7 @@ func (r *userRepo) SetAvatarIrregularToCache(ctx context.Context, review *biz.Im
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set avatar irregular to json: json.Marshal(%v)", review))
 	}
-	var script = redis.NewScript(`
-					local key = KEYS[1]
-					local value = ARGV[1]
-					local exist = redis.call("EXISTS", key)
-					if exist == 1 then
-						redis.call("LPUSH", key, value)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("8f6205011a2b264278a7c5bc0a2bcd1006ac6e5d")
 	keys := []string{"avatar_irregular_" + review.Uuid}
 	values := []interface{}{marshal}
 	_, err = script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -1034,15 +1026,7 @@ func (r *userRepo) SetCoverIrregularToCache(ctx context.Context, review *biz.Ima
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set cover irregular to json: json.Marshal(%v)", review))
 	}
-	var script = redis.NewScript(`
-					local key = KEYS[1]
-					local value = ARGV[1]
-					local exist = redis.call("EXISTS", key)
-					if exist == 1 then
-						redis.call("LPUSH", key, value)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("8f6205011a2b264278a7c5bc0a2bcd1006ac6e5d")
 	keys := []string{"cover_irregular_" + review.Uuid}
 	values := []interface{}{marshal}
 	_, err = script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -1116,29 +1100,7 @@ func (r *userRepo) SetUserFollow(ctx context.Context, uuid, userUuid string) err
 }
 
 func (r *userRepo) SetUserFollowToCache(ctx context.Context, uuid, userUuid string) error {
-	var script = redis.NewScript(`
-					local key = KEYS[1]
-					local value = ARGV[1]
-					local value2 =  ARGV[2]
-					local exist = redis.call("EXISTS", key)
-					if exist == 1 then
-						redis.call("SADD", key, value)
-					end
-
-					local followList = KEYS[2]
-					local score = ARGV[3]
-					local exist = redis.call("EXISTS", followList)
-					if exist == 1 then
-						redis.call("ZADD", followList, score, value)
-					end
-
-					local followedList = KEYS[3]
-					local exist = redis.call("EXISTS", followedList)
-					if exist == 1 then
-						redis.call("ZADD", followedList, score, value2)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("96859cb1c2a7f67b4320e5be8289eba8113e333f")
 	keys := []string{"user_follows_" + userUuid, "follow_" + userUuid, "followed_" + uuid}
 	values := []interface{}{uuid, userUuid, float64(time.Now().Unix())}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()

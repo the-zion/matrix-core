@@ -1287,15 +1287,7 @@ func (r *creationRepo) SetCollectionsContentIrregularToCache(ctx context.Context
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set collections content irregular to json: json.Marshal(%v)", review))
 	}
-	var script = redis.NewScript(`
-					local key = KEYS[1]
-					local value = ARGV[1]
-					local exist = redis.call("EXISTS", key)
-					if exist == 1 then
-						redis.call("LPUSH", key, value)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("8f6205011a2b264278a7c5bc0a2bcd1006ac6e5d")
 	keys := []string{"collections_content_irregular_" + review.Uuid}
 	values := []interface{}{marshal}
 	_, err = script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -1346,58 +1338,7 @@ func (r *creationRepo) CreateCollectionsCache(ctx context.Context, id, auth int3
 	creationUserVisitor := "creation_user_visitor_" + uuid
 	userCollectionsListAll := "user_collections_list_all_" + uuid
 	collectionsStatistic := "collections_" + ids
-	var script = redis.NewScript(`
-					local collectionsStatistic = KEYS[1]
-					local userCollectionsList = KEYS[2]
-					local userCollectionsListVisitor = KEYS[3]
-					local creationUser = KEYS[4]
-					local creationUserVisitor = KEYS[5]
-					local userCollectionsListAll = KEYS[6]
-
-					local uuid = ARGV[1]
-					local auth = ARGV[2]
-					local id = ARGV[3]
-					local ids = ARGV[4]
-					local mode = ARGV[5]
-
-					local userCollectionsListExist = redis.call("EXISTS", userCollectionsList)
-					local userCollectionsListVisitorExist = redis.call("EXISTS", userCollectionsListVisitor)
-					local creationUserExist = redis.call("EXISTS", creationUser)
-					local creationUserVisitorExist = redis.call("EXISTS", creationUserVisitor)
-					local userCollectionsListAllExist = redis.call("EXISTS", userCollectionsListAll)
-
-					redis.call("HSETNX", collectionsStatistic, "uuid", uuid)
-					redis.call("HSETNX", collectionsStatistic, "auth", auth)
-					redis.call("HSETNX", collectionsStatistic, "article", 0)
-					redis.call("HSETNX", collectionsStatistic, "column", 0)
-					redis.call("HSETNX", collectionsStatistic, "talk", 0)
-					redis.call("EXPIRE", collectionsStatistic, 1800)
-
-					if userCollectionsListExist == 1 then
-						redis.call("ZADD", userCollectionsList, id, ids)
-					end
-
-					if userCollectionsListAllExist == 1 then
-						redis.call("ZADD", userCollectionsListAll, id, ids)
-					end
-
-					if (creationUserExist == 1) and (mode == "create") then
-						redis.call("HINCRBY", creationUser, "collections", 1)
-					end
-
-					if auth == "2" then
-						return 0
-					end
-
-					if userCollectionsListVisitorExist == 1 then
-						redis.call("ZADD", userCollectionsListVisitor, id, ids)
-					end
-
-					if (creationUserVisitorExist == 1) and (mode == "create") then
-						redis.call("HINCRBY", creationUserVisitor, "collections", 1)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("38375bb0cadfcd92739dba054e387f7985a6c331")
 	keys := []string{collectionsStatistic, userCollectionsList, userCollectionsListVisitor, creationUser, creationUserVisitor, userCollectionsListAll}
 	values := []interface{}{uuid, auth, id, ids, mode}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -1429,18 +1370,7 @@ func (r *creationRepo) CreateTimeLineCache(ctx context.Context, id, creationId, 
 	creationIds := strconv.Itoa(int(creationId))
 	modes := strconv.Itoa(int(mode))
 	userTimeLineList := "user_timeline_list_" + uuid
-	var script = redis.NewScript(`
-					local userTimeLineList = KEYS[1]
-					local id = ARGV[1]
-					local member = ARGV[2]
-
-					local userTimeLineListExist = redis.call("EXISTS", userTimeLineList)
-
-					if userTimeLineListExist == 1 then
-						redis.call("ZADD", userTimeLineList, id, member)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("35809bf06a2a8a230fda887f6b24f8ff95ed7942")
 	keys := []string{userTimeLineList}
 	values := []interface{}{ids, ids + "%" + creationIds + "%" + modes + "%" + uuid}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -1536,44 +1466,7 @@ func (r *creationRepo) DeleteCollectionsDraft(ctx context.Context, id int32, uui
 
 func (r *creationRepo) DeleteCreationCache(ctx context.Context, id, auth int32, uuid string) error {
 	ids := strconv.Itoa(int(id))
-	var script = redis.NewScript(`
-					local key1 = KEYS[1]
-					local key2 = KEYS[2]
-					local key3 = KEYS[3]
-					local key4 = KEYS[4]
-					local key5 = KEYS[5]
-					local key6 = KEYS[6]
-
-					local member = ARGV[1]
-					local auth = ARGV[2]
-
-                    redis.call("ZREM", key1, member)
-					redis.call("ZREM", key5, member)
-					redis.call("DEL", key6)
-
-                    local exist = redis.call("EXISTS", key3)
-					if exist == 1 then
-						local number = tonumber(redis.call("HGET", key3, "collections"))
-						if number > 0 then
-  							redis.call("HINCRBY", key3, "collections", -1)
-						end
-					end
-
-                    if auth == "2" then
-						return 0
-					end
-
-					redis.call("ZREM", key2, member)
-
-					local exist = redis.call("EXISTS", key4)
-					if exist == 1 then
-						local number = tonumber(redis.call("HGET", key4, "collections"))
-						if number > 0 then
-  							redis.call("HINCRBY", key4, "collections", -1)
-						end
-					end
-					return 0
-	`)
+	var script = redis.NewScript("cbd0f3890b22fa11f850560ff5749294f54cb916")
 	keys := []string{"user_collections_list_" + uuid, "user_collections_list_visitor_" + uuid, "creation_user_" + uuid, "creation_user_visitor_" + uuid, "user_collections_list_all_" + uuid, "collections_" + ids}
 	values := []interface{}{ids, auth}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()

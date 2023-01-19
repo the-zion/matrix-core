@@ -1012,15 +1012,7 @@ func (r *articleRepo) SetArticleImageIrregularToCache(ctx context.Context, revie
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set article image irregular to json: json.Marshal(%v)", review))
 	}
-	var script = redis.NewScript(`
-					local key = KEYS[1]
-					local value = ARGV[1]
-					local exist = redis.call("EXISTS", key)
-					if exist == 1 then
-						redis.call("LPUSH", key, value)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("8f6205011a2b264278a7c5bc0a2bcd1006ac6e5d")
 	keys := []string{"article_image_irregular_" + review.Uuid}
 	values := []interface{}{marshal}
 	_, err = script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -1035,15 +1027,7 @@ func (r *articleRepo) SetArticleContentIrregularToCache(ctx context.Context, rev
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set article content irregular to json: json.Marshal(%v)", review))
 	}
-	var script = redis.NewScript(`
-					local key = KEYS[1]
-					local value = ARGV[1]
-					local exist = redis.call("EXISTS", key)
-					if exist == 1 then
-						redis.call("LPUSH", key, value)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("8f6205011a2b264278a7c5bc0a2bcd1006ac6e5d")
 	keys := []string{"article_content_irregular_" + review.Uuid}
 	values := []interface{}{marshal}
 	_, err = script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -1360,72 +1344,7 @@ func (r *articleRepo) CreateArticleCache(ctx context.Context, id, auth int32, uu
 	userArticleListVisitor := "user_article_list_visitor_" + uuid
 	creationUser := "creation_user_" + uuid
 	creationUserVisitor := "creation_user_visitor_" + uuid
-	var script = redis.NewScript(`
-					local articleStatistic = KEYS[1]
-					local article = KEYS[2]
-					local articleHot = KEYS[3]
-					local leaderboard = KEYS[4]
-					local userArticleList = KEYS[5]
-					local userArticleListVisitor = KEYS[6]
-					local creationUser = KEYS[7]
-					local creationUserVisitor = KEYS[8]
-
-					local uuid = ARGV[1]
-					local auth = ARGV[2]
-					local id = ARGV[3]
-					local member = ARGV[4]
-					local mode = ARGV[5]
-					local member2 = ARGV[6]
-
-					local userArticleListExist = redis.call("EXISTS", userArticleList)
-					local creationUserExist = redis.call("EXISTS", creationUser)
-					local articleExist = redis.call("EXISTS", article)
-					local articleHotExist = redis.call("EXISTS", articleHot)
-					local leaderboardExist = redis.call("EXISTS", leaderboard)
-					local userArticleListVisitorExist = redis.call("EXISTS", userArticleListVisitor)
-					local creationUserVisitorExist = redis.call("EXISTS", creationUserVisitor)
-
-					redis.call("HSETNX", articleStatistic, "uuid", uuid)
-					redis.call("HSETNX", articleStatistic, "agree", 0)
-					redis.call("HSETNX", articleStatistic, "collect", 0)
-					redis.call("HSETNX", articleStatistic, "view", 0)
-					redis.call("HSETNX", articleStatistic, "comment", 0)
-					redis.call("HSETNX", articleStatistic, "auth", auth)
-					redis.call("EXPIRE", articleStatistic, 1800)
-
-					if userArticleListExist == 1 then
-						redis.call("ZADD", userArticleList, id, member)
-					end
-
-					if (creationUserExist == 1) and (mode == "create") then
-						redis.call("HINCRBY", creationUser, "article", 1)
-					end
-
-					if auth == "2" then
-						return 0
-					end
-
-					if articleExist == 1 then
-						redis.call("ZADD", article, id, member)
-					end
-
-					if articleHotExist == 1 then
-						redis.call("ZADD", articleHot, 0, member)
-					end
-
-					if leaderboardExist == 1 then
-						redis.call("ZADD", leaderboard, 0, member2)
-					end
-
-					if userArticleListVisitorExist == 1 then
-						redis.call("ZADD", userArticleListVisitor, id, member)
-					end
-
-					if (creationUserVisitorExist == 1) and (mode == "create") then
-						redis.call("HINCRBY", creationUserVisitor, "article", 1)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("03c2dc8c6fdf154a7e6387dc4b0ba296a499c7b6")
 	keys := []string{articleStatistic, article, articleHot, leaderboard, userArticleList, userArticleListVisitor, creationUser, creationUserVisitor}
 	values := []interface{}{uuid, auth, id, ids + "%" + uuid, mode, ids + "%" + uuid + "%article"}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -1441,53 +1360,7 @@ func (r *articleRepo) UpdateArticleCache(ctx context.Context, id, auth int32, uu
 
 func (r *articleRepo) DeleteArticleCache(ctx context.Context, id, auth int32, uuid string) error {
 	ids := strconv.Itoa(int(id))
-	var script = redis.NewScript(`
-					local key1 = KEYS[1]
-					local key2 = KEYS[2]
-					local key3 = KEYS[3]
-					local key4 = KEYS[4]
-					local key5 = KEYS[5]
-					local key6 = KEYS[6]
-					local key7 = KEYS[7]
-					local key8 = KEYS[8]
-					local key9 = KEYS[9]
-
-                    local member = ARGV[1]
-					local leadMember = ARGV[2]
-					local auth = ARGV[3]
-
-                    redis.call("ZREM", key1, member)
-					redis.call("ZREM", key2, member)
-					redis.call("ZREM", key3, leadMember)
-					redis.call("DEL", key4)
-					redis.call("DEL", key5)
-
-                    redis.call("ZREM", key6, member)
-
-                    local exist = redis.call("EXISTS", key8)
-					if exist == 1 then
-						local number = tonumber(redis.call("HGET", key8, "article"))
-						if number > 0 then
-  							redis.call("HINCRBY", key8, "article", -1)
-						end
-					end
-
-                    if auth == 2 then
-						return 0
-					end
-
-					redis.call("ZREM", key7, member)
-
-					local exist = redis.call("EXISTS", key9)
-					if exist == 1 then
-						local number = tonumber(redis.call("HGET", key9, "article"))
-						if number > 0 then
-  							redis.call("HINCRBY", key9, "article", -1)
-						end
-					end
-
-					return 0
-	`)
+	var script = redis.NewScript("a00173f1947bc4a40039ed55303d230cd2daa749")
 	keys := []string{"article", "article_hot", "leaderboard", "article_" + ids, "article_collect_" + ids, "user_article_list_" + uuid, "user_article_list_visitor_" + uuid, "creation_user_" + uuid, "creation_user_visitor_" + uuid}
 	values := []interface{}{ids + "%" + uuid, ids + "%" + uuid + "%article", auth}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -1556,14 +1429,7 @@ func (r *articleRepo) AddArticleComment(ctx context.Context, id int32) error {
 
 func (r *articleRepo) AddArticleCommentToCache(ctx context.Context, id int32, uuid string) error {
 	key := "article_" + strconv.Itoa(int(id))
-	var script = redis.NewScript(`
-					local key = KEYS[1]
-					local keyExist = redis.call("EXISTS", key)
-					if keyExist == 1 then
-						redis.call("HINCRBY", key, "comment", 1)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("17cef96499553bacd3611f03630542e2b475a42c")
 	keys := []string{key}
 	var values []interface{}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -1616,17 +1482,7 @@ func (r *articleRepo) ReduceArticleComment(ctx context.Context, id int32) error 
 
 func (r *articleRepo) ReduceArticleCommentToCache(ctx context.Context, id int32, uuid string) error {
 	key := "article_" + strconv.Itoa(int(id))
-	var script = redis.NewScript(`
-					local key = KEYS[1]
-					local value = redis.call("EXISTS", key)
-					if value == 1 then
-						local number = tonumber(redis.call("HGET", key, "comment"))
-						if number > 0 then
-  							redis.call("HINCRBY", key, "comment", -1)
-						end
-					end
-					return 0
-	`)
+	var script = redis.NewScript("e9942f8b94d123b097211f27b5bf8fc896b1fa45")
 	keys := []string{key}
 	_, err := script.Run(ctx, r.data.redisCli, keys).Result()
 	if err != nil {
@@ -1899,38 +1755,7 @@ func (r *articleRepo) SetArticleAgreeToCache(ctx context.Context, id int32, uuid
 	statisticKey := fmt.Sprintf("article_%v", id)
 	boardKey := fmt.Sprintf("leaderboard")
 	userKey := fmt.Sprintf("user_article_agree_%s", userUuid)
-	var script = redis.NewScript(`
-					local hotKey = KEYS[1]
-					local statisticKey = KEYS[2]
-					local boardKey = KEYS[3]
-					local userKey = KEYS[4]
-
-					local member1 = ARGV[1]
-					local member2 = ARGV[2]
-					local id = ARGV[3]
-
-					local hotKeyExist = redis.call("EXISTS", hotKey)
-					local statisticKeyExist = redis.call("EXISTS", statisticKey)
-					local boardKeyExist = redis.call("EXISTS", boardKey)
-					local userKeyExist = redis.call("EXISTS", userKey)
-
-					if hotKeyExist == 1 then
-						redis.call("ZINCRBY", hotKey, 1, member1)
-					end
-
-					if statisticKeyExist == 1 then
-						redis.call("HINCRBY", statisticKey, "agree", 1)
-					end
-
-					if boardKeyExist == 1 then
-						redis.call("ZINCRBY", boardKey, 1, member2)
-					end
-
-					if userKeyExist == 1 then
-						redis.call("SADD", userKey, id)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("7c94d6c820881b0b69ec949e5565ea0557be65ae")
 	keys := []string{hotKey, statisticKey, boardKey, userKey}
 	values := []interface{}{fmt.Sprintf("%v%s%s", id, "%", uuid), fmt.Sprintf("%v%s%s%s", id, "%", uuid, "%article"), id}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -1951,15 +1776,7 @@ func (r *articleRepo) SetArticleView(ctx context.Context, id int32, uuid string)
 
 func (r *articleRepo) SetArticleViewToCache(ctx context.Context, id int32, uuid string) error {
 	ids := strconv.Itoa(int(id))
-	var script = redis.NewScript(`
-					local key = KEYS[1]
-					local value = ARGV[1]
-					local exist = redis.call("EXISTS", key)
-					if exist == 1 then
-						redis.call("HINCRBY", key, "view", value)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("6abf0f5d9afbfe7ed552297f59b9d898c6b06747")
 	keys := []string{"article_" + ids}
 	values := []interface{}{1}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -2041,42 +1858,7 @@ func (r *articleRepo) SetArticleCollectToCache(ctx context.Context, id, collecti
 	collectionsKey := fmt.Sprintf("collections_%v", collectionsId)
 	creationKey := fmt.Sprintf("creation_user_%s", userUuid)
 	userKey := fmt.Sprintf("user_article_collect_%s", userUuid)
-	var script = redis.NewScript(`
-					local statisticKey = KEYS[1]
-					local collectKey = KEYS[2]
-					local collectionsKey = KEYS[3]
-					local creationKey = KEYS[4]
-					local userKey = KEYS[5]
-
-					local member = ARGV[1]
-
-					local statisticKeyExist = redis.call("EXISTS", statisticKey)
-					local collectKeyExist = redis.call("EXISTS", collectKey)
-					local collectionsKeyExist = redis.call("EXISTS", collectionsKey)
-					local creationKeyExist = redis.call("EXISTS", creationKey)
-					local userKeyExist = redis.call("EXISTS", userKey)
-					
-					if statisticKeyExist == 1 then
-						redis.call("HINCRBY", statisticKey, "collect", 1)
-					end
-
-					if collectKeyExist == 1 then
-						redis.call("ZADD", collectKey, 0, member)
-					end
-
-					if collectionsKeyExist == 1 then
-						redis.call("HINCRBY", collectionsKey, "article", 1)
-					end
-
-					if creationKeyExist == 1 then
-						redis.call("HINCRBY", creationKey, "collect", 1)
-					end
-
-					if userKeyExist == 1 then
-						redis.call("SADD", userKey, id)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("958864163ea9699b2c0ee77a49ea456f0db8b45a")
 	keys := []string{statisticKey, collectKey, collectionsKey, creationKey, userKey}
 	values := []interface{}{fmt.Sprintf("%v%s%s", id, "%", uuid)}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -2087,15 +1869,7 @@ func (r *articleRepo) SetArticleCollectToCache(ctx context.Context, id, collecti
 }
 
 func (r *articleRepo) SetUserArticleAgreeToCache(ctx context.Context, id int32, userUuid string) error {
-	var script = redis.NewScript(`
-					local key = KEYS[1]
-                    local change = ARGV[1]
-					local value = redis.call("EXISTS", key)
-					if value == 1 then
-  						redis.call("SADD", key, change)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("16415c44ae0544f8c7f85d841521813d41c35994")
 	keys := []string{"user_article_agree_" + userUuid}
 	values := []interface{}{strconv.Itoa(int(id))}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -2106,15 +1880,7 @@ func (r *articleRepo) SetUserArticleAgreeToCache(ctx context.Context, id int32, 
 }
 
 func (r *articleRepo) SetUserArticleCollectToCache(ctx context.Context, id int32, userUuid string) error {
-	var script = redis.NewScript(`
-					local key = KEYS[1]
-                    local change = ARGV[1]
-					local value = redis.call("EXISTS", key)
-					if value == 1 then
-  						redis.call("SADD", key, change)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("16415c44ae0544f8c7f85d841521813d41c35994")
 	keys := []string{"user_article_collect_" + userUuid}
 	values := []interface{}{strconv.Itoa(int(id))}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -2148,41 +1914,7 @@ func (r *articleRepo) CancelArticleAgreeFromCache(ctx context.Context, id int32,
 	statisticKey := fmt.Sprintf("article_%v", id)
 	userKey := fmt.Sprintf("user_article_agree_%s", userUuid)
 
-	var script = redis.NewScript(`
-					local hotKey = KEYS[1]
-                    local member = ARGV[1]
-					local hotKeyExist = redis.call("EXISTS", hotKey)
-					if hotKeyExist == 1 then
-						local score = tonumber(redis.call("ZSCORE", hotKey, member))
-						if score > 0 then
-  							redis.call("ZINCRBY", hotKey, -1, member)
-						end
-					end
-
-					local boardKey = KEYS[2]
-                    local member = ARGV[2]
-					local boardKeyExist = redis.call("EXISTS", boardKey)
-					if boardKeyExist == 1 then
-						local score = tonumber(redis.call("ZSCORE", boardKey, member))
-						if score > 0 then
-  							redis.call("ZINCRBY", boardKey, -1, member)
-						end
-					end
-
-					local statisticKey = KEYS[3]
-					local statisticKeyExist = redis.call("EXISTS", statisticKey)
-					if statisticKeyExist == 1 then
-						local number = tonumber(redis.call("HGET", statisticKey, "agree"))
-						if number > 0 then
-  							redis.call("HINCRBY", statisticKey, "agree", -1)
-						end
-					end
-
-					local userKey = KEYS[4]
-					local commentId = ARGV[3]
-					redis.call("SREM", userKey, commentId)
-					return 0
-	`)
+	var script = redis.NewScript("c2c68100b9b682b94faff1a9b182159921d0b8e4")
 	keys := []string{hotKey, boardKey, statisticKey, userKey}
 	values := []interface{}{fmt.Sprintf("%v%s%s", id, "%", uuid), fmt.Sprintf("%v%s%s%s", id, "%", uuid, "%article"), id}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -2247,44 +1979,7 @@ func (r *articleRepo) CancelArticleCollectFromCache(ctx context.Context, id, col
 	collectionsKey := fmt.Sprintf("collections_%v", collectionsId)
 	creationKey := fmt.Sprintf("creation_user_%s", userUuid)
 	userKey := fmt.Sprintf("user_article_collect_%s", userUuid)
-	var script = redis.NewScript(`
-					local statisticKey = KEYS[1]
-					local statisticKeyExist = redis.call("EXISTS", statisticKey)
-					if statisticKeyExist == 1 then
-						local number = tonumber(redis.call("HGET", statisticKey, "collect"))
-						if number > 0 then
-  							redis.call("HINCRBY", statisticKey, "collect", -1)
-						end
-					end
-
-					local collectKey = KEYS[2]
-					local articleMember = ARGV[1]
-					redis.call("ZREM", collectKey, articleMember)
-
-					local collectionsKey = KEYS[3]
-					local collectionsKeyExist = redis.call("EXISTS", collectionsKey)
-					if collectionsKeyExist == 1 then
-						local number = tonumber(redis.call("HGET", collectionsKey, "article"))
-						if number > 0 then
-  							redis.call("HINCRBY", collectionsKey, "article", -1)
-						end
-					end
-
-					local creationKey = KEYS[4]
-					local creationKeyExist = redis.call("EXISTS", creationKey)
-					if creationKeyExist == 1 then
-						local number = tonumber(redis.call("HGET", creationKey, "collect"))
-						if number > 0 then
-  							redis.call("HINCRBY", creationKey, "collect", -1)
-						end
-					end
-
-					local userKey = KEYS[5]
-					local articleId = ARGV[2]
-					redis.call("SREM", userKey, articleId)
-
-					return 0
-	`)
+	var script = redis.NewScript("51c5960205bc0710a94f1520e748701724a72608")
 	keys := []string{statisticKey, collectKey, collectionsKey, creationKey, userKey}
 	values := []interface{}{fmt.Sprintf("%v%s%s", id, "%", uuid), id}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -2295,15 +1990,7 @@ func (r *articleRepo) CancelArticleCollectFromCache(ctx context.Context, id, col
 }
 
 func (r *articleRepo) CancelUserArticleAgreeFromCache(ctx context.Context, id int32, userUuid string) error {
-	var script = redis.NewScript(`
-					local key = KEYS[1]
-                    local change = ARGV[1]
-					local value = redis.call("EXISTS", key)
-					if value == 1 then
-						redis.call("SREM", key, change)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("9aab0f65688566d3d54b7851570412ad816a80bb")
 	keys := []string{"user_article_agree_" + userUuid}
 	values := []interface{}{strconv.Itoa(int(id))}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -2314,15 +2001,7 @@ func (r *articleRepo) CancelUserArticleAgreeFromCache(ctx context.Context, id in
 }
 
 func (r *articleRepo) CancelUserArticleCollectFromCache(ctx context.Context, id int32, userUuid string) error {
-	var script = redis.NewScript(`
-					local key = KEYS[1]
-                    local change = ARGV[1]
-					local value = redis.call("EXISTS", key)
-					if value == 1 then
-  						redis.call("SREM", key, change)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("d7d8a559ccbad93b64d6e4ef0b9130d2b5992224")
 	keys := []string{"user_article_collect_" + userUuid}
 	values := []interface{}{strconv.Itoa(int(id))}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()

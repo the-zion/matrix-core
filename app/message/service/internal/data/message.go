@@ -291,17 +291,7 @@ func (r *messageRepo) AddMailBoxSystemNotificationToCache(ctx context.Context, n
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set system notification to json: json.Marshal(%v)", notification))
 	}
-	var script = redis.NewScript(`
-					local key = KEYS[1]
-					local value = ARGV[1]
-					local uuid = ARGV[2]
-					local exist = redis.call("EXISTS", key)
-					if exist == 1 then
-						redis.call("LPUSH", key, value)
-					end
-					redis.call("HINCRBY", "message_system", uuid, 1)
-					return 0
-	`)
+	var script = redis.NewScript("cb3af63c88a686921fb0c82e048c9b9de93f30ae")
 	keys := []string{"system_notification_" + notification.Uuid}
 	values := []interface{}{marshal, notification.Uuid}
 	_, err = script.Run(ctx, r.data.redisCli, keys, values...).Result()

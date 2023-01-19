@@ -108,15 +108,7 @@ func (r *achievementRepo) SetAchievementCollect(ctx context.Context, uuid string
 }
 
 func (r *achievementRepo) SetUserMedalToCache(ctx context.Context, medal, uuid string) error {
-	var script = redis.NewScript(`
-					local key = KEYS[1]
-                    local change = ARGV[1]
-					local value = redis.call("EXISTS", key)
-					if value == 1 then
-  						redis.call("HSET", key, change, 1)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("3ecc85ca85d6c750e7e062a734d5665dea20365d")
 	keys := []string{"medal_" + uuid}
 	values := []interface{}{medal}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -136,14 +128,7 @@ func (r *achievementRepo) CancelAchievementCollect(ctx context.Context, uuid str
 }
 
 func (r *achievementRepo) SetAchievementAgreeToCache(ctx context.Context, uuid string) error {
-	var script = redis.NewScript(`
-					local uuid = KEYS[1]
-					local exist = redis.call("EXISTS", uuid)
-					if exist == 1 then
-						redis.call("HINCRBY", uuid, "agree", 1)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("851e5dabe9a109d5f1bce02de4e2ace572186588")
 	keys := []string{uuid}
 	_, err := script.Run(ctx, r.data.redisCli, keys).Result()
 	if err != nil {
@@ -153,17 +138,7 @@ func (r *achievementRepo) SetAchievementAgreeToCache(ctx context.Context, uuid s
 }
 
 func (r *achievementRepo) CancelAchievementAgreeFromCache(ctx context.Context, uuid string) error {
-	var script = redis.NewScript(`
-					local uuid = KEYS[1]
-					local exist = redis.call("EXISTS", uuid)
-					if exist == 1 then
-						local number = tonumber(redis.call("HGET", uuid, "agree"))
-						if number > 0 then
-  							redis.call("HINCRBY", uuid, "agree", -1)
-						end
-					end
-					return 0
-	`)
+	var script = redis.NewScript("092d6f697917960423287c19f5f51ada379bfb4c")
 	keys := []string{uuid}
 	_, err := script.Run(ctx, r.data.redisCli, keys).Result()
 	if err != nil {
@@ -173,14 +148,7 @@ func (r *achievementRepo) CancelAchievementAgreeFromCache(ctx context.Context, u
 }
 
 func (r *achievementRepo) SetAchievementViewToCache(ctx context.Context, uuid string) error {
-	var script = redis.NewScript(`
-					local uuid = KEYS[1]
-					local exist = redis.call("EXISTS", uuid)
-					if exist == 1 then
-						redis.call("HINCRBY", uuid, "view", 1)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("25801c8123344b2e1360e3174ddd246ee1a5a176")
 	keys := []string{uuid}
 	_, err := script.Run(ctx, r.data.redisCli, keys).Result()
 	if err != nil {
@@ -190,14 +158,7 @@ func (r *achievementRepo) SetAchievementViewToCache(ctx context.Context, uuid st
 }
 
 func (r *achievementRepo) SetAchievementCollectToCache(ctx context.Context, uuid string) error {
-	var script = redis.NewScript(`
-					local uuid = KEYS[1]
-					local exist = redis.call("EXISTS", uuid)
-					if exist == 1 then
-						redis.call("HINCRBY", uuid, "collect", 1)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("fc7b7339d2274cb04254f03523e2e2bf6499c6e1")
 	keys := []string{uuid}
 	_, err := script.Run(ctx, r.data.redisCli, keys).Result()
 	if err != nil {
@@ -207,17 +168,7 @@ func (r *achievementRepo) SetAchievementCollectToCache(ctx context.Context, uuid
 }
 
 func (r *achievementRepo) CancelAchievementCollectFromCache(ctx context.Context, uuid string) error {
-	var script = redis.NewScript(`
-					local uuid = KEYS[1]
-					local exist = redis.call("EXISTS", uuid)
-					if exist == 1 then
-						local number = tonumber(redis.call("HGET", uuid, "collect"))
-						if number > 0 then
-  							redis.call("HINCRBY", uuid, "collect", -1)
-						end
-					end
-					return 0
-	`)
+	var script = redis.NewScript("f9c51c538c547c8993fc0200bc9d76d6e229c750")
 	keys := []string{uuid}
 	_, err := script.Run(ctx, r.data.redisCli, keys).Result()
 	if err != nil {
@@ -257,20 +208,7 @@ func (r *achievementRepo) SetAchievementFollowed(ctx context.Context, uuid strin
 }
 
 func (r *achievementRepo) SetAchievementFollowToCache(ctx context.Context, follow, followed string) error {
-	var script = redis.NewScript(`
-					local follow = KEYS[1]
-					local exist = redis.call("EXISTS", follow)
-					if exist == 1 then
-						redis.call("HINCRBY", follow, "followed", 1)
-					end
-
-					local followed = KEYS[2]
-					local exist = redis.call("EXISTS", followed)
-					if exist == 1 then
-						redis.call("HINCRBY", followed, "follow", 1)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("dd873b2cfed78b8cf2b70487d23348a92b791eab")
 	keys := []string{follow, followed}
 	_, err := script.Run(ctx, r.data.redisCli, keys).Result()
 	if err != nil {
@@ -298,26 +236,7 @@ func (r *achievementRepo) CancelAchievementFollowed(ctx context.Context, uuid st
 }
 
 func (r *achievementRepo) CancelAchievementFollowFromCache(ctx context.Context, follow, followed string) error {
-	var script = redis.NewScript(`
-					local follow = KEYS[1]
-					local exist = redis.call("EXISTS", follow)
-					if exist == 1 then
-						local number = tonumber(redis.call("HGET", follow, "followed"))
-						if number > 0 then
-  							redis.call("HINCRBY", follow, "followed", -1)
-						end
-					end
-
-					local followed = KEYS[2]
-					local exist = redis.call("EXISTS", followed)
-					if exist == 1 then
-						local number = tonumber(redis.call("HGET", followed, "follow"))
-						if number > 0 then
-  							redis.call("HINCRBY", followed, "follow", -1)
-						end
-					end
-					return 0
-	`)
+	var script = redis.NewScript("ce26cf5c9cbf27dfb47c16decd8d3d4740dbe7a2")
 	keys := []string{follow, followed}
 	_, err := script.Run(ctx, r.data.redisCli, keys).Result()
 	if err != nil {
@@ -327,15 +246,7 @@ func (r *achievementRepo) CancelAchievementFollowFromCache(ctx context.Context, 
 }
 
 func (r *achievementRepo) CancelUserMedalFromCache(ctx context.Context, medal, uuid string) error {
-	var script = redis.NewScript(`
-					local key = KEYS[1]
-					local change = ARGV[1]
-					local exist = redis.call("EXISTS", key)
-					if exist == 1 then
-						redis.call("HSET", key, change, 2)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("017277440c5e0a16f82c21ab637a79dcc04343c6")
 	keys := []string{"medal_" + uuid}
 	values := []interface{}{medal}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -847,15 +758,7 @@ func (r *achievementRepo) AddAchievementScore(ctx context.Context, uuid string, 
 }
 
 func (r *achievementRepo) AddAchievementScoreToCache(ctx context.Context, uuid string, score int32) error {
-	var script = redis.NewScript(`
-					local uuid = KEYS[1]
-					local value = ARGV[1]
-					local exist = redis.call("EXISTS", uuid)
-					if exist == 1 then
-						redis.call("HINCRBY", uuid, "score", value)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("72594edbe729bfc70a28db829a27b5180e2fbca3")
 	keys := []string{uuid}
 	values := []interface{}{score}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()

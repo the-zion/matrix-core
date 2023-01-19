@@ -1294,53 +1294,7 @@ func (r *talkRepo) DeleteTalkStatistic(ctx context.Context, id int32, uuid strin
 
 func (r *talkRepo) DeleteTalkCache(ctx context.Context, id, auth int32, uuid string) error {
 	ids := strconv.Itoa(int(id))
-	var script = redis.NewScript(`
-					local key1 = KEYS[1]
-					local key2 = KEYS[2]
-					local key3 = KEYS[3]
-					local key4 = KEYS[4]
-					local key5 = KEYS[5]
-					local key6 = KEYS[6]
-					local key7 = KEYS[7]
-					local key8 = KEYS[8]
-					local key9 = KEYS[9]
-
-                    local member = ARGV[1]
-					local leadMember = ARGV[2]
-					local auth = ARGV[3]
-
-                    redis.call("ZREM", key1, member)
-					redis.call("ZREM", key2, member)
-					redis.call("ZREM", key3, leadMember)
-					redis.call("DEL", key4)
-					redis.call("DEL", key5)
-
-                    redis.call("ZREM", key6, member)
-
-                    local exist = redis.call("EXISTS", key8)
-					if exist == 1 then
-						local number = tonumber(redis.call("HGET", key8, "talk"))
-						if number > 0 then
-  							redis.call("HINCRBY", key8, "talk", -1)
-						end
-					end
-
-                    if auth == "2" then
-						return 0
-					end
-
-					redis.call("ZREM", key7, member)
-
-					local exist = redis.call("EXISTS", key9)
-					if exist == 1 then
-						local number = tonumber(redis.call("HGET", key9, "talk"))
-						if number > 0 then
-  							redis.call("HINCRBY", key9, "talk", -1)
-						end
-					end
-
-					return 0
-	`)
+	var script = redis.NewScript("723a24fff880154f9a85292efb2152330b72d994")
 	keys := []string{"talk", "talk_hot", "leaderboard", "talk_" + ids, "talk_collect_" + ids, "user_talk_list_" + uuid, "user_talk_list_visitor_" + uuid, "creation_user_" + uuid, "creation_user_visitor_" + uuid}
 	values := []interface{}{ids + "%" + uuid, ids + "%" + uuid + "%talk", auth}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -1438,72 +1392,7 @@ func (r *talkRepo) CreateTalkCache(ctx context.Context, id, auth int32, uuid, mo
 	userTalkListVisitor := "user_talk_list_visitor_" + uuid
 	creationUser := "creation_user_" + uuid
 	creationUserVisitor := "creation_user_visitor_" + uuid
-	var script = redis.NewScript(`
-					local talkStatistic = KEYS[1]
-					local talk = KEYS[2]
-					local talkHot = KEYS[3]
-					local leaderboard = KEYS[4]
-					local userTalkList = KEYS[5]
-					local userTalkListVisitor = KEYS[6]
-					local creationUser = KEYS[7]
-					local creationUserVisitor = KEYS[8]
-
-					local uuid = ARGV[1]
-					local auth = ARGV[2]
-					local id = ARGV[3]
-					local member = ARGV[4]
-					local mode = ARGV[5]
-					local member2 = ARGV[6]
-
-					local userTalkListExist = redis.call("EXISTS", userTalkList)
-					local creationUserExist = redis.call("EXISTS", creationUser)
-					local talkExist = redis.call("EXISTS", talk)
-					local talkHotExist = redis.call("EXISTS", talkHot)
-					local leaderboardExist = redis.call("EXISTS", leaderboard)
-					local userTalkListVisitorExist = redis.call("EXISTS", userTalkListVisitor)
-					local creationUserVisitorExist = redis.call("EXISTS", creationUserVisitor)
-
-					redis.call("HSETNX", talkStatistic, "uuid", uuid)
-					redis.call("HSETNX", talkStatistic, "agree", 0)
-					redis.call("HSETNX", talkStatistic, "collect", 0)
-					redis.call("HSETNX", talkStatistic, "view", 0)
-					redis.call("HSETNX", talkStatistic, "comment", 0)
-					redis.call("HSETNX", talkStatistic, "auth", auth)
-					redis.call("EXPIRE", talkStatistic, 1800)
-
-					if userTalkListExist == 1 then
-						redis.call("ZADD", userTalkList, id, member)
-					end
-
-					if (creationUserExist == 1) and (mode == "create") then
-						redis.call("HINCRBY", creationUser, "talk", 1)
-					end
-
-					if auth == "2" then
-						return 0
-					end
-
-					if talkExist == 1 then
-						redis.call("ZADD", talk, id, member)
-					end
-
-					if talkHotExist == 1 then
-						redis.call("ZADD", talkHot, 0, member)
-					end
-
-					if leaderboardExist == 1 then
-						redis.call("ZADD", leaderboard, 0, member2)
-					end
-
-					if userTalkListVisitorExist == 1 then
-						redis.call("ZADD", userTalkListVisitor, id, member)
-					end
-
-					if (creationUserVisitorExist == 1) and (mode == "create") then
-						redis.call("HINCRBY", creationUserVisitor, "talk", 1)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("eb5d94a2a972340b5ac93769524a51911f9c032f")
 	keys := []string{talkStatistic, talk, talkHot, leaderboard, userTalkList, userTalkListVisitor, creationUser, creationUserVisitor}
 	values := []interface{}{uuid, auth, id, ids + "%" + uuid, mode, ids + "%" + uuid + "%talk"}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -1559,38 +1448,7 @@ func (r *talkRepo) SetTalkAgreeToCache(ctx context.Context, id int32, uuid, user
 	statisticKey := fmt.Sprintf("talk_%v", id)
 	boardKey := fmt.Sprintf("leaderboard")
 	userKey := fmt.Sprintf("user_talk_agree_%s", userUuid)
-	var script = redis.NewScript(`
-					local hotKey = KEYS[1]
-					local statisticKey = KEYS[2]
-					local boardKey = KEYS[3]
-					local userKey = KEYS[4]
-
-					local member1 = ARGV[1]
-					local member2 = ARGV[2]
-					local id = ARGV[3]
-
-					local hotKeyExist = redis.call("EXISTS", hotKey)
-					local statisticKeyExist = redis.call("EXISTS", statisticKey)
-					local boardKeyExist = redis.call("EXISTS", boardKey)
-					local userKeyExist = redis.call("EXISTS", userKey)
-
-					if hotKeyExist == 1 then
-						redis.call("ZINCRBY", hotKey, 1, member1)
-					end
-
-					if statisticKeyExist == 1 then
-						redis.call("HINCRBY", statisticKey, "agree", 1)
-					end
-
-					if boardKeyExist == 1 then
-						redis.call("ZINCRBY", boardKey, 1, member2)
-					end
-
-					if userKeyExist == 1 then
-						redis.call("SADD", userKey, id)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("7c94d6c820881b0b69ec949e5565ea0557be65ae")
 	keys := []string{hotKey, statisticKey, boardKey, userKey}
 	values := []interface{}{fmt.Sprintf("%v%s%s", id, "%", uuid), fmt.Sprintf("%v%s%s%s", id, "%", uuid, "%talk"), id}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -1624,41 +1482,7 @@ func (r *talkRepo) CancelTalkAgreeFromCache(ctx context.Context, id int32, uuid,
 	statisticKey := fmt.Sprintf("talk_%v", id)
 	userKey := fmt.Sprintf("user_talk_agree_%s", userUuid)
 
-	var script = redis.NewScript(`
-					local hotKey = KEYS[1]
-                    local member = ARGV[1]
-					local hotKeyExist = redis.call("EXISTS", hotKey)
-					if hotKeyExist == 1 then
-						local score = tonumber(redis.call("ZSCORE", hotKey, member))
-						if score > 0 then
-  							redis.call("ZINCRBY", hotKey, -1, member)
-						end
-					end
-
-					local boardKey = KEYS[2]
-                    local member = ARGV[2]
-					local boardKeyExist = redis.call("EXISTS", boardKey)
-					if boardKeyExist == 1 then
-						local score = tonumber(redis.call("ZSCORE", boardKey, member))
-						if score > 0 then
-  							redis.call("ZINCRBY", boardKey, -1, member)
-						end
-					end
-
-					local statisticKey = KEYS[3]
-					local statisticKeyExist = redis.call("EXISTS", statisticKey)
-					if statisticKeyExist == 1 then
-						local number = tonumber(redis.call("HGET", statisticKey, "agree"))
-						if number > 0 then
-  							redis.call("HINCRBY", statisticKey, "agree", -1)
-						end
-					end
-
-					local userKey = KEYS[4]
-					local commentId = ARGV[3]
-					redis.call("SREM", userKey, commentId)
-					return 0
-	`)
+	var script = redis.NewScript("c2c68100b9b682b94faff1a9b182159921d0b8e4")
 	keys := []string{hotKey, boardKey, statisticKey, userKey}
 	values := []interface{}{fmt.Sprintf("%v%s%s", id, "%", uuid), fmt.Sprintf("%v%s%s%s", id, "%", uuid, "%talk"), id}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -1679,15 +1503,7 @@ func (r *talkRepo) SetTalkView(ctx context.Context, id int32, uuid string) error
 
 func (r *talkRepo) SetTalkViewToCache(ctx context.Context, id int32, uuid string) error {
 	ids := strconv.Itoa(int(id))
-	var script = redis.NewScript(`
-					local key = KEYS[1]
-					local value = ARGV[1]
-					local exist = redis.call("EXISTS", key)
-					if exist == 1 then
-						redis.call("HINCRBY", key, "view", value)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("6abf0f5d9afbfe7ed552297f59b9d898c6b06747")
 	keys := []string{"talk_" + ids}
 	values := []interface{}{1}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -1865,42 +1681,7 @@ func (r *talkRepo) SetTalkCollectToCache(ctx context.Context, id, collectionsId 
 	collectionsKey := fmt.Sprintf("collections_%v", collectionsId)
 	creationKey := fmt.Sprintf("creation_user_%s", userUuid)
 	userKey := fmt.Sprintf("user_talk_collect_%s", userUuid)
-	var script = redis.NewScript(`
-					local statisticKey = KEYS[1]
-					local collectKey = KEYS[2]
-					local collectionsKey = KEYS[3]
-					local creationKey = KEYS[4]
-					local userKey = KEYS[5]
-
-					local member = ARGV[1]
-
-					local statisticKeyExist = redis.call("EXISTS", statisticKey)
-					local collectKeyExist = redis.call("EXISTS", collectKey)
-					local collectionsKeyExist = redis.call("EXISTS", collectionsKey)
-					local creationKeyExist = redis.call("EXISTS", creationKey)
-					local userKeyExist = redis.call("EXISTS", userKey)
-					
-					if statisticKeyExist == 1 then
-						redis.call("HINCRBY", statisticKey, "collect", 1)
-					end
-
-					if collectKeyExist == 1 then
-						redis.call("ZADD", collectKey, 0, member)
-					end
-
-					if collectionsKeyExist == 1 then
-						redis.call("HINCRBY", collectionsKey, "talk", 1)
-					end
-
-					if creationKeyExist == 1 then
-						redis.call("HINCRBY", creationKey, "collect", 1)
-					end
-
-					if userKeyExist == 1 then
-						redis.call("SADD", userKey, id)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("1feecf8c0a6bb8c20f300d1cbb00e4d0e1d2c5a4")
 	keys := []string{statisticKey, collectKey, collectionsKey, creationKey, userKey}
 	values := []interface{}{fmt.Sprintf("%v%s%s", id, "%", uuid)}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -1920,15 +1701,7 @@ func (r *talkRepo) SetTalkCollect(ctx context.Context, id int32, uuid string) er
 }
 
 func (r *talkRepo) SetUserTalkAgreeToCache(ctx context.Context, id int32, userUuid string) error {
-	var script = redis.NewScript(`
-					local key = KEYS[1]
-                    local change = ARGV[1]
-					local value = redis.call("EXISTS", key)
-					if value == 1 then
-						redis.call("SADD", key, change)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("1c622b6aa57cb9c250a7d728d5639901e2a75fbd")
 	keys := []string{"user_talk_agree_" + userUuid}
 	values := []interface{}{strconv.Itoa(int(id))}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -1939,15 +1712,7 @@ func (r *talkRepo) SetUserTalkAgreeToCache(ctx context.Context, id int32, userUu
 }
 
 func (r *talkRepo) SetUserTalkCollectToCache(ctx context.Context, id int32, userUuid string) error {
-	var script = redis.NewScript(`
-					local key = KEYS[1]
-                    local change = ARGV[1]
-					local value = redis.call("EXISTS", key)
-					if value == 1 then
-  						redis.call("SADD", key, change)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("16415c44ae0544f8c7f85d841521813d41c35994")
 	keys := []string{"user_talk_collect_" + userUuid}
 	values := []interface{}{strconv.Itoa(int(id))}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -2041,15 +1806,7 @@ func (r *talkRepo) SetTalkImageIrregularToCache(ctx context.Context, review *biz
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set talk image irregular to json: json.Marshal(%v)", review))
 	}
-	var script = redis.NewScript(`
-					local key = KEYS[1]
-					local value = ARGV[1]
-					local exist = redis.call("EXISTS", key)
-					if exist == 1 then
-						redis.call("LPUSH", key, value)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("8f6205011a2b264278a7c5bc0a2bcd1006ac6e5d")
 	keys := []string{"talk_image_irregular_" + review.Uuid}
 	values := []interface{}{marshal}
 	_, err = script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -2084,15 +1841,7 @@ func (r *talkRepo) SetTalkContentIrregularToCache(ctx context.Context, review *b
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set talk content irregular to json: json.Marshal(%v)", review))
 	}
-	var script = redis.NewScript(`
-					local key = KEYS[1]
-					local value = ARGV[1]
-					local exist = redis.call("EXISTS", key)
-					if exist == 1 then
-						redis.call("LPUSH", key, value)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("8f6205011a2b264278a7c5bc0a2bcd1006ac6e5d")
 	keys := []string{"talk_content_irregular_" + review.Uuid}
 	values := []interface{}{marshal}
 	_, err = script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -2128,44 +1877,7 @@ func (r *talkRepo) CancelTalkCollectFromCache(ctx context.Context, id, collectio
 	collectionsKey := fmt.Sprintf("collections_%v", collectionsId)
 	creationKey := fmt.Sprintf("creation_user_%s", userUuid)
 	userKey := fmt.Sprintf("user_talk_collect_%s", userUuid)
-	var script = redis.NewScript(`
-					local statisticKey = KEYS[1]
-					local statisticKeyExist = redis.call("EXISTS", statisticKey)
-					if statisticKeyExist == 1 then
-						local number = tonumber(redis.call("HGET", statisticKey, "collect"))
-						if number > 0 then
-  							redis.call("HINCRBY", statisticKey, "collect", -1)
-						end
-					end
-
-					local collectKey = KEYS[2]
-					local talkMember = ARGV[1]
-					redis.call("ZREM", collectKey, talkMember)
-
-					local collectionsKey = KEYS[3]
-					local collectionsKeyExist = redis.call("EXISTS", collectionsKey)
-					if collectionsKeyExist == 1 then
-						local number = tonumber(redis.call("HGET", collectionsKey, "talk"))
-						if number > 0 then
-  							redis.call("HINCRBY", collectionsKey, "talk", -1)
-						end
-					end
-
-					local creationKey = KEYS[4]
-					local creationKeyExist = redis.call("EXISTS", creationKey)
-					if creationKeyExist == 1 then
-						local number = tonumber(redis.call("HGET", creationKey, "collect"))
-						if number > 0 then
-  							redis.call("HINCRBY", creationKey, "collect", -1)
-						end
-					end
-
-					local userKey = KEYS[5]
-					local talkId = ARGV[2]
-					redis.call("SREM", userKey, talkId)
-
-					return 0
-	`)
+	var script = redis.NewScript("c54e39b45bc53e7cd70ad2d28fc2eb4e68625784")
 	keys := []string{statisticKey, collectKey, collectionsKey, creationKey, userKey}
 	values := []interface{}{fmt.Sprintf("%v%s%s", id, "%", uuid), id}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -2176,15 +1888,7 @@ func (r *talkRepo) CancelTalkCollectFromCache(ctx context.Context, id, collectio
 }
 
 func (r *talkRepo) CancelUserTalkAgreeFromCache(ctx context.Context, id int32, userUuid string) error {
-	var script = redis.NewScript(`
-					local key = KEYS[1]
-                    local change = ARGV[1]
-					local value = redis.call("EXISTS", key)
-					if value == 1 then
-  						redis.call("SREM", key, change)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("d7d8a559ccbad93b64d6e4ef0b9130d2b5992224")
 	keys := []string{"user_talk_agree_" + userUuid}
 	values := []interface{}{strconv.Itoa(int(id))}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -2195,15 +1899,7 @@ func (r *talkRepo) CancelUserTalkAgreeFromCache(ctx context.Context, id int32, u
 }
 
 func (r *talkRepo) CancelUserTalkCollectFromCache(ctx context.Context, id int32, userUuid string) error {
-	var script = redis.NewScript(`
-					local key = KEYS[1]
-                    local change = ARGV[1]
-					local value = redis.call("EXISTS", key)
-					if value == 1 then
-						redis.call("SREM", key, change)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("9aab0f65688566d3d54b7851570412ad816a80bb")
 	keys := []string{"user_talk_collect_" + userUuid}
 	values := []interface{}{strconv.Itoa(int(id))}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -2302,14 +1998,7 @@ func (r *talkRepo) AddTalkComment(ctx context.Context, id int32) error {
 
 func (r *talkRepo) AddTalkCommentToCache(ctx context.Context, id int32, uuid string) error {
 	key := "talk_" + strconv.Itoa(int(id))
-	var script = redis.NewScript(`
-					local key = KEYS[1]
-					local keyExist = redis.call("EXISTS", key)
-					if keyExist == 1 then
-						redis.call("HINCRBY", key, "comment", 1)
-					end
-					return 0
-	`)
+	var script = redis.NewScript("17cef96499553bacd3611f03630542e2b475a42c")
 	keys := []string{key}
 	var values []interface{}
 	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
@@ -2330,17 +2019,7 @@ func (r *talkRepo) ReduceTalkComment(ctx context.Context, id int32) error {
 
 func (r *talkRepo) ReduceTalkCommentToCache(ctx context.Context, id int32, uuid string) error {
 	key := "talk_" + strconv.Itoa(int(id))
-	var script = redis.NewScript(`
-					local key = KEYS[1]
-					local value = redis.call("EXISTS", key)
-					if value == 1 then
-						local number = tonumber(redis.call("HGET", key, "comment"))
-						if number > 0 then
-  							redis.call("HINCRBY", key, "comment", -1)
-						end
-					end
-					return 0
-	`)
+	var script = redis.NewScript("e9942f8b94d123b097211f27b5bf8fc896b1fa45")
 	keys := []string{key}
 	_, err := script.Run(ctx, r.data.redisCli, keys).Result()
 	if err != nil {
