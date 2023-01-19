@@ -1,5 +1,7 @@
 package main
 
+import "time"
+
 func main() {
 	log, err := logInit()
 	if err != nil {
@@ -85,7 +87,7 @@ func setNews(news []*News, cosCli *CosClient, es *ElasticSearch, db *DB, redis *
 			log.SendLog(err.Error())
 			continue
 		}
-		return
+		time.Sleep(time.Second * 1)
 	}
 }
 
