@@ -170,12 +170,12 @@ func (r *ArticleUseCase) ArticleContentIrregular(ctx context.Context, review *Te
 
 func (r *ArticleUseCase) AddArticleImageReviewDbAndCache(ctx context.Context, review *ImageReview) error {
 	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
-		review, err := r.repo.SetArticleImageIrregular(ctx, review)
+		re, err := r.repo.SetArticleImageIrregular(ctx, review)
 		if err != nil {
 			return v1.ErrorSetImageIrregularFailed("set article image irregular failed: %s", err.Error())
 		}
 
-		err = r.repo.SetArticleImageIrregularToCache(ctx, review)
+		err = r.repo.SetArticleImageIrregularToCache(ctx, re)
 		if err != nil {
 			return v1.ErrorSetImageIrregularFailed("set article image irregular to cache failed: %s", err.Error())
 		}
@@ -186,12 +186,19 @@ func (r *ArticleUseCase) AddArticleImageReviewDbAndCache(ctx context.Context, re
 
 func (r *ArticleUseCase) AddArticleContentReviewDbAndCache(ctx context.Context, review *TextReview) error {
 	return r.tm.ExecTx(ctx, func(ctx context.Context) error {
-		review, err := r.repo.SetArticleContentIrregular(ctx, review)
+		re, err := r.repo.SetArticleContentIrregular(ctx, review)
 		if err != nil {
 			return v1.ErrorSetContentIrregularFailed("set article content irregular failed: %s", err.Error())
 		}
 
-		err = r.repo.SetArticleContentIrregularToCache(ctx, review)
+		if review.Kind == "create" {
+			err = r.repo.ArticleDraftMark(ctx, review.CreationId, review.Uuid)
+			if err != nil {
+				return v1.ErrorSetContentIrregularFailed("mark article draft failed: %s", err.Error())
+			}
+		}
+
+		err = r.repo.SetArticleContentIrregularToCache(ctx, re)
 		if err != nil {
 			return v1.ErrorSetContentIrregularFailed("set article content irregular to cache failed: %s", err.Error())
 		}
