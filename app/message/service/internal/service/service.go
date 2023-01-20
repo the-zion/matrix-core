@@ -53,14 +53,38 @@ func (s *MessageService) TextReview(req *v1.TextReviewReq) (*biz.TextReview, err
 
 	for _, item := range req.JobsDetail.Section {
 		se := make(map[string]interface{}, 0)
-		se["PornInfoHitFlag"] = item.PornInfo.HitFlag
-		se["PornInfoKeywords"] = item.PornInfo.Keywords
-		se["AdsInfoHitFlag"] = item.AdsInfo.HitFlag
-		se["AdsInfoKeywords"] = item.AdsInfo.Keywords
-		se["IllegalInfoHitFlag"] = item.IllegalInfo.HitFlag
-		se["IllegalInfoKeywords"] = item.IllegalInfo.Keywords
-		se["AbuseInfoHitFlag"] = item.AbuseInfo.HitFlag
-		se["AbuseInfoKeywords"] = item.AbuseInfo.Keywords
+		if item.PornInfo != nil {
+			se["PornInfoHitFlag"] = item.PornInfo.HitFlag
+			se["PornInfoKeywords"] = item.PornInfo.Keywords
+		} else {
+			se["PornInfoHitFlag"] = 0
+			se["PornInfoKeywords"] = ""
+		}
+
+		if item.AdsInfo != nil {
+			se["AdsInfoHitFlag"] = item.AdsInfo.HitFlag
+			se["AdsInfoKeywords"] = item.AdsInfo.Keywords
+		} else {
+			se["AdsInfoHitFlag"] = 0
+			se["AdsInfoKeywords"] = ""
+		}
+
+		if item.IllegalInfo != nil {
+			se["IllegalInfoHitFlag"] = item.IllegalInfo.HitFlag
+			se["IllegalInfoKeywords"] = item.IllegalInfo.Keywords
+		} else {
+			se["IllegalInfoHitFlag"] = 0
+			se["IllegalInfoKeywords"] = ""
+		}
+
+		if item.AbuseInfo != nil {
+			se["AbuseInfoHitFlag"] = item.AbuseInfo.HitFlag
+			se["AbuseInfoKeywords"] = item.AbuseInfo.Keywords
+		} else {
+			se["AbuseInfoHitFlag"] = 0
+			se["AbuseInfoKeywords"] = ""
+		}
+
 		section = append(section, se)
 	}
 
