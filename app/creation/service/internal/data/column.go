@@ -129,10 +129,9 @@ func (r *columnRepo) AddColumnIncludes(ctx context.Context, id, articleId int32,
 func (r *columnRepo) AddColumnIncludesToCache(ctx context.Context, id, articleId int32, uuid string) error {
 	ids := strconv.Itoa(int(id))
 	articleIds := strconv.Itoa(int(articleId))
-	var script = redis.NewScript("b61e4f79dba2b5fce276b219047de4fc36797a40")
 	keys := []string{"column_includes_" + ids, articleIds + "%" + uuid}
 	values := []interface{}{float64(time.Now().Unix())}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "b61e4f79dba2b5fce276b219047de4fc36797a40", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to add column includes to cache: uuid(%s), id(%v)", uuid, id))
 	}
@@ -413,10 +412,9 @@ func (r *columnRepo) CreateColumnCache(ctx context.Context, id, auth int32, uuid
 	userColumnListVisitor := "user_column_list_visitor_" + uuid
 	creationUser := "creation_user_" + uuid
 	creationUserVisitor := "creation_user_visitor_" + uuid
-	var script = redis.NewScript("89db8d00c64b369f84452619f87054c2f90a5445")
 	keys := []string{columnStatistic, column, columnHot, leaderboard, userColumnList, userColumnListVisitor, creationUser, creationUserVisitor}
 	values := []interface{}{uuid, auth, id, ids + "%" + uuid, mode, ids + "%" + uuid + "%column"}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "89db8d00c64b369f84452619f87054c2f90a5445", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to create(update) column cache: uuid(%s), id(%v)", uuid, id))
 	}
@@ -1101,10 +1099,9 @@ func (r *columnRepo) DeleteColumnStatistic(ctx context.Context, id int32, uuid s
 
 func (r *columnRepo) DeleteColumnCache(ctx context.Context, id, auth int32, uuid string) error {
 	ids := strconv.Itoa(int(id))
-	var script = redis.NewScript("c0632fb15f81cec952114656b225f3bc9777406b")
 	keys := []string{"column", "column_hot", "leaderboard", "column_" + ids, "column_collect_" + ids, "user_column_list_" + uuid, "user_column_list_visitor_" + uuid, "creation_user_" + uuid, "creation_user_visitor_" + uuid}
 	values := []interface{}{ids + "%" + uuid, ids + "%" + uuid + "%column", auth}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "c0632fb15f81cec952114656b225f3bc9777406b", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to delete column cache: id(%v), uuid(%s)", id, uuid))
 	}
@@ -1516,10 +1513,9 @@ func (r *columnRepo) SetColumnView(ctx context.Context, id int32, uuid string) e
 
 func (r *columnRepo) SetColumnViewToCache(ctx context.Context, id int32, uuid string) error {
 	ids := strconv.Itoa(int(id))
-	var script = redis.NewScript("6abf0f5d9afbfe7ed552297f59b9d898c6b06747")
 	keys := []string{"column_" + ids}
 	values := []interface{}{1}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "6abf0f5d9afbfe7ed552297f59b9d898c6b06747", keys, values...).Result()
 
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to add column view to cache: id(%v), uuid(%s)", id, uuid))
@@ -1532,10 +1528,9 @@ func (r *columnRepo) SetColumnAgreeToCache(ctx context.Context, id int32, uuid, 
 	statisticKey := fmt.Sprintf("column_%v", id)
 	boardKey := fmt.Sprintf("leaderboard")
 	userKey := fmt.Sprintf("user_column_agree_%s", userUuid)
-	var script = redis.NewScript("7c94d6c820881b0b69ec949e5565ea0557be65ae")
 	keys := []string{hotKey, statisticKey, boardKey, userKey}
 	values := []interface{}{fmt.Sprintf("%v%s%s", id, "%", uuid), fmt.Sprintf("%v%s%s%s", id, "%", uuid, "%column"), id}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "7c94d6c820881b0b69ec949e5565ea0557be65ae", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to add user column agree to cache: id(%v), uuid(%s), userUuid(%s)", id, uuid, userUuid))
 	}
@@ -1596,10 +1591,9 @@ func (r *columnRepo) SetColumnCollectToCache(ctx context.Context, id, collection
 	collectionsKey := fmt.Sprintf("collections_%v", collectionsId)
 	creationKey := fmt.Sprintf("creation_user_%s", userUuid)
 	userKey := fmt.Sprintf("user_column_collect_%s", userUuid)
-	var script = redis.NewScript("cdea1d3aa1a8bfdd01d3111071ffc9297fa9b14a")
 	keys := []string{statisticKey, collectKey, collectionsKey, creationKey, userKey}
 	values := []interface{}{fmt.Sprintf("%v%s%s", id, "%", uuid)}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "cdea1d3aa1a8bfdd01d3111071ffc9297fa9b14a", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to add column collect to cache: id(%v), collectionsId(%v), uuid(%s), userUuid(%s)", id, collectionsId, uuid, userUuid))
 	}
@@ -1607,10 +1601,9 @@ func (r *columnRepo) SetColumnCollectToCache(ctx context.Context, id, collection
 }
 
 func (r *columnRepo) SetUserColumnAgreeToCache(ctx context.Context, id int32, userUuid string) error {
-	var script = redis.NewScript("16415c44ae0544f8c7f85d841521813d41c35994")
 	keys := []string{"user_column_agree_" + userUuid}
 	values := []interface{}{strconv.Itoa(int(id))}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "16415c44ae0544f8c7f85d841521813d41c35994", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set user column agree to cache: id(%v), userUuid(%s)", id, userUuid))
 	}
@@ -1618,10 +1611,9 @@ func (r *columnRepo) SetUserColumnAgreeToCache(ctx context.Context, id int32, us
 }
 
 func (r *columnRepo) SetUserColumnCollectToCache(ctx context.Context, id int32, userUuid string) error {
-	var script = redis.NewScript("16415c44ae0544f8c7f85d841521813d41c35994")
 	keys := []string{"user_column_collect_" + userUuid}
 	values := []interface{}{strconv.Itoa(int(id))}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "16415c44ae0544f8c7f85d841521813d41c35994", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set user column collect to cache: id(%v), userUuid(%s)", id, userUuid))
 	}
@@ -1699,10 +1691,9 @@ func (r *columnRepo) CancelColumnAgreeFromCache(ctx context.Context, id int32, u
 	statisticKey := fmt.Sprintf("column_%v", id)
 	userKey := fmt.Sprintf("user_column_agree_%s", userUuid)
 
-	var script = redis.NewScript("c2c68100b9b682b94faff1a9b182159921d0b8e4")
 	keys := []string{hotKey, boardKey, statisticKey, userKey}
 	values := []interface{}{fmt.Sprintf("%v%s%s", id, "%", uuid), fmt.Sprintf("%v%s%s%s", id, "%", uuid, "%column"), id}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "c2c68100b9b682b94faff1a9b182159921d0b8e4", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel column agree from cache: id(%v), uuid(%s), userUuid(%s)", id, uuid, userUuid))
 	}
@@ -1724,10 +1715,9 @@ func (r *columnRepo) CancelColumnCollectFromCache(ctx context.Context, id, colle
 	collectionsKey := fmt.Sprintf("collections_%v", collectionsId)
 	creationKey := fmt.Sprintf("creation_user_%s", userUuid)
 	userKey := fmt.Sprintf("user_column_collect_%s", userUuid)
-	var script = redis.NewScript("4b38eed06ee66c1374f7b58076f5a3f25482b875")
 	keys := []string{statisticKey, collectKey, collectionsKey, creationKey, userKey}
 	values := []interface{}{fmt.Sprintf("%v%s%s", id, "%", uuid), id}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "4b38eed06ee66c1374f7b58076f5a3f25482b875", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel column collect from cache: id(%v), collectionsId(%v), uuid(%s), userUuid(%s)", id, collectionsId, uuid, userUuid))
 	}
@@ -1760,10 +1750,9 @@ func (r *columnRepo) SubscribeColumn(ctx context.Context, id int32, author, uuid
 }
 
 func (r *columnRepo) SetUserColumnSubscribeToCache(ctx context.Context, id int32, uuid string) error {
-	var script = redis.NewScript("16415c44ae0544f8c7f85d841521813d41c35994")
 	keys := []string{"user_column_subscribe_" + uuid}
 	values := []interface{}{strconv.Itoa(int(id))}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "16415c44ae0544f8c7f85d841521813d41c35994", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set user column subscribe to cache: id(%v), uuid(%s)", id, uuid))
 	}
@@ -1771,10 +1760,9 @@ func (r *columnRepo) SetUserColumnSubscribeToCache(ctx context.Context, id int32
 }
 
 func (r *columnRepo) SetColumnSubscribeToCache(ctx context.Context, id int32, author, uuid string) error {
-	var script = redis.NewScript("10dee8ad4d5802b6e9ffcf10d3b9041419c1fce0")
 	keys := []string{"user_column_subscribe_" + uuid, "user_column_subscribe_list_" + uuid, fmt.Sprintf("%v%s%s", id, "%", author), "creation_user_" + uuid}
 	values := []interface{}{strconv.Itoa(int(id))}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "10dee8ad4d5802b6e9ffcf10d3b9041419c1fce0", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set column subscribe to cache: id(%v), uuid(%s)", id, uuid))
 	}
@@ -1809,10 +1797,9 @@ func (r *columnRepo) SetColumnImageIrregularToCache(ctx context.Context, review 
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set column image irregular to json: json.Marshal(%v)", review))
 	}
-	var script = redis.NewScript("8f6205011a2b264278a7c5bc0a2bcd1006ac6e5d")
 	keys := []string{"column_image_irregular_" + review.Uuid}
 	values := []interface{}{marshal}
-	_, err = script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err = r.data.redisCli.EvalSha(ctx, "8f6205011a2b264278a7c5bc0a2bcd1006ac6e5d", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set column image irregular to cache: review(%v)", review))
 	}
@@ -1844,10 +1831,9 @@ func (r *columnRepo) SetColumnContentIrregularToCache(ctx context.Context, revie
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set column content irregular to json: json.Marshal(%v)", review))
 	}
-	var script = redis.NewScript("8f6205011a2b264278a7c5bc0a2bcd1006ac6e5d")
 	keys := []string{"column_content_irregular_" + review.Uuid}
 	values := []interface{}{marshal}
-	_, err = script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err = r.data.redisCli.EvalSha(ctx, "8f6205011a2b264278a7c5bc0a2bcd1006ac6e5d", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set column content irregular to cache: review(%v)", review))
 	}
@@ -1879,10 +1865,9 @@ func (r *columnRepo) CancelSubscribeColumn(ctx context.Context, id int32, uuid s
 }
 
 func (r *columnRepo) CancelUserColumnAgreeFromCache(ctx context.Context, id int32, userUuid string) error {
-	var script = redis.NewScript("d7d8a559ccbad93b64d6e4ef0b9130d2b5992224")
 	keys := []string{"user_column_agree_" + userUuid}
 	values := []interface{}{strconv.Itoa(int(id))}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "d7d8a559ccbad93b64d6e4ef0b9130d2b5992224", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel user column agree from cache: id(%v), userUuid(%s)", id, userUuid))
 	}
@@ -1899,10 +1884,9 @@ func (r *columnRepo) CancelUserColumnAgree(ctx context.Context, id int32, userUu
 }
 
 func (r *columnRepo) CancelUserColumnCollectFromCache(ctx context.Context, id int32, userUuid string) error {
-	var script = redis.NewScript("d7d8a559ccbad93b64d6e4ef0b9130d2b5992224")
 	keys := []string{"user_column_collect_" + userUuid}
 	values := []interface{}{strconv.Itoa(int(id))}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "d7d8a559ccbad93b64d6e4ef0b9130d2b5992224", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel user column agree from cache: id(%v), userUuid(%s)", id, userUuid))
 	}
@@ -1930,10 +1914,9 @@ func (r *columnRepo) CancelCollectionColumn(ctx context.Context, id int32, uuid 
 }
 
 func (r *columnRepo) CancelUserColumnSubscribeFromCache(ctx context.Context, id int32, uuid string) error {
-	var script = redis.NewScript("792d5479bde6bbb90d49b24c9a7a46d67c1e142b")
 	keys := []string{"user_column_subscribe_" + uuid}
 	values := []interface{}{strconv.Itoa(int(id))}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "792d5479bde6bbb90d49b24c9a7a46d67c1e142b", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel user column subscribe from cache: id(%v), uuid(%s)", id, uuid))
 	}
@@ -1941,10 +1924,9 @@ func (r *columnRepo) CancelUserColumnSubscribeFromCache(ctx context.Context, id 
 }
 
 func (r *columnRepo) CancelColumnSubscribeFromCache(ctx context.Context, id int32, author, uuid string) error {
-	var script = redis.NewScript("2c2c0ba88a7e8cda97f34ccdc598e5ce8e1a3434")
 	keys := []string{"user_column_subscribe_" + uuid, "user_column_subscribe_list_" + uuid, fmt.Sprintf("%v%s%s", id, "%", author), "creation_user_" + uuid}
 	values := []interface{}{strconv.Itoa(int(id))}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "2c2c0ba88a7e8cda97f34ccdc598e5ce8e1a3434", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel column subscribe from cache: id(%v), author(%s), uuid(%s)", id, author, uuid))
 	}

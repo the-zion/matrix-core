@@ -2043,10 +2043,9 @@ func (r *commentRepo) SetRecord(ctx context.Context, id int32, uuid, ip string) 
 }
 
 func (r *commentRepo) SetUserCommentAgreeToCache(ctx context.Context, id int32, userUuid string) error {
-	var script = redis.NewScript("16415c44ae0544f8c7f85d841521813d41c35994")
 	keys := []string{"user_comment_agree_" + userUuid}
 	values := []interface{}{strconv.Itoa(int(id))}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "16415c44ae0544f8c7f85d841521813d41c35994", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set user comment agree to cache: id(%v), userUuid(%s)", id, userUuid))
 	}
@@ -2108,10 +2107,9 @@ func (r *commentRepo) SetCommentAgreeToCache(ctx context.Context, id, creationId
 	statisticKey := fmt.Sprintf("comment_%v", id)
 	userKey := fmt.Sprintf("user_comment_agree_%s", userUuid)
 
-	var script = redis.NewScript("d9069cfea8db1d598aca74d388d8cf311099c769")
 	keys := []string{hotKey, statisticKey, userKey}
 	values := []interface{}{fmt.Sprintf("%v%s%s", id, "%", uuid), id}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "d9069cfea8db1d598aca74d388d8cf311099c769", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to update(add) comment cache: id(%v), creationId(%v), creationType(%v), uuid(%s), userUuid(%s) ", id, creationId, creationType, uuid, userUuid))
 	}
@@ -2122,10 +2120,9 @@ func (r *commentRepo) SetSubCommentAgreeToCache(ctx context.Context, id int32, u
 	statisticKey := fmt.Sprintf("comment_%v", id)
 	userKey := fmt.Sprintf("user_comment_agree_%s", userUuid)
 
-	var script = redis.NewScript("ca1f3e33b82e540bf8a92551c78ba411eb6944be")
 	keys := []string{statisticKey, userKey}
 	values := []interface{}{id}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "ca1f3e33b82e540bf8a92551c78ba411eb6944be", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to update(add) sub comment cache: id(%v), uuid(%s), userUuid(%s) ", id, uuid, userUuid))
 	}
@@ -2157,10 +2154,10 @@ func (r *commentRepo) SetCommentContentIrregularToCache(ctx context.Context, rev
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set comment content irregular to json: json.Marshal(%v)", review))
 	}
-	var script = redis.NewScript("8f6205011a2b264278a7c5bc0a2bcd1006ac6e5d")
+
 	keys := []string{"comment_content_irregular_" + review.Uuid}
 	values := []interface{}{marshal}
-	_, err = script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err = r.data.redisCli.EvalSha(ctx, "8f6205011a2b264278a7c5bc0a2bcd1006ac6e5d", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set comment content irregular to cache: review(%v)", review))
 	}
@@ -2199,10 +2196,9 @@ func (r *commentRepo) CancelCommentAgreeFromCache(ctx context.Context, id, creat
 	statisticKey := fmt.Sprintf("comment_%v", id)
 	userKey := fmt.Sprintf("user_comment_agree_%s", userUuid)
 
-	var script = redis.NewScript("9dc4d48a178101039febb85f383bdf1ce03084e8")
 	keys := []string{hotKey, statisticKey, userKey}
 	values := []interface{}{fmt.Sprintf("%v%s%s", id, "%", uuid), id}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "9dc4d48a178101039febb85f383bdf1ce03084e8", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to update(cancel) comment cache: id(%v), creationId(%v), creationType(%v), uuid(%s), userUuid(%s) ", id, creationId, creationType, uuid, userUuid))
 	}
@@ -2213,10 +2209,9 @@ func (r *commentRepo) CancelSubCommentAgreeFromCache(ctx context.Context, id int
 	statisticKey := fmt.Sprintf("comment_%v", id)
 	userKey := fmt.Sprintf("user_comment_agree_%s", userUuid)
 
-	var script = redis.NewScript("1167c6dce1ed0d4e0a11e9fed90cae399f49f259")
 	keys := []string{statisticKey, userKey}
 	values := []interface{}{id}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "1167c6dce1ed0d4e0a11e9fed90cae399f49f259", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to update(cancel) sub comment cache: id(%v), uuid(%s), userUuid(%s) ", id, uuid, userUuid))
 	}
@@ -2451,7 +2446,7 @@ func (r *commentRepo) CreateCommentCache(ctx context.Context, id, creationId, cr
 		userCommentCreationReplyList = "user_comment_talk_reply_list_" + uuid
 		userCommentCreationRepliedList = "user_comment_talk_replied_list_" + creationAuthor
 	}
-	var script = redis.NewScript("8651c46058c26d194cb9ac3c575b0ef3ca05dba5")
+
 	keys := []string{
 		"comment_" + creationIds + "_" + creationTypes,
 		"comment_" + creationIds + "_" + creationTypes + "_hot",
@@ -2471,7 +2466,7 @@ func (r *commentRepo) CreateCommentCache(ctx context.Context, id, creationId, cr
 		ids + "%" + creationIds + "%" + uuid,
 		ids + "%" + creationIds + "%" + creationTypes + "%" + uuid,
 	}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "8651c46058c26d194cb9ac3c575b0ef3ca05dba5", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to create comment cache: id(%v), uuid(%s), creationAuthor(%v), creationId(%v), creationType(%v)", id, uuid, creationAuthor, creationId, creationType))
 	}
@@ -2506,7 +2501,6 @@ func (r *commentRepo) CreateSubCommentCache(ctx context.Context, id, rootId, par
 		userSubCommentCreationRepliedListForParent = "user_sub_comment_talk_replied_list_" + reply
 	}
 
-	var script = redis.NewScript("6cf899977cbe0951aba44112f0a98130cef04e1e")
 	keys := []string{
 		"comment_" + ids,
 		"comment_" + rootIds,
@@ -2532,7 +2526,7 @@ func (r *commentRepo) CreateSubCommentCache(ctx context.Context, id, rootId, par
 		rootUser,
 		reply,
 	}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "6cf899977cbe0951aba44112f0a98130cef04e1e", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to create sub comment cache: id(%v), rootId(%v), parentId(%v), creationId(%v), creationType(%v), creationAuthor(%s), rootUser(%s),uuid(%s), reply(%s)", id, rootId, parentId, creationId, creationType, creationAuthor, rootUser, uuid, reply))
 	}
@@ -2891,7 +2885,6 @@ func (r *commentRepo) RemoveCommentCache(ctx context.Context, id, creationId, cr
 		userCommentCreationRepliedList = "user_comment_talk_replied_list_" + creationAuthor
 	}
 
-	var script = redis.NewScript("ed14acc35b617d746219bc729f8930557bc48fa5")
 	keys := []string{
 		"comment_" + creationIds + "_" + creationTypes,
 		"comment_" + creationIds + "_" + creationTypes + "_hot",
@@ -2912,7 +2905,7 @@ func (r *commentRepo) RemoveCommentCache(ctx context.Context, id, creationId, cr
 		ids + "%" + creationIds + "%" + creationTypes + "%" + uuid,
 	}
 
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "ed14acc35b617d746219bc729f8930557bc48fa5", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to remove comment cache: id(%v), uuid(%s), creationId(%v), creationType(%v), creationAuthor(%v)", id, uuid, creationId, creationType, creationAuthor))
 	}
@@ -2947,7 +2940,6 @@ func (r *commentRepo) RemoveSubCommentCache(ctx context.Context, id, rootId, par
 		userSubCommentCreationRepliedListForParent = "user_sub_comment_talk_replied_list_" + reply
 	}
 
-	var script = redis.NewScript("990385b0f935e627854bcf10a4fdf6a0dce74d47")
 	keys := []string{
 		"comment_" + ids,
 		"comment_" + rootIds,
@@ -2973,7 +2965,7 @@ func (r *commentRepo) RemoveSubCommentCache(ctx context.Context, id, rootId, par
 		rootUser,
 		reply,
 	}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "990385b0f935e627854bcf10a4fdf6a0dce74d47", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to remove sub comment cache: id(%v), rootId(%v), parentId(%v), creationId(%v), creationType(%v), creationAuthor(%s), rootUser(%s),uuid(%s), reply(%s)", id, rootId, parentId, creationId, creationType, creationAuthor, rootUser, uuid, reply))
 	}

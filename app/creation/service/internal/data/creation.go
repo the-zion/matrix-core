@@ -1287,10 +1287,10 @@ func (r *creationRepo) SetCollectionsContentIrregularToCache(ctx context.Context
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set collections content irregular to json: json.Marshal(%v)", review))
 	}
-	var script = redis.NewScript("8f6205011a2b264278a7c5bc0a2bcd1006ac6e5d")
+
 	keys := []string{"collections_content_irregular_" + review.Uuid}
 	values := []interface{}{marshal}
-	_, err = script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err = r.data.redisCli.EvalSha(ctx, "8f6205011a2b264278a7c5bc0a2bcd1006ac6e5d", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set collections content irregular to cache: review(%v)", review))
 	}
@@ -1338,10 +1338,9 @@ func (r *creationRepo) CreateCollectionsCache(ctx context.Context, id, auth int3
 	creationUserVisitor := "creation_user_visitor_" + uuid
 	userCollectionsListAll := "user_collections_list_all_" + uuid
 	collectionsStatistic := "collections_" + ids
-	var script = redis.NewScript("38375bb0cadfcd92739dba054e387f7985a6c331")
 	keys := []string{collectionsStatistic, userCollectionsList, userCollectionsListVisitor, creationUser, creationUserVisitor, userCollectionsListAll}
 	values := []interface{}{uuid, auth, id, ids, mode}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "38375bb0cadfcd92739dba054e387f7985a6c331", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to create(update) collections cache: uuid(%s), id(%v)", uuid, id))
 	}
@@ -1370,10 +1369,9 @@ func (r *creationRepo) CreateTimeLineCache(ctx context.Context, id, creationId, 
 	creationIds := strconv.Itoa(int(creationId))
 	modes := strconv.Itoa(int(mode))
 	userTimeLineList := "user_timeline_list_" + uuid
-	var script = redis.NewScript("35809bf06a2a8a230fda887f6b24f8ff95ed7942")
 	keys := []string{userTimeLineList}
 	values := []interface{}{ids, ids + "%" + creationIds + "%" + modes + "%" + uuid}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "35809bf06a2a8a230fda887f6b24f8ff95ed7942", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to create timeline cache: uuid(%s), creationId(%v), mode(%v)", uuid, creationId, mode))
 	}
@@ -1466,10 +1464,9 @@ func (r *creationRepo) DeleteCollectionsDraft(ctx context.Context, id int32, uui
 
 func (r *creationRepo) DeleteCreationCache(ctx context.Context, id, auth int32, uuid string) error {
 	ids := strconv.Itoa(int(id))
-	var script = redis.NewScript("cbd0f3890b22fa11f850560ff5749294f54cb916")
 	keys := []string{"user_collections_list_" + uuid, "user_collections_list_visitor_" + uuid, "creation_user_" + uuid, "creation_user_visitor_" + uuid, "user_collections_list_all_" + uuid, "collections_" + ids}
 	values := []interface{}{ids, auth}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "cbd0f3890b22fa11f850560ff5749294f54cb916", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to delete collections cache: id(%v), uuid(%s)", id, uuid))
 	}

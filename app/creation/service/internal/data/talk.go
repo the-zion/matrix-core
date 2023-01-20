@@ -1294,10 +1294,9 @@ func (r *talkRepo) DeleteTalkStatistic(ctx context.Context, id int32, uuid strin
 
 func (r *talkRepo) DeleteTalkCache(ctx context.Context, id, auth int32, uuid string) error {
 	ids := strconv.Itoa(int(id))
-	var script = redis.NewScript("723a24fff880154f9a85292efb2152330b72d994")
 	keys := []string{"talk", "talk_hot", "leaderboard", "talk_" + ids, "talk_collect_" + ids, "user_talk_list_" + uuid, "user_talk_list_visitor_" + uuid, "creation_user_" + uuid, "creation_user_visitor_" + uuid}
 	values := []interface{}{ids + "%" + uuid, ids + "%" + uuid + "%talk", auth}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "723a24fff880154f9a85292efb2152330b72d994", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to delete talk cache: id(%v), uuid(%s)", id, uuid))
 	}
@@ -1392,10 +1391,9 @@ func (r *talkRepo) CreateTalkCache(ctx context.Context, id, auth int32, uuid, mo
 	userTalkListVisitor := "user_talk_list_visitor_" + uuid
 	creationUser := "creation_user_" + uuid
 	creationUserVisitor := "creation_user_visitor_" + uuid
-	var script = redis.NewScript("eb5d94a2a972340b5ac93769524a51911f9c032f")
 	keys := []string{talkStatistic, talk, talkHot, leaderboard, userTalkList, userTalkListVisitor, creationUser, creationUserVisitor}
 	values := []interface{}{uuid, auth, id, ids + "%" + uuid, mode, ids + "%" + uuid + "%talk"}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "eb5d94a2a972340b5ac93769524a51911f9c032f", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to create(update) talk cache: uuid(%s), id(%v)", uuid, id))
 	}
@@ -1448,10 +1446,9 @@ func (r *talkRepo) SetTalkAgreeToCache(ctx context.Context, id int32, uuid, user
 	statisticKey := fmt.Sprintf("talk_%v", id)
 	boardKey := fmt.Sprintf("leaderboard")
 	userKey := fmt.Sprintf("user_talk_agree_%s", userUuid)
-	var script = redis.NewScript("7c94d6c820881b0b69ec949e5565ea0557be65ae")
 	keys := []string{hotKey, statisticKey, boardKey, userKey}
 	values := []interface{}{fmt.Sprintf("%v%s%s", id, "%", uuid), fmt.Sprintf("%v%s%s%s", id, "%", uuid, "%talk"), id}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "7c94d6c820881b0b69ec949e5565ea0557be65ae", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to add user talk agree to cache: id(%v), uuid(%s), userUuid(%s)", id, uuid, userUuid))
 	}
@@ -1482,10 +1479,9 @@ func (r *talkRepo) CancelTalkAgreeFromCache(ctx context.Context, id int32, uuid,
 	statisticKey := fmt.Sprintf("talk_%v", id)
 	userKey := fmt.Sprintf("user_talk_agree_%s", userUuid)
 
-	var script = redis.NewScript("c2c68100b9b682b94faff1a9b182159921d0b8e4")
 	keys := []string{hotKey, boardKey, statisticKey, userKey}
 	values := []interface{}{fmt.Sprintf("%v%s%s", id, "%", uuid), fmt.Sprintf("%v%s%s%s", id, "%", uuid, "%talk"), id}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "c2c68100b9b682b94faff1a9b182159921d0b8e4", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel talk agree from cache: id(%v), uuid(%s), userUuid(%s)", id, uuid, userUuid))
 	}
@@ -1503,10 +1499,9 @@ func (r *talkRepo) SetTalkView(ctx context.Context, id int32, uuid string) error
 
 func (r *talkRepo) SetTalkViewToCache(ctx context.Context, id int32, uuid string) error {
 	ids := strconv.Itoa(int(id))
-	var script = redis.NewScript("6abf0f5d9afbfe7ed552297f59b9d898c6b06747")
 	keys := []string{"talk_" + ids}
 	values := []interface{}{1}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "6abf0f5d9afbfe7ed552297f59b9d898c6b06747", keys, values...).Result()
 
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to add talk view to cache: id(%v), uuid(%s)", id, uuid))
@@ -1681,10 +1676,9 @@ func (r *talkRepo) SetTalkCollectToCache(ctx context.Context, id, collectionsId 
 	collectionsKey := fmt.Sprintf("collections_%v", collectionsId)
 	creationKey := fmt.Sprintf("creation_user_%s", userUuid)
 	userKey := fmt.Sprintf("user_talk_collect_%s", userUuid)
-	var script = redis.NewScript("1feecf8c0a6bb8c20f300d1cbb00e4d0e1d2c5a4")
 	keys := []string{statisticKey, collectKey, collectionsKey, creationKey, userKey}
 	values := []interface{}{fmt.Sprintf("%v%s%s", id, "%", uuid)}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "1feecf8c0a6bb8c20f300d1cbb00e4d0e1d2c5a4", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to add talk collect to cache: id(%v), collectionsId(%v), uuid(%s), userUuid(%s)", id, collectionsId, uuid, userUuid))
 	}
@@ -1701,10 +1695,9 @@ func (r *talkRepo) SetTalkCollect(ctx context.Context, id int32, uuid string) er
 }
 
 func (r *talkRepo) SetUserTalkAgreeToCache(ctx context.Context, id int32, userUuid string) error {
-	var script = redis.NewScript("1c622b6aa57cb9c250a7d728d5639901e2a75fbd")
 	keys := []string{"user_talk_agree_" + userUuid}
 	values := []interface{}{strconv.Itoa(int(id))}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "1c622b6aa57cb9c250a7d728d5639901e2a75fbd", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set user talk agree to cache: id(%v), userUuid(%s)", id, userUuid))
 	}
@@ -1712,10 +1705,9 @@ func (r *talkRepo) SetUserTalkAgreeToCache(ctx context.Context, id int32, userUu
 }
 
 func (r *talkRepo) SetUserTalkCollectToCache(ctx context.Context, id int32, userUuid string) error {
-	var script = redis.NewScript("16415c44ae0544f8c7f85d841521813d41c35994")
 	keys := []string{"user_talk_collect_" + userUuid}
 	values := []interface{}{strconv.Itoa(int(id))}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "16415c44ae0544f8c7f85d841521813d41c35994", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set user talk collect to cache: id(%v), userUuid(%s)", id, userUuid))
 	}
@@ -1806,10 +1798,9 @@ func (r *talkRepo) SetTalkImageIrregularToCache(ctx context.Context, review *biz
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set talk image irregular to json: json.Marshal(%v)", review))
 	}
-	var script = redis.NewScript("8f6205011a2b264278a7c5bc0a2bcd1006ac6e5d")
 	keys := []string{"talk_image_irregular_" + review.Uuid}
 	values := []interface{}{marshal}
-	_, err = script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err = r.data.redisCli.EvalSha(ctx, "8f6205011a2b264278a7c5bc0a2bcd1006ac6e5d", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set talk image irregular to cache: review(%v)", review))
 	}
@@ -1841,10 +1832,9 @@ func (r *talkRepo) SetTalkContentIrregularToCache(ctx context.Context, review *b
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set talk content irregular to json: json.Marshal(%v)", review))
 	}
-	var script = redis.NewScript("8f6205011a2b264278a7c5bc0a2bcd1006ac6e5d")
 	keys := []string{"talk_content_irregular_" + review.Uuid}
 	values := []interface{}{marshal}
-	_, err = script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err = r.data.redisCli.EvalSha(ctx, "8f6205011a2b264278a7c5bc0a2bcd1006ac6e5d", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set talk content irregular to cache: review(%v)", review))
 	}
@@ -1877,10 +1867,9 @@ func (r *talkRepo) CancelTalkCollectFromCache(ctx context.Context, id, collectio
 	collectionsKey := fmt.Sprintf("collections_%v", collectionsId)
 	creationKey := fmt.Sprintf("creation_user_%s", userUuid)
 	userKey := fmt.Sprintf("user_talk_collect_%s", userUuid)
-	var script = redis.NewScript("c54e39b45bc53e7cd70ad2d28fc2eb4e68625784")
 	keys := []string{statisticKey, collectKey, collectionsKey, creationKey, userKey}
 	values := []interface{}{fmt.Sprintf("%v%s%s", id, "%", uuid), id}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "c54e39b45bc53e7cd70ad2d28fc2eb4e68625784", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel talk collect from cache: id(%v), collectionsId(%v), uuid(%s), userUuid(%s)", id, collectionsId, uuid, userUuid))
 	}
@@ -1888,10 +1877,9 @@ func (r *talkRepo) CancelTalkCollectFromCache(ctx context.Context, id, collectio
 }
 
 func (r *talkRepo) CancelUserTalkAgreeFromCache(ctx context.Context, id int32, userUuid string) error {
-	var script = redis.NewScript("d7d8a559ccbad93b64d6e4ef0b9130d2b5992224")
 	keys := []string{"user_talk_agree_" + userUuid}
 	values := []interface{}{strconv.Itoa(int(id))}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "d7d8a559ccbad93b64d6e4ef0b9130d2b5992224", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel user talk agree from cache: id(%v), userUuid(%s)", id, userUuid))
 	}
@@ -1899,10 +1887,9 @@ func (r *talkRepo) CancelUserTalkAgreeFromCache(ctx context.Context, id int32, u
 }
 
 func (r *talkRepo) CancelUserTalkCollectFromCache(ctx context.Context, id int32, userUuid string) error {
-	var script = redis.NewScript("9aab0f65688566d3d54b7851570412ad816a80bb")
 	keys := []string{"user_talk_collect_" + userUuid}
 	values := []interface{}{strconv.Itoa(int(id))}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "9aab0f65688566d3d54b7851570412ad816a80bb", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel user talk agree from cache: id(%v), userUuid(%s)", id, userUuid))
 	}
@@ -1998,10 +1985,9 @@ func (r *talkRepo) AddTalkComment(ctx context.Context, id int32) error {
 
 func (r *talkRepo) AddTalkCommentToCache(ctx context.Context, id int32, uuid string) error {
 	key := "talk_" + strconv.Itoa(int(id))
-	var script = redis.NewScript("17cef96499553bacd3611f03630542e2b475a42c")
 	keys := []string{key}
 	var values []interface{}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "17cef96499553bacd3611f03630542e2b475a42c", keys, values...).Result()
 	if err != nil {
 		r.log.Errorf("fail to add talk comment to cache: id(%v), uuid(%s), err(%v)", id, uuid, err)
 	}
@@ -2019,9 +2005,8 @@ func (r *talkRepo) ReduceTalkComment(ctx context.Context, id int32) error {
 
 func (r *talkRepo) ReduceTalkCommentToCache(ctx context.Context, id int32, uuid string) error {
 	key := "talk_" + strconv.Itoa(int(id))
-	var script = redis.NewScript("e9942f8b94d123b097211f27b5bf8fc896b1fa45")
 	keys := []string{key}
-	_, err := script.Run(ctx, r.data.redisCli, keys).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "e9942f8b94d123b097211f27b5bf8fc896b1fa45", keys).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to reduce talk comment to cache: id(%v), uuid(%s)", id, uuid))
 	}

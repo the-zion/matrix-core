@@ -1012,10 +1012,9 @@ func (r *articleRepo) SetArticleImageIrregularToCache(ctx context.Context, revie
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set article image irregular to json: json.Marshal(%v)", review))
 	}
-	var script = redis.NewScript("8f6205011a2b264278a7c5bc0a2bcd1006ac6e5d")
 	keys := []string{"article_image_irregular_" + review.Uuid}
 	values := []interface{}{marshal}
-	_, err = script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err = r.data.redisCli.EvalSha(ctx, "8f6205011a2b264278a7c5bc0a2bcd1006ac6e5d", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set article image irregular to cache: review(%v)", review))
 	}
@@ -1027,10 +1026,9 @@ func (r *articleRepo) SetArticleContentIrregularToCache(ctx context.Context, rev
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set article content irregular to json: json.Marshal(%v)", review))
 	}
-	var script = redis.NewScript("8f6205011a2b264278a7c5bc0a2bcd1006ac6e5d")
 	keys := []string{"article_content_irregular_" + review.Uuid}
 	values := []interface{}{marshal}
-	_, err = script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err = r.data.redisCli.EvalSha(ctx, "8f6205011a2b264278a7c5bc0a2bcd1006ac6e5d", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set article content irregular to cache: review(%v)", review))
 	}
@@ -1344,10 +1342,9 @@ func (r *articleRepo) CreateArticleCache(ctx context.Context, id, auth int32, uu
 	userArticleListVisitor := "user_article_list_visitor_" + uuid
 	creationUser := "creation_user_" + uuid
 	creationUserVisitor := "creation_user_visitor_" + uuid
-	var script = redis.NewScript("03c2dc8c6fdf154a7e6387dc4b0ba296a499c7b6")
 	keys := []string{articleStatistic, article, articleHot, leaderboard, userArticleList, userArticleListVisitor, creationUser, creationUserVisitor}
 	values := []interface{}{uuid, auth, id, ids + "%" + uuid, mode, ids + "%" + uuid + "%article"}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "03c2dc8c6fdf154a7e6387dc4b0ba296a499c7b6", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to create(update) article cache: uuid(%s), id(%v)", uuid, id))
 	}
@@ -1360,10 +1357,9 @@ func (r *articleRepo) UpdateArticleCache(ctx context.Context, id, auth int32, uu
 
 func (r *articleRepo) DeleteArticleCache(ctx context.Context, id, auth int32, uuid string) error {
 	ids := strconv.Itoa(int(id))
-	var script = redis.NewScript("a00173f1947bc4a40039ed55303d230cd2daa749")
 	keys := []string{"article", "article_hot", "leaderboard", "article_" + ids, "article_collect_" + ids, "user_article_list_" + uuid, "user_article_list_visitor_" + uuid, "creation_user_" + uuid, "creation_user_visitor_" + uuid}
 	values := []interface{}{ids + "%" + uuid, ids + "%" + uuid + "%article", auth}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "a00173f1947bc4a40039ed55303d230cd2daa749", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to delete article cache: id(%v), uuid(%s)", id, uuid))
 	}
@@ -1429,10 +1425,9 @@ func (r *articleRepo) AddArticleComment(ctx context.Context, id int32) error {
 
 func (r *articleRepo) AddArticleCommentToCache(ctx context.Context, id int32, uuid string) error {
 	key := "article_" + strconv.Itoa(int(id))
-	var script = redis.NewScript("17cef96499553bacd3611f03630542e2b475a42c")
 	keys := []string{key}
 	var values []interface{}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "17cef96499553bacd3611f03630542e2b475a42c", keys, values...).Result()
 	if err != nil {
 		r.log.Errorf("fail to add article comment to cache: id(%v), uuid(%s), err(%v)", id, uuid, err)
 	}
@@ -1482,9 +1477,8 @@ func (r *articleRepo) ReduceArticleComment(ctx context.Context, id int32) error 
 
 func (r *articleRepo) ReduceArticleCommentToCache(ctx context.Context, id int32, uuid string) error {
 	key := "article_" + strconv.Itoa(int(id))
-	var script = redis.NewScript("e9942f8b94d123b097211f27b5bf8fc896b1fa45")
 	keys := []string{key}
-	_, err := script.Run(ctx, r.data.redisCli, keys).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "e9942f8b94d123b097211f27b5bf8fc896b1fa45", keys).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to reduce article comment to cache: id(%v), uuid(%s)", id, uuid))
 	}
@@ -1755,10 +1749,9 @@ func (r *articleRepo) SetArticleAgreeToCache(ctx context.Context, id int32, uuid
 	statisticKey := fmt.Sprintf("article_%v", id)
 	boardKey := fmt.Sprintf("leaderboard")
 	userKey := fmt.Sprintf("user_article_agree_%s", userUuid)
-	var script = redis.NewScript("7c94d6c820881b0b69ec949e5565ea0557be65ae")
 	keys := []string{hotKey, statisticKey, boardKey, userKey}
 	values := []interface{}{fmt.Sprintf("%v%s%s", id, "%", uuid), fmt.Sprintf("%v%s%s%s", id, "%", uuid, "%article"), id}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "7c94d6c820881b0b69ec949e5565ea0557be65ae", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to add user article agree to cache: id(%v), uuid(%s), userUuid(%s)", id, uuid, userUuid))
 	}
@@ -1776,10 +1769,9 @@ func (r *articleRepo) SetArticleView(ctx context.Context, id int32, uuid string)
 
 func (r *articleRepo) SetArticleViewToCache(ctx context.Context, id int32, uuid string) error {
 	ids := strconv.Itoa(int(id))
-	var script = redis.NewScript("6abf0f5d9afbfe7ed552297f59b9d898c6b06747")
 	keys := []string{"article_" + ids}
 	values := []interface{}{1}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "6abf0f5d9afbfe7ed552297f59b9d898c6b06747", keys, values...).Result()
 
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to add article view to cache: id(%v), uuid(%s)", id, uuid))
@@ -1858,10 +1850,9 @@ func (r *articleRepo) SetArticleCollectToCache(ctx context.Context, id, collecti
 	collectionsKey := fmt.Sprintf("collections_%v", collectionsId)
 	creationKey := fmt.Sprintf("creation_user_%s", userUuid)
 	userKey := fmt.Sprintf("user_article_collect_%s", userUuid)
-	var script = redis.NewScript("958864163ea9699b2c0ee77a49ea456f0db8b45a")
 	keys := []string{statisticKey, collectKey, collectionsKey, creationKey, userKey}
 	values := []interface{}{fmt.Sprintf("%v%s%s", id, "%", uuid)}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "958864163ea9699b2c0ee77a49ea456f0db8b45a", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to add article collect to cache: id(%v), collectionsId(%v), uuid(%s), userUuid(%s)", id, collectionsId, uuid, userUuid))
 	}
@@ -1869,10 +1860,9 @@ func (r *articleRepo) SetArticleCollectToCache(ctx context.Context, id, collecti
 }
 
 func (r *articleRepo) SetUserArticleAgreeToCache(ctx context.Context, id int32, userUuid string) error {
-	var script = redis.NewScript("16415c44ae0544f8c7f85d841521813d41c35994")
 	keys := []string{"user_article_agree_" + userUuid}
 	values := []interface{}{strconv.Itoa(int(id))}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "16415c44ae0544f8c7f85d841521813d41c35994", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set user article agree to cache: id(%v), userUuid(%s)", id, userUuid))
 	}
@@ -1880,10 +1870,9 @@ func (r *articleRepo) SetUserArticleAgreeToCache(ctx context.Context, id int32, 
 }
 
 func (r *articleRepo) SetUserArticleCollectToCache(ctx context.Context, id int32, userUuid string) error {
-	var script = redis.NewScript("16415c44ae0544f8c7f85d841521813d41c35994")
 	keys := []string{"user_article_collect_" + userUuid}
 	values := []interface{}{strconv.Itoa(int(id))}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "16415c44ae0544f8c7f85d841521813d41c35994", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to set user article collect to cache: id(%v), userUuid(%s)", id, userUuid))
 	}
@@ -1914,10 +1903,9 @@ func (r *articleRepo) CancelArticleAgreeFromCache(ctx context.Context, id int32,
 	statisticKey := fmt.Sprintf("article_%v", id)
 	userKey := fmt.Sprintf("user_article_agree_%s", userUuid)
 
-	var script = redis.NewScript("c2c68100b9b682b94faff1a9b182159921d0b8e4")
 	keys := []string{hotKey, boardKey, statisticKey, userKey}
 	values := []interface{}{fmt.Sprintf("%v%s%s", id, "%", uuid), fmt.Sprintf("%v%s%s%s", id, "%", uuid, "%article"), id}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "c2c68100b9b682b94faff1a9b182159921d0b8e4", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel article agree from cache: id(%v), uuid(%s), userUuid(%s)", id, uuid, userUuid))
 	}
@@ -1979,10 +1967,9 @@ func (r *articleRepo) CancelArticleCollectFromCache(ctx context.Context, id, col
 	collectionsKey := fmt.Sprintf("collections_%v", collectionsId)
 	creationKey := fmt.Sprintf("creation_user_%s", userUuid)
 	userKey := fmt.Sprintf("user_article_collect_%s", userUuid)
-	var script = redis.NewScript("51c5960205bc0710a94f1520e748701724a72608")
 	keys := []string{statisticKey, collectKey, collectionsKey, creationKey, userKey}
 	values := []interface{}{fmt.Sprintf("%v%s%s", id, "%", uuid), id}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "51c5960205bc0710a94f1520e748701724a72608", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel article collect from cache: id(%v), collectionsId(%v), uuid(%s), userUuid(%s)", id, collectionsId, uuid, userUuid))
 	}
@@ -1990,10 +1977,9 @@ func (r *articleRepo) CancelArticleCollectFromCache(ctx context.Context, id, col
 }
 
 func (r *articleRepo) CancelUserArticleAgreeFromCache(ctx context.Context, id int32, userUuid string) error {
-	var script = redis.NewScript("9aab0f65688566d3d54b7851570412ad816a80bb")
 	keys := []string{"user_article_agree_" + userUuid}
 	values := []interface{}{strconv.Itoa(int(id))}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "9aab0f65688566d3d54b7851570412ad816a80bb", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel user article agree from cache: id(%v), userUuid(%s)", id, userUuid))
 	}
@@ -2001,10 +1987,9 @@ func (r *articleRepo) CancelUserArticleAgreeFromCache(ctx context.Context, id in
 }
 
 func (r *articleRepo) CancelUserArticleCollectFromCache(ctx context.Context, id int32, userUuid string) error {
-	var script = redis.NewScript("d7d8a559ccbad93b64d6e4ef0b9130d2b5992224")
 	keys := []string{"user_article_collect_" + userUuid}
 	values := []interface{}{strconv.Itoa(int(id))}
-	_, err := script.Run(ctx, r.data.redisCli, keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "d7d8a559ccbad93b64d6e4ef0b9130d2b5992224", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to cancel user article agree from cache: id(%v), userUuid(%s)", id, userUuid))
 	}
