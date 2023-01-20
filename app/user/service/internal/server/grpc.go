@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/logging"
 	"github.com/go-kratos/kratos/v2/middleware/ratelimit"
@@ -18,7 +19,11 @@ import (
 func NewGRPCServer(c *conf.Server, userService *service.UserService, logger log.Logger) *grpc.Server {
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
-			recovery.Recovery(),
+			recovery.Recovery(recovery.WithHandler(func(ctx context.Context, req, err interface{}) error {
+				l := log.NewHelper(log.With(logger, "message", "panic"))
+				l.Error(err)
+				return nil
+			})),
 			ratelimit.Server(),
 			tracing.Server(),
 			responce.Server(),

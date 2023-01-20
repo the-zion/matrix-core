@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/logging"
 	"github.com/go-kratos/kratos/v2/middleware/ratelimit"
@@ -16,7 +17,11 @@ import (
 func NewHTTPServer(c *conf.Server, messageService *service.MessageService, logger log.Logger) *http.Server {
 	var opts = []http.ServerOption{
 		http.Middleware(
-			recovery.Recovery(),
+			recovery.Recovery(recovery.WithHandler(func(ctx context.Context, req, err interface{}) error {
+				l := log.NewHelper(log.With(logger, "message", "panic"))
+				l.Error(err)
+				return nil
+			})),
 			ratelimit.Server(),
 			tracing.Server(),
 			logging.Server(log.NewFilter(logger, log.FilterLevel(log.LevelError))),
