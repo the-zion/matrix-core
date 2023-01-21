@@ -56,14 +56,16 @@ var (
 					local leaderboardExist = redis.call("EXISTS", leaderboard)
 					local userArticleListVisitorExist = redis.call("EXISTS", userArticleListVisitor)
 					local creationUserVisitorExist = redis.call("EXISTS", creationUserVisitor)
-
-					redis.call("HSETNX", articleStatistic, "uuid", uuid)
-					redis.call("HSETNX", articleStatistic, "agree", 0)
-					redis.call("HSETNX", articleStatistic, "collect", 0)
-					redis.call("HSETNX", articleStatistic, "view", 0)
-					redis.call("HSETNX", articleStatistic, "comment", 0)
-					redis.call("HSETNX", articleStatistic, "auth", auth)
-					redis.call("EXPIRE", articleStatistic, 1800)
+					
+					if mode == "create" then
+						redis.call("HSETNX", articleStatistic, "uuid", uuid)
+						redis.call("HSETNX", articleStatistic, "agree", 0)
+						redis.call("HSETNX", articleStatistic, "collect", 0)
+						redis.call("HSETNX", articleStatistic, "view", 0)
+						redis.call("HSETNX", articleStatistic, "comment", 0)
+						redis.call("HSETNX", articleStatistic, "auth", auth)
+						redis.call("EXPIRE", articleStatistic, 1800)
+					end
 
 					if userArticleListExist == 1 then
 						redis.call("ZADD", userArticleList, id, member)
@@ -385,13 +387,15 @@ var (
 					local userColumnListVisitorExist = redis.call("EXISTS", userColumnListVisitor)
 					local creationUserVisitorExist = redis.call("EXISTS", creationUserVisitor)
 
-					redis.call("HSETNX", columnStatistic, "uuid", uuid)
-					redis.call("HSETNX", columnStatistic, "agree", 0)
-					redis.call("HSETNX", columnStatistic, "collect", 0)
-					redis.call("HSETNX", columnStatistic, "view", 0)
-					redis.call("HSETNX", columnStatistic, "comment", 0)
-					redis.call("HSETNX", columnStatistic, "auth", auth)
-					redis.call("EXPIRE", columnStatistic, 1800)
+					if mode == "create" then
+						redis.call("HSETNX", columnStatistic, "uuid", uuid)
+						redis.call("HSETNX", columnStatistic, "agree", 0)
+						redis.call("HSETNX", columnStatistic, "collect", 0)
+						redis.call("HSETNX", columnStatistic, "view", 0)
+						redis.call("HSETNX", columnStatistic, "comment", 0)
+						redis.call("HSETNX", columnStatistic, "auth", auth)
+						redis.call("EXPIRE", columnStatistic, 1800)
+					end
 
 					if userColumnListExist == 1 then
 						redis.call("ZADD", userColumnList, id, member)
@@ -764,12 +768,14 @@ var (
 					local creationUserVisitorExist = redis.call("EXISTS", creationUserVisitor)
 					local userCollectionsListAllExist = redis.call("EXISTS", userCollectionsListAll)
 
-					redis.call("HSETNX", collectionsStatistic, "uuid", uuid)
-					redis.call("HSETNX", collectionsStatistic, "auth", auth)
-					redis.call("HSETNX", collectionsStatistic, "article", 0)
-					redis.call("HSETNX", collectionsStatistic, "column", 0)
-					redis.call("HSETNX", collectionsStatistic, "talk", 0)
-					redis.call("EXPIRE", collectionsStatistic, 1800)
+					if mode == "create" then
+						redis.call("HSETNX", collectionsStatistic, "uuid", uuid)
+						redis.call("HSETNX", collectionsStatistic, "auth", auth)
+						redis.call("HSETNX", collectionsStatistic, "article", 0)
+						redis.call("HSETNX", collectionsStatistic, "column", 0)
+						redis.call("HSETNX", collectionsStatistic, "talk", 0)
+						redis.call("EXPIRE", collectionsStatistic, 1800)
+					end
 
 					if userCollectionsListExist == 1 then
 						redis.call("ZADD", userCollectionsList, id, ids)
@@ -918,13 +924,15 @@ var (
 					local userTalkListVisitorExist = redis.call("EXISTS", userTalkListVisitor)
 					local creationUserVisitorExist = redis.call("EXISTS", creationUserVisitor)
 
-					redis.call("HSETNX", talkStatistic, "uuid", uuid)
-					redis.call("HSETNX", talkStatistic, "agree", 0)
-					redis.call("HSETNX", talkStatistic, "collect", 0)
-					redis.call("HSETNX", talkStatistic, "view", 0)
-					redis.call("HSETNX", talkStatistic, "comment", 0)
-					redis.call("HSETNX", talkStatistic, "auth", auth)
-					redis.call("EXPIRE", talkStatistic, 1800)
+					if mode == "create" then
+						redis.call("HSETNX", talkStatistic, "uuid", uuid)
+						redis.call("HSETNX", talkStatistic, "agree", 0)
+						redis.call("HSETNX", talkStatistic, "collect", 0)
+						redis.call("HSETNX", talkStatistic, "view", 0)
+						redis.call("HSETNX", talkStatistic, "comment", 0)
+						redis.call("HSETNX", talkStatistic, "auth", auth)
+						redis.call("EXPIRE", talkStatistic, 1800)
+					end
 
 					if userTalkListExist == 1 then
 						redis.call("ZADD", userTalkList, id, member)

@@ -1344,7 +1344,7 @@ func (r *articleRepo) CreateArticleCache(ctx context.Context, id, auth int32, uu
 	creationUserVisitor := "creation_user_visitor_" + uuid
 	keys := []string{articleStatistic, article, articleHot, leaderboard, userArticleList, userArticleListVisitor, creationUser, creationUserVisitor}
 	values := []interface{}{uuid, auth, id, ids + "%" + uuid, mode, ids + "%" + uuid + "%article"}
-	_, err := r.data.redisCli.EvalSha(ctx, "03c2dc8c6fdf154a7e6387dc4b0ba296a499c7b6", keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "f1dcbca8b2c0cebc82fb4f1ab03fe38a1e724806", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to create(update) article cache: uuid(%s), id(%v)", uuid, id))
 	}

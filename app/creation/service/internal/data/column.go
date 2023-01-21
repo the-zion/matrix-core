@@ -414,7 +414,7 @@ func (r *columnRepo) CreateColumnCache(ctx context.Context, id, auth int32, uuid
 	creationUserVisitor := "creation_user_visitor_" + uuid
 	keys := []string{columnStatistic, column, columnHot, leaderboard, userColumnList, userColumnListVisitor, creationUser, creationUserVisitor}
 	values := []interface{}{uuid, auth, id, ids + "%" + uuid, mode, ids + "%" + uuid + "%column"}
-	_, err := r.data.redisCli.EvalSha(ctx, "89db8d00c64b369f84452619f87054c2f90a5445", keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "bbdbb07ceeb4311feba0a520473629ff010a173b", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to create(update) column cache: uuid(%s), id(%v)", uuid, id))
 	}

@@ -1393,7 +1393,7 @@ func (r *talkRepo) CreateTalkCache(ctx context.Context, id, auth int32, uuid, mo
 	creationUserVisitor := "creation_user_visitor_" + uuid
 	keys := []string{talkStatistic, talk, talkHot, leaderboard, userTalkList, userTalkListVisitor, creationUser, creationUserVisitor}
 	values := []interface{}{uuid, auth, id, ids + "%" + uuid, mode, ids + "%" + uuid + "%talk"}
-	_, err := r.data.redisCli.EvalSha(ctx, "eb5d94a2a972340b5ac93769524a51911f9c032f", keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "069bd468f5f94ae744658c878046caab15711709", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to create(update) talk cache: uuid(%s), id(%v)", uuid, id))
 	}

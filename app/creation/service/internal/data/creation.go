@@ -1340,7 +1340,7 @@ func (r *creationRepo) CreateCollectionsCache(ctx context.Context, id, auth int3
 	collectionsStatistic := "collections_" + ids
 	keys := []string{collectionsStatistic, userCollectionsList, userCollectionsListVisitor, creationUser, creationUserVisitor, userCollectionsListAll}
 	values := []interface{}{uuid, auth, id, ids, mode}
-	_, err := r.data.redisCli.EvalSha(ctx, "38375bb0cadfcd92739dba054e387f7985a6c331", keys, values...).Result()
+	_, err := r.data.redisCli.EvalSha(ctx, "9039a6379902063ce62ed14d7bbfa269ae219298", keys, values...).Result()
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to create(update) collections cache: uuid(%s), id(%v)", uuid, id))
 	}
