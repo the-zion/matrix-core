@@ -2041,19 +2041,25 @@ func (r *columnRepo) DeleteColumnIncludes(ctx context.Context, id, articleId int
 }
 
 func (r *newsRepo) GetNews(ctx context.Context, page int32) ([]*biz.News, error) {
-	newsList, err := r.data.cc.GetNews(ctx, &creationV1.GetNewsReq{
-		Page: page,
+	result, err, _ := r.sg.Do(fmt.Sprintf("get_news_%v", page), func() (interface{}, error) {
+		newsList, err := r.data.cc.GetNews(ctx, &creationV1.GetNewsReq{
+			Page: page,
+		})
+		if err != nil {
+			return nil, err
+		}
+		reply := make([]*biz.News, 0, len(newsList.News))
+		for _, item := range newsList.News {
+			reply = append(reply, &biz.News{
+				Id: item.Id,
+			})
+		}
+		return reply, nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	reply := make([]*biz.News, 0, len(newsList.News))
-	for _, item := range newsList.News {
-		reply = append(reply, &biz.News{
-			Id: item.Id,
-		})
-	}
-	return reply, nil
+	return result.([]*biz.News), nil
 }
 
 func (r *newsRepo) GetNewsSearch(ctx context.Context, page int32, search, time string) ([]*biz.News, int32, error) {
