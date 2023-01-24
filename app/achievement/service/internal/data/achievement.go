@@ -359,6 +359,7 @@ func (r *achievementRepo) getAchievementListFromDb(ctx context.Context, unExists
 			Collect:  item.Collect,
 			Follow:   item.Follow,
 			Followed: item.Followed,
+			Score:    item.Score,
 		})
 	}
 
@@ -381,6 +382,7 @@ func (r *achievementRepo) setAchievementListToCache(achievementList []*Achieveme
 			pipe.HSetNX(ctx, key, "view", item.View)
 			pipe.HSetNX(ctx, key, "follow", item.Follow)
 			pipe.HSetNX(ctx, key, "followed", item.Followed)
+			pipe.HSetNX(ctx, key, "score", item.Score)
 			pipe.Expire(ctx, key, time.Minute*30)
 		}
 		return nil
