@@ -184,7 +184,7 @@ func (r *commentRepo) getCommentUserFromCache(ctx context.Context, key string) (
 func (r *commentRepo) getCommentUserFromDB(ctx context.Context, uuid string) (*biz.CommentUser, error) {
 	cu := &CommentUser{}
 	err := r.data.db.WithContext(ctx).Select("comment", "article_reply", "article_reply_sub", "talk_reply", "talk_reply_sub", "article_replied", "article_replied_sub", "talk_replied", "talk_replied_sub").Where("uuid = ?", uuid).First(cu).Error
-	if err != nil {
+	if !errors.Is(err, gorm.ErrRecordNotFound) && err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("faile to get comment user from db: uuid(%v)", uuid))
 	}
 	return &biz.CommentUser{
