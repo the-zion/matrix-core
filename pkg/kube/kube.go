@@ -3,6 +3,7 @@ package kube
 import (
 	"context"
 	"flag"
+	"fmt"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -19,6 +20,7 @@ type kubeClient struct {
 }
 
 func NewKubeClient() (*kubeClient, error) {
+	fmt.Println("new kube client")
 	var config *rest.Config
 	var err error
 	if configPath != "" {
@@ -42,12 +44,14 @@ func NewKubeClient() (*kubeClient, error) {
 }
 
 func (k *kubeClient) Update(namespace, deploymentName string) error {
+	fmt.Println("new kube client")
 	ctx, _ := context.WithTimeout(context.Background(), time.Second*5)
 	deployment, err := k.client.AppsV1().Deployments(namespace).Get(ctx, deploymentName, metav1.GetOptions{})
 	if err != nil {
 		return err
 	}
 	containers := &deployment.Spec.Template.Spec.Containers
+	fmt.Println(containers)
 	for i := range *containers {
 		c := *containers
 		for j := range c[i].Env {
