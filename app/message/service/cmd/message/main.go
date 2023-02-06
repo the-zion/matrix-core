@@ -17,11 +17,11 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/vo"
 	"github.com/the-zion/matrix-core/app/message/service/internal/conf"
 	"github.com/the-zion/matrix-core/app/message/service/internal/server"
+	"github.com/the-zion/matrix-core/pkg/kube"
 	"github.com/the-zion/matrix-core/pkg/trace"
 	tracesdk "go.opentelemetry.io/otel/sdk/trace"
 	"gopkg.in/yaml.v3"
 	"os"
-	"runtime"
 	"strconv"
 	"strings"
 )
@@ -51,7 +51,6 @@ var (
 	sc             []constant.ServerConfig
 	cc             *constant.ClientConfig
 	cleanup        func()
-	restart        = true
 	Name           = "matrix.message.service"
 	id, _          = os.Hostname()
 )
@@ -149,14 +148,15 @@ func configNew() {
 	}
 
 	if err = servieConfig.Watch("config", func(s string, value config.Value) {
-		if err = servieConfig.Scan(&bootstrap); err != nil {
+		kubeClient, err := kube.NewKubeClient()
+		if err != nil {
 			log.Error(err)
 			return
 		}
-		restart = true
-		if err = app.Stop(); err != nil {
+		err = kubeClient.Update("matrix", "message")
+		if err != nil {
 			log.Error(err)
-			restart = false
+			return
 		}
 	}); err != nil {
 		panic(err)
@@ -215,15 +215,6 @@ func appInit() {
 	}
 }
 
-func appRefresh() {
-	traceInit()
-	loggerInit()
-	clientNew()
-	appInit()
-	runtime.GC()
-	restart = false
-}
-
 func appRun() {
 	if err := app.Run(); err != nil {
 		panic(err)
@@ -236,22 +227,20 @@ func appClean() {
 	if tencentLogger != nil {
 		tencentLogger.Close()
 	}
+	servieConfig.Close()
 }
 
 func matrixRun() {
-	for {
-		if !restart {
-			break
-		}
-		appRefresh()
-		appRun()
-		appClean()
-	}
-	servieConfig.Close()
+	appInit()
+	appRun()
+	appClean()
 }
 
 func main() {
 	flag.Parse()
 	nacosInit()
+	traceInit()
+	loggerInit()
+	clientNew()
 	matrixRun()
 }

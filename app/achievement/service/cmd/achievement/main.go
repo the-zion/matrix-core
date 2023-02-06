@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	nc "github.com/go-kratos/kratos/contrib/config/nacos/v2"
 	"github.com/go-kratos/kratos/contrib/log/tencent/v2"
 	"github.com/go-kratos/kratos/contrib/registry/nacos/v2"
@@ -147,16 +146,13 @@ func configNew() {
 	}
 
 	if err = servieConfig.Watch("config", func(s string, value config.Value) {
-		fmt.Println("config watch")
 		kubeClient, err := kube.NewKubeClient()
 		if err != nil {
-			fmt.Println(err)
 			log.Error(err)
 			return
 		}
 		err = kubeClient.Update("matrix", "achievement")
 		if err != nil {
-			fmt.Println(err)
 			log.Error(err)
 			return
 		}
