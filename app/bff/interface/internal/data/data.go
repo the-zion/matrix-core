@@ -7,8 +7,6 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware/circuitbreaker"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
-	"github.com/go-kratos/kratos/v2/selector"
-	"github.com/go-kratos/kratos/v2/selector/p2c"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/google/wire"
 	achievementv1 "github.com/the-zion/matrix-core/api/achievement/service/v1"
@@ -55,7 +53,7 @@ func NewRecovery(d *Data) biz.Recovery {
 
 func NewData(uc userv1.UserClient, cc creationv1.CreationClient, mc messagev1.MessageClient, ac achievementv1.AchievementClient, commc commentv1.CommentClient, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(log.With(log.GetLogger(), "module", "bff/data"))
-	selector.SetGlobalSelector(p2c.NewBuilder())
+	//selector.SetGlobalSelector(p2c.NewBuilder())
 	d := &Data{
 		log:   log.NewHelper(log.With(logger, "module", "creation/data")),
 		uc:    uc,
