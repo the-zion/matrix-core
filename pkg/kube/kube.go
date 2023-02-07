@@ -52,7 +52,7 @@ func (k *kubeClient) Update(namespace, deploymentName string) error {
 		c := *containers
 		for j := range c[i].Env {
 			if c[i].Env[j].Name == "timestep" {
-				c[i].Env[j].Value = time.Now().String()
+				c[i].Env[j].Value = time.Now().Format("2006-01-02 15:04:05")
 			}
 		}
 	}
