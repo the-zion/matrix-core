@@ -3,6 +3,7 @@ package kube
 import (
 	"context"
 	"flag"
+	"fmt"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -53,6 +54,7 @@ func (k *kubeClient) Update(namespace, deploymentName string) error {
 		for j := range c[i].Env {
 			if c[i].Env[j].Name == "timestep" {
 				c[i].Env[j].Value = time.Now().Format("2006-01-02 15:04:05")
+				fmt.Println(c[i].Env[j].Value)
 			}
 		}
 	}
