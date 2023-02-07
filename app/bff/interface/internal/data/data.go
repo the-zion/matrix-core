@@ -19,12 +19,12 @@ import (
 	"github.com/the-zion/matrix-core/app/bff/interface/internal/biz"
 	"github.com/the-zion/matrix-core/pkg/trace"
 	"go.opentelemetry.io/otel/propagation"
-	gooGrpc "google.golang.org/grpc"
 	"runtime"
 )
 
 var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewCreationRepo, NewArticleRepo, NewTalkRepo, NewColumnRepo, NewNewsRepo, NewAchievementRepo, NewCommentRepo, NewMessageRepo, NewUserServiceClient, NewCreationServiceClient, NewMessageServiceClient, NewAchievementServiceClient, NewCommentServiceClient, NewRecovery)
-var connBox []*gooGrpc.ClientConn
+
+//var connBox []*gooGrpc.ClientConn
 
 type Data struct {
 	log   *log.Helper
@@ -67,13 +67,13 @@ func NewData(uc userv1.UserClient, cc creationv1.CreationClient, mc messagev1.Me
 	return d, func() {
 		l.Info("closing the data resources")
 
-		for _, conn := range connBox {
-			err := conn.Close()
-			if err != nil {
-				l.Errorf("close connection err: %v", err.Error())
-			}
-		}
-		connBox = make([]*gooGrpc.ClientConn, 0)
+		//for _, conn := range connBox {
+		//	err := conn.Close()
+		//	if err != nil {
+		//		l.Errorf("close connection err: %v", err.Error())
+		//	}
+		//}
+		//connBox = make([]*gooGrpc.ClientConn, 0)
 	}, nil
 }
 
@@ -93,7 +93,7 @@ func NewUserServiceClient(r *nacos.Registry) userv1.UserClient {
 		l.Fatalf(err.Error())
 	}
 	c := userv1.NewUserClient(conn)
-	connBox = append(connBox, conn)
+	//connBox = append(connBox, conn)
 	return c
 }
 
@@ -113,7 +113,7 @@ func NewCreationServiceClient(r *nacos.Registry) creationv1.CreationClient {
 		l.Fatalf(err.Error())
 	}
 	c := creationv1.NewCreationClient(conn)
-	connBox = append(connBox, conn)
+	//connBox = append(connBox, conn)
 	return c
 }
 
@@ -133,7 +133,7 @@ func NewMessageServiceClient(r *nacos.Registry) messagev1.MessageClient {
 		l.Fatalf(err.Error())
 	}
 	c := messagev1.NewMessageClient(conn)
-	connBox = append(connBox, conn)
+	//connBox = append(connBox, conn)
 	return c
 }
 
@@ -153,7 +153,7 @@ func NewAchievementServiceClient(r *nacos.Registry) achievementv1.AchievementCli
 		l.Fatalf(err.Error())
 	}
 	c := achievementv1.NewAchievementClient(conn)
-	connBox = append(connBox, conn)
+	//connBox = append(connBox, conn)
 	return c
 }
 
@@ -173,6 +173,6 @@ func NewCommentServiceClient(r *nacos.Registry) commentv1.CommentClient {
 		l.Fatalf(err.Error())
 	}
 	c := commentv1.NewCommentClient(conn)
-	connBox = append(connBox, conn)
+	//connBox = append(connBox, conn)
 	return c
 }
