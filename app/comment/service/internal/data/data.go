@@ -22,7 +22,6 @@ import (
 	"github.com/the-zion/matrix-core/app/comment/service/internal/conf"
 	"github.com/the-zion/matrix-core/pkg/trace"
 	"go.opentelemetry.io/otel/propagation"
-	gooGrpc "google.golang.org/grpc"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"net/http"
@@ -32,7 +31,6 @@ import (
 )
 
 var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewTransaction, NewCommentRepo, NewRocketMqProducer, NewCosServiceClient, NewCreationServiceClient, NewRecovery)
-var connBox []*gooGrpc.ClientConn
 
 type MqPro struct {
 	producer rocketmq.Producer
@@ -188,7 +186,6 @@ func NewCreationServiceClient(r *nacos.Registry) creationv1.CreationClient {
 		l.Fatalf(err.Error())
 	}
 	c := creationv1.NewCreationClient(conn)
-	connBox = append(connBox, conn)
 	return c
 }
 
@@ -225,13 +222,5 @@ func NewData(db *gorm.DB, cos *cos.Client, redisCmd redis.Cmdable, mq *MqPro, cc
 		if err != nil {
 			l.Errorf("shutdown mq producer error: %v", err.Error())
 		}
-
-		for _, conn := range connBox {
-			err = conn.Close()
-			if err != nil {
-				l.Errorf("close connection err: %v", err.Error())
-			}
-		}
-		connBox = make([]*gooGrpc.ClientConn, 0)
 	}, nil
 }

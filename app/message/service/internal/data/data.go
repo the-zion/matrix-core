@@ -22,7 +22,6 @@ import (
 	"github.com/the-zion/matrix-core/app/message/service/internal/conf"
 	"github.com/the-zion/matrix-core/pkg/trace"
 	"go.opentelemetry.io/otel/propagation"
-	gooGrpc "google.golang.org/grpc"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"net/http"
@@ -32,7 +31,6 @@ import (
 )
 
 var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewCreationRepo, NewCommentRepo, NewMessageRepo, NewAchievementRepo, NewUserServiceClient, NewCreationServiceClient, NewAchievementServiceClient, NewCommentServiceClient, NewCosUserClient, NewCosCreationClient, NewCosCommentClient, NewJwtClient, NewJwt, NewRecovery, NewTransaction, NewRedis, NewDB)
-var connBox []*gooGrpc.ClientConn
 
 type CosUser struct {
 	cos *cos.Client
@@ -127,7 +125,6 @@ func NewUserServiceClient(r *nacos.Registry) userv1.UserClient {
 		l.Fatalf(err.Error())
 	}
 	c := userv1.NewUserClient(conn)
-	connBox = append(connBox, conn)
 	return c
 }
 
@@ -147,7 +144,6 @@ func NewCreationServiceClient(r *nacos.Registry) creationv1.CreationClient {
 		l.Fatalf(err.Error())
 	}
 	c := creationv1.NewCreationClient(conn)
-	connBox = append(connBox, conn)
 	return c
 }
 
@@ -167,7 +163,6 @@ func NewCommentServiceClient(r *nacos.Registry) commentv1.CommentClient {
 		l.Fatalf(err.Error())
 	}
 	c := commentv1.NewCommentClient(conn)
-	connBox = append(connBox, conn)
 	return c
 }
 
@@ -187,7 +182,6 @@ func NewAchievementServiceClient(r *nacos.Registry) achievementv1.AchievementCli
 		l.Fatalf(err.Error())
 	}
 	c := achievementv1.NewAchievementClient(conn)
-	connBox = append(connBox, conn)
 	return c
 }
 
@@ -317,14 +311,6 @@ func NewData(db *gorm.DB, redisCmd redis.Cmdable, uc userv1.UserClient, cc creat
 		if err != nil {
 			l.Errorf("close redis err: %v", err.Error())
 		}
-
-		for _, conn := range connBox {
-			err = conn.Close()
-			if err != nil {
-				l.Errorf("close connection err: %v", err.Error())
-			}
-		}
-		connBox = make([]*gooGrpc.ClientConn, 0)
 
 	}, nil
 }
