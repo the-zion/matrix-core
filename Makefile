@@ -14,7 +14,6 @@ init:
 	go install github.com/google/gnostic/cmd/protoc-gen-openapi@latest
 	go install github.com/go-kratos/kratos/cmd/protoc-gen-go-errors/v2@latest
 	go install github.com/envoyproxy/protoc-gen-validate@latest
-	go get k8s.io/client-go@v0.23.0
 
 .PHONY: api
 # generate api proto
