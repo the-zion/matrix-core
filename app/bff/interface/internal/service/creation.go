@@ -323,8 +323,12 @@ func (s *BffService) GetColumnArticleList(ctx context.Context, req *v1.GetColumn
 	reply := &v1.GetArticleListReply{Article: make([]*v1.GetArticleListReply_Article, 0, len(articleList))}
 	for _, item := range articleList {
 		reply.Article = append(reply.Article, &v1.GetArticleListReply_Article{
-			Id:   item.Id,
-			Uuid: item.Uuid,
+			Id:      item.Id,
+			Uuid:    item.Uuid,
+			Agree:   item.Agree,
+			Collect: item.Collect,
+			View:    item.View,
+			Comment: item.Comment,
 		})
 	}
 	return reply, nil

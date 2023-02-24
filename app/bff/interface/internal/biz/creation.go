@@ -493,7 +493,25 @@ func (r *ArticleUseCase) GetArticleListHot(ctx context.Context, page int32) ([]*
 }
 
 func (r *ArticleUseCase) GetColumnArticleList(ctx context.Context, id int32) ([]*Article, error) {
-	return r.repo.GetColumnArticleList(ctx, id)
+	articleList, err := r.repo.GetColumnArticleList(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	articleListStatistic, err := r.repo.GetArticleListStatistic(ctx, articleList)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range articleListStatistic {
+		for index, listItem := range articleList {
+			if listItem.Id == item.Id {
+				articleList[index].Agree = item.Agree
+				articleList[index].View = item.View
+				articleList[index].Collect = item.Collect
+				articleList[index].Comment = item.Comment
+			}
+		}
+	}
+	return articleList, nil
 }
 
 func (r *ArticleUseCase) GetArticleCount(ctx context.Context) (int32, error) {
