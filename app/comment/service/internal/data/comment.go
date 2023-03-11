@@ -1942,7 +1942,7 @@ func (r *commentRepo) getCommentStatisticFromDb(ctx context.Context, unExists []
 
 func (r *commentRepo) getSubCommentStatisticFromDb(ctx context.Context, unExists []int32, commentListStatistic *[]*biz.CommentStatistic) error {
 	list := make([]*SubComment, 0, cap(unExists))
-	err := r.data.db.WithContext(ctx).Select("commentId", "agree").Where("comment_id IN ?", unExists).Find(&list).Error
+	err := r.data.db.WithContext(ctx).Select("comment_id", "agree").Where("comment_id IN ?", unExists).Find(&list).Error
 	if err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("fail to get sub comment statistic list from db: ids(%v)", unExists))
 	}
